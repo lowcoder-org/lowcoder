@@ -753,6 +753,7 @@ export function TableCompView(props: {
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
   // const summary = useMemo(() => compChildren.summary.getView(), [compChildren.summary]);
   const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
+  const summaryRows = useMemo(() => compChildren.summaryRows.getView(), [compChildren.summaryRows]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
@@ -857,8 +858,8 @@ export function TableCompView(props: {
     if (!showSummary) return undefined;
     return (
       <TableSummary
-        // showSummary={showSummary}
         tableSize={size}
+        summaryRows={parseInt(summaryRows)}
         columns={columns}
         summaryRowStyle={summaryRowStyle}
       />

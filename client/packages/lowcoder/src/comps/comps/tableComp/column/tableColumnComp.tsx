@@ -30,9 +30,10 @@ import { TextOverflowControl } from "comps/controls/textOverflowControl";
 import { default as Divider } from "antd/es/divider";
 import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 import { SummaryColumnComp } from "./tableSummaryColumnComp";
+import Segmented from "antd/es/segmented";
+import { list } from "@lowcoder-ee/comps/generators/list";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
-
 
 const columnWidthOptions = [
   {
@@ -147,7 +148,9 @@ export const columnChildrenMap = {
   linkColor: withDefault(ColorControl, "#3377ff"),
   linkHoverColor: withDefault(ColorControl, ""),
   linkActiveColor: withDefault(ColorControl, ""),
-  summary: SummaryColumnComp,
+  summaryColumns: withDefault(list(SummaryColumnComp), [
+    {}, {}, {}
+  ])
 };
 
 const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
@@ -233,7 +236,7 @@ export class ColumnComp extends ColumnInitComp {
     });
   }
 
-  propertyView(key: string, viewMode: string) {
+  propertyView(key: string, viewMode: string, summaryRowIndex: number) {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
     const initialColumns = this.children.render.getSelectedComp().getParams()?.initialColumns as OptionType[] || [];
     const column = this.children.render.getSelectedComp().getComp().toJsonValue();
@@ -244,10 +247,12 @@ export class ColumnComp extends ColumnInitComp {
       columnValue = (column.comp as any).text;
     }
 
+    const summaryColumns = this.children.summaryColumns.getView();
+  
     return (
       <>
         {viewMode === 'summary' && (
-          this.children.summary.propertyView('')
+          summaryColumns[summaryRowIndex].propertyView('')
         )}
         {viewMode === 'normal' && (
           <>

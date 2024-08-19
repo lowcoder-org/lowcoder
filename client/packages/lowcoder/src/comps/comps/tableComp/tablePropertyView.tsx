@@ -106,6 +106,21 @@ const ColumnBatchOptionWrapper = styled.div`
 
 type ViewOptionType = "normal" | "summary";
 
+const summaryRowOptions = [
+  {
+    label: "Row 1",
+    value: 0,
+  },
+  {
+    label: "Row 2",
+    value: 1,
+  },
+  {
+    label: "Row 3",
+    value: 2,
+  },
+];
+
 const columnViewOptions = [
   {
     label: "Normal",
@@ -263,6 +278,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   columnLabel: string;
 }) {
   const [viewMode, setViewMode] = useState('normal');
+  const [summaryRow, setSummaryRow] = useState(0);
   const { comp } = props;
   const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
@@ -275,6 +291,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
     () => columns.filter((c) => columnFilterType === "all" || !c.children.hide.getView()),
     [columnFilterType, columns]
   );
+  const summaryRows = parseInt(comp.children.summaryRows.getView());
 
   const columnOptionToolbar = (
     <InsertDiv>
@@ -385,7 +402,15 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
               value={viewMode}
               onChange={(k) => setViewMode(k as ViewOptionType)}
             />
-            {column.propertyView(selection, viewMode)}
+            {viewMode === 'summary' && (
+              <Segmented
+                block
+                options={summaryRowOptions.slice(0, summaryRows)}
+                value={summaryRow}
+                onChange={(k) => setSummaryRow(k)}
+              />
+            )}
+            {column.propertyView(selection, viewMode, summaryRow)}
             {column.getView().isCustom && (
               <RedButton
                 onClick={() => {
@@ -472,6 +497,10 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           <Section name={"Summary"}>
             {comp.children.showSummary.propertyView({
               label: "Show Summary Row"
+            })}
+            {comp.children.summaryRows.propertyView({
+              label: "Summary Rows",
+              radioButton: true,
             })}
             {/* {comp.children.summary.getView().showSummary && summaryPropertyView(comp.children.summary)} */}
           </Section>

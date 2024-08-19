@@ -112,7 +112,6 @@ export type CellTooltipViewType = (param: {
 
 
 export const columnChildrenMap = {
-  value: StringControl,
   cellTooltip: CellTooltipComp,
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
@@ -220,9 +219,6 @@ export class SummaryColumnComp extends ColumnInitComp {
     return (
       <>
         {this.children.cellTooltip.getPropertyView()}
-        {this.children.value.propertyView({
-          label: "Column Value"
-        })}
         {/* FIXME: cast type currently, return type of withContext should be corrected later */}
         {this.children.render.getPropertyView()}
         {this.children.hide.propertyView({

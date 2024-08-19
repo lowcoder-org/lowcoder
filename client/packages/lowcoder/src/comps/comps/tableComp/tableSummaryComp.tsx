@@ -123,11 +123,13 @@ function TableSummaryCellView(props: {
 
 export function TableSummary(props: {
   tableSize: string;
+  summaryRows: number;
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
 }) {
   const {
     columns,
+    summaryRows,
     summaryRowStyle,
     tableSize,
   } = props;
@@ -137,33 +139,35 @@ export function TableSummary(props: {
 
   return (
     <Table.Summary>
-      <TableSummaryRow>
-        {visibleColumns.map((column, index) => {
-          const summaryColumn = column.children.summary.getView();
-          return (
-            <TableSummaryCellView
-              index={index}
-              key={`summary-${column.getView().dataIndex}-${index}`}
-              tableSize={tableSize}
-              rowStyle={summaryRowStyle}
-              columnStyle={{
-                background: summaryColumn.background,
-                margin: summaryColumn.margin,
-                text: summaryColumn.text,
-                border: summaryColumn.border,
-                radius: summaryColumn.radius,
-                textSize: summaryColumn.textSize,
-                textWeight: summaryColumn.textWeight,
-                fontStyle:summaryColumn.fontStyle,
-                fontFamily: summaryColumn.fontFamily,
-                // borderWidth: summaryColumn.borderWidth,
-              }}
-            >
-              {summaryColumn.render({}, '').getView().view({})}
-            </TableSummaryCellView>
-          )
-        })}
-      </TableSummaryRow>
+      {Array.from(Array(summaryRows)).map((_, rowIndex) => (
+        <TableSummaryRow key={rowIndex}>
+          {visibleColumns.map((column, index) => {
+            const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
+            return (
+              <TableSummaryCellView
+                index={index}
+                key={`summary-${rowIndex}-${column.getView().dataIndex}-${index}`}
+                tableSize={tableSize}
+                rowStyle={summaryRowStyle}
+                columnStyle={{
+                  background: summaryColumn.background,
+                  margin: summaryColumn.margin,
+                  text: summaryColumn.text,
+                  border: summaryColumn.border,
+                  radius: summaryColumn.radius,
+                  textSize: summaryColumn.textSize,
+                  textWeight: summaryColumn.textWeight,
+                  fontStyle:summaryColumn.fontStyle,
+                  fontFamily: summaryColumn.fontFamily,
+                  // borderWidth: summaryColumn.borderWidth,
+                }}
+              >
+                {summaryColumn.render({}, '').getView().view({})}
+              </TableSummaryCellView>
+            )
+          })}
+        </TableSummaryRow>
+      ))}
     </Table.Summary>
   );
 }

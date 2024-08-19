@@ -37,6 +37,21 @@ import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
+const summarRowsOptions = [
+  {
+    label: "1",
+    value: "1",
+  },
+  {
+    label: "2",
+    value: "2",
+  },
+  {
+    label: "3",
+    value: "3",
+  },
+] as const;
+
 const sizeOptions = [
   {
     label: trans("table.small"),
@@ -208,6 +223,7 @@ const tableChildrenMap = {
   sort: valueComp<Array<SortValue>>([]),
   toolbar: TableToolbarComp,
   showSummary: BoolControl,
+  summaryRows: dropdownControl(summarRowsOptions, "1"),
   style: styleControl(TableStyle, 'style'),
   rowStyle: styleControl(TableRowStyle, 'rowStyle'),
   summaryRowStyle: styleControl(TableSummaryRowStyle, 'summaryRowStyle'),
