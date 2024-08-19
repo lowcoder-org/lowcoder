@@ -31,8 +31,6 @@ public class InitData {
     public void init() {
         try {
             execute();
-        } catch (DuplicateKeyException ignored) {
-
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
