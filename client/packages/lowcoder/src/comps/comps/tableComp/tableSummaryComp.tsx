@@ -164,6 +164,7 @@ function TableSummaryCellView(props: {
 
 export function TableSummary(props: {
   tableSize: string;
+  expandableRows: boolean;
   summaryRows: number;
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
@@ -173,8 +174,12 @@ export function TableSummary(props: {
     summaryRows,
     summaryRowStyle,
     tableSize,
+    expandableRows,
   } = props;
-  const visibleColumns = columns.filter(col => !col.getView().hide);
+  let visibleColumns = columns.filter(col => !col.getView().hide);
+  if (expandableRows) {
+    visibleColumns.unshift(new ColumnComp({}));
+  }
   
   if (!visibleColumns.length) return <></>;
 
@@ -184,7 +189,6 @@ export function TableSummary(props: {
         <TableSummaryRow key={rowIndex}>
           {visibleColumns.map((column, index) => {
             const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
-            console.log(summaryColumn.cellTooltip)
             return (
               <TableSummaryCellView
                 index={index}

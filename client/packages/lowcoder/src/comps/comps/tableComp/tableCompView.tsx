@@ -859,6 +859,7 @@ export function TableCompView(props: {
     return (
       <TableSummary
         tableSize={size}
+        expandableRows={Boolean(expansion.expandModalView)}
         summaryRows={parseInt(summaryRows)}
         columns={columns}
         summaryRowStyle={summaryRowStyle}
