@@ -1998,7 +1998,9 @@ export const en = {
     "iconNull": "Icon When Null",
     "allColumn": "All",
     "visibleColumn": "Visible",
-    "emptyColumns": "No Columns Are Currently Visible"
+    "emptyColumns": "No Columns Are Currently Visible",
+    "showSummary": "Show Summary Row",
+    "totalSummaryRows": "Total Rows",
   },
 
 

@@ -496,13 +496,12 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
 
           <Section name={"Summary"}>
             {comp.children.showSummary.propertyView({
-              label: "Show Summary Row"
+              label: trans("table.showSummary")
             })}
             {comp.children.summaryRows.propertyView({
-              label: "Summary Rows",
+              label: trans("table.totalSummaryRows"),
               radioButton: true,
             })}
-            {/* {comp.children.summary.getView().showSummary && summaryPropertyView(comp.children.summary)} */}
           </Section>
 
           <Section name={trans("prop.toolbar")}>

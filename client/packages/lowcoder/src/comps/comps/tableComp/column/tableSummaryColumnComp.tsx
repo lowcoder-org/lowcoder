@@ -1,137 +1,45 @@
-import { BoolControl } from "comps/controls/boolControl";
-import { ColorOrBoolCodeControl, NumberControl, RadiusControl, StringControl } from "comps/controls/codeControl";
-import { dropdownControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
-import { MultiCompBuilder, stateComp, valueComp, withContext, withDefault } from "comps/generators";
+import { RadiusControl, StringControl } from "comps/controls/codeControl";
+import { HorizontalAlignmentControl } from "comps/controls/dropdownControl";
+import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { withSelectedMultiContext } from "comps/generators/withSelectedMultiContext";
-import { genRandomKey } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import _ from "lodash";
 import {
   changeChildAction,
-  changeValueAction,
   CompAction,
-  CompActionTypes,
   ConstructorToComp,
-  ConstructorToDataType,
-  ConstructorToNodeType,
-  ConstructorToView,
   deferAction,
   fromRecord,
-  multiChangeAction,
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeightIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
-import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
+import { IconRadius, TextSizeIcon, FontFamilyIcon, TextWeightIcon, controlItem } from "lowcoder-design";
+import { ColumnTypeComp } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
-import { JSONValue } from "util/jsonTypes";
 import styled from "styled-components";
 import { TextOverflowControl } from "comps/controls/textOverflowControl";
 import { default as Divider } from "antd/es/divider";
-import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
-const columnWidthOptions = [
-  {
-    label: trans("table.auto"),
-    value: "auto",
-  },
-  {
-    label: trans("table.fixed"),
-    value: "fixed",
-  },
-] as const;
-
-const columnFixOptions = [
-  {
-    label: <AlignLeft />,
-    value: "left",
-  },
-  {
-    label: <AlignClose />,
-    value: "close",
-  },
-  {
-    label: <AlignRight />,
-    value: "right",
-  },
-] as const;
-
-const cellColorLabel = trans("table.cellColor");
-const CellColorTempComp = withContext(
-  new MultiCompBuilder({ color: ColorOrBoolCodeControl }, (props) => props.color)
-    .setPropertyViewFn((children) =>
-      children.color.propertyView({
-        label: cellColorLabel,
-        tooltip: trans("table.cellColorDesc"),
-      })
-    )
-    .build(),
-  ["currentCell", "currentRow"] as const
-);
-
-// @ts-ignore
-export class CellColorComp extends CellColorTempComp {
-  override getPropertyView() {
-    return controlItem({ filterText: cellColorLabel }, super.getPropertyView());
-  }
-}
-
-// fixme, should be infer from RowColorComp, but withContext type incorrect
-export type CellColorViewType = (param: {
-  currentRow: any;
-  currentCell: JSONValue | undefined; //number | string;
-}) => string;
-
-const cellTooltipLabel = trans("table.columnTooltip");
-const CellTooltipTempComp = withContext(
-  new MultiCompBuilder({ tooltip: StringControl }, (props) => props.tooltip)
-    .setPropertyViewFn((children) =>
-      children.tooltip.propertyView({
-        label: cellTooltipLabel,
-        tooltip: ColumnValueTooltip,
-      })
-    )
-    .build(),
-  ["currentCell", "currentRow", "currentIndex"] as const
-);
-
-// @ts-ignore
-export class CellTooltipComp extends CellTooltipTempComp {
-  override getPropertyView() {
-    return controlItem({ filterText: cellTooltipLabel }, super.getPropertyView());
-  }
-}
-
-// fixme, should be infer from RowColorComp, but withContext type incorrect
-export type CellTooltipViewType = (param: {
-  currentRow: any;
-  currentCell: JSONValue | undefined; //number | string;
-}) => string;
-
-
 export const columnChildrenMap = {
-  cellTooltip: CellTooltipComp,
+  cellTooltip: StringControl,
   // a custom column or a data column
   isCustom: valueComp<boolean>(false),
   // If it is a data column, it must be the name of the column and cannot be duplicated as a react key
   dataIndex: valueComp<string>(""),
-  hide: BoolControl,
   render: RenderComp,
   align: HorizontalAlignmentControl,
-  fixed: dropdownControl(columnFixOptions, "close"),
   background: withDefault(ColorControl, ""),
   margin: withDefault(RadiusControl, ""),
   text: withDefault(ColorControl, ""),
   border: withDefault(ColorControl, ""),
-  borderWidth: withDefault(RadiusControl, ""),
   radius: withDefault(RadiusControl, ""),
   textSize: withDefault(RadiusControl, ""),
   textWeight: withDefault(StringControl, "normal"),
   fontFamily: withDefault(StringControl, "sans-serif"),
   fontStyle: withDefault(StringControl, 'normal'),
-  cellColor: CellColorComp,
+  cellColor: StringControl,
   textOverflow: withDefault(TextOverflowControl, "ellipsis"),
   linkColor: withDefault(ColorControl, "#3377ff"),
   linkHoverColor: withDefault(ColorControl, ""),
@@ -139,11 +47,9 @@ export const columnChildrenMap = {
 };
 
 const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBorderIcon = styled(BorderWidthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextSizeIcon = styled(TextSizeIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 const StyledTextWeightIcon = styled(TextWeightIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 0px 0 -12px;`;
 
 /**
  * export for test.
@@ -159,28 +65,7 @@ const ColumnInitComp = new MultiCompBuilder(columnChildrenMap, (props, dispatch)
 
 export class SummaryColumnComp extends ColumnInitComp {
   override reduce(action: CompAction) {
-    let comp = super.reduce(action);
-    if (action.type === CompActionTypes.UPDATE_NODES_V2) {
-      comp = comp.setChild(
-        "cellColor",
-        comp.children.cellColor.reduce(
-          CellColorComp.changeContextDataAction({
-            currentCell: undefined,
-            currentRow: {},
-          })
-        )
-      );
-      comp = comp.setChild(
-        "cellTooltip",
-        comp.children.cellTooltip.reduce(
-          CellTooltipComp.changeContextDataAction({
-            currentCell: undefined,
-            currentRow: {},
-            currentIndex: 0,
-          })
-        )
-      );
-    }
+    const comp = super.reduce(action);
     return comp;
   }
 
@@ -218,18 +103,12 @@ export class SummaryColumnComp extends ColumnInitComp {
 
     return (
       <>
-        {this.children.cellTooltip.getPropertyView()}
-        {/* FIXME: cast type currently, return type of withContext should be corrected later */}
-        {this.children.render.getPropertyView()}
-        {this.children.hide.propertyView({
-          label: trans("prop.hide"),
+        {this.children.cellTooltip.propertyView({
+          label: trans("table.columnTooltip"),
         })}
+        {this.children.render.getPropertyView()}
         {this.children.align.propertyView({
           label: trans("table.align"),
-          radioButton: true,
-        })}
-        {this.children.fixed.propertyView({
-          label: trans("table.fixedColumn"),
           radioButton: true,
         })}
         {(columnType === 'link' || columnType === 'links') && (
@@ -266,11 +145,6 @@ export class SummaryColumnComp extends ColumnInitComp {
         {this.children.border.propertyView({
           label: trans('style.border')
         })}
-        {this.children.borderWidth.propertyView({
-          label: trans('style.borderWidth'),
-          preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
-          placeholder: '1px',
-        })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
           preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
@@ -296,8 +170,10 @@ export class SummaryColumnComp extends ColumnInitComp {
           preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
           placeholder: 'normal'
         })}
-        {this.children.textOverflow.getPropertyView()}
-        {this.children.cellColor.getPropertyView()}
+        {/* {this.children.textOverflow.getPropertyView()} */}
+        {this.children.cellColor.propertyView({
+          label: trans("table.cellColor"),
+        })}
       </>
     );
   }

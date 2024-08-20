@@ -1,9 +1,11 @@
 import { ThemeDetail } from "api/commonSettingApi";
 import { ColumnComp } from "comps/comps/tableComp/column/tableColumnComp";
-import { TableColumnStyleType, TableSummaryRowStyleType } from "comps/controls/styleControlConstants";
+import { TableColumnLinkStyleType, TableColumnStyleType, TableSummaryRowStyleType } from "comps/controls/styleControlConstants";
 import styled from "styled-components";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import Table from "antd/es/table";
+import { ReactNode } from "react";
+import Tooltip from "antd/es/tooltip";
 
 const TableSummaryRow = styled(Table.Summary.Row)`
   td:last-child {
@@ -14,7 +16,7 @@ const TableSummaryRow = styled(Table.Summary.Row)`
 const TableSummarCell = styled(Table.Summary.Cell)<{
   $style: TableSummaryRowStyleType;
   $defaultThemeDetail: ThemeDetail;
-  // $linkStyle?: TableColumnLinkStyleType;
+  $linkStyle?: TableColumnLinkStyleType;
   $tableSize?: string;
   $autoHeight?: boolean;
 }>`
@@ -72,17 +74,53 @@ const TableSummarCell = styled(Table.Summary.Cell)<{
     > div > svg g {
       stroke: ${(props) => props.$style.text};
     }
+
+    > a,
+    > div  a {
+      color: ${(props) => props.$linkStyle?.text};
+
+      &:hover {
+        color: ${(props) => props.$linkStyle?.hoverText};
+      }
+
+      &:active {
+        color: ${(props) => props.$linkStyle?.activeText}};
+      }
+    }
   }
 `;
+
+const CellWrapper = ({
+  children,
+  tooltipTitle,
+}: {
+  children: ReactNode,
+  tooltipTitle?: string,
+}) => {
+  if (tooltipTitle) {
+    return (
+      <Tooltip title={tooltipTitle} placement="topLeft">
+        {children}
+      </Tooltip>
+    )
+  }
+  return (
+    <>{children}</>
+  )
+};
 
 function TableSummaryCellView(props: {
   index: number;
   key: string;
   children: any;
+  align?: any;
   rowStyle: TableSummaryRowStyleType;
   columnStyle: TableColumnStyleType;
+  linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
+  cellColor: string;
+  cellTooltip: string;
 }) {
   const {
     children,
@@ -90,18 +128,19 @@ function TableSummaryCellView(props: {
     columnStyle,
     tableSize,
     autoHeight,
+    cellColor,
+    cellTooltip,
     ...restProps
   } = props;
 
   const style = {
-    background: columnStyle.background || rowStyle.background,
+    background: cellColor || columnStyle.background || rowStyle.background,
     margin: columnStyle.margin || rowStyle.margin,
     text: columnStyle.text || rowStyle.text,
     border: columnStyle.border || rowStyle.border,
     borderWidth: rowStyle.borderWidth,
     borderStyle: rowStyle.borderStyle,
     radius: columnStyle.radius || rowStyle.radius,
-    // borderWidth: columnStyle.borderWidth || rowStyle.borderWidth,
     textSize: columnStyle.textSize || rowStyle.textSize,
     textWeight: rowStyle.textWeight || columnStyle.textWeight,
     fontFamily: rowStyle.fontFamily || columnStyle.fontFamily,
@@ -116,7 +155,9 @@ function TableSummaryCellView(props: {
       $tableSize={tableSize}
       $autoHeight={autoHeight}
     >
-      {children}
+      <CellWrapper tooltipTitle={cellTooltip}>
+        <div>{children}</div>
+      </CellWrapper>
     </TableSummarCell>
   );
 }
@@ -143,12 +184,16 @@ export function TableSummary(props: {
         <TableSummaryRow key={rowIndex}>
           {visibleColumns.map((column, index) => {
             const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
+            console.log(summaryColumn.cellTooltip)
             return (
               <TableSummaryCellView
                 index={index}
                 key={`summary-${rowIndex}-${column.getView().dataIndex}-${index}`}
                 tableSize={tableSize}
                 rowStyle={summaryRowStyle}
+                align={summaryColumn.align}
+                cellColor={summaryColumn.cellColor}
+                cellTooltip={summaryColumn.cellTooltip}
                 columnStyle={{
                   background: summaryColumn.background,
                   margin: summaryColumn.margin,
@@ -159,7 +204,11 @@ export function TableSummary(props: {
                   textWeight: summaryColumn.textWeight,
                   fontStyle:summaryColumn.fontStyle,
                   fontFamily: summaryColumn.fontFamily,
-                  // borderWidth: summaryColumn.borderWidth,
+                }}
+                linkStyle={{
+                  text: summaryColumn.linkColor,
+                  hoverText: summaryColumn.linkHoverColor,
+                  activeText: summaryColumn.linkActiveColor,
                 }}
               >
                 {summaryColumn.render({}, '').getView().view({})}
