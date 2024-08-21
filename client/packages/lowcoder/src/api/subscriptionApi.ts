@@ -15,7 +15,7 @@ export interface CustomerAddress {
   postalCode: string;
 }
 
-export interface LowcoderCustomer {
+export interface LowcoderNewCustomer {
   hostname: string;
   email: string;
   orgId: string;
@@ -24,6 +24,13 @@ export interface LowcoderCustomer {
   type: string;
   companyName: string;
   address?: CustomerAddress;
+}
+
+export interface LowcoderSearchCustomer {
+  hostname: string;
+  email: string;
+  orgId: string;
+  userId: string;
 }
 
 interface LowcoderMetadata {
@@ -135,7 +142,7 @@ class SubscriptionApi extends Api {
 
 // API Functions
 
-export const searchCustomer = async (subscriptionCustomer: LowcoderCustomer) => {
+export const searchCustomer = async (subscriptionCustomer: LowcoderSearchCustomer) => {
   const apiBody = {
     path: "webhook/secure/search-customer",
     data: subscriptionCustomer,
@@ -167,7 +174,29 @@ export const searchSubscriptions = async (customerId: string) => {
   }
 };
 
-export const createCustomer = async (subscriptionCustomer: LowcoderCustomer) => {
+export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCustomer) => {
+  const apiBody = {
+    path: "webhook/secure/search-customersubscriptions",
+    data: Customer,
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+
+    if (result?.data?.data?.length > 0) {
+      return result?.data?.data;
+    }
+    else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
+      return [];
+    }
+  } catch (error) {
+    console.error("Error searching customer:", error);
+    throw error;
+  }
+};
+
+export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) => {
   const apiBody = {
     path: "webhook/secure/create-customer",
     data: subscriptionCustomer,
@@ -263,7 +292,14 @@ export const InitializeSubscription = () => {
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
 
-  const subscriptionCustomer: LowcoderCustomer = {
+  const subscriptionSearchCustomer: LowcoderSearchCustomer = {
+    hostname: domain,
+    email: currentUser.email,
+    orgId: orgID,
+    userId: user.id,
+  };
+
+  const subscriptionNewCustomer: LowcoderNewCustomer = {
     hostname: domain,
     email: currentUser.email,
     orgId: orgID,
@@ -277,11 +313,11 @@ export const InitializeSubscription = () => {
     const initializeCustomer = async () => {
       try {
         setIsCreatingCustomer(true);
-        const existingCustomer = await searchCustomer(subscriptionCustomer);
-        if (existingCustomer) {
+        const existingCustomer = await searchCustomer(subscriptionSearchCustomer);
+        if (existingCustomer != null) {
           setCustomer(existingCustomer);
         } else {
-          const newCustomer = await createCustomer(subscriptionCustomer);
+          const newCustomer = await createCustomer(subscriptionNewCustomer);
           setCustomer(newCustomer);
         }
       } catch (error) {
@@ -377,42 +413,29 @@ export const CheckSubscriptions = () => {
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
 
-  const subscriptionCustomer: LowcoderCustomer = {
+  const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
-    userName: user.username,
-    type: user.orgRoleMap.get(orgID) === "admin" ? "admin" : "user",
-    companyName: user.currentOrgId,
   };
 
   useEffect(() => {
     const fetchCustomerAndSubscriptions = async () => {
       try {
-        const existingCustomer = await searchCustomer(subscriptionCustomer);
-        if (existingCustomer) {
-          setCustomer(existingCustomer);
-          const subs = await searchSubscriptions(existingCustomer.id);
-          setSubscriptions(subs);
-          setSubscriptionDataLoaded(true);
-        } else {
-          setCustomer(null);
-        }
+        const subs = await searchCustomersSubscriptions(subscriptionSearchCustomer);
+        setSubscriptions(subs);
+        setSubscriptionDataLoaded(true);
       } catch (error) {
-        setCustomerDataError(true);
         setSubscriptionDataError(true);
       } finally {
         setLoading(false);
       }
     };
-
     fetchCustomerAndSubscriptions();
   }, []);
 
   return {
-    customer,
-    customerDataError,
     subscriptions,
     subscriptionDataLoaded,
     subscriptionDataError,

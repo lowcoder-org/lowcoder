@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
 import { Card } from 'antd';
 import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
-import { buildSubscriptionId } from "constants/routesURL";
+import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
 
 const ProductCardContainer = styled(Card)`
@@ -55,6 +55,7 @@ interface ProductCardProps {
   checkoutLink: string;
   checkoutLinkDataLoaded?: boolean;
   subscriptionId: string;
+  productId: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -66,7 +67,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   activeSubscription,
   checkoutLink,
   checkoutLinkDataLoaded,
-  subscriptionId
+  subscriptionId,
+  productId,
 }) => {
 
   const goToCheckout = () => {
@@ -76,11 +78,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const goToSubscriptionSettings = () => {
-    history.push(buildSubscriptionId(subscriptionId));
+    history.push(buildSubscriptionSettingsLink(subscriptionId));
   };
 
   const goToSubscriptionInformation = () => {
-    // history.push(buildSubscriptionId(subscriptionId));
+    history.push(buildSubscriptionInfoLink(productId));
   };
 
   return (

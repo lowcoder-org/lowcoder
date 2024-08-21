@@ -36,3 +36,5 @@ export function SubscriptionError() {
     </Level1SettingPageContent>
   );
 }
+
+export default SubscriptionError;

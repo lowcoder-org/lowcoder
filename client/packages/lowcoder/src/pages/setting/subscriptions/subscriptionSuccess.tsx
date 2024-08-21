@@ -1,8 +1,10 @@
-import { useParams } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
-import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
+import { HeaderBack } from "../permission/styledComponents";
+import history from "util/history";
+import { SUBSCRIPTION_SETTING } from "constants/routesURL";
 import { Flex } from 'antd';
 import { ProductCard } from "./productCard";
 
@@ -26,15 +28,32 @@ const SubscriptionSuccessContent = styled.div`
   }
 `;
 
+const Wrapper = styled.div`
+  padding: 32px 24px;
+`;
+
+
+// Helper function to get query params
+const useQuery = () => {
+  return new URLSearchParams(useLocation().search);
+};
+
 export function SubscriptionSuccess() {
-  const { subscriptionId } = useParams<{ subscriptionId: string }>();
+  const query = useQuery();
+  const session_id = query.get("session_id");
   
   return (
-    <Level1SettingPageContent>
-      <Level1SettingPageTitle>
-        {trans("settings.subscription")}  | SUCCESS
-      </Level1SettingPageTitle>
-      
-    </Level1SettingPageContent>
+    <Wrapper>
+      <HeaderBack>
+        <span onClick={() => history.push(SUBSCRIPTION_SETTING)}>
+          {trans("settings.subscription")}
+        </span>
+      </HeaderBack>
+      <div>
+        <h1>{`SUCCESS | Session ID: ${session_id}`}</h1>
+      </div>
+    </Wrapper>
   );
 }
+
+export default SubscriptionSuccess;

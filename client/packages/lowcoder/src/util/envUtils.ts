@@ -1,6 +1,7 @@
 import { SystemConfig } from "constants/configConstants";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { CheckSubscriptions } from "@lowcoder-ee/api/subscriptionApi";
 
 export function localEnv(): boolean {
   return REACT_APP_ENV === "local";
@@ -19,11 +20,11 @@ export function isEE(): boolean {
 }
 
 export function isSaasMode(config?: SystemConfig) {
-  return config?.workspaceMode === "SAAS";
+  return config?.workspaceMode === "SAAS" || config?.workspaceMode === "MULTIWORSPACE";
 }
 
 export function isEnterpriseMode(config?: SystemConfig) {
-  return config?.workspaceMode === "ENTERPRISE";
+  return config?.workspaceMode === "ENTERPRISE" || config?.workspaceMode === "SINGLEWORKSPACE";
 }
 
 export function isSelfDomain(config?: SystemConfig) {

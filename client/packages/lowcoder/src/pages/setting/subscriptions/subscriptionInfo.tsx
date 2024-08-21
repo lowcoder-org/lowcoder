@@ -16,10 +16,8 @@ const Wrapper = styled.div`
   padding: 32px 24px;
 `;
 
-export function SubscriptionContent() {
-  const { subscriptionId } = useParams<{ subscriptionId: string }>();
-
-  console.log("Rendering SubscriptionSettingContent with subscriptionId:", subscriptionId);
+export function SubscriptionInfo() {
+  const { productId } = useParams<{ productId: string }>();
 
   return (
     <Wrapper>
@@ -30,10 +28,10 @@ export function SubscriptionContent() {
         <ArrowIcon />
       </HeaderBack>
       <div>
-        <h1>{`Subscription ID: ${subscriptionId}`}</h1>
+        <h1>{`Subscription ID: ${productId}`}</h1>
       </div>
     </Wrapper>
   );
 }
 
-export default SubscriptionContent;
+export default SubscriptionInfo;

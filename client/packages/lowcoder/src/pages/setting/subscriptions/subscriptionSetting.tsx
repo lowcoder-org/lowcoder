@@ -57,6 +57,7 @@ export function SubscriptionSetting() {
                 checkoutLink={product.checkoutLink}
                 checkoutLinkDataLoaded={product.checkoutLinkDataLoaded}
                 subscriptionId={product.subscriptionId}
+                productId={product.accessLink}
               />
             ))}
           </Flex>
@@ -64,7 +65,7 @@ export function SubscriptionSetting() {
       ) : (
         <div>Loading...</div>
       )}
-      {isCreatingCustomer && <div><br/>Creating your customer account, please wait...</div>}
+      {isCreatingCustomer && <div><br/>Checking your customer account, please wait...</div>}
       {customerDataError && 
         <h3>There was an error retrieving your customer data.</h3>
       }
