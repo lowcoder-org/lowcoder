@@ -108,6 +108,7 @@ const Label = styled.span<{ $border: boolean, $labelStyle: LabelStyleType, $vali
   border-radius:${(props) => props.$labelStyle.radius};
   padding:${(props) => props.$labelStyle.padding};
   margin:${(props) => props.$labelStyle.margin};
+  // line-height:${(props) => props.$labelStyle.lineHeight}; 
   width: fit-content;
   user-select: text;
   white-space: nowrap;

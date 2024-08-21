@@ -24,8 +24,8 @@ function getClient(dataSourceConfig: DataSourceDataType) {
 
 const lambdaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "lambda",
-  name: "Lambda",
-  category: "api",
+  name: "AWS Lambda",
+  category: "App Development",
   icon: "lambda.svg",
   dataSourceConfig,
   queryConfig,

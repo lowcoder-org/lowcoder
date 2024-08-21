@@ -11,7 +11,7 @@ const dataSourceConfig = {
       type: "textInput",
       label: "URL",
       tooltip: "e.g. https://db-company.turso.io",
-      placeholder: "<Your Turso URL>",
+      placeholder: "https://[databaseName]-[organizationName].turso.io",
       rules: [{ required: true, message: "Please add the URL to your database" }]
     },
     {

@@ -2,6 +2,7 @@ import { Organization } from "./organization";
 import PermissionSetting from "./permission";
 import { ThemeHome } from "./theme";
 import { AdvancedSetting } from "./advanced/AdvancedSetting";
+import { SubscriptionSetting } from "./subscriptions/subscriptionSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@lowcoder-ee/pages/setting/audit";
@@ -14,7 +15,8 @@ import {
   UserShieldIcon,
   LeftSettingIcon,
   ThemeIcon,
-  WorkspacesIcon
+  WorkspacesIcon,
+  SubscriptionIcon,
  } from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
@@ -27,16 +29,15 @@ import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
-// import ApiDocs from "./apiDocs";
 
 enum SettingPageEnum {
   UserGroups = "permission",
   Organization = "organization",
+  Subscription = "subscription",
   Audit = "audit",
   Theme = "theme",
   Branding = "branding",
   Advanced = "advanced",
-  // ApiDocs = "apiDocs",
   OAuthProvider = "oauth-provider",
   AppUsage = "app-usage",
   Environments = "environments",
@@ -74,11 +75,6 @@ export function SettingHome() {
       label: trans("settings.advanced"),
       icon: <LeftSettingIcon width={"20px"}/>,
     },
-    /* {
-      key: SettingPageEnum.ApiDocs,
-      label: trans("settings.apiDocs"),
-      icon: <LeftSettingIcon width={"20px"}/>,
-    }, */
 
     // Premium features
 
@@ -135,6 +131,12 @@ export function SettingHome() {
     },
   ];
 
+  {/* {
+    key: SettingPageEnum.Subscription,
+    label: trans("settings.subscription"),
+    icon: <SubscriptionIcon width={"20px"}/>, 
+  }, */}
+
   return (
     <>
       <Helmet>{<title>{trans("productName")} {trans("settings.title")}</title>}</Helmet>
@@ -160,7 +162,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Audit && <AuditSetting />}
         {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-        {/* {selectKey === SettingPageEnum.ApiDocs && <ApiDocs />} */}
+        {/* selectKey === SettingPageEnum.Subscription && <SubscriptionSetting /> */}
       </TwoColumnSettingPageContent>
     </>
   );

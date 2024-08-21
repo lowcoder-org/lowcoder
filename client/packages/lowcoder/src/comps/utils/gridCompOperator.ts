@@ -138,7 +138,10 @@ export class GridCompOperator {
       const compInfo = parseCompType(compType);
       const compName = nameGenerator.genItemName(compInfo.compName);
       const compJSONValue = isContainer(itemComp.children.comp)
-        ? itemComp.children.comp.getPasteValue(nameGenerator)
+        ? {
+            ...itemComp.children.comp.toJsonValue(),
+            ...itemComp.children.comp.getPasteValue(nameGenerator) as Record<string, any>,
+          }
         : itemComp.children.comp.toJsonValue();
       copyCompNames.add(compName);
       multiAddActions.push(

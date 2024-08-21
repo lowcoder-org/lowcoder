@@ -150,7 +150,7 @@ let CheckboxBasicComp = (function () {
     options: SelectInputOptionControl,
     style: styleControl(InputFieldStyle , 'style'),
     labelStyle: styleControl(
-      LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+      LabelStyle.filter((style) => ['accent', 'validate', 'lineheight'].includes(style.name) === false),
       'labelStyle',
     ),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),

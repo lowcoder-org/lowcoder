@@ -11,7 +11,7 @@ const gcsPlugin = {
   id: "googleCloudStorage",
   name: "Google Cloud Storage",
   icon: "gcs.svg",
-  category: "api",
+  category: "Assets",
   dataSourceConfig,
   queryConfig: queryConfig,
 

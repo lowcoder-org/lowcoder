@@ -25,6 +25,7 @@ import {
   TextStyleIcon,
   ImageCompIconSmall,
   RotationIcon,
+  LineHeightIcon
  } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { debounce } from "lodash";
@@ -373,6 +374,10 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       }
       case 'rotation': {
         icon = <RotationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'lineHeight': {
+        icon = <LineHeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
     }

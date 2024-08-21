@@ -16,7 +16,7 @@ const s3Plugin: DataSourcePluginFactory = (context: PluginContext) => {
     name: i18n.trans("name"),
     icon: "s3.svg",
     description: i18n.trans("description"),
-    category: "api",
+    category: "Assets",
     dataSourceConfig: getDataSourceConfig(i18n),
     queryConfig: getQueryConfig(i18n),
 

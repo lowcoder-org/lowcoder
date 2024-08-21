@@ -59,6 +59,7 @@ import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { styleControl } from "comps/controls/styleControl";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 export const getStyle = (
   style:
@@ -77,7 +78,9 @@ export const getStyle = (
     .ant-select-selection-search {	
       padding: ${style.padding};
     }	
-    .ant-select-selection-search-input {
+    .ant-select-selection-search-input,
+    .ant-select-selection-item,
+    .ant-select-selection-item .option-label {
       font-family:${(style as SelectStyleType).fontFamily} !important;
       text-transform:${(style as SelectStyleType).textTransform} !important;
       text-decoration:${(style as SelectStyleType).textDecoration} !important;
@@ -203,6 +206,7 @@ const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
     font-weight: ${props => props.$style?.textWeight};
     text-transform: ${props => props.$style?.textTransform};
     color: ${props => props.$style?.text};
+    line-height: ${props => props.$style?.lineHeight};
   }
   .option-label{
     text-decoration: ${props => props.$style?.textDecoration} !important;

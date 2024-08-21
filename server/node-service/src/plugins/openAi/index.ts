@@ -35,7 +35,7 @@ const openAiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "OpenAI",
   name: "Open AI",
   icon: "openAI.svg",
-  category: "api",
+  category: "AI",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec, parseOptions);

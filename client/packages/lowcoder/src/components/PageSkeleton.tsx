@@ -83,12 +83,12 @@ export default function PageSkeleton(props: IProps) {
 
   return (
     <Layout>
-      {!hideHeader && isHeaderReady && (
+      {/* {!hideHeader && isHeaderReady && (
         <Header 
           headerStart={<StyledLogoWithName branding={true} />}
           style={{ backgroundColor: brandingConfig?.headerColor, ...props.headStyle }}
         />
-      )}
+      )} */}
       <Layout>
         {!hideSideBar && <SideBar>{skeleton}</SideBar>}
         <MainContent>{!hideContent && skeleton}</MainContent>

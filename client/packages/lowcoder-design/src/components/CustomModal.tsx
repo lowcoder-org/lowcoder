@@ -1,6 +1,6 @@
 import { ButtonProps } from "antd/es/button";
 import { default as AntdModal, ModalFuncProps, ModalProps as AntdModalProps } from "antd/es/modal";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";

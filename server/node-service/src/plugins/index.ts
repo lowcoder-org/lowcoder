@@ -35,44 +35,70 @@ import bigQueryPlugin from "./bigQuery";
 import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
+import lowcoderPlugin from "./lowcoder";
+import supabaseApiPlugin from "./supabaseApi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
-  s3Plugin,
-  openApiPlugin,
-  n8nPlugin,
+  
+  // Databases
   dynamoDBPlugin,
-  firebasePlugin,
   couchdbPlugin,
-  wooCommercePlugin,
-  openAiPlugin,
-  athenaPlugin,
   duckdbPlugin,
-  lambdaPlugin,
-  googleCloudStorage,
-  stripePlugin,
-  asanaPlugin,
-  circleCiPlugin,
-  frontPlugin,
-  githubPlugin,
+  faunaPlugin,
+  tursoPlugin,
+
+  // Big Data
+  athenaPlugin,
+  bigQueryPlugin,
+
+  // AI
+  openAiPlugin,
   huggingFacePlugin,
   huggingFaceInferencePlugin,
-  jiraPlugin,
-  oneSignalPlugin,
+  didPlugin,
+
+  //DevOps
+  appConfigPlugin,
+  datadogPlugin,
+  circleCiPlugin,
+
+  // App Development
+  openApiPlugin,
+  postmanEchoPlugin,
+  lowcoderPlugin,
+  githubPlugin,
+  gitlabPlugin,
+  lambdaPlugin,
+  firebasePlugin,
+  supabaseApiPlugin,
+  
+  // Workflow
+  n8nPlugin,
+
+  // Messaging
+  twilioPlugin,
   sendGridPlugin,
-  shopifyPlugin,
-  slackPlugin,
+  oneSignalPlugin,
+  
+  // Assets
+  s3Plugin,
+  googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  
+  // Project Management
+  asanaPlugin,
+  jiraPlugin,
   notionPlugin,
-  datadogPlugin,
-  twilioPlugin,
-  gitlabPlugin,
-  faunaPlugin,
-  didPlugin,
-  bigQueryPlugin,
-  appConfigPlugin,
-  tursoPlugin,
-  postmanEchoPlugin,
+  slackPlugin,
+
+  // CRM
+  frontPlugin,
+
+  // E-commerce
+  stripePlugin,
+  shopifyPlugin,
+  wooCommercePlugin,
 ];
 
 try {
