@@ -1,7 +1,6 @@
 package org.lowcoder.api.npm;
 
 import io.swagger.v3.oas.annotations.Operation;
-import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.infra.constant.NewUrl;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

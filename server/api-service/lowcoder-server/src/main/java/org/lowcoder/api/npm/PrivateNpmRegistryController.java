@@ -2,15 +2,11 @@ package org.lowcoder.api.npm;
 
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
-import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.api.home.SessionUserServiceImpl;
 import org.lowcoder.domain.organization.service.OrganizationService;
-import org.lowcoder.domain.organization.service.OrganizationServiceImpl;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.js.NodeServerHelper;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
