@@ -32,6 +32,7 @@ import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 import { SummaryColumnComp } from "./tableSummaryColumnComp";
 import Segmented from "antd/es/segmented";
 import { list } from "@lowcoder-ee/comps/generators/list";
+import { EMPTY_ROW_KEY } from "../tableCompView";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
@@ -385,9 +386,9 @@ export class ColumnComp extends ColumnInitComp {
 
   getChangeSet() {
     const dataIndex = this.children.dataIndex.getView();
-    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>
-      value.getComp().children.comp.children.changeValue.getView()
-    );
+    const changeSet = _.mapValues(this.children.render.getMap(), (value) =>{
+     return value.getComp().children.comp.children.changeValue.getView()
+    });
     return { [dataIndex]: changeSet };
   }
 
@@ -402,6 +403,16 @@ export class ColumnComp extends ColumnInitComp {
         )
       )
     );
+  }
+
+  dispatchClearInsertSet() {
+    const renderMap = this.children.render.getMap();
+    const insertMapKeys = Object.keys(renderMap).filter(key => key.startsWith(EMPTY_ROW_KEY));
+    const insertMap: Record<string, any> = {};
+    insertMapKeys.forEach(key => {
+      const render = renderMap[key];
+      render.getComp().children.comp.children.changeValue.dispatchChangeValueAction(null);
+    });
   }
 
   static setSelectionAction(key: string) {

@@ -31,7 +31,7 @@ import {
   RecordConstructorToView,
 } from "lowcoder-core";
 import { controlItem } from "lowcoder-design";
-import { JSONObject } from "util/jsonTypes";
+import { JSONArray, JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
@@ -215,6 +215,7 @@ const tableChildrenMap = {
   showVerticalScrollbar: BoolControl,
   showHorizontalScrollbar: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
+  newData: stateComp<JSONArray>([]),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
   size: dropdownControl(sizeOptions, "middle"),
@@ -246,6 +247,7 @@ const tableChildrenMap = {
   dynamicColumnConfig: ArrayStringControl,
   expansion: ExpansionControl,
   selectedCell: stateComp<JSONObject>({}),
+  inlineAddNewRow: BoolControl,
 };
 
 export const TableInitComp = (function () {

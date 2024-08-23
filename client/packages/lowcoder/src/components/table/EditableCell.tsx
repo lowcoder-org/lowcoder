@@ -164,7 +164,8 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
                 width: '100%',
                 height: '100%',
               }}
-              onDoubleClick={enterEditFn}
+              // onDoubleClick={enterEditFn}
+              onClick={enterEditFn}
             >
             </div>
           </CellWrapper>

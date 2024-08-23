@@ -259,7 +259,7 @@ export const ColumnTagsComp = (function () {
       tagOptionsList = props.tagColors;
       let value = props.changeValue ?? getBaseValue(props, dispatch);
       value = typeof value === "string" && value.split(",")[1] ? value.split(",") : value;
-      const tags = _.isArray(value) ? value : [value];
+      const tags = _.isArray(value) ? value : (value.length ? [value] : []);
       const view = tags.map((tag, index) => {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);

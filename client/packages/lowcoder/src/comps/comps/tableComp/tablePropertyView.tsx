@@ -550,6 +550,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.advanced}>
             {comp.children.expansion.getPropertyView()}
+            {comp.children.inlineAddNewRow.propertyView({
+              label: trans("table.inlineAddNewRow")
+            })}
             {comp.children.showDataLoadSpinner.propertyView({
               label: trans("table.showDataLoadSpinner"),
             })}

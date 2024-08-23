@@ -2001,6 +2001,7 @@ export const en = {
     "emptyColumns": "No Columns Are Currently Visible",
     "showSummary": "Show Summary Row",
     "totalSummaryRows": "Total Rows",
+    "inlineAddNewRow": "Inline Add New Row",
   },
 
 

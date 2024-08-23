@@ -5,6 +5,7 @@ import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "com
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
+  ColumnsAggrData,
   columnsToAntdFormat,
   CustomColumnType,
   OB_ROW_ORI_INDEX,
@@ -44,7 +45,8 @@ import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
 import { TableSummary } from "./tableSummaryComp";
-import { SummaryColumnComp } from "./column/tableSummaryColumnComp";
+
+export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
@@ -716,11 +718,25 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
 
 ResizeableTable.whyDidYouRender = true;
 
+const createNewEmptyRow = (
+  rowIndex: number,
+  columnsAggrData: ColumnsAggrData,
+) => {
+  const emptyRowData: RecordType = {
+    [OB_ROW_ORI_INDEX]: `${EMPTY_ROW_KEY}_${rowIndex}`,
+  };
+  Object.keys(columnsAggrData).forEach(columnKey => {
+    emptyRowData[columnKey] = '';
+  });
+  return emptyRowData;
+}
+
 export function TableCompView(props: {
   comp: InstanceType<typeof TableImplComp>;
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) {
+  const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
   const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
@@ -745,15 +761,16 @@ export function TableCompView(props: {
   const columnsStyle = compChildren.columnsStyle.getView();
   const summaryRowStyle = compChildren.summaryRowStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
+  const insertSet = useMemo(() => compChildren.columns.getChangeSet(true), [compChildren.columns]);
+  const hasChange = useMemo(() => !_.isEmpty(changeSet) || !_.isEmpty(insertSet), [changeSet, insertSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
-  // const summary = useMemo(() => compChildren.summary.getView(), [compChildren.summary]);
   const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
   const summaryRows = useMemo(() => compChildren.summaryRows.getView(), [compChildren.summaryRows]);
+  const inlineAddNewRow = useMemo(() => compChildren.inlineAddNewRow.getView(), [compChildren.inlineAddNewRow]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
@@ -792,6 +809,58 @@ export function TableCompView(props: {
     [compChildren.data]
   );
 
+  const updateEmptyRows = useCallback(() => {
+    if (!inlineAddNewRow) {
+      setEmptyRowsMap({})
+      setTimeout(() => compChildren.columns.dispatchClearInsertSet());
+      return;
+    }
+
+    const newRows: Record<string, RecordType> = {...emptyRowsMap};
+    const existingRowsKeys = Object.keys(newRows);
+    const existingRowsCount = existingRowsKeys.length;
+    const updatedRowsKeys = Object.keys(insertSet).filter(
+      key => key.startsWith(EMPTY_ROW_KEY)
+    );
+    const updatedRowsCount = updatedRowsKeys.length;
+    const removedRowsKeys = existingRowsKeys.filter(
+      x => !updatedRowsKeys.includes(x)
+    );
+
+    removedRowsKeys.forEach(rowKey => {
+      if (
+        rowKey === existingRowsKeys[existingRowsCount - 1]
+        || rowKey === existingRowsKeys[existingRowsCount - 2]
+      ) {
+        delete newRows[rowKey];
+      } else {
+        const ele = document.querySelector<HTMLElement>(`[data-row-key=${rowKey}]`);
+        if (ele) {
+          ele.style.display = 'none';
+        }
+      }
+    })
+
+    const lastRowKey = updatedRowsCount ? updatedRowsKeys[updatedRowsCount - 1] : '';
+    const lastRowIndex = updatedRowsCount ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
+
+    const newRowIndex = lastRowIndex + 1;
+    const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+    newRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
+    setEmptyRowsMap(newRows);
+  }, [
+    inlineAddNewRow,
+    JSON.stringify(emptyRowsMap),
+    JSON.stringify(insertSet),
+    setEmptyRowsMap,
+    createNewEmptyRow,
+  ]);
+
+  useEffect(() => {
+    updateEmptyRows();
+  }, [updateEmptyRows]);
+
+
   const pageDataInfo = useMemo(() => {
     // Data pagination
     let pagedData = data;
@@ -806,6 +875,7 @@ export function TableCompView(props: {
       }
       pagedData = pagedData.slice(offset, offset + pagination.pageSize);
     }
+
     return {
       total: total,
       current: current,
@@ -849,7 +919,14 @@ export function TableCompView(props: {
       }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
-      onCancelChanges={() => handleChangeEvent("cancelChanges")}
+      onCancelChanges={() => {
+        handleChangeEvent("cancelChanges");
+        if (inlineAddNewRow) {
+          setEmptyRowsMap({
+            [`${EMPTY_ROW_KEY}_0`]: createNewEmptyRow(0, columnsAggrData),
+          });
+        }
+      }}
       onEvent={onEvent}
     />
   );
@@ -916,6 +993,7 @@ export function TableCompView(props: {
                   }
                 }
               }}
+              // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}
               rowHeightFn={compChildren.rowHeight.getView() as any}
               {...compChildren.selection.getView()(onEvent)}
@@ -928,7 +1006,7 @@ export function TableCompView(props: {
               columnsStyle={columnsStyle}
               viewModeResizable={compChildren.viewModeResizable.getView()}
               visibleResizables={compChildren.visibleResizables.getView()}
-              dataSource={pageDataInfo.data}
+              dataSource={pageDataInfo.data.concat(Object.values(emptyRowsMap))}
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"
@@ -947,7 +1025,6 @@ export function TableCompView(props: {
               }}
               summary={summaryView}
             />
-
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
               {expansion.expandModalView}
             </SlotConfigContext.Provider>
