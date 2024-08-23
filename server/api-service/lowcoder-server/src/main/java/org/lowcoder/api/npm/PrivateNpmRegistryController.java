@@ -23,7 +23,7 @@ import java.util.Map;
 public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
     private final OrganizationService organizationService;
     private final SessionUserService sessionUserService;
-    NodeServerHelper nodeServerHelper;
+    private final NodeServerHelper nodeServerHelper;
 
     private static final String NPM_REGISTRY_METADATA = "npm/registry";
     private static final String NPM_REGISTRY_ASSET = "npm/package";
