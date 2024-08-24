@@ -2,11 +2,11 @@ import {
   USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
-  FOLDER_URL,
-  FOLDER_URL_PREFIX,
+  // FOLDER_URL,
+  // FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
-  MODULE_APPLICATIONS_URL,
+  // MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
   SUPPORT_URL,
@@ -17,26 +17,27 @@ import {
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  EditPopover,
+  // EditPopover,
   EllipsisTextCss,
   FolderIcon,
   HomeDataSourceIcon,
   NewsIcon,
   WorkspacesIcon,
-  HomeModuleIcon,
+  // HomeModuleIcon,
   HomeQueryLibraryIcon,
   HomeSettingIcon,
   SupportIcon,
-  PlusIcon,
-  PointIcon,
+  // PlusIcon,
+  // PointIcon,
   RecyclerIcon,
   MarketplaceIcon,
   AppsIcon,
   EnterpriseIcon,
   UserIcon,
 } from "lowcoder-design";
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
+import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
 import { clearStyleEval, evalStyle } from "lowcoder-core";
@@ -48,23 +49,25 @@ import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
 import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
-import history from "../../util/history";
-import { FolderView } from "./FolderView";
+// import history from "../../util/history";
+// import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
-import { SideBarItemType } from "../../components/layout/SideBarSection";
+// import { SideBarItemType } from "../../components/layout/SideBarSection";
 import { RootFolderListView } from "./RootFolderListView";
-import InviteDialog from "../common/inviteDialog";
+// import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
-import { ModuleView } from "./ModuleView";
-import { useCreateFolder } from "./useCreateFolder";
+// import { ModuleView } from "./ModuleView";
+// import { useCreateFolder } from "./useCreateFolder";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
-import { TypographyText } from "../../components/TypographyText";
-import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+// import { TypographyText } from "../../components/TypographyText";
+// import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
-import { CheckSubscriptions, SubscriptionProducts, Subscription } from "@lowcoder-ee/api/subscriptionApi";
+import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
+import { SubscriptionProducts } from '@lowcoder-ee/api/subscriptionApi';
+import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
@@ -123,86 +126,11 @@ const FolderNameWrapper = styled.div<{ $selected: boolean }>`
 
 `;
 
-const FolderName = (props: { id: string; name: string }) => {
-  const dispatch = useDispatch();
-  const [folderNameEditing, setFolderNameEditing] = useState(false);
-
-  return (
-    <>
-      <TypographyText
-        value={props.name}
-        editing={folderNameEditing}
-        onChange={(value) => {
-          if (!value.trim()) {
-            messageInstance.warning(trans("home.nameCheckMessage"));
-            return;
-          }
-          dispatch(updateFolder({ id: props.id, name: value }));
-          setFolderNameEditing(false);
-        }}
-      />
-      <EditPopover items={[
-          { text: trans("rename"), onClick: () => setFolderNameEditing(true) },
-          // Falk: TODO: Implement delete for Folders
-        ]}>
-        <PopoverIcon tabIndex={-1} />
-      </EditPopover>
-    </>
-  );
-};
 
 const MoreFoldersWrapper = styled.div`
   ${(props) => {
     return css` font-weight: 500;`;
   }}
-`;
-
-/* const MoreFoldersIcon = styled(PointIcon)<{ $selected: boolean }>`
-  cursor: pointer;
-  flex-shrink: 0;
-
-  g {
-    fill: ${(props) => (props.$selected ? "#4965f2" : "#8b8fa3")};
-  }
-`; */
-
-const PopoverIcon = styled(PointIcon)`
-  cursor: pointer;
-  flex-shrink: 0;
-  display: none;
-
-  g {
-    fill: #8b8fa3;
-  }
-
-  &:hover {
-    background-color: #e1e3eb;
-    border-radius: 4px;
-    cursor: pointer;
-
-    g {
-      fill: #3377ff;
-    }
-  }
-`;
-
-const CreateFolderIcon = styled.div`
-  margin-left: auto;
-  cursor: pointer;
-  height: 20px;
-  width: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-
-  &:hover {
-    g {
-      stroke: #315efb;
-    }
-
-    background-color: #e1e3eb;
-  }
 `;
 
 const DivStyled = styled.div`
@@ -236,23 +164,16 @@ export default function ApplicationHome() {
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-  const [supportSubscription, setSupportSubscription] = useState(true);
+  const subscriptions = useSelector(getSubscriptions);
 
-  // const handleFolderCreate = useCreateFolder();
-
-   // we also want to check the subscription
-   /* const { subscriptions: subscriptionData, subscriptionDataLoaded, subscriptionDataError } = dispatch(CheckSubscriptions());
-
-   if (subscriptionDataLoaded && !subscriptionDataError) {
-     setSupportSubscription(subscriptionData.some(sub => sub.product === SubscriptionProducts.SUPPORT));
-   } */
-  
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
-
+    dispatch(fetchSubscriptionsAction());
   }, [user.currentOrgId]);
+
+  const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
 
   useEffect(() => {
     if (!org) {

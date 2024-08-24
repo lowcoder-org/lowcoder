@@ -34,24 +34,24 @@ export interface OrgAPIUsageResponse extends ApiResponse {
 }
 
 export class OrgApi extends Api {
-  static createGroupURL = "/v1/groups";
-  static updateGroupURL = (groupId: string) => `/v1/groups/${groupId}/update`;
-  static fetchGroupURL = "/v1/groups/list";
-  static fetchGroupUsersURL = (groupId: string) => `/v1/groups/${groupId}/members`;
-  static deleteGroupURL = (groupId: string) => `/v1/groups/${groupId}`;
-  static fetchOrgUsersURL = (orgId: string) => `/v1/organizations/${orgId}/members`;
-  static deleteOrgUsersURL = (orgId: string) => `/v1/organizations/${orgId}/remove`;
-  static deleteGroupUserURL = (groupId: string) => `/v1/groups/${groupId}/remove`;
-  static addGroupUserURL = (groupId: string) => `/v1/groups/${groupId}/addMember`;
-  static updateUserOrgRoleURL = (orgId: string) => `/v1/organizations/${orgId}/role`;
-  static updateUserGroupRoleURL = (groupId: string) => `/v1/groups/${groupId}/role`;
-  static quitOrgURL = (orgId: string) => `/v1/organizations/${orgId}/leave`;
-  static quitGroupURL = (groupId: string) => `/v1/groups/${groupId}/leave`;
-  static switchOrgURL = (orgId: string) => `/v1/organizations/switchOrganization/${orgId}`;
-  static createOrgURL = "/v1/organizations";
-  static deleteOrgURL = (orgId: string) => `/v1/organizations/${orgId}`;
-  static updateOrgURL = (orgId: string) => `/v1/organizations/${orgId}/update`;
-  static fetchUsage = (orgId: string) => `/v1/organizations/${orgId}/api-usage`;
+  static createGroupURL = "/groups";
+  static updateGroupURL = (groupId: string) => `/groups/${groupId}/update`;
+  static fetchGroupURL = "/groups/list";
+  static fetchGroupUsersURL = (groupId: string) => `/groups/${groupId}/members`;
+  static deleteGroupURL = (groupId: string) => `/groups/${groupId}`;
+  static fetchOrgUsersURL = (orgId: string) => `/organizations/${orgId}/members`;
+  static deleteOrgUsersURL = (orgId: string) => `/organizations/${orgId}/remove`;
+  static deleteGroupUserURL = (groupId: string) => `/groups/${groupId}/remove`;
+  static addGroupUserURL = (groupId: string) => `/groups/${groupId}/addMember`;
+  static updateUserOrgRoleURL = (orgId: string) => `/organizations/${orgId}/role`;
+  static updateUserGroupRoleURL = (groupId: string) => `/groups/${groupId}/role`;
+  static quitOrgURL = (orgId: string) => `/organizations/${orgId}/leave`;
+  static quitGroupURL = (groupId: string) => `/groups/${groupId}/leave`;
+  static switchOrgURL = (orgId: string) => `/organizations/switchOrganization/${orgId}`;
+  static createOrgURL = "/organizations";
+  static deleteOrgURL = (orgId: string) => `/organizations/${orgId}`;
+  static updateOrgURL = (orgId: string) => `/organizations/${orgId}/update`;
+  static fetchUsage = (orgId: string) => `/organizations/${orgId}/api-usage`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
