@@ -1,7 +1,7 @@
 import { SystemConfig } from "constants/configConstants";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { CheckSubscriptions } from "@lowcoder-ee/api/subscriptionApi";
+// import { useCheckSubscriptions, SubscriptionProducts, SubscriptionsData } from "@lowcoder-ee/api/subscriptionApi";
 
 export function localEnv(): boolean {
   return REACT_APP_ENV === "local";
@@ -39,3 +39,11 @@ export function useCloudHosting() {
   const systemConfig = useSelector(selectSystemConfig);
   return systemConfig?.cloudHosting ?? true;
 }
+
+/* export function useSubscription(type: SubscriptionProducts): boolean {
+  const { subscriptions, subscriptionDataLoaded, subscriptionDataError } = useCheckSubscriptions();
+  if (!subscriptionDataLoaded || subscriptionDataError) {
+    return false;
+  }
+  return subscriptions.some(subscription => subscription.product === type);
+} */

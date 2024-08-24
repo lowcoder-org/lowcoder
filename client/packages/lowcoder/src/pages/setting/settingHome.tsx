@@ -30,7 +30,6 @@ import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
 import { Subscription } from "./subscriptions";
-import { CheckSubscriptions } from "@lowcoder-ee/api/subscriptionApi";
 
 enum SettingPageEnum {
   UserGroups = "permission",
@@ -49,14 +48,6 @@ export function SettingHome() {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
-
-  const subscriptions = CheckSubscriptions();
-  
-  useEffect(() => {
-    if (subscriptions.subscriptionDataLoaded == true) {
-      console.log("subscriptions", subscriptions);
-    }
-  }, [subscriptions]);
 
   const items = [
     {

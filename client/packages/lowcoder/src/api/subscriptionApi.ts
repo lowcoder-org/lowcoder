@@ -94,6 +94,29 @@ export interface SubscriptionItem {
   quantity: number;
 }
 
+export interface Subscription {
+  id: string;
+  collection_method: string;
+  current_period_end: number;
+  current_period_start: number;
+  product: string;
+  currency: string;
+  interval: string;
+  tiers_mode: string;
+  status: string;
+  start_date: number;
+  quantity: number;
+  billing_scheme: string;
+  price: string;
+}
+
+export interface SubscriptionsData {
+  subscriptions: Subscription[];
+  subscriptionDataLoaded: boolean;
+  subscriptionDataError: boolean;
+  loading: boolean;
+}
+
 export type ResponseType = {
   response: any;
 };
@@ -398,12 +421,28 @@ export const InitializeSubscription = () => {
   };
 };
 
+export enum SubscriptionProducts {
+  SUPPORT = "QW8L3WPMiNjQjI",
+  MEDIAPACKAGE = 'standard',
+  AZUREAPIS = 'premium',
+  GOOGLEAPIS = 'enterprise',
+  AWSAPIS = 'enterprise-global',
+  PRIVATECLOUD = 'private-cloud',
+  MATRIXCLOUD = 'matrix-cloud',
+  AGORATOKENSERVER = 'agora-tokenserver',
+  SIGNALSERVER = 'signal-server',
+  DATABASE = 'database',
+  STORAGE = 'storage',
+  IOSAPP = 'ios-app',
+  ANDROIDAPP = 'android-app',
+  AUDITLOG = 'audit-log',
+  APPLOG = 'app-log',
+  ENVIRONMENTS = 'environments',
+  GITREPOS = 'git-repos',
+}
 
-
-export const CheckSubscriptions = () => {
-  const [customer, setCustomer] = useState<StripeCustomer | null>(null);
-  const [customerDataError, setCustomerDataError] = useState<boolean>(false);
-  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
+export const checkSubscriptions = () => {
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
   const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
@@ -433,7 +472,7 @@ export const CheckSubscriptions = () => {
       }
     };
     fetchCustomerAndSubscriptions();
-  }, []);
+  }, [subscriptionSearchCustomer]);
 
   return {
     subscriptions,

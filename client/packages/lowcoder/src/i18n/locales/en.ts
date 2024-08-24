@@ -3020,7 +3020,7 @@ export const en = {
     "appMarketplace": "Application Marketplace",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
-    "allFolders": "All Folders",
+    "allFolders": "Your Folders",
     "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
@@ -3109,6 +3109,9 @@ export const en = {
     "chooseNavType": "Please choose navigation type",
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
+    "support": "Support",
+    "supportTitle": "Lowcoder Support",
+    "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
   },
   "carousel": {
     "dotPosition": "Navigation Dots position",
