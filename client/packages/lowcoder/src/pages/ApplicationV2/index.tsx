@@ -8,10 +8,9 @@ import {
   MARKETPLACE_URL,
   MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
-  SETTING,
-  SUPPORT,
+  SETTING_URL,
+  SUPPORT_URL,
   TRASH_URL,
-  // ADMIN_APP_URL,
   NEWS_URL,
   ORG_HOME_URL,
 } from "constants/routesURL";
@@ -47,7 +46,6 @@ import { Layout } from "../../components/layout/Layout";
 import { HomeView } from "./HomeView";
 import { UserProfileView } from "./UserProfileView";
 import { NewsView } from "./NewsView";
-// import { ApiDocView } from "./ApiDocView";
 import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 import history from "../../util/history";
@@ -66,10 +64,11 @@ import Setting from "pages/setting";
 import { TypographyText } from "../../components/TypographyText";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
-import { checkSubscriptions, SubscriptionProducts } from "@lowcoder-ee/api/subscriptionApi";
+import { CheckSubscriptions, SubscriptionProducts, Subscription } from "@lowcoder-ee/api/subscriptionApi";
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
+import { set } from "lodash";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -237,32 +236,22 @@ export default function ApplicationHome() {
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-
-  const subscriptions = useSelector(state => state.subscriptions.subscriptions);
-  const subscriptionDataLoaded = useSelector(state => !state.subscriptions.loading);
-  const subscriptionDataError = useSelector(state => state.subscriptions.error);
+  const [supportSubscription, setSupportSubscription] = useState(true);
 
   // const handleFolderCreate = useCreateFolder();
+
+   // we also want to check the subscription
+   /* const { subscriptions: subscriptionData, subscriptionDataLoaded, subscriptionDataError } = dispatch(CheckSubscriptions());
+
+   if (subscriptionDataLoaded && !subscriptionDataError) {
+     setSupportSubscription(subscriptionData.some(sub => sub.product === SubscriptionProducts.SUPPORT));
+   } */
   
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
-  // Fetch subscriptions once on component mount
-  useEffect(() => {
-    dispatch(checkSubscriptions());
-  }, [dispatch]);
-
-  // Calculate support subscription status
-  const supportSubscription = useMemo(() => {
-    return subscriptions.some((sub: { product: SubscriptionProducts; }) => sub.product === SubscriptionProducts.SUPPORT);
-  }, [subscriptions]);
-
-  // Early return if data is still loading or there was an error
-  if (fetchingUser || !subscriptionDataLoaded || subscriptionDataError) {
-    return <ProductLoading />;
-  }
-
   useEffect(() => {
     dispatch(fetchHomeData({}));
+
   }, [user.currentOrgId]);
 
   useEffect(() => {
@@ -293,10 +282,6 @@ export default function ApplicationHome() {
   }, [dispatch, allFoldersCount, user.currentOrgId]);
 
   if (fetchingUser || !isPreloadCompleted) {
-    return <ProductLoading />;
-  }
-
-  if (fetchingUser || !isPreloadCompleted || !subscriptionDataLoaded || subscriptionDataError) {
     return <ProductLoading />;
   }
 
@@ -392,10 +377,10 @@ export default function ApplicationHome() {
           supportSubscription ? {
             items: [
               {
-                text: <TabLabel>{trans("home.trash")}</TabLabel>,
-                routePath: TRASH_URL,
+                text: <TabLabel>{trans("home.support")}</TabLabel>,
+                routePath: SUPPORT_URL,
                 routeComp: TrashView,
-                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],
           } : { items: [] },
@@ -404,7 +389,7 @@ export default function ApplicationHome() {
             items: [
               {
                 text: <TabLabel>{trans("settings.title")}</TabLabel>,
-                routePath: SETTING,
+                routePath: SETTING_URL,
                 routePathExact: false,
                 routeComp: Setting,
                 icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,

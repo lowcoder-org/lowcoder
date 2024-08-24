@@ -441,7 +441,7 @@ export enum SubscriptionProducts {
   GITREPOS = 'git-repos',
 }
 
-export const checkSubscriptions = () => {
+export const CheckSubscriptions = () => {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
   const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
