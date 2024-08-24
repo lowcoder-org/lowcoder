@@ -94,6 +94,16 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     @Override
+    public Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished) {
+        return findById(applicationId)
+                .flatMap(newApplication -> {
+                    Application application = Application.builder().editingUserId("").build();
+                    if(editingFinished) return mongoUpsertHelper.updateById(application, applicationId);
+                    return Mono.just(true);
+                });
+    }
+
+    @Override
     public Mono<Application> create(Application newApplication, String visitorId) {
         return repository.save(newApplication)
                 .delayUntil(app -> resourcePermissionService.addResourcePermissionToUser(app.getId(), visitorId, ResourceRole.OWNER, ResourceType.APPLICATION));

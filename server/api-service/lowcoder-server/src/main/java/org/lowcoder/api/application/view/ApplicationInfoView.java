@@ -38,6 +38,8 @@ public class ApplicationInfoView {
     private final boolean publicToMarketplace;
     private final boolean agencyProfile;
 
+    private final String editingUserId;
+
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();
     }
