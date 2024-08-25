@@ -36,7 +36,6 @@ import { Redirect, Router, Switch } from "react-router-dom";
 import type { AppState } from "redux/reducers";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
-import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { reduxStore } from "redux/store/store";
 import { developEnv } from "util/envUtils";
 import history from "util/history";
@@ -90,7 +89,6 @@ type AppIndexProps = {
   fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
-  fetchSubscriptions: () => void;
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
@@ -113,7 +111,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.fetchConfig(this.props.currentOrgId);
       if (!this.props.currentUserAnonymous) {
         this.props.fetchHomeData(this.props.currentUserAnonymous);
-        this.props.fetchSubscriptions();
       }
     }
   }
@@ -420,19 +417,8 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
 
-  fetchSubscriptions: () => {
-    // dispatch(fetchSubscriptionsAction());
-  },
-
   fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
     dispatch(fetchHomeData({}));
-    // the rule should be that if the user is not logged in and if he want to view an App, we should not fetch the home data
-    /* if (window.location.pathname == APP_EDITOR_URL && !currentUserAnonymous && !currentUserAnonymous === undefined) {
-      dispatch(fetchHomeData({}));
-    }
-    else {
-      dispatch(fetchHomeData({}));
-    } */
   }
 });
 
