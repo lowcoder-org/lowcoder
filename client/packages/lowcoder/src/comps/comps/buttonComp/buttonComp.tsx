@@ -27,7 +27,6 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -135,9 +134,7 @@ const ButtonTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return(
       <ButtonCompWrapper disabled={props.disabled}>
         <EditorContext.Consumer>

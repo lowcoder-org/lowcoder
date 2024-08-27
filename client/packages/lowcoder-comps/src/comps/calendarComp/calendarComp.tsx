@@ -45,7 +45,6 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   Tooltip,
-  useMergeCompStyles,
   EditorContext,
   CompNameContext,
 } from 'lowcoder-sdk';
@@ -136,8 +135,6 @@ let CalendarBasicComp = (function () {
     const [form] = Form.useForm(); 
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
-
-    useMergeCompStyles?.(props, dispatch);
 
     useEffect(() => {
       setLicensed(props.licenseKey !== "");

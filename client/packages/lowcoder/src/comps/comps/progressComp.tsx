@@ -10,9 +10,8 @@ import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -57,9 +56,7 @@ const ProgressBasicComp = (function () {
     style: styleControl(ProgressStyle, 'style'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return (
       <ProgressStyled
         percent={Math.round(props.value.value)}

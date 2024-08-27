@@ -7,7 +7,6 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { CascaderChildren, CascaderPropertyView, defaultDataSource } from "./cascaderContants";
 import { refMethods } from "comps/generators/withMethodExposing";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const CascaderStyle = styled(Cascader)<{ $style: CascaderStyleType,$childrenInputFieldStyle:ChildrenMultiSelectStyleType }>`
   width: 100%;
@@ -38,9 +37,7 @@ const DropdownRenderStyle = styled.div<{ $childrenInputFieldStyle: ChildrenMulti
 let CascaderBasicComp = (function () {
   const childrenMap = CascaderChildren;
 
-  return new UICompBuilder(childrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-    
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
