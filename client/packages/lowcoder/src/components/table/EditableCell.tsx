@@ -37,6 +37,7 @@ export interface CellProps {
   candidateStatus?: { text: string; status: StatusType }[];
   textOverflow?: boolean;
   cellTooltip?: string;
+  editMode?: string;
   onTableEvent?: (eventName: any) => void;
 }
 
@@ -94,6 +95,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     candidateTags,
     // tagColors
     candidateStatus,
+    editMode,
     onTableEvent,
   } = props;
   const status = _.isNil(changeValue) ? "normal" : "toSave";
@@ -101,6 +103,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   const { isEditing, setIsEditing } = useContext(TableCellContext);
   const value = changeValue ?? baseValue!;
   const [tmpValue, setTmpValue] = useState<T | null>(value);
+  const singleClickEdit = editMode === 'single'; 
 
   useEffect(() => {
     setTmpValue(value);
@@ -175,8 +178,8 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
                 width: '100%',
                 height: '100%',
               }}
-              // onDoubleClick={enterEditFn}
-              onClick={enterEditFn}
+              onDoubleClick={!singleClickEdit ? enterEditFn : undefined}
+              onClick={singleClickEdit ? enterEditFn : undefined}
             >
             </div>
           </CellWrapper>

@@ -295,6 +295,7 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
+  editMode: string,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
@@ -392,6 +393,7 @@ export function columnsToAntdFormat(
               currentRow: row,
               currentIndex: index,
             }),
+            editMode,
             onTableEvent,
           });
       },

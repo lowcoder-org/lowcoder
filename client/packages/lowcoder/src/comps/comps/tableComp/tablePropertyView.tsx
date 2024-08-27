@@ -562,6 +562,10 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
                 label: trans("table.dynamicColumnConfig"),
                 tooltip: trans("table.dynamicColumnConfigDesc"),
             })}
+            {comp.children.editModeClicks.propertyView({
+              label: trans("table.editMode"),
+              radioButton: true,
+            })}
             {comp.children.searchText.propertyView({
               label: trans("table.searchText"),
               tooltip: trans("table.searchTextTooltip"),

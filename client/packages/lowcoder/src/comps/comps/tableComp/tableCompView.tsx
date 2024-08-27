@@ -767,6 +767,7 @@ export function TableCompView(props: {
   const inlineAddNewRow = useMemo(() => compChildren.inlineAddNewRow.getView(), [compChildren.inlineAddNewRow]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
+  const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
@@ -785,6 +786,7 @@ export function TableCompView(props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
+        editModeClicks,
         onEvent,
       ),
     [
@@ -795,6 +797,7 @@ export function TableCompView(props: {
       dynamicColumn,
       dynamicColumnConfig,
       columnsAggrData,
+      editModeClicks,
     ]
   );
 

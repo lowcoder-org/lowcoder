@@ -37,6 +37,17 @@ import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
+const editModeClickOptions = [
+  {
+    label: trans("table.singleClick"),
+    value: "single",
+  },
+  {
+    label: trans("table.doubleClick"),
+    value: "double",
+  },
+] as const;
+
 const summarRowsOptions = [
   {
     label: "1",
@@ -248,6 +259,7 @@ const tableChildrenMap = {
   expansion: ExpansionControl,
   selectedCell: stateComp<JSONObject>({}),
   inlineAddNewRow: BoolControl,
+  editModeClicks: dropdownControl(editModeClickOptions, "single"),
 };
 
 export const TableInitComp = (function () {

@@ -2002,6 +2002,9 @@ export const en = {
     "showSummary": "Show Summary Row",
     "totalSummaryRows": "Total Rows",
     "inlineAddNewRow": "Inline Add New Row",
+    "editMode": "Edit Mode",
+    "singleClick": "Single Click",
+    "doubleClick": "Double Click",
   },
 
 
