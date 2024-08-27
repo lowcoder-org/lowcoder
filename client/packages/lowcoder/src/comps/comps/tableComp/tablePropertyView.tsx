@@ -33,7 +33,7 @@ import React, { useMemo, useState } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
-import { changeChildAction } from "lowcoder-core";
+import Segmented from "antd/es/segmented";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -103,6 +103,34 @@ const ColumnBatchOptionWrapper = styled.div`
   line-height: 16px;
   font-size: 13px;
 `;
+
+type ViewOptionType = "normal" | "summary";
+
+const summaryRowOptions = [
+  {
+    label: "Row 1",
+    value: 0,
+  },
+  {
+    label: "Row 2",
+    value: 1,
+  },
+  {
+    label: "Row 3",
+    value: 2,
+  },
+];
+
+const columnViewOptions = [
+  {
+    label: "Normal",
+    value: "normal",
+  },
+  {
+    label: "Summary",
+    value: "summary",
+  },
+];
 
 const columnFilterOptions = [
   { label: trans("table.allColumn"), value: "all" },
@@ -249,6 +277,8 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   comp: T;
   columnLabel: string;
 }) {
+  const [viewMode, setViewMode] = useState('normal');
+  const [summaryRow, setSummaryRow] = useState(0);
   const { comp } = props;
   const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
@@ -261,6 +291,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
     () => columns.filter((c) => columnFilterType === "all" || !c.children.hide.getView()),
     [columnFilterType, columns]
   );
+  const summaryRows = parseInt(comp.children.summaryRows.getView());
 
   const columnOptionToolbar = (
     <InsertDiv>
@@ -365,7 +396,21 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         content={(column, index) => (
           <>
-            {column.propertyView(selection)}
+            <Segmented
+              block
+              options={columnViewOptions}
+              value={viewMode}
+              onChange={(k) => setViewMode(k as ViewOptionType)}
+            />
+            {viewMode === 'summary' && (
+              <Segmented
+                block
+                options={summaryRowOptions.slice(0, summaryRows)}
+                value={summaryRow}
+                onChange={(k) => setSummaryRow(k)}
+              />
+            )}
+            {column.propertyView(selection, viewMode, summaryRow)}
             {column.getView().isCustom && (
               <RedButton
                 onClick={() => {
@@ -418,6 +463,7 @@ function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T)
 export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType> & { editorModeStatus: string }>(comp: T) {
   const editorModeStatus = comp.editorModeStatus;
   const dataLabel = trans("data");
+
   return (
     <>
       {["logic", "both"].includes(editorModeStatus) && (
@@ -446,6 +492,16 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.selection.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
+          </Section>
+
+          <Section name={"Summary"}>
+            {comp.children.showSummary.propertyView({
+              label: trans("table.showSummary")
+            })}
+            {comp.children.summaryRows.propertyView({
+              label: trans("table.totalSummaryRows"),
+              radioButton: true,
+            })}
           </Section>
 
           <Section name={trans("prop.toolbar")}>
@@ -494,6 +550,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.advanced}>
             {comp.children.expansion.getPropertyView()}
+            {comp.children.inlineAddNewRow.propertyView({
+              label: trans("table.inlineAddNewRow")
+            })}
             {comp.children.showDataLoadSpinner.propertyView({
               label: trans("table.showDataLoadSpinner"),
             })}
@@ -502,6 +561,10 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
               comp.children.dynamicColumnConfig.propertyView({
                 label: trans("table.dynamicColumnConfig"),
                 tooltip: trans("table.dynamicColumnConfigDesc"),
+            })}
+            {comp.children.editModeClicks.propertyView({
+              label: trans("table.editMode"),
+              radioButton: true,
             })}
             {comp.children.searchText.propertyView({
               label: trans("table.searchText"),
@@ -536,6 +599,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
           </Section>
           <Section name={"Column Style"}>
             {comp.children.columnsStyle.getPropertyView()}
+          </Section>
+          <Section name={"Summary Row Style"}>
+            {comp.children.summaryRowStyle.getPropertyView()}
           </Section>
         </>
       )}

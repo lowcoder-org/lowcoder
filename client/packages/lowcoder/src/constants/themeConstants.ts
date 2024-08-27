@@ -71,6 +71,9 @@ const table = {
   },
   columnsStyle: {
     radius: '0px'
+  },
+  summaryRowStyle: {
+    radius: '0px'
   }
 }
 
