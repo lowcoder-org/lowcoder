@@ -253,13 +253,13 @@ With an SSL certificate, you can securely visit self-hosted Lowcoder with HTTPS 
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
+1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/lowcoder-stacks/ssl` directory.
 2. In `$PWD/docker-compose.yml`, change the value of `ports` to `"3443:3443"`.\
 
 {% endtab %}
 
 {% tab title="Docker" %}
-1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
+1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/lowcoder-stacks/ssl` directory.
 2. Change the `ports` in the deployment command to `3443:3443`, as shown below:
 
 {% code overflow="wrap" %}
