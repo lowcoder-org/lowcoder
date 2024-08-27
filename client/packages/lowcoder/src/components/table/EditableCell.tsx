@@ -104,7 +104,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
 
   useEffect(() => {
     setTmpValue(value);
-  }, [value]);
+  }, [JSON.stringify(value)]);
 
   const onChange = useCallback(
     (value: T) => {
@@ -125,11 +125,11 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
     if(!_.isEqual(tmpValue, value)) {
       onTableEvent?.('columnEdited');
     }
-  }, [dispatch, baseValue, tmpValue]);
+  }, [dispatch, JSON.stringify(baseValue), JSON.stringify(tmpValue)]);
 
   const editView = useMemo(
     () => editViewFn?.({ value, onChange, onChangeEnd }) ?? <></>,
-    [editViewFn, value, onChange, onChangeEnd]
+    [editViewFn, JSON.stringify(value), onChange, onChangeEnd]
   );
 
   const enterEditFn = useCallback(() => {

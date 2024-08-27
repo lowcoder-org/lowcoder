@@ -325,15 +325,6 @@ const TableWrapper = styled.div<{
             border-top-right-radius: 0px;
           }
         }
-
-        // hide the bottom border of the last row
-        ${(props) =>
-    props.$toolbarPosition !== "below" &&
-    `
-            tbody > tr:last-child > td {
-              border-bottom: unset;
-            }
-        `}
       }
 
       .ant-table-expanded-row-fixed:after {
@@ -948,6 +939,7 @@ export function TableCompView(props: {
     return (
       <TableSummary
         tableSize={size}
+        istoolbarPositionBelow={toolbar.position === "below"}
         expandableRows={Boolean(expansion.expandModalView)}
         summaryRows={parseInt(summaryRows)}
         columns={columns}

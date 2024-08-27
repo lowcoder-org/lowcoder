@@ -7,10 +7,19 @@ import Table from "antd/es/table";
 import { ReactNode } from "react";
 import Tooltip from "antd/es/tooltip";
 
-const TableSummaryRow = styled(Table.Summary.Row)`
+const TableSummaryRow = styled(Table.Summary.Row)<{
+  $istoolbarPositionBelow: boolean;
+}>`
   td:last-child {
     border-right: unset !important;
   }
+
+  ${props => !props.$istoolbarPositionBelow && `
+    &:last-child td {
+      border-bottom: none !important;
+    }
+  `}
+  
 `;
 
 const TableSummarCell = styled(Table.Summary.Cell)<{
@@ -168,6 +177,7 @@ export function TableSummary(props: {
   summaryRows: number;
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
+  istoolbarPositionBelow: boolean;
 }) {
   const {
     columns,
@@ -175,6 +185,7 @@ export function TableSummary(props: {
     summaryRowStyle,
     tableSize,
     expandableRows,
+    istoolbarPositionBelow,
   } = props;
   let visibleColumns = columns.filter(col => !col.getView().hide);
   if (expandableRows) {
@@ -186,7 +197,7 @@ export function TableSummary(props: {
   return (
     <Table.Summary>
       {Array.from(Array(summaryRows)).map((_, rowIndex) => (
-        <TableSummaryRow key={rowIndex}>
+        <TableSummaryRow key={rowIndex} $istoolbarPositionBelow={istoolbarPositionBelow}>
           {visibleColumns.map((column, index) => {
             const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
             return (
