@@ -489,18 +489,37 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.interaction}>
             {comp.children.onEvent.getPropertyView()}
-            {comp.children.selection.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
+            {comp.children.showDataLoadSpinner.propertyView({
+              label: trans("table.showDataLoadSpinner"),
+            })}
+            {comp.children.selection.getPropertyView()}
+            {comp.children.editModeClicks.propertyView({
+              label: trans("table.editMode"),
+              radioButton: true,
+            })}
+            {comp.children.searchText.propertyView({
+              label: trans("table.searchText"),
+              tooltip: trans("table.searchTextTooltip"),
+              placeholder: "{{input1.value}}",
+            })}
           </Section>
 
           <Section name={"Summary"}>
             {comp.children.showSummary.propertyView({
               label: trans("table.showSummary")
             })}
-            {comp.children.summaryRows.propertyView({
+            {comp.children.showSummary.getView() &&
+              comp.children.summaryRows.propertyView({
               label: trans("table.totalSummaryRows"),
               radioButton: true,
+            })}
+          </Section>
+
+          <Section name={"Insert Rows"}>
+            {comp.children.inlineAddNewRow.propertyView({
+              label: trans("table.inlineAddNewRow")
             })}
           </Section>
 
@@ -550,26 +569,11 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
         <>
           <Section name={sectionNames.advanced}>
             {comp.children.expansion.getPropertyView()}
-            {comp.children.inlineAddNewRow.propertyView({
-              label: trans("table.inlineAddNewRow")
-            })}
-            {comp.children.showDataLoadSpinner.propertyView({
-              label: trans("table.showDataLoadSpinner"),
-            })}
             {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
             {comp.children.dynamicColumn.getView() &&
               comp.children.dynamicColumnConfig.propertyView({
                 label: trans("table.dynamicColumnConfig"),
                 tooltip: trans("table.dynamicColumnConfigDesc"),
-            })}
-            {comp.children.editModeClicks.propertyView({
-              label: trans("table.editMode"),
-              radioButton: true,
-            })}
-            {comp.children.searchText.propertyView({
-              label: trans("table.searchText"),
-              tooltip: trans("table.searchTextTooltip"),
-              placeholder: "{{input1.value}}",
             })}
           </Section>
         </>
