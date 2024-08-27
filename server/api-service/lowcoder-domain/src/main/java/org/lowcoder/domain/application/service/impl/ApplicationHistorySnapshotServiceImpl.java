@@ -4,6 +4,7 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_HISTORY_SNAPSHOT;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -56,5 +57,14 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     public Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId) {
         return repository.findById(historySnapshotId)
                 .switchIfEmpty(deferredError(INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", historySnapshotId));
+    }
+
+    @Override
+    public Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId) {
+        ApplicationHistorySnapshot _default = new ApplicationHistorySnapshot();
+        _default.setCreatedAt(Instant.ofEpochMilli(0));
+        _default.setCreatedBy("");
+        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt"))
+                .switchIfEmpty(Mono.just(_default)).next();
     }
 }

@@ -23,6 +23,8 @@ public interface ApplicationService {
 
     Mono<Application> publish(String applicationId);
 
+    Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished);
+
     Mono<Application> create(Application newApplication, String visitorId);
 
     Flux<Application> findByOrganizationIdWithDsl(String organizationId);
