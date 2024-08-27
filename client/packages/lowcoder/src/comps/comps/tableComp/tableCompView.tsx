@@ -380,8 +380,11 @@ const TableTd = styled.td<{
   border-radius: ${(props) => props.$style.radius};
   padding: 0 !important;
 
-  > div {
-    margin: ${(props) => props.$style.margin};
+  > div:not(.editing-border, .editing-wrapper),
+  .editing-wrapper .ant-input,
+  .editing-wrapper .ant-input-number,
+  .editing-wrapper .ant-picker {
+    margin: ${(props) => props.$isEditing ? '0px' : props.$style.margin};
     color: ${(props) => props.$style.text};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
@@ -389,7 +392,7 @@ const TableTd = styled.td<{
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
-    font-style:${props.$style.fontStyle} !important;
+      font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
       line-height: 20px;
       ${!props.$autoHeight && `
@@ -600,7 +603,7 @@ function TableCellView(props: {
       </TableTd>
     );
   }
- 
+
   return (
     <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       {tdView}
@@ -816,8 +819,8 @@ export function TableCompView(props: {
       return;
     }
 
-    const newRows: Record<string, RecordType> = {...emptyRowsMap};
-    const existingRowsKeys = Object.keys(newRows);
+    let emptyRows: Record<string, RecordType> = {...emptyRowsMap};
+    const existingRowsKeys = Object.keys(emptyRows);
     const existingRowsCount = existingRowsKeys.length;
     const updatedRowsKeys = Object.keys(insertSet).filter(
       key => key.startsWith(EMPTY_ROW_KEY)
@@ -827,12 +830,25 @@ export function TableCompView(props: {
       x => !updatedRowsKeys.includes(x)
     );
 
+    if (removedRowsKeys.length === existingRowsCount) {
+      const newRowIndex = 0;
+      const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+      setEmptyRowsMap({
+        [newRowKey]: createNewEmptyRow(newRowIndex, columnsAggrData)
+      });
+      const ele = document.querySelector<HTMLElement>(`[data-row-key=${newRowKey}]`);
+      if (ele) {
+        ele.style.display = '';
+      }
+      return;
+    }
+
     removedRowsKeys.forEach(rowKey => {
       if (
         rowKey === existingRowsKeys[existingRowsCount - 1]
         || rowKey === existingRowsKeys[existingRowsCount - 2]
       ) {
-        delete newRows[rowKey];
+        delete emptyRows[rowKey];
       } else {
         const ele = document.querySelector<HTMLElement>(`[data-row-key=${rowKey}]`);
         if (ele) {
@@ -840,17 +856,15 @@ export function TableCompView(props: {
         }
       }
     })
-
     const lastRowKey = updatedRowsCount ? updatedRowsKeys[updatedRowsCount - 1] : '';
-    const lastRowIndex = updatedRowsCount ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
+    const lastRowIndex = lastRowKey ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
 
     const newRowIndex = lastRowIndex + 1;
     const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
-    newRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
-    setEmptyRowsMap(newRows);
+    emptyRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
+    setEmptyRowsMap(emptyRows);
   }, [
     inlineAddNewRow,
-    JSON.stringify(emptyRowsMap),
     JSON.stringify(insertSet),
     setEmptyRowsMap,
     createNewEmptyRow,
@@ -922,9 +936,7 @@ export function TableCompView(props: {
       onCancelChanges={() => {
         handleChangeEvent("cancelChanges");
         if (inlineAddNewRow) {
-          setEmptyRowsMap({
-            [`${EMPTY_ROW_KEY}_0`]: createNewEmptyRow(0, columnsAggrData),
-          });
+          setEmptyRowsMap({});
         }
       }}
       onEvent={onEvent}

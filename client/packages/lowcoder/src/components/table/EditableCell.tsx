@@ -126,10 +126,12 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       onTableEvent?.('columnEdited');
     }
   }, [dispatch, baseValue, tmpValue]);
+
   const editView = useMemo(
     () => editViewFn?.({ value, onChange, onChangeEnd }) ?? <></>,
     [editViewFn, value, onChange, onChangeEnd]
   );
+
   const enterEditFn = useCallback(() => {
     if (editable) setIsEditing(true);
   }, [editable]);
@@ -137,9 +139,13 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
   if (isEditing) {
     return (
       <>
-        <BorderDiv />
+        <BorderDiv className="editing-border" />
         <TagsContext.Provider value={candidateTags ?? []}>
-          <StatusContext.Provider value={candidateStatus ?? []}>{editView}</StatusContext.Provider>
+          <StatusContext.Provider value={candidateStatus ?? []}>
+            <div className="editing-wrapper">
+              {editView}
+            </div>
+          </StatusContext.Provider>
         </TagsContext.Provider>
       </>
     );
@@ -151,7 +157,12 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       >
         {status === "toSave" && !isEditing && <EditableChip />}
         <CellWrapper tooltipTitle={props.cellTooltip}>
-          {normalView}
+          <div
+            tabIndex={editable ? 0 : -1 }
+            onFocus={enterEditFn}
+          >
+            {normalView}
+          </div>
         </CellWrapper>
         {/* overlay on normal view to handle double click for editing */}
         {editable && (
