@@ -1546,6 +1546,13 @@ export const zh: typeof en = {
         allColumn: "全部",
         visibleColumn: "可见",
         emptyColumns: "当前没有可见列",
+        showSummary: "显示摘要行",
+        totalSummaryRows: "总行数",
+        inlineAddNewRow: "内联添加新行",
+        editMode: "编辑模式",
+        singleClick: "单击",
+        doubleClick: "双击",
+        showUpdateButtons: "显示保存/取消按钮",
     },
     image: {
         ...en.image,
@@ -2344,6 +2351,8 @@ export const zh: typeof en = {
         editorMode_layout: "应用程序布局",
         editorMode_logic: "应用程序逻辑",
         editorMode_both: "两者",
+        editorMode_layout_tooltip: "在右侧窗口中自定义组件的外观和布局。调整它的外观、样式和动画。",
+        editorMode_logic_tooltip: "在右侧窗口中设置组件的工作和交互方式。管理其内容和交互行为。"
     },
     userAuth: {
         ...en.userAuth,

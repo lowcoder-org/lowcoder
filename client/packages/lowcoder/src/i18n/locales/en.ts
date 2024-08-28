@@ -1854,7 +1854,7 @@ export const en = {
     "columnSeparatorTooltip": "Column Separator (\"delimiter\") in downloaded CSV file. \n\nRecommendations:\n- Comma (,)\n- Semicolon (;)\n- Pipe (|)\n- Tab (\\t)",
     "columnSetting": "Show Columns Visibility Button",
     "searchText": "Search Text",
-    "searchTextTooltip": "Search and Filter the Data Presented in the Table",
+    "searchTextTooltip": "Search and Filter the Data, which is currently Presented in the Table. This is a frontend-only Search and Does Not Affect the Data Source Query.)",
     "showQuickJumper": "Show Quick Jumper",
     "hideOnSinglePage": "Hide on Single Page",
     "showSizeChanger": "Show Size Changer Button",
@@ -1999,12 +1999,13 @@ export const en = {
     "allColumn": "All",
     "visibleColumn": "Visible",
     "emptyColumns": "No Columns Are Currently Visible",
-    "showSummary": "Show Summary Row",
+    "showSummary": "Show Summary Row(s)",
     "totalSummaryRows": "Total Rows",
-    "inlineAddNewRow": "Inline Add New Row",
+    "inlineAddNewRow": "Inline Add New Row(s)",
     "editMode": "Edit Mode",
     "singleClick": "Single Click",
     "doubleClick": "Double Click",
+    "showUpdateButtons": "Show Save/Cancel Buttons",
   },
 
 
@@ -2142,7 +2143,7 @@ export const en = {
     "single": "Single",
     "multiple": "Multiple",
     "close": "Close",
-    "mode": "Select Mode"
+    "mode": "Row Select Mode"
   },
   "container": {
     "title": "Displayed Container Title",
@@ -2905,7 +2906,9 @@ export const en = {
     "clone": "Clone",
     "editorMode_layout": "Layout",
     "editorMode_logic": "Logic",
-    "editorMode_both": "Both"
+    "editorMode_both": "Both",
+    "editorMode_layout_tooltip": "Customise the component's appearance and layout, in the right window. Adjust how it looks, styles, and animates.",
+    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours."
   },
   "userAuth": {
     "registerByEmail": "Sign Up",

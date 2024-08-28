@@ -642,6 +642,26 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
     },
   },
+  {
+    method: {
+      name: "cancelChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearChangeSet();
+    },
+  },
+  {
+    method: {
+      name: "cancelInsertChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearInsertSet();
+    },
+  },
 ]);
 
 // exposing data
