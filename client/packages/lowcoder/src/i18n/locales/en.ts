@@ -2005,6 +2005,7 @@ export const en = {
     "editMode": "Edit Mode",
     "singleClick": "Single Click",
     "doubleClick": "Double Click",
+    "showUpdateButtons": "Show Save/Cancel Buttons",
   },
 
 
