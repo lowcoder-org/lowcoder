@@ -2906,7 +2906,9 @@ export const en = {
     "clone": "Clone",
     "editorMode_layout": "Layout",
     "editorMode_logic": "Logic",
-    "editorMode_both": "Both"
+    "editorMode_both": "Both",
+    "editorMode_layout_tooltip": "Customise the component's appearance and layout, in the right window. Adjust how it looks, styles, and animates.",
+    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours."
   },
   "userAuth": {
     "registerByEmail": "Sign Up",
