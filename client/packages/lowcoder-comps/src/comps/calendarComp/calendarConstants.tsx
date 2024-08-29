@@ -15,6 +15,7 @@ import {
   lightenColor,
   toHex,
   UnderlineCss,
+  EventModalStyleType
 } from "lowcoder-sdk";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -747,18 +748,38 @@ export const Event = styled.div<{
   }
 `;
 
-export const FormWrapper = styled(Form)`
+export const FormWrapper = styled(Form)<{
+  $modaltyle: EventModalStyleType
+}>`
   .ant-form-item-label {
     width: 100px;
     text-align: left;
     line-height: 18px;
+
+    label.ant-form-item-required {
+      font-size: ${(props) => props.$modaltyle.textSize};
+    }
+
     label:not(.ant-form-item-required) {
       margin-left: 11px;
+      font-size: ${(props) => props.$modaltyle.textSize};
     }
     label span {
       ${UnderlineCss}
+      
     }
   }
+
+  // Setting style for input fields
+  .ant-input {
+    background-color: ${(props) => props.$modaltyle.labelBackground };
+    border-color: ${(props) => props.$modaltyle.border};
+    border-width: ${(props) => props.$modaltyle.borderWidth};
+    border-style: ${(props) => props.$modaltyle.borderStyle};
+    color: ${(props) => props.$modaltyle.text};
+    font-size: ${(props) => props.$modaltyle.textSize};
+  }
+
 `;
 
 export type EventType = {

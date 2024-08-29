@@ -12,7 +12,7 @@ import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
   $width?: string | number;
-  $animationStyle?:any
+  $customStyles?:any
 };
 
 type Model = {
@@ -25,16 +25,16 @@ const ModalWrapper = styled.div<ModalWrapperProps>`
   flex-direction: column;
   width: ${(props) => (props.$width ? props.$width : "368px")};
   height: fit-content;
-  background: #ffffff;
+  background:${(props) => props.$customStyles?.backgroundColor}; ;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0 0 16px;
   pointer-events: auto;
   will-change: transform;
-  animation: ${(props) => props.$animationStyle?.animation};
-  animation-delay: ${(props) => props.$animationStyle?.animationDelay};
-  animation-duration: ${(props) => props.$animationStyle?.animationDuration};
-  animation-iteration-count: ${(props) => props.$animationStyle?.animationIterationCount};
+  animation: ${(props) => props.$customStyles?.animationStyle?.animation};
+  animation-delay: ${(props) => props.$customStyles?.animationStyle?.animationDelay};
+  animation-duration: ${(props) => props.$customStyles?.animationStyle?.animationDuration};
+  animation-iteration-count: ${(props) => props.$customStyles?.animationStyle?.animationIterationCount};
 `;
 
 const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
@@ -210,7 +210,7 @@ export type CustomModalProps = {
   children?: JSX.Element | React.ReactNode;
   okButtonType?: TacoButtonType;
   model?: Model;
-  animationStyle?:any
+  customStyles?:any
 } & AntdModalProps;
 
 const DEFAULT_PROPS = {
@@ -223,7 +223,7 @@ const DEFAULT_PROPS = {
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper $width={props.width} $animationStyle={props?.animationStyle}>
+      <ModalWrapper $width={props.width} $customStyles={props?.customStyles}>
         <>
           <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
             <ModalHeader
@@ -282,7 +282,7 @@ CustomModal.confirm = (props: {
   footer?: ReactNode;
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
-  animationStyle?:React.CSSProperties;
+  customStyles?:React.CSSProperties;
 }): any => {
 
   const defaultConfirmProps: ModalFuncProps = {
@@ -340,7 +340,7 @@ CustomModal.confirm = (props: {
         }}
         footer={props.footer}
         width={props.width}
-        animationStyle={props.animationStyle}
+        customStyles={props.customStyles}
       />
     ),
   });
