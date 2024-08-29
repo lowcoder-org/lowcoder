@@ -47,6 +47,7 @@ import {
   Tooltip,
   EditorContext,
   CompNameContext,
+  AnimationStyle
 } from 'lowcoder-sdk';
 
 import {
@@ -92,6 +93,7 @@ let childrenMap: any = {
   licenseKey: withDefault( StringControl, "" ),
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
 };
 // this should ensure backwards compatibility with older versions of the SDK
 if (DragEventHandlerControl) { 
@@ -121,9 +123,10 @@ let CalendarBasicComp = (function () {
     licensed?: boolean;
     currentFreeView?: string; 
     currentPremiumView?: string; 
+    animationStyle:any;
   }, dispatch: any) => {
   
-    const comp = useContext(EditorContext).getUICompByName(
+    const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
     );
     const onEventVal = comp?.toJsonValue()?.comp?.onEvent;
@@ -350,6 +353,12 @@ let CalendarBasicComp = (function () {
       const eventId = editEvent.current?.id;
       CustomModal.confirm({
         title: modalTitle,
+        style: {
+          animation: props.animationStyle?.animation || "none",
+          animationDelay: props.animationStyle?.animationDelay || "0s",
+          animationDuration: props.animationStyle?.animationDuration || "0s",
+          animationIterationCount: props.animationStyle?.animationIterationCount || "1",
+        },
         content: (
           <FormWrapper form={form}>
             <Form.Item
@@ -577,6 +586,7 @@ let CalendarBasicComp = (function () {
       currentFreeView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       currentPremiumView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       style: { getPropertyView: () => any; };
+      animationStyle:  { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
     }) => {
 
@@ -622,6 +632,7 @@ let CalendarBasicComp = (function () {
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
         </>
       );
     })
