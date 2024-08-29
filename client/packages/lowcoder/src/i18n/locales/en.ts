@@ -2361,6 +2361,8 @@ export const en = {
 
 
   "modalComp": {
+    "open": "Open",
+    "openDesc": "Triggered When the Modal Dialog Box is Opened",
     "close": "Close",
     "closeDesc": "Triggered When the Modal Dialog Box is Closed",
     "openModalDesc": "Open the Dialog Box",
