@@ -49,9 +49,9 @@ const DatePickerStyled = styled(DatePicker)<{ $open: boolean }>`
     top: 0.5px;
     display: flex;
     align-items: center;
-    background: #fff;
+    // background: #fff;
     padding: 0 3px;
-    border-left: 1px solid #d7d9e0;
+    // border-left: 1px solid #d7d9e0;
   }
 `;
 
@@ -183,7 +183,7 @@ export const DateEdit = (props: DateEditProps) => {
         nextIcon={<IconNext />}
         superNextIcon={<IconSuperNext />}
         superPrevIcon={<SuperPrevIcon />}
-        allowClear={false}
+        allowClear={true}
         variant="borderless"
         autoFocus
         value={tempValue}
@@ -197,7 +197,9 @@ export const DateEdit = (props: DateEditProps) => {
           overflow: "hidden",
         }}
         onOpenChange={(open) => setPanelOpen(open)}
-        onChange={(value, dateString) => props.onChange(dateString as string)}
+        onChange={(value, dateString) => {
+          props.onChange(dateString as string)
+        }}
         onBlur={() => props.onChangeEnd()}
       />
     </Wrapper>

@@ -1516,7 +1516,14 @@ export const de: typeof en = {
       "falseValues": "Text Wenn Falsch",
       "allColumn": "Alle",
       "visibleColumn": "Sichtbar",
-      "emptyColumns": "Derzeit sind keine Spalten sichtbar"
+      "emptyColumns": "Derzeit sind keine Spalten sichtbar",
+      "showSummary": "Zusammenfassungszeile(n) anzeigen",
+      "totalSummaryRows": "Gesamtzahl der Zeilen",
+      "inlineAddNewRow": "Inline neue Zeile(n) hinzufügen",
+      "editMode": "Bearbeitungsmodus",
+      "singleClick": "Einzelklick",
+      "doubleClick": "Doppelklick",
+      "showUpdateButtons": "Schaltflächen zum Speichern/Abbrechen anzeigen"
   },
   "image": {
       ...en.image,
@@ -2350,7 +2357,9 @@ export const de: typeof en = {
       "clone": "Klonen",
       "editorMode_layout": "Layout",
       "editorMode_logic": "Logik",
-      "editorMode_both": "Beide"
+      "editorMode_both": "Beide",
+      "editorMode_layout_tooltip": "Passen Sie im rechten Fenster das Erscheinungsbild und Layout der Komponente an. Passen Sie Aussehen, Stil und Animationen an.",
+      "editorMode_logic_tooltip": "Richten Sie im rechten Fenster ein, wie Ihre Komponente funktioniert und interagiert. Verwalten Sie den Inhalt und das interaktive Verhalten."
   },
   "userAuth": {
       ...en.userAuth,

@@ -14,7 +14,7 @@ const InputNumberWrapper = styled.div`
     width: 100%;
     border-radius: 0;
     background: transparent !important;
-    padding: 0 !important;
+    // padding: 0 !important;
     box-shadow: none;
 
     input {

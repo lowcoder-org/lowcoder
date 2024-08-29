@@ -21,7 +21,6 @@ import { PaddingControl } from "../controls/paddingControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [clickEvent] as const;
 
@@ -150,11 +149,6 @@ let TextTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const value = props.text.value;
-
-    useMergeCompStyles(
-      props as Record<string, any>,
-      dispatch
-    );
   
     return (
       <TextContainer

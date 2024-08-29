@@ -33,7 +33,6 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
@@ -151,9 +150,7 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-    
+  return new UICompBuilder(childrenMap, (props) => {
     return(<TreeCompView {...props} />)}
 )
     .setPropertyViewFn((children) => (

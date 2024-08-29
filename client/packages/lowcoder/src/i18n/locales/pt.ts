@@ -2051,7 +2051,14 @@ export const pt: typeof en = {
         "iconNull": "Ícone Quando Nulo",
         "allColumn": "Todas",
         "visibleColumn": "Visível",
-        "emptyColumns": "Nenhuma coluna está atualmente visível"
+        "emptyColumns": "Nenhuma coluna está atualmente visível",
+        "showSummary": "Mostrar linha(s) de resumo",
+        "totalSummaryRows": "Total de linhas",
+        "inlineAddNewRow": "Adicionar nova(s) linha(s) em linha",
+        "editMode": "Modo de edição",
+        "singleClick": "Clique Único",
+        "doubleClick": "Clique duplo",
+        "showUpdateButtons": "Mostrar botões Salvar/Cancelar",
     },
 
 
@@ -2959,7 +2966,9 @@ export const pt: typeof en = {
         "clone": "Clonar",
         "editorMode_layout": "Layout",
         "editorMode_logic": "Lógica",
-        "editorMode_both": "Ambos"
+        "editorMode_both": "Ambos",
+        "editorMode_layout_tooltip": "Personalize a aparência e o layout do componente, na janela direita. Ajuste sua aparência, estilo e animação.",
+        "editorMode_logic_tooltip": "Configure como seu componente funciona e interage, na janela direita. Gerencie seu conteúdo e comportamentos interativos."
     },
     "userAuth": {
         ...en.userAuth,

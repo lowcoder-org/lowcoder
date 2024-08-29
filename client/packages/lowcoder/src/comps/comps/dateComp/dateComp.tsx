@@ -48,7 +48,6 @@ import { RefControl } from "comps/controls/refControl";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -163,9 +162,7 @@ export type DateCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const datePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-  
+export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   let time: dayjs.Dayjs | null = null;
   if (props.value.value !== '') {
     time = dayjs(props.value.value, DateParser);
@@ -294,9 +291,7 @@ export const dateRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     let start: dayjs.Dayjs | null = null;
     if (props.start.value !== '') {
       start = dayjs(props.start.value, DateParser);
