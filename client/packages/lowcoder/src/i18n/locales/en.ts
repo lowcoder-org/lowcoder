@@ -2630,6 +2630,8 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace",
+    "npmRegistryTitle": "Custom NPM Registry",
+    "npmRegistryHelp": "Setup a custom NPM Registry to enable fetching of plugins from a private NPM registry.",
     "showHeaderInPublicApps": "Show Header In Public View",
     "showHeaderInPublicAppsHelp": "Set visibility of header in public view for all apps",
   },
@@ -2996,6 +2998,20 @@ export const en = {
   "homeTutorials": {
     "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
+  },
+  "npmRegistry": {
+    "npmRegistryEnable": "Enable custom NPM Registry",
+    "npmRegistryUrl": "NPM Registry Url",
+    "npmRegistryUrlRequired": "Please input the registry URL",
+    "npmRegistryUrlInvalid": "Please input a valid URL",
+    "npmRegistryScope": "Package Scope",
+    "npmRegistryPattern": "Pattern",
+    "npmRegistryPatternInvalid": "Please input a valid pattern (starting with @ for oragnizations).",
+    "npmRegistryAuth": "Authentication",
+    "npmRegistryAuthType": "Authentication Type",
+    "npmRegistryAuthCredentials": "Authentication Credentials",
+    "npmRegistryAuthCredentialsRequired": "Please input the registry credentials",
+    "npmRegistryAuthCredentialsHelp": "For basic auth provide the base64 encoded username and password in the format 'base64(username:password)', for token auth provide the token.",
   },
 
 
