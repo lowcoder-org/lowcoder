@@ -756,13 +756,8 @@ export const FormWrapper = styled(Form)<{
     text-align: left;
     line-height: 18px;
 
-    label.ant-form-item-required {
-      font-size: ${(props) => props.$modaltyle.textSize};
-    }
-
     label:not(.ant-form-item-required) {
       margin-left: 11px;
-      font-size: ${(props) => props.$modaltyle.textSize};
     }
     label span {
       ${UnderlineCss}
@@ -777,7 +772,6 @@ export const FormWrapper = styled(Form)<{
     border-width: ${(props) => props.$modaltyle.borderWidth};
     border-style: ${(props) => props.$modaltyle.borderStyle};
     color: ${(props) => props.$modaltyle.text};
-    font-size: ${(props) => props.$modaltyle.textSize};
   }
 
 `;

@@ -1866,7 +1866,6 @@ export const EventModalStyle = [
   BORDER_WIDTH,
   BORDER_STYLE,
   TEXT,
-  TEXT_SIZE,
   {
     name: "labelBackground",
     label: trans("style.labelBackground"),
