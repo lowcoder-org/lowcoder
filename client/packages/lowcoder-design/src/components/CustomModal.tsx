@@ -12,6 +12,7 @@ import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
   $width?: string | number;
+  $animationStyle?:any
 };
 
 type Model = {
@@ -30,6 +31,10 @@ const ModalWrapper = styled.div<ModalWrapperProps>`
   padding: 0 0 16px;
   pointer-events: auto;
   will-change: transform;
+  animation: ${(props) => props.$animationStyle?.animation};
+  animation-delay: ${(props) => props.$animationStyle?.animationDelay};
+  animation-duration: ${(props) => props.$animationStyle?.animationDuration};
+  animation-iteration-count: ${(props) => props.$animationStyle?.animationIterationCount};
 `;
 
 const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
@@ -205,6 +210,7 @@ export type CustomModalProps = {
   children?: JSX.Element | React.ReactNode;
   okButtonType?: TacoButtonType;
   model?: Model;
+  animationStyle?:any
 } & AntdModalProps;
 
 const DEFAULT_PROPS = {
@@ -217,7 +223,7 @@ const DEFAULT_PROPS = {
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper $width={props.width}>
+      <ModalWrapper $width={props.width} $animationStyle={props?.animationStyle}>
         <>
           <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
             <ModalHeader
@@ -276,6 +282,7 @@ CustomModal.confirm = (props: {
   footer?: ReactNode;
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
+  animationStyle?:React.CSSProperties;
 }): any => {
 
   const defaultConfirmProps: ModalFuncProps = {
@@ -333,6 +340,7 @@ CustomModal.confirm = (props: {
         }}
         footer={props.footer}
         width={props.width}
+        animationStyle={props.animationStyle}
       />
     ),
   });

@@ -353,7 +353,7 @@ let CalendarBasicComp = (function () {
       const eventId = editEvent.current?.id;
       CustomModal.confirm({
         title: modalTitle,
-        style: {
+        animationStyle: {
           animation: props.animationStyle?.animation || "none",
           animationDelay: props.animationStyle?.animationDelay || "0s",
           animationDuration: props.animationStyle?.animationDuration || "0s",
