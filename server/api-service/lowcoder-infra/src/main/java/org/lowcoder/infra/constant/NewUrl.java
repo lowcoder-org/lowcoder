@@ -33,4 +33,5 @@ public final class NewUrl {
     public static final String JS_LIBRARY = PREFIX + "/misc/js-library";
     public static final String MATERIAL_URL = PREFIX + "/materials";
     public static final String CONTACT_SYNC = PREFIX + "/sync";
+    public static final String NPM_REGISTRY = PREFIX + "/npm";
 }

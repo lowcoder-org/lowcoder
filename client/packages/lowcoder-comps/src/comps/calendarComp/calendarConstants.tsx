@@ -731,14 +731,10 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-      isDarkColor(props.$style.background) && props.$style.background};
+    `rgba(${props.$style.bg}, 0.3)`};
     &::before {
-      background-color: ${(props) =>
-        toHex(props.$style.text) === "#3C3C3C"
-          ? "#8B8FA3"
-          : isDarkColor(props.$style.text)
-            ? lightenColor(props.$style.text, 0.3)
-            : props.$style.text};
+    background-color: ${(props) => props.$style.bg};
+    opacity: 0.3;
     }
     &::before,
     .event-title,

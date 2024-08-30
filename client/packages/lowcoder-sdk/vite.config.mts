@@ -21,7 +21,7 @@ const apiBaseUrl = "http://localhost:8000";
 export const viteConfig: UserConfig = {
   define: {
     ...define,
-    REACT_APP_API_HOST: JSON.stringify(apiBaseUrl),
+    REACT_APP_API_SERVICE_URL: JSON.stringify(apiBaseUrl),
     REACT_APP_BUNDLE_TYPE: JSON.stringify("sdk"),
   },
   assetsInclude: ["**/*.md"],
