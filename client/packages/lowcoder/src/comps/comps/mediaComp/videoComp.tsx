@@ -24,7 +24,6 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import styled, { css } from "styled-components";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -129,9 +128,7 @@ const childrenMap = {
 };
  
 let VideoBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return <ContainerVideo {...props} />;
   })
     .setPropertyViewFn((children) => {

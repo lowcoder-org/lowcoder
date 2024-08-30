@@ -90,7 +90,7 @@ And we mean it... Day by day!
 ## 💻 Deployment Options
 [![Deploy to AWS using Stitch](https://img.shields.io/badge/deploy_with-Stitch-%23E369F7?logo=amazonaws&color=%23E369F7)](https://deploy.stitch.tech/lowcoder/lowcoder)
 
-[![Deploy in minutes on Elest.io](https://raw.githubusercontent.com/elestio-examples/element/main/deploy-on-elestio.png)](https://elest.io/open-source/lowcoder)
+[![Deploy to Elestio](https://img.shields.io/badge/Deploy_to-Elestio-%23E369F7?color=orange)](https://elest.io/open-source/lowcoder)
 
 You can access Lowcoder from [cloud-hosted version](https://app.lowcoder.cloud/) at any time, or use the following resources for self-host Lowcoder on different platforms:
 - [Docker](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)

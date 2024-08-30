@@ -20,7 +20,6 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
 
 /**
@@ -75,9 +74,7 @@ const childrenMap = {
 };
 
 let JsonEditorTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
     const initialized = useRef(false);

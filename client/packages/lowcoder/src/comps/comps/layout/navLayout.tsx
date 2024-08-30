@@ -16,7 +16,7 @@ import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { isUserViewMode, useAppPathParam, useMergeCompStyles } from "util/hooks";
+import { isUserViewMode, useAppPathParam } from "util/hooks";
 import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import {
@@ -290,8 +290,6 @@ NavTmpLayout = withViewFn(NavTmpLayout, (comp) => {
   const jsonItems = comp.children.jsonItems.getView();
   const dataOptionType = comp.children.dataOptionType.getView();
   const onEvent = comp.children.onEvent.getView();
-
-  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   // filter out hidden. unauthorised items filtered by server
   const filterItem = useCallback((item: LayoutMenuItemComp): boolean => {

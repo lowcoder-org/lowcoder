@@ -15,7 +15,6 @@ import { StringControl } from "comps/controls/codeControl";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { withDefault } from "../generators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)
@@ -79,9 +78,7 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let QRCodeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-    
+  return new UICompBuilder(childrenMap, (props) => {
     return( <QRCodeView {...props} />)})
     .setPropertyViewFn((children) => (
       <>

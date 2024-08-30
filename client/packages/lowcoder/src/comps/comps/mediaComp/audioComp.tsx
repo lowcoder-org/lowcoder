@@ -15,7 +15,6 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -75,9 +74,7 @@ const childrenMap = {
 };
 
 let AudioBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return <ContainerAudio {...props} />;
   })
     .setPropertyViewFn((children) => {

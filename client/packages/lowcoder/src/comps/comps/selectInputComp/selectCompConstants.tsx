@@ -253,10 +253,12 @@ export const SelectUIView = (
     inputFieldStyle: SelectStyleType;
     onChange: (value: any) => void;
     dispatch: DispatchType;
+    autoFocus?: boolean;
   }
 ) => {
   return <Select
     ref={props.viewRef}
+    autoFocus={props.autoFocus}
     mode={props.mode}
     $inputFieldStyle={props.inputFieldStyle}
     $style={props.style as SelectStyleType & MultiSelectStyleType}

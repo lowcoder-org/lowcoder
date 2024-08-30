@@ -17,7 +17,6 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 type IProps = DividerProps & {
   $style: DividerStyleType;
@@ -110,8 +109,7 @@ function fixOldStyleData(oldData: any) {
 
 // Compatible with historical style data 2022-8-26
 const DividerTempComp = migrateOldData(
-  new UICompBuilder(childrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
+  new UICompBuilder(childrenMap, (props) => {   
     const dividerType = props.type ? 'vertical' : 'horizontal'; 
 
     return (
