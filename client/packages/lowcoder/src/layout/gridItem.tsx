@@ -6,6 +6,7 @@ import React, {
   ReactElement,
   SyntheticEvent,
   useCallback,
+  useContext,
   useMemo,
   useRef,
   useState,
@@ -26,6 +27,7 @@ import {
   setTransform,
 } from "./utils";
 import styled from "styled-components";
+import { EditorContext } from "@lowcoder-ee/comps/editorState";
 
 type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   i: string,
@@ -104,6 +106,7 @@ export function GridItem(props: GridItemProps) {
   const [resizing, setResizing] = useState<{ width: number; height: number } | undefined>();
   const [dragging, setDragging] = useState<{ top: number; left: number } | undefined>();
   const elementRef = useRef<HTMLDivElement>(null);
+  const editorState = useContext(EditorContext);
 
   // record the real height of the comp content
   const itemHeightRef = useRef<number | undefined>(undefined);
@@ -141,14 +144,17 @@ export function GridItem(props: GridItemProps) {
         onDrag={onDrag}
         onDragEnd={onDragEnd}
         onMouseDown={(e) => {
-          e.stopPropagation();
+          const parentContainer = editorState.findUIParentContainer(props.name!)?.toJsonValue();
 
           // allow mouseDown event on lowcoder-comp-kanban to make drag/drop work
-          if((props.compType as string).includes('lowcoder-comp-kanban')) return;
+          if(
+            (props.compType as string).includes('lowcoder-comp-kanban')
+            || parentContainer?.compType?.includes('lowcoder-comp-kanban')
+          ) return;
 
           // allow mouseDown event on lowcoder-comp-excalidraw to make drag/drop work
           if((props.compType as string).includes('lowcoder-comp-excalidraw')) return;
-
+          e.stopPropagation();
           const event = new MouseEvent("mousedown");
           document.dispatchEvent(event);
         }}
@@ -471,11 +477,11 @@ export function GridItem(props: GridItemProps) {
   return renderResult;
 }
 
-GridItem.defaultProps = {
-  className: "",
-  minH: 1,
-  minW: 1,
-  maxH: Infinity,
-  maxW: Infinity,
-  transformScale: 1,
-};
+// GridItem.defaultProps = {
+//   className: "",
+//   minH: 1,
+//   minW: 1,
+//   maxH: Infinity,
+//   maxW: Infinity,
+//   transformScale: 1,
+// };

@@ -231,7 +231,7 @@ const HiddenIcon = styled(CloseEyeIcon)`
   }
 `;
 
-export const CompSelectionWrapper = (props: {
+export const CompSelectionWrapper = React.memo((props: {
   id?: string;
   compType: UICompType;
   className?: string;
@@ -376,4 +376,4 @@ export const CompSelectionWrapper = (props: {
       </SelectableDiv>
     </div>
   );
-};
+});

@@ -577,4 +577,4 @@ function EditorView(props: EditorViewProps) {
   );
 }
 
-export default EditorView;
+export default React.memo(EditorView);
