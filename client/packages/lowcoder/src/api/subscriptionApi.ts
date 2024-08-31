@@ -70,11 +70,11 @@ export interface Pricing {
 }
 
 export interface Product {
-  title: string;
-  description: string;
-  image: string;
+  title?: string;
+  description?: string;
+  image?: string;
   pricingType: string;
-  pricing: Pricing[];
+  product: string;
   activeSubscription: boolean;
   accessLink: string;
   subscriptionId: string;
@@ -235,6 +235,38 @@ export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) 
   }
 };
 
+export const getProduct = async (productId : string) => {
+  const apiBody = {
+    path: "webhook/secure/get-product",
+    method: "post",
+    data: {"productId" : productId},
+    headers: lcHeaders
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data as any;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    throw error;
+  }
+};
+
+export const getProducts = async () => {
+  const apiBody = {
+    path: "webhook/secure/get-products",
+    method: "post",
+    data: {},
+    headers: lcHeaders
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data as any;
+  } catch (error) {
+    console.error("Error fetching product:", error);
+    throw error;
+  }
+};
+
 export const createCheckoutLink = async (customer: StripeCustomer, priceId: string, quantity: number, discount?: number) => {
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
   
@@ -272,17 +304,10 @@ export const InitializeSubscription = () => {
   const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
   const [products, setProducts] = useState<Product[]>([
     {
-      title: "Support Subscription",
-      description: "Support Ticket System and SLAs to guarantee response time and your project success.",
-      image: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png",
       pricingType: "Monthly, per User",
-      pricing: [
-        { type: "User", amount: "$3.49 (user, month)" },
-        { type: "> 10 Users", amount: "$2.49 (user, month)" },
-        { type: "> 100 Users", amount: "$1.49 (user, month)" }
-      ],
       activeSubscription: false,
       accessLink: "1PhH38DDlQgecLSfSukEgIeV",
+      product: "QW8L3WPMiNjQjI",
       subscriptionId: "",
       checkoutLink: "",
       checkoutLinkDataLoaded: false,
@@ -290,22 +315,27 @@ export const InitializeSubscription = () => {
       quantity_entity: "orgUser",
     },
     {
-      title: "Premium Media Subscription",
-      description: "Access to all features.",
-      image: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png",
       pricingType: "Monthly, per User",
-      pricing: [
-        { type: "Volume Price", amount: "$20/month" },
-        { type: "Single Price", amount: "$25/month" }
-      ],
       activeSubscription: false,
       accessLink: "1Pf65wDDlQgecLSf6OFlbsD5",
+      product: "QW8MpIBHxieKXd",
       checkoutLink: "",
       checkoutLinkDataLoaded: false,
       subscriptionId: "",
       type: "user",
       quantity_entity: "singleItem",
-    }
+    },
+    {
+      pricingType: "Monthly, per User",
+      activeSubscription: false,
+      accessLink: "1PttHIDDlQgecLSf0XP27tXt",
+      product: "QlQ7cdOh8Lv4dy",
+      subscriptionId: "",
+      checkoutLink: "",
+      checkoutLinkDataLoaded: false,
+      type: "org",
+      quantity_entity: "singleItem",
+    },
   ]);
 
   const user = useSelector(getUser);
@@ -328,7 +358,7 @@ export const InitializeSubscription = () => {
     orgId: orgID,
     userId: user.id,
     userName: user.username,
-    type: admin ? "admin" : "user",
+    type: admin,
     companyName: currentOrg?.name || "Unknown",
   };
 
@@ -418,12 +448,13 @@ export const InitializeSubscription = () => {
     checkoutLinkDataLoaded,
     checkoutLinkDataError,
     products,
+    admin,
   };
 };
 
 export enum SubscriptionProducts {
   SUPPORT = "QW8L3WPMiNjQjI",
-  MEDIAPACKAGE = 'standard',
+  MEDIAPACKAGE = 'QW8MpIBHxieKXd',
   AZUREAPIS = 'premium',
   GOOGLEAPIS = 'enterprise',
   AWSAPIS = 'enterprise-global',

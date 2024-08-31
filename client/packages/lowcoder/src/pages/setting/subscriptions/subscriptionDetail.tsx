@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import { HeaderBack } from "../permission/styledComponents";
 import history from "util/history";
 import { SUBSCRIPTION_SETTING } from "constants/routesURL";
+import { getProduct }  from '@lowcoder-ee/api/subscriptionApi';
 
 const FieldWrapper = styled.div`
   margin-bottom: 32px;
@@ -18,6 +19,11 @@ const Wrapper = styled.div`
 
 export function SubscriptionDetail() {
   const { subscriptionId } = useParams<{ subscriptionId: string }>();
+  const { productId } = useParams<{ productId: string }>();
+
+  const product = getProduct(productId);
+
+  console.log("product", product);
 
   return (
     <Wrapper>

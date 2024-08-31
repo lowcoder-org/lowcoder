@@ -62,6 +62,7 @@ import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/fold
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
+import { Support } from "pages/support";
 // import { TypographyText } from "../../components/TypographyText";
 // import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
@@ -300,7 +301,7 @@ export default function ApplicationHome() {
               {
                 text: <TabLabel>{trans("home.support")}</TabLabel>,
                 routePath: SUPPORT_URL,
-                routeComp: TrashView,
+                routeComp: Support,
                 icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],

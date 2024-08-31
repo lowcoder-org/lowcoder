@@ -5,9 +5,10 @@ import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import { Flex } from 'antd';
 import { ProductCard } from "./productCard";
 import { InitializeSubscription } from "@lowcoder-ee/api/subscriptionApi";
+import { getProducts }  from '@lowcoder-ee/api/subscriptionApi';
+import { useState, useEffect } from 'react';
 
 const SubscriptionSettingContent = styled.div`
-  max-width: 840px;
 
   .section-title {
     font-size: 14px;
@@ -26,6 +27,7 @@ const SubscriptionSettingContent = styled.div`
   }
 `;
 
+
 export function SubscriptionSetting() {
   const {
     customer,
@@ -34,7 +36,29 @@ export function SubscriptionSetting() {
     products,
     subscriptionDataError,
     checkoutLinkDataError,
+    admin,
   } = InitializeSubscription();
+
+  const [subscriptionProducts, setSubscriptionProducts] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productData = await getProducts();
+        setSubscriptionProducts(productData);
+        console.log("productData", productData);
+      } catch (err) {
+        setError("Failed to fetch product.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   return (
     <Level1SettingPageContent>
@@ -43,23 +67,34 @@ export function SubscriptionSetting() {
       </Level1SettingPageTitle>
       {customer != null ? (
         <SubscriptionSettingContent>
-          {customer && <h3>Your Customer Number: {customer?.id.substring(4)}</h3>}
-          <Flex wrap='wrap' gap="large">
-            {products.map((product, index) => (
-              <ProductCard
-                key={index}
-                title={product.title}
-                description={product.description}
-                image={product.image}
-                pricingType={product.pricingType}
-                pricing={product.pricing}
-                activeSubscription={product.activeSubscription}
-                checkoutLink={product.checkoutLink}
-                checkoutLinkDataLoaded={product.checkoutLinkDataLoaded}
-                subscriptionId={product.subscriptionId}
-                productId={product.accessLink}
-              />
-            ))}
+          {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin && "| you are Subscriptions-Admin of this Workspace"}</h3>}
+          <Flex wrap='wrap' gap="large" style={{marginTop: "40px"}}>
+            {products
+            .filter((product) => {
+              if (product.type === "org") { 
+                return admin === "admin";
+              }
+              return true;
+            })
+            .map((product, index) => {
+              const productData = subscriptionProducts?.data.find((p: { id: string; }) => p.id === ("prod_" + product?.product));
+              const imageUrl = productData && productData.images.length > 0 ? productData.images[0] : null;
+              return (
+                <ProductCard
+                  key={index}
+                  title={productData?.name}
+                  description={productData?.description}
+                  image={imageUrl}
+                  pricingType={product.pricingType}
+                  activeSubscription={product.activeSubscription}
+                  checkoutLink={product.checkoutLink}
+                  checkoutLinkDataLoaded={product.checkoutLinkDataLoaded}
+                  loading={loading}
+                  subscriptionId={product.subscriptionId}
+                  productId={product.product}
+                />
+              );
+            } )}
           </Flex>
         </SubscriptionSettingContent>
       ) : (

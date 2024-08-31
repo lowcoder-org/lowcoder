@@ -26,8 +26,9 @@ export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
 export const SUBSCRIPTION_SUCCESS = `${SUBSCRIPTION_SETTING}/success`;
 export const SUBSCRIPTION_ERROR = `${SUBSCRIPTION_SETTING}/error`;
-export const SUBSCRIPTION_DETAIL = `${SUBSCRIPTION_SETTING}/details/:subscriptionId`;
+export const SUBSCRIPTION_DETAIL = `${SUBSCRIPTION_SETTING}/details/:subscriptionId/:productId`;
 export const SUBSCRIPTION_INFO = `${SUBSCRIPTION_SETTING}/info/:productId`;
+export const SUPPORT_DETAIL = `${SUPPORT_URL}/details/:ticketId`;
 
 export const ALL_APPLICATIONS_URL = "/apps";
 export const ADMIN_APP_URL = "/ee/:applicationId/:viewMode";
@@ -106,5 +107,5 @@ export const buildGroupId = (groupId: string) => `${PERMISSION_SETTING}/${groupI
 
 export const buildOrgId = (orgId: string) => `${ORGANIZATION_SETTING}/${orgId}`;
 
-export const buildSubscriptionSettingsLink = (subscriptionId: string) => `${SUBSCRIPTION_SETTING}/details/${subscriptionId}`;
+export const buildSubscriptionSettingsLink = (subscriptionId: string, productId : string) => `${SUBSCRIPTION_SETTING}/details/${subscriptionId}/${productId}`;
 export const buildSubscriptionInfoLink = (productId: string) => `${SUBSCRIPTION_SETTING}/info/${productId}`;

@@ -3137,6 +3137,7 @@ export const en = {
     "support": "Support",
     "supportTitle": "Lowcoder Support",
     "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
+    "newSupportTicket": "New Support Ticket",
   },
   "carousel": {
     "dotPosition": "Navigation Dots position",
