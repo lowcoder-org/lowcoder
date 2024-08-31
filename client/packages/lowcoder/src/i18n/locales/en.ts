@@ -3135,10 +3135,23 @@ export const en = {
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
     "support": "Support",
+  },
+  "support" : {
     "supportTitle": "Lowcoder Support",
     "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
     "newSupportTicket": "New Support Ticket",
+    "ticketTitle": "Title",
+    "priority": "Priority",
+    "assignee": "Assignee",
+    "status": "Ticket Status",
+    "updatedTime": "Updated Time",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noEmail": "No Email",
+    "details": "Details",
+    "reloadTickets" : "Reload Tickets",
   },
+
   "carousel": {
     "dotPosition": "Navigation Dots position",
     "autoPlay": "AutoPlay",

@@ -1,5 +1,5 @@
 // index.tsx for routes
-import { Route, Switch, useLocation } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import { SUBSCRIPTION_SETTING, SUBSCRIPTION_DETAIL, SUBSCRIPTION_INFO, SUBSCRIPTION_SUCCESS, SUBSCRIPTION_ERROR } from 'constants/routesURL';
 import { SubscriptionSetting } from './subscriptionSetting';
 import SubscriptionSuccess from './subscriptionSuccess';

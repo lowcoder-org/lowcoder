@@ -8,6 +8,9 @@ import StepModal from "components/StepModal";
 import { Search, TacoButton } from "lowcoder-design";
 import { Table } from "../../components/Table";
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
+import { Avatar, Flex, Tooltip } from "antd";
+import { buildSupportTicketLink } from "constants/routesURL";
+import history from "util/history";
 
 const SupportWrapper = styled.div`
   display: flex;
@@ -45,6 +48,16 @@ const AddBtn = styled(TacoButton)`
   height: 32px;
 `;
 
+const ReloadBtn = styled(TacoButton)`
+  min-width: 96px;
+  width: fit-content;
+  height: 32px;
+`;
+
+const EditBtn = styled(TacoButton)`
+
+`;
+
 const BodyWrapper = styled.div`
   width: 100%;
   flex-grow: 1;
@@ -59,6 +72,15 @@ const StyledTable = styled(Table)`
 
 const SubColumnCell = styled.div`
   color: #8b8fa3;
+`;
+
+const StatusDot = styled.span<{ active: boolean }>`
+  display: inline-block;
+  margin-left: 14px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: ${(props) => (props.active ? "green" : "gray")};
 `;
 
 function formatDateToMinute(dateString: string): string {
@@ -76,6 +98,11 @@ function formatDateToMinute(dateString: string): string {
   return `${year}-${month}-${day} ${hour}:${minute}`;
 }
 
+// Function to handle edit button click
+const handleEditClick = (ticketId: string) => {
+  history.push(buildSupportTicketLink(ticketId));
+};
+
 export function SupportOverview() {
   const { orgID, currentUser, domain } = useUserDetails();
   const [supportTickets, setSupportTickets] = useState<any>([]);
@@ -84,19 +111,21 @@ export function SupportOverview() {
   const [searchValue, setSearchValue] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
 
-  useEffect(() => {
-    const fetchSupportTickets = async () => {
-      try {
-        const ticketData = await searchCustomerTickets(orgID, currentUser.id, domain);
-        setSupportTickets(ticketData);
-      } catch (err) {
-        setError("Failed to fetch support tickets.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+   // Function to fetch support tickets
+   const fetchSupportTickets = async () => {
+    setLoading(true); // Set loading to true while fetching data
+    try {
+      const ticketData = await searchCustomerTickets(orgID, currentUser.id, domain);
+      setSupportTickets(ticketData);
+    } catch (err) {
+      setError("Failed to fetch support tickets.");
+      console.error(err);
+    } finally {
+      setLoading(false); // Set loading to false after fetching data
+    }
+  };
 
+  useEffect(() => {
     fetchSupportTickets();
   }, [orgID, currentUser.id, domain]);
 
@@ -112,7 +141,7 @@ export function SupportOverview() {
 
   return (
     <>
-      <Helmet><title>{trans("home.supportTitle")}</title></Helmet>
+      <Helmet><title>{trans("support.supportTitle")}</title></Helmet>
       <SupportWrapper>
 
       <StepModal
@@ -135,32 +164,37 @@ export function SupportOverview() {
           ]} />
 
         <HeaderWrapper>
-          <Title>{trans("home.supportTickets")}</Title>
-          <Search
-            placeholder={trans("search")}
-            value={searchValue}
-            onChange={(e) => setSearchValue(e.target.value)}
-            style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }} />
-          <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
-            {trans("home.newSupportTicket")}
-          </AddBtn>
+          <Title>{trans("support.supportTitle")}</Title>
+          <Flex gap="12px">
+            <Search
+              placeholder={trans("search")}
+              value={searchValue}
+              onChange={(e) => setSearchValue(e.target.value)}
+              style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }} />
+            <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
+              {trans("support.newSupportTicket")}
+            </AddBtn>
+            <ReloadBtn buttonType={"normal"} onClick={() => fetchSupportTickets()}>
+              {trans("support.reloadTickets")}
+            </ReloadBtn>
+          </Flex>
         </HeaderWrapper>
         <BodyWrapper>
-          {!loading ? (
             <StyledTable
+              loading={loading}
               rowClassName="datasource-can-not-edit"
               tableLayout={"auto"}
               scroll={{ x: "100%" }}
               pagination={false}
               columns={[
                 {
-                  title: trans("home.ticketTitle"),
+                  title: trans("support.ticketTitle"),
                   dataIndex: "title",
                   ellipsis: true,
                   sorter: (a: any, b: any) => a.title.localeCompare(b.title),
                 },
                 {
-                  title: trans("home.priority"),
+                  title: trans("support.priority"),
                   dataIndex: "priority",
                   ellipsis: true,
                   width: "192px",
@@ -168,23 +202,32 @@ export function SupportOverview() {
                   render: (priority: any) => <SubColumnCell>{priority.name}</SubColumnCell>,
                 },
                 {
-                  title: trans("home.assignee"),
+                  title: trans("support.assignee"),
                   dataIndex: "assignee",
                   ellipsis: true,
                   width: "192px",
-                  sorter: (a: any, b: any) => a.assignee.email.localeCompare(b.assignee.email),
-                  render: (assignee: any) => <SubColumnCell>{assignee.email}</SubColumnCell>,
+                  render: (assignee: any) => (
+                    <SubColumnCell>
+                      <Tooltip title={"Support Member is active in: " + 
+                          assignee.timeZone + ", " + 
+                          (assignee.email || trans("support.noEmail"))
+                        }>
+                        <Avatar src={assignee.avatar} alt={assignee.email} />
+                      </Tooltip>
+                      <StatusDot active={assignee.active} />
+                    </SubColumnCell>
+                  ),
                 },
                 {
-                  title: trans("home.status"),
+                  title: trans("support.status"),
                   dataIndex: "status",
                   ellipsis: true,
-                  width: "192px",
+                  width: "220px",
                   sorter: (a: any, b: any) => a.status.name.localeCompare(b.status.name),
                   render: (status: any) => <SubColumnCell>{status.name}</SubColumnCell>,
                 },
                 {
-                  title: trans("home.updatedTime"),
+                  title: trans("support.updatedTime"),
                   dataIndex: "updated",
                   ellipsis: true,
                   width: "192px",
@@ -195,6 +238,19 @@ export function SupportOverview() {
                     </SubColumnCell>
                   ),
                 },
+                {
+                  title: trans("support.details"),
+                  dataIndex: "actions",
+                  width: "120px",
+                  render: (key: string) => (
+                    <EditBtn
+                      buttonType={"normal"}
+                      onClick={() => handleEditClick(key)}
+                    >
+                      {trans("support.details")}
+                    </EditBtn>
+                  ),
+                },
               ]}
               dataSource={filteredTickets.map((ticket: any, index: number) => ({
                 key: index,
@@ -203,11 +259,9 @@ export function SupportOverview() {
                 assignee: ticket.assignee,
                 status: ticket.status,
                 updated: ticket.updated,
+                actions: ticket.key,
               }))}
             />
-          ) : (
-            <div>Loading...</div>
-          )}
           {error && <div>Error: {error}</div>}
         </BodyWrapper>
       </SupportWrapper>

@@ -4,7 +4,6 @@ import { trans } from "i18n";
 import { useParams } from "react-router-dom";
 import history from "util/history";
 import { getTicket }  from '@lowcoder-ee/api/supportApi';
-import { useUserDetails } from "./useUserDetails";
 
 const FieldWrapper = styled.div`
   margin-bottom: 32px;
@@ -17,13 +16,11 @@ const Wrapper = styled.div`
 `;
 
 export function SupportDetail() {
+
   const { ticketId } = useParams<{ ticketId: string }>();
+  const ticket = getTicket(ticketId);
 
-  const { orgID, currentUser, domain } = useUserDetails();
-
-  const ticket = getTicket(orgID, currentUser.id, domain);
-
-  console.log("product", ticket);
+  console.log("ticket", ticket);
 
   return (
     <Wrapper>

@@ -87,7 +87,7 @@ export const searchCustomerTickets = async (orgID : string, currentUserId : stri
 
   const apiBody = {
     path: "webhook/support/get-issues",
-    data: {host : domain, orgId : orgID, userId : currentUserId, supportsubscriptionId : "1PostVDDlQgecLSfhG52o5rB"},
+    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId, "supportsubscriptionId" : "1PostVDDlQgecLSfhG52o5rB"},
     method: "post",
     headers: lcHeaders
   };
@@ -95,24 +95,24 @@ export const searchCustomerTickets = async (orgID : string, currentUserId : stri
     const result = await SupportApi.secureRequest(apiBody);
     return result.data as TicketList;
   } catch (error) {
-    console.error("Error searching customer:", error);
+    console.error("Error searching Support Tickets: ", error);
     throw error;
   }
 };
 
-export const getTicket = async (orgID : string, currentUserId : string, domain : string) => {
+export const getTicket = async (ticketKey : string) => {
 
   const apiBody = {
-    path: "webhook/support/get-issues",
-    data: {host : domain, orgId : orgID, userId : currentUserId, supportsubscriptionId : "1PostVDDlQgecLSfhG52o5rB"},
+    path: "webhook/support/get-issue",
+    data: {"ticketKey" : ticketKey},
     method: "post",
     headers: lcHeaders
   };
   try {
     const result = await SupportApi.secureRequest(apiBody);
-    return result?.data?.data?.length === 1 ? result.data.data as TicketList : null;
+    return result?.data?.data?.length === 1 ? result.data.data as any : null;
   } catch (error) {
-    console.error("Error searching customer:", error);
+    console.error("Error getting individual Support Ticket: ", error);
     throw error;
   }
 };
