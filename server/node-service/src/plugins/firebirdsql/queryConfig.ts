@@ -8,12 +8,17 @@ function getQueryConfig(i18n: FirebirdI18nTranslator) {
     actions: [
       {
         actionName: "Query",
-        label: "Query",
+        label: i18n.trans("actionName"),
         params: [
           {
-            label: i18n.trans("actionName"),
+            label: i18n.trans("sqlInputField"),
             key: "sql",
             type: "sqlInput",
+          },
+          {
+            label: i18n.trans("paramsInputField"),
+            key: "params",
+            type: "jsonInput",
           },
         ],
       },

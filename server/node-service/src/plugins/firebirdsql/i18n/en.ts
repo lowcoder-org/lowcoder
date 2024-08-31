@@ -13,5 +13,7 @@ export const en = {
   blobAsText: "Get blob as text, only affects blob subtype 1",
 
   actions: "Actions",
-  actionName: "SQL Query",
+  actionName: "Query",
+  sqlInputField: "SQL Query",
+  paramsInputField: "Query Parameters",
 };

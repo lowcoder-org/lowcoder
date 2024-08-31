@@ -1,6 +1,7 @@
 import { DataSourceDataType } from "./dataSourceConfig";
 import { ActionDataType } from "./queryConfig";
 import { FirebirdI18nTranslator } from "./i18n";
+import { ServiceError } from "../../common/error";
 import _ from "lodash";
 import Firebird from "node-firebird";
 
@@ -39,11 +40,41 @@ export async function validateDataSourceConfig(dataSourceConfig: DataSourceDataT
   }
 }
 
+async function prepareQueryParameters(stmt: string, parameters: object) {
+  const re : RegExp = /(:)([_a-zA-Z0-9\[\]\.]+)/gm;
+
+  const placeholdersInStmt = stmt.matchAll(re);
+
+  let parametersArray = [];
+
+  for(const match of placeholdersInStmt) {
+    const paramName: string = match[2];
+    if (_.isNil(paramName)) {
+      continue;
+    }
+    if (!_.has(parameters, paramName)) {
+      throw new ServiceError(`Named parameter "${paramName}" not found in Query Parameters object.`);
+    }
+    parametersArray.push(_.get(parameters, paramName));
+  }
+
+  const modifiedStmt = stmt.replaceAll(re, "?");
+
+  return {
+    stmt: modifiedStmt,
+    parametersArray: parametersArray
+  }
+}
+
 export default async function run(action: ActionDataType, dataSourceConfig: DataSourceDataType, i18n: FirebirdI18nTranslator) {
   if (action.actionName === "Query") {
     let db = await fbdAsync.attachAsync(getFirebirdOptions(dataSourceConfig));
     promisifyAll(db);
-    const results = await db.queryAsync(action.sql);
+
+    const { stmt, parametersArray } = await prepareQueryParameters(action.sql, action.params);
+    
+    const results = db.queryAsync(stmt, parametersArray);
+
     db.detachAsync();
     return results;
   }
