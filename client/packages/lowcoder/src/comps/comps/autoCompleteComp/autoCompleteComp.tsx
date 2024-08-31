@@ -55,8 +55,6 @@ import {
   autocompleteIconColor,
   componentSize,
 } from "./autoCompleteConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-
 
 const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
 box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
@@ -104,9 +102,7 @@ const getValidate = (value: any): "" | "warning" | "error" | undefined => {
 };
 
 let AutoCompleteCompBase = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-   useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const {
       items,
       onEvent,

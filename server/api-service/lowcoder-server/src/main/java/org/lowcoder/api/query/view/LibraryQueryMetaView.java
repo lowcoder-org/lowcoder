@@ -4,6 +4,7 @@ import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.user.model.User;
 
 public record LibraryQueryMetaView(String id,
+                                   String gid,
                                    String datasourceType,
                                    String organizationId,
                                    String name,
@@ -12,6 +13,7 @@ public record LibraryQueryMetaView(String id,
 
     public static LibraryQueryMetaView from(LibraryQuery libraryQuery, User user) {
         return new LibraryQueryMetaView(libraryQuery.getId(),
+                libraryQuery.getGid(),
                 libraryQuery.getQuery().getCompType(),
                 libraryQuery.getOrganizationId(),
                 libraryQuery.getName(),

@@ -18,7 +18,6 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const sizeOptions = [
   {
@@ -97,10 +96,7 @@ const StepsChildrenMap = {
 };
 
 let StepControlBasicComp = (function () {
-  return new UICompBuilder(StepsChildrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
-
+  return new UICompBuilder(StepsChildrenMap, (props) => {
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}
       min-height: 24px;

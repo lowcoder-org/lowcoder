@@ -9,9 +9,8 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
@@ -73,9 +72,7 @@ let ProgressCircleTmpComp = (function () {
     style: styleControl(CircleProgressStyle, 'style'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return (
       <StyledProgressCircle
         $style={props.style}

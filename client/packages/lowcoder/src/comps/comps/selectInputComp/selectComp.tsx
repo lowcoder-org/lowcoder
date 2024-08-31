@@ -19,7 +19,6 @@ import { useContext, useEffect, useRef } from "react";
 import { RecordConstructorToView } from "lowcoder-core";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 let SelectBasicComp = (function () {
   const childrenMap = {
@@ -32,8 +31,6 @@ let SelectBasicComp = (function () {
     childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle')
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
     const [
       validateState,
       handleChange,

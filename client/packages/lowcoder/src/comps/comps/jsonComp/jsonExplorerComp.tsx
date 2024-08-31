@@ -13,7 +13,6 @@ import { EditorContext } from "comps/editorState";
 import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 /**
@@ -61,9 +60,7 @@ let JsonExplorerTmpComp = (function () {
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
     animationStyle:styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return (
       <JsonExplorerContainer
         $theme={props.theme as keyof typeof bgColorMap}

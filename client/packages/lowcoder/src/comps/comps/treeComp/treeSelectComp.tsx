@@ -36,7 +36,6 @@ import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -147,8 +146,6 @@ const TreeCompView = (
 
 let TreeBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-    
     return(
     <TreeCompView {...props} dispatch={dispatch} />
   )})

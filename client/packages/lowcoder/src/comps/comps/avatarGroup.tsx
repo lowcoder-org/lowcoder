@@ -19,7 +19,6 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const MacaroneList = [
   '#fde68a',
@@ -143,9 +142,7 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 };
 
 let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) =>{
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     return( <AvatarGroupView {...props} dispatch={dispatch} />
 )}) 
     .setPropertyViewFn((children) => (
