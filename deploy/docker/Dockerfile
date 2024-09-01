@@ -33,6 +33,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
   && addgroup --system --gid 9001 lowcoder \
   && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
 
+
 # Copy lowcoder server configuration
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
 
@@ -145,7 +146,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 AS lowcoder-ce-frontend
+FROM nginx:1.27.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -186,27 +187,29 @@ EXPOSE 3443
 ##
 ## Build Lowcoder all-in-one image
 ##
-FROM lowcoder-ce-frontend
+FROM ubuntu:jammy
 LABEL maintainer="lowcoder"
 
-RUN apt-get update && apt-get upgrade -y \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg \
+# Install essential tools
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg bash lsb-release \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
   && apt-get clean
 
-# Add nodejs repo and keys
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+# Add required apt repositories and signing keys
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb `lsb_release -cs` main" | tee /etc/apt/sources.list.d/redis.list \
+  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+  && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
 
 
 # Install required packages
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
-  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bookworm main" | tee /etc/apt/sources.list.d/redis.list \
-  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/debian bookworm/mongodb-org/7.0 main" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
-  && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+      nginx=1.27.1-1~jammy \
       mongodb-org \
       redis \
       supervisor \
@@ -215,9 +218,38 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       openjdk-17-jdk-headless \
   && npm install -g yarn \
   && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
-  && mkdir -p /lowcoder/assets \
   && apt-get clean \
   && rm -rf /tmp/*
+
+# Use configuration setup from official nginx image
+RUN rm -rf /etc/nginx/nginx.conf
+COPY --from=nginx:1.27.1 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.27.1 /docker-entrypoint.sh /docker-entrypoint.sh
+
+# Add lowcoder user
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx
+
+# Copy additional nginx init scripts and configs
+COPY --chmod=0755 deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY --chmod=0755 deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
+# Add lowcoder frontend
+#    copy lowcoder client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+#    copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+#    copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+#    copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+RUN mkdir -p /lowcoder/assets/ && chown lowcoder:lowcoder /lowcoder/assets/
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
