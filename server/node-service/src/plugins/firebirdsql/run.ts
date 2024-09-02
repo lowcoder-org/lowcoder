@@ -72,8 +72,8 @@ export default async function run(action: ActionDataType, dataSourceConfig: Data
     promisifyAll(db);
 
     const { stmt, parametersArray } = await prepareQueryParameters(action.sql, action.params);
-    
-    const results = db.queryAsync(stmt, parametersArray);
+
+    const results = await db.queryAsync(stmt, parametersArray);
 
     db.detachAsync();
     return results;
