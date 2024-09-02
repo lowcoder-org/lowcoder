@@ -7,7 +7,7 @@ import { NpmRegistryService, NpmRegistryConfigEntry, NpmRegistryConfig } from ".
 
 type RequestConfig = {
     workspaceId: string;
-    npmRegistryConfig: NpmRegistryConfig;
+    npmRegistries: NpmRegistryConfig;
 }
 
 type InnerRequestConfig = {
@@ -92,7 +92,7 @@ export async function fetchRegistryWithConfig(request: ServerRequest, response: 
             return response.status(400).send("Missing workspaceId and/or npmRegistryConfig");
         }
     
-        const {npmRegistryConfig}: RequestConfig = request.body;
+        const {npmRegistries: npmRegistryConfig}: RequestConfig = request.body;
 
         const registry = NpmRegistryService.getRegistryEntryForPackageWithConfig(pathPackageInfo.packageId, npmRegistryConfig);
 
@@ -100,7 +100,7 @@ export async function fetchRegistryWithConfig(request: ServerRequest, response: 
         if (!registryResponse.ok) {
             return response.status(registryResponse.status).send(await registryResponse.text());
         }
-        response.json(await registryResponse.json());
+        response.send(await registryResponse.text());
     } catch (error) {
         logger.error("Error fetching registry", error);
         response.status(500).send("Internal server error");
@@ -149,7 +149,7 @@ export async function fetchPackageFileWithConfig(request: ServerRequest, respons
         return response.status(400).send("Missing workspaceId and/or npmRegistryConfig");
     }
 
-    const {workspaceId, npmRegistryConfig}: RequestConfig = request.body;
+    const {workspaceId, npmRegistries: npmRegistryConfig}: RequestConfig = request.body;
     const registryConfig: NpmRegistryConfig = npmRegistryConfig;
     const registry = NpmRegistryService.getRegistryEntryForPackageWithConfig(pathPackageInfo.packageId, registryConfig);
 
@@ -246,7 +246,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
 
 function parsePackageInfoFromPath(path: string): {packageId: string, organization: string, name: string, version: string, file: string} | undefined { 
     //@ts-ignore - regex groups
-    const packageInfoRegex = /^\/?(?<packageId>(?:@(?<organization>[a-z0-9-~][a-z0-9-._~]*)\/)?(?<name>[a-z0-9-~][a-z0-9-._~]*))(?:@(?<version>[-a-z0-9><=_.^~]+))?\/(?<file>[^\r\n]*)?$/;
+    const packageInfoRegex = /^\/?(?<packageId>(?:@(?<organization>[a-z0-9-~][a-z0-9-._~]*)\/)?(?<name>[a-z0-9-~][a-z0-9-._~]*))(?:@(?<version>[-a-z0-9><=_.^~]+))?(\/(?<file>[^\r\n]*))?$/;
     const matches = path.match(packageInfoRegex);
     if (!matches?.groups) {
         return;
