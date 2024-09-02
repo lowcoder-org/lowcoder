@@ -1097,7 +1097,8 @@ const LayoutContainer = styled.div<{
   }`}
 `;
 
-export const ReactGridLayout = GridLayout;
+// export const ReactGridLayout = React.memo(GridLayout);
+export const ReactGridLayout = React.memo(GridLayout);
 
 function moveOrResize(
   e: React.KeyboardEvent,

@@ -54,6 +54,7 @@ import {
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { isEqual } from "lodash";
 
 const LeftContent = lazy(
   () => import('./LeftContent')
@@ -577,4 +578,6 @@ function EditorView(props: EditorViewProps) {
   );
 }
 
-export default React.memo(EditorView);
+export default React.memo(EditorView, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});

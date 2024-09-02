@@ -24,7 +24,7 @@ import {
   DEFAULT_GRID_COLUMNS,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -313,7 +313,7 @@ const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
-const GridItemWrapper = React.forwardRef(
+const GridItemWrapper = React.memo(React.forwardRef(
   (
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -326,11 +326,11 @@ const GridItemWrapper = React.forwardRef(
       </ItemWrapper>
     );
   }
-);
+));
 
 type GirdItemViewRecord = Record<string, GridItem>;
 
-export function InnerGrid(props: ViewPropsWithSelect) {
+export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const {
     positionParams,
     rowCount = Infinity,
@@ -385,7 +385,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const canAddSelect = useMemo(
     () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
-    [containerSelectNames, editorState]
+    [containerSelectNames, editorState.selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
@@ -432,16 +432,21 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       onPositionParamsChange,
       onRowCountChange,
       positionParams,
-      props,
+      props.dispatch,
+      props.containerPadding,
     ]
   );
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
       editorState.setSelectedCompNames(names);
     },
-    [editorState]
+    [editorState.setSelectedCompNames]
   );
-  const { width, ref } = useResizeDetector({ onResize, handleHeight: isRowCountLocked });
+
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+  });
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -464,9 +469,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const clickItem = useCallback(
     (
       e: React.MouseEvent<HTMLDivElement,
-      globalThis.MouseEvent>, name: string
+      globalThis.MouseEvent>,
+      name: string,
     ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
-    [canAddSelect, containerSelectNames, setSelectedNames]
+    [selectItem, canAddSelect, containerSelectNames, setSelectedNames]
   );
 
   useEffect(() => {
@@ -555,7 +561,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       {itemViews}
     </ReactGridLayout>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
 
 function selectItem(
   e: MouseEvent<HTMLDivElement>,
