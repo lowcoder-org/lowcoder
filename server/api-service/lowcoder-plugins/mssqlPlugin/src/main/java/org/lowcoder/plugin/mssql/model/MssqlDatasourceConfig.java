@@ -6,6 +6,7 @@ import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.exception.PluginCommonError;
@@ -24,6 +25,11 @@ public class MssqlDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
     @Override
     protected long defaultPort() {
         return DEFAULT_PORT;
+    }
+
+    @JsonCreator
+    public MssqlDatasourceConfig(String database, String username, String password, String host, Long port, boolean usingSsl, String serverTimezone, boolean isReadonly, boolean enableTurnOffPreparedStatement, Map<String, Object> extParams) {
+        super(database, username, password, host, port, usingSsl, serverTimezone, isReadonly, enableTurnOffPreparedStatement, extParams);
     }
 
     public static MssqlDatasourceConfig buildFrom(Map<String, Object> requestMap) {

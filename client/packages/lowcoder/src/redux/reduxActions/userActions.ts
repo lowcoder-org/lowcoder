@@ -70,7 +70,6 @@ export const fetchApiKeysAction = () => {
     type: ReduxActionTypes.FETCH_API_KEYS,
   };
 };
-
 export const fetchApiKeysSuccess = (payload: FetchApiKeysPayload) => {
   return {
     type: ReduxActionTypes.FETCH_API_KEYS_SUCCESS,
