@@ -185,6 +185,11 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
+    public Flux<Organization> getAllActive() {
+        return repository.findByState(ACTIVE);
+    }
+
+    @Override
     public Mono<Boolean> uploadLogo(String organizationId, Part filePart) {
 
         Mono<Asset> uploadAssetMono = assetService.upload(filePart, logoMaxSizeInKb.get(), false);
