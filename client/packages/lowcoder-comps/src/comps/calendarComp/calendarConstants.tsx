@@ -363,6 +363,7 @@ export const Wrapper = styled.div<{
   // event
   .fc-timegrid-event .fc-event-main {
     padding: 4px 0 4px 1px;
+    
   }
   .fc-event {
     position: relative;
@@ -658,6 +659,10 @@ export const Event = styled.div<{
   $isList: boolean;
   $allDay: boolean;
   $style: CalendarStyleType;
+  $backgroundColor:string;
+  $description:string;
+  $titleColor:string;
+  $descriptionColor:string;
 }>`
   height: 100%;
   width: 100%;
@@ -666,8 +671,7 @@ export const Event = styled.div<{
   box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
   display: ${(props) => props.$isList && "flex"};
-  background-color: ${(props) =>
-    !props.$isList && lightenColor(props.$style.background, 0.1)};
+  background-color:${(props) => props.$backgroundColor};
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
@@ -697,11 +701,19 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => !props.$isList && props.$style.text};
+    color: ${(props) => props.$titleColor};
     font-weight: 500;
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+    .event-description {
+    color: ${(props) => props.$descriptionColor};
+    font-weight: 500;
+    margin-left: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 2px; 
   }
 
   &.small {
@@ -709,7 +721,9 @@ export const Event = styled.div<{
     .event-time {
       display: none;
     }
-    .event-title {
+    .event-title,
+    .event-description
+    {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -718,7 +732,9 @@ export const Event = styled.div<{
   &.middle {
     padding-top: 2px;
     .event-time,
-    .event-title {
+    .event-title,
+     .event-description
+     {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -738,7 +754,9 @@ export const Event = styled.div<{
     }
     &::before,
     .event-title,
-    .event-time {
+    .event-time,
+    .event-description
+    {
       opacity: 0.35;
     }
   }
@@ -781,8 +799,12 @@ export type EventType = {
   end?: string;
   allDay?: boolean;
   color?: string;
+  backgroundColor?:string;
   groupId?: string;
   value?: string;
+  description?:string;
+  titleColor?:string;
+  descriptionColor?:string;
 };
 
 export enum ViewType {
@@ -903,12 +925,19 @@ export const defaultData = [
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
+    backgroundColor:"purple",
+    description: 'Discuss project milestones and deliverables.',
+    titleColor:"black",
+    descriptionColor:"black",
   },
   {
     id: "2",
     title: "Rest",
     start: dayjs().hour(24).format(DATE_FORMAT),
     end: dayjs().hour(48).format(DATE_FORMAT),
+    backgroundColor:"purple",
+    color: "#079968",
+    titleColor:"white",
     allDay: true,
   },
 ];

@@ -316,6 +316,10 @@ export const en = {
     editEvent: "Edit Event",
     eventName: "Event Name",
     eventColor: "Event Color",
+    eventBackgroundColor:"Background",
+    eventDescription:"Description",
+    eventTitleColor:"Title Color",
+    eventDescriptionColor:"Description Color",
     eventGroupId: "Group ID",
     groupIdTooltip: "Group ID groups events for drag and resize together.",
     more: "More",
@@ -328,3 +332,4 @@ export const en = {
     dragDropEventHandlers: "Drag/Drop Event Handlers",
   },
 };
+

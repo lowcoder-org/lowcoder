@@ -159,13 +159,19 @@ let CalendarBasicComp = (function () {
         end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
         resourceId: item.resourceId ? item.resourceId : null,
-        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
-        ...(item.groupId ? { groupId: item.groupId } : {}),
+        backgroundColor: item.backgroundColor,
+        extendedProps: {
+          color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+        ...(item.groupId ? { groupId: item.groupId } : {}), // Ensure color is in extendedProps
+        description: item.description,
+        titleColor:item.titleColor,
+        descriptionColor:item.descriptionColor
+        },
       };
     }) : [currentEvents.value];
 
-    const resources = props.resources.value;
 
+    const resources = props.resources.value;
     // list all plugins for Fullcalendar
     const plugins = [
       dayGridPlugin,
@@ -266,18 +272,23 @@ let CalendarBasicComp = (function () {
         (eventInfo.view.type as ViewType) !== ViewType.MONTH
           ? "past"
           : "";
-
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          $bg={eventInfo.backgroundColor}
+          $bg={eventInfo.event.extendedProps.color}
           theme={theme?.theme}
           $isList={isList}
           $allDay={Boolean(showAllDay)}
           $style={props.style}
+          $backgroundColor={eventInfo.backgroundColor}
+          $description={eventInfo.event.extendedProps.description}
+          $titleColor={eventInfo.event.extendedProps.titleColor}
+          $descriptionColor={eventInfo.event.extendedProps.descriptionColor}
+
         >
           <div className="event-time">{eventInfo.timeText}</div>
           <div className="event-title">{eventInfo.event.title}</div>
+          <div className="event-description">{eventInfo.event.extendedProps.description}</div>
           <Remove
             $isList={isList}
             className="event-remove"
@@ -308,12 +319,16 @@ let CalendarBasicComp = (function () {
         return;
       }
       if (event) {
-        const { title, groupId, color, id } = event;
+        const { title, groupId, color, id , backgroundColor,description,titleColor,descriptionColor} = event;
         const eventInfo = {
           title,
           groupId,
           color,
           id,
+          backgroundColor,
+          titleColor,
+          description,
+          descriptionColor,
         };
         showModal(eventInfo, true);
       } else {
@@ -387,7 +402,28 @@ let CalendarBasicComp = (function () {
             >
               <Input />
             </Form.Item>
+            <Form.Item
+              label={trans("calendar.eventDescription")}
+              name="description"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label={trans("calendar.eventTitleColor")}
+              name="titleColor"
+            >
+              <Input />
+            </Form.Item>
+            <Form.Item
+              label={trans("calendar.eventDescriptionColor")}
+              name="descriptionColor"
+            >
+              <Input />
+            </Form.Item>
             <Form.Item label={trans("calendar.eventColor")} name="color">
+              <Input />
+            </Form.Item>
+            <Form.Item label={trans("calendar.eventBackgroundColor")} name="backgroundColor">
               <Input />
             </Form.Item>
             <Form.Item
@@ -405,7 +441,7 @@ let CalendarBasicComp = (function () {
         onConfirm: () => {
           form.submit();
           return form.validateFields().then(() => {
-            const { id, groupId, color, title = "" } = form.getFieldsValue();
+            const { id, groupId, color, title = "", backgroundColor,description,titleColor,descriptionColor } = form.getFieldsValue();
             const idExist = props.events.value.findIndex(
               (item: EventType) => item.id === id
             );
@@ -421,9 +457,13 @@ let CalendarBasicComp = (function () {
                   return {
                     ...item,
                     title,
+                    description,
                     id,
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(color !== undefined ? { color } : null),
+                    ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                    ...(titleColor !== undefined ? { titleColor } : null),
+                    ...(descriptionColor !== undefined ? { descriptionColor } : null),
                   };
                 } else {
                   return item;
@@ -437,8 +477,12 @@ let CalendarBasicComp = (function () {
                 end: event.end,
                 id,
                 title,
+                description,
                 ...(groupId !== undefined ? { groupId } : null),
                 ...(color !== undefined ? { color } : null),
+                ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                ...(titleColor !== undefined ? { titleColor } : null),
+                ...(descriptionColor !== undefined ? { descriptionColor } : null),
               };
               props.events.onChange([...props.events.value, createInfo]);
             }
