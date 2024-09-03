@@ -337,6 +337,17 @@ public class UserServiceImpl implements UserService {
                 .thenReturn(true);
     }
 
+    @Override
+    public Mono<Boolean> markAsSuperAdmin(String userId) {
+        return findById(userId)
+                .map(user -> {
+                    user.setSuperAdmin(true);
+                    return user;
+                })
+                .flatMap(repository::save)
+                .thenReturn(true);
+    }
+
 
     @Override
     public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {

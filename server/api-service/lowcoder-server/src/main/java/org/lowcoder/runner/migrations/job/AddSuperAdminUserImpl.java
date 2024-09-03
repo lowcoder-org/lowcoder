@@ -46,6 +46,7 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
                     return Mono.empty();
                 })
                 .delayUntil(user -> userService.setPassword(user.getId(), ((FormAuthRequestContext)authUser.getAuthContext()).getPassword()))
+                .delayUntil(user -> userService.markAsSuperAdmin(user.getId()))
                 .delayUntil(user -> orgMemberService.addToAllOrgAsAdminIfNot(user.getId()))
                 .subscribe();
     }

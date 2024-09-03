@@ -157,6 +157,10 @@ public class OrganizationServiceImpl implements OrganizationService {
         return orgMemberService.addMember(newOrg.getId(), userId, isSuperAdmin ? MemberRole.SUPER_ADMIN : MemberRole.ADMIN);
     }
 
+    private Mono<Boolean> setOrgSuperAdmin(String userId, Organization newOrg, boolean isSuperAdmin) {
+        return orgMemberService.addMember(newOrg.getId(), userId, isSuperAdmin ? MemberRole.SUPER_ADMIN : MemberRole.ADMIN);
+    }
+
     @Override
     public Mono<Organization> getById(String id) {
         if(FieldName.isGID(id))
