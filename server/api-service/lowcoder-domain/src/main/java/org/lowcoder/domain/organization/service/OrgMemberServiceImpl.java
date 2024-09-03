@@ -8,6 +8,7 @@ import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.*;
+import org.lowcoder.domain.user.model.User;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.birelation.BiRelationService;
@@ -16,6 +17,7 @@ import org.lowcoder.infra.util.FluxHelper;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfig.Workspace;
 import org.lowcoder.sdk.constants.WorkspaceMode;
+import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -26,6 +28,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.infra.birelation.BiRelationBizType.ORG_MEMBER;
 
@@ -243,12 +246,41 @@ public class OrgMemberServiceImpl implements OrgMemberService {
                 .then(bulkAddToAllUserGroup(orgId, userIds));
     }
 
+    @Override
+    public Mono<Void> bulkAddToOrgs(Collection<String> orgIds, String userId, MemberRole memberRole) {
+        List<BiRelation> biRelations = (List<BiRelation>)orgIds.stream()
+                .map(orgId -> BiRelation.builder()
+                        .bizType(ORG_MEMBER)
+                        .sourceId(orgId)
+                        .targetId(userId)
+                        .relation(memberRole.getValue())
+                        .state(OrgMemberState.NORMAL.getValue())
+                        .build())
+                .toList();
+        return biRelationService.batchAddBiRelation(biRelations)
+                .then(bulkAddToAllUserGroup(orgIds, userId, memberRole));
+    }
+
+    @Override
+    public Mono<Void> addToAllOrgAsAdminIfNot(String userId) {
+        List<String> oldOrgIds = getAllActiveOrgs(userId).map(OrgMember::getOrgId).toStream().toList();
+        List<String> allOrgIds = organizationService.getAllActive().map(HasIdAndAuditing::getId).toStream().toList();
+        List<String> newOrgIds = allOrgIds.stream().filter(orgId -> !oldOrgIds.contains(orgId)).toList();
+        return bulkAddToOrgs(newOrgIds, userId, MemberRole.SUPER_ADMIN).then();
+    }
+
     private Mono<Void> bulkAddToAllUserGroup(String orgId, Collection<String> userIds) {
         return groupService.getAllUsersGroup(orgId)
                 .map(group -> userIds.stream()
                         .map(userId -> new GroupMember(group.getId(), userId, MemberRole.MEMBER, orgId, System.currentTimeMillis()))
                         .toList())
                 .flatMap(groupMemberService::bulkAddMember)
+                .then();
+    }
+
+    private Mono<Void> bulkAddToAllUserGroup(Collection<String> orgIds, String userId, MemberRole memberRole) {
+        return Mono.just(orgIds.stream().map(orgId -> groupService.getAllUsersGroup(orgId)
+                .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole)).block()).toList())
                 .then();
     }
 
