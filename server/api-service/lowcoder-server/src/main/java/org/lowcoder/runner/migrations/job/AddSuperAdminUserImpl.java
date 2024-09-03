@@ -8,6 +8,7 @@ import org.lowcoder.api.util.RandomPasswordGeneratorConfig;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
 import org.lowcoder.domain.user.model.AuthUser;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -21,9 +22,10 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
 
     private final AuthenticationApiServiceImpl authenticationApiService;
     private final CommonConfig commonConfig;
+    private final UserService userService;
     
     @Override
-    public void addSuperAdmin() {
+    public void addOrUpdateSuperAdmin() {
 
         AuthUser authUser = formulateAuthUser();
 
@@ -34,8 +36,9 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
                     }
                     return Mono.empty();
                 })
+                .delayUntil(user -> userService.setPassword(user.getId(), ((FormAuthRequestContext)authUser.getAuthContext()).getPassword()))
                 .block();
-    }
+    }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 
 
     private AuthUser formulateAuthUser() {
         String username = formulateUserName();
