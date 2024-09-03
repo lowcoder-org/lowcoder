@@ -33,13 +33,11 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
     private final CommonConfig commonConfig;
     private final UserService userService;
     private final OrgMemberService orgMemberService;
-    private final OrganizationService organizationService;
 
     @Override
     public void addOrUpdateSuperAdmin() {
 
         AuthUser authUser = formulateAuthUser();
-
         authenticationApiService.updateOrCreateUser(authUser, false, true)
                 .delayUntil(user -> {
                     if (user.getIsNewUser()) {
@@ -49,7 +47,7 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
                 })
                 .delayUntil(user -> userService.setPassword(user.getId(), ((FormAuthRequestContext)authUser.getAuthContext()).getPassword()))
                 .delayUntil(user -> orgMemberService.addToAllOrgAsAdminIfNot(user.getId()))
-                .block();
+                .subscribe();
     }
 
     private AuthUser formulateAuthUser() {

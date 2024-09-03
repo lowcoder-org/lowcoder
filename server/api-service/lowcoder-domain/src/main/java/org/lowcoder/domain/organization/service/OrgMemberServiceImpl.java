@@ -263,10 +263,10 @@ public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Override
     public Mono<Void> addToAllOrgAsAdminIfNot(String userId) {
-        List<String> oldOrgIds = getAllActiveOrgs(userId).map(OrgMember::getOrgId).toStream().toList();
-        List<String> allOrgIds = organizationService.getAllActive().map(HasIdAndAuditing::getId).toStream().toList();
-        List<String> newOrgIds = allOrgIds.stream().filter(orgId -> !oldOrgIds.contains(orgId)).toList();
-        return bulkAddToOrgs(newOrgIds, userId, MemberRole.SUPER_ADMIN).then();
+        Flux<String> oldOrgIdsFlux = getAllActiveOrgs(userId).map(OrgMember::getOrgId);
+        Flux<String> allOrgIdsFlux = organizationService.getAllActive().map(HasIdAndAuditing::getId);
+        Flux<String> newOrgIdsMono = oldOrgIdsFlux.collectList().flatMapMany(oldList -> allOrgIdsFlux.filter(item -> !oldList.contains(item)));
+        return newOrgIdsMono.collectList().flatMapMany(newOrgIds -> bulkAddToOrgs(newOrgIds, userId, MemberRole.SUPER_ADMIN)).then();
     }
 
     private Mono<Void> bulkAddToAllUserGroup(String orgId, Collection<String> userIds) {
@@ -279,9 +279,8 @@ public class OrgMemberServiceImpl implements OrgMemberService {
     }
 
     private Mono<Void> bulkAddToAllUserGroup(Collection<String> orgIds, String userId, MemberRole memberRole) {
-        return Mono.just(orgIds.stream().map(orgId -> groupService.getAllUsersGroup(orgId)
-                .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole)).block()).toList())
-                .then();
+        return Flux.fromIterable(orgIds).flatMap(orgId -> groupService.getAllUsersGroup(orgId)
+                .flatMap(group -> groupMemberService.addMember(orgId, group.getId(), userId, memberRole))).then();
     }
 
     @Override
