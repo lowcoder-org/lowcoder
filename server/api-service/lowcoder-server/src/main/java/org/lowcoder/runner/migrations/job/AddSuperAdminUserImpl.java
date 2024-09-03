@@ -29,7 +29,7 @@ public class AddSuperAdminUserImpl implements AddSuperAdminUser {
 
         AuthUser authUser = formulateAuthUser();
 
-        authenticationApiService.updateOrCreateUser(authUser, false)
+        authenticationApiService.updateOrCreateUser(authUser, false, true)
                 .delayUntil(user -> {
                     if (user.getIsNewUser()) {
                         return authenticationApiService.onUserRegister(user, true);

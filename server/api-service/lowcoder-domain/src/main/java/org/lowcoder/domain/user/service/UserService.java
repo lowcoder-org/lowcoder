@@ -36,7 +36,7 @@ public interface UserService {
 
     Mono<User> findByAuthUserRawId(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthUser authUser);
+    Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
