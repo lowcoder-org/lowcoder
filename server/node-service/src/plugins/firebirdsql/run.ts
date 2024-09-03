@@ -45,7 +45,7 @@ async function prepareQueryParameters(stmt: string, parameters: object) {
 
   const placeholdersInStmt = stmt.matchAll(re);
 
-  let parametersArray = [];
+  let parametersArray: any[] = [];
 
   for(const match of placeholdersInStmt) {
     const paramName: string = match[2];
