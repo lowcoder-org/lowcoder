@@ -15,6 +15,8 @@ import org.lowcoder.domain.organization.model.*;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -51,6 +53,7 @@ import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
+    private final UserRepository userRepository;
     private Conf<Integer> logoMaxSizeInKb;
     private final AssetRepository assetRepository;
     private final AssetService assetService;
@@ -150,6 +153,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         return groupService.createAllUserGroup(newOrg.getId())
                 .then(groupService.createDevGroup(newOrg.getId()))
                 .then(setOrgAdmin(userId, newOrg, isSuperAdmin))
+                .then(userRepository.findAll().filter(User::getSuperAdmin).last().map(superAdminUser -> {
+                    if(!userId.equals(superAdminUser.getId())) {
+                        return setOrgSuperAdmin(superAdminUser.getId(), newOrg, true);
+                    }
+                    return Mono.empty();
+                }))
                 .thenReturn(newOrg);
     }
 

@@ -348,7 +348,6 @@ public class UserServiceImpl implements UserService {
                 .thenReturn(true);
     }
 
-
     @Override
     public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {
         if (user.isAnonymous()) {
