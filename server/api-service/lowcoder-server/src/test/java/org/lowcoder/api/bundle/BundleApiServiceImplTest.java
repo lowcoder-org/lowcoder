@@ -1,8 +1,9 @@
 package org.lowcoder.api.bundle;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.common.InitData;
@@ -33,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 //@RunWith(SpringRunner.class)
 @ActiveProfiles("BundleApiServiceImplTest")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BundleApiServiceImplTest {
     @Autowired
     BundleApiServiceImpl bundleApiService;
@@ -43,8 +45,8 @@ public class BundleApiServiceImplTest {
     @Autowired
     private InitData initData;
 
-    @BeforeEach
-    public void beforeEach() {
+    @BeforeAll
+    public void beforeAll() {
         initData.init();
     }
 

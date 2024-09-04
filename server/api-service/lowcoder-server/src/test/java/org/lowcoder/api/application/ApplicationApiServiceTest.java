@@ -3,8 +3,9 @@ package org.lowcoder.api.application;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
@@ -36,6 +37,8 @@ import java.util.Set;
 //@RunWith(SpringRunner.class)
 @ActiveProfiles("ApplicationApiServiceTest")
 @Slf4j(topic = "ApplicationApiServiceTest")
+
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ApplicationApiServiceTest {
 
     @Autowired
@@ -49,8 +52,8 @@ public class ApplicationApiServiceTest {
     @Autowired
     private InitData initData;
 
-    @BeforeEach
-    public void beforeEach() {
+    @BeforeAll
+    public void beforeAll() {
         initData.init();
     }
 
