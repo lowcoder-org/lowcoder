@@ -36,7 +36,7 @@ import {
   widthCalculator,
 } from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 
 import { useContext } from "react";
 
@@ -227,12 +227,16 @@ let ButtonTmpComp = (function () {
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
 
+    useResizeDetector({
+      onResize,
+    });
+
     return (
       <EditorContext.Consumer>
         {(editorState) => (
-          <ReactResizeDetector
-            onResize={onResize}
-            render={() => (
+          // <ReactResizeDetector
+          //   onResize={onResize}
+          //   render={() => (
               <Container ref={conRef} $style={props.style}>
                 <div
                   ref={imgRef}
@@ -281,9 +285,9 @@ let ButtonTmpComp = (function () {
                   </Button100>
                 </div>
               </Container>
-            )}
-          >
-          </ReactResizeDetector>
+          //   )}
+          // >
+          // </ReactResizeDetector>
         )}
       </EditorContext.Consumer>
     );

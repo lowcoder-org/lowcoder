@@ -14,7 +14,7 @@ import {
 import { RecordConstructorToView } from "lowcoder-core";
 import { useEffect, useRef, useState } from "react";
 import _ from "lodash";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -136,10 +136,15 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
       setStyle("auto", "100%");
     }
   };
+
+  useResizeDetector({
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
+    // <ReactResizeDetector
+    //   onResize={onResize}
+    //   render={() => (
         <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
           <div
             ref={imgRef}
@@ -157,9 +162,9 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
             />
           </div>
         </Container>
-      )}
-    >
-    </ReactResizeDetector>
+    //   )}
+    // >
+    // </ReactResizeDetector>
   );
 };
 

@@ -5,7 +5,7 @@ import _ from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
 import { HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
 import { RefObject, useContext, createContext, useMemo, useRef, useEffect } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { useDelayState } from "util/hooks";
@@ -283,18 +283,27 @@ export function ListView(props: Props) {
 
   const childrenProps = childrenToProps(comp.children);
 
+  const onResize= ({width, height}: ResizePayload) => {
+    if (height) setListHeight(height);
+  };
+
+  useResizeDetector({
+    onResize,
+    observerOptions: { box: "border-box" },
+  });
+
   // log.debug("renders: ", renders);
   return (
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
-            <ReactResizeDetector
+            {/* <ReactResizeDetector
               onResize={(width?: number, height?: number) => {
                 if (height) setListHeight(height);
               }}
               observerOptions={{ box: "border-box" }}
-              render={() => (
+              render={() => ( */}
                 <ListOrientationWrapper
                   $isHorizontal={horizontal}
                   $isGrid={noOfColumns > 1}
@@ -302,9 +311,9 @@ export function ListView(props: Props) {
                 >
                   {renders}
                 </ListOrientationWrapper>
-              )}
+              {/* )}
             >
-            </ReactResizeDetector>
+            </ReactResizeDetector> */}
           </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>

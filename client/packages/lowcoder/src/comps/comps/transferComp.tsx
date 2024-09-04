@@ -11,7 +11,7 @@ import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { default as Transfer } from "antd/es/transfer";
 import type { TransferKey } from "antd/es/transfer/interface";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -108,8 +108,12 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
     setHeight(container?.clientHeight ?? 0);
   };
   
+  useResizeDetector({
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector onResize={onResize}>
+    // <ReactResizeDetector onResize={onResize}>
       <Container
         ref={conRef}
         $style={props.style}
@@ -134,7 +138,7 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
           } : false}
         />
       </Container>
-    </ReactResizeDetector>
+    // </ReactResizeDetector>
   );
 };
 

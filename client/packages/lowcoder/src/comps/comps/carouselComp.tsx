@@ -10,7 +10,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { useEffect, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
@@ -56,13 +56,16 @@ let CarouselBasicComp = (function () {
         setHeight(containerRef.current.clientHeight);
       }
     };
+    useResizeDetector({
+      onResize,
+    });
     return (
       <Container
         ref={containerRef}
         $bg={props.style.background}
         $animationStyle={props.animationStyle}
       >
-        <ReactResizeDetector onResize={onResize}>
+        {/* <ReactResizeDetector onResize={onResize}> */}
           <Carousel
             dots={props.showDots}
             dotPosition={props.dotPosition}
@@ -75,7 +78,7 @@ let CarouselBasicComp = (function () {
               </div>
             ))}
           </Carousel>
-        </ReactResizeDetector>
+        {/* </ReactResizeDetector> */}
       </Container>
     );
   })

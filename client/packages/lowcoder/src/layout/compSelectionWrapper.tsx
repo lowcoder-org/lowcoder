@@ -14,7 +14,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
+import ReactResizeDetector, { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
@@ -247,8 +247,8 @@ export const CompSelectionWrapper = React.memo((props: {
     name: string | undefined;
     pos: NamePos;
   };
-  onInnerResize: (width?: number, height?: number) => void;
-  onWrapperResize: (width?: number, height?: number) => void;
+  onInnerResize: ({width, height}: ResizePayload) => void;
+  onWrapperResize: ({width, height}: ResizePayload) => void;
   isSelectable: boolean;
   isDraggable: boolean;
   isResizable: boolean;
@@ -256,6 +256,8 @@ export const CompSelectionWrapper = React.memo((props: {
   resizeIconSize: "small" | "normal";
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
+  const childrenRef = useRef<HTMLDivElement>(null)
+  const wrapperRef = useRef<HTMLDivElement>(null)
   const editorState = useContext(EditorContext);
   let [hover, setHover] = useState(false);
   const onMouseOver = useCallback(
@@ -313,14 +315,23 @@ export const CompSelectionWrapper = React.memo((props: {
     ? Layers.compHidden
     : undefined;
 
+  const { nameConfig, resizeIconSize } = props;
   const needResizeDetector = props.autoHeight && !props.placeholder;
-  const { ref: wrapperRef } = useResizeDetector({
+
+  useResizeDetector({
     onResize: props.onWrapperResize,
     handleHeight: needResizeDetector,
     handleWidth: false,
+    targetRef: wrapperRef,
   });
+  
+  useResizeDetector({
+    onResize: props.onInnerResize,
+    targetRef: childrenRef,
+  });
+  
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
-  const { nameConfig, resizeIconSize } = props;
+
   return (
     <div id={props.id} style={{ ...props.style, zIndex }} className={props.className}>
       <SelectableDiv
@@ -366,12 +377,12 @@ export const CompSelectionWrapper = React.memo((props: {
         )}
         {!needResizeDetector && props.children}
         {needResizeDetector && (
-          <ReactResizeDetector
-            onResize={props.onInnerResize}
-            observerOptions={{ box: "border-box" }}
-          >
-            <div>{props.children}</div>
-          </ReactResizeDetector>
+          // <ReactResizeDetector
+          //   onResize={props.onInnerResize}
+          //   observerOptions={{ box: "border-box" }}
+          // >
+            <div ref={childrenRef}>{props.children}</div>
+          // </ReactResizeDetector>
         )}
       </SelectableDiv>
     </div>

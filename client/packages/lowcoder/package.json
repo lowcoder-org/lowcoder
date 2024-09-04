@@ -78,7 +78,7 @@
     "react-quill": "^2.0.0",
     "react-redux": "^7.2.6",
     "react-resizable": "^3.0.4",
-    "react-resize-detector": "^7.0.0",
+    "react-resize-detector": "^11.0.1",
     "react-router": "^5.2.1",
     "react-router-dom": "^5.3.0",
     "react-signature-canvas": "^1.0.6",

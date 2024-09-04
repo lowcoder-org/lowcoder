@@ -53,7 +53,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useResizeDetector } from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -392,7 +392,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   const dispatchPositionParamsTimerRef = useRef(0);
   const onResize = useCallback(
-    (width?: number, height?: number) => {
+    ({width, height} : ResizePayload) => {
       if(!width || !height) return;
 
       if (width !== positionParams.containerWidth) {
@@ -491,7 +491,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   return (
     <ReactGridLayout
-      innerRef={ref}
+      innerRef={ref as RefObject<HTMLDivElement>}
       className={props.className}
       style={props.style}
       scrollContainerRef={props.scrollContainerRef}

@@ -22,7 +22,7 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import {
   clickEvent,
@@ -87,10 +87,14 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     setHeight(container?.clientHeight ?? 0);
   };
 
+  useResizeDetector({
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
+    // <ReactResizeDetector
+    //   onResize={onResize}
+    //   render={() => (
         <Container
           ref={conRef}
           $style={props.style}
@@ -105,9 +109,9 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
         >
           {props.icon}
         </Container>
-      )}
-    >
-    </ReactResizeDetector>
+    //   )}
+    // >
+    // </ReactResizeDetector>
   );
 };
 

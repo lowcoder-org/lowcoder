@@ -20,7 +20,7 @@ import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
 import React, { Suspense, useEffect, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { ResizePayload, useResizeDetector } from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
 import { UICompBuilder } from "../generators";
@@ -127,17 +127,27 @@ let SignatureTmpComp = (function () {
         );
       }
     };
+
+    const onResize = ({width, height}: ResizePayload) => {
+      width && height && setCanvasSize([width, height]);
+      updateValue(true);
+    };
+  
+    useResizeDetector({
+      onResize,
+    });
+  
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       children: (
-        <ReactResizeDetector
-          onResize={(width, height) => {
-            width && height && setCanvasSize([width, height]);
-            updateValue(true);
-          }}
-        >
+        // <ReactResizeDetector
+        //   onResize={(width, height) => {
+        //     width && height && setCanvasSize([width, height]);
+        //     updateValue(true);
+        //   }}
+        // >
           <Wrapper
             onMouseDown={(e) => {
               e.preventDefault();
@@ -196,7 +206,7 @@ let SignatureTmpComp = (function () {
             )}
             {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
           </Wrapper>
-        </ReactResizeDetector>
+        // </ReactResizeDetector>
       ),
     });
   })

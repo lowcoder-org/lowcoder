@@ -1,4 +1,4 @@
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import { TriContainer } from "../triContainerComp/triContainer";
@@ -215,8 +215,13 @@ export const ContainerBaseComp = (function () {
       setWidth(container?.clientWidth ?? 0);
       setHeight(container?.clientHeight ?? 0);
     };
+
+    useResizeDetector({
+      onResize,
+    });
+
     return (
-      <ReactResizeDetector onResize={onResize}>
+      // <ReactResizeDetector onResize={onResize}>
         <Wrapper
           ref={conRef}
           $style={props.style}
@@ -259,7 +264,7 @@ export const ContainerBaseComp = (function () {
           </Card>
           }
         </Wrapper>
-      </ReactResizeDetector>
+      // </ReactResizeDetector>
     );
   })
     .setPropertyViewFn((children) => {

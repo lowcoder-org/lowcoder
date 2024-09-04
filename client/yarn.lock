@@ -13983,7 +13983,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-quill: ^2.0.0
     react-redux: ^7.2.6
     react-resizable: ^3.0.4
-    react-resize-detector: ^7.0.0
+    react-resize-detector: ^11.0.1
     react-router: ^5.2.1
     react-router-dom: ^5.3.0
     react-signature-canvas: ^1.0.6
@@ -17434,6 +17434,18 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">= 16.3"
   checksum: 616a10205acfaf8cc3aa0824b60f6d037eef87143d8f338cf826deb74a353db9b9baad67a65dc8535fe90840bfc3e1b8a901f9c247033ffeec2f30405ac7528e
+  languageName: node
+  linkType: hard
+
+"react-resize-detector@npm:^11.0.1":
+  version: 11.0.1
+  resolution: "react-resize-detector@npm:11.0.1"
+  dependencies:
+    lodash: ^4.17.21
+  peerDependencies:
+    react: ^18.0.0
+    react-dom: ^18.0.0
+  checksum: ae565d809afd5a124516168379039fec4e5fb48019fea4e62b7f88bcca590195d3a1d467dd2d87023f72a34181db34becb79231d53b4a3f45ad9782c428454a9
   languageName: node
   linkType: hard
 

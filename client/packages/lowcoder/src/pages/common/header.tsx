@@ -401,7 +401,7 @@ export default function Header(props: HeaderProps) {
         size="small"
       >
         {editorModeOptions.map((option) => (
-          <Tooltip title={option.tooltip}>
+          <Tooltip title={option.tooltip} key={option.key}>
             <Radio.Button key={option.key} value={option.value}>
               {option.label}
             </Radio.Button>

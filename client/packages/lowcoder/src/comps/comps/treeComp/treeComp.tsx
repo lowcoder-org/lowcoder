@@ -5,7 +5,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import { default as Tree } from "antd/es/tree";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import ReactResizeDetector from "react-resize-detector";
+import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import { StyleConfigType, styleControl } from "comps/controls/styleControl";
 import {  InputFieldStyle, LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
@@ -83,7 +83,7 @@ const childrenMap = {
 
 const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
   const { treeData, selectType, value, expanded, checkStrictly, style, labelStyle } = props;
-  const [height, setHeight] = useState<number>();
+  const [height, setHeight] = useState<number | null>(null);
   const selectable = selectType === "single" || selectType === "multi";
   const checkable = selectType === "check";
   useEffect(() => {
@@ -94,6 +94,11 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   }, [selectType]);
   useTree(props);
+
+  useResizeDetector({
+    onResize: ({width, height}) => setHeight(height),
+  });
+
   return props.label({
     required: props.required,
     ...selectInputValidate(props),
@@ -101,14 +106,14 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
     labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     children: (
-      <ReactResizeDetector
-        onResize={(w, h) => setHeight(h)}
-        render={() => (
+      // <ReactResizeDetector
+      //   onResize={(w, h) => setHeight(h)}
+      //   render={() => (
           <Container {...props.inputFieldStyle}>
             <Tree
               key={selectType}
               disabled={props.disabled}
-              height={height}
+              height={height ? height :  undefined}
               rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
               fieldNames={{ title: "label", key: "value" }}
               treeData={treeData}
@@ -142,9 +147,9 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
               onBlur={() => props.onEvent("blur")}
             />
         </Container>
-        )}
-      >
-      </ReactResizeDetector>
+      //   )}
+      // >
+      // </ReactResizeDetector>
     ),
   });
 };
