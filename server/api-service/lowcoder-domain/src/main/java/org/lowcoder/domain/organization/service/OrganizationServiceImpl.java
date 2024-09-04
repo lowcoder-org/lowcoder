@@ -153,12 +153,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         return groupService.createAllUserGroup(newOrg.getId())
                 .then(groupService.createDevGroup(newOrg.getId()))
                 .then(setOrgAdmin(userId, newOrg, isSuperAdmin))
-                .then(userRepository.findAll().filter(User::getSuperAdmin).last().map(superAdminUser -> {
+                .then(userRepository.findBySuperAdminIsTrue().flatMap(superAdminUser -> {
                     if(!userId.equals(superAdminUser.getId())) {
                         return setOrgSuperAdmin(superAdminUser.getId(), newOrg);
                     }
                     return Mono.empty();
-                }))
+                }).then())
                 .thenReturn(newOrg);
     }
 

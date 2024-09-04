@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 public interface UserRepository extends ReactiveMongoRepository<User, String> {
 
     Flux<User> findByIdIn(Collection<String> ids);
+    Mono<User> findBySuperAdminIsTrue();
 
     Mono<User> findByConnections_SourceAndConnections_RawId(String source, String rawId);
 
