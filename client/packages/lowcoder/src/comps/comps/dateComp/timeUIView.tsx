@@ -8,6 +8,8 @@ import React, { useContext } from "react";
 import type { TimeCompViewProps } from "./timeComp";
 import { EditorContext } from "../../editorState";
 import dayjs from "dayjs"
+import { default as AntdSelect } from "antd/es/select";
+import { timeZoneOptions } from "./timeZone";
 
 const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -17,6 +19,15 @@ const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
 const TimeMobileUIView = React.lazy(() =>
   import("./timeMobileUIView").then((m) => ({ default: m.TimeMobileUIView }))
 );
+ 
+const StyledAntdSelect = styled(AntdSelect)`
+  width: 100%;
+  margin: 10px 0; 
+  .ant-select-selector {
+    font-size: 14px; 
+    padding: 8px; 
+  }
+`;
 
 export interface TimeUIViewProps extends TimeCompViewProps {
   value: dayjs.Dayjs | null;
@@ -36,6 +47,13 @@ export const TimeUIView = (props: TimeUIViewProps) => {
       hideDisabledOptions
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
-    />
+      renderExtraFooter={()=>(
+        <StyledAntdSelect
+          placeholder="Select Time Zone"
+          options={timeZoneOptions}
+          onChange={()=>{console.log("handleTimeZoneChange")}}
+          />
+      )}
+    />   
   );
 };

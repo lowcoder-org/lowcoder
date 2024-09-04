@@ -11,6 +11,8 @@ import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
 import { DateParser } from "@lowcoder-ee/util/dateTimeUtils";
+import { default as AntdSelect } from "antd/es/select";
+import { timeZoneOptions } from "./timeZone";
 
 const { RangePicker } = DatePicker;
 
@@ -21,6 +23,17 @@ const RangePickerStyled = styled(RangePicker)<{$style: DateTimeStyleType}>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+const StyledAntdSelect = styled(AntdSelect)`
+  width: 400px; 
+  margin: 10px 0px;
+  .ant-select-selector {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+`;
+const StyledDiv = styled.div`
+  text-align: center;
+`;
 const DateRangeMobileUIView = React.lazy(() =>
   import("./dateMobileUIView").then((m) => ({ default: m.DateRangeMobileUIView }))
 );
@@ -44,7 +57,6 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
     // Use the same placeholder for both start and end if it's a single string
     placeholders = [props.placeholder || 'Start Date', props.placeholder || 'End Date'];
   }
-
   return useUIView(
     <DateRangeMobileUIView {...props} />,
     <RangePickerStyled
@@ -63,6 +75,15 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       hourStep={props.hourStep as any}
       minuteStep={props.minuteStep as any}
       secondStep={props.secondStep as any}
+      renderExtraFooter={() => (
+        <StyledDiv>
+          <StyledAntdSelect
+            placeholder="Select Time Zone"
+            options={timeZoneOptions}
+            onChange={()=>{console.log("handleTimeZoneChange")}}
+          />
+        </StyledDiv>
+      )}
     />
   );
 };

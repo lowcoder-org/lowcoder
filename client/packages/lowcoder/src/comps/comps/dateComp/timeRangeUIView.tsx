@@ -10,12 +10,23 @@ import { EditorContext } from "../../editorState";
 import dayjs from "dayjs";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
+import { timeZoneOptions } from "./timeZone";
+import { default as AntdSelect } from "antd/es/select";
 
 const { RangePicker } = TimePicker;
 
 const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $style: DateTimeStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const StyledAntdSelect = styled(AntdSelect)`
+  width: 100%; 
+  margin: 10px 0px;
+  .ant-select-selector {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 `;
 
 const TimeRangeMobileUIView = React.lazy(() =>
@@ -54,6 +65,13 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
+      renderExtraFooter={() => (
+        <StyledAntdSelect
+          placeholder="Select Time Zone"
+          options={timeZoneOptions}
+          onChange={()=>{console.log("handleTimeZoneChange")}}
+          />
+        )}
     />
   );
 };
