@@ -174,10 +174,8 @@ let CalendarBasicComp = (function () {
         animation:item?.animation,
         animationDelay:item?.animationDelay,
         animationDuration:item?.animationDuration,
-        animationIterationCount:item.animationIterationCount
-
-        },
-      };
+        animationIterationCount:item?.animationIterationCount
+      }}
     }) : [currentEvents.value];
 
 
@@ -285,28 +283,16 @@ let CalendarBasicComp = (function () {
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          $bg={eventInfo.event.extendedProps.color}
           theme={theme?.theme}
           $isList={isList}
           $allDay={Boolean(showAllDay)}
           $style={props.style}
           $backgroundColor={eventInfo.backgroundColor}
-          $detail={eventInfo.event.extendedProps.detail}
-          $titleColor={eventInfo.event.extendedProps.titleColor}
-          $detailColor={eventInfo.event.extendedProps.detailColor}
-          $titleFontWeight={eventInfo.event.extendedProps.titleFontWeight}
-          $titleFontStyle={eventInfo.event.extendedProps.titleFontStyle}
-          $detailFontWeight={eventInfo.event.extendedProps.detailFontWeight}
-          $detailFontStyle={eventInfo.event.extendedProps.detailFontStyle}
-          $animation={eventInfo.event.extendedProps?.animation}
-          $animationDelay={eventInfo.event.extendedProps?.animationDelay}
-          $animationDuration={eventInfo.event.extendedProps?.animationDuration}
-          $animationIterationCount={eventInfo.event.extendedProps?.animationIterationCount}
-
+          $extendedProps={eventInfo?.event?.extendedProps}
         >
-          <div className="event-time">{eventInfo.timeText}</div>
-          <div className="event-title">{eventInfo.event.title}</div>
-          <div className="event-detail">{eventInfo.event.extendedProps.detail}</div>
+          <div className="event-time">{eventInfo?.timeText}</div>
+          <div className="event-title">{eventInfo?.event?.title}</div>
+          <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
           <Remove
             $isList={isList}
             className="event-remove"
@@ -328,7 +314,6 @@ let CalendarBasicComp = (function () {
         </Event>
       );
     }
-
     const handleDbClick = () => {
       const event = props.events.value.find(
         (item: EventType) => item.id === editEvent.current?.id
@@ -419,7 +404,7 @@ let CalendarBasicComp = (function () {
           content: (
           <Tabs defaultActiveKey="1">
             <Tabs.TabPane tab={trans("calendar.general")} key="1">
-              <FormWrapper form={form} $modaltyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={
                     <Tooltip title={trans("calendar.eventIdTooltip")}>
@@ -457,7 +442,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
-              <FormWrapper form={form} $modaltyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleColor")}
                   name="titleColor"
@@ -485,7 +470,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
-              <FormWrapper form={form} $modaltyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleFontWeight")}
                   name="titleFontWeight"
@@ -513,7 +498,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.animations")} key="4">
-              <FormWrapper form={form} $modaltyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.animationType")}
                   name="animation"
@@ -952,3 +937,4 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
 
 
 export { CalendarComp };
+

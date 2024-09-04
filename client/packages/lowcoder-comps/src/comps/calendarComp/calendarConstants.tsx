@@ -654,24 +654,12 @@ export const Remove = styled.div<{ $isList: boolean }>`
 `;
 
 export const Event = styled.div<{
-  $bg: string;
   theme: Object;
   $isList: boolean;
   $allDay: boolean;
   $style: CalendarStyleType;
   $backgroundColor:string;
-  $detail:string;
-  $titleColor:string;
-  $detailColor:string;
-  $titleFontWeight:string;
-  $titleFontStyle:string;
-  $detailFontWeight:string;
-  $detailFontStyle:string;
-  $animation?: any;
-  $animationDelay?: any;
-  $animationDuration?: any;
-  $animationIterationCount?: any;
-
+  $extendedProps: any;
 }>`
   height: 100%;
   width: 100%;
@@ -680,17 +668,17 @@ export const Event = styled.div<{
   box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
   display: ${(props) => props.$isList && "flex"};
-  background-color:${(props) => props.$backgroundColor};
+  background-color:${(props) => props?.$backgroundColor || "#ffffff"} ;
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
   padding-right: 20px;
   overflow: hidden;
   position: relative;
-  animation: ${(props) => props?.$animation};
-  animation-delay: ${(props) => props?.$animationDelay};
-  animation-duration: ${(props) => props?.$animationDuration};
-  animation-iteration-count: ${(props) => props?.$animationIterationCount};
+  animation: ${(props) => props?.$extendedProps?.animation || ""};
+  animation-delay: ${(props) => props?.$extendedProps?.animationDelay || ""} ;
+  animation-duration: ${(props) => props?.$extendedProps?.animationDuration || ""};
+  animation-iteration-count: ${(props) => props?.$extendedProps?.animationIterationCount || ""};
   &::before {
     content: "";
     position: absolute;
@@ -700,7 +688,7 @@ export const Event = styled.div<{
     left: 2px;
     top: 2px;
     border-radius: 3px;
-    background-color: ${(props) => props.$bg};
+    background-color: ${(props) => props.$extendedProps?.color};
   }
 
   .event-time {
@@ -714,17 +702,17 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => props.$titleColor};
-    font-weight: ${(props) => props.$titleFontWeight};
-    font-style: ${(props) => props.$titleFontStyle};
+    color: ${(props) => props?.$extendedProps?.titleColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.titleFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.titleFontStyle || ""};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
   }
   .event-detail {
-    color: ${(props) => props.$detailColor};
-    font-weight: ${(props) => props.$detailFontWeight};
-    font-style: ${(props) => props.$detailFontStyle};
+    color: ${(props) => props?.$extendedProps?.detailColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.detailFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.detailFontStyle || "italic"};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
@@ -762,9 +750,9 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-    `rgba(${props.$style.bg}, 0.3)`};
+    `rgba(${props?.$extendedProps?.color}, 0.3)`};
     &::before {
-    background-color: ${(props) => props.$style.bg};
+    background-color: ${(props) => props?.$extendedProps?.color};
     opacity: 0.3;
     }
     &::before,
@@ -780,10 +768,10 @@ export const Event = styled.div<{
 
 
 export const FormWrapper = styled(Form)<{
-  $modaltyle: EventModalStyleType
+  $modalStyle: EventModalStyleType
 }>`
   .ant-form-item-label {
-    width: 120px;
+    width: 125px;
     text-align: left;
     line-height: 18px;
 
@@ -801,11 +789,11 @@ export const FormWrapper = styled(Form)<{
 
   // Setting style for input fields
   .ant-input {
-    background-color: ${(props) => props.$modaltyle.labelBackground };
-    border-color: ${(props) => props.$modaltyle.border};
-    border-width: ${(props) => props.$modaltyle.borderWidth};
-    border-style: ${(props) => props.$modaltyle.borderStyle};
-    color: ${(props) => props.$modaltyle.text};
+    background-color: ${(props) => props.$modalStyle.labelBackground };
+    border-color: ${(props) => props.$modalStyle.border};
+    border-width: ${(props) => props.$modalStyle.borderWidth};
+    border-style: ${(props) => props.$modalStyle.borderStyle};
+    color: ${(props) => props.$modalStyle.text};
   }
 
 `;
@@ -953,19 +941,25 @@ export const defaultData = [
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
-    backgroundColor:"purple",
+    backgroundColor:"#ffffff",
     detail: 'Discuss project milestones and deliverables.',
-    titleColor:"black",
-    detailColor:"black",
+    titleColor:"#000000",
+    detailColor:"#000000",
+    titleFontWeight:"normal",
+    titleFontStyle:"italic",
+    detailFontWeight:"normal",
+    detailFontStyle:"italic",
+    animation:"none",
+    animationDelay:"0s",
+    animationDuration:"0s",
+    animationIterationCount:"0",
   },
   {
     id: "2",
     title: "Rest",
     start: dayjs().hour(24).format(DATE_FORMAT),
     end: dayjs().hour(48).format(DATE_FORMAT),
-    backgroundColor:"purple",
     color: "#079968",
-    titleColor:"white",
     allDay: true,
   },
 ];
@@ -1114,3 +1108,4 @@ export const viewClassNames = (info: ViewContentArg) => {
   }
   return className;
 };
+
