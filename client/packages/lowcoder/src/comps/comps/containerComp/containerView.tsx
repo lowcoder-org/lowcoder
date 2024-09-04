@@ -348,11 +348,13 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
-  const defaultGrid =
-    horizontalGridCells ||
+  const defaultGrid = useMemo(() => {
+    return horizontalGridCells ||
     currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
     "12";
+  }, [horizontalGridCells, currentTheme?.gridColumns, defaultTheme?.gridColumns]);
+
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;

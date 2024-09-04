@@ -207,6 +207,7 @@ export const GridItem = React.memo((props: GridItemProps) => {
         [xx, yy] = [xy.x, xy.y];
       }
     }
+
     setResizing(handlerName === "onResizeStop" ? undefined : size);
     setDragging(handlerName === "onResizeStop" ? undefined : localDragging);
 
@@ -517,7 +518,16 @@ export const GridItem = React.memo((props: GridItemProps) => {
       left = position.left;
     }
     return { width, height, top, left };
-  }, [dragging, position.height, position.left, position.top, position.width, resizing]);
+  }, [
+    dragging?.top,
+    dragging?.left,
+    position.height,
+    position.left,
+    position.top,
+    position.width,
+    resizing?.width,
+    resizing?.height,
+  ]);
 
   const { isDraggable, isResizable, layoutHide, children, isSelected, clickItem, zIndex } = props;
   
