@@ -156,6 +156,7 @@ export type DateCompViewProps = Pick<
   | "minuteStep"
   | "secondStep"
   | "viewRef"
+  | "timeZone"
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -187,6 +188,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     onMouseDown: (e) => e.stopPropagation(),
     children: (
       <DateUIView
+        timeZone={props.timeZone} 
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.inputFieldStyle}
@@ -323,6 +325,7 @@ export const dateRangeControl = (function () {
 
     const children = (
       <DateRangeUIView
+        timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}

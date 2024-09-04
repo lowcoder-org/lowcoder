@@ -76,13 +76,15 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       minuteStep={props.minuteStep as any}
       secondStep={props.secondStep as any}
       renderExtraFooter={() => (
-        <StyledDiv>
-          <StyledAntdSelect
-            placeholder="Select Time Zone"
-            options={timeZoneOptions}
-            onChange={()=>{console.log("handleTimeZoneChange")}}
-          />
-        </StyledDiv>
+        props.timeZone === "UserChoice" && (
+          <StyledDiv>
+            <StyledAntdSelect 
+              options={timeZoneOptions} 
+              placeholder="Select Time Zone" 
+              onChange={()=>{console.log("handleTimeZoneChange")}}
+              />
+          </StyledDiv>
+        )
       )}
     />
   );

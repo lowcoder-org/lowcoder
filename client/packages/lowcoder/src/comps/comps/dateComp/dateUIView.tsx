@@ -63,13 +63,15 @@ export const DateUIView = (props: DataUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
       renderExtraFooter={()=>(
-        <StyledDiv>
-          <StyledAntdSelect 
-            options={timeZoneOptions} 
-            placeholder="Select a time zone" 
-            onChange={()=>{console.log("DatePickerStyled")}} 
-          />
+        props.timeZone === "UserChoice" && (
+          <StyledDiv>
+            <StyledAntdSelect 
+              options={timeZoneOptions} 
+              placeholder="Select Time Zone" 
+              onChange={()=>{console.log("DatePickerStyled")}} 
+            />
           </StyledDiv>
+        )
       )}
     />
   );

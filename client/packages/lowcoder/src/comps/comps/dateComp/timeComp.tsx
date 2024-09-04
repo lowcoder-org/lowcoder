@@ -143,6 +143,7 @@ export type TimeCompViewProps = Pick<
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon?: ReactNode | false;
   placeholder?: string | [string, string];
+  timeZone:string
 };
 
 export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
@@ -167,6 +168,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
     onMouseDown: (e) => e.stopPropagation(),
     children: (
       <TimeUIView
+        timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
@@ -186,8 +188,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
     ),
     ...validate(props),
   });
@@ -290,6 +291,7 @@ export const timeRangeControl = (function () {
     
     const children = (
       <TimeRangeUIView
+        timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}

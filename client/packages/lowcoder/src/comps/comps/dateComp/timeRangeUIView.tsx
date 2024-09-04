@@ -66,12 +66,14 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
       renderExtraFooter={() => (
-        <StyledAntdSelect
+        props.timeZone === "UserChoice" && (
+          <StyledAntdSelect
           placeholder="Select Time Zone"
           options={timeZoneOptions}
           onChange={()=>{console.log("handleTimeZoneChange")}}
           />
-        )}
+        )
+      )}
     />
   );
 };

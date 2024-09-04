@@ -48,11 +48,13 @@ export const TimeUIView = (props: TimeUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
       renderExtraFooter={()=>(
+      props.timeZone === "UserChoice" && (
         <StyledAntdSelect
           placeholder="Select Time Zone"
           options={timeZoneOptions}
           onChange={()=>{console.log("handleTimeZoneChange")}}
           />
+        )
       )}
     />   
   );
