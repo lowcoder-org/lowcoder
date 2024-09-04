@@ -660,9 +660,18 @@ export const Event = styled.div<{
   $allDay: boolean;
   $style: CalendarStyleType;
   $backgroundColor:string;
-  $description:string;
+  $detail:string;
   $titleColor:string;
-  $descriptionColor:string;
+  $detailColor:string;
+  $titleFontWeight:string;
+  $titleFontStyle:string;
+  $detailFontWeight:string;
+  $detailFontStyle:string;
+  $animation?: any;
+  $animationDelay?: any;
+  $animationDuration?: any;
+  $animationIterationCount?: any;
+
 }>`
   height: 100%;
   width: 100%;
@@ -678,6 +687,10 @@ export const Event = styled.div<{
   padding-right: 20px;
   overflow: hidden;
   position: relative;
+  animation: ${(props) => props?.$animation};
+  animation-delay: ${(props) => props?.$animationDelay};
+  animation-duration: ${(props) => props?.$animationDuration};
+  animation-iteration-count: ${(props) => props?.$animationIterationCount};
   &::before {
     content: "";
     position: absolute;
@@ -702,14 +715,16 @@ export const Event = styled.div<{
   }
   .event-title {
     color: ${(props) => props.$titleColor};
-    font-weight: 500;
+    font-weight: ${(props) => props.$titleFontWeight};
+    font-style: ${(props) => props.$titleFontStyle};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
   }
-    .event-description {
-    color: ${(props) => props.$descriptionColor};
-    font-weight: 500;
+  .event-detail {
+    color: ${(props) => props.$detailColor};
+    font-weight: ${(props) => props.$detailFontWeight};
+    font-style: ${(props) => props.$detailFontStyle};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
@@ -722,7 +737,7 @@ export const Event = styled.div<{
       display: none;
     }
     .event-title,
-    .event-description
+    .event-detail
     {
       text-overflow: ellipsis;
       overflow: hidden;
@@ -733,7 +748,7 @@ export const Event = styled.div<{
     padding-top: 2px;
     .event-time,
     .event-title,
-     .event-description
+     .event-detail
      {
       text-overflow: ellipsis;
       overflow: hidden;
@@ -755,23 +770,28 @@ export const Event = styled.div<{
     &::before,
     .event-title,
     .event-time,
-    .event-description
+    .event-detail
     {
       opacity: 0.35;
     }
   }
 `;
 
+
+
 export const FormWrapper = styled(Form)<{
   $modaltyle: EventModalStyleType
 }>`
   .ant-form-item-label {
-    width: 100px;
+    width: 120px;
     text-align: left;
     line-height: 18px;
 
     label:not(.ant-form-item-required) {
-      margin-left: 11px;
+      margin-left: 2px;
+    }
+      label.ant-form-item-required{
+      margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
@@ -791,6 +811,14 @@ export const FormWrapper = styled(Form)<{
 `;
 
 export type EventType = {
+  animationIterationCount: any;
+  animationDuration: any;
+  animationDelay: any;
+  animation: any;
+  titleFontWeight: any;
+  titleFontStyle: any;
+  detailFontWeight: any;
+  detailFontStyle: any;
   id?: string;
   resourceId?: string;
   label?: string;
@@ -802,9 +830,9 @@ export type EventType = {
   backgroundColor?:string;
   groupId?: string;
   value?: string;
-  description?:string;
+  detail?:string;
   titleColor?:string;
-  descriptionColor?:string;
+  detailColor?:string;
 };
 
 export enum ViewType {
@@ -926,9 +954,9 @@ export const defaultData = [
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
     backgroundColor:"purple",
-    description: 'Discuss project milestones and deliverables.',
+    detail: 'Discuss project milestones and deliverables.',
     titleColor:"black",
-    descriptionColor:"black",
+    detailColor:"black",
   },
   {
     id: "2",
