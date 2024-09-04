@@ -52,6 +52,8 @@ import { RefControl } from "comps/controls/refControl";
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { timeZoneOptions } from "./timeZone";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -81,6 +83,7 @@ const commonChildren = {
   ),
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
+  timeZone: dropdownControl(timeZoneOptions, "DatelineStandard"),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
 };
@@ -196,7 +199,9 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
           label: trans("prop.defaultValue"),
           tooltip: trans("time.formatTip"),
         })}
-        
+        {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+        })}
       </Section>
 
       <FormDataPropertyView {...children} />
@@ -336,6 +341,9 @@ export const timeRangeControl = (function () {
             label: trans("time.end"),
             tooltip: trans("time.formatTip"),
           })}
+          {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+            })}
         </Section>
         
         <FormDataPropertyView {...children} />

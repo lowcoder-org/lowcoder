@@ -222,6 +222,7 @@ export const en = {
     "horizontalGridCells": "Horizontal Grid Cells",
     "showHorizontalScrollbar": "Show Horizontal Scrollbar",
     "showVerticalScrollbar": "Show Vertical Scrollbar",
+    "timeZone": "TimeZone",
   },
   "autoHeightProp": {
     "auto": "Auto",

@@ -48,6 +48,8 @@ import { RefControl } from "comps/controls/refControl";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { timeZoneOptions } from "./timeZone";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -80,6 +82,7 @@ const commonChildren = {
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  timeZone: dropdownControl(timeZoneOptions, "DatelineStandard"),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -224,6 +227,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             placeholder: "2022-04-07 21:39:59",
             tooltip: trans("date.formatTip")
           })}
+          {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+            })}
         </Section>
 
         <FormDataPropertyView {...children} />
@@ -379,6 +385,9 @@ export const dateRangeControl = (function () {
               label: trans("date.end"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
+            })}
+            {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
             })}
           </Section>
           
