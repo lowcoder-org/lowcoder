@@ -45,6 +45,7 @@ import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
 import { TableSummary } from "./tableSummaryComp";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 
 export const EMPTY_ROW_KEY = 'empty_row';
 
@@ -1017,13 +1018,17 @@ export function TableCompView(props: {
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"
-              loading={
-                loading ||
-                // fixme isLoading type
-                (compChildren.showDataLoadSpinner.getView() &&
-                  (compChildren.data as any).isLoading()) ||
-                compChildren.loading.getView()
-              }
+              loading={{
+                spinning: (
+                  loading ||
+                  // fixme isLoading type
+                  (compChildren.showDataLoadSpinner.getView() &&
+                    (compChildren.data as any).isLoading()) ||
+                  compChildren.loading.getView()
+                ),
+                indicator: <LoadingOutlined spin />,
+                size: 'large'
+              }}
               onCellClick={(columnName: string, dataIndex: string) => {
                 comp.children.selectedCell.dispatchChangeValueAction({
                   name: columnName,
