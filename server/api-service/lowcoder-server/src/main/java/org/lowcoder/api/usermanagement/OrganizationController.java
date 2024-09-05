@@ -13,6 +13,8 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
+import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.plugin.DatasourceMetaInfo;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,19 @@ public class OrganizationController implements OrganizationEndpoints
     private BusinessEventPublisher businessEventPublisher;
     @Autowired
     private GidService gidService;
+    @Autowired
+    private OrgMemberService orgMemberService;
+    @Autowired
+    private OrganizationService organizationService;
+
+    @Override
+    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String userId) {
+        return orgMemberService.getAllActiveOrgs(userId)
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(OrgView::new)
+                .collectList()
+                .map(ResponseView::success);
+    }
 
     @Override
     public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization) {
