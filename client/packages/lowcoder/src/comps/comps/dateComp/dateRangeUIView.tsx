@@ -44,6 +44,7 @@ export interface DateRangeUIViewProps extends DateCompViewProps {
   placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
   onPanelChange: (value: any, mode: [string, string]) => void;
+  onClickDateRangeTimeZone:(value:any)=>void
 }
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {
@@ -79,9 +80,10 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
         props.timeZone === "UserChoice" && (
           <StyledDiv>
             <StyledAntdSelect 
-              options={timeZoneOptions} 
+              options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
               placeholder="Select Time Zone" 
-              onChange={()=>{console.log("handleTimeZoneChange")}}
+              defaultValue={'Etc/UTC'}
+              onChange={props?.onClickDateRangeTimeZone}
               />
           </StyledDiv>
         )

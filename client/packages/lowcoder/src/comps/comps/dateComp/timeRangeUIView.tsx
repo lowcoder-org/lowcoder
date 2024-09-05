@@ -38,6 +38,7 @@ export interface TimeRangeUIViewProps extends TimeCompViewProps {
   end: dayjs.Dayjs | null;
   placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
+  handleTimeRangeZoneChange: (value:any) => void;
 }
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
@@ -69,8 +70,9 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
         props.timeZone === "UserChoice" && (
           <StyledAntdSelect
           placeholder="Select Time Zone"
-          options={timeZoneOptions}
-          onChange={()=>{console.log("handleTimeZoneChange")}}
+          options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
+          defaultValue={'Etc/UTC'}
+          onChange={props.handleTimeRangeZoneChange}
           />
         )
       )}

@@ -37,6 +37,8 @@ export interface DataUIViewProps extends DateCompViewProps {
   value?: DatePickerProps<Dayjs>['value'];
   onChange: DatePickerProps<Dayjs>['onChange'];
   onPanelChange: () => void;
+  onClickDateTimeZone:(value:any)=>void;
+  
 }
 
 const DateMobileUIView = React.lazy(() =>
@@ -66,9 +68,10 @@ export const DateUIView = (props: DataUIViewProps) => {
         props.timeZone === "UserChoice" && (
           <StyledDiv>
             <StyledAntdSelect 
-              options={timeZoneOptions} 
+              options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
               placeholder="Select Time Zone" 
-              onChange={()=>{console.log("DatePickerStyled")}} 
+              defaultValue={'Etc/UTC'}
+              onChange={props.onClickDateTimeZone} 
             />
           </StyledDiv>
         )

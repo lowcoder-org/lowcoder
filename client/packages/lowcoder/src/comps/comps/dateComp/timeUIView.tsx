@@ -32,6 +32,7 @@ const StyledAntdSelect = styled(AntdSelect)`
 export interface TimeUIViewProps extends TimeCompViewProps {
   value: dayjs.Dayjs | null;
   onChange: (value: dayjs.Dayjs | null) => void;
+  handleTimeZoneChange: (value:any) => void;
 }
 
 export const TimeUIView = (props: TimeUIViewProps) => {
@@ -51,8 +52,9 @@ export const TimeUIView = (props: TimeUIViewProps) => {
       props.timeZone === "UserChoice" && (
         <StyledAntdSelect
           placeholder="Select Time Zone"
-          options={timeZoneOptions}
-          onChange={()=>{console.log("handleTimeZoneChange")}}
+          options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
+          onChange={props?.handleTimeZoneChange}
+          defaultValue={'Etc/UTC'}
           />
         )
       )}
