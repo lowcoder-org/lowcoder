@@ -1,5 +1,7 @@
 import _, { noop } from "lodash";
 import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
   BoolCodeControl,
@@ -51,6 +53,10 @@ import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
 const validationChildren = {
@@ -82,7 +88,7 @@ const commonChildren = {
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
-  timeZone: dropdownControl(timeZoneOptions, "DatelineStandard"),
+  timeZone: dropdownControl(timeZoneOptions, "Etc/UTC"),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -452,21 +458,42 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({
     name: "value",
     desc: trans("export.datePickerValueDesc"),
-    depKeys: ["value", "showTime"],
+    depKeys: ["value", "showTime", "timeZone"], // Include timeZone as a dependency
     func: (input) => {
-      const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
-      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
+      let mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;  
+
+      if (!input.showTime && mom?.hour() === 0 && mom?.minute() === 0 && mom?.second() === 0) {
+        mom = mom?.hour(12); // Default to noon to avoid day shift
+      } 
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        const formattedDate = mom.tz(tz).format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT);
+        return formattedDate;
+      }
+      return null;
     },
   }),
   depsConfig({
     name: "formattedValue",
     desc: trans("export.datePickerFormattedValueDesc"),
-    depKeys: ["value", "format"],
+    depKeys: ["value", "format", "timeZone"],
     func: (input) => {
-      const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
-      return mom?.isValid() ? mom.format(input.format) : "";
+      let mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
+
+      if (!input.showTime && mom?.hour() === 0 && mom?.minute() === 0 && mom?.second() === 0) {
+        mom = mom?.hour(12); // Default to noon to avoid timezone-related day shifts
+      }
+      
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        const formattedTime = mom.tz(tz).format(input.format);
+
+        return formattedTime;
+      }
+      return '';
     },
   }),
+  
   depsConfig({
     name: "timestamp",
     desc: trans("export.datePickerTimestampDesc"),
@@ -486,6 +513,14 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
         value: { value: input.value },
       } as any).validateStatus !== "success",
   }),
+  depsConfig({
+    name: "timeZone",
+    desc: trans("export.timeZoneDesc"), 
+    depKeys: ["timeZone"],
+    func: (input) => {
+      return input.timeZone;
+    },
+  }),
   ...CommonNameConfig,
 ]);
 
@@ -493,85 +528,133 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
   depsConfig({
     name: "start",
     desc: trans("export.dateRangeStartDesc"),
-    depKeys: ["start", "showTime"],
+    depKeys: ["start", "showTime", "timeZone"], 
     func: (input) => {
-      const mom = Boolean(input.start) ? dayjs(input.start, DateParser): null;
-      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
+      const mom = Boolean(input.start) ? dayjs(input.start, DateParser) : null;
+  
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC'; 
+        const formattedStart = mom.tz(tz).format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT);
+        return formattedStart;
+      }
+        return null;
     },
   }),
+  
   depsConfig({
     name: "end",
     desc: trans("export.dateRangeEndDesc"),
-    depKeys: ["end", "showTime"],
+    depKeys: ["end", "showTime", "timeZone"], 
     func: (input) => {
-      const mom = Boolean(input.end) ? dayjs(input.end, DateParser): null;
-      return mom?.isValid() ? mom.format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : null;
+      let mom = Boolean(input.end) ? dayjs(input.end, DateParser) : null;
+
+      if (!input.showTime && mom?.hour() === 0 && mom?.minute() === 0 && mom?.second() === 0) {
+        mom = mom?.hour(12); // Default to noon to avoid timezone-related day shifts
+      }
+  
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        const formattedEnd = mom.tz(tz).format(input.showTime ? DATE_TIME_FORMAT : DATE_FORMAT);
+        return formattedEnd;
+      }
+      return null;
     },
   }),
+  
   depsConfig({
     name: "startTimestamp",
     desc: trans("export.dateRangeStartTimestampDesc"),
-    depKeys: ["start"],
+    depKeys: ["start", "timeZone"],  
     func: (input) => {
       const mom = Boolean(input.start) ? dayjs(input.start, DateParser) : null;
-      return mom?.isValid() ? mom.unix() : "";
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC'; 
+        return mom.tz(tz).unix();
+      }
+      return "";
     },
   }),
   depsConfig({
     name: "endTimestamp",
     desc: trans("export.dateRangeEndTimestampDesc"),
-    depKeys: ["end"],
+    depKeys: ["end", "timeZone"],
     func: (input) => {
       const mom = Boolean(input.end) ? dayjs(input.end, DateParser) : null;
-      return mom?.isValid() ? mom.unix() : "";
+      if (mom?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        return mom.tz(tz).unix();
+      }
+      return "";
     },
   }),
   depsConfig({
     name: "formattedValue",
     desc: trans("export.dateRangeFormattedValueDesc"),
-    depKeys: ["start", "end", "format"],
+    depKeys: ["start", "end", "format", "timeZone"],
     func: (input) => {
-      const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
-      const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
-      return [
-        start?.isValid() && start.format(input.format),
-        end?.isValid() && end.format(input.format),
-      ]
-        .filter((item) => item)
-        .join(" - ");
+      const start = Boolean(input.start) ? dayjs(input.start, DateParser) : null;
+      const end = Boolean(input.end) ? dayjs(input.end, DateParser) : null;
+  
+      if (start?.isValid() || end?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        const formattedStart = start?.isValid() ? start.tz(tz).format(input.format) : '';
+        const formattedEnd = end?.isValid() ? end.tz(tz).format(input.format) : '';
+        const formattedValue = [formattedStart, formattedEnd].filter(Boolean).join(" - ");
+        return formattedValue;
+      }
+      return '';
     },
   }),
+  
   depsConfig({
     name: "formattedStartValue",
     desc: trans("export.dateRangeFormattedStartValueDesc"),
-    depKeys: ["start", "format"],
+    depKeys: ["start", "format", "timeZone"],
     func: (input) => {
-      const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
-      return start?.isValid() && start.format(input.format);
+      const start = Boolean(input.start) ? dayjs(input.start, DateParser) : null;
+  
+      if (start?.isValid()) {
+        const tz = input.timeZone || 'UTC';
+        const formattedStart = start.tz(tz).format(input.format); 
+      }
+      return '';
     },
   }),
   depsConfig({
     name: "formattedEndValue",
     desc: trans("export.dateRangeFormattedEndValueDesc"),
-    depKeys: ["end", "format"],
+    depKeys: ["end", "format", "timeZone"],
     func: (input) => {
-      const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
-      return end?.isValid() && end.format(input.format);
+      const end = Boolean(input.end) ? dayjs(input.end, DateParser) : null;
+  
+      if (end?.isValid()) {
+        const tz = input.timeZone || 'UTC'; 
+        const formattedEnd = end.tz(tz).format(input.format);
+        return formattedEnd;
+      }
+      return '';
     },
   }),
   depsConfig({
     name: "invalid",
     desc: trans("export.invalidDesc"),
-    depKeys: ["start", "end", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule"],
-    func: (input) =>
-      validate({
-        ...input,
-        value: { value: input.start },
-      }).validateStatus !== "success" ||
-      validate({
-        ...input,
-        value: { value: input.end },
-      }).validateStatus !== "success",
+    depKeys: ["start", "end", "required", "minTime", "maxTime", "minDate", "maxDate", "customRule", "timeZone"],
+    func: (input) => {
+      const tz = input.timeZone || 'UTC';  
+      const startDate = Boolean(input.start) ? dayjs(input.start, DateParser).tz(tz) : null;
+      const endDate = Boolean(input.end) ? dayjs(input.end, DateParser).tz(tz) : null;
+      const startInvalid = startDate && (!startDate.isValid() || (input.minDate && startDate.isBefore(dayjs(input.minDate).tz(tz))) || (input.maxDate && startDate.isAfter(dayjs(input.maxDate).tz(tz))));
+      const endInvalid = endDate && (!endDate.isValid() || (input.minDate && endDate.isBefore(dayjs(input.minDate).tz(tz))) || (input.maxDate && endDate.isAfter(dayjs(input.maxDate).tz(tz))));
+      return startInvalid || endInvalid;
+    },
+  }),
+  depsConfig({
+    name: "timeZone",
+    desc: trans("export.timeZoneDesc"),
+    depKeys: ["timeZone"],
+    func: (input) => {
+      return input.timeZone || 'UTC';
+    },
   }),
   ...CommonNameConfig,
 ]);

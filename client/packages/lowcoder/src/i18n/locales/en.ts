@@ -597,7 +597,11 @@ export const en = {
     "timeRangeEndDesc": "End time of the range",
     "timeRangeFormattedValueDesc": "Formatted time range",
     "timeRangeFormattedStartValueDesc": "Formatted start time",
-    "timeRangeFormattedEndValueDesc": "Formatted end time"
+    "timeRangeFormattedEndValueDesc": "Formatted end time",
+    "timeZone": "Time Zone",
+    "timeZoneDesc": "Timezone of the selected date",
+
+
   },
   "validationDesc": {
     "email": "Please enter a valid email address",
