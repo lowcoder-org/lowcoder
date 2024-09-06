@@ -64,7 +64,7 @@ const Load2 = styled.div<LoadingContainerProps>`
     linear-gradient(to right, ${(props) => props.$color}a3, ${(props) => props.$color}1a);
 `;
 
-const StyledSkeleton = styled(Skeleton.Button)`
+const StyledSkeleton = styled(Skeleton)`
   height: 100%;
 `;
 
@@ -92,7 +92,7 @@ export const Loading = (props: LoadingProps) => {
           <Load2 {...loadingProps} />
         </Container>
       </ContainerX> */}
-      <StyledSkeleton active block style={{height: '100%', animationDuration: '2s'}} />
+      <StyledSkeleton active style={{height: '100%', animationDuration: '2s'}} />
     </LoadingWrapper>
   );
 };
