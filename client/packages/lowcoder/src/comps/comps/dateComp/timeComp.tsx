@@ -1,8 +1,6 @@
 import _ from "lodash";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
-import timezone from 'dayjs/plugin/timezone';
-import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import {
   BoolCodeControl,
@@ -59,8 +57,6 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 
 dayjs.extend(utc);
-dayjs.extend(timezone); 
-dayjs.extend(customParseFormat); 
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -426,20 +422,10 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
   depsConfig({
     name: "formattedValue",
     desc: trans("export.timePickerFormattedValueDesc"),
-    depKeys: ["value", "format", "timeZone", "userTimeZone"],
+    depKeys: ["value", "format"],
     func: (input) => {
-      let mom = null;
-
-      // Loop through TimeParser to find a valid format
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.value, format).isValid()) {
-          mom = dayjs.utc(input.value, format);
-          break;
-        }
-      }
-
-      const tz = input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone || 'UTC';
-      return mom?.isValid() ? mom.tz(tz).format(input.format) : '';
+      const mom = Boolean(input.value) ? dayjs(input.value, TimeParser) : null;
+      return mom?.isValid() ? mom.format(input.format) : '';
     },
   }),
 
@@ -451,7 +437,6 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
       return input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone || 'UTC';
     },
   }),
-
   depsConfig({
     name: "invalid",
     desc: trans("export.invalidDesc"),
@@ -460,157 +445,63 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
       validate({
         ...input,
         value: { value: input.value },
-      }).validateStatus !== "success",
+      } as any).validateStatus !== "success",
   }),
-
   ...CommonNameConfig,
 ]);
 
-
 export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
-  // new NameConfig("start", trans("export.timeRangeStartDesc")),
-  // new NameConfig("end", trans("export.timeRangeEndDesc")),
-  depsConfig({
-    name: "start",
-    desc: trans("export.timeRangeStartDesc"),
-    depKeys: ["start", "timeZone", "userRangeTimeZone"],
-    func: (input) => {
-      let start = null;
-      
-      // Loop through TimeParser to find a valid format for start
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.start, format).isValid()) {
-          start = dayjs.utc(input.start, format);
-          break;
-        }
-      }
-
-      if (start?.hour() === 0 && start?.minute() === 0 && start?.second() === 0) {
-        start = start?.hour(12); 
-      }
-
-      // Apply timezone conversion if valid
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-      return start?.isValid() ? start.tz(tz).format(input.format || "HH:mm:ss") : null;
-    },
-  }),
-
-  depsConfig({
-    name: "end",
-    desc: trans("export.timeRangeEndDesc"),
-    depKeys: ["end", "timeZone", "userRangeTimeZone"],
-    func: (input) => {
-      let end = null;
-
-      // Loop through TimeParser to find a valid format for end
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.end, format).isValid()) {
-          end = dayjs.utc(input.end, format);
-          break;
-        }
-      }
-
-      // Apply timezone conversion if valid
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-      return end?.isValid() ? end.tz(tz).format(input.format || "HH:mm:ss") : null;
-    },
-  }),
-
+  new NameConfig("start", trans("export.timeRangeStartDesc")),
+  new NameConfig("end", trans("export.timeRangeEndDesc")),
   depsConfig({
     name: "formattedValue",
     desc: trans("export.timeRangeFormattedValueDesc"),
-    depKeys: ["start", "end", "format", "timeZone", "userRangeTimeZone"],
+    depKeys: ["start", "end", "format"],
     func: (input) => {
-      let start = null;
-      let end = null;
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.start, format).isValid()) {
-          start = dayjs.utc(input.start, format);
-          break;
-        }
-      }
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.end, format).isValid()) {
-          end = dayjs.utc(input.end, format);
-          break;
-        }
-      }
-
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-      const formattedStart = start?.isValid() ? start.tz(tz).format(input.format) : '';
-      const formattedEnd = end?.isValid() ? end.tz(tz).format(input.format) : '';
-      
-      return [formattedStart, formattedEnd].filter(Boolean).join(" - ");
+      const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
+      const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
+      return [
+        start?.isValid() && start.format(input.format),
+        end?.isValid() && end.format(input.format),
+      ]
+        .filter((item) => item)
+        .join(" - ");
     },
   }),
-
   depsConfig({
     name: "formattedStartValue",
     desc: trans("export.timeRangeFormattedStartValueDesc"),
-    depKeys: ["start", "format", "timeZone", "userRangeTimeZone"],
+    depKeys: ["start", "format"],
     func: (input) => {
-      let start = null;
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.start, format).isValid()) {
-          start = dayjs.utc(input.start, format);
-          break;
-        }
-      }
-
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-      return start?.isValid() ? start.tz(tz).format(input.format) : '';
+      const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
+      return start?.isValid() && start.format(input.format);
     },
   }),
-
   depsConfig({
     name: "formattedEndValue",
     desc: trans("export.timeRangeFormattedEndValueDesc"),
-    depKeys: ["end", "format", "timeZone", "userRangeTimeZone"],
+    depKeys: ["end", "format"],
     func: (input) => {
-      let end = null;
-      for (const format of TimeParser) {
-        if (dayjs.utc(input.end, format).isValid()) {
-          end = dayjs.utc(input.end, format);
-          break;
-        }
-      }
-
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-      return end?.isValid() ? end.tz(tz).format(input.format) : '';
+      const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
+      return end?.isValid() && end.format(input.format);
     },
   }),
-
-  depsConfig({
-    name: "timeZone", 
-    desc: trans("export.timeZoneDesc"), 
-    depKeys: ["timeZone", "userRangeTimeZone"], 
-    func: (input) => {
-      return input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone || 'UTC';
-    },
-  }),
-
   depsConfig({
     name: "invalid",
     desc: trans("export.invalidDesc"),
     depKeys: ["start", "end", "required", "minTime", "maxTime", "customRule"],
-    func: (input) => {
-      const startInvalid = validate({
+    func: (input) =>
+      validate({
         ...input,
         value: { value: input.start },
-      }).validateStatus !== "success";
-
-      const endInvalid = validate({
+      }).validateStatus !== "success" ||
+      validate({
         ...input,
         value: { value: input.end },
-      }).validateStatus !== "success";
-
-      return startInvalid || endInvalid;
-    },
+      }).validateStatus !== "success",
   }),
-
   ...CommonNameConfig,
 ]);
-
 
 TimeRangeComp = withMethodExposing(TimeRangeComp, [
   ...dateRefMethods,
