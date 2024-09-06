@@ -21,7 +21,7 @@ const TimeMobileUIView = React.lazy(() =>
 );
  
 const StyledAntdSelect = styled(AntdSelect)`
-  width: 350px;
+  width: 300px;
   margin: 10px 0; 
   .ant-select-selector {
     font-size: 14px; 
@@ -54,7 +54,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
           placeholder="Select Time Zone"
           options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
           onChange={props?.handleTimeZoneChange}
-          defaultValue={'Etc/UTC'}
+          defaultValue={'(UTC 00:00) UTC'}
           />
         )
       )}

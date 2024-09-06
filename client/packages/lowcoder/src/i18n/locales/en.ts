@@ -3644,7 +3644,7 @@ export const en = {
   "UTC+11:00": "(UTC+11:00) Solomon Islands, New Caledonia",
   "UTC+12:00": "(UTC+12:00) Auckland, Fiji",
   "UTC+13:00": "(UTC+13:00) Nuku'alofa, Samoa",
-  "UserChoice": "User Choice"
+  "UserChoice": "UserChoice"
 },
   tour: { 
     section1Title: "Steps",
