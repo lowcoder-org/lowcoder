@@ -46,6 +46,8 @@ import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
 import { TableSummary } from "./tableSummaryComp";
 import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+import Skeleton from "antd/es/skeleton";
+import { SkeletonButtonProps } from "antd/es/skeleton/Button";
 
 export const EMPTY_ROW_KEY = 'empty_row';
 
@@ -439,6 +441,27 @@ const TableTd = styled.td<{
   }
 `;
 
+const TableTdLoading = styled(Skeleton.Button)<SkeletonButtonProps & {
+  $tableSize?: string;
+}>`
+  width: 90% !important;
+  display: table !important;
+
+  .ant-skeleton-button {
+    min-width: auto !important;
+    display: block !important;
+    ${(props) => props.$tableSize === 'small' && `
+      height: 20px !important;
+    `}
+    ${(props) => props.$tableSize === 'middle' && `
+      height: 24px !important;
+    `}
+    ${(props) => props.$tableSize === 'large' && `
+      height: 28px !important;
+    `}
+  }
+`;
+
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
   const [widthChild, setWidthChild] = useState(0);
@@ -504,6 +527,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
+  customLoading?: boolean;
   onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
@@ -520,6 +544,7 @@ function TableCellView(props: {
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
+  loading?: boolean;
 }) {
   const {
     record,
@@ -534,6 +559,7 @@ function TableCellView(props: {
     linkStyle,
     tableSize,
     autoHeight,
+    loading,
     ...restProps
   } = props;
 
@@ -591,7 +617,10 @@ function TableCellView(props: {
         $tableSize={tableSize}
         $autoHeight={autoHeight}
       >
-        {children}
+        {loading
+          ? <TableTdLoading block active $tableSize={tableSize} />
+          : children
+        }
       </TableTd>
     );
   }
@@ -629,6 +658,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     width: -1,
   });
   let allColumnFixed = true;
+  const { customLoading } = props;
+
   const columns = props.columns.map((col, index) => {
     const { width, style, linkStyle, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
@@ -662,7 +693,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         autoHeight: props.rowAutoHeight,
         onClick: () => {
           props.onCellClick(col.titleText, String(col.dataIndex));
-        }
+        },
+        loading: customLoading,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -733,6 +765,7 @@ export function TableCompView(props: {
 }) {
   const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
+  const showDataLoadingIndicators = editorState?.getAppSettings().showDataLoadingIndicators;
   const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
@@ -957,6 +990,12 @@ export function TableCompView(props: {
   }
 
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
+  const showTableLoading = loading ||
+    // fixme isLoading type
+    ((showDataLoadingIndicators || compChildren.showDataLoadSpinner.getView()) &&
+      (compChildren.data as any).isLoading()) ||
+    compChildren.loading.getView();
+
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper
@@ -1018,17 +1057,7 @@ export function TableCompView(props: {
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"
-              loading={{
-                spinning: (
-                  loading ||
-                  // fixme isLoading type
-                  (compChildren.showDataLoadSpinner.getView() &&
-                    (compChildren.data as any).isLoading()) ||
-                  compChildren.loading.getView()
-                ),
-                indicator: <LoadingOutlined spin />,
-                size: 'large'
-              }}
+              customLoading={showTableLoading}
               onCellClick={(columnName: string, dataIndex: string) => {
                 comp.children.selectedCell.dispatchChangeValueAction({
                   name: columnName,

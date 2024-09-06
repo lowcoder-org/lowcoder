@@ -1536,7 +1536,7 @@ export const zh: typeof en = {
         dynamicColumnConfig: "列设置",
         dynamicColumnConfigDesc: "动态列设置.接受一个列名的数组,默认情况下所有列都可见.\n" + `示例:["id", "name"]`,
         position: "位置",
-        showDataLoadSpinner: "数据加载时显示加载指示器",
+        showDataLoadSpinner: "显示加载指示器",
         showValue: "显示值",
         expandable: "可展开",
         configExpandedView: "配置展开视图",
