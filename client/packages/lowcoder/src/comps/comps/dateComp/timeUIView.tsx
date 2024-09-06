@@ -21,7 +21,7 @@ const TimeMobileUIView = React.lazy(() =>
 );
  
 const StyledAntdSelect = styled(AntdSelect)`
-  width: 100%;
+  width: 350px;
   margin: 10px 0; 
   .ant-select-selector {
     font-size: 14px; 
