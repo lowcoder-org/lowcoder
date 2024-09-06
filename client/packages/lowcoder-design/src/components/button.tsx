@@ -208,11 +208,6 @@ const TacoButton = forwardRef(
               {props.icon}
               {props.children}
             </span>
-            {/* <Loading
-              style={loadingStyle}
-              backgroundColor={loadingBackground}
-              color={loadingColor}
-            /> */}
             <Spin
               size="small"
               indicator={<LoadingOutlined spin style={{color: 'white'}} />}
