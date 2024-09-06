@@ -8,9 +8,9 @@ import { WhiteLoading } from "lowcoder-design";
 import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo } from "types/remoteComp";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
-import { EditorContext } from "@lowcoder-ee/comps/editorState";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const ViewError = styled.div`
   display: flex;
@@ -53,8 +53,8 @@ interface LazyCompViewProps {
 function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
-  const editorState = useContext(EditorContext);
-  const showComponentLoadingIndicators = editorState?.getAppSettings().showComponentLoadingIndicators;
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showComponentLoadingIndicators = currentTheme?.showComponentLoadingIndicators;
 
   useMount(() => {
     setError("");

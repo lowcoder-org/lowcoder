@@ -218,8 +218,6 @@ export const en = {
     "className": "CSS Class name",
     "dataTestId": "Individual ID",
     "preventOverwriting": "Prevent overwriting styles",
-    "showComponentLoadingIndicators": "Show loading indicators when component load",
-    "showDataLoadingIndicators": "Show loading indicators when data load",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
     "showHorizontalScrollbar": "Show Horizontal Scrollbar",
@@ -2608,7 +2606,10 @@ export const en = {
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load"
   },
   "pluginSetting": {
     "title": "Plugins",

@@ -40,14 +40,14 @@ import { SlotConfigContext } from "comps/controls/slotControl";
 import { EmptyContent } from "pages/common/styledComponent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
-import { CellColorViewType, ColumnComp } from "./column/tableColumnComp";
+import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
 import { TableSummary } from "./tableSummaryComp";
-import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import Skeleton from "antd/es/skeleton";
 import { SkeletonButtonProps } from "antd/es/skeleton/Button";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 export const EMPTY_ROW_KEY = 'empty_row';
 
@@ -765,7 +765,8 @@ export function TableCompView(props: {
 }) {
   const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
-  const showDataLoadingIndicators = editorState?.getAppSettings().showDataLoadingIndicators;
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
   const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,

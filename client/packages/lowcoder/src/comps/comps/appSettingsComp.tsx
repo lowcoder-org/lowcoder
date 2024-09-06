@@ -185,8 +185,6 @@ const childrenMap = {
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
   preventAppStylesOverwriting: withDefault(BoolControl, true),
-  showComponentLoadingIndicators: withDefault(BoolControl, true),
-  showDataLoadingIndicators: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
   lowcoderCompVersion: withDefault(StringControl, 'latest'),
@@ -209,8 +207,6 @@ function AppSettingsModal(props: ChildrenInstance) {
     category,
     showHeaderInPublic,
     preventAppStylesOverwriting,
-    showComponentLoadingIndicators,
-    showDataLoadingIndicators,
     lowcoderCompVersion,
   } = props;
   
@@ -323,16 +319,6 @@ function AppSettingsModal(props: ChildrenInstance) {
         <div style={{ margin: '20px 0'}}>
           {preventAppStylesOverwriting.propertyView({
             label: trans("prop.preventOverwriting"),
-          })}
-        </div>
-        <div style={{ margin: '20px 0'}}>
-          {showComponentLoadingIndicators.propertyView({
-            label: trans("prop.showComponentLoadingIndicators"),
-          })}
-        </div>
-        <div style={{ margin: '20px 0'}}>
-          {showDataLoadingIndicators.propertyView({
-            label: trans("prop.showDataLoadingIndicators"),
           })}
         </div>
       </DivStyled>
