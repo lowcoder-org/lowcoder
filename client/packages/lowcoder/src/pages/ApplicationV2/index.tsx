@@ -302,6 +302,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.support")}</TabLabel>,
                 routePath: SUPPORT_URL,
                 routeComp: Support,
+                routePathExact: false,
                 icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],
