@@ -5,20 +5,20 @@ services:
   ## Start services required for Lowcoder (MongoDB and Redis)
   ##
   mongodb:
-    image: "mongo:4.4"
+    image: "mongo:7.0"
     container_name: mongodb
     environment:
       MONGO_INITDB_DATABASE: lowcoder
       MONGO_INITDB_ROOT_USERNAME: lowcoder
       MONGO_INITDB_ROOT_PASSWORD: secret123
-    # Uncomment to save database data into local 'mongodata' folder
-    # volumes:
-    #   - ./mongodata:/data/db
+    volumes:
+      - ./lowcoder-stacks/data/mongodb:/data/db
     restart: unless-stopped
 
   redis:
     image: redis:7-alpine
     container_name: redis
+    restart: unless-stopped
 
 
   ##
@@ -31,12 +31,14 @@ services:
     # ports:
     #   - "8080:8080"
     environment:
+      LOWCODER_PUBLIC_URL: "http://localhost:3000/"
       LOWCODER_PUID: "9001"
       LOWCODER_PGID: "9001"
       LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
       LOWCODER_REDIS_URL: "redis://redis:6379"
       LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
       LOWCODER_MAX_QUERY_TIMEOUT: 120
+      LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_EMAIL_AUTH_ENABLED: "true"
       LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
       LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
@@ -59,22 +61,33 @@ services:
       #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
       #
       LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
+      LOWCODER_PLUGINS_DIR: "../plugins"
+      LOWCODER_API_RATE_LIMIT: 50
       LOWCODER_WORKSPACE_MODE: SAAS
+      LOWCODER_MARKETPLACE_PRIVATE_MODE: "true"
       # Lowcoder notification emails setup
       LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
       LOWCODER_ADMIN_SMTP_PORT: 587
       LOWCODER_ADMIN_SMTP_USERNAME:
       LOWCODER_ADMIN_SMTP_PASSWORD:
-      LOWCODER_ADMIN_SMTP_AUTH: true
-      LOWCODER_ADMIN_SMTP_SSL_ENABLED: false
-      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: true
-      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: true
+      LOWCODER_ADMIN_SMTP_AUTH: "true"
+      LOWCODER_ADMIN_SMTP_SSL_ENABLED: "false"
+      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: "true"
+      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: "true"
       # Email used as sender in lost password email
       LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
+      # Lowcoder superuser details
+      LOWCODER_SUPERUSER_USERNAME: admin@localhost
+      # If left blank, a password will be generated and written into api-service log
+      LOWCODER_SUPERUSER_PASSWORD:
     restart: unless-stopped
     depends_on:
       - mongodb
       - redis
+    volumes:
+      - ./lowcoder-stacks:/lowcoder-stacks
+      - ./lowcoder-stacks/assets:/lowcoder/assets
+
 
   lowcoder-node-service:
     image: lowcoderorg/lowcoder-ce-node-service:latest
@@ -109,7 +122,6 @@ services:
     depends_on:
       - lowcoder-node-service
       - lowcoder-api-service
-    # Uncomment to serve local files as static assets
-    # volumes:
-    #   - ./static-assets:/lowcoder/assets
+    volumes:
+      - ./lowcoder-stacks/assets:/lowcoder/assets
 

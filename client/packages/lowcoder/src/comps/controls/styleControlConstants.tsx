@@ -1860,6 +1860,21 @@ export const SignatureStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const EventModalStyle = [
+  getBackground("primarySurface"),
+  BORDER,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  TEXT,
+  {
+    name: "labelBackground",
+    label: trans("style.labelBackground"),
+    depTheme: "primarySurface",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 // Added by Aqib Mirza
 export const LottieStyle = [
   {
@@ -2054,6 +2069,7 @@ export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
 export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
+export type EventModalStyleType = StyleConfigType<typeof EventModalStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<

@@ -1,5 +1,6 @@
 package org.lowcoder.sdk.plugin.mysql;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,11 @@ public class MysqlDatasourceConfig extends SqlBasedDatasourceConnectionConfig {
     @Override
     protected long defaultPort() {
         return DEFAULT_PORT;
+    }
+
+    @JsonCreator
+    public MysqlDatasourceConfig(String database, String username, String password, String host, Long port, boolean usingSsl, String serverTimezone, boolean isReadonly, boolean enableTurnOffPreparedStatement, Map<String, Object> extParams) {
+        super(database, username, password, host, port, usingSsl, serverTimezone, isReadonly, enableTurnOffPreparedStatement, extParams);
     }
 
     public static MysqlDatasourceConfig buildFrom(Map<String, Object> requestMap) {

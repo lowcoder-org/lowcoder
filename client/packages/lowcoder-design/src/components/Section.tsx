@@ -186,4 +186,5 @@ export const sectionNames = {
   bodyStyle:trans("prop.bodyStyle"),
   badgeStyle:trans("prop.badgeStyle"),
   columnStyle:trans("prop.columnStyle"),
+  modalStyle:trans("prop.modalStyle"),
 };

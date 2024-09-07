@@ -11,6 +11,8 @@ import { default as DatePicker } from "antd/es/date-picker";
 import type { DatePickerProps } from "antd/es/date-picker";
 import type { Dayjs } from 'dayjs';
 import { DateParser } from "@lowcoder-ee/util/dateTimeUtils";
+import { timeZoneOptions } from "./timeZone";
+import { default as AntdSelect } from "antd/es/select";
 
 const DatePickerStyled = styled(DatePicker<Dayjs>)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -18,11 +20,25 @@ const DatePickerStyled = styled(DatePicker<Dayjs>)<{ $style: DateTimeStyleType }
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
+const StyledDiv = styled.div`
+  width: 100%;
+  margin: 10px 0px; 
+`;
+
+const StyledAntdSelect = styled(AntdSelect)`
+  width: 100%;
+  .ant-select-selector {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+`;
 
 export interface DataUIViewProps extends DateCompViewProps {
   value?: DatePickerProps<Dayjs>['value'];
   onChange: DatePickerProps<Dayjs>['onChange'];
   onPanelChange: () => void;
+  onClickDateTimeZone:(value:any)=>void;
+  
 }
 
 const DateMobileUIView = React.lazy(() =>
@@ -48,6 +64,18 @@ export const DateUIView = (props: DataUIViewProps) => {
       picker={"date"}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
+      renderExtraFooter={()=>(
+        props.timeZone === "UserChoice" && (
+          <StyledDiv>
+            <StyledAntdSelect 
+              options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
+              placeholder="Select Time Zone" 
+              defaultValue={'Etc/UTC'}
+              onChange={props.onClickDateTimeZone} 
+            />
+          </StyledDiv>
+        )
+      )}
     />
   );
 };
