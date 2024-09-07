@@ -110,12 +110,64 @@ export const getTicket = async (ticketKey : string) => {
   };
   try {
     const result = await SupportApi.secureRequest(apiBody);
-    return result?.data?.data?.length === 1 ? result.data.data as any : null;
+    return result?.data?.length === 1 ? result.data as any : null;
   } catch (error) {
     console.error("Error getting individual Support Ticket: ", error);
     throw error;
   }
 };
+
+export const updateTicketDescription = async (ticketKey : string, newDescription : string) => {
+
+  const apiBody = {
+    path: "webhook/support/get-issue",
+    data: {"ticketKey" : ticketKey},
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SupportApi.secureRequest(apiBody);
+    return result?.data?.length === 1 ? result.data as any : null;
+  } catch (error) {
+    console.error("Error getting individual Support Ticket: ", error);
+    throw error;
+  }
+};
+
+export const addComment = async (ticketKey : string, newComment : string) => {
+
+  const apiBody = {
+    path: "webhook/support/get-issue",
+    data: {"ticketKey" : ticketKey},
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SupportApi.secureRequest(apiBody);
+    return result?.data?.length === 1 ? result.data as any : null;
+  } catch (error) {
+    console.error("Error getting individual Support Ticket: ", error);
+    throw error;
+  }
+};
+
+export const uploadAttachment = async (ticketKey : string, attachmentFile : string) => {
+
+  const apiBody = {
+    path: "webhook/support/get-issue",
+    data: {"ticketKey" : ticketKey},
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SupportApi.secureRequest(apiBody);
+    return result?.data?.length === 1 ? result.data as any : null;
+  } catch (error) {
+    console.error("Error getting individual Support Ticket: ", error);
+    throw error;
+  }
+};
+
 
 
 export default SupportApi;

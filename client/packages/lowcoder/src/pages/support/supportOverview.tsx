@@ -7,7 +7,6 @@ import { useUserDetails } from "./useUserDetails";
 import StepModal from "components/StepModal";
 import { Search, TacoButton } from "lowcoder-design";
 import { Table } from "../../components/Table";
-import { timestampToHumanReadable } from "../../util/dateTimeUtils";
 import { Avatar, Flex, Tooltip } from "antd";
 import { buildSupportTicketLink } from "constants/routesURL";
 import history from "util/history";
