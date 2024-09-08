@@ -1991,7 +1991,7 @@ export const en = {
     "dynamicColumnConfig": "Visible Columns",
     "dynamicColumnConfigDesc": "Dynamic Column Visibility. Accepts an Array of Column Names. All Columns Are Visible by Default. Example: [\"id\", \"name\"]",
     "position": "Position",
-    "showDataLoadSpinner": "Show Spinner During Data Loading",
+    "showDataLoadSpinner": "Show Loading Indicator",
     "showValue": "Show Value",
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
@@ -2606,7 +2606,10 @@ export const en = {
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load"
   },
   "pluginSetting": {
     "title": "Plugins",
