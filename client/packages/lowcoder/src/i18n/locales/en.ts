@@ -222,6 +222,7 @@ export const en = {
     "horizontalGridCells": "Horizontal Grid Cells",
     "showHorizontalScrollbar": "Show Horizontal Scrollbar",
     "showVerticalScrollbar": "Show Vertical Scrollbar",
+    "timeZone": "TimeZone",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -558,6 +559,7 @@ export const en = {
     "siderBackgroundImagePosition": "Sider Background Image Position",
     "siderBackgroundImageOrigin": "Sider Background Image Origin",
     "activeBackground": "Active Background Color",
+    "labelBackground": "Label Background Color",
 
   },
   "export": {
@@ -596,7 +598,11 @@ export const en = {
     "timeRangeEndDesc": "End time of the range",
     "timeRangeFormattedValueDesc": "Formatted time range",
     "timeRangeFormattedStartValueDesc": "Formatted start time",
-    "timeRangeFormattedEndValueDesc": "Formatted end time"
+    "timeRangeFormattedEndValueDesc": "Formatted end time",
+    "timeZone": "Time Zone",
+    "timeZoneDesc": "Timezone of the selected date",
+
+
   },
   "validationDesc": {
     "email": "Please enter a valid email address",
@@ -1985,7 +1991,7 @@ export const en = {
     "dynamicColumnConfig": "Visible Columns",
     "dynamicColumnConfigDesc": "Dynamic Column Visibility. Accepts an Array of Column Names. All Columns Are Visible by Default. Example: [\"id\", \"name\"]",
     "position": "Position",
-    "showDataLoadSpinner": "Show Spinner During Data Loading",
+    "showDataLoadSpinner": "Show Loading Indicator",
     "showValue": "Show Value",
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
@@ -2368,6 +2374,8 @@ export const en = {
 
 
   "modalComp": {
+    "open": "Open",
+    "openDesc": "Triggered When the Modal Dialog Box is Opened",
     "close": "Close",
     "closeDesc": "Triggered When the Modal Dialog Box is Closed",
     "openModalDesc": "Open the Dialog Box",
@@ -2598,7 +2606,10 @@ export const en = {
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load"
   },
   "pluginSetting": {
     "title": "Plugins",
@@ -2630,6 +2641,8 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace",
+    "npmRegistryTitle": "Custom NPM Registry",
+    "npmRegistryHelp": "Setup a custom NPM Registry to enable fetching of plugins from a private NPM registry.",
     "showHeaderInPublicApps": "Show Header In Public View",
     "showHeaderInPublicAppsHelp": "Set visibility of header in public view for all apps",
   },
@@ -2996,6 +3009,20 @@ export const en = {
   "homeTutorials": {
     "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
+  },
+  "npmRegistry": {
+    "npmRegistryEnable": "Enable custom NPM Registry",
+    "npmRegistryUrl": "NPM Registry Url",
+    "npmRegistryUrlRequired": "Please input the registry URL",
+    "npmRegistryUrlInvalid": "Please input a valid URL",
+    "npmRegistryScope": "Package Scope",
+    "npmRegistryPattern": "Pattern",
+    "npmRegistryPatternInvalid": "Please input a valid pattern (starting with @ for oragnizations).",
+    "npmRegistryAuth": "Authentication",
+    "npmRegistryAuthType": "Authentication Type",
+    "npmRegistryAuthCredentials": "Authentication Credentials",
+    "npmRegistryAuthCredentialsRequired": "Please input the registry credentials",
+    "npmRegistryAuthCredentialsHelp": "For basic auth provide the base64 encoded username and password in the format 'base64(username:password)', for token auth provide the token.",
   },
 
 
@@ -3588,6 +3615,34 @@ export const en = {
     "mobileNavVerticalShowSeparator": "Show Separator",
     "mobileNavIconSize": "Icon Size",
   },
+
+"timeZone": {
+  "UTC-12:00": "(UTC-12:00) Int'l Date Line W",
+  "UTC-11:00": "(UTC-11:00) UTC-11",
+  "UTC-10:00": "(UTC-10:00) Hawaii",
+  "UTC-09:00": "(UTC-09:00) Alaska",
+  "UTC-08:00": "(UTC-08:00) Baja CA",
+  "UTC-07:00": "(UTC-07:00) Pacific Time (US)",
+  "UTC-06:00": "(UTC-06:00) Central Time (US)",
+  "UTC-05:00": "(UTC-05:00) Eastern Time (US)",
+  "UTC-04:00": "(UTC-04:00) Atlantic Time",
+  "UTC-03:00": "(UTC-03:00) Buenos Aires",
+  "UTC-02:00": "(UTC-02:00) UTC-02",
+  "UTC-01:00": "(UTC-01:00) Cape Verde",
+  "UTC+00:00": "(UTC 00:00) UTC",
+  "UTC+01:00": "(UTC+01:00) Berlin, Rome",
+  "UTC+02:00": "(UTC+02:00) Athens, Bucharest",
+  "UTC+03:00": "(UTC+03:00) Moscow",
+  "UTC+04:00": "(UTC+04:00) Dubai, Muscat",
+  "UTC+05:00": "(UTC+05:00) Karachi",
+  "UTC+05:30": "(UTC+05:30) New Delhi",
+  "UTC+06:00": "(UTC+06:00) Dhaka",
+  "UTC+07:00": "(UTC+07:00) Bangkok",
+  "UTC+08:00": "(UTC+08:00) Beijing, HK",
+  "UTC+09:00": "(UTC+09:00) Tokyo, Seoul",
+  "UTC+10:00": "(UTC+10:00) Sydney",
+  "UserChoice": "User Choice"
+},
 
   tour: { 
     section1Title: "Steps",

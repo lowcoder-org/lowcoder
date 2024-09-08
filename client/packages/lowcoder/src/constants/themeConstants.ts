@@ -23,6 +23,8 @@ const theme = {
   boxShadow: "",
   boxShadowColor: "",
   animationIterationCount: "",
+  showComponentLoadingIndicators: true,
+  showDataLoadingIndicators: true,
 };
 
 const text = {

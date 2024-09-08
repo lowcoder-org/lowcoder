@@ -25,6 +25,7 @@ import { withDefault } from "comps/generators";
 import SliderControl from "../controls/sliderControl";
 
 const EventOptions = [
+  { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
 ] as const;
 
@@ -168,6 +169,9 @@ let TmpModalComp = (function () {
               }}
               afterClose={() => {
                 props.toggleClose&&props.onEvent("close");
+              }}
+              afterOpenChange={(open: boolean) => {
+                if (open) props.onEvent("open");
               }}
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}

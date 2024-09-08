@@ -8,7 +8,6 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
-// we have troubles with the Binaries and need to fix it asap
 // import duckdbPlugin from "./duckdb";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
@@ -38,6 +37,7 @@ import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -47,6 +47,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // duckdbPlugin,
   faunaPlugin,
   tursoPlugin,
+  firebirdsqlPlugin,
 
   // Big Data
   athenaPlugin,

@@ -6,6 +6,10 @@ import copy from "copy-to-clipboard";
 import { saveDataAsFile } from "../../util/fileUtils";
 import { openApp, recordToSearchStr } from "../../util/appUtils";
 import { trans } from "i18n";
+import { logoutAction } from "redux/reduxActions/userActions";
+import { useDispatch } from "react-redux";
+import { useCallback } from "react";
+
 
 const UtilsCompBase = simpleMultiComp({});
 export let UtilsComp = withExposingConfigs(UtilsCompBase, []);
@@ -105,6 +109,16 @@ UtilsComp = withMethodExposing(UtilsComp, [
           dataType: dataType,
         });
       }
+    },
+  },
+  {
+    method: {
+      name: "logoutUser",
+      description: trans("utilsComp.downloadFile"),
+      params: [],
+    },
+    execute: (comp, params) => {
+      logoutAction({})
     },
   },
 ]);

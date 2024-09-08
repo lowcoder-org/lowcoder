@@ -31,6 +31,7 @@ import { ControlParams, ControlType } from "comps/controls/controlParams";
 import MarkdownTooltip from "lowcoder-design/src/components/MarkdownTooltip";
 import { KeyValueControlParams, keyValueListControl } from "comps/controls/keyValueControl";
 import { VariablesControl } from "../httpQuery/graphqlQuery";
+import { HttpHeaderPropertyView } from "../httpQuery/httpQueryConstants";
 
 function wrapConfig<CP extends {} = ControlParams>(
   paramsControl: ControlType,
@@ -144,8 +145,9 @@ function ActionSelectView(props: ActionSelectViewProps) {
   );
 }
 
-function unionConfigToComp(config: QueryConfig): CompConstructor {
-  const childrenMap: Record<string, CompConstructor> = {};
+export function unionConfigToComp(config: QueryConfig): CompConstructor {
+  const childrenMap: Record<string, CompConstructor> = {
+  };
   config.actions.forEach((child) => {
     childrenMap[child.actionName] = configToComp(child.params);
   });
@@ -153,9 +155,11 @@ function unionConfigToComp(config: QueryConfig): CompConstructor {
   const TmpComp = withTypeAndChildrenAbstract(
     childrenMap,
     config.actions[0].actionName,
-    {},
+    {
+      headers: withDefault(keyValueListControl(), [{ key: "", value: "" }]),
+    },
     "actionName",
-    "action"
+    "action",
   );
 
   return class extends TmpComp {
@@ -171,6 +175,14 @@ function unionConfigToComp(config: QueryConfig): CompConstructor {
             currentActionName={currentActionName}
             onActionChange={(value) => this.dispatchChangeAndPreserveAction({ actionName: value })}
           />
+          {/* Headers */}
+          <QueryConfigWrapper>
+            <QueryConfigLabel>Headers</QueryConfigLabel>
+            <QueryConfigItemWrapper>
+              {this.children.headers.propertyView({ keyFlexBasics: 184, valueFlexBasics: 232 })}
+            </QueryConfigItemWrapper>
+          </QueryConfigWrapper>
+
           {this.children.action.getPropertyView()}
         </>
       );

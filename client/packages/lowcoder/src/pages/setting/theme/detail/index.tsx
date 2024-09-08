@@ -174,7 +174,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns || params.borderWidth || params.borderStyle || params.fontFamily,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators,
       },
     });
   }
@@ -309,6 +309,25 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             type: "gridColumns",
             value: this.state.theme?.gridColumns,
           }
+        ]
+      },
+      {
+        title: trans('themeDetail.loadingIndicators'),
+        items: [
+          {
+            settingsKey: 'showComponentLoadingIndicators',
+            name: trans('themeDetail.showComponentLoadingIndicators'),
+            desc: '',
+            type: "showComponentLoadingIndicators",
+            value: this.state.theme?.showComponentLoadingIndicators,
+          },
+          {
+            settingsKey: 'showDataLoadingIndicators',
+            name: trans('themeDetail.showDataLoadingIndicators'),
+            desc: '',
+            type: "showDataLoadingIndicators",
+            value: this.state.theme?.showDataLoadingIndicators,
+          },
         ]
       },
     ];
@@ -473,7 +492,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  radius={layoutSettingsItem.value}
+                                  radius={layoutSettingsItem.value as string}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -483,7 +502,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  borderWidth={layoutSettingsItem.value}
+                                  borderWidth={layoutSettingsItem.value as string}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -493,7 +512,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  borderStyle={layoutSettingsItem.value}
+                                  borderStyle={layoutSettingsItem.value as string}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -503,7 +522,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  margin={layoutSettingsItem.value}
+                                  margin={layoutSettingsItem.value as string}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -513,7 +532,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  padding={layoutSettingsItem.value}
+                                  padding={layoutSettingsItem.value as string}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -523,7 +542,28 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
-                                  gridColumns={layoutSettingsItem.value}
+                                  gridColumns={layoutSettingsItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "showComponentLoadingIndicators" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  showComponentLoadingIndicators={layoutSettingsItem.value as boolean}
+                                  configChange={(params) => {
+                                    console.log('configChange', params);
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "showDataLoadingIndicators" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  showDataLoadingIndicators={layoutSettingsItem.value as boolean}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}

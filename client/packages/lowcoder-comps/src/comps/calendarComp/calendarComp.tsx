@@ -17,6 +17,7 @@ import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
 import momentPlugin from "@fullcalendar/moment";
 
 import ErrorBoundary from "./errorBoundary";
+import { default as Tabs } from "antd/es/tabs";
 
 import {
   isValidColor,
@@ -47,6 +48,8 @@ import {
   Tooltip,
   EditorContext,
   CompNameContext,
+  AnimationStyle,
+  EventModalStyle
 } from 'lowcoder-sdk';
 
 import {
@@ -92,6 +95,8 @@ let childrenMap: any = {
   licenseKey: withDefault( StringControl, "" ),
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  modalStyle:  styleControl(EventModalStyle),
 };
 // this should ensure backwards compatibility with older versions of the SDK
 if (DragEventHandlerControl) { 
@@ -121,9 +126,12 @@ let CalendarBasicComp = (function () {
     licensed?: boolean;
     currentFreeView?: string; 
     currentPremiumView?: string; 
+    animationStyle?:any;
+    modalStyle?:any
+
   }, dispatch: any) => {
   
-    const comp = useContext(EditorContext).getUICompByName(
+    const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
     );
     const onEventVal = comp?.toJsonValue()?.comp?.onEvent;
@@ -152,13 +160,26 @@ let CalendarBasicComp = (function () {
         end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
         resourceId: item.resourceId ? item.resourceId : null,
-        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
-        ...(item.groupId ? { groupId: item.groupId } : {}),
-      };
+        backgroundColor: item.backgroundColor,
+        extendedProps: {
+          color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+        ...(item.groupId ? { groupId: item.groupId } : {}), // Ensure color is in extendedProps
+        detail: item.detail,
+        titleColor:item.titleColor,
+        detailColor:item.detailColor,
+        titleFontWeight:item.titleFontWeight,
+        titleFontStyle:item.titleFontStyle,
+        detailFontWeight:item.detailFontWeight,
+        detailFontStyle:item.detailFontStyle,
+        animation:item?.animation,
+        animationDelay:item?.animationDelay,
+        animationDuration:item?.animationDuration,
+        animationIterationCount:item?.animationIterationCount
+      }}
     }) : [currentEvents.value];
 
-    const resources = props.resources.value;
 
+    const resources = props.resources.value;
     // list all plugins for Fullcalendar
     const plugins = [
       dayGridPlugin,
@@ -233,6 +254,7 @@ let CalendarBasicComp = (function () {
       editable,
       licenseKey,
       resourceName,
+      modalStyle,
     } = props;
 
     function renderEventContent(eventInfo: EventContentArg) {
@@ -258,18 +280,19 @@ let CalendarBasicComp = (function () {
         (eventInfo.view.type as ViewType) !== ViewType.MONTH
           ? "past"
           : "";
-
       return (
         <Event
           className={`event ${sizeClass} ${stateClass}`}
-          $bg={eventInfo.backgroundColor}
           theme={theme?.theme}
           $isList={isList}
           $allDay={Boolean(showAllDay)}
           $style={props.style}
+          $backgroundColor={eventInfo.backgroundColor}
+          $extendedProps={eventInfo?.event?.extendedProps}
         >
-          <div className="event-time">{eventInfo.timeText}</div>
-          <div className="event-title">{eventInfo.event.title}</div>
+          <div className="event-time">{eventInfo?.timeText}</div>
+          <div className="event-title">{eventInfo?.event?.title}</div>
+          <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
           <Remove
             $isList={isList}
             className="event-remove"
@@ -291,7 +314,6 @@ let CalendarBasicComp = (function () {
         </Event>
       );
     }
-
     const handleDbClick = () => {
       const event = props.events.value.find(
         (item: EventType) => item.id === editEvent.current?.id
@@ -300,12 +322,35 @@ let CalendarBasicComp = (function () {
         return;
       }
       if (event) {
-        const { title, groupId, color, id } = event;
+        const { title, groupId, color, id , backgroundColor,detail,titleColor,detailColor,
+          titleFontWeight,
+          titleFontStyle,
+          detailFontWeight,
+          detailFontStyle,
+          animation,
+          animationDelay,
+          animationDuration,
+          animationIterationCount,
+
+          
+        } = event;
         const eventInfo = {
           title,
           groupId,
           color,
           id,
+          backgroundColor,
+          titleColor,
+          detail,
+          detailColor,
+          titleFontWeight,
+          titleFontStyle,
+          detailFontWeight,
+          detailFontStyle,
+          animation,
+          animationDelay,
+          animationDuration,
+          animationIterationCount,
         };
         showModal(eventInfo, true);
       } else {
@@ -348,51 +393,151 @@ let CalendarBasicComp = (function () {
         : trans("calendar.creatEvent");
       form && form.setFieldsValue(event);
       const eventId = editEvent.current?.id;
+
       CustomModal.confirm({
         title: modalTitle,
-        content: (
-          <FormWrapper form={form}>
-            <Form.Item
-              label={
-                <Tooltip title={trans("calendar.eventIdTooltip")}>
-                  {trans("calendar.eventId")}
-                </Tooltip>
-              }
-              name="id"
-              rules={[
-                { required: true, message: trans("calendar.eventIdRequire") },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label={trans("calendar.eventName")}
-              name="title"
-              rules={[
-                { required: true, message: trans("calendar.eventNameRequire") },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label={trans("calendar.eventColor")} name="color">
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label={
-                <Tooltip title={trans("calendar.groupIdTooltip")}>
-                  {trans("calendar.eventGroupId")}
-                </Tooltip>
-              }
-              name="groupId"
-            >
-              <Input />
-            </Form.Item>
-          </FormWrapper>
+        customStyles: {
+          backgroundColor:props?.modalStyle?.background,
+          animationStyle:props?.animationStyle,
+         },
+         width: "450px",
+          content: (
+          <Tabs defaultActiveKey="1">
+            <Tabs.TabPane tab={trans("calendar.general")} key="1">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={
+                    <Tooltip title={trans("calendar.eventIdTooltip")}>
+                      {trans("calendar.eventId")}
+                    </Tooltip>
+                  }
+                  name="id"
+                  rules={[
+                    { required: true, message: trans("calendar.eventIdRequire") },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventName")}
+                  name="title"
+                  rules={[
+                    { required: true, message: trans("calendar.eventNameRequire") },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetail")}
+                  name="detail"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventGroupId")}
+                  name="groupId"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={trans("calendar.eventTitleColor")}
+                  name="titleColor"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailColor")}
+                  name="detailColor"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventColor")}
+                  name="color"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventBackgroundColor")}
+                  name="backgroundColor"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={trans("calendar.eventTitleFontWeight")}
+                  name="titleFontWeight"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventTitleFontStyle")}
+                  name="titleFontStyle"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailFontWeight")}
+                  name="detailFontWeight"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailFontStyle")}
+                  name="detailFontStyle"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.animations")} key="4">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={trans("calendar.animationType")}
+                  name="animation"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationDelay")}
+                  name="animationDelay"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationDuration")}
+                  name="animationDuration"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationIterationCount")}
+                  name="animationIterationCount"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+          </Tabs>
         ),
         onConfirm: () => {
           form.submit();
           return form.validateFields().then(() => {
-            const { id, groupId, color, title = "" } = form.getFieldsValue();
+            const { id, groupId, color, title = "", backgroundColor,detail,titleColor,detailColor , titleFontWeight,
+              titleFontStyle,
+              detailFontWeight,
+              detailFontStyle,
+              animation,
+              animationDelay,
+              animationDuration,
+              animationIterationCount } = form.getFieldsValue();
             const idExist = props.events.value.findIndex(
               (item: EventType) => item.id === id
             );
@@ -408,9 +553,21 @@ let CalendarBasicComp = (function () {
                   return {
                     ...item,
                     title,
+                    detail,
                     id,
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(color !== undefined ? { color } : null),
+                    ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                    ...(titleColor !== undefined ? { titleColor } : null),
+                    ...(detailColor !== undefined ? { detailColor } : null),
+                    ...(titleFontWeight !== undefined ? { titleFontWeight } : null),
+                    ...(titleFontStyle !== undefined ? { titleFontStyle } : null),
+                    ...(detailFontWeight !== undefined ? { detailFontWeight } : null),
+                    ...(detailFontStyle !== undefined ? { detailFontStyle } : null),
+                    ...(animation !== undefined ? { animation } : null),
+                    ...(animationDelay !== undefined ? { animationDelay } : null),
+                    ...(animationDuration !== undefined ? { animationDuration } : null),
+                    ...(animationIterationCount !== undefined ? { animationIterationCount } : null),
                   };
                 } else {
                   return item;
@@ -424,8 +581,20 @@ let CalendarBasicComp = (function () {
                 end: event.end,
                 id,
                 title,
+                detail,
+                titleFontWeight,
+                titleFontStyle,
+                detailFontWeight,
+                detailFontStyle,
+                animation,
+                animationDelay,
+                animationDuration,
+                animationIterationCount,
                 ...(groupId !== undefined ? { groupId } : null),
                 ...(color !== undefined ? { color } : null),
+                ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                ...(titleColor !== undefined ? { titleColor } : null),
+                ...(detailColor !== undefined ? { detailColor } : null),
               };
               props.events.onChange([...props.events.value, createInfo]);
             }
@@ -438,6 +607,7 @@ let CalendarBasicComp = (function () {
         },
       });
     }; 
+    
 
     const handleDrop = () => {
       if (typeof props.onDropEvent === 'function') {
@@ -577,6 +747,8 @@ let CalendarBasicComp = (function () {
       currentFreeView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       currentPremiumView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       style: { getPropertyView: () => any; };
+      animationStyle:  { getPropertyView: () => any; };
+      modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
     }) => {
 
@@ -622,6 +794,10 @@ let CalendarBasicComp = (function () {
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.modalStyle}>
+            {children.modalStyle.getPropertyView()}
+          </Section>
         </>
       );
     })
@@ -647,7 +823,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
       {
           method: {
               name: "setCalendarView",
-              description: "Sets the view of the calendar to a specified type",
+              detail: "Sets the view of the calendar to a specified type",
               params: [{ name: "viewType", type: "string" }],
           },
           execute: (comp, values) => {
@@ -661,7 +837,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setResourceTimeGridDayView",
-            description: "Switches the calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of a single day along the horizontal axis.",
+            detail: "Switches the calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of a single day along the horizontal axis.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -672,7 +848,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setResourceTimelineDayView",
-            description: "Switches the calendar view to 'Resource Timeline Day', showing events against a timeline for a single day, segmented by resources.",
+            detail: "Switches the calendar view to 'Resource Timeline Day', showing events against a timeline for a single day, segmented by resources.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -683,7 +859,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridWeekView",
-            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            detail: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -694,7 +870,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setTimeGridWeekView",
-            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            detail: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -705,7 +881,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setTimeGridDayView",
-            description: "Switches the calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a single day.",
+            detail: "Switches the calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a single day.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -716,7 +892,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridDayView",
-            description: "Switches the calendar view to 'Day Grid Day', displaying a single day in a grid layout that includes all events for that day.",
+            detail: "Switches the calendar view to 'Day Grid Day', displaying a single day in a grid layout that includes all events for that day.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -727,7 +903,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setListWeekView",
-            description: "Switches the calendar view to 'List Week', which provides a list-style overview of all events happening throughout the week.",
+            detail: "Switches the calendar view to 'List Week', which provides a list-style overview of all events happening throughout the week.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -738,7 +914,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridMonthView",
-            description: "Switches the calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.",
+            detail: "Switches the calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -749,7 +925,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setMultiMonthYearView",
-            description: "Switches the calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.",
+            detail: "Switches the calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -761,3 +937,4 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
 
 
 export { CalendarComp };
+
