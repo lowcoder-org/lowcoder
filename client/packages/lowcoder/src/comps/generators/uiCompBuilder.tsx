@@ -44,10 +44,10 @@ export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
     version: InstanceType<typeof StringControl>;
   };
 
-export function HidableView(props: {
+export const HidableView = React.memo((props: {
   children: JSX.Element | React.ReactNode;
   hidden: boolean;
-}) {
+}) => {
   const { readOnly } = useContext(ExternalEditorContext);
   if (readOnly) {
     return <>{props.children}</>;
@@ -64,15 +64,15 @@ export function HidableView(props: {
       </>
     );
   }
-}
+})
 
-export function ExtendedPropertyView<
+export const ExtendedPropertyView = React.memo(<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
 >(props: {
   children: JSX.Element | React.ReactNode,
   childrenMap: NewChildren<ChildrenCompMap>
 }
-) {
+) => {
   const [compVersions, setCompVersions] = useState(['latest']);
   const [compName, setCompName] = useState('');
   const editorState = useContext(EditorContext);
@@ -129,7 +129,7 @@ export function ExtendedPropertyView<
       )}
     </>
   );
-}
+});
 
 export function uiChildren<
   ChildrenCompMap extends Record<string, Comp<unknown>>,
@@ -275,11 +275,11 @@ export const DisabledContext = React.createContext<boolean>(false);
 /**
  * Guaranteed to be in a react component, so that react hooks can be used internally
  */
-function UIView(props: {
+const UIView = React.memo((props: {
   innerRef: React.RefObject<HTMLDivElement>;
   comp: any;
   viewFn: any;
-}) {
+}) => {
   const comp = props.comp;
   const childrenProps = childrenToProps(comp.children);
   const childrenJsonProps = comp.toJsonValue();
@@ -397,8 +397,7 @@ function UIView(props: {
         width: '100%',
         height: '100%',
         margin: '0px',
-        padding:getPadding()
-          
+        padding: getPadding()
       }}
     >
       <HidableView hidden={childrenProps.hidden as boolean}>
@@ -406,4 +405,4 @@ function UIView(props: {
       </HidableView>
     </div>
   );
-}
+});

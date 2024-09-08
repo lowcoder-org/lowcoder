@@ -1,6 +1,6 @@
 import { EditorContext } from "comps/editorState";
 import { EditorContainer } from "pages/common/styledComponent";
-import { Profiler, useContext, useRef, useState } from "react";
+import React, { Profiler, useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import { profilerCallback } from "util/cacheUtils";
 import {
@@ -20,6 +20,7 @@ import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { isEqual } from "lodash";
 
 // min-height: 100vh;
 
@@ -72,7 +73,7 @@ function getDragSelectedNames(
 
 const EmptySet = new Set<string>();
 
-export function CanvasView(props: ContainerBaseProps) {
+export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
   const scrollContainerRef = useRef(null);
@@ -166,4 +167,6 @@ export function CanvasView(props: ContainerBaseProps) {
       </EditorContainer>
     </CanvasContainer>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});

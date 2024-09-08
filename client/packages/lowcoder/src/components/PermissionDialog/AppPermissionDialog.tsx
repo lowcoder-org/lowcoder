@@ -31,7 +31,7 @@ import { SHARE_TITLE } from "../../constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { default as Divider } from "antd/es/divider";
 
-export const AppPermissionDialog = (props: {
+export const AppPermissionDialog = React.memo((props: {
   applicationId: string;
   visible: boolean;
   onVisibleChange: (visible: boolean) => void;
@@ -148,7 +148,7 @@ export const AppPermissionDialog = (props: {
       }
     />
   );
-};
+});
 
 const InviteInputBtn = styled.div`
   display: flex;
