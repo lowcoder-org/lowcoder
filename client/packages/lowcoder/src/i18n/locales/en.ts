@@ -222,8 +222,6 @@ export const en = {
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
-    "showHorizontalScrollbar": "Show Horizontal Scrollbar",
-    "showVerticalScrollbar": "Show Vertical Scrollbar",
     "timeZone": "TimeZone",
   },
   "autoHeightProp": {
