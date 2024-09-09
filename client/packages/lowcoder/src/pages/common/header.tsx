@@ -54,6 +54,9 @@ import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
 import Tooltip from "antd/es/tooltip";
+import { LockOutlined } from '@ant-design/icons';
+import Avatar from 'antd/es/avatar';
+
 
 const StyledLink = styled.a`
   display: flex;
@@ -234,12 +237,6 @@ const DropdownStyled = styled(Dropdown)`
   }
 `;
 
-const DropdownMenuStyled = styled(DropdownMenu)`
-  .ant-dropdown-menu-item:hover {
-    background: #edf4fa;
-  }
-`;
-
 const Wrapper = styled.div`
   .taco-edit-text-wrapper {
     width: fit-content;
@@ -259,6 +256,16 @@ const Prefix = styled.div`
 
   &.module svg {
     visibility: visible;
+  }
+`;
+
+// Add the lock icon logic for disabled options
+const DropdownMenuStyled = styled(DropdownMenu)`
+  .ant-dropdown-menu-item:hover {
+    background: ${(props) =>
+      props.disabled ? 'inherit' : '#edf4fa'};
+    cursor: ${(props) =>
+      props.disabled ? 'not-allowed' : 'pointer'};
   }
 `;
 
@@ -317,6 +324,10 @@ export default function Header(props: HeaderProps) {
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
 
   const isModule = appType === AppTypeEnum.Module;
+
+  // Raheel: Todo - get concurrent editing state by API
+  // maybe via editorState.getConcurrentAppEditingState(); as a new function?
+  const [concurrentAppEditingState, setConcurrentAppEditingState] = useState(true);
 
   const editorModeOptions = [
     {
@@ -458,6 +469,16 @@ export default function Header(props: HeaderProps) {
       <HeaderProfile user={user} />
     ) : (
       <>
+        {/* Display a hint about who is editing the app */}
+        {concurrentAppEditingState && (
+          <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
+            <Avatar size="small" src={user.avatarUrl} />
+            <span style={{ marginLeft: '8px', fontSize: '12px', color: '#b8b9bf' }}>
+              {`${user.username} is currently editing this app.`}
+            </span>
+          </div>
+        )}
+
         {applicationId && (
           <AppPermissionDialog
             applicationId={applicationId}
@@ -472,10 +493,11 @@ export default function Header(props: HeaderProps) {
             {SHARE_TITLE}
           </GrayBtn>
         )}
+  
         <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
           {trans("header.preview")}
         </PreviewBtn>
-
+  
         <Dropdown
           className="cypress-header-dropdown"
           placement="bottomRight"
@@ -484,6 +506,7 @@ export default function Header(props: HeaderProps) {
             <DropdownMenuStyled
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {
+                if (concurrentAppEditingState) return; // Prevent clicks if the app is being edited by someone else
                 if (e.key === "deploy") {
                   dispatch(publishApplication({ applicationId }));
                 } else if (e.key === "snapshot") {
@@ -494,24 +517,36 @@ export default function Header(props: HeaderProps) {
                 {
                   key: "deploy",
                   label: (
-                    <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {concurrentAppEditingState && <LockOutlined style={{ marginRight: '8px' }} />}
+                      <CommonTextLabel style= {{color: concurrentAppEditingState ? "#ccc" : "#222"}}>
+                        {trans("header.deploy")}
+                      </CommonTextLabel>
+                    </div>
                   ),
+                  disabled: concurrentAppEditingState,
                 },
                 {
                   key: "snapshot",
                   label: (
-                    <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
+                      {concurrentAppEditingState && <LockOutlined style={{ marginRight: '8px' }} />}
+                      <CommonTextLabel style= {{color: concurrentAppEditingState ? "#ccc" : "#222"}}>
+                        {trans("header.snapshot")}
+                      </CommonTextLabel>
+                    </div>
                   ),
+                  disabled: concurrentAppEditingState,
                 },
               ]}
             />
           )}
         >
-          <PackUpBtn buttonType="primary">
+          <PackUpBtn buttonType="primary" disabled={concurrentAppEditingState}>
             <PackUpIcon />
           </PackUpBtn>
         </Dropdown>
-
+  
         <HeaderProfile user={user} />
       </>
     );
@@ -520,6 +555,7 @@ export default function Header(props: HeaderProps) {
     showAppSnapshot,
     applicationId,
     permissionDialogVisible,
+    concurrentAppEditingState, // Include the state in the dependency array
   ]);
 
   return (
