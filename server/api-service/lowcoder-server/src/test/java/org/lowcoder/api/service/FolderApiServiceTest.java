@@ -1,8 +1,9 @@
 package org.lowcoder.api.service;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.common.InitData;
@@ -29,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @SpringBootTest
 @ActiveProfiles("test")
 //@RunWith(SpringRunner.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FolderApiServiceTest {
 
     @Autowired
@@ -38,8 +40,8 @@ public class FolderApiServiceTest {
     @Autowired
     private InitData initData;
 
-    @BeforeEach
-    public void beforeEach() {
+    @BeforeAll
+    public void beforeAll() {
         initData.init();
     }
 

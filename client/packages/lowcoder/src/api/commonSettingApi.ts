@@ -66,6 +66,8 @@ export interface ThemeDetail {
   boxShadowColor?: string;
   animationIterationCount?: string;
   components?: Record<string, JSONObject>;
+  showComponentLoadingIndicators?: boolean;
+  showDataLoadingIndicators?: boolean;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

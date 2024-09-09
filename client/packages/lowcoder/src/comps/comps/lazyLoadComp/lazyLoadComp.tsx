@@ -5,11 +5,12 @@ import { GreyTextColor } from "constants/style";
 import log from "loglevel";
 import { Comp, CompAction, CompConstructor, CompParams, customAction, isCustomAction } from "lowcoder-core";
 import { WhiteLoading } from "lowcoder-design";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo } from "types/remoteComp";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
 const ViewError = styled.div`
   display: flex;
@@ -52,6 +53,8 @@ interface LazyCompViewProps {
 function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showComponentLoadingIndicators = currentTheme?.showComponentLoadingIndicators;
 
   useMount(() => {
     setError("");
@@ -71,14 +74,14 @@ function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
     );
   }
 
+  if (!showComponentLoadingIndicators) return<></>;
+
   if (loadingElement) {
     return <ViewLoadingWrapper>{loadingElement()}</ViewLoadingWrapper>;
   }
 
   return (
-    <ViewLoadingWrapper>
-      <WhiteLoading />
-    </ViewLoadingWrapper>
+    <WhiteLoading />
   );
 }
 

@@ -25,7 +25,7 @@ const ModalWrapper = styled.div<ModalWrapperProps>`
   flex-direction: column;
   width: ${(props) => (props.$width ? props.$width : "368px")};
   height: fit-content;
-  background:${(props) => props.$customStyles?.backgroundColor}; ;
+  background:${(props) => props.$customStyles?.backgroundColor || '#ffffff'};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0 0 16px;

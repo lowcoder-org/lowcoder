@@ -1507,7 +1507,7 @@ export const de: typeof en = {
       "dynamicColumnConfig": "Säuleneinstellung",
       "dynamicColumnConfigDesc": "Dynamische Spalteneinstellungen. Akzeptiert ein Array von Spaltennamen. In der Standardeinstellung sind alle Spalten sichtbar. Beispiel: [%r@\\\"id%r@\\\", %r@\\\"name%r@\\\"]",
       "position": "Position",
-      "showDataLoadSpinner": "Spinner beim Laden von Daten anzeigen",
+      "showDataLoadSpinner": "Ladeanzeige anzeigen",
       "showValue": "Wert anzeigen",
       "expandable": "Ausbaufähig",
       "configExpandedView": "Expandierte Ansicht konfigurieren",

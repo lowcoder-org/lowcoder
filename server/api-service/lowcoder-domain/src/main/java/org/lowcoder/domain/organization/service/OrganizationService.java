@@ -31,6 +31,8 @@ public interface OrganizationService {
 
     @NonEmptyMono
     Flux<Organization> getByIds(Collection<String> ids);
+    @NonEmptyMono
+    Flux<Organization> getAllActive();
 
     Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId);
 
