@@ -14,7 +14,6 @@ import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
@@ -225,8 +224,6 @@ const childrenMap = {
 };
 
 const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-  
   const { code, model } = props;
   return (
     <InnerCustomComponent

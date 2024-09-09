@@ -53,6 +53,7 @@ import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermis
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
+import Tooltip from "antd/es/tooltip";
 
 const StyledLink = styled.a`
   display: flex;
@@ -320,11 +321,13 @@ export default function Header(props: HeaderProps) {
   const editorModeOptions = [
     {
       label: trans("header.editorMode_layout"),
+      tooltip: trans("header.editorMode_layout_tooltip"),
       key: "editorModeSelector_layout",
       value: "layout",
     },
     {
       label: trans("header.editorMode_logic"),
+      tooltip: trans("header.editorMode_logic_tooltip"),
       key: "editorModeSelector_logic",
       value: "logic",
     },
@@ -398,9 +401,11 @@ export default function Header(props: HeaderProps) {
         size="small"
       >
         {editorModeOptions.map((option) => (
-          <Radio.Button key={option.key} value={option.value}>
-            {option.label}
-          </Radio.Button>
+          <Tooltip title={option.tooltip}>
+            <Radio.Button key={option.key} value={option.value}>
+              {option.label}
+            </Radio.Button>
+          </Tooltip>
         ))}
       </Radio.Group>
       <IconRadius>

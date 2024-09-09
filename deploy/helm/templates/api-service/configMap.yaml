@@ -2,7 +2,7 @@
 {{- $name := include "lowcoder.fullname" . -}}
 {{- $lowcoderDatabase := first .Values.mongodb.auth.databases -}}
 {{- $redisSecret := lookup "v1" "Secret" $nameSpace .Values.redis.auth.existingSecret | default dict -}}
-{{- $redisPassword := (index $redisSecret.data .Values.redis.auth.existingSecretPasswordKey | default "" | b64dec) -}}
+{{- $redisPassword := (index ($redisSecret.data|default dict) .Values.redis.auth.existingSecretPasswordKey | default "" | b64dec) -}}
 
 apiVersion: v1
 kind: ConfigMap

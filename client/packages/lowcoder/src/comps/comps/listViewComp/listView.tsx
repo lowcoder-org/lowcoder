@@ -18,7 +18,6 @@ import {
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 
@@ -284,8 +283,6 @@ export function ListView(props: Props) {
   const paddingWidth = isMobile ? "4px" : "16px";
 
   const childrenProps = childrenToProps(comp.children);
-
-  useMergeCompStyles(childrenProps, comp.dispatch);
 
   // log.debug("renders: ", renders);
   return (

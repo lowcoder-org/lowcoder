@@ -39,6 +39,7 @@ const IconWrapper = styled.div`
 export default function PageInfo(props: IProps) {
   const { compInfo } = props;
   const Icon = compInfo.icon;
+  console.log("Icon", compInfo);
   return (
     <Wrapper>
       <div className="title">

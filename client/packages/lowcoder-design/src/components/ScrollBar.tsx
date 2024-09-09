@@ -64,6 +64,8 @@ interface IProps {
   };
   $hideplaceholder?: boolean;
   hideScrollbar?: boolean;
+  prefixNode?: React.ReactNode;
+  suffixNode?: React.ReactNode;
 }
 
 export const ScrollBar = ({
@@ -74,6 +76,8 @@ export const ScrollBar = ({
   scrollableNodeProps,
   hideScrollbar = false,
   $hideplaceholder = false,
+  prefixNode,
+  suffixNode,
   ...otherProps
 }: IProps) => {
   const height = style?.height ?? '100%';
@@ -81,17 +85,25 @@ export const ScrollBar = ({
   const combinedStyle = { ...style, height }; // Example of combining height with passed style
 
   return hideScrollbar ? (
-    <ScrollBarWrapper className={className} $overflow={overflow}>
+    <ScrollBarWrapper className={className}>
+      {prefixNode}
       {children}
+      {suffixNode}
     </ScrollBarWrapper>
   ) : (
-    <ScrollBarWrapper className={className} $overflow={overflow}>
-      <SimpleBar
-        style={combinedStyle}
-        scrollableNodeProps={scrollableNodeProps}
-        {...otherProps}
-      >
-        {children}
+    <ScrollBarWrapper className={className}>
+      <SimpleBar style={combinedStyle} scrollableNodeProps={scrollableNodeProps} {...otherProps}>
+        {({ scrollableNodeProps, contentNodeProps }) => {
+          return (
+            <div {...scrollableNodeProps as any}>
+              {prefixNode}
+              <div {...contentNodeProps as any}>
+                {children}
+              </div>
+              {suffixNode}
+            </div>
+          );
+        }}
       </SimpleBar>
     </ScrollBarWrapper>
   );

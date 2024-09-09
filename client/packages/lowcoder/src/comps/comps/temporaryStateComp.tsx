@@ -24,18 +24,7 @@ const TemporaryStateItemCompBase = new MultiCompBuilder(
     () => null
   )
   .setPropertyViewFn((children) => {
-    const PropertyViewWithModal = () => {
-      const [isOpen, setIsOpen] = useState(false);
-  
-      const handleOpen = () => {
-        setIsOpen(true);
-      };
-  
-      const handleClose = () => {
-        setIsOpen(false);
-      };
-
-      return (
+    return (
         <BottomTabs
           type={BottomResTypeEnum.TempState}
           tabsConfig={[
@@ -56,7 +45,6 @@ const TemporaryStateItemCompBase = new MultiCompBuilder(
                     modalWidth="80%"
                     modalTop="20px"
                   />
-                  
                   </>
                 ),
               }),
@@ -66,9 +54,6 @@ const TemporaryStateItemCompBase = new MultiCompBuilder(
           status=""
         />
       );
-    };
-
-    return <PropertyViewWithModal />;
   })
   .build();
 

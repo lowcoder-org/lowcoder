@@ -1,7 +1,7 @@
 import { trans } from "i18n/design";
 import React, { ReactNode, useContext } from "react";
 import styled from "styled-components";
-import { ReactComponent as Packup } from "icons/icon-Pack-up.svg";
+import { ReactComponent as Packup } from "icons/v1/icon-Pack-up.svg";
 import { labelCss } from "./Label";
 import { controlItem, ControlNode } from "./control";
 import { Tooltip } from "./toolTip";
@@ -186,4 +186,5 @@ export const sectionNames = {
   bodyStyle:trans("prop.bodyStyle"),
   badgeStyle:trans("prop.badgeStyle"),
   columnStyle:trans("prop.columnStyle"),
+  modalStyle:trans("prop.modalStyle"),
 };

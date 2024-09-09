@@ -231,6 +231,8 @@ export const pt: typeof en = {
         "className": "Nome da Classe CSS",
         "dataTestId": "ID Individual",
         "horizontalGridCells": "Células de grade horizontal",
+        "showHorizontalScrollbar": "Mostrar barra de rolagem horizontal",
+        "showVerticalScrollbar": "Mostrar barra de rolagem vertical",
     },
     "autoHeightProp": {
         ...en.autoHeightProp,
@@ -1903,6 +1905,8 @@ export const pt: typeof en = {
         "showFilter": "Mostrar Botão de Filtro",
         "showRefresh": "Mostrar Botão de Atualização",
         "showDownload": "Mostrar Botão de Download",
+        "columnSeparator": "Separador de colunas",
+        "columnSeparatorTooltip": "Separador de colunas (\"delimitador\") no arquivo CSV baixado. \n\nRecomendações:\n- Vírgula (,)\n- Ponto e vírgula (;)\n- Barra vertical (|)\n- Tabulação (\\t)",
         "columnSetting": "Mostrar Botão de Configuração de Coluna",
         "searchText": "Texto de Busca",
         "searchTextTooltip": "Pesquisar e filtrar os dados apresentados na tabela",
@@ -1935,9 +1939,11 @@ export const pt: typeof en = {
         "action": "Ação",
         "columnValue": "Valor da Coluna",
         "columnValueTooltip": "'{{currentCell}}': Dados da Célula Atual\n '{{currentRow}}': Dados da Linha Atual\n '{{currentIndex}}': Índice de Dados Atual (Começando de 0)\n Exemplo: '{{currentCell * 5}}' Mostra 5 Vezes o Valor Original dos Dados.",
+        "columnTooltip": "Dica de coluna",
         "imageSrc": "Fonte da Imagem",
         "imageSize": "Tamanho da Imagem",
         "columnTitle": "Título",
+        "columnTitleTooltip": "Dica de título",
         "showTitle": "Mostrar Título",
         "showTitleTooltip": "Mostrar/Ocultar título da coluna no cabeçalho da tabela",
         "sortable": "Classificável",
@@ -2045,7 +2051,14 @@ export const pt: typeof en = {
         "iconNull": "Ícone Quando Nulo",
         "allColumn": "Todas",
         "visibleColumn": "Visível",
-        "emptyColumns": "Nenhuma coluna está atualmente visível"
+        "emptyColumns": "Nenhuma coluna está atualmente visível",
+        "showSummary": "Mostrar linha(s) de resumo",
+        "totalSummaryRows": "Total de linhas",
+        "inlineAddNewRow": "Adicionar nova(s) linha(s) em linha",
+        "editMode": "Modo de edição",
+        "singleClick": "Clique Único",
+        "doubleClick": "Clique duplo",
+        "showUpdateButtons": "Mostrar botões Salvar/Cancelar",
     },
 
 
@@ -2953,7 +2966,9 @@ export const pt: typeof en = {
         "clone": "Clonar",
         "editorMode_layout": "Layout",
         "editorMode_logic": "Lógica",
-        "editorMode_both": "Ambos"
+        "editorMode_both": "Ambos",
+        "editorMode_layout_tooltip": "Personalize a aparência e o layout do componente, na janela direita. Ajuste sua aparência, estilo e animação.",
+        "editorMode_logic_tooltip": "Configure como seu componente funciona e interage, na janela direita. Gerencie seu conteúdo e comportamentos interativos."
     },
     "userAuth": {
         ...en.userAuth,

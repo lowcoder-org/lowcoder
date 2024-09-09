@@ -1039,7 +1039,7 @@ export const InputLikeStyle = [
   getStaticBackground(SURFACE_COLOR),
   BOXSHADOW,
   BOXSHADOWCOLOR,
-  ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
+  ...STYLING_FIELDS_SEQUENCE.filter((style)=>style.name!=='rotation' && style.name!=='lineHeight'),
   ...ACCENT_VALIDATE,
 ] as const;
 
@@ -1138,6 +1138,7 @@ export const startButtonStyle = [
 export const LabelStyle = [
   ...replaceAndMergeMultipleStyles([...InputLikeStyle], "text", [LABEL]).filter(
     (style) => style.name !== "radius" && style.name !== "background" && style.name!=='rotation' && style.name !== "boxShadow"&&style.name!=='boxShadowColor'
+    &&style.name!=='lineHeight'
   ),
 ];
 
@@ -1511,7 +1512,6 @@ export const TableHeaderStyle = [
   },
   TEXT_SIZE,
   TEXT_WEIGHT,
-  FONT_FAMILY,
 ] as const;
 
 export const TableRowStyle = [
@@ -1545,7 +1545,6 @@ export const TableColumnStyle = [
   getStaticBackground("#00000000"),
   getStaticBorder(),
   MARGIN,
-
   RADIUS,
   TEXT,
   TEXT_SIZE,
@@ -1555,6 +1554,18 @@ export const TableColumnStyle = [
 ] as const;
 
 export const TableColumnLinkStyle = [...LinkTextStyle] as const;
+
+export const TableSummaryRowStyle = [
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  ...BG_STATIC_BORDER_RADIUS,
+  MARGIN,
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+] as const;
 
 export const FileStyle = [
   // ...getStaticBgBorderRadiusByBg(SURFACE_COLOR),
@@ -1849,6 +1860,21 @@ export const SignatureStyle = [
   BORDER_WIDTH,
 ] as const;
 
+export const EventModalStyle = [
+  getBackground("primarySurface"),
+  BORDER,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  TEXT,
+  {
+    name: "labelBackground",
+    label: trans("style.labelBackground"),
+    depTheme: "primarySurface",
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  },
+] as const;
+
 // Added by Aqib Mirza
 export const LottieStyle = [
   {
@@ -2020,6 +2046,7 @@ export type TableColumnStyleType = StyleConfigType<typeof TableColumnStyle>;
 export type TableColumnLinkStyleType = StyleConfigType<
   typeof TableColumnLinkStyle
 >;
+export type TableSummaryRowStyleType = StyleConfigType<typeof TableSummaryRowStyle>;
 export type FileStyleType = StyleConfigType<typeof FileStyle>;
 export type FileViewerStyleType = StyleConfigType<typeof FileViewerStyle>;
 export type IframeStyleType = StyleConfigType<typeof IframeStyle>;
@@ -2042,6 +2069,7 @@ export type TreeSelectStyleType = StyleConfigType<typeof TreeSelectStyle>;
 export type DrawerStyleType = StyleConfigType<typeof DrawerStyle>;
 export type JsonEditorStyleType = StyleConfigType<typeof JsonEditorStyle>;
 export type CalendarStyleType = StyleConfigType<typeof CalendarStyle>;
+export type EventModalStyleType = StyleConfigType<typeof EventModalStyle>;
 export type SignatureStyleType = StyleConfigType<typeof SignatureStyle>;
 export type CarouselStyleType = StyleConfigType<typeof CarouselStyle>;
 export type RichTextEditorStyleType = StyleConfigType<

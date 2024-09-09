@@ -52,6 +52,9 @@ public class Application extends HasIdAndAuditing {
     private Boolean publicToMarketplace;
     @Setter
     private Boolean agencyProfile;
+    @Getter
+    @Setter
+    private String editingUserId;
 
     public Application(
             @JsonProperty("orgId") String organizationId,
@@ -63,9 +66,10 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile
+            @JsonProperty("agencyProfile") Boolean agencyProfile,
+            @JsonProperty("editingUserId") String editingUserId
     ) {
-        this.gid = StringUtils.isEmpty(gid)?UuidCreator.getTimeOrderedEpoch().toString():gid;
+        this.gid = gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
@@ -75,6 +79,7 @@ public class Application extends HasIdAndAuditing {
         this.publicToMarketplace = publicToMarketplace;
         this.agencyProfile = agencyProfile;
         this.editingApplicationDSL = editingApplicationDSL;
+        this.editingUserId = editingUserId;
     }
 
     @Transient

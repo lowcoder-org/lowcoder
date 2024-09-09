@@ -200,6 +200,8 @@ export const de: typeof en = {
       "className": "Klasse",
       "dataTestId": "Test ID",
       "horizontalGridCells": "Horizontale Gitterzellen",
+      "showHorizontalScrollbar": "Horizontale Bildlaufleiste anzeigen",
+      "showVerticalScrollbar": "Vertikale Bildlaufleiste anzeigen",
   },
   "autoHeightProp": {
       ...en.autoHeightProp,
@@ -1381,6 +1383,8 @@ export const de: typeof en = {
       "showFilter": "Schaltfläche Filter anzeigen",
       "showRefresh": "Schaltfläche \"Aktualisieren\" anzeigen",
       "showDownload": "Download-Schaltfläche anzeigen",
+      "columnSeparator": "Spaltentrennzeichen",
+      "columnSeparatorTooltip": "Spaltentrennzeichen („Trennzeichen“) in der heruntergeladenen CSV-Datei. \n\nEmpfehlungen:\n- Komma (,)\n- Semikolon (;)\n- Pipe (|)\n- Tabulator (\\t)",
       "columnSetting": "Schaltfläche Spalteneinstellung anzeigen",
       "searchText": "Text suchen",
       "searchTextTooltip": "Suche und Filterung der in der Tabelle dargestellten Daten",
@@ -1413,10 +1417,12 @@ export const de: typeof en = {
       "action": "Aktion",
       "columnValue": "Spalte Wert",
       "columnValueTooltip": "\\'{{currentCell}}\\': Aktuelle Zelldaten\n \\'{{currentRow}}\\': Aktuelle Zeilendaten\n \\'{{currentIndex}}\\': Aktueller Datenindex (beginnend bei 0)\n Beispiel: \\'{{currentCell * 5}}\\' Show 5 Times the Original Value Data.",
+      "columnTooltip": "Spalten-Tooltip",
       "imageSrc": "Bildquelle",
       "imageSize": "Bildgröße",
       "columnTitle": "Titel anzeigen",
-      "showTitle": "Show Title",
+      "columnTitleTooltip": "Titel-Tooltip",
+      "showTitle": "Titel anzeigen",
       "showTitleTooltip": "Spaltentitel im Tabellenkopf ein-/ausblenden",
       "sortable": "Sortierbar",
       "align": "Ausrichtung",
@@ -1510,7 +1516,14 @@ export const de: typeof en = {
       "falseValues": "Text Wenn Falsch",
       "allColumn": "Alle",
       "visibleColumn": "Sichtbar",
-      "emptyColumns": "Derzeit sind keine Spalten sichtbar"
+      "emptyColumns": "Derzeit sind keine Spalten sichtbar",
+      "showSummary": "Zusammenfassungszeile(n) anzeigen",
+      "totalSummaryRows": "Gesamtzahl der Zeilen",
+      "inlineAddNewRow": "Inline neue Zeile(n) hinzufügen",
+      "editMode": "Bearbeitungsmodus",
+      "singleClick": "Einzelklick",
+      "doubleClick": "Doppelklick",
+      "showUpdateButtons": "Schaltflächen zum Speichern/Abbrechen anzeigen"
   },
   "image": {
       ...en.image,
@@ -2344,7 +2357,9 @@ export const de: typeof en = {
       "clone": "Klonen",
       "editorMode_layout": "Layout",
       "editorMode_logic": "Logik",
-      "editorMode_both": "Beide"
+      "editorMode_both": "Beide",
+      "editorMode_layout_tooltip": "Passen Sie im rechten Fenster das Erscheinungsbild und Layout der Komponente an. Passen Sie Aussehen, Stil und Animationen an.",
+      "editorMode_logic_tooltip": "Richten Sie im rechten Fenster ein, wie Ihre Komponente funktioniert und interagiert. Verwalten Sie den Inhalt und das interaktive Verhalten."
   },
   "userAuth": {
       ...en.userAuth,

@@ -25,7 +25,7 @@ const salesForcePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "salesForce",
   name: "SalesForce",
   icon: "salesForce.svg",
-  category: "api",
+  category: "CRM",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec, parseOptions);

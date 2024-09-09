@@ -20,7 +20,7 @@ import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refresh
 import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+
 const { Meta } = Card;
 
 const Wrapper = styled.div<{
@@ -193,9 +193,7 @@ export const ContainerBaseComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-    
+  return new ContainerCompBuilder(childrenMap, (props) => {    
     props.container.showHeader = false;
     // 注入容器参数
     props.container.style = Object.assign(props.container.style, {

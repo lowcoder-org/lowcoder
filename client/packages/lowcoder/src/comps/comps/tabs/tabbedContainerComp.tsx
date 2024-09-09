@@ -35,7 +35,6 @@ import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const EVENT_OPTIONS = [
@@ -294,8 +293,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-    
     return (
       <DisabledContext.Provider value={props.disabled}>
         <TabbedContainer {...props} dispatch={dispatch} />

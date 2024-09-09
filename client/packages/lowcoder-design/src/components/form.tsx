@@ -11,7 +11,7 @@ import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss, labelCss } from "./Label";
 import { ToolTipLabel } from "./toolTip";
 import styled from "styled-components";
-import { ReactComponent as Star } from "icons/icon-star.svg";
+import { ReactComponent as Star } from "icons/v1/icon-star.svg";
 import _ from "lodash";
 import { KeyValueList } from "./keyValueList";
 import { OptionsType, ValueFromOption } from "./Dropdown";

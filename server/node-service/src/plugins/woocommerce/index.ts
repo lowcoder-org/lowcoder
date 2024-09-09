@@ -5,6 +5,10 @@ import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { defaultParseOpenApiOptions, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 import spec from "./woocommerce-spec.json";
+import { specsToOptions, version2spec } from "../../common/util";
+const specs = {
+  "v1.0": spec,
+}
 
 export function prepareServerUrl(url: string) {
   if (/\/wc\/v[12]$/.test(url)) {
@@ -45,6 +49,14 @@ const dataSourceConfig = {
       tooltip: "",
       placeholder: "<password>",
     },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ],
 } as const;
 
@@ -63,10 +75,10 @@ const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "woocommerce",
   name: "WooCommerce",
   icon: "woocommerce.svg",
-  category: "api",
+  category: "eCommerce",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Operation",
@@ -83,8 +95,9 @@ const wooCommercePlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: prepareServerUrl(serverURL),
       dynamicParamsConfig: otherDataSourceConfig,
+      specVersion: dataSourceConfig.specVersion
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as unknown as OpenAPIV2.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as unknown as OpenAPIV2.Document);
   },
 };
 

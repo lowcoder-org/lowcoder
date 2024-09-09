@@ -24,7 +24,6 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -160,9 +159,7 @@ let CheckboxBasicComp = (function () {
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const [
       validateState,
       handleChange,

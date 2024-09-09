@@ -9,6 +9,7 @@ test.skip("realtime database", async () => {
       databaseUrl: "https://sarike-a3de9-default-rtdb.asia-southeast1.firebasedatabase.app/",
       privateKey,
       firestoreId: "",
+      specVersion: "",
     }
   );
   console.info(res);

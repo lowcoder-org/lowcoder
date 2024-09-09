@@ -78,7 +78,9 @@ export const getStyle = (
     .ant-select-selection-search {	
       padding: ${style.padding};
     }	
-    .ant-select-selection-search-input {
+    .ant-select-selection-search-input,
+    .ant-select-selection-item,
+    .ant-select-selection-item .option-label {
       font-family:${(style as SelectStyleType).fontFamily} !important;
       text-transform:${(style as SelectStyleType).textTransform} !important;
       text-decoration:${(style as SelectStyleType).textDecoration} !important;
@@ -251,10 +253,12 @@ export const SelectUIView = (
     inputFieldStyle: SelectStyleType;
     onChange: (value: any) => void;
     dispatch: DispatchType;
+    autoFocus?: boolean;
   }
 ) => {
   return <Select
     ref={props.viewRef}
+    autoFocus={props.autoFocus}
     mode={props.mode}
     $inputFieldStyle={props.inputFieldStyle}
     $style={props.style as SelectStyleType & MultiSelectStyleType}

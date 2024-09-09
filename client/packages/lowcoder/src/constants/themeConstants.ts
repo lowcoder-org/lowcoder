@@ -71,6 +71,9 @@ const table = {
   },
   columnsStyle: {
     radius: '0px'
+  },
+  summaryRowStyle: {
+    radius: '0px'
   }
 }
 
@@ -164,6 +167,15 @@ const checkbox = {
   }
 }
 
+const tree = {
+  ...input.inputFieldStyle,
+  labelStyle: {
+    borderWidth: '0px',
+  },
+  style: { background: theme.primarySurface }
+  
+}
+
 
 export const defaultTheme: ThemeDetail = {
   ...theme,
@@ -197,5 +209,6 @@ export const defaultTheme: ThemeDetail = {
     select: select,
     multiSelect: select,
     treeSelect: select,
+    tree:tree
   },
 };

@@ -54,13 +54,12 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
     border-radius: ${style.radius};
     border-width:${style.borderWidth} !important;
-    line-height: ${style.lineHeight} !important;
+    // line-height: ${style.lineHeight} !important;
     // still use antd style when disabled
     &:not(.ant-input-number-disabled) {
       color: ${style.text};
@@ -382,9 +381,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
 };
 
 let NumberInputTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,

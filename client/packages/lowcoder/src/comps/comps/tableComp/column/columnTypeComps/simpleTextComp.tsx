@@ -21,13 +21,17 @@ export const SimpleTextComp = (function () {
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return <>{hasIcon(props.prefixIcon) && (
-        <span>{props.prefixIcon}</span>
-      )}
-      <span>{value}</span>
-      {hasIcon(props.suffixIcon) && (
-        <span>{props.suffixIcon}</span>
-      )} </>;
+      return(
+        <>
+          {hasIcon(props.prefixIcon) && (
+            <span>{props.prefixIcon}</span>
+          )}
+          <span>{value}</span>
+          {hasIcon(props.suffixIcon) && (
+            <span>{props.suffixIcon}</span>
+          )}
+        </>
+      );
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue

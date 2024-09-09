@@ -42,7 +42,6 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
@@ -67,7 +66,6 @@ let PasswordTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
     return props.label({
       required: props.required,

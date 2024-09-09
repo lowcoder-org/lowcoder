@@ -220,6 +220,8 @@ export const zh: typeof en = {
         "horizontal": "水平",
         "minHorizontalWidth": "最小水平宽度",
         "horizontalGridCells": "水平网格单元",
+        "showHorizontalScrollbar": "显示水平滚动条",
+        "showVerticalScrollbar": "显示垂直滚动条",
     },
 
     autoHeightProp: {
@@ -1403,6 +1405,8 @@ export const zh: typeof en = {
         showFilter: "显示筛选按钮",
         showRefresh: "显示刷新按钮",
         showDownload: "显示下载按钮",
+        columnSeparator: "柱分离器",
+        columnSeparatorTooltip: "下载的 CSV 文件中的列分隔符（\“分隔符\”）。 \n\n建议：\n- 逗号 (,)\n- 分号 (;)\n- 竖线 (|)\n- 制表符 (\\t)",
         columnSetting: "显示列设置按钮",
         searchText: "搜索文本",
         searchTextTooltip: "搜索和筛选在表格中呈现的数据",
@@ -1435,9 +1439,11 @@ export const zh: typeof en = {
         action: "操作",
         columnValue: "列值",
         columnValueTooltip: "'{{currentCell}}': 当前单元格数据\n" + "'{{currentRow}}': 当前行数据\n" + "'{{currentIndex}}': 当前数据索引(从0开始)\n" + "示例: '{{currentCell * 5}}' 显示原始值数据的5倍.",
+        columnTooltip: "列工具提示",
         imageSrc: "图片链接",
         imageSize: "图片尺寸",
         columnTitle: "标题",
+        columnTitleTooltip: "标题工具提示",
         dataMapping: "数据映射",
         showTitle: "显示标题",
         showTitleTooltip: "显示/隐藏表标题中的列标题",
@@ -1540,6 +1546,13 @@ export const zh: typeof en = {
         allColumn: "全部",
         visibleColumn: "可见",
         emptyColumns: "当前没有可见列",
+        showSummary: "显示摘要行",
+        totalSummaryRows: "总行数",
+        inlineAddNewRow: "内联添加新行",
+        editMode: "编辑模式",
+        singleClick: "单击",
+        doubleClick: "双击",
+        showUpdateButtons: "显示保存/取消按钮",
     },
     image: {
         ...en.image,
@@ -2338,6 +2351,8 @@ export const zh: typeof en = {
         editorMode_layout: "应用程序布局",
         editorMode_logic: "应用程序逻辑",
         editorMode_both: "两者",
+        editorMode_layout_tooltip: "在右侧窗口中自定义组件的外观和布局。调整它的外观、样式和动画。",
+        editorMode_logic_tooltip: "在右侧窗口中设置组件的工作和交互方式。管理其内容和交互行为。"
     },
     userAuth: {
         ...en.userAuth,

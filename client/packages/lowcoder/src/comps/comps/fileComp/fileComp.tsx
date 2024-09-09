@@ -42,7 +42,6 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {
@@ -381,7 +380,6 @@ const childrenMap = {
 };
 
 let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props, dispatch);
   return(
     <Upload {...props} dispatch={dispatch} />
   )})
