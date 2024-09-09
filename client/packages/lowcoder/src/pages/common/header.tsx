@@ -54,7 +54,7 @@ import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
 import Tooltip from "antd/es/tooltip";
-import { LockOutlined } from '@ant-design/icons';
+import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Avatar from 'antd/es/avatar';
 
 
@@ -257,6 +257,27 @@ const Prefix = styled.div`
   &.module svg {
     visibility: visible;
   }
+`;
+
+const EditingNoticeWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  background-color: #ffe6e6; /* Light red background for warning */
+  padding: 2px 8px;
+  border-radius: 5px;
+  margin-right: 8px;
+`;
+
+const EditingHintText = styled.span`
+  margin-left: 8px;
+  font-size: 12px;
+  color: #ff4d4f; /* Red color to indicate warning */
+`;
+
+const WarningIcon = styled(ExclamationCircleOutlined)`
+  margin-left: 8px;
+  font-size: 16px;
+  color: #ff4d4f; /* Red color for the icon */
 `;
 
 // Add the lock icon logic for disabled options
@@ -471,12 +492,19 @@ export default function Header(props: HeaderProps) {
       <>
         {/* Display a hint about who is editing the app */}
         {concurrentAppEditingState && (
-          <div style={{ display: 'flex', alignItems: 'center', marginRight: '8px' }}>
-            <Avatar size="small" src={user.avatarUrl} />
-            <span style={{ marginLeft: '8px', fontSize: '12px', color: '#b8b9bf' }}>
-              {`${user.username} is currently editing this app.`}
-            </span>
-          </div>
+          <Tooltip
+            title="Changes will not be saved while another user is editing this app."
+            color="red"
+            placement="bottom"
+          >
+            <EditingNoticeWrapper>
+              <Avatar size="small" src={user.avatarUrl} />
+              <EditingHintText>
+                {`${user.username} is currently editing this app.`}
+              </EditingHintText>
+              <WarningIcon />
+            </EditingNoticeWrapper>
+          </Tooltip>
         )}
 
         {applicationId && (
