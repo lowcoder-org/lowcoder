@@ -53,7 +53,7 @@ const childrenMap = {
   showVerticalScrollbar: withDefault(BoolControl, false),
   showHorizontalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
-  scrollbars: withDefault(BoolControl, false), //TOLOOK INTO
+  scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,
   pagination: withDefault(PaginationControl, { pageSize: "6" }),
   style: styleControl(ListViewStyle, 'style'),

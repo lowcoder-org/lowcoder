@@ -43,7 +43,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   showVerticalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
-  scrollbars: withDefault(BoolControl, false), //TOLOOK INTO
+  scrollbars: withDefault(BoolControl, false),
   style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
   headerStyle: styleControl(ContainerHeaderStyle, 'headerStyle'),
   bodyStyle: styleControl(ContainerBodyStyle, 'bodyStyle'),

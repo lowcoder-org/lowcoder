@@ -170,7 +170,6 @@ type Props = {
 };
 
 export function ListView(props: Props) {
-  console.log("🚀 ~ ListView ~ props:", props)
   const { comp } = props;
   const children = comp.children;
   const ref = useRef(null);
@@ -194,7 +193,6 @@ export function ListView(props: Props) {
   const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
   const showVerticalScrollbar = useMemo(() => children.showVerticalScrollbar.getView(), [children.showVerticalScrollbar]);
   const horizontal = useMemo(() => children.horizontal.getView(), [children.horizontal]);
-  console.log("🚀 ~ ListView ~ horizontal:", horizontal)
   const minHorizontalWidth = useMemo(() => children.minHorizontalWidth.getView(), [children.minHorizontalWidth]);
   const noOfColumns = useMemo(
     () => Math.max(1, children.noOfColumns.getView()),
