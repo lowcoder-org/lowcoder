@@ -21,7 +21,7 @@ const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $
 `;
 
 const StyledAntdSelect = styled(AntdSelect)`
-  width: 100%; 
+  width: 300px; 
   margin: 10px 0px;
   .ant-select-selector {
     font-size: 14px;
@@ -71,7 +71,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
           <StyledAntdSelect
           placeholder="Select Time Zone"
           options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
-          defaultValue={'Etc/UTC'}
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
           onChange={props.handleTimeRangeZoneChange}
           />
         )

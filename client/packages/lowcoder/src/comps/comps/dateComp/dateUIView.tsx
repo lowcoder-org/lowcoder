@@ -70,7 +70,7 @@ export const DateUIView = (props: DataUIViewProps) => {
             <StyledAntdSelect 
               options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
               placeholder="Select Time Zone" 
-              defaultValue={'Etc/UTC'}
+              defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
               onChange={props.onClickDateTimeZone} 
             />
           </StyledDiv>
