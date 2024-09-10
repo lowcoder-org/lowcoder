@@ -2,6 +2,7 @@ package org.lowcoder.api.framework.filter;
 
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.lowcoder.api.authentication.request.AuthRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
@@ -128,6 +129,10 @@ public class UserSessionPersistenceFilter implements WebFilter {
                         return Mono.just(user);
                     }
                     try {
+                        if (StringUtils.isEmpty(connection.getAuthConnectionAuthToken().getRefreshToken())) {
+                            log.error("Refresh token is empty");
+                            throw new Exception("Refresh token is empty");
+                        }
                         AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
                         authUser.setAuthContext(oAuth2RequestContext);
                         authenticationApiService.updateConnection(authUser, user);

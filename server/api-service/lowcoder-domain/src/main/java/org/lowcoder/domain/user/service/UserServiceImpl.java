@@ -209,7 +209,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Mono<Boolean> addNewConnection(String userId, Connection connection) {
         return findById(userId)
-                .doOnNext(user -> user.getConnections().add(connection))
+                .doOnNext(user -> {
+                    user.getConnections().add(connection);
+                    user.setActiveAuthId(connection.getAuthId());
+                })
                 .flatMap(repository::save)
                 .then(Mono.just(true));
     }
