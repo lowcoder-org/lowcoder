@@ -56,7 +56,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
   return useUIView(
     <TimeRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange")}
+      {...omit(props, "onChange", "format")}
       value={[props.start, props.end]}
       order={true}
       hideDisabledOptions
