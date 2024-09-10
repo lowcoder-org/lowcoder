@@ -10,6 +10,7 @@ import { EditorContext } from "../../editorState";
 import dayjs from "dayjs"
 import { default as AntdSelect } from "antd/es/select";
 import { timeZoneOptions } from "./timeZone";
+import { omit } from "lodash";
 
 const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -43,7 +44,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
   return useUIView(
     <TimeMobileUIView {...props} />,
     <TimePickerStyled
-      {...props}
+      {...omit(props, "format")}
       ref={props.viewRef}
       hideDisabledOptions
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
