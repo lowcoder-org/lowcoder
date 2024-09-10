@@ -12,7 +12,7 @@ Every Supabase project is a dedicated PostgreSQL database, trusted by millions o
 Follow the steps below:
 
 1. Create a new data source in two ways. Note that this permission is restricted to workspace admins and developers.
-   * Navigate to the **Data Sources** tab on [Lowcoder Homepage](http://app.lowcoder.cloud/) and click **New data source**.
+   * Navigate to the **Data Sources** tab in Lowcoder and click **New data source**.
    * When creating a new query in the app editor, click **+ New** > **+ New data source**.
 2. Select **Database** > **PostgreSQL** as the data source type.
 3. Set its name and configure general settings, including host, port, and database name. You can also set the user name and a password.
