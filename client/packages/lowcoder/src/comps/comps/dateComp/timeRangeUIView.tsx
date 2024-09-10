@@ -71,7 +71,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
           <StyledAntdSelect
           placeholder="Select Time Zone"
           options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
-          defaultValue={'(UTC 00:00) UTC'}
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
           onChange={props.handleTimeRangeZoneChange}
           />
         )

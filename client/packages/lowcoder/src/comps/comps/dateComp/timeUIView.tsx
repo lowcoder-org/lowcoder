@@ -54,7 +54,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
           placeholder="Select Time Zone"
           options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
           onChange={props?.handleTimeZoneChange}
-          defaultValue={'(UTC 00:00) UTC'}
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
           />
         )
       )}
