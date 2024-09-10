@@ -139,8 +139,8 @@ https://api-service.lowcoder.cloud/
 Since Lowcoder v2.1.6 we publish the OpenAPI Specification and the Swagger Documentation automatically.
 
 ```
-Swagger Documentation: <Lowcoder-Location>/api/docs/webjars/swagger-ui/index.html#
-OpenAPI Specification: <Lowcoder-Location>/api/docs/api-docs
+Swagger Documentation: <Lowcoder-Location>/api/docs/webjars/swagger-ui/index.html
+OpenAPI Specification: <Lowcoder-Location>/api/docs/openapi.json
 ```
 
 You can find the current API Documentation for example here: \
