@@ -17,6 +17,8 @@ PERFORMANCE OF THIS SOFTWARE.
 ***************************************************************************** */
 /* global Reflect, Promise, SuppressedError, Symbol */
 
+// https://github.com/microsoft/tslib
+
 var extendStatics = function(d, b) {
     extendStatics = Object.setPrototypeOf ||
         ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||

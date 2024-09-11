@@ -36,7 +36,7 @@ public interface UserService {
 
     Mono<User> findByAuthUserRawId(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthUser authUser);
+    Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
@@ -53,6 +53,7 @@ public interface UserService {
     Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
 
     Mono<Boolean> setPassword(String userId, String password);
+    Mono<Boolean> markAsSuperAdmin(String userId);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 

@@ -39,12 +39,21 @@ public interface OrganizationEndpoints
 	
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,
-		    operationId = "createOrganization",
-		    summary = "Create a new Organization",
-		    description = "Create a new Organization (Workspace) within the Lowcoder platform as a encapsulated space for Applications, Users and Resources."
+		    operationId = "getOrganizationByUser",
+		    summary = "Get a list of specified user's organization",
+		    description = "Get a list of specified user's organization"
 	)
-    @PostMapping
-    public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization);
+    @GetMapping("/byuser/{userId}")
+    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String userId);
+
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "createOrganization",
+			summary = "Create a new Organization",
+			description = "Create a new Organization (Workspace) within the Lowcoder platform as a encapsulated space for Applications, Users and Resources."
+	)
+	@PostMapping
+	public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization);
 
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,

@@ -116,7 +116,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
                                       String invitationId, boolean linKExistingUser) {
-        return updateOrCreateUser(authUser, linKExistingUser)
+        return updateOrCreateUser(authUser, linKExistingUser, false)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -147,7 +147,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser, boolean isSuperAdmin) {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
@@ -175,7 +175,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     }
 
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
-                        return userService.createNewUserByAuthUser(authUser);
+                        return userService.createNewUserByAuthUser(authUser, isSuperAdmin);
                     }
                     return Mono.error(new BizException(USER_NOT_EXIST, "USER_NOT_EXIST"));
                 });

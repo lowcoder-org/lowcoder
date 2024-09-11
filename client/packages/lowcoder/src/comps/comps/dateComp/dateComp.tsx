@@ -48,6 +48,10 @@ import { RefControl } from "comps/controls/refControl";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { timeZoneOptions } from "./timeZone";
+
+
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -80,6 +84,7 @@ const commonChildren = {
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -137,6 +142,7 @@ function validate(
 
 const childrenMap = {
   value: stringExposingStateControl("value"),
+  userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
   ...commonChildren,
   ...formDataChildren,
 };
@@ -153,6 +159,7 @@ export type DateCompViewProps = Pick<
   | "minuteStep"
   | "secondStep"
   | "viewRef"
+  | "timeZone"
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -175,6 +182,10 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     setTempValue(value);
   }, [props.value.value])
 
+  const handleDateZoneChange = (newTimeZone: any) => {
+    props.userTimeZone.onChange(newTimeZone)
+  }
+
   return props.label({
     required: props.required,
     style: props.style,
@@ -184,6 +195,8 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     onMouseDown: (e) => e.stopPropagation(),
     children: (
       <DateUIView
+        onClickDateTimeZone={handleDateZoneChange}
+        timeZone={props.timeZone}
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.inputFieldStyle}
@@ -224,6 +237,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             placeholder: "2022-04-07 21:39:59",
             tooltip: trans("date.formatTip")
           })}
+          {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+            })}
         </Section>
 
         <FormDataPropertyView {...children} />
@@ -287,6 +303,7 @@ export const dateRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
+    userRangeTimeZone: stringExposingStateControl("userRangeTimeZone" , Intl.DateTimeFormat().resolvedOptions().timeZone),
     ...formDataChildren,
     ...commonChildren,
   };
@@ -315,8 +332,15 @@ export const dateRangeControl = (function () {
       setTempEndValue(value);
     }, [props.end.value])
 
+
+    const handleDateRangeZoneChange = (newTimeZone: any) => {
+      props.userRangeTimeZone.onChange(newTimeZone)
+    }
+
     const children = (
       <DateRangeUIView
+        onClickDateRangeTimeZone={handleDateRangeZoneChange}
+        timeZone={props?.timeZone}
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
@@ -344,8 +368,7 @@ export const dateRangeControl = (function () {
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
     );
 
     const startResult = validate({ ...props, value: props.start });
@@ -379,6 +402,9 @@ export const dateRangeControl = (function () {
               label: trans("date.end"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
+            })}
+            {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
             })}
           </Section>
           
@@ -436,6 +462,14 @@ export const dateRangeControl = (function () {
     .build();
 })();
 
+const getTimeZoneInfo = (timeZone: any, othereTimeZone: any) => {
+  const tz = timeZone === 'UserChoice' ? othereTimeZone : timeZone ;
+  return {
+    TimeZone: tz,
+    Offset: dayjs().tz(tz).format('Z') // Get the UTC offset for the selected timezone
+  };
+}; 
+
 export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({
     name: "value",
@@ -449,10 +483,16 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({
     name: "formattedValue",
     desc: trans("export.datePickerFormattedValueDesc"),
-    depKeys: ["value", "format"],
+    depKeys: ["value", "format", "timeZone", "userTimeZone"], 
     func: (input) => {
       const mom = Boolean(input.value) ? dayjs(input.value, DateParser) : null;
-      return mom?.isValid() ? mom.format(input.format) : "";
+      const tz = input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone; // Get the selected timezone  
+      const timeInTz = mom?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+      return mom?.isValid() 
+      ? (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
+        ? timeInTz?.format(input?.format)  // Return formattedDateWithoffset if format includes 'Z' or is not available
+        : mom.format(input.format) // Otherwise, return mom.format(input.format)
+      : "";    
     },
   }),
   depsConfig({
@@ -473,6 +513,13 @@ export const DatePickerComp = withExposingConfigs(datePickerControl, [
         ...input,
         value: { value: input.value },
       } as any).validateStatus !== "success",
+  }),
+  depsConfig({
+    name: "timeZone",
+    desc: trans("export.timeZoneDesc"), 
+    depKeys: ["timeZone", "userTimeZone"],
+    func: (input: { timeZone: any; userTimeZone: any; }) => getTimeZoneInfo(input.timeZone, input.userTimeZone)
+
   }),
   ...CommonNameConfig,
 ]);
@@ -517,35 +564,57 @@ export let DateRangeComp = withExposingConfigs(dateRangeControl, [
   depsConfig({
     name: "formattedValue",
     desc: trans("export.dateRangeFormattedValueDesc"),
-    depKeys: ["start", "end", "format"],
+    depKeys: ["start", "end", "format" , "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
       const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; // Get the selected timezone  
+      const startTimeInTz = start?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+      const endTimeInTz = end?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+
       return [
-        start?.isValid() && start.format(input.format),
-        end?.isValid() && end.format(input.format),
+        start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
+        ? startTimeInTz?.format(input?.format)  // Return formattedDateWithoffset if format includes 'Z' or is not available
+        :  start?.format(input.format),
+        end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
+        ? endTimeInTz?.format(input?.format)  // Return formattedDateWithoffset if format includes 'Z' or is not available
+        :  end?.format(input.format) ,
       ]
         .filter((item) => item)
         .join(" - ");
     },
   }),
   depsConfig({
-    name: "formattedStartValue",
-    desc: trans("export.dateRangeFormattedStartValueDesc"),
-    depKeys: ["start", "format"],
-    func: (input) => {
-      const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
-      return start?.isValid() && start.format(input.format);
-    },
-  }),
+  name: "formattedStartValue",
+  desc: trans("export.dateRangeFormattedStartValueDesc"),
+  depKeys: ["start", "format", "timeZone", "userRangeTimeZone"],
+  func: (input) => {
+    const start = Boolean(input.start) ? dayjs(input.start, DateParser): null;
+    const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone;
+    const startTimeInTz = start?.clone().tz(tz, true);
+    return start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z')) 
+      ? startTimeInTz?.format(input?.format)
+      : start?.format(input.format);
+  },
+}),
   depsConfig({
     name: "formattedEndValue",
     desc: trans("export.dateRangeFormattedEndValueDesc"),
-    depKeys: ["end", "format"],
+    depKeys: ["end", "format" , "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const end = Boolean(input.end) ? dayjs(input.end, DateParser): null;
-      return end?.isValid() && end.format(input.format);
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; 
+      const endTimeInTz = end?.clone().tz(tz, true);
+      return end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))
+      ? endTimeInTz?.format(input?.format) 
+      :  end?.format(input.format);
     },
+  }),
+  depsConfig({
+    name: "timeZone", 
+    desc: trans("export.timeZoneDesc"), 
+    depKeys: ["timeZone", "userRangeTimeZone"], 
+    func: (input:any) => getTimeZoneInfo(input.timeZone, input.userRangeTimeZone)
   }),
   depsConfig({
     name: "invalid",

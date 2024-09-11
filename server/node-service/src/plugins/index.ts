@@ -37,6 +37,7 @@ import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -46,6 +47,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   // duckdbPlugin,
   faunaPlugin,
   tursoPlugin,
+  firebirdsqlPlugin,
 
   // Big Data
   athenaPlugin,

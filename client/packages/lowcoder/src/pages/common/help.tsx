@@ -181,7 +181,7 @@ const introVideoUrl = trans("docUrls.introVideo");
 const issueUrl = trans("lowcoderUrl.createIssue");
 const discordUrl = trans("lowcoderUrl.discord");
 
-export function HelpDropdown(props: HelpDropdownProps) {
+function HelpDropdownComp(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);
   const [version, setVersion] = useState("");
   const dispatch = useDispatch();
@@ -446,3 +446,5 @@ export function HelpDropdown(props: HelpDropdownProps) {
     </HelpWrapper>
   </>);
 }
+
+export const HelpDropdown = React.memo(HelpDropdownComp);
