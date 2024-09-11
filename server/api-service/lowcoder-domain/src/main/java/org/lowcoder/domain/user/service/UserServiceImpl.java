@@ -178,6 +178,7 @@ public class UserServiceImpl implements UserService {
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);
         newUser.setConnections(connections);
+        newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
         return create(newUser);
     }
@@ -204,17 +205,6 @@ public class UserServiceImpl implements UserService {
                     }
                     return Mono.error(throwable);
                 });
-    }
-
-    @Override
-    public Mono<Boolean> addNewConnection(String userId, Connection connection) {
-        return findById(userId)
-                .doOnNext(user -> {
-                    user.getConnections().add(connection);
-                    user.setActiveAuthId(connection.getAuthId());
-                })
-                .flatMap(repository::save)
-                .then(Mono.just(true));
     }
 
     @Override

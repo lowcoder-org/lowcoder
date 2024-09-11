@@ -174,19 +174,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                         return userService.addNewConnectionAndReturnUser(user.getId(), authUser);
                     }
 
-                    // if the user is logging/registering via OAuth provider for the first time,
-                    // but is not anonymous, then just add a new connection
-
-                     userService.findById(authUser.getUid())
-                             .switchIfEmpty(Mono.empty())
-                             .filter(user -> {
-                                 // not logged in yet
-                                 return !user.isAnonymous();
-                             }).doOnNext(user -> {
-                                 userService.addNewConnection(user.getId(), authUser.toAuthConnection());
-                             }).subscribe();
-
-
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
                         return userService.createNewUserByAuthUser(authUser);
                     }
