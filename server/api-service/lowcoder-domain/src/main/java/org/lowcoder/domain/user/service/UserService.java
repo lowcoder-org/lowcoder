@@ -40,8 +40,6 @@ public interface UserService {
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
-    Mono<Boolean> addNewConnection(String userId, Connection connection);
-
     Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser);
 
     Mono<Void> deleteProfilePhoto(User visitor);
