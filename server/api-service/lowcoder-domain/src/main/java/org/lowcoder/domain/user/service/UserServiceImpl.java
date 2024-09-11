@@ -160,11 +160,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
+    public Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin) {
          User.UserBuilder userBuilder = User.builder()
                 .name(authUser.getUsername())
                 .email(authUser.getEmail())
                 .state(UserState.ACTIVATED)
+                .superAdmin(isSuperAdmin)
                 .isEnabled(true)
                 .tpAvatarLink(authUser.getAvatar());
 
@@ -329,6 +330,16 @@ public class UserServiceImpl implements UserService {
                 .thenReturn(true);
     }
 
+    @Override
+    public Mono<Boolean> markAsSuperAdmin(String userId) {
+        return findById(userId)
+                .map(user -> {
+                    user.setSuperAdmin(true);
+                    return user;
+                })
+                .flatMap(repository::save)
+                .thenReturn(true);
+    }
 
     @Override
     public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {
