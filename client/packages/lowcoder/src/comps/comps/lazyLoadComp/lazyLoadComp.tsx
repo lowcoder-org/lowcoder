@@ -11,6 +11,7 @@ import styled from "styled-components";
 import { RemoteCompInfo } from "types/remoteComp";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import React from "react";
 
 const ViewError = styled.div`
   display: flex;
@@ -50,7 +51,7 @@ interface LazyCompViewProps {
   errorElement?: (error: any) => React.ReactNode;
 }
 
-function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
+const LazyCompView = React.memo((props: React.PropsWithChildren<LazyCompViewProps>) => {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
   const currentTheme = useContext(ThemeContext)?.theme;
@@ -83,7 +84,7 @@ function LazyCompView(props: React.PropsWithChildren<LazyCompViewProps>) {
   return (
     <WhiteLoading />
   );
-}
+});
 
 export type LazyloadCompLoader<T = RemoteCompInfo> = () => Promise<CompConstructor | null>;
 
