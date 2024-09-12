@@ -390,7 +390,7 @@ function EditorView(props: EditorViewProps) {
     return (
       <CustomShortcutWrapper>
         <Helmet>
-          {application && <title>{application.name}</title>}
+        {application && <title>{appSettingsComp?.children?.title?.getView?.() || application?.name}</title>}
           {isLowCoderDomain || isLocalhost && [
             // Adding Support for iframely to be able to embedd apps as iframes
             application?.name ? ([
@@ -581,3 +581,4 @@ function EditorView(props: EditorViewProps) {
 export default React.memo(EditorView, (prevProps, newProps) => {
   return isEqual(prevProps, newProps);
 });
+
