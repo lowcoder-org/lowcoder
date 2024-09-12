@@ -1,5 +1,5 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
-import React, { ReactNode, useContext, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { Comp, CompParams, MultiBaseComp } from "lowcoder-core";
 import {
@@ -28,7 +28,7 @@ import { BoolControl } from "../controls/boolControl";
 import { valueComp, withDefault } from "./simpleGenerators";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import { EditorContext } from "../editorState";
-import { values } from "lodash";
+import { isEqual, values } from "lodash";
 import { UICompType, uiCompRegistry } from "../uiCompRegistry";
 import { getNpmPackageMeta } from "../utils/remote";
 import { compPluginsList } from "constants/compPluginConstants";
@@ -289,44 +289,34 @@ const UIView = React.memo((props: {
     childrenProps['disabled'] = disabled || parentDisabled;
   }
 
-  //ADDED BY FRED
-  if (childrenProps.events) {
-    const events = childrenProps.events as {value?: any[]};
-    if (!events.value || events.value.length === 0) {
-      events.value = [];
-    }
-  }
-  //END ADD BY FRED
-
   useMergeCompStyles(
     childrenJsonProps as Record<string, any>,
     comp.dispatch
   );
 
-  // render condition for modal and drawer as we are not getting compType here
-  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
-    return (
-      <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(
-          childrenProps,
-          comp.dispatch
-        )}
-      </HidableView>
-    );
-  }
+  const defaultChildren = useMemo(() => comp.children, [comp.children]);
+  const isNotContainer = useMemo(() => Boolean(defaultChildren.style), [defaultChildren.style]);
+  const restrictPaddingOnRotation = useMemo(() => Boolean(defaultChildren.restrictPaddingOnRotation), [defaultChildren.restrictPaddingOnRotation]);
+  const rotationVal = useMemo(() => {
+    if (isNotContainer) {
+      return defaultChildren.style.children?.rotation?.valueAndMsg.value
+    }
+    return null;
+  }, [isNotContainer, defaultChildren.style.children?.rotation?.valueAndMsg.value]);
+  const boxShadowVal = useMemo(() => {
+    if (isNotContainer) {
+      return defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
+    }
+    return null;
+  }, [isNotContainer, defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value]);
+  const restrictPaddingOnRotationVal = useMemo(() => {
+    if (isNotContainer) {
+      return defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value
+    }
+    return null;
+  }, [isNotContainer, defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value]);
 
-  let defaultChildren = comp.children;
-  const isNotContainer = defaultChildren.hasOwnProperty('style');
-  const restrictPaddingOnRotation = defaultChildren.hasOwnProperty('restrictPaddingOnRotation');
-  let rotationVal:any = null
-  let boxShadowVal:any = null;
-  let restrictPaddingOnRotationVal:any=null;
-  if (isNotContainer) {
-    rotationVal = defaultChildren.style.children?.rotation?.valueAndMsg.value;
-    boxShadowVal = defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
-    restrictPaddingOnRotationVal = defaultChildren?.restrictPaddingOnRotation?.valueAndMsg?.value;
-  }
-  const getPadding = () => {
+  const getPadding = useCallback(() => {
     if (
       (rotationVal === null ||
         rotationVal === undefined ||
@@ -386,9 +376,22 @@ const UIView = React.memo((props: {
     } else {
       return '0px'; // Default value if neither rotation nor box-shadow is applied
     }
-  };
+  }, [
+    rotationVal,
+    boxShadowVal,
+    restrictPaddingOnRotationVal,
+    restrictPaddingOnRotation,
+  ]);
 
-  return (
+  // render condition for modal and drawer as we are not getting compType here
+  
+  const uiCompRender = useMemo(() => props.viewFn(childrenProps, comp.dispatch), [
+    childrenProps,
+    comp.dispatch
+  ]);
+  
+  const uiCompRenderWithWrapper = useMemo(() => {
+    return (
     <div
       ref={props.innerRef}
       className={childrenProps.className as string}
@@ -400,9 +403,27 @@ const UIView = React.memo((props: {
         padding: getPadding()
       }}
     >
-      <HidableView hidden={childrenProps.hidden as boolean}>
-        {props.viewFn(childrenProps, comp.dispatch)}
-      </HidableView>
+      {uiCompRender}
     </div>
-  );
+  )}, [
+    uiCompRender,
+    props.innerRef,
+    childrenProps.className,
+    childrenProps.dataTestId,
+    getPadding,
+  ]);
+
+  const renderView = useMemo(() => {
+    if (
+      comp.children.hasOwnProperty('showMask')
+      && comp.children.hasOwnProperty('maskClosable')
+    ) {
+      return uiCompRender;
+    }
+    return uiCompRenderWithWrapper;
+  }, [comp.children]);
+
+  return renderView;
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps);
 });
