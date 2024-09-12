@@ -1097,7 +1097,6 @@ const LayoutContainer = styled.div<{
   }`}
 `;
 
-// export const ReactGridLayout = React.memo(GridLayout);
 export const ReactGridLayout = React.memo(GridLayout);
 
 function moveOrResize(

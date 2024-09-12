@@ -36,6 +36,7 @@ import { TopHeaderHeight } from "constants/style";
 import { SnapshotItemProps, SnapshotList } from "../../components/SnapshotList";
 import { trans } from "i18n";
 import EditorSkeletonView from "./editorSkeletonView";
+import React from "react";
 
 const AppEditorInternalView = lazy(
   () => import("pages/editor/appEditorInternal")
@@ -134,7 +135,7 @@ const PAGE_SIZE = 10;
 const CURRENT_ITEM_KEY = "current_key";
 const TIME_FORMAT = trans("history.timeFormat");
 
-export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
+export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }) => {
   const { currentAppInfo } = props;
   const currentDsl = currentAppInfo.dsl;
   const dispatch = useDispatch();
@@ -289,4 +290,4 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
       </AppSnapshotPanel>
     </Suspense>
   );
-}
+});
