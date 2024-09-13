@@ -299,10 +299,10 @@ const UIView = React.memo((props: {
   const restrictPaddingOnRotation = useMemo(() => Boolean(defaultChildren.restrictPaddingOnRotation), [defaultChildren.restrictPaddingOnRotation]);
   const rotationVal = useMemo(() => {
     if (isNotContainer) {
-      return defaultChildren.style.children?.rotation?.valueAndMsg.value
+      return defaultChildren.style?.children?.rotation?.valueAndMsg.value
     }
     return null;
-  }, [isNotContainer, defaultChildren.style.children?.rotation?.valueAndMsg.value]);
+  }, [isNotContainer, defaultChildren.style?.children?.rotation?.valueAndMsg.value]);
   const boxShadowVal = useMemo(() => {
     if (isNotContainer) {
       return defaultChildren.style?.children?.boxShadow?.valueAndMsg?.value;
