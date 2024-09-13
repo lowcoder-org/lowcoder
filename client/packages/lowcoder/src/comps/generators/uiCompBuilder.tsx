@@ -384,14 +384,18 @@ const UIView = React.memo((props: {
   ]);
 
   // render condition for modal and drawer as we are not getting compType here
-  
-  const uiCompRender = useMemo(() => props.viewFn(childrenProps, comp.dispatch), [
-    childrenProps,
-    comp.dispatch
-  ]);
-  
-  const uiCompRenderWithWrapper = useMemo(() => {
+  if (comp.children.hasOwnProperty('showMask') && comp.children.hasOwnProperty('maskClosable')) {
     return (
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(
+          childrenProps,
+          comp.dispatch
+        )}
+      </HidableView>
+    );
+  }
+
+  return (
     <div
       ref={props.innerRef}
       className={childrenProps.className as string}
@@ -400,30 +404,14 @@ const UIView = React.memo((props: {
         width: '100%',
         height: '100%',
         margin: '0px',
-        padding: getPadding()
+        padding: getPadding(),
       }}
     >
-      {uiCompRender}
+      <HidableView hidden={childrenProps.hidden as boolean}>
+        {props.viewFn(childrenProps, comp.dispatch)}
+      </HidableView>
     </div>
-  )}, [
-    uiCompRender,
-    props.innerRef,
-    childrenProps.className,
-    childrenProps.dataTestId,
-    getPadding,
-  ]);
-
-  const renderView = useMemo(() => {
-    if (
-      comp.children.hasOwnProperty('showMask')
-      && comp.children.hasOwnProperty('maskClosable')
-    ) {
-      return uiCompRender;
-    }
-    return uiCompRenderWithWrapper;
-  }, [comp.children]);
-
-  return renderView;
+  );
 }, (prevProps, nextProps) => {
   return isEqual(prevProps, nextProps);
 });
