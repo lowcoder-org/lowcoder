@@ -462,13 +462,16 @@ export const dateRangeControl = (function () {
     .build();
 })();
 
-const getTimeZoneInfo = (timeZone: any, othereTimeZone: any) => {
-  const tz = timeZone === 'UserChoice' ? othereTimeZone : timeZone ;
-  return {
-    TimeZone: tz,
-    Offset: dayjs().tz(tz).format('Z') // Get the UTC offset for the selected timezone
-  };
-}; 
+const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
+  const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
+  
+  const dateInTz = dayjs().tz(tz);
+  const offset = dateInTz.format('Z');
+  const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    .formatToParts().find(part => part.type === 'timeZoneName')?.value;
+
+  return { TimeZone: tz, Offset: offset, Name: timeZoneName };
+};
 
 export const DatePickerComp = withExposingConfigs(datePickerControl, [
   depsConfig({
