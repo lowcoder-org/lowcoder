@@ -40,20 +40,39 @@ export const ${lang} = {
     console.log(`Updated file saved as ${lang}-updated.js`);
 };
 
-// DeepL Translation function with retry logic
+// Function to replace placeholders with markers before translation
+const protectPlaceholders = (text) => {
+    const placeholders = [];
+    const protectedText = text.replace(/{[^}]+}/g, (match) => {
+        placeholders.push(match);
+        return `___PLACEHOLDER${placeholders.length - 1}___`;
+    });
+    return { protectedText, placeholders };
+};
+
+// Function to restore placeholders after translation
+const restorePlaceholders = (translatedText, placeholders) => {
+    return translatedText.replace(/___PLACEHOLDER(\d+)___/g, (_, index) => placeholders[index]);
+};
+
+// DeepL Translation function with retry logic and placeholder protection
 const translateText = async (text, targetLang, deeplApiKey, retryCount = 3) => {
+    const { protectedText, placeholders } = protectPlaceholders(text);
+    
     try {
         const response = await axios({
             method: 'post',
             url: 'https://api.deepl.com/v2/translate',
             params: {
                 auth_key: deeplApiKey,
-                text: text,
+                text: protectedText,
                 target_lang: targetLang.toUpperCase(),
             },
             timeout: 10000  // Timeout of 10 seconds
         });
-        return response.data.translations[0].text;
+
+        const translatedText = response.data.translations[0].text;
+        return restorePlaceholders(translatedText, placeholders);
     } catch (error) {
         if (retryCount > 0) {
             console.log(`Retrying translation for text: "${text}". Retries left: ${retryCount}`);
@@ -90,7 +109,7 @@ const findMissingTranslations = async (enData, targetData, targetLang, deeplApiK
 
 // Main function to run the translation process
 const translateMissingKeys = async (targetLang, langFile) => {
-    const deeplApiKey = '7bed9015-14cf-40c8-a02d-675a053b090e'; // Replace with your Deepl API key
+    const deeplApiKey = ''; // Replace with your Deepl API key
 
     // Load the English and target language files
     const enModule = await loadLanguageFile('./en.js');
