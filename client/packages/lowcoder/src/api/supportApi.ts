@@ -1,8 +1,5 @@
 import Api from "api/api";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { useSelector } from "react-redux";
-import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
-import { useEffect, useState } from "react";
 import { calculateFlowCode }  from "./apiUtils";
 
 export type ResponseType = {
@@ -87,7 +84,7 @@ export const searchCustomerTickets = async (orgID : string, currentUserId : stri
 
   const apiBody = {
     path: "webhook/support/get-issues",
-    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId, "supportsubscriptionId" : "1PostVDDlQgecLSfhG52o5rB"},
+    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId},
     method: "post",
     headers: lcHeaders
   };
@@ -117,11 +114,28 @@ export const getTicket = async (ticketKey : string) => {
   }
 };
 
+export const createTicket = async (orgID : string, currentUserId : string, subscriptionId : string, domain : string, summary: string, description : string, errors : string) => {
+
+  const apiBody = {
+    path: "webhook/support/create-ticket",
+    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId, "subscriptionId": subscriptionId, "summary" : summary, "description" : description, "errors" : errors},
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SupportApi.secureRequest(apiBody);
+    return result?.data?.length === 1 ? result.data as any : null;
+  } catch (error) {
+    console.error("Error getting individual Support Ticket: ", error);
+    throw error;
+  }
+};
+
 export const updateTicketDescription = async (ticketKey : string, newDescription : string) => {
 
   const apiBody = {
-    path: "webhook/support/get-issue",
-    data: {"ticketKey" : ticketKey},
+    path: "webhook/support/update-ticket-description",
+    data: {"ticketKey" : ticketKey, "description" : newDescription},
     method: "post",
     headers: lcHeaders
   };
@@ -137,8 +151,8 @@ export const updateTicketDescription = async (ticketKey : string, newDescription
 export const addComment = async (ticketKey : string, newComment : string) => {
 
   const apiBody = {
-    path: "webhook/support/get-issue",
-    data: {"ticketKey" : ticketKey},
+    path: "webhook/support/add-ticket-comment",
+    data: {"ticketKey" : ticketKey, "comment" : newComment},
     method: "post",
     headers: lcHeaders
   };
@@ -151,11 +165,11 @@ export const addComment = async (ticketKey : string, newComment : string) => {
   }
 };
 
-export const uploadAttachment = async (ticketKey : string, attachmentFile : string) => {
+export const uploadAttachment = async (ticketKey : string, attachmentFile : string, fileName : string, mimeType : string) => {
 
   const apiBody = {
-    path: "webhook/support/get-issue",
-    data: {"ticketKey" : ticketKey},
+    path: "webhook/support/add-ticket-attachment",
+    data: {"ticketKey" : ticketKey, "attachment" : attachmentFile.split(',')[1], "fileName" : fileName, "mimeType" : mimeType},
     method: "post",
     headers: lcHeaders
   };

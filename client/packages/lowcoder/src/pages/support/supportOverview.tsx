@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { trans } from "i18n";
-import { searchCustomerTickets } from "@lowcoder-ee/api/supportApi";
+import { searchCustomerTickets, createTicket } from "@lowcoder-ee/api/supportApi";
 import { useState, useEffect } from 'react';
 import { Helmet } from "react-helmet";
 import { useUserDetails } from "./useUserDetails";
@@ -10,6 +10,11 @@ import { Table } from "../../components/Table";
 import { Avatar, Flex, Tooltip } from "antd";
 import { buildSupportTicketLink } from "constants/routesURL";
 import history from "util/history";
+import { Input } from "antd";
+import ReactQuill from "react-quill";
+import 'react-quill/dist/quill.snow.css';
+import { Spin } from "antd";
+
 
 const SupportWrapper = styled.div`
   display: flex;
@@ -82,6 +87,15 @@ const StatusDot = styled.span<{ active: boolean }>`
   background-color: ${(props) => (props.active ? "green" : "gray")};
 `;
 
+const toolbarOptions = [
+  ['bold', 'italic', 'underline'], // Basic formatting options
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Lists
+  [{ 'header': [1, 2, 3, false] }], // Headers
+  ['link'], // Links
+  [{ 'align': [] }] // Text alignment
+];
+
+
 function formatDateToMinute(dateString: string): string {
   // Create a Date object from the string
   const date = new Date(dateString);
@@ -109,9 +123,31 @@ export function SupportOverview() {
   const [error, setError] = useState<string | null>(null);
   const [searchValue, setSearchValue] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
+  const [summary, setSummary] = useState("");
+  const [description, setDescription] = useState("");
+  const [capturedErrors, setCapturedErrors] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [isReloadDisabled, setIsReloadDisabled] = useState<boolean>(false); // State to disable/enable reload button
+  const [lastReloadTime, setLastReloadTime] = useState<number | null>(null);
 
-   // Function to fetch support tickets
-   const fetchSupportTickets = async () => {
+  // Capture global errors using window.onerror
+  useEffect(() => {
+    const handleGlobalError = (event: ErrorEvent) => {
+      const { message, filename: source, lineno, colno, error } = event;
+      const errorDetails = `Error: ${message} at ${source}:${lineno}:${colno}, Stack: ${error?.stack || 'N/A'}`;
+      setCapturedErrors((prevErrors) => [...prevErrors, errorDetails]);
+    };
+  
+    window.addEventListener("error", handleGlobalError);
+  
+    return () => {
+      window.removeEventListener("error", handleGlobalError);
+    };
+  }, []);
+  
+
+  // Function to fetch support tickets
+  const fetchSupportTickets = async () => {
     setLoading(true); // Set loading to true while fetching data
     try {
       const ticketData = await searchCustomerTickets(orgID, currentUser.id, domain);
@@ -128,6 +164,21 @@ export function SupportOverview() {
     fetchSupportTickets();
   }, [orgID, currentUser.id, domain]);
 
+  // Handle the reload button click
+  const handleReloadClick = () => {
+    const now = Date.now();
+    if (!lastReloadTime || now - lastReloadTime >= 10000) { // Check if 10 seconds have passed
+      fetchSupportTickets();
+      setLastReloadTime(now);
+      setIsReloadDisabled(true);
+
+      // Re-enable the button after 10 seconds
+      setTimeout(() => {
+        setIsReloadDisabled(false);
+      }, 10000);
+    }
+  };
+
   const filteredTickets = supportTickets.filter((ticket: any) => {
     if (searchValue) {
       return (
@@ -138,12 +189,35 @@ export function SupportOverview() {
     return true;
   });
 
+  const handleCreateTicket = async () => {
+    if (summary.length > 150) {
+      console.error("Summary exceeds 150 characters.");
+      return;
+    }
+
+    setIsSubmitting(true); 
+    try {
+      const result = await createTicket(orgID, currentUser.id, 'subscription-id', domain, summary, description, capturedErrors.join("\n"));
+      if (result) {
+        showCreateForm(false);
+        setSummary("");
+        setDescription("");
+        setCapturedErrors([]);
+        await fetchSupportTickets();
+      }
+    } catch (error) {
+      console.error("Error creating support ticket: ", error);
+    } finally {
+      setIsSubmitting(false); 
+    }
+  };
+
   return (
     <>
       <Helmet><title>{trans("support.supportTitle")}</title></Helmet>
       <SupportWrapper>
 
-      <StepModal
+        <StepModal
           open={isCreateFormShow}
           onCancel={() => showCreateForm(false)}
           activeStepKey={"type"}
@@ -152,15 +226,54 @@ export function SupportOverview() {
           steps={[
             {
               key: "type",
-              titleRender: () =>  <ModalTitleWrapper>
-                <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>Support Ticket</span>
-                </ModalTitleWrapper>,
-              bodyRender: () => (
-                <div></div>
+              titleRender: () => (
+                <ModalTitleWrapper>
+                  <span style={{ minWidth: 0, overflow: "hidden", textOverflow: "ellipsis" }}>{trans("support.createTicket")}</span>
+                </ModalTitleWrapper>
               ),
-              footerRender: () => null,
+              bodyRender: () => (
+                <div>
+                  <div>
+                    <div style={{ marginBottom: '16px' }}>{trans("support.ticketTitle")}<span style={{color : "red"}}>*</span></div>
+                  </div>
+                  <Input
+                    placeholder={trans("support.createTicketTitlePlaceholder")}
+                    value={summary}
+                    maxLength={150}
+                    onChange={(e) => setSummary(e.target.value)}
+                    style={{ marginBottom: '16px' }}
+                  />
+                  <div>
+                    <div style={{ marginBottom: '16px' }}>{trans("support.createTicketDescriptionTitle")}</div>
+                  </div>
+                  <ReactQuill
+                    style={{ height: '200px'}}
+                    value={description}
+                    onChange={setDescription}
+                    modules={{ toolbar: toolbarOptions }}
+                    placeholder={trans("support.createTicketDescriptionPlaceholder")}
+                  />
+                </div>
+              ),
+              footerRender: () => (
+                <>
+                  <div style={{ margin: "60px 0 10px 16px" }}>
+                  <TacoButton
+                      buttonType={summary ? "primary" : "normal"}
+                      onClick={handleCreateTicket}
+                      disabled={isSubmitting || !summary}
+                    >
+                      {isSubmitting ? <Spin /> : trans("support.createTicketSubmit")}
+                    </TacoButton>
+                    <div>
+                      <div style={{ margin: "20px 0 0 0" }}>{trans("support.createTicketInfoText")}</div>
+                    </div>
+                  </div>
+                </>
+              ),
             },
-          ]} />
+          ]}
+        />
 
         <HeaderWrapper>
           <Title>{trans("support.supportTitle")}</Title>
@@ -173,7 +286,7 @@ export function SupportOverview() {
             <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
               {trans("support.newSupportTicket")}
             </AddBtn>
-            <ReloadBtn buttonType={"normal"} onClick={() => fetchSupportTickets()}>
+            <ReloadBtn buttonType={"normal"} onClick={() => handleReloadClick()}>
               {trans("support.reloadTickets")}
             </ReloadBtn>
           </Flex>

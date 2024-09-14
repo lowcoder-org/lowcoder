@@ -73,6 +73,17 @@ const convertJiraToMarkdown = (content: string) => {
   // Convert Jira-style tables (||...||) to Markdown-style tables by replacing || with |
   content = content.replace(/\|\|/g, '|');
 
+  content = content.replace(/!\s*(.+?)\|width=(\d+),height=(\d+),alt="(.+?)"!/g, (match, filename, width, height, alt) => {
+    // Construct Markdown image with dimensions and alt text
+    const imageMarkdown = `![${alt}](${filename} "${alt}")\nWidth: ${width}px, Height: ${height}px`;
+
+    // Wrap the image in a panel
+    return `<div style="background-color: #f3f3f3; padding: 16px; border-radius: 8px; margin-top: 16px; text-align: center;">
+              <h4>${alt}</h4>
+              <p>Width: ${width}px, Height: ${height}px</p>
+            </div>`;
+  });
+
   // Split content into lines for processing
   const lines = content.split('\n');
 
@@ -85,11 +96,9 @@ const convertJiraToMarkdown = (content: string) => {
       if (!inTable) {
         inTable = true;
         const columns = line.split('|').filter(Boolean).length;
-
         // Create the markdown dashes row for headers
         const dashes = '| ' + new Array(columns).fill('-').join(' | ') + ' |';
         return line + '\n' + dashes; 
-        // return line + '\n';
       } else {
         // If already in a table, just return the row as it is
         return line;
@@ -142,11 +151,13 @@ const renderAttachment = (attachment: any) => {
           Created: ${new Date(attachment.created).toLocaleString()}
         `}
       />
+
       {isImage && (
         <StyledImage>
           <img src={attachment.content} alt={attachment.filename} />
         </StyledImage>
       )}
+
       {isVideo && (
         <StyledImage>
           <video controls>
@@ -155,9 +166,14 @@ const renderAttachment = (attachment: any) => {
           </video>
         </StyledImage>
       )}
+
       {isPdf && (
         <StyledImage>
-          <embed src={attachment.content} type="application/pdf" width="100%" height="600px" />
+          <p><br/>
+            <a href={attachment.content} target="_blank" rel="noopener noreferrer">
+              View PDF
+            </a>
+          </p>
         </StyledImage>
       )}
     </AttachmentWrapper>
@@ -179,6 +195,11 @@ export function SupportDetail() {
   const [ticket, setTicket] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSavingDescription, setIsSavingDescription] = useState<boolean>(false);
+  const [isAddingComment, setIsAddingComment] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [fileList, setFileList] = useState<any[]>([]);
+  
 
   // State for description edit
   const [isEditingDescription, setIsEditingDescription] = useState<boolean>(false);
@@ -190,24 +211,24 @@ export function SupportDetail() {
   // State for attachments
   const [attachmentFile, setAttachmentFile] = useState<any>(null);
 
-  useEffect(() => {
-    const fetchTicket = async () => {
-      try {
-        const ticketData = await getTicket(ticketId);
-        if (ticketData && ticketData.length === 1) {
-          setTicket(ticketData[0]);
-          setNewDescription(ticketData[0].fields.description || '');
-        } else {
-          setError("Ticket not found.");
-        }
-      } catch (err) {
-        setError("Failed to load the ticket.");
-        console.error(err);
-      } finally {
-        setLoading(false);
+  const fetchTicket = async () => {
+    try {
+      const ticketData = await getTicket(ticketId);
+      if (ticketData && ticketData.length === 1) {
+        setTicket(ticketData[0]);
+        setNewDescription(ticketData[0].fields.description || '');
+      } else {
+        setError(trans("support.ticketNotFound"));
       }
-    };
+    } catch (err) {
+      setError(trans("support.ticketFetchError"));
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchTicket();
   }, [ticketId]);
 
@@ -217,47 +238,80 @@ export function SupportDetail() {
 
   // Handle description update
   const handleSaveDescription = async () => {
+    setIsSavingDescription(true); // Start loading state
     try {
-      await updateTicketDescription(ticketId, newDescription); // Placeholder API function
-      message.success('Description updated successfully!');
+      await updateTicketDescription(ticketId, newDescription);
+      message.success(trans("support.ticketDescriptionUpdated"));
       setIsEditingDescription(false);
     } catch (error) {
       console.error(error);
-      message.error('Failed to update the description.');
+      message.error(trans("support.ticketDescriptionUpdateFailed"));
+    } finally {
+      setIsSavingDescription(false); // End loading state
     }
   };
+  
 
   // Handle adding a comment
   const handleAddComment = async () => {
     if (newComment.trim()) {
+      setIsAddingComment(true); // Start loading state
       try {
-        await addComment(ticketId, newComment); // Placeholder API function
-        message.success('Comment added successfully!');
+        await addComment(ticketId, newComment); 
+        message.success(trans("support.ticketCommentAdded"));
         setNewComment(''); // Clear input after submission
+        await fetchTicket(); // Refresh the ticket data
       } catch (error) {
         console.error(error);
-        message.error('Failed to add the comment.');
+        message.error(trans("support.ticketCommentFailed"));
+      } finally {
+        setIsAddingComment(false);
       }
     } else {
-      message.warning('Please write a comment before submitting.');
+      message.warning(trans("support.ticketCommentEmpty"));
     }
   };
+  
 
   // Handle attachment upload
   const handleUpload = async () => {
     if (attachmentFile) {
+      setIsUploading(true); // Start loading state
+      
+      const getBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file); // Read file as base64
+  
+          reader.onload = () => resolve(reader.result as string);
+          reader.onerror = error => reject(error);
+        });
+      };
+  
       try {
-        await uploadAttachment(ticketId, attachmentFile); // Placeholder API function
-        message.success('Attachment uploaded successfully!');
-        setAttachmentFile(null); // Clear input after upload
+        const base64File = await getBase64(attachmentFile);
+  
+        await uploadAttachment(ticketId, base64File, attachmentFile.name, attachmentFile.type);
+  
+        message.success(trans("support.ticketAttachmentUploaded"));
+  
+        // Clear file input after successful upload
+        setFileList([]); // Clear the file list
+        setAttachmentFile(null); // Clear the selected file in state
+
+        await fetchTicket(); // Refresh the ticket data
       } catch (error) {
         console.error(error);
-        message.error('Failed to upload the attachment.');
+        message.error(trans("support.ticketAttachmentFailed"));
+      } finally {
+        setIsUploading(false); // End loading state
       }
     } else {
-      message.warning('Please select a file to upload.');
+      message.warning(trans("support.ticketAttachmentEmpty"));
     }
   };
+  
+  
 
   if (loading) {
     return (
@@ -282,7 +336,7 @@ export function SupportDetail() {
     <Level1SettingPageContent>
       <Level1SettingPageTitle>
         <HeaderBack>
-          <span onClick={() => history.push(SUPPORT_URL)}>{trans("settings.subscription")}</span>
+          <span onClick={() => history.push(SUPPORT_URL)}>{trans("support.supportTitle")}</span>
           <ArrowIcon />
           <span>{ticket.fields.summary}</span>
         </HeaderBack>
@@ -327,9 +381,16 @@ export function SupportDetail() {
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
               />
-              <Button type="primary" onClick={handleSaveDescription} style={{ marginTop: '8px' }}>
+              <Button 
+                type="primary" 
+                onClick={handleSaveDescription} 
+                style={{ marginTop: '8px' }}
+                loading={isSavingDescription}
+                disabled={isSavingDescription}
+              >
                 {trans('support.save')}
               </Button>
+
               <Button onClick={() => setIsEditingDescription(false)} style={{ marginLeft: '8px' }}>
                 {trans('support.cancel')}
               </Button>
@@ -427,23 +488,53 @@ export function SupportDetail() {
             onChange={(e) => setNewComment(e.target.value)}
             placeholder={trans("support.writeComment")}
           />
-          <Button type="primary" onClick={handleAddComment} style={{ marginTop: '8px' }}>
+          <Button 
+            type="primary" 
+            onClick={handleAddComment} 
+            style={{ marginTop: '8px' }}
+            loading={isAddingComment}
+            disabled={isAddingComment}
+          >
             {trans("support.submitComment")}
           </Button>
+
         </FieldWrapper>
 
         {/* Upload an Attachment */}
         <FieldWrapper>
           <Title level={4}>{trans("support.addAttachment")}</Title>
           <Upload
+            maxCount={1} // Limit to 1 file
+            fileList={fileList} // Manage the file list
             beforeUpload={(file) => {
-              setAttachmentFile(file);
-              return false; // prevent automatic upload
+              const isLt5M = file.size / 1024 / 1024 < 5; // Check if file is less than 5MB
+
+              if (!isLt5M) {
+                message.error(trans("support.addAttachmentFileSize"));
+                return false; // Prevent file from being selected
+              }
+
+              setAttachmentFile(file); // Set the selected file in state
+              setFileList([file]); // Update the file list to show the selected file
+              return false; // Prevent automatic upload
+            }}
+            onRemove={() => {
+              setAttachmentFile(null); // Clear the file when removed
+              setFileList([]); // Clear the file list
             }}
           >
-            <Button icon={<UploadOutlined />}>{trans("support.selectFile")}</Button>
+            <Button icon={<UploadOutlined />}>
+              {trans("support.selectFile")}
+            </Button>
           </Upload>
-          <Button type="primary" onClick={handleUpload} style={{ marginTop: '8px' }}>
+
+          <Button
+            type="primary"
+            onClick={handleUpload}
+            style={{ marginTop: '8px' }}
+            loading={isUploading} // Show loading indicator during upload
+            disabled={!attachmentFile || isUploading} // Disable if no file is selected or upload is in progress
+          >
             {trans("support.upload")}
           </Button>
         </FieldWrapper>
