@@ -1,5 +1,4 @@
-// import table from "./componentDocExtra/table.md?url";
-import { en } from "@lowcoder-ee/i18n/locales/en";
+import { en } from "./en.js";
 export const pt = {
     ...en,
     "productName": "Lowcoder",

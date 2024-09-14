@@ -1,5 +1,4 @@
-// import table from "./componentDocExtra/table.md?url";
-import { en } from "./en";
+import { en } from "./en.js";
 export const zh = {
     ...en,
     productName: "Lowcoder",
