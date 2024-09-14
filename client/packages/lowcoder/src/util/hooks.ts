@@ -190,5 +190,10 @@ export function useMergeCompStyles(
       styleProps,
       themeId,
     });
-  }, []);
+  }, [
+    themeId,
+    JSON.stringify(styleProps),
+    JSON.stringify(compTheme),
+    setInitialCompStyles
+  ]);
 }

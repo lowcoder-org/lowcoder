@@ -1991,7 +1991,7 @@ export const en = {
     "dynamicColumnConfig": "Visible Columns",
     "dynamicColumnConfigDesc": "Dynamic Column Visibility. Accepts an Array of Column Names. All Columns Are Visible by Default. Example: [\"id\", \"name\"]",
     "position": "Position",
-    "showDataLoadSpinner": "Show Spinner During Data Loading",
+    "showDataLoadSpinner": "Show Loading Indicator",
     "showValue": "Show Value",
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
@@ -2606,7 +2606,10 @@ export const en = {
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load"
   },
   "pluginSetting": {
     "title": "Plugins",
@@ -3665,14 +3668,19 @@ export const en = {
   "UTC+04:00": "(UTC+04:00) Dubai, Muscat",
   "UTC+05:00": "(UTC+05:00) Karachi",
   "UTC+05:30": "(UTC+05:30) New Delhi",
+  "UTC+05:45": "(UTC+05:45) Kathmandu",
   "UTC+06:00": "(UTC+06:00) Dhaka",
+  "UTC+06:30": "(UTC+06:30) Yangon",
   "UTC+07:00": "(UTC+07:00) Bangkok",
   "UTC+08:00": "(UTC+08:00) Beijing, HK",
   "UTC+09:00": "(UTC+09:00) Tokyo, Seoul",
+  "UTC+09:30": "(UTC+09:30) Adelaide, Darwin",
   "UTC+10:00": "(UTC+10:00) Sydney",
-  "UserChoice": "User Choice"
+  "UTC+11:00": "(UTC+11:00) Solomon Islands, New Caledonia",
+  "UTC+12:00": "(UTC+12:00) Auckland, Fiji",
+  "UTC+13:00": "(UTC+13:00) Nuku'alofa, Samoa",
+  "UserChoice": "UserChoice"
 },
-
   tour: { 
     section1Title: "Steps",
     section1Subtitle: "Steps",

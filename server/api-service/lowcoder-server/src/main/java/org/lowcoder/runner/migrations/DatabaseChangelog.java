@@ -16,7 +16,6 @@ import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.QGroup;
 import org.lowcoder.domain.material.model.MaterialMeta;
 import org.lowcoder.domain.organization.model.Organization;
-import org.lowcoder.domain.query.model.ApplicationQuery;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.model.LibraryQueryRecord;
 import org.lowcoder.domain.user.model.User;
@@ -198,7 +197,7 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "020", id = "add-super-admin-user", author = "")
     public void addSuperAdminUser(AddSuperAdminUser addSuperAdminUser) {
-        addSuperAdminUser.addSuperAdmin();
+        addSuperAdminUser.addOrUpdateSuperAdmin();
     }
 
     @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")

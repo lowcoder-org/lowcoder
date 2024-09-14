@@ -113,7 +113,7 @@ function handleMouseDown(e: MouseEvent, editorState: EditorState, showLeftPanel:
   }
 }
 
-export function EditorGlobalHotKeys(props: GlobalProps) {
+export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
   const editorState = useContext(EditorContext);
   const { history: editorHistory } = useContext(ExternalEditorContext);
   const { togglePanel, panelStatus, toggleShortcutList } = props;
@@ -155,7 +155,7 @@ export function EditorGlobalHotKeys(props: GlobalProps) {
       children={props.children}
     />
   );
-}
+})
 
 // local hotkeys
 function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
@@ -186,7 +186,7 @@ function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
   }
 }
 
-export function EditorHotKeys(props: Props) {
+export const EditorHotKeys = React.memo((props: Props) => {
   const editorState = useContext(EditorContext);
   const onKeyDown = useCallback(
     (e: React.KeyboardEvent) => handleEditorKeyDown(e, editorState),
@@ -200,9 +200,9 @@ export function EditorHotKeys(props: Props) {
       children={props.children}
     />
   );
-}
+})
 
-export function CustomShortcutWrapper(props: { children: React.ReactNode }) {
+export const CustomShortcutWrapper = React.memo((props: { children: React.ReactNode }) => {
   const editorState = useContext(EditorContext);
   const handleCustomShortcut = useCallback(
     (e: KeyboardEvent) => {
@@ -215,4 +215,4 @@ export function CustomShortcutWrapper(props: { children: React.ReactNode }) {
       {props.children}
     </GlobalShortcutsWrapper>
   );
-}
+})

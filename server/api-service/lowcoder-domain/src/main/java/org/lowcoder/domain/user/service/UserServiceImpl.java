@@ -160,11 +160,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
+    public Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin) {
          User.UserBuilder userBuilder = User.builder()
                 .name(authUser.getUsername())
                 .email(authUser.getEmail())
                 .state(UserState.ACTIVATED)
+                .superAdmin(isSuperAdmin)
                 .isEnabled(true)
                 .tpAvatarLink(authUser.getAvatar());
 
@@ -178,6 +179,7 @@ public class UserServiceImpl implements UserService {
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);
         newUser.setConnections(connections);
+        newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
         return create(newUser);
     }
@@ -204,14 +206,6 @@ public class UserServiceImpl implements UserService {
                     }
                     return Mono.error(throwable);
                 });
-    }
-
-    @Override
-    public Mono<Boolean> addNewConnection(String userId, Connection connection) {
-        return findById(userId)
-                .doOnNext(user -> user.getConnections().add(connection))
-                .flatMap(repository::save)
-                .then(Mono.just(true));
     }
 
     @Override
@@ -336,6 +330,16 @@ public class UserServiceImpl implements UserService {
                 .thenReturn(true);
     }
 
+    @Override
+    public Mono<Boolean> markAsSuperAdmin(String userId) {
+        return findById(userId)
+                .map(user -> {
+                    user.setSuperAdmin(true);
+                    return user;
+                })
+                .flatMap(repository::save)
+                .thenReturn(true);
+    }
 
     @Override
     public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {

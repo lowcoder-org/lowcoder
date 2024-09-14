@@ -13,6 +13,7 @@ import { loaders } from "./loaders";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
+import React from "react";
 
 const ViewError = styled.div`
   display: flex;
@@ -53,7 +54,7 @@ interface RemoteCompViewProps {
   errorElement?: (error: any) => React.ReactNode;
 }
 
-function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
+const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompViewProps>) => {
   const { loadComp, loadingElement, errorElement, isLowcoderComp } = props;
   const [error, setError] = useState<any>("");
   const editorState = useContext(EditorContext);
@@ -93,11 +94,9 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
   }
 
   return (
-    <ViewLoadingWrapper>
-      <WhiteLoading />
-    </ViewLoadingWrapper>
+    <WhiteLoading />
   );
-}
+});
 
 export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
   remoteInfo?: T,

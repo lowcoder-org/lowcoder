@@ -4,7 +4,7 @@ import { ConfigItem, Radius, Margin, Padding, GridColumns, BorderWidth, BorderSt
 import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
-import { Slider } from "antd";
+import { Slider, Switch } from "antd";
 import { 
   ExpandIcon, 
   CompressIcon,
@@ -27,6 +27,8 @@ export type configChangeParams = {
   borderWidth?: string;
   fontFamily?: string;
   components?: Record<string, object>,
+  showComponentLoadingIndicators?: boolean;
+  showDataLoadingIndicators?: boolean;
 };
 
 type ColorConfigProps = {
@@ -46,6 +48,8 @@ type ColorConfigProps = {
   margin?: string;  
   padding?: string;
   gridColumns?: string; // Added By Aqib Mirza
+  showComponentLoadingIndicators?: boolean;
+  showDataLoadingIndicators?: boolean;
 };
 
 export default function ThemeSettingsSelector(props: ColorConfigProps) {
@@ -63,7 +67,9 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     borderStyle: defaultBorderStyle,
     borderWidth: defaultBorderWidth,
     borderColor: defaultBorderColor,
-    fontFamily: defaultFontFamily
+    fontFamily: defaultFontFamily,
+    showComponentLoadingIndicators: defaultShowComponentLoaders,
+    showDataLoadingIndicators: defaultShowDataLoaders,
   } = props;
   
   const configChangeWithDebounce = _.debounce(configChange, 0);
@@ -76,6 +82,8 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [borderWidth, setBorderWidth] = useState(defaultBorderWidth);
   const [borderColor, setBorderColor] = useState(defaultBorderColor);
   const [fontFamily, setFontFamily] = useState(defaultFontFamily);
+  const [showComponentLoaders, setComponentLoaders] = useState(defaultShowComponentLoaders);
+  const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
 
   const varName = `(${themeSettingKey})`;
 
@@ -229,14 +237,26 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     setFontFamily(defaultFontFamily);
   }, [defaultFontFamily]);
 
+  useEffect(() => {
+    setComponentLoaders(defaultShowComponentLoaders);
+  }, [defaultShowComponentLoaders]);
+
+  useEffect(() => {
+    setDataLoaders(defaultShowDataLoaders);
+  }, [defaultShowDataLoaders]);
+
   return (
     <ConfigItem className={props.className}>
-      <div className="text-desc">
-        <div className="name">
-          {name} {showVarName && <span>{varName}</span>}
+      {themeSettingKey !== "showDataLoadingIndicators"
+      && themeSettingKey !== "showComponentLoadingIndicators"
+      && (
+        <div className="text-desc">
+          <div className="name">
+            {name} {showVarName && <span>{varName}</span>}
+          </div>
+          <div className="desc">{desc}</div>
         </div>
-        <div className="desc">{desc}</div>
-      </div>
+      )}
       
       {themeSettingKey !== "radius" &&  
         themeSettingKey !== "margin" &&  
@@ -244,7 +264,9 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         themeSettingKey !== "gridColumns" &&
         themeSettingKey !== "borderStyle" &&
         themeSettingKey !== "borderWidth" &&
-        themeSettingKey !== "fontFamily" && (
+        themeSettingKey !== "fontFamily" && 
+        themeSettingKey !== "showComponentLoadingIndicators" && 
+        themeSettingKey !== "showDataLoadingIndicators" && (
         <div className="config-input">
           <ColorSelect
             changeColor={_.debounce(setColor, 500, {
@@ -386,8 +408,6 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         </div>
       )}
 
-     
-
       {themeSettingKey === "fontFamily" && (
         <div className="config-input">
           <TacoInput
@@ -396,6 +416,42 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             onBlur={(e) => fontFamilyInputBlur(e.target.value)}
             onKeyUp={(e) => e.nativeEvent.key === "Enter" && fontFamilyInputBlur(e.currentTarget.value)}
           />
+        </div>
+      )}
+      {themeSettingKey === "showComponentLoadingIndicators" && (
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          lineHeight: 'normal',
+        }}>
+          <Switch
+            size="small"
+            checked={showComponentLoaders}
+            onChange={(value) => {
+              debugger;
+              setComponentLoaders(value)
+              configChange({ themeSettingKey, showComponentLoadingIndicators: value});
+            }}
+          />
+          <span>{name}</span>
+        </div>
+      )}
+
+      {themeSettingKey === "showDataLoadingIndicators" && (
+        <div style={{
+          display: 'flex',
+          gap: '6px',
+          lineHeight: 'normal',
+        }}>
+          <Switch
+            size="small"
+            checked={showDataLoaders}
+            onChange={(value) => {
+              setDataLoaders(value)
+              configChange({ themeSettingKey, showDataLoadingIndicators: value});
+            }}
+          />
+          <span>{name}</span>
         </div>
       )}
     </ConfigItem>

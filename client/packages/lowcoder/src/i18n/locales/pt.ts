@@ -2039,7 +2039,7 @@ export const pt: typeof en = {
         "dynamicColumnConfig": "Configuração de Coluna",
         "dynamicColumnConfigDesc": "Configurações de coluna dinâmica. Aceita um array de nomes de colunas. Todas as colunas são visíveis por padrão. Exemplo: [\"id\", \"name\"]",
         "position": "Posição",
-        "showDataLoadSpinner": "Mostrar Spinner Durante o Carregamento de Dados",
+        "showDataLoadSpinner": "Mostrar indicador de carregamento",
         "showValue": "Mostrar Valor",
         "expandable": "Expansível",
         "configExpandedView": "Configurar Visualização Expandida",

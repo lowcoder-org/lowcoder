@@ -50,6 +50,8 @@ public class User extends HasIdAndAuditing implements BeforeMongodbWrite, AfterM
 
     private String tpAvatarLink;
 
+    private Boolean superAdmin;
+
     private UserState state;
 
     @Builder.Default

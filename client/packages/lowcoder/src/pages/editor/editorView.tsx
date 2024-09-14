@@ -54,6 +54,8 @@ import {
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { isEqual, noop } from "lodash";
+import { BottomSkeleton } from "./bottom/BottomContent";
 
 const LeftContent = lazy(
   () => import('./LeftContent')
@@ -373,6 +375,23 @@ function EditorView(props: EditorViewProps) {
 
   const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
+  const uiCompView = useMemo(() => {
+    if (showAppSnapshot) {
+      return (
+        <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
+          <EditorContainer>{uiComp.getView()}</EditorContainer>
+        </ViewBody>
+      );
+    }
+    
+    return uiComp.getView();
+  }, [
+    showAppSnapshot,
+    hideBodyHeader,
+    height,
+    uiComp,
+  ]);
+
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
@@ -389,7 +408,7 @@ function EditorView(props: EditorViewProps) {
     return (
       <CustomShortcutWrapper>
         <Helmet>
-          {application && <title>{application.name}</title>}
+        {application && <title>{appSettingsComp?.children?.title?.getView?.() || application?.name}</title>}
           {isLowCoderDomain || isLocalhost && [
             // Adding Support for iframely to be able to embedd apps as iframes
             application?.name ? ([
@@ -424,16 +443,6 @@ function EditorView(props: EditorViewProps) {
   
   // history mode, display with the right panel, a little trick
   const showRight = panelStatus.right || showAppSnapshot;
-  let uiCompView;
-  if (showAppSnapshot) {
-    uiCompView = (
-      <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-        <EditorContainer>{uiComp.getView()}</EditorContainer>
-      </ViewBody>
-    );
-  } else {
-    uiCompView = uiComp.getView();
-  }
 
   const clickMenu = (params: { key: string }) => {
     let left = true;
@@ -448,7 +457,7 @@ function EditorView(props: EditorViewProps) {
   return (
     <>
     <Helmet>
-      {application && <title>{application.name}</title>}
+      {application && <title>{appSettingsComp?.children?.title?.getView?.() || application?.name}</title>}
       {isLowCoderDomain || isLocalhost && [
         // Adding Support for iframely to be able to embedd apps as iframes
         application?.name ? ([
@@ -513,46 +522,47 @@ function EditorView(props: EditorViewProps) {
                 )}
               </Sider>
             </SiderWrapper>
+            <Suspense fallback={null}>
+              {panelStatus.left && editorModeStatus !== "layout" && (
+                <LeftPanel>
+                  {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
+                  {menuKey === SiderKey.Setting && (
+                    <SettingsDiv>
+                      <ScrollBar>
+                        {application &&
+                          !isAggregationApp(
+                            AppUILayoutType[application.applicationType]
+                          ) && (
+                            <>
+                              {appSettingsComp.getPropertyView()}
+                              <Divider />
+                            </>
+                          )}
+                        <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
+                        {props.preloadComp.getPropertyView()}
+                        <PreloadDiv
+                          onClick={() => dispatch(
+                            setEditorExternalStateAction({
+                              showScriptsAndStyleModal: true,
+                            })
+                          )}
+                        >
+                          <LeftPreloadIcon />
+                          {trans("leftPanel.toolbarPreload")}
+                        </PreloadDiv>
+                      </ScrollBar>
 
-            {panelStatus.left && editorModeStatus !== "layout" && (
-              <LeftPanel>
-                {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
-                {menuKey === SiderKey.Setting && (
-                  <SettingsDiv>
-                    <ScrollBar>
-                      {application &&
-                        !isAggregationApp(
-                          AppUILayoutType[application.applicationType]
-                        ) && (
-                          <>
-                            {appSettingsComp.getPropertyView()}
-                            <Divider />
-                          </>
-                        )}
-                      <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
-                      {props.preloadComp.getPropertyView()}
-                      <PreloadDiv
-                        onClick={() => dispatch(
-                          setEditorExternalStateAction({
-                            showScriptsAndStyleModal: true,
-                          })
-                        )}
-                      >
-                        <LeftPreloadIcon />
-                        {trans("leftPanel.toolbarPreload")}
-                      </PreloadDiv>
-                    </ScrollBar>
+                      {props.preloadComp.getJSLibraryPropertyView()}
+                    </SettingsDiv>
+                  )}
 
-                    {props.preloadComp.getJSLibraryPropertyView()}
-                  </SettingsDiv>
-                )}
+                  {menuKey === SiderKey.Layout && (
+                    <LeftLayersContent uiComp={uiComp} />
+                  )}
 
-                {menuKey === SiderKey.Layout && (
-                  <LeftLayersContent uiComp={uiComp} />
-                )}
-
-              </LeftPanel>
-            )}
+                </LeftPanel>
+              )}
+            </Suspense>
             <MiddlePanel>
               <EditorWrapper className={editorContentClassName}>
                 <EditorHotKeys disabled={readOnly}>
@@ -562,19 +572,26 @@ function EditorView(props: EditorViewProps) {
                   </EditorContainerWithViewMode>
                 </EditorHotKeys>
               </EditorWrapper>
-              {panelStatus.bottom && editorModeStatus !== "layout" && <Bottom />}
+              <Suspense fallback={<BottomSkeleton />}>
+                {panelStatus.bottom && editorModeStatus !== "layout" && <Bottom />}
+              </Suspense>
             </MiddlePanel>
-            {showRight && (
-              <RightPanel
-                uiComp={uiComp}
-                onCompDrag={onCompDrag}
-                showPropertyPane={editorState.showPropertyPane}
-                onTabChange={setShowPropertyPane} />
-            )}
+            <Suspense fallback={null}>
+              {showRight && (
+                <RightPanel
+                  uiComp={uiComp}
+                  onCompDrag={onCompDrag}
+                  showPropertyPane={editorState.showPropertyPane}
+                  onTabChange={setShowPropertyPane} />
+              )}
+            </Suspense>
           </Body>
         </EditorGlobalHotKeys>
       </Height100Div></>
   );
 }
 
-export default EditorView;
+export default React.memo(EditorView, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
+

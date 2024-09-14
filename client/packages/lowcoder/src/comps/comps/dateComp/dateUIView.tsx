@@ -13,6 +13,7 @@ import type { Dayjs } from 'dayjs';
 import { DateParser } from "@lowcoder-ee/util/dateTimeUtils";
 import { timeZoneOptions } from "./timeZone";
 import { default as AntdSelect } from "antd/es/select";
+import { omit } from "lodash";
 
 const DatePickerStyled = styled(DatePicker<Dayjs>)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -52,7 +53,7 @@ export const DateUIView = (props: DataUIViewProps) => {
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
-      {...props}
+      {...omit(props, "format")}
       multiple={false}
       ref={props.viewRef as any}
       minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
@@ -70,7 +71,7 @@ export const DateUIView = (props: DataUIViewProps) => {
             <StyledAntdSelect 
               options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
               placeholder="Select Time Zone" 
-              defaultValue={'Etc/UTC'}
+              defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
               onChange={props.onClickDateTimeZone} 
             />
           </StyledDiv>
