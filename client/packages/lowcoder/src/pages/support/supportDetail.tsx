@@ -83,12 +83,13 @@ const convertJiraToMarkdown = (content: string) => {
     if (line.trim().startsWith('|')) {
       // If this is the header row, count the columns and generate the dashes line
       if (!inTable) {
-        inTable = true; // We're now in a table
+        inTable = true;
         const columns = line.split('|').filter(Boolean).length;
 
         // Create the markdown dashes row for headers
-        const dashes = '| ' + new Array(columns).fill('---').join(' | ') + ' |';
-        return line + '\n' + dashes; // Return the header with the dashes row
+        const dashes = '| ' + new Array(columns).fill('-').join(' | ') + ' |';
+        return line + '\n' + dashes; 
+        // return line + '\n';
       } else {
         // If already in a table, just return the row as it is
         return line;

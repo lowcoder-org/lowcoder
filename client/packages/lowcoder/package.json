@@ -73,7 +73,7 @@
     "react-helmet": "^6.1.0",
     "react-joyride": "^2.4.0",
     "react-json-view": "^1.21.3",
-    "react-markdown": "^8.0.0",
+    "react-markdown": "^9.0.1",
     "react-qr-barcode-scanner": "^1.0.6",
     "react-quill": "^2.0.0",
     "react-redux": "^7.2.6",
