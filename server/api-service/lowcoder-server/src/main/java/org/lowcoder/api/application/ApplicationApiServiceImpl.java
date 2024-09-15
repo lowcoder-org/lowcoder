@@ -102,7 +102,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 NORMAL,
                 createApplicationRequest.publishedApplicationDSL(),
                 createApplicationRequest.editingApplicationDSL(),
-                false, false, false, "");
+                false, false, false, "", Instant.now());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -256,17 +256,17 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
-                .zipWhen(tuple -> sessionUserService.getVisitorId().zipWith(applicationHistorySnapshotService.getLastSnapshotByApp(applicationId)))
+                .zipWhen(tuple -> sessionUserService.getVisitorId())
                 .flatMap(tuple -> {
                     ResourcePermission permission = tuple.getT1().getT1();
                     Application application = tuple.getT1().getT2();
                     List<Application> dependentModules = tuple.getT1().getT3();
                     Map<String, Object> commonSettings = tuple.getT1().getT4();
-                    String visitorId = tuple.getT2().getT1();
-                    ApplicationHistorySnapshot lastSnapshot = tuple.getT2().getT2();
+                    String visitorId = tuple.getT2();
 
-                    if(!visitorId.equals(application.getEditingUserId()) && lastSnapshot.getCreatedAt().compareTo(Instant.now().minusSeconds(300)) < 0) {
+                    if(!visitorId.equals(application.getEditingUserId()) && (application.getLastEditedAt() == null || application.getLastEditedAt().compareTo(Instant.now().minusSeconds(300)) < 0)) {
                         application.setEditingUserId(visitorId);
+                        application.setLastEditedAt(Instant.now());
                     }
 
                     Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()

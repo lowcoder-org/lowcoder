@@ -20,6 +20,7 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
@@ -55,6 +56,9 @@ public class Application extends HasIdAndAuditing {
     @Getter
     @Setter
     private String editingUserId;
+    @Getter
+    @Setter
+    protected Instant lastEditedAt;
 
     public Application(
             @JsonProperty("orgId") String organizationId,
@@ -67,7 +71,8 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
             @JsonProperty("agencyProfile") Boolean agencyProfile,
-            @JsonProperty("editingUserId") String editingUserId
+            @JsonProperty("editingUserId") String editingUserId,
+            @JsonProperty("lastEditedAt") Instant lastEditedAt
     ) {
         this.gid = gid;
         this.organizationId = organizationId;
@@ -80,6 +85,7 @@ public class Application extends HasIdAndAuditing {
         this.agencyProfile = agencyProfile;
         this.editingApplicationDSL = editingApplicationDSL;
         this.editingUserId = editingUserId;
+        this.lastEditedAt = lastEditedAt;
     }
 
     @Transient
