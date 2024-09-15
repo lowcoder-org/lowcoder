@@ -1,5 +1,5 @@
 
-import { en } from "./en.js";
+import { en } from "./en";
 export const ru = {
     ...en,
     
