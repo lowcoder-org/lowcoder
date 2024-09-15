@@ -3383,12 +3383,14 @@ export const ru = {
   "pleaseSelectCity": "Пожалуйста, выберите город",
   "advanced": "Расширенный",
   "showClearIcon": "Показать значок очистки",
+  /* eslint-disable only-ascii/only-ascii */
   "appleOptionLabel": "🍎 Apple",
   "waterMelonOptionLabel": "🍉 Арбуз",
   "berryOptionLabel": "🍓 Клубника",
   "lemonOptionLabel": "🍋 Лимон",
   "coconutOptionLabel": "🥥 Кокосовый орех",
   "likedFruits": "Избранное",
+  /* eslint-enable only-ascii/only-ascii */
   "option": "Вариант",
   "singleFileUpload": "Загрузка одного файла",
   "multiFileUpload": "Многократная загрузка файлов",

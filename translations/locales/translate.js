@@ -108,8 +108,7 @@ const findMissingTranslations = async (enData, targetData, targetLang, deeplApiK
 };
 
 // Main function to run the translation process
-const translateMissingKeys = async (targetLang, langFile) => {
-    const deeplApiKey = ''; // Replace with your Deepl API key
+const translateMissingKeys = async (targetLang, langFile, deeplApiKey) => {
 
     // Load the English and target language files
     const enModule = await loadLanguageFile('./en.js');
@@ -134,4 +133,5 @@ if (args.length < 2) {
 
 const targetLang = args[0];
 const langFile = args[1];
-translateMissingKeys(targetLang, langFile);
+const deeplApiKey = args[2];
+translateMissingKeys(targetLang, langFile, deeplApiKey);

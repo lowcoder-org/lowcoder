@@ -3383,11 +3383,13 @@ export const es = {
   "pleaseSelectCity": "Seleccione una ciudad",
   "advanced": "Avanzado",
   "showClearIcon": "Mostrar icono de borrado",
+  /* eslint-disable only-ascii/only-ascii */
   "appleOptionLabel": "🍎 Manzana",
   "waterMelonOptionLabel": "🍉 Sandía",
   "berryOptionLabel": "🍓 Fresa",
   "lemonOptionLabel": "🍋 Limón",
   "coconutOptionLabel": "🥥 Coco",
+  /* eslint-enable only-ascii/only-ascii */
   "likedFruits": "Favoritos",
   "option": "Opción",
   "singleFileUpload": "Carga de un solo archivo",

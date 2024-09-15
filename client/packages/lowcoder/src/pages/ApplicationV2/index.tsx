@@ -296,7 +296,7 @@ export default function ApplicationHome() {
             ],
           } : { items: [] },
 
-          supportSubscription ? {
+          /* supportSubscription ? {
             items: [
               {
                 text: <TabLabel>{trans("home.support")}</TabLabel>,
@@ -306,7 +306,7 @@ export default function ApplicationHome() {
                 icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],
-          } : { items: [] },
+          } : { items: [] }, */
 
           {
             items: [
