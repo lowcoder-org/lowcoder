@@ -12,6 +12,7 @@ import {
   DATASOURCE_CREATE_URL,
   DATASOURCE_EDIT_URL,
   DATASOURCE_URL,
+  SUPPORT_URL,
   FOLDER_URL,
   FOLDERS_URL,
   IMPORT_APP_FROM_TEMPLATE_URL,
@@ -21,7 +22,7 @@ import {
   ORG_AUTH_LOGIN_URL,
   ORG_AUTH_REGISTER_URL,
   QUERY_LIBRARY_URL,
-  SETTING,
+  SETTING_URL,
   TRASH_URL,
   USER_AUTH_URL,
   ADMIN_APP_URL,
@@ -320,11 +321,12 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                   DATASOURCE_CREATE_URL,
                   DATASOURCE_EDIT_URL,
                   DATASOURCE_URL,
+                  SUPPORT_URL,
                   QUERY_LIBRARY_URL,
                   FOLDERS_URL,
                   FOLDER_URL,
                   TRASH_URL,
-                  SETTING,
+                  SETTING_URL,
                   MARKETPLACE_URL,
                   ADMIN_APP_URL
                 ]}
@@ -416,14 +418,9 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
+
   fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
-    // the rule should be that if the user is not logged in and if he want to view an App, we should not fetch the home data
-    if (window.location.pathname == APP_EDITOR_URL && !currentUserAnonymous && !currentUserAnonymous === undefined) {
-      dispatch(fetchHomeData({}));
-    }
-    else {
-      dispatch(fetchHomeData({}));
-    }
+    dispatch(fetchHomeData({}));
   }
 });
 

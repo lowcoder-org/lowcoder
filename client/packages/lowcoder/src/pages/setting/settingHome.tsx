@@ -18,6 +18,7 @@ import {
   SubscriptionIcon,
  } from "lowcoder-design";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
@@ -128,7 +129,7 @@ export function SettingHome() {
         !currentOrgAdmin(user) ||
         !enableCustomBrand(config) ||
         (!isSelfDomain(config) && !isEnterpriseMode(config)),
-    },
+    }
   ];
 
   return (
@@ -156,7 +157,7 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Audit && <AuditSetting />}
         {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-        {/* selectKey === SettingPageEnum.Subscription && <Subscription /> */}
+        {selectKey === SettingPageEnum.Subscription && <Subscription />}
       </TwoColumnSettingPageContent>
     </>
   );

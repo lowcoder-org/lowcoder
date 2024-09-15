@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-root",
-  "version": "2.3.1",
+  "version": "2.4.5",
   "type": "module",
   "private": true,
   "workspaces": [
