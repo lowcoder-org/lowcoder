@@ -21,10 +21,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.memoize;
@@ -155,7 +152,9 @@ public class Application extends HasIdAndAuditing {
     @Transient
     @JsonIgnore
     public Map<String, Object> getLiveApplicationDsl() {
-        return MapUtils.isEmpty(publishedApplicationDSL) ? editingApplicationDSL : publishedApplicationDSL;
+        var dsl = MapUtils.isEmpty(publishedApplicationDSL) ? editingApplicationDSL : publishedApplicationDSL;
+        if (dsl == null) dsl = new HashMap<>();
+        return dsl;
     }
 
     public String getOrganizationId() {
@@ -175,7 +174,9 @@ public class Application extends HasIdAndAuditing {
     }
 
     public Map<String, Object> getEditingApplicationDSL() {
-        return editingApplicationDSL;
+        var dsl = editingApplicationDSL;
+        if (dsl == null) dsl = new HashMap<>();
+        return dsl;
     }
 
     public Object getLiveContainerSize() {
