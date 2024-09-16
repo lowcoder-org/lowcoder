@@ -105,6 +105,13 @@ if (DragEventHandlerControl) {
     onDropEvent: DragEventHandlerControl,
   }
 }
+if (EventModalStyle) { 
+  childrenMap = {
+    ...childrenMap,
+    modalStyle:  styleControl(EventModalStyle),
+  }
+}
+
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props: { 
     events: any; 
@@ -795,9 +802,11 @@ let CalendarBasicComp = (function () {
             {children.style.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-          <Section name={sectionNames.modalStyle}>
-            {children.modalStyle.getPropertyView()}
-          </Section>
+          {Boolean(children.modalStyle) && (
+            <Section name={sectionNames.modalStyle}>
+              {children.modalStyle.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })
