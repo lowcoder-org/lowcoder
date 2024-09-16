@@ -9,7 +9,7 @@ import {
   AUTH_LOGIN_URL,
   preview,
 } from "constants/routesURL";
-import { User } from "constants/userConstants";
+import { CurrentUser, User } from "constants/userConstants";
 import {
   CommonTextLabel,
   CustomModal,
@@ -56,6 +56,8 @@ import { EditorContext } from "../../comps/editorState";
 import Tooltip from "antd/es/tooltip";
 import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Avatar from 'antd/es/avatar';
+import UserApi from "@lowcoder-ee/api/userApi";
+import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 
 
 const StyledLink = styled.a`
@@ -343,12 +345,26 @@ export default function Header(props: HeaderProps) {
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
+  const [editingUser, setEditingUser] = useState<CurrentUser>();
 
   const isModule = appType === AppTypeEnum.Module;
+  const blockEditing = useMemo(
+    () => user.id !== application?.editingUserId,
+    [application?.editingUserId]
+  );
 
-  // Raheel: Todo - get concurrent editing state by API
-  // maybe via editorState.getConcurrentAppEditingState(); as a new function?
-  const [concurrentAppEditingState, setConcurrentAppEditingState] = useState(true);
+  useEffect(() => {
+    if(blockEditing && application && Boolean(application?.editingUserId)) {
+      UserApi.getUserDetail(application.editingUserId!)
+        .then(resp => {
+          if (validateResponse(resp)) {
+            console.log(resp.data.data);
+            setEditingUser(resp.data.data);
+          }
+        });
+    }
+  }, [blockEditing]);
+  console.log(user.id, application?.editingUserId);
 
   const editorModeOptions = [
     {
@@ -491,7 +507,7 @@ export default function Header(props: HeaderProps) {
     ) : (
       <>
         {/* Display a hint about who is editing the app */}
-        {concurrentAppEditingState && (
+        {blockEditing && (
           <Tooltip
             title="Changes will not be saved while another user is editing this app."
             color="red"
@@ -500,7 +516,8 @@ export default function Header(props: HeaderProps) {
             <EditingNoticeWrapper>
               <Avatar size="small" src={user.avatarUrl} />
               <EditingHintText>
-                {`${user.username} is currently editing this app.`}
+                {/* {`${user.username} is currently editing this app.`} */}
+                {`${editingUser?.name || 'Someone'} is currently editing this app`}
               </EditingHintText>
               <WarningIcon />
             </EditingNoticeWrapper>
@@ -534,7 +551,7 @@ export default function Header(props: HeaderProps) {
             <DropdownMenuStyled
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {
-                if (concurrentAppEditingState) return; // Prevent clicks if the app is being edited by someone else
+                if (blockEditing) return; // Prevent clicks if the app is being edited by someone else
                 if (e.key === "deploy") {
                   dispatch(publishApplication({ applicationId }));
                 } else if (e.key === "snapshot") {
@@ -546,31 +563,31 @@ export default function Header(props: HeaderProps) {
                   key: "deploy",
                   label: (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {concurrentAppEditingState && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: concurrentAppEditingState ? "#ccc" : "#222"}}>
+                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
+                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
                         {trans("header.deploy")}
                       </CommonTextLabel>
                     </div>
                   ),
-                  disabled: concurrentAppEditingState,
+                  disabled: blockEditing,
                 },
                 {
                   key: "snapshot",
                   label: (
                     <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {concurrentAppEditingState && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: concurrentAppEditingState ? "#ccc" : "#222"}}>
+                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
+                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
                         {trans("header.snapshot")}
                       </CommonTextLabel>
                     </div>
                   ),
-                  disabled: concurrentAppEditingState,
+                  disabled: blockEditing,
                 },
               ]}
             />
           )}
         >
-          <PackUpBtn buttonType="primary" disabled={concurrentAppEditingState}>
+          <PackUpBtn buttonType="primary" disabled={blockEditing}>
             <PackUpIcon />
           </PackUpBtn>
         </Dropdown>
@@ -583,7 +600,8 @@ export default function Header(props: HeaderProps) {
     showAppSnapshot,
     applicationId,
     permissionDialogVisible,
-    concurrentAppEditingState, // Include the state in the dependency array
+    blockEditing, // Include the state in the dependency array
+    editingUser?.name,
   ]);
 
   return (
