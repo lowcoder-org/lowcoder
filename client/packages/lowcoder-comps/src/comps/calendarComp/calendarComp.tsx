@@ -96,7 +96,6 @@ let childrenMap: any = {
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-  modalStyle:  styleControl(EventModalStyle),
 };
 // this should ensure backwards compatibility with older versions of the SDK
 if (DragEventHandlerControl) { 
