@@ -225,8 +225,6 @@ const TableWrapper = styled.div<{
       border-left: unset;
       border-top: none !important;
       border-inline-start: none !important;
-      overflow-y:scroll;
-      height:300px;
 
       &::after {
         box-shadow: none !important;

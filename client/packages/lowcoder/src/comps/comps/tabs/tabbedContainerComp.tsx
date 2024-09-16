@@ -238,7 +238,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     );
     return {
       label,
-      key: tab.key,
+      key: tab.key,                                                                            
       forceRender: true,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
@@ -259,7 +259,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} >
       <div style={{padding: props.style.margin, height: props.autoHeight ? "auto" : "100%"}}>
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <StyledTabs
@@ -286,7 +285,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
           </StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
-    </ScrollBar>
   );
 };
 
@@ -466,3 +464,4 @@ export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, 
   new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
   NameConfigHidden,
 ]);
+
