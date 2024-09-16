@@ -2,6 +2,7 @@ package org.lowcoder.api.framework.filter;
 
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.lowcoder.api.authentication.request.AuthRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
@@ -19,6 +20,7 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -121,11 +123,16 @@ public class UserSessionPersistenceFilter implements WebFilter {
                     oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
 
                     return authRequestFactory.build(oAuth2RequestContext);
-                }).flatMap(authRequest -> {
+                })
+                .publishOn(Schedulers.boundedElastic()).flatMap(authRequest -> {
                     if(authRequest == null) {
                         return Mono.just(user);
                     }
                     try {
+                        if (StringUtils.isEmpty(connection.getAuthConnectionAuthToken().getRefreshToken())) {
+                            log.error("Refresh token is empty");
+                            throw new Exception("Refresh token is empty");
+                        }
                         AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
                         authUser.setAuthContext(oAuth2RequestContext);
                         authenticationApiService.updateConnection(authUser, user);

@@ -25,6 +25,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   inputFieldStyle?: Record<string, string>;
   childrenInputFieldStyle?: Record<string, string>;
   animationStyle?: Record<string, string>;
+  onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -45,7 +46,7 @@ function getStyle(style: any) {
   `;
 }
 
-const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animationStyle:any }>`
+const LabelViewWrapper = styled.div<{ $style: any, $inputFieldStyle: any,$animationStyle:any }>`
   ${(props) => {
     return (
       props.$style && {
@@ -56,7 +57,7 @@ const LabelViewWrapper = styled.div<{ $style: any, inputFieldStyle: any,$animati
       }
     );
   }}
-  ${(props) => props.inputFieldStyle && getStyle(props.inputFieldStyle)}
+  ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
   ${(props) => props.$animationStyle && props.$animationStyle}
   display: flex;
   flex-direction: column;
@@ -177,86 +178,94 @@ export const LabelControl = (function () {
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
   {
-    return <LabelViewWrapper $style={args.style} inputFieldStyle={args.inputFieldStyle} $animationStyle={args.animationStyle}>
-      <MainWrapper
-        $position={props.position}
-        $hasLabel={!!props.text}
-        style={{
-          margin: args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : 0,
-          // padding: args && args.inputFieldStyle ? args?.inputFieldStyle?.padding : 0,	
-          width: widthCalculator(
-            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
-          ),
-          height: heightCalculator(
-            args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
-          ),
-        }}
+    return (
+      <LabelViewWrapper
+        $style={args.style}
+        $inputFieldStyle={args.inputFieldStyle}
+        $animationStyle={args.animationStyle}
+        onMouseDown={args.onMouseDown}
       >
-        {!props.hidden && !isEmpty(props.text) && (
-          <LabelWrapper
-            $align={props.align}
-            style={{
-              width:
-                props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
-              maxWidth: props.position === "row" ? "70%" : "100%",
-              fontSize: args && args.style ? args?.style?.textSize : "14px",
-              rotate:args?.labelStyle?.rotation
-            }}
-            $position={props.position}
-            $hasToolTip={!!props.tooltip}
-          >
-            <Tooltip
-              title={props.tooltip && <TooltipWrapper>{props.tooltip}</TooltipWrapper>}
-              arrow={{
-                pointAtCenter: true,
-              }}
-              placement="top"
-              color="#2c2c2c"
-              getPopupContainer={(node: any) => node.closest(".react-grid-item")}
-            >
-              <Label
-                $border={!!props.tooltip}
-                $validateStatus={args && args.validateStatus ? args.validateStatus : null}
-                $labelStyle={{ ...args.labelStyle }}>
-                {props.text}
-              </Label>
-            </Tooltip>
-            {args.required && <StyledStarIcon />}
-          </LabelWrapper>
-        )}
-        <ChildrenWrapper
+        <MainWrapper
+          $position={props.position}
+          $hasLabel={!!props.text}
           style={{
-            width:
-              props.position === "row"
-                ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
-                : "100%",
-            height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
-            rotate:args?.inputFieldStyle?.rotation,
+            margin: args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : 0,
+            // padding: args && args.inputFieldStyle ? args?.inputFieldStyle?.padding : 0,	
+            width: widthCalculator(
+              args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
+            ),
+            height: heightCalculator(
+              args && args.inputFieldStyle ? args?.inputFieldStyle?.margin : "0px"
+            ),
           }}
         >
-          {args.children}
-        </ChildrenWrapper>
-      </MainWrapper>
+          {!props.hidden && !isEmpty(props.text) && (
+            <LabelWrapper
+              $align={props.align}
+              style={{
+                width:
+                  props.position === "row" ? getLabelWidth(props.width, props.widthUnit) : "100%",
+                maxWidth: props.position === "row" ? "70%" : "100%",
+                fontSize: args && args.style ? args?.style?.textSize : "14px",
+                rotate:args?.labelStyle?.rotation
+              }}
+              $position={props.position}
+              $hasToolTip={!!props.tooltip}
+            >
+              <Tooltip
+                title={props.tooltip && <TooltipWrapper>{props.tooltip}</TooltipWrapper>}
+                arrow={{
+                  pointAtCenter: true,
+                }}
+                placement="top"
+                color="#2c2c2c"
+                getPopupContainer={(node: any) => node.closest(".react-grid-item")}
+              >
+                <Label
+                  $border={!!props.tooltip}
+                  $validateStatus={args && args.validateStatus ? args.validateStatus : null}
+                  $labelStyle={{ ...args.labelStyle }}>
+                  {props.text}
+                </Label>
+              </Tooltip>
+              {args.required && <StyledStarIcon />}
+            </LabelWrapper>
+          )}
+          <ChildrenWrapper
+            style={{
+              width:
+                props.position === "row"
+                  ? `calc(100% - ${getLabelWidth(props.width, props.widthUnit)} - 8px)`
+                  : "100%",
+              height: props.position === "column" && !!props.text ? "calc(100% - 22px)" : "100%",
+              rotate:args?.inputFieldStyle?.rotation,
+            }}
+          >
+            {args.children}
+          </ChildrenWrapper>
+        </MainWrapper>
 
-      {args.help && Boolean((args.children as ReactElement)?.props.value) && (
-        <HelpWrapper
-          $marginLeft={
-            props.position === "column" || isEmpty(props.text) || props.hidden
-              ? "0"
-              : `calc(min(${getLabelWidth(props.width, props.widthUnit)} , 70%) + 8px)`
-          }
-          $color={
-            args.validateStatus === "error"
-              ? red.primary
-              : args.validateStatus === "warning"
-                ? yellow.primary
-                : green.primary
-          }
-        >
-          {args.help}
-        </HelpWrapper>
-      )}
-    </LabelViewWrapper>}
+        {args.help && Boolean((args.children as ReactElement)?.props.value) && (
+          <HelpWrapper
+            $marginLeft={
+              props.position === "column" || isEmpty(props.text) || props.hidden
+                ? "0"
+                : `calc(min(${getLabelWidth(props.width, props.widthUnit)} , 70%) + 8px)`
+            }
+            $color={
+              args.validateStatus === "error"
+                ? red.primary
+                : args.validateStatus === "warning"
+                  ? yellow.primary
+                  : green.primary
+            }
+          >
+            {args.help}
+          </HelpWrapper>
+        )}
+      </LabelViewWrapper>
+    );
+  }
 )
     .setPropertyViewFn((children) => (
       <Section name={trans("label")}>

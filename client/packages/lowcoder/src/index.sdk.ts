@@ -6,9 +6,13 @@ import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
 export * as styledm from "styled-components";
 export * from "comps/comps/containerBase/containerCompBuilder";
+export * from "comps/comps/containerBase/iContainer";
+export * from "comps/comps/containerBase/utils";
+export * from "comps/comps/containerBase/simpleContainerComp";
 export * from "comps/utils/backgroundColorContext";
 export { getData } from "comps/comps/listViewComp/listViewUtils";
 export { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
+export type { ContainerBaseProps } from "comps/comps/containerComp/containerView";
 
 export { Layers } from "constants/Layers";
 export * from "comps/controls/eventHandlerControl";
@@ -97,6 +101,7 @@ export * from "comps/controls/simpleStringControl";
 export * from "comps/controls/stringSimpleControl";
 export * from "comps/controls/styleControl";
 export * from "comps/controls/styleControlConstants";
+export * from "comps/controls/slotControl";
 
 // generators
 export * from "comps/generators/changeDataType";
@@ -114,6 +119,7 @@ export * from "comps/generators/withExposing";
 export * from "comps/generators/withIsLoading";
 export * from "comps/generators/withMethodExposing";
 export * from "comps/generators/withType";
+export * from "comps/generators/controlCompBuilder";
 
 export * from "appView/bootstrapAt";
 export * from "appView/LowcoderAppView";

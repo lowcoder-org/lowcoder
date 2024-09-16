@@ -30,7 +30,6 @@ import {
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -113,9 +112,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let IconBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return(<IconView {...props} />)})
     .setPropertyViewFn((children) => (
       <>

@@ -26,7 +26,6 @@ import {
   chartColorPalette,
   getPromiseAfterDispatch,
   dropdownControl,
-  useMergeCompStyles,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/basicChartComp/chartConfigs/lineChartConfig";
@@ -82,8 +81,6 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   } catch (error) {
     log.error('theme chart error: ', error);
   }
-
-  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   const triggerClickEvent = async (dispatch: any, action: CompAction<JSONValue>) => {
     await getPromiseAfterDispatch(

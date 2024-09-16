@@ -8,7 +8,7 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
-import duckdbPlugin from "./duckdb";
+// import duckdbPlugin from "./duckdb";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
 import stripePlugin from "./stripe";
@@ -37,15 +37,17 @@ import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Databases
   dynamoDBPlugin,
   couchdbPlugin,
-  duckdbPlugin,
+  // duckdbPlugin,
   faunaPlugin,
   tursoPlugin,
+  firebirdsqlPlugin,
 
   // Big Data
   athenaPlugin,

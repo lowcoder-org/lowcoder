@@ -49,8 +49,8 @@ The contents should look like this:
             "name": "ServerApplication",
             "request": "launch",
             "mainClass": "org.lowcoder.api.ServerApplication",
-            "projectName": "Lowcoder API Service",
-            "vmArgs": "-Dpf4j.mode=development -Dpf4j.pluginsDir=lowcoder-plugins -Dspring.profiles.active=lowcoder -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED"
+            "projectName": "lowcoder-server",
+            "vmArgs": "-Dpf4j.mode=development -Dpf4j.pluginsDir=server/api-service/lowcoder-plugins -Dspring.profiles.active=lowcoder-local-dev -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED"
         }
     ],
 }

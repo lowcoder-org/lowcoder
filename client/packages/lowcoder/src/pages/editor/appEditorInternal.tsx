@@ -24,6 +24,8 @@ import { useUserViewMode } from "../../util/hooks";
 import { QueryApi } from "api/queryApi";
 import { RootCompInstanceType } from "./useRootCompInstance";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
+import React from "react";
+import { isEqual } from "lodash";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -77,7 +79,7 @@ interface AppEditorInternalViewProps {
   compInstance: RootCompInstanceType;
 }
 
-export function AppEditorInternalView(props: AppEditorInternalViewProps) {
+export const AppEditorInternalView = React.memo((props: AppEditorInternalViewProps) => {
   const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
   const dispatch = useDispatch();
@@ -125,4 +127,6 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       </ExternalEditorContext.Provider>
     </ConfigProvider>
   );
-}
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps)
+});

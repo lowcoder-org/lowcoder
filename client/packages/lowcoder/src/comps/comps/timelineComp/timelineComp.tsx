@@ -47,7 +47,6 @@ import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConst
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   clickEvent,
@@ -90,8 +89,6 @@ const TimelineComp = (
 ) => {
   const { value, dispatch, style, mode, reverse, onEvent } = props;
   const [icons, setIcons] = useState<React.ReactNode[]>([]);
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-
   useEffect(() => {
     const loadIcons = async () => {
       const iconComponents = await Promise.all(

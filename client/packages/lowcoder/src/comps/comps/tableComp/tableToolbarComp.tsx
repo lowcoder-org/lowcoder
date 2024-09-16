@@ -562,6 +562,7 @@ export const TableToolbarComp = (function () {
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
     columnSeparator: withDefault(StringControl, ','),
+    showUpdateButtons: withDefault(BoolControl, true),
   };
 
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
@@ -587,6 +588,7 @@ export const TableToolbarComp = (function () {
         label: trans("table.fixedToolbar"),
         tooltip: trans("table.fixedToolbarTooltip")
       }),
+      children.showUpdateButtons.propertyView({ label: trans("table.showUpdateButtons")}),
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
@@ -816,7 +818,7 @@ export function TableToolbar(props: {
             }
           }}
         />
-        {hasChange && (
+        {hasChange && toolbar.showUpdateButtons && (
           <SaveChangeButtons>
             <Button onClick={onCancelChanges}>{trans("cancel")}</Button>
             <Button type="primary" onClick={onSaveChanges}>

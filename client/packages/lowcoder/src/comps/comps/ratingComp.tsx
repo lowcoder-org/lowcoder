@@ -17,8 +17,6 @@ import { trans } from "i18n";
 
 import { useContext, useEffect, useRef } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-
 
 const EventOptions = [changeEvent] as const;
 
@@ -56,11 +54,10 @@ const RatingBasicComp = (function () {
     inputFieldStyle: migrateOldData(styleControl(RatingStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  return new UICompBuilder(childrenMap, (props) => {
     const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
     const changeRef = useRef(false);
-    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     useEffect(() => {
       props.value.onChange(defaultValue);

@@ -5,6 +5,7 @@ import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "com
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
+  ColumnsAggrData,
   columnsToAntdFormat,
   CustomColumnType,
   OB_ROW_ORI_INDEX,
@@ -41,10 +42,14 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
+import { TableSummary } from "./tableSummaryComp";
+import Skeleton from "antd/es/skeleton";
+import { SkeletonButtonProps } from "antd/es/skeleton/Button";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
+export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
   return `linear-gradient(${color}, ${color})`;
@@ -323,15 +328,6 @@ const TableWrapper = styled.div<{
             border-top-right-radius: 0px;
           }
         }
-
-        // hide the bottom border of the last row
-        ${(props) =>
-    props.$toolbarPosition !== "below" &&
-    `
-            tbody > tr:last-child > td {
-              border-bottom: unset;
-            }
-        `}
       }
 
       .ant-table-expanded-row-fixed:after {
@@ -378,8 +374,11 @@ const TableTd = styled.td<{
   border-radius: ${(props) => props.$style.radius};
   padding: 0 !important;
 
-  > div {
-    margin: ${(props) => props.$style.margin};
+  > div:not(.editing-border, .editing-wrapper),
+  .editing-wrapper .ant-input,
+  .editing-wrapper .ant-input-number,
+  .editing-wrapper .ant-picker {
+    margin: ${(props) => props.$isEditing ? '0px' : props.$style.margin};
     color: ${(props) => props.$style.text};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
@@ -387,7 +386,7 @@ const TableTd = styled.td<{
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
-    font-style:${props.$style.fontStyle} !important;
+      font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
       line-height: 20px;
       ${!props.$autoHeight && `
@@ -442,6 +441,27 @@ const TableTd = styled.td<{
   }
 `;
 
+const TableTdLoading = styled(Skeleton.Button)<SkeletonButtonProps & {
+  $tableSize?: string;
+}>`
+  width: 90% !important;
+  display: table !important;
+
+  .ant-skeleton-button {
+    min-width: auto !important;
+    display: block !important;
+    ${(props) => props.$tableSize === 'small' && `
+      height: 20px !important;
+    `}
+    ${(props) => props.$tableSize === 'middle' && `
+      height: 24px !important;
+    `}
+    ${(props) => props.$tableSize === 'large' && `
+      height: 28px !important;
+    `}
+  }
+`;
+
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
   const [widthChild, setWidthChild] = useState(0);
@@ -493,7 +513,7 @@ const ResizeableTitle = (props: any) => {
         />
       )}
     >
-      <TableTh ref={elementRef} {...restProps} />
+      <TableTh ref={elementRef} {...restProps} title="" />
     </Resizable>
   );
 };
@@ -507,6 +527,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
+  customLoading?: boolean;
   onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
@@ -523,6 +544,7 @@ function TableCellView(props: {
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
+  loading?: boolean;
 }) {
   const {
     record,
@@ -537,6 +559,7 @@ function TableCellView(props: {
     linkStyle,
     tableSize,
     autoHeight,
+    loading,
     ...restProps
   } = props;
 
@@ -594,11 +617,14 @@ function TableCellView(props: {
         $tableSize={tableSize}
         $autoHeight={autoHeight}
       >
-        {children}
+        {loading
+          ? <TableTdLoading block active $tableSize={tableSize} />
+          : children
+        }
       </TableTd>
     );
   }
- 
+
   return (
     <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       {tdView}
@@ -632,6 +658,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     width: -1,
   });
   let allColumnFixed = true;
+  const { customLoading } = props;
+
   const columns = props.columns.map((col, index) => {
     const { width, style, linkStyle, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
@@ -665,7 +693,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         autoHeight: props.rowAutoHeight,
         onClick: () => {
           props.onCellClick(col.titleText, String(col.dataIndex));
-        }
+        },
+        loading: customLoading,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -716,12 +745,28 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
 
 ResizeableTable.whyDidYouRender = true;
 
+const createNewEmptyRow = (
+  rowIndex: number,
+  columnsAggrData: ColumnsAggrData,
+) => {
+  const emptyRowData: RecordType = {
+    [OB_ROW_ORI_INDEX]: `${EMPTY_ROW_KEY}_${rowIndex}`,
+  };
+  Object.keys(columnsAggrData).forEach(columnKey => {
+    emptyRowData[columnKey] = '';
+  });
+  return emptyRowData;
+}
+
 export function TableCompView(props: {
   comp: InstanceType<typeof TableImplComp>;
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) {
+  const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
   const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
@@ -743,15 +788,21 @@ export function TableCompView(props: {
   const visibleResizables = compChildren.visibleResizables.getView();
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
+  const summaryRowStyle = compChildren.summaryRowStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
+  const insertSet = useMemo(() => compChildren.columns.getChangeSet(true), [compChildren.columns]);
+  const hasChange = useMemo(() => !_.isEmpty(changeSet) || !_.isEmpty(insertSet), [changeSet, insertSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
+  const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
+  const summaryRows = useMemo(() => compChildren.summaryRows.getView(), [compChildren.summaryRows]);
+  const inlineAddNewRow = useMemo(() => compChildren.inlineAddNewRow.getView(), [compChildren.inlineAddNewRow]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
+  const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
@@ -770,6 +821,7 @@ export function TableCompView(props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
+        editModeClicks,
         onEvent,
       ),
     [
@@ -780,12 +832,77 @@ export function TableCompView(props: {
       dynamicColumn,
       dynamicColumnConfig,
       columnsAggrData,
+      editModeClicks,
     ]
   );
+
   const supportChildren = useMemo(
     () => supportChildrenTree(compChildren.data.getView()),
     [compChildren.data]
   );
+
+  const updateEmptyRows = useCallback(() => {
+    if (!inlineAddNewRow) {
+      setEmptyRowsMap({})
+      setTimeout(() => compChildren.columns.dispatchClearInsertSet());
+      return;
+    }
+
+    let emptyRows: Record<string, RecordType> = {...emptyRowsMap};
+    const existingRowsKeys = Object.keys(emptyRows);
+    const existingRowsCount = existingRowsKeys.length;
+    const updatedRowsKeys = Object.keys(insertSet).filter(
+      key => key.startsWith(EMPTY_ROW_KEY)
+    );
+    const updatedRowsCount = updatedRowsKeys.length;
+    const removedRowsKeys = existingRowsKeys.filter(
+      x => !updatedRowsKeys.includes(x)
+    );
+
+    if (removedRowsKeys.length === existingRowsCount) {
+      const newRowIndex = 0;
+      const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+      setEmptyRowsMap({
+        [newRowKey]: createNewEmptyRow(newRowIndex, columnsAggrData)
+      });
+      const ele = document.querySelector<HTMLElement>(`[data-row-key=${newRowKey}]`);
+      if (ele) {
+        ele.style.display = '';
+      }
+      return;
+    }
+
+    removedRowsKeys.forEach(rowKey => {
+      if (
+        rowKey === existingRowsKeys[existingRowsCount - 1]
+        || rowKey === existingRowsKeys[existingRowsCount - 2]
+      ) {
+        delete emptyRows[rowKey];
+      } else {
+        const ele = document.querySelector<HTMLElement>(`[data-row-key=${rowKey}]`);
+        if (ele) {
+          ele.style.display = 'none';
+        }
+      }
+    })
+    const lastRowKey = updatedRowsCount ? updatedRowsKeys[updatedRowsCount - 1] : '';
+    const lastRowIndex = lastRowKey ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
+
+    const newRowIndex = lastRowIndex + 1;
+    const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+    emptyRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
+    setEmptyRowsMap(emptyRows);
+  }, [
+    inlineAddNewRow,
+    JSON.stringify(insertSet),
+    setEmptyRowsMap,
+    createNewEmptyRow,
+  ]);
+
+  useEffect(() => {
+    updateEmptyRows();
+  }, [updateEmptyRows]);
+
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -801,6 +918,7 @@ export function TableCompView(props: {
       }
       pagedData = pagedData.slice(offset, offset + pagination.pageSize);
     }
+
     return {
       total: total,
       current: current,
@@ -809,8 +927,6 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
-  
-  useMergeCompStyles(childrenProps, comp.dispatch)
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
@@ -846,16 +962,41 @@ export function TableCompView(props: {
       }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
-      onCancelChanges={() => handleChangeEvent("cancelChanges")}
+      onCancelChanges={() => {
+        handleChangeEvent("cancelChanges");
+        if (inlineAddNewRow) {
+          setEmptyRowsMap({});
+        }
+      }}
       onEvent={onEvent}
     />
   );
+
+  const summaryView = () => {
+    if (!showSummary) return undefined;
+    return (
+      <TableSummary
+        tableSize={size}
+        istoolbarPositionBelow={toolbar.position === "below"}
+        expandableRows={Boolean(expansion.expandModalView)}
+        summaryRows={parseInt(summaryRows)}
+        columns={columns}
+        summaryRowStyle={summaryRowStyle}
+      />
+    );
+  }
 
   if (antdColumns.length === 0) {
     return <EmptyContent text={trans("table.emptyColumns")} />;
   }
 
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
+  const showTableLoading = loading ||
+    // fixme isLoading type
+    ((showDataLoadingIndicators || compChildren.showDataLoadSpinner.getView()) &&
+      (compChildren.data as any).isLoading()) ||
+    compChildren.loading.getView();
+
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper
@@ -900,6 +1041,7 @@ export function TableCompView(props: {
                   }
                 }
               }}
+              // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}
               rowHeightFn={compChildren.rowHeight.getView() as any}
               {...compChildren.selection.getView()(onEvent)}
@@ -912,25 +1054,19 @@ export function TableCompView(props: {
               columnsStyle={columnsStyle}
               viewModeResizable={compChildren.viewModeResizable.getView()}
               visibleResizables={compChildren.visibleResizables.getView()}
-              dataSource={pageDataInfo.data}
+              dataSource={pageDataInfo.data.concat(Object.values(emptyRowsMap))}
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"
-              loading={
-                loading ||
-                // fixme isLoading type
-                (compChildren.showDataLoadSpinner.getView() &&
-                  (compChildren.data as any).isLoading()) ||
-                compChildren.loading.getView()
-              }
+              customLoading={showTableLoading}
               onCellClick={(columnName: string, dataIndex: string) => {
                 comp.children.selectedCell.dispatchChangeValueAction({
                   name: columnName,
                   dataIndex: dataIndex,
                 });
               }}
+              summary={summaryView}
             />
-
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
               {expansion.expandModalView}
             </SlotConfigContext.Provider>

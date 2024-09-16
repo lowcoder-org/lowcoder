@@ -2,8 +2,9 @@ package org.lowcoder.api.application;
 
 import org.apache.commons.collections4.MapUtils;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.sdk.constants.DslConstants.CompoundAppDslConstants;
@@ -19,6 +20,7 @@ import java.util.Set;
 @SpringBootTest
 @ActiveProfiles("test")
 //@RunWith(SpringRunner.class)
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CompoundApplicationDslFilterTest {
 
     @Autowired
@@ -26,8 +28,8 @@ public class CompoundApplicationDslFilterTest {
     @Autowired
     private InitData initData;
 
-    @BeforeEach
-    public void beforeEach() {
+    @BeforeAll
+    public void beforeAll() {
         initData.init();
     }
 

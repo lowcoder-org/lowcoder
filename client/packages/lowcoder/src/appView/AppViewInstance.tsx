@@ -84,7 +84,7 @@ export class AppViewInstance<I = any, O = any> {
     if (!appDsl) {
       const http = axios.create({ baseURL: baseUrl, withCredentials: true });
       const data: ApplicationResp = await http
-        .get(`/api/v1/applications/${this.appId}/view`)
+        .get(`/api/applications/${this.appId}/view`)
         .then((i) => i.data)
         .catch((e) => {
           if (e.response?.status === API_STATUS_CODES.REQUEST_NOT_AUTHORISED) {

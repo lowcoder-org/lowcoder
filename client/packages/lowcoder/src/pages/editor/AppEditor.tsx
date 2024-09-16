@@ -31,6 +31,7 @@ import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
 import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
 import history from "util/history";
 import Flex from "antd/es/flex";
+import React from "react";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -42,7 +43,7 @@ const AppEditorInternalView = lazy(
     .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
 );
 
-export default function AppEditor() {
+const AppEditor = React.memo(() => {
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const params = useParams<AppPathParams>();
   const isUserViewModeCheck = useUserViewMode();
@@ -190,4 +191,6 @@ export default function AppEditor() {
       )}
     </ErrorBoundary>
   );
-}
+});
+
+export default AppEditor;

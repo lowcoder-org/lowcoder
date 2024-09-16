@@ -25,7 +25,7 @@ import {
 } from "lowcoder-design";
 import { trans } from "i18n";
 import dayjs from "dayjs";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   publishApplication,
@@ -53,6 +53,7 @@ import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermis
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
+import Tooltip from "antd/es/tooltip";
 
 const StyledLink = styled.a`
   display: flex;
@@ -320,11 +321,13 @@ export default function Header(props: HeaderProps) {
   const editorModeOptions = [
     {
       label: trans("header.editorMode_layout"),
+      tooltip: trans("header.editorMode_layout_tooltip"),
       key: "editorModeSelector_layout",
       value: "layout",
     },
     {
       label: trans("header.editorMode_logic"),
+      tooltip: trans("header.editorMode_logic_tooltip"),
       key: "editorModeSelector_logic",
       value: "logic",
     },
@@ -398,9 +401,11 @@ export default function Header(props: HeaderProps) {
         size="small"
       >
         {editorModeOptions.map((option) => (
-          <Radio.Button key={option.key} value={option.value}>
-            {option.label}
-          </Radio.Button>
+          <Tooltip key={option.key} title={option.tooltip}>
+            <Radio.Button key={option.key} value={option.value}>
+              {option.label}
+            </Radio.Button>
+          </Tooltip>
         ))}
       </Radio.Group>
       <IconRadius>
@@ -448,67 +453,74 @@ export default function Header(props: HeaderProps) {
     </>
   );
 
-  const headerEnd = showAppSnapshot ? (
-    <HeaderProfile user={user} />
-  ) : (
-    <>
-      {applicationId && (
-        <AppPermissionDialog
-          applicationId={applicationId}
-          visible={permissionDialogVisible}
-          onVisibleChange={(visible) =>
-            !visible && setPermissionDialogVisible(false)
-          }
-        />
-      )}
-      {canManageApp(user, application) && (
-        <GrayBtn onClick={() => setPermissionDialogVisible(true)}>
-          {SHARE_TITLE}
-        </GrayBtn>
-      )}
-      <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
-        {trans("header.preview")}
-      </PreviewBtn>
-
-      <Dropdown
-        className="cypress-header-dropdown"
-        placement="bottomRight"
-        trigger={["click"]}
-        dropdownRender={() => (
-          <DropdownMenuStyled
-            style={{ minWidth: "110px", borderRadius: "4px" }}
-            onClick={(e) => {
-              if (e.key === "deploy") {
-                dispatch(publishApplication({ applicationId }));
-              } else if (e.key === "snapshot") {
-                dispatch(setShowAppSnapshot(true));
-              }
-            }}
-            items={[
-              {
-                key: "deploy",
-                label: (
-                  <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>
-                ),
-              },
-              {
-                key: "snapshot",
-                label: (
-                  <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>
-                ),
-              },
-            ]}
+  const headerEnd = useMemo(() => {
+    return showAppSnapshot ? (
+      <HeaderProfile user={user} />
+    ) : (
+      <>
+        {applicationId && (
+          <AppPermissionDialog
+            applicationId={applicationId}
+            visible={permissionDialogVisible}
+            onVisibleChange={(visible) =>
+              !visible && setPermissionDialogVisible(false)
+            }
           />
         )}
-      >
-        <PackUpBtn buttonType="primary">
-          <PackUpIcon />
-        </PackUpBtn>
-      </Dropdown>
+        {canManageApp(user, application) && (
+          <GrayBtn onClick={() => setPermissionDialogVisible(true)}>
+            {SHARE_TITLE}
+          </GrayBtn>
+        )}
+        <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
+          {trans("header.preview")}
+        </PreviewBtn>
 
-      <HeaderProfile user={user} />
-    </>
-  );
+        <Dropdown
+          className="cypress-header-dropdown"
+          placement="bottomRight"
+          trigger={["click"]}
+          dropdownRender={() => (
+            <DropdownMenuStyled
+              style={{ minWidth: "110px", borderRadius: "4px" }}
+              onClick={(e) => {
+                if (e.key === "deploy") {
+                  dispatch(publishApplication({ applicationId }));
+                } else if (e.key === "snapshot") {
+                  dispatch(setShowAppSnapshot(true));
+                }
+              }}
+              items={[
+                {
+                  key: "deploy",
+                  label: (
+                    <CommonTextLabel>{trans("header.deploy")}</CommonTextLabel>
+                  ),
+                },
+                {
+                  key: "snapshot",
+                  label: (
+                    <CommonTextLabel>{trans("header.snapshot")}</CommonTextLabel>
+                  ),
+                },
+              ]}
+            />
+          )}
+        >
+          <PackUpBtn buttonType="primary">
+            <PackUpIcon />
+          </PackUpBtn>
+        </Dropdown>
+
+        <HeaderProfile user={user} />
+      </>
+    );
+  }, [
+    user,
+    showAppSnapshot,
+    applicationId,
+    permissionDialogVisible,
+  ]);
 
   return (
     <LayoutHeader

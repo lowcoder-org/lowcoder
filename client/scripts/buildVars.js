@@ -16,11 +16,11 @@ export const buildVars = [
     defaultValue: "00000",
   },
   {
-    name: "REACT_APP_API_HOST",
+    name: "REACT_APP_API_SERVICE_URL",
     defaultValue: "",
   },
   {
-    name: "LOWCODER_NODE_SERVICE_URL",
+    name: "REACT_APP_NODE_SERVICE_URL",
     defaultValue: "",
   },
   {

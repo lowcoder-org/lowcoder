@@ -11,7 +11,7 @@ import {
   TacoButton,
 } from "lowcoder-design";
 import React, { FunctionComponent, useState } from "react";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
 import { HomeResInfo } from "../../util/homeResUtils";
 import { createAppItemClass } from "../tutorials/HomeTutorialsV2";
 import styled from "styled-components";

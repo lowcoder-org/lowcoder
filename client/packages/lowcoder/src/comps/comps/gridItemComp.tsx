@@ -62,7 +62,7 @@ const TmpComp = withTypeAndChildren<
   childrenMap
 );
 
-function CachedView(props: { comp: Comp; name: string }) {
+const CachedView = React.memo((props: { comp: Comp; name: string }) => {
   return React.useMemo(
     () => (
       <Profiler id={props.name} onRender={profilerCallback}>
@@ -73,13 +73,13 @@ function CachedView(props: { comp: Comp; name: string }) {
     ),
     [props.comp, props.name]
   );
-}
+})
 
-function CachedPropertyView(props: {
+const CachedPropertyView = React.memo((props: {
   comp: Comp;
   name: string;
   withParamsContext: WithParamsContext;
-}) {
+}) => {
   const prevHints = useContext(CompExposingContext);
   const { withParamsContext } = props;
   const hints = useMemo(
@@ -109,7 +109,7 @@ function CachedPropertyView(props: {
       </>
     );
   }, [props.comp, props.name, hints, searchText, setSearchText]);
-}
+});
 
 export class GridItemComp extends TmpComp {
   private readonly withParamsContext: WithParamsContext = { params: {} };

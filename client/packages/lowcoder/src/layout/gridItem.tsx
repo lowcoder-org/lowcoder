@@ -1,11 +1,13 @@
 import clsx from "clsx";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import { UICompType } from "comps/uiCompRegistry";
 import React, {
   DragEvent,
   ReactElement,
   SyntheticEvent,
   useCallback,
+  useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -26,6 +28,7 @@ import {
   setTransform,
 } from "./utils";
 import styled from "styled-components";
+import { EditorContext } from "@lowcoder-ee/comps/editorState";
 
 type GridItemCallback<Data extends GridDragEvent | GridResizeEvent> = (
   i: string,
@@ -99,138 +102,58 @@ const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boole
 /**
  * An individual item within a ReactGridLayout.
  */
-export function GridItem(props: GridItemProps) {
-  const position = calcGridItemPosition(props, props.x, props.y, props.w, props.h);
+export const GridItem = React.memo((props: GridItemProps) => {
+  const position = useMemo(() =>
+    calcGridItemPosition({
+      margin: props.margin,
+      containerPadding: props.containerPadding,
+      containerWidth: props.containerWidth,
+      cols: props.cols,
+      rowHeight: props.rowHeight,
+      maxRows: props.maxRows,
+    }, props.x, props.y, props.w, props.h),
+    [
+      props.margin,
+      props.containerPadding,
+      props.containerWidth,
+      props.cols,
+      props.rowHeight,
+      props.maxRows,
+      props.x,
+      props.y,
+      props.w,
+      props.h,
+      calcGridItemPosition,
+    ]
+  );
   const [resizing, setResizing] = useState<{ width: number; height: number } | undefined>();
   const [dragging, setDragging] = useState<{ top: number; left: number } | undefined>();
   const elementRef = useRef<HTMLDivElement>(null);
+  const editorState = useContext(EditorContext);
 
   // record the real height of the comp content
   const itemHeightRef = useRef<number | undefined>(undefined);
 
-  const onDragStart = (e: DragEvent<HTMLDivElement>) => {
+  const onDragStart = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
     const { i } = props as Required<GridItemProps>;
     draggingUtils.clearData();
     draggingUtils.setData("i", i);
     e.dataTransfer.setDragImage(TransparentImg, 0, 0);
     props.onDragStart?.(i, e, elementRef.current as HTMLDivElement);
-  };
+  }, [props.i, props.onDragStart]);
 
-  const onDrag = (e: DragEvent<HTMLDivElement>) => {
+  const onDrag = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
     const { i } = props as Required<GridItemProps>;
     props.onDrag?.(i, e, elementRef.current as HTMLDivElement);
-  };
+  }, [props.i, props.onDrag]);
 
-  const onDragEnd = (e: DragEvent<HTMLDivElement>) => {
+  const onDragEnd = useCallback((e: DragEvent<HTMLDivElement>) => {
     const { i } = props as Required<GridItemProps>;
     props.onDragEnd?.(i, e, elementRef.current as HTMLDivElement);
     draggingUtils.clearData();
-  };
-
-  const mixinDraggable = (child: ReactElement, isDraggable: boolean): ReactElement => {
-    const { i } = props as Required<GridItemProps>;
-    const testSelectorClass = `lowcoder-${props.compType}`;
-    return (
-      <div
-        className={testSelectorClass}
-        ref={elementRef}
-        draggable={isDraggable}
-        onDragStart={isDraggable ? onDragStart : undefined}
-        onDrag={onDrag}
-        onDragEnd={onDragEnd}
-        onMouseDown={(e) => {
-          // allow mouseDown event on lowcoder-comp-kanban to make drag/drop work
-          if((props.compType as string).includes('lowcoder-comp-kanban')) return;
-
-          // allow mouseDown event on lowcoder-comp-excalidraw to make drag/drop work
-          if((props.compType as string).includes('lowcoder-comp-excalidraw')) return;
-
-          e.stopPropagation();
-          const event = new MouseEvent("mousedown");
-          document.dispatchEvent(event);
-        }}
-      >
-        <IsDroppable.Provider value={draggingUtils.getData("i") !== i}>
-          {child}
-        </IsDroppable.Provider>
-      </div>
-    );
-  };
-
-  /**
-   * Mix a Resizable instance into a child.
-   * @param  {Element} child    Child element.
-   * @param  {Object} position  Position object (pixel values)
-   * @return {Element}          Child wrapped in Resizable.
-   */
-  const mixinResizable = (
-    child: ReactElement,
-    position: Position,
-    isResizable: boolean,
-    zIndex: number,
-  ): ReactElement => {
-    const { cols, x, minW, minH, maxW, maxH, resizeHandles } = props;
-    // This is the max possible width - doesn't go to infinity because of the width of the window
-    const maxWidth = calcGridItemPosition(props, 0, 0, cols - x, 0).width;
-    // Calculate min/max constraints using our min & maxes
-    const mins = calcGridItemPosition(props, 0, 0, minW as number, minH as number);
-    const maxes = calcGridItemPosition(props, 0, 0, maxW as number, maxH as number);
-    const minConstraints: [number, number] = [mins.width, mins.height];
-    const maxConstraints: [number, number] = [
-      Math.min(maxes.width, Infinity),
-      Math.min(maxes.height, Infinity),
-    ];
-    return (
-      <ResizableStyled // These are opts for the resize handle itself
-        draggableOpts={{
-          disabled: !isResizable,
-        }}
-        className={isResizable ? undefined : "react-resizable-hide"}
-        width={position.width}
-        height={position.height}
-        minConstraints={minConstraints}
-        maxConstraints={maxConstraints}
-        onResizeStart={onResizeStart}
-        onResize={onResize}
-        onResizeStop={onResizeStop}
-        resizeHandles={resizeHandles}
-        handle={Handle}
-        $zIndex={zIndex}
-        isDroppable={draggingUtils.getData("i") !== props.i}
-      >
-        {child}
-      </ResizableStyled>
-    );
-  };
-
-  /**
-   * onResizeStop event handler
-   * @param  {Event}  e             event data
-   * @param  {Object} callbackData  an object with node and size information
-   */
-  const onResizeStop = (e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
-    onResizeHandler(e, callbackData, "onResizeStop");
-  };
-
-  /**
-   * onResizeStart event handler
-   * @param  {Event}  e             event data
-   * @param  {Object} callbackData  an object with node and size information
-   */
-  const onResizeStart = (e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
-    onResizeHandler(e, callbackData, "onResizeStart");
-  };
-
-  /**
-   * onResize event handler
-   * @param  {Event}  e             event data
-   * @param  {Object} callbackData  an object with node and size information
-   */
-  const onResize = (e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
-    onResizeHandler(e, callbackData, "onResize");
-  };
+  },[props.i, props.onDragEnd]);
 
   /**
    * Wrapper around drag events to provide more useful data.
@@ -240,7 +163,7 @@ export function GridItem(props: GridItemProps) {
    * @param  {String} handlerName Handler name to wrap.
    * @return {Function}           Handler function.
    */
-  const onResizeHandler = (
+  const onResizeHandler = useCallback((
     e: SyntheticEvent<Element>,
     { node, size, handle }: ResizeCallbackData,
     handlerName: "onResizeStart" | "onResize" | "onResizeStop"
@@ -284,6 +207,7 @@ export function GridItem(props: GridItemProps) {
         [xx, yy] = [xy.x, xy.y];
       }
     }
+
     setResizing(handlerName === "onResizeStop" ? undefined : size);
     setDragging(handlerName === "onResizeStop" ? undefined : localDragging);
 
@@ -304,9 +228,160 @@ export function GridItem(props: GridItemProps) {
       x: xx,
       y: yy,
     });
-  };
+  }, [
+    resizing,
+    dragging,
+    props.cols,
+    props.maxRows,
+    props.x,
+    props.y,
+    props.w,
+    props.h,
+    props.i,
+    props.maxH,
+    props.minH,
+    props.minW,
+    props.maxW,
+    position.left,
+    position.top,
+    calcResizeXY,
+    getDraggingNewPosition,
+    calcXY,
+    calcWH,
+    setResizing,
+    setDragging,
+    clamp,
+  ]);
 
-  const adjustWrapperHeight = (width?: number, height?: number, src?: string) => {
+   /**
+   * onResizeStop event handler
+   * @param  {Event}  e             event data
+   * @param  {Object} callbackData  an object with node and size information
+   */
+  const onResizeStop = useCallback((e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
+    onResizeHandler(e, callbackData, "onResizeStop");
+  }, [onResizeHandler]);
+
+  /**
+   * onResizeStart event handler
+   * @param  {Event}  e             event data
+   * @param  {Object} callbackData  an object with node and size information
+   */
+  const onResizeStart = useCallback((e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
+    onResizeHandler(e, callbackData, "onResizeStart");
+  }, [onResizeHandler]);
+
+  /**
+   * onResize event handler
+   * @param  {Event}  e             event data
+   * @param  {Object} callbackData  an object with node and size information
+   */
+  const onResize = useCallback((e: React.SyntheticEvent, callbackData: ResizeCallbackData) => {
+    onResizeHandler(e, callbackData, "onResize");
+  }, [onResizeHandler]);
+
+  const mixinDraggable = useCallback((child: ReactElement, isDraggable: boolean): ReactElement => {
+    const { i } = props as Required<GridItemProps>;
+    const testSelectorClass = `lowcoder-${props.compType}`;
+    return (
+      <div
+        className={testSelectorClass}
+        ref={elementRef}
+        draggable={isDraggable}
+        onDragStart={isDraggable ? onDragStart : undefined}
+        onDrag={onDrag}
+        onDragEnd={onDragEnd}
+        onMouseDown={(e) => {
+          const parentContainer = editorState.findUIParentContainer(props.name!)?.toJsonValue();
+
+          // allow mouseDown event on lowcoder-comp-kanban to make drag/drop work
+          if(
+            (props.compType as string).includes('lowcoder-comp-kanban')
+            || parentContainer?.compType?.includes('lowcoder-comp-kanban')
+          ) return;
+
+          // allow mouseDown event on lowcoder-comp-excalidraw to make drag/drop work
+          if((props.compType as string).includes('lowcoder-comp-excalidraw')) return;
+          e.stopPropagation();
+          const event = new MouseEvent("mousedown");
+          document.dispatchEvent(event);
+        }}
+      >
+        <IsDroppable.Provider value={draggingUtils.getData("i") !== i}>
+          {child}
+        </IsDroppable.Provider>
+      </div>
+    );
+  }, [
+    props.i,
+    props.name,
+    props.compType,
+    onDragStart,
+    onDragEnd,
+    onDrag,
+    editorState.findUIParentContainer,
+  ]);
+
+  /**
+   * Mix a Resizable instance into a child.
+   * @param  {Element} child    Child element.
+   * @param  {Object} position  Position object (pixel values)
+   * @return {Element}          Child wrapped in Resizable.
+   */
+  const mixinResizable = useCallback((
+    child: ReactElement,
+    position: Position,
+    isResizable: boolean,
+    zIndex: number,
+  ): ReactElement => {
+    const { cols, x, minW, minH, maxW, maxH, resizeHandles } = props;
+    // This is the max possible width - doesn't go to infinity because of the width of the window
+    const maxWidth = calcGridItemPosition(props, 0, 0, cols - x, 0).width;
+    // Calculate min/max constraints using our min & maxes
+    const mins = calcGridItemPosition(props, 0, 0, minW as number, minH as number);
+    const maxes = calcGridItemPosition(props, 0, 0, maxW as number, maxH as number);
+    const minConstraints: [number, number] = [mins.width, mins.height];
+    const maxConstraints: [number, number] = [
+      Math.min(maxes.width, Infinity),
+      Math.min(maxes.height, Infinity),
+    ];
+    return (
+      <ResizableStyled // These are opts for the resize handle itself
+        draggableOpts={{
+          disabled: !isResizable,
+        }}
+        className={isResizable ? undefined : "react-resizable-hide"}
+        width={position.width}
+        height={position.height}
+        minConstraints={minConstraints}
+        maxConstraints={maxConstraints}
+        onResizeStart={onResizeStart}
+        onResize={onResize}
+        onResizeStop={onResizeStop}
+        resizeHandles={resizeHandles}
+        handle={Handle}
+        $zIndex={zIndex}
+        isDroppable={draggingUtils.getData("i") !== props.i}
+      >
+        {child}
+      </ResizableStyled>
+    );
+  }, [
+    props.i,
+    props.cols,
+    props.x,
+    props.minW,
+    props.minH,
+    props.maxW,
+    props.maxH,
+    props.resizeHandles,
+    calcGridItemPosition,
+    onResizeStart,
+    onResizeStop,
+    onResize,
+  ]);
+
+  const adjustWrapperHeight = useCallback((width?: number, height?: number, src?: string) => {
     if (_.isNil(height)) return;
     if (!width) {
       width = position.width;
@@ -320,19 +395,27 @@ export function GridItem(props: GridItemProps) {
     if (props.h !== h) {
       props.onHeightChange?.(props.i, h);
     }
-  };
+  }, [
+    props.i,
+    props.h,
+    props.compType,
+    position.width,
+    props.onHeightChange,
+    getGridItemPadding,
+    calcWH,
+  ]);
 
   /**
    * re-calculate the occupied grid-cells
    * called when item size changes and `autoHeight === true`
    */
-  const onInnerSizeChange = (width?: number, height?: number) => {
+  const onInnerSizeChange = useCallback((width?: number, height?: number) => {
     // log.log("onInnerSizeChange. name: ", props.name, " width: ", width, " height: ", height);
     if (!_.isNil(height)) {
       itemHeightRef.current = height;
     }
     adjustWrapperHeight(width, height);
-  };
+  }, [itemHeightRef, adjustWrapperHeight]);
 
   /**
    * re-calculate the occupied gird-cells.
@@ -340,11 +423,11 @@ export function GridItem(props: GridItemProps) {
    *
    * called when item wrapper's size changes and autoHeight === true
    */
-  const onWrapperSizeChange = () => {
+  const onWrapperSizeChange = useCallback(() => {
     adjustWrapperHeight(undefined, itemHeightRef.current);
-  };
+  }, [itemHeightRef, adjustWrapperHeight]);
 
-  const mixinChildWrapper = (child: React.ReactElement): React.ReactElement => {
+  const mixinChildWrapper = useCallback((child: React.ReactElement): React.ReactElement => {
     const {
       i,
       name,
@@ -391,7 +474,27 @@ export function GridItem(props: GridItemProps) {
         {child}
       </CompSelectionWrapper>
     );
-  };
+  }, [
+    props.i,
+    props.h,
+    props.name,
+    props.autoHeight,
+    props.isSelected,
+    props.hidden,
+    props.selectedSize,
+    props.clickItem,
+    props.placeholder,
+    props.showName.bottom,
+    props.showName.top,
+    props.isSelectable,
+    props.isResizable,
+    props.compType,
+    props.resizeHandles,
+    position.top,
+    position.height,
+    onInnerSizeChange,
+    onWrapperSizeChange,
+  ]);
 
   const calcPosition = useCallback((): Position => {
     let width, height, top, left;
@@ -415,11 +518,22 @@ export function GridItem(props: GridItemProps) {
       left = position.left;
     }
     return { width, height, top, left };
-  }, [dragging, position.height, position.left, position.top, position.width, resizing]);
+  }, [
+    dragging?.top,
+    dragging?.left,
+    position.height,
+    position.left,
+    position.top,
+    position.width,
+    resizing?.width,
+    resizing?.height,
+  ]);
 
   const { isDraggable, isResizable, layoutHide, children, isSelected, clickItem, zIndex } = props;
-  const pos = calcPosition();
-  const render = () => {
+  
+  const pos = useMemo(calcPosition, [calcPosition]);
+  
+  const render = useMemo(() => {
     let child = React.Children.only(children);
     // Create the child element. We clone the existing element but modify its className and style.
     let newChild: React.ReactElement = React.cloneElement(child, {
@@ -463,18 +577,41 @@ export function GridItem(props: GridItemProps) {
     // Draggable support. This is always on, except for with placeholders.
     newChild = mixinDraggable(newChild, isDraggable);
     return newChild;
-  };
+  }, [
+    pos,
+    children,
+    elementRef,
+    resizing,
+    dragging,
+    isDraggable,
+    layoutHide,
+    zIndex,
+    props.name,
+    props.compType,
+    props.className,
+    props.style,
+    props.static,
+    props.autoHeight,
+    props.hidden,
+    setTransform,
+    mixinChildWrapper,
+    mixinResizable,
+    mixinDraggable,
+  ]);
 
-  const renderResult = useMemo(render, [pos, children, layoutHide, isSelected, clickItem]);
+  // const renderResult = useMemo(render, [pos, children, layoutHide, isSelected, clickItem]);
+  const renderResult = useMemo(() => render, [render]);
 
   return renderResult;
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+})
 
-GridItem.defaultProps = {
-  className: "",
-  minH: 1,
-  minW: 1,
-  maxH: Infinity,
-  maxW: Infinity,
-  transformScale: 1,
-};
+// GridItem.defaultProps = {
+//   className: "",
+//   minH: 1,
+//   minW: 1,
+//   maxH: Infinity,
+//   maxW: Infinity,
+//   transformScale: 1,
+// };
