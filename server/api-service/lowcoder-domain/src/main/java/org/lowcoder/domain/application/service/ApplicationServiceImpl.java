@@ -349,10 +349,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId) {
-        return repository.findById(applicationId)
+        return repository.findByIdIn(List.of(applicationId))
                 .filter(application -> application.getEditingUserId().equals(visitorId))
                 .doOnNext(application -> application.setLastEditedAt(time))
                 .flatMap(repository::save)
-                .hasElement();
+                .hasElements();
     }
 }
