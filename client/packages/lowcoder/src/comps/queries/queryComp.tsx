@@ -208,6 +208,7 @@ QueryCompTmp = class extends QueryCompTmp {
         queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes(), {
           ignoreManualDepReadyStatus:
             this.children.compType.getView() === "js" && getTriggerType(this) === "automatic",
+          queryName: this.children.name.value,
         }),
       },
       updateNodeFields: (value: any) => {
