@@ -27,7 +27,7 @@ export const updateUserAction = (payload: UpdateUserPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_USER_PROFILE,
     payload: payload,
-  };
+  }; 
 };
 
 export const updateUserSuccess = (payload: UpdateUserPayload) => {

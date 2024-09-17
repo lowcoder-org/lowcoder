@@ -145,6 +145,7 @@ export const DatasourceList = () => {
         </HeaderWrapper>
         <BodyWrapper>
           <StyledTable
+            loading={!datasource.length}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
             scroll={{ x: "100%" }}

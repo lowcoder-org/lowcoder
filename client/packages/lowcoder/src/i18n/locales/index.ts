@@ -3,7 +3,10 @@
 export * from "./de"; 
 export * from "./en";
 export * from "./it";
+export * from "./pt";
+export * from "./es";
 export * from "./zh";
+export * from "./ru";
 
 export * from "./enObj";
 export * from "./deObj";

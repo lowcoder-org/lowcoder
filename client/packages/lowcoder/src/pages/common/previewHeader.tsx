@@ -20,6 +20,7 @@ import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { useParams } from "react-router";
 import { AppPathParams } from "constants/applicationConstants";
+import React from "react";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -127,7 +128,7 @@ export function HeaderProfile(props: { user: User }) {
   );
 }
 
-export const PreviewHeader = () => {
+const PreviewHeaderComp = () => {
   const params = useParams<AppPathParams>();
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
@@ -203,3 +204,5 @@ export const PreviewHeader = () => {
     />
   );
 };
+
+export const PreviewHeader = React.memo(PreviewHeaderComp);

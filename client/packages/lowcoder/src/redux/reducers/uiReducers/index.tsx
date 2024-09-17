@@ -6,6 +6,7 @@ import configReducer from "redux/reducers/uiReducers/configReducer";
 import appSnapshotReducer from "redux/reducers/uiReducers/appSnapshotReducer";
 import commonSettingsReducer from "./commonSettingsReducer";
 import { folderReducer } from "./folderReducer";
+import subscriptionReducer from "./subscriptionReducer";
 
 export const uiReducerObject = {
   application: applicationReducer,
@@ -15,6 +16,7 @@ export const uiReducerObject = {
   org: orgReducer,
   config: configReducer,
   commonSettings: commonSettingsReducer,
+  subscriptions: subscriptionReducer,
 };
 
 const uiReducer = combineReducers(uiReducerObject);

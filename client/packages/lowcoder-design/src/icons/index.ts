@@ -127,6 +127,7 @@ export { ReactComponent as HomeListIcon } from "./v1/icon-application-list.svg";
 export { ReactComponent as HomeCardIcon } from "./v1/icon-application-card.svg";
 export { ReactComponent as APIDocsIcon } from "./remix/instance-line.svg";
 export { ReactComponent as SubscriptionIcon } from "./remix/award-fill.svg";
+export { ReactComponent as SupportIcon } from "./remix/user-heart-line.svg";
 // export { ReactComponent as AllAppIcon } from "./v1/icon-all-app.svg";
 
 

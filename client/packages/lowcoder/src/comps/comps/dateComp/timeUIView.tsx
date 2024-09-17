@@ -10,6 +10,7 @@ import { EditorContext } from "../../editorState";
 import dayjs from "dayjs"
 import { default as AntdSelect } from "antd/es/select";
 import { timeZoneOptions } from "./timeZone";
+import { omit } from "lodash";
 
 const TimePickerStyled = styled(TimePicker)<{ $style: DateTimeStyleType }>`
   width: 100%;
@@ -21,7 +22,7 @@ const TimeMobileUIView = React.lazy(() =>
 );
  
 const StyledAntdSelect = styled(AntdSelect)`
-  width: 100%;
+  width: 300px;
   margin: 10px 0; 
   .ant-select-selector {
     font-size: 14px; 
@@ -43,7 +44,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
   return useUIView(
     <TimeMobileUIView {...props} />,
     <TimePickerStyled
-      {...props}
+      {...omit(props, "format")}
       ref={props.viewRef}
       hideDisabledOptions
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
@@ -54,7 +55,7 @@ export const TimeUIView = (props: TimeUIViewProps) => {
           placeholder="Select Time Zone"
           options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
           onChange={props?.handleTimeZoneChange}
-          defaultValue={'Etc/UTC'}
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
           />
         )
       )}

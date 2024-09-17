@@ -45,6 +45,7 @@ export const en = {
   "accessControl": "Access Control",
   "copySuccess": "Copied Successfully",
   "copyError": "Copy Error",
+  
   "api": {
     "publishSuccess": "Published Successfully",
     "recoverFailed": "Recovery Failed",
@@ -1991,7 +1992,7 @@ export const en = {
     "dynamicColumnConfig": "Visible Columns",
     "dynamicColumnConfigDesc": "Dynamic Column Visibility. Accepts an Array of Column Names. All Columns Are Visible by Default. Example: [\"id\", \"name\"]",
     "position": "Position",
-    "showDataLoadSpinner": "Show Spinner During Data Loading",
+    "showDataLoadSpinner": "Show Loading Indicator",
     "showValue": "Show Value",
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
@@ -2606,7 +2607,10 @@ export const en = {
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
     "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load"
   },
   "pluginSetting": {
     "title": "Plugins",
@@ -3053,7 +3057,7 @@ export const en = {
     "appMarketplace": "Application Marketplace",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
-    "allFolders": "All Folders",
+    "allFolders": "Your Folders",
     "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
@@ -3142,13 +3146,65 @@ export const en = {
     "chooseNavType": "Please choose navigation type",
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
+    "support": "Support",
   },
+  
+  "support" : {
+    "supportTitle": "Lowcoder Support",
+    "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
+    "newSupportTicket": "New Support Ticket",
+    "ticketTitle": "Title",
+    "priority": "Priority",
+    "assignee": "Assignee",
+    "status": "Ticket Status",
+    "updatedTime": "Updated Time",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noEmail": "No Email",
+    "details": "Details",
+    "reloadTickets": "Reload Tickets",
+    "createdDate": "Created Date",
+    "updatedDate": "Updated Date",
+    "description": "Issue Description",
+    "subtasks": "Subtasks",
+    "subtasksProgress": "Progress of all Subtasks",
+    "attachments": "Issue Attachments",
+    "comments": "Comments",
+    "addComment": "Add Comment",
+    "addAttachment": "Add Attachment",
+    "edit": "Edit Ticket Description",
+    "save": "Save Ticket Description",
+    "cancel": "Cancel",
+    "submitComment": "Submit Comment",
+    "upload": "Submit Attachment",
+    "selectFile": "Select File",
+    "ticketDescriptionUpdated": "Ticket description updated successfully!",
+    "ticketDescriptionUpdateFailed": "Failed to update ticket description.",
+    "writeComment": "Write a comment...",
+    "ticketCommentAdded": "Comment added successfully!",
+    "ticketCommentFailed": "Failed to add comment.",
+    "ticketCommentEmpty": "Please write a comment before submitting.",
+    "ticketAttachmentUploaded": "Attachment uploaded successfully!",
+    "ticketAttachmentFailed": "Failed to upload attachment.",
+    "ticketAttachmentEmpty": "Please select a file to upload.",
+    "ticketFetchError": "Failed to load the ticket.",
+    "ticketNotFound": "Ticket not found.",
+    "addAttachmentFileSize": "File must be smaller than 5MB!",
+    "goBack": "Go Back",
+    "noDescription": "No description available.",
+    "createTicket": "Create a new Support Ticket",
+    "createTicketTitlePlaceholder": "Enter Title (max 150 chars)",
+    "createTicketDescriptionTitle": "Describe your problem - the more details, the better:",
+    "createTicketDescriptionPlaceholder": "Describe the issue in detail, including: 1) Steps to reproduce the issue, 2) Expected behavior versus actual behavior, 3) Code snippets, if applicable, 4) Any specific components, APIs, or configurations affected",
+    "createTicketSubmit": "Submit Ticket",
+    "createTicketInfoText": "When your Ticket is created, you can then add Screenshots, Comments in the 'Details' section."
+  },
+
   "carousel": {
     "dotPosition": "Navigation Dots position",
     "autoPlay": "AutoPlay",
     "showDots": "Show Navigation Dots"
   },
-
 
   // twentieth part
 
@@ -3633,14 +3689,19 @@ export const en = {
   "UTC+04:00": "(UTC+04:00) Dubai, Muscat",
   "UTC+05:00": "(UTC+05:00) Karachi",
   "UTC+05:30": "(UTC+05:30) New Delhi",
+  "UTC+05:45": "(UTC+05:45) Kathmandu",
   "UTC+06:00": "(UTC+06:00) Dhaka",
+  "UTC+06:30": "(UTC+06:30) Yangon",
   "UTC+07:00": "(UTC+07:00) Bangkok",
   "UTC+08:00": "(UTC+08:00) Beijing, HK",
   "UTC+09:00": "(UTC+09:00) Tokyo, Seoul",
+  "UTC+09:30": "(UTC+09:30) Adelaide, Darwin",
   "UTC+10:00": "(UTC+10:00) Sydney",
-  "UserChoice": "User Choice"
+  "UTC+11:00": "(UTC+11:00) Solomon Islands, New Caledonia",
+  "UTC+12:00": "(UTC+12:00) Auckland, Fiji",
+  "UTC+13:00": "(UTC+13:00) Nuku'alofa, Samoa",
+  "UserChoice": "UserChoice"
 },
-
   tour: { 
     section1Title: "Steps",
     section1Subtitle: "Steps",

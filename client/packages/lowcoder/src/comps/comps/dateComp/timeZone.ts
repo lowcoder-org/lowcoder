@@ -1,8 +1,9 @@
 import { trans } from "i18n";
 
 export const timeZoneOptions = [
-    { label: trans("timeZone.UTC-12:00"), value: "Etc/GMT+12" },
-    { label: trans("timeZone.UTC-11:00"), value: "Etc/GMT+11" },
+    { label: trans("timeZone.UserChoice"), value: "UserChoice" },
+    { label: trans("timeZone.UTC-12:00"), value: "Pacific/Baker" },
+    { label: trans("timeZone.UTC-11:00"), value: "Pacific/Niue" },
     { label: trans("timeZone.UTC-10:00"), value: "Pacific/Honolulu" },
     { label: trans("timeZone.UTC-09:00"), value: "America/Anchorage" },
     { label: trans("timeZone.UTC-08:00"), value: "America/Tijuana" },
@@ -11,7 +12,7 @@ export const timeZoneOptions = [
     { label: trans("timeZone.UTC-05:00"), value: "America/New_York" },
     { label: trans("timeZone.UTC-04:00"), value: "America/Halifax" },
     { label: trans("timeZone.UTC-03:00"), value: "America/Argentina/Buenos_Aires" },
-    { label: trans("timeZone.UTC-02:00"), value: "Etc/GMT+2" },
+    { label: trans("timeZone.UTC-02:00"), value: "Atlantic/South_Georgia" },
     { label: trans("timeZone.UTC-01:00"), value: "Atlantic/Cape_Verde" },
     { label: trans("timeZone.UTC+00:00"), value: "Etc/UTC" },
     { label: trans("timeZone.UTC+01:00"), value: "Europe/Berlin" },
@@ -20,10 +21,15 @@ export const timeZoneOptions = [
     { label: trans("timeZone.UTC+04:00"), value: "Asia/Dubai" },
     { label: trans("timeZone.UTC+05:00"), value: "Asia/Karachi" },
     { label: trans("timeZone.UTC+05:30"), value: "Asia/Kolkata" },
+    { label: trans("timeZone.UTC+05:45"), value: "Asia/Kathmandu" }, 
     { label: trans("timeZone.UTC+06:00"), value: "Asia/Dhaka" },
+    { label: trans("timeZone.UTC+06:30"), value: "Asia/Rangoon" },
     { label: trans("timeZone.UTC+07:00"), value: "Asia/Bangkok" },
     { label: trans("timeZone.UTC+08:00"), value: "Asia/Shanghai" },
     { label: trans("timeZone.UTC+09:00"), value: "Asia/Tokyo" },
+    { label: trans("timeZone.UTC+09:30"), value: "Australia/Darwin" },
     { label: trans("timeZone.UTC+10:00"), value: "Australia/Sydney" },
-    { label: trans("timeZone.UserChoice"), value: "UserChoice" },
+    { label: trans("timeZone.UTC+11:00"), value: "Pacific/Guadalcanal" }, 
+    { label: trans("timeZone.UTC+12:00"), value: "Pacific/Auckland" }, 
+    { label: trans("timeZone.UTC+13:00"), value: "Pacific/Tongatapu" }, 
 ];

@@ -3,6 +3,7 @@ package org.lowcoder.domain.application.service;
 
 import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -344,5 +345,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Flux<Application> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId) {
+        return repository.findByIdIn(List.of(applicationId))
+                .filter(application -> application.getEditingUserId().equals(visitorId))
+                .doOnNext(application -> application.setLastEditedAt(time))
+                .flatMap(repository::save)
+                .hasElements();
     }
 }

@@ -61,7 +61,7 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
   return useUIView(
     <DateRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange")}
+      {...omit(props, "onChange" , "format")}
       ref={props.viewRef as any}
       value={[props.start, props.end]}
       disabledDate={(current: any) => disabledDate(current, props.minDate, props.maxDate)}
@@ -82,7 +82,7 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
             <StyledAntdSelect 
               options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
               placeholder="Select Time Zone" 
-              defaultValue={'Etc/UTC'}
+              defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
               onChange={props?.onClickDateRangeTimeZone}
               />
           </StyledDiv>

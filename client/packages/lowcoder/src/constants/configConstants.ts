@@ -24,7 +24,7 @@ export interface BrandingConfig {
 export type ConfigBaseInfo = {
   selfDomain: boolean;
   cloudHosting: boolean;
-  workspaceMode: "SAAS" | "ENTERPRISE";
+  workspaceMode: "SAAS" | "ENTERPRISE" | "MULTIWORSPACE" | "SINGLEWORKSPACE";
   warning?: string;
   featureFlag: FeatureFlag;
   branding?: BrandingConfig;

@@ -19,11 +19,11 @@ export function isEE(): boolean {
 }
 
 export function isSaasMode(config?: SystemConfig) {
-  return config?.workspaceMode === "SAAS";
+  return config?.workspaceMode === "SAAS" || config?.workspaceMode === "MULTIWORSPACE";
 }
 
 export function isEnterpriseMode(config?: SystemConfig) {
-  return config?.workspaceMode === "ENTERPRISE";
+  return config?.workspaceMode === "ENTERPRISE" || config?.workspaceMode === "SINGLEWORKSPACE";
 }
 
 export function isSelfDomain(config?: SystemConfig) {

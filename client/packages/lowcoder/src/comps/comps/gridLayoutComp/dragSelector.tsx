@@ -38,7 +38,7 @@ const InitialState = {
   startPoint: undefined,
 };
 
-export class DragSelector extends React.Component<SectionProps, SectionState> {
+class DragSelectorComp extends React.Component<SectionProps, SectionState> {
   private readonly selectAreaRef: React.RefObject<HTMLDivElement>;
 
   constructor(props: SectionProps) {
@@ -178,3 +178,5 @@ export class DragSelector extends React.Component<SectionProps, SectionState> {
     };
   }
 }
+
+export const DragSelector = React.memo(DragSelectorComp);
