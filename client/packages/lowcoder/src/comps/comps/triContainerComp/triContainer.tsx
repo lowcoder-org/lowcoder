@@ -107,7 +107,7 @@ export function TriContainer(props: TriContainerProps) {
   const { showHeader, showFooter, horizontalGridCells } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = container.showBody || (!showHeader && !showFooter);
-  const scrollbars = container.scrollbars;
+  const showVerticalScrollbar = container.showVerticalScrollbar;
 
   const { items: headerItems, ...otherHeaderProps } = container.header;
   const { items: bodyItems, ...otherBodyProps } = container.body["0"].children.view.getView();
@@ -151,7 +151,7 @@ export function TriContainer(props: TriContainerProps) {
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+            <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!showVerticalScrollbar}  overflow={container.autoHeight?'hidden':'scroll'}>
               <BodyInnerGrid
                 $showBorder={showHeader}
                 {...otherBodyProps}

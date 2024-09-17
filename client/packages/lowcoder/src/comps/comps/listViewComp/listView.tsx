@@ -18,6 +18,7 @@ import {
 import { ContextContainerComp } from "./contextContainerComp";
 import { ListViewImplComp } from "./listViewComp";
 import { getCurrentItemParams, getData } from "./listViewUtils";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 
@@ -29,6 +30,7 @@ const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animati
   rotate: ${(props) => props.$style.rotation};
   background-color: ${(props) => props.$style.background};
   ${props=>props.$animationStyle}
+  
 `;
 
 const FooterWrapper = styled.div`
@@ -39,7 +41,8 @@ const FooterWrapper = styled.div`
 `;
 
 const BodyWrapper = styled.div<{ $autoHeight: boolean }>`
-  height: ${(props) => (props.$autoHeight ? "100%" : "calc(100% - 32px)")};
+  overflow: ${(props) => (!props.$autoHeight ? "auto" : "hidden")}; 
+  height: ${(props) => (props.$autoHeight ? "auto" : "calc(100% - 32px)")};
 `;
 
 const FlexWrapper = styled.div` 
@@ -56,8 +59,7 @@ const ListOrientationWrapper = styled.div<{
 }>`
   height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
   display: flex;
-  flex-direction: ${(props) => (props.$isHorizontal && !props.$isGrid ? "row" : "column")};
-  height: 100%;
+  flex-direction: ${(props) => (props.$isHorizontal ? "row" : "column")};
 `;
 
 type MinHorizontalWidthContextType = {
@@ -189,7 +191,8 @@ export function ListView(props: Props) {
   );
   const horizontalGridCells = useMemo(() => children.horizontalGridCells.getView(), [children.horizontalGridCells]);
   const autoHeight = useMemo(() => children.autoHeight.getView(), [children.autoHeight]);
-  const scrollbars = useMemo(() => children.scrollbars.getView(), [children.scrollbars]);
+  const showHorizontalScrollbar = useMemo(() => children.showHorizontalScrollbar.getView(), [children.showHorizontalScrollbar]);
+  const showVerticalScrollbar = useMemo(() => children.showVerticalScrollbar.getView(), [children.showVerticalScrollbar])
   const horizontal = useMemo(() => children.horizontal.getView(), [children.horizontal]);
   const minHorizontalWidth = useMemo(() => children.minHorizontalWidth.getView(), [children.minHorizontalWidth]);
   const noOfColumns = useMemo(
@@ -283,12 +286,14 @@ export function ListView(props: Props) {
 
   const childrenProps = childrenToProps(comp.children);
 
+  useMergeCompStyles(childrenProps, comp.dispatch);
+
   // log.debug("renders: ", renders);
   return (
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
-          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!scrollbars}>
+          <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={horizontal ? !showHorizontalScrollbar : !showVerticalScrollbar} overflow={autoHeight ? horizontal ? 'scroll' : 'hidden' : 'scroll'}>
             <ReactResizeDetector
               onResize={(width?: number, height?: number) => {
                 if (height) setListHeight(height);
@@ -314,3 +319,4 @@ export function ListView(props: Props) {
     </BackgroundColorContext.Provider>
   );
 }
+

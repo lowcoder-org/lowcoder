@@ -88,7 +88,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
   // const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = true;
-  const scrollbars = container.scrollbars;
+  const showVerticalScrollbar = container.showVerticalScrollbar;
 
   const { items: bodyItems, ...otherBodyProps } =
   container.body["0"].children.view.getView();
@@ -120,7 +120,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
               margin: "0px",
               padding: "0px",
             }}
-            hideScrollbar={!scrollbars}
+            hideScrollbar={!showVerticalScrollbar}
           >
             <div style={{ position: "relative", height: "100%" }}>
               <StylesShape 
