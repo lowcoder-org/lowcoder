@@ -19,7 +19,7 @@ public interface PrivateNpmRegistryEndpoint {
             tags = TAG_NPM_REGISTRY_MANAGEMENT,
             operationId = "getNpmPackageMeta",
             summary = "Get NPM registry Metadata",
-            description = "Retrieve the metadata of private NPM registry package within Lowcoder."
+            description = "Retrieve the metadata of private NPM registry package."
     )
 //    @GetMapping("/registry/{name}")
     public Mono<ResponseEntity<Resource>> getNpmPackageMeta(@PathVariable String name);
@@ -28,7 +28,7 @@ public interface PrivateNpmRegistryEndpoint {
             tags = TAG_NPM_REGISTRY_MANAGEMENT,
             operationId = "getNpmPackageAsset",
             summary = "Get NPM registry asset",
-            description = "Retrieve the asset of private NPM registry package within Lowcoder."
+            description = "Retrieve the asset of private NPM registry package."
     )
 //    @GetMapping("/package/{path}")
     public Mono<ResponseEntity<Resource>> getNpmPackageAsset(@PathVariable String path);
