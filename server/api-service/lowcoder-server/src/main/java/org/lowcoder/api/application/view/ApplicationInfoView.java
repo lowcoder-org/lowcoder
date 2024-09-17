@@ -33,6 +33,7 @@ public class ApplicationInfoView {
     @Nullable
     private final Instant lastViewTime; // user last visit time for this app
     private final Instant lastModifyTime; // app's last update time
+    private final long lastEditedAt;
 
     private final boolean publicToAll;
     private final boolean publicToMarketplace;
