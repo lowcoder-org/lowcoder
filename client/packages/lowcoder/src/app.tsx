@@ -402,7 +402,7 @@ const mapStateToProps = (state: AppState) => ({
   getIsCommonSettingFetched: getIsCommonSettingFetched(state),
   orgDev: state.ui.users.user.orgDev,
   currentUserId: state.ui.users.currentUser.id,
-  currentUserAnonymous: state.ui.users.currentUser.name === "ANONYMOUS",
+  currentUserAnonymous: state.ui.users.user.isAnonymous,
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
   fetchHomeDataFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
