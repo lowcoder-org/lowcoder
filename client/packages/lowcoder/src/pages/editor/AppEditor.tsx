@@ -32,6 +32,8 @@ import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
 import history from "util/history";
 import Flex from "antd/es/flex";
 import React from "react";
+import dayjs from "dayjs";
+import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -52,13 +54,16 @@ const AppEditor = React.memo(() => {
   const paramViewMode = params.viewMode || window.location.pathname.split("/")[3];
   const viewMode = (paramViewMode === "view" || paramViewMode === "admin") ? "published" : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing";
   const currentUser = useSelector(getUser);
+  const application = useSelector(currentApplication);
   const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
   const orgId = currentUser.currentOrgId;
   const firstRendered = useRef(false);
+  const fetchInterval = useRef<number>(0);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
+  const [blockEditing, setBlockEditing] = useState<boolean>(false);
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
@@ -83,7 +88,22 @@ const AppEditor = React.memo(() => {
   });
 
   const readOnly = isUserViewMode;
-  const compInstance = useRootCompInstance(appInfo, readOnly, isDataSourcePluginRegistered);
+  const compInstance = useRootCompInstance(
+    appInfo,
+    readOnly,
+    isDataSourcePluginRegistered,
+    blockEditing,
+  );
+
+  useEffect(() => {
+    if (currentUser && application) {
+      const lastEditedAt = dayjs(application?.lastEditedAt);
+      const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
+      const shouldBlockEditing = currentUser.id !== application?.createBy && lastEditedDiff < 5;
+      setBlockEditing(shouldBlockEditing);
+      console.log('blockEditing', shouldBlockEditing, {user_id: currentUser.id, editingUserId: application.createBy, lastEditedDiff});
+    }
+  }, [application, currentUser]);
 
   // fetch dataSource and plugin
   useEffect(() => {
@@ -100,7 +120,7 @@ const AppEditor = React.memo(() => {
       dispatch(fetchQueryLibraryDropdown());
     }
   }, [dispatch, applicationId, paramViewMode]);
-  
+
   const fetchJSDataSourceByApp = () => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
@@ -117,7 +137,7 @@ const AppEditor = React.memo(() => {
     }
   }, [dispatch, fetchOrgGroupsFinished, orgId]);
 
-  useEffect(() => {
+  const fetchApplication = useCallback(() => {
     dispatch(
       fetchApplicationInfo({
         type: viewMode,
@@ -141,6 +161,20 @@ const AppEditor = React.memo(() => {
       })
     );
   }, [viewMode, applicationId, dispatch]);
+
+  useEffect(() => {
+    fetchApplication();
+  }, [fetchApplication]);
+
+  // useEffect(() => {
+  //   if(!blockEditing) return clearInterval(fetchInterval.current);
+  //   if(blockEditing) {
+  //     fetchInterval.current = window.setInterval(() => {
+  //       fetchApplication();
+  //     }, 60000);
+  //   }
+  //   return () => clearInterval(fetchInterval.current);
+  // }, [blockEditing, fetchApplication]);
 
   const fallbackUI = useMemo(() => (
     <Flex align="center" justify="center" vertical style={{
@@ -182,6 +216,7 @@ const AppEditor = React.memo(() => {
           <AppEditorInternalView
             appInfo={appInfo}
             readOnly={readOnly}
+            blockEditing={blockEditing}
             loading={
               !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
             }

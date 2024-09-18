@@ -38,6 +38,11 @@ export interface ExternalEditorContextState {
    */
   showScriptsAndStyleModal?: boolean;
 
+  /**
+   * whether to block editing if someone else is editing the app
+   */
+  blockEditing?: boolean;
+
   changeExternalState?: (state: Partial<ExternalEditorContextState>) => void;
 }
 

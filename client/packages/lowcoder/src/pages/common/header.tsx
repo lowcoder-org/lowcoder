@@ -332,6 +332,7 @@ type HeaderProps = {
 // header in editor page
 export default function Header(props: HeaderProps) {
   const editorState = useContext(EditorContext);
+  const { blockEditing } = useContext(ExternalEditorContext);
   const { togglePanel } = props;
   const { toggleEditorModeStatus } = props;
   const { left, bottom, right } = props.panelStatus;
@@ -348,23 +349,17 @@ export default function Header(props: HeaderProps) {
   const [editingUser, setEditingUser] = useState<CurrentUser>();
 
   const isModule = appType === AppTypeEnum.Module;
-  const blockEditing = useMemo(
-    () => user.id !== application?.editingUserId,
-    [application?.editingUserId]
-  );
 
   useEffect(() => {
     if(blockEditing && application && Boolean(application?.editingUserId)) {
       UserApi.getUserDetail(application.editingUserId!)
         .then(resp => {
           if (validateResponse(resp)) {
-            console.log(resp.data.data);
             setEditingUser(resp.data.data);
           }
         });
     }
   }, [blockEditing]);
-  console.log(user.id, application?.editingUserId);
 
   const editorModeOptions = [
     {
