@@ -31,6 +31,7 @@ export type RecordOptionalNodeToValue<T> = {
 
 export interface FetchInfoOptions {
   ignoreManualDepReadyStatus?: boolean; // ignore check manual query deps ready status
+  queryName?: string;
 }
 
 /**
