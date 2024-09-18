@@ -557,7 +557,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .agencyProfile(application.agencyProfile())
                 .editingUserId(application.getEditingUserId())
                 .lastModifyTime(application.getUpdatedAt())
-                .lastEditedAt(application.getLastEditedAt().toEpochMilli())
+                .lastEditedAt(application.getLastEditedAt())
                 .build();
     }
 
