@@ -556,6 +556,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile())
                 .editingUserId(application.getEditingUserId())
+                .lastModifyTime(application.getUpdatedAt())
+                .lastEditedAt(application.getLastEditedAt())
                 .build();
     }
 
