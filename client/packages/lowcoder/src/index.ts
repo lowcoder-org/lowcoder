@@ -2,6 +2,8 @@ import "core-js/actual";
 import ResizeObserver from "resize-observer-polyfill";
 import numbro from "numbro";
 import Papa from "papaparse";
+import * as supabase from "@supabase/supabase-js";
+
 import * as uuid from "uuid";
 import "regenerator-runtime/runtime";
 import "virtual:globals";
@@ -15,6 +17,7 @@ import 'animate.css';
 window.numbro = numbro;
 window.Papa = Papa;
 window.uuid = uuid;
+window.supabase = supabase;
 
 // for chrome 63
 if (!window.ResizeObserver) {
