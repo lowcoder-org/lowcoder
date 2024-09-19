@@ -76,7 +76,6 @@ const AppEditor = React.memo(() => {
   );
 
   const firstRendered = useRef(false);
-  const fetchInterval = useRef<number>(0);
   const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
@@ -188,22 +187,6 @@ const AppEditor = React.memo(() => {
     fetchApplication();
   }, [fetchApplication]);
 
-  useEffect(() => {
-    if(!blockEditing && fetchInterval.current) {
-      notificationInstance.info({
-        message: 'Editing Enabled',
-        description: 'Editing is now enabled. You can proceed with your changes.'
-      });
-      return clearInterval(fetchInterval.current);
-    }
-    if(blockEditing) {
-      fetchInterval.current = window.setInterval(() => {
-        fetchApplication();
-      }, 60000);
-    }
-    return () => clearInterval(fetchInterval.current);
-  }, [blockEditing, fetchApplication]);
-
   const fallbackUI = useMemo(() => (
     <Flex align="center" justify="center" vertical style={{
       height: '300px',
@@ -249,6 +232,7 @@ const AppEditor = React.memo(() => {
               !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
             }
             compInstance={compInstance}
+            fetchApplication={fetchApplication}
           />
         </Suspense>
       )}

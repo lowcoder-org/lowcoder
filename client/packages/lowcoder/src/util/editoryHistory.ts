@@ -46,7 +46,7 @@ export function useAppHistory(
       showCost("addHistory", () => addHistory(actions));
     });
     return history;
-  }, [appId, compContainer, reduxDispatch, readOnly]);
+  }, [appId, compContainer, reduxDispatch, readOnly, blockEditing]);
 }
 
 /**

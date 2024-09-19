@@ -79,13 +79,14 @@ interface AppEditorInternalViewProps {
   appInfo: AppSummaryInfo;
   loading: boolean;
   compInstance: RootCompInstanceType;
+  fetchApplication?: () => void;
 }
 
 export const AppEditorInternalView = React.memo((props: AppEditorInternalViewProps) => {
   const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
   const dispatch = useDispatch();
-  const { readOnly, blockEditing, appInfo, compInstance } = props;
+  const { readOnly, blockEditing, appInfo, compInstance, fetchApplication } = props;
 
   const [externalEditorState, setExternalEditorState] = useState<ExternalEditorContextState>({
     changeExternalState: (state: Partial<ExternalEditorContextState>) => {
@@ -104,6 +105,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
       applicationId: appInfo.id,
       hideHeader: window.location.pathname.split("/")[3] === "admin",
       blockEditing,
+      fetchApplication: fetchApplication,
       ...extraExternalEditorState,
     }));
   }, [
@@ -112,6 +114,7 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
     readOnly,
     appInfo.appType, appInfo.id,
     blockEditing,
+    fetchApplication,
   ]);
 
   useEffect(() => {

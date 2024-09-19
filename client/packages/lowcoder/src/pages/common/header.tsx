@@ -1,6 +1,10 @@
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Radio, RadioChangeEvent } from "antd/es/radio";
+import { default as Statistic} from "antd/es/statistic";
+import { default as Flex} from "antd/es/flex";
+import { default as Popover } from "antd/es/popover";
+import { default as Typography } from "antd/es/typography";
 import LayoutHeader from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -20,12 +24,13 @@ import {
   Middle,
   ModuleIcon,
   PackUpIcon,
+  RefreshIcon,
   Right,
   TacoButton,
 } from "lowcoder-design";
 import { trans } from "i18n";
 import dayjs from "dayjs";
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   publishApplication,
@@ -58,7 +63,10 @@ import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
 import Avatar from 'antd/es/avatar';
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import ProfileImage from "./profileImage";
 
+const { Countdown } = Statistic;
+const { Text } = Typography;
 
 const StyledLink = styled.a`
   display: flex;
@@ -186,6 +194,10 @@ const GrayBtn = styled(TacoButton)`
       color: #ffffff;
       border: none;
     }
+    
+    &[disabled] {
+      cursor: not-allowed;
+    }
   }
 `;
 
@@ -282,6 +294,23 @@ const WarningIcon = styled(ExclamationCircleOutlined)`
   color: #ff4d4f; /* Red color for the icon */
 `;
 
+const StyledCountdown = styled(Countdown)`
+  .ant-statistic-content {
+    color: #ff4d4f;
+    margin-top: 2px;
+    text-align: center;
+  }
+`;
+
+const StyledRefreshIcon = styled(RefreshIcon)`
+  width: 16px !important;
+  height: 16px !important;
+  margin-right: -3px !important;
+  > g > g {
+    stroke: white;
+  }
+`;
+
 // Add the lock icon logic for disabled options
 const DropdownMenuStyled = styled(DropdownMenu)`
   .ant-dropdown-menu-item:hover {
@@ -314,6 +343,8 @@ function HeaderProfile(props: { user: User }) {
   );
 }
 
+const setCountdown = () => dayjs().add(3, 'minutes').toISOString();
+
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
 
@@ -332,7 +363,7 @@ type HeaderProps = {
 // header in editor page
 export default function Header(props: HeaderProps) {
   const editorState = useContext(EditorContext);
-  const { blockEditing } = useContext(ExternalEditorContext);
+  const { blockEditing, fetchApplication } = useContext(ExternalEditorContext);
   const { togglePanel } = props;
   const { toggleEditorModeStatus } = props;
   const { left, bottom, right } = props.panelStatus;
@@ -347,6 +378,8 @@ export default function Header(props: HeaderProps) {
   const [editing, setEditing] = useState(false);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<CurrentUser>();
+  const [enableCheckEditingStatus, setEnableCheckEditingStatus] = useState<boolean>(false);
+  const editingCountdown = useRef(setCountdown());
 
   const isModule = appType === AppTypeEnum.Module;
 
@@ -434,8 +467,6 @@ export default function Header(props: HeaderProps) {
 
   const headerMiddle = (
     <>
-      <>      
-      </>
       <Radio.Group
         onChange={onEditorStateValueChange}
         value={props.editorModeStatus}
@@ -503,20 +534,54 @@ export default function Header(props: HeaderProps) {
       <>
         {/* Display a hint about who is editing the app */}
         {blockEditing && (
-          <Tooltip
-            title="Changes will not be saved while another user is editing this app."
-            color="red"
-            placement="bottom"
+          <>
+          <Popover
+            style={{ width: 200 }}
+            content={() => {
+              return (
+                <Flex vertical gap={10} align="center">
+                  <Text>
+                    Changes will not be saved while another <br/> user is editing this app.
+                  </Text>
+                  <StyledCountdown
+                    title="Editing Availability"
+                    value={editingCountdown.current}
+                    onFinish={() => {
+                      setEnableCheckEditingStatus(true)
+                    }}
+                  />
+                  <Tooltip
+                    title="You will be able to check the editing status after the countdown."
+                    placement="bottom"
+                  >
+                    <TacoButton
+                      style={{width: '100%'}}
+                      buttonType="primary"
+                      disabled={blockEditing && !enableCheckEditingStatus}
+                      onClick={() => {
+                        fetchApplication?.();
+                        setEnableCheckEditingStatus(false);
+                        editingCountdown.current = setCountdown();
+                      }}
+                    >
+                      <StyledRefreshIcon />
+                      <span>Check Editing Status</span>
+                    </TacoButton>
+                  </Tooltip>
+                </Flex>
+              )
+            }}
+            trigger="hover"
           >
             <EditingNoticeWrapper>
-              <Avatar size="small" src={user.avatarUrl} />
+              <ProfileImage source={user.avatarUrl} userName={user.username} side={24} />
               <EditingHintText>
-                {/* {`${user.username} is currently editing this app.`} */}
-                {`${editingUser?.name || 'Someone'} is currently editing this app`}
+                {`${editingUser?.name || 'Someone'} is editing this app`}
               </EditingHintText>
               <WarningIcon />
             </EditingNoticeWrapper>
-          </Tooltip>
+          </Popover>
+          </>
         )}
 
         {applicationId && (
@@ -529,7 +594,7 @@ export default function Header(props: HeaderProps) {
           />
         )}
         {canManageApp(user, application) && (
-          <GrayBtn onClick={() => setPermissionDialogVisible(true)}>
+          <GrayBtn onClick={() => setPermissionDialogVisible(true)} disabled={blockEditing}>
             {SHARE_TITLE}
           </GrayBtn>
         )}
@@ -596,6 +661,7 @@ export default function Header(props: HeaderProps) {
     applicationId,
     permissionDialogVisible,
     blockEditing, // Include the state in the dependency array
+    enableCheckEditingStatus,
     editingUser?.name,
   ]);
 
