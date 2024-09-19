@@ -46,21 +46,37 @@ const AppEditorInternalView = lazy(
 );
 
 const AppEditor = React.memo(() => {
-  const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const dispatch = useDispatch();
   const params = useParams<AppPathParams>();
   const isUserViewModeCheck = useUserViewMode();
-  const isUserViewMode = params.viewMode ? isUserViewModeCheck : true;
-  const applicationId = params.applicationId || window.location.pathname.split("/")[2];
-  const paramViewMode = params.viewMode || window.location.pathname.split("/")[3];
-  const viewMode = (paramViewMode === "view" || paramViewMode === "admin") ? "published" : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing";
+  const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const currentUser = useSelector(getUser);
-  const application = useSelector(currentApplication);
-  const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
-  const orgId = currentUser.currentOrgId;
+  const application = useSelector(currentApplication);
+
+  const isUserViewMode = useMemo(
+    () => params.viewMode ? isUserViewModeCheck : true,
+    [params.viewMode, isUserViewModeCheck]
+  );
+  const applicationId = useMemo(
+    () => params.applicationId || window.location.pathname.split("/")[2],
+    [params.applicationId, window.location.pathname]
+  );
+  const paramViewMode = useMemo(
+    () => params.viewMode || window.location.pathname.split("/")[3],
+    [params.viewMode, window.location.pathname]
+  );
+  const viewMode = useMemo(
+    () => (paramViewMode === "view" || paramViewMode === "admin")
+      ? "published"
+      : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
+    [paramViewMode]
+  );
+
   const firstRendered = useRef(false);
   const fetchInterval = useRef<number>(0);
+  const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
   const [blockEditing, setBlockEditing] = useState<boolean>(false);
@@ -99,7 +115,8 @@ const AppEditor = React.memo(() => {
     if (currentUser && application) {
       const lastEditedAt = dayjs(application?.lastEditedAt);
       const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
-      const shouldBlockEditing = currentUser.id !== application?.createBy && lastEditedDiff < 5;
+      // const shouldBlockEditing = currentUser.id !== application?.createBy && lastEditedDiff < 5;
+      const shouldBlockEditing = lastEditedDiff < 5;
       setBlockEditing(shouldBlockEditing);
       console.log('blockEditing', shouldBlockEditing, {user_id: currentUser.id, editingUserId: application.createBy, lastEditedDiff});
     }
@@ -120,8 +137,8 @@ const AppEditor = React.memo(() => {
       dispatch(fetchQueryLibraryDropdown());
     }
   }, [dispatch, applicationId, paramViewMode]);
-
-  const fetchJSDataSourceByApp = () => {
+  
+  const fetchJSDataSourceByApp = useCallback(() => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
@@ -129,7 +146,13 @@ const AppEditor = React.memo(() => {
       setIsDataSourcePluginRegistered(true);
     });
     dispatch(setShowAppSnapshot(false));
-  };
+  }, [
+    applicationId,
+    registryDataSourcePlugin,
+    setIsDataSourcePluginRegistered,
+    setShowAppSnapshot,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (!fetchOrgGroupsFinished) {
@@ -160,7 +183,7 @@ const AppEditor = React.memo(() => {
         }
       })
     );
-  }, [viewMode, applicationId, dispatch]);
+  }, [viewMode, applicationId, dispatch, fetchJSDataSourceByApp]);
 
   useEffect(() => {
     fetchApplication();
