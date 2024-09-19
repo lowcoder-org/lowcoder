@@ -544,14 +544,14 @@ export default function Header(props: HeaderProps) {
                     Changes will not be saved while another <br/> user is editing this app.
                   </Text>
                   <StyledCountdown
-                    title="Editing Availability"
+                    title="App Editing Blocked for:"
                     value={editingCountdown.current}
                     onFinish={() => {
                       setEnableCheckEditingStatus(true)
                     }}
                   />
                   <Tooltip
-                    title="You will be able to check the editing status after the countdown."
+                    title="Please wait before check the editing status of the App."
                     placement="bottom"
                   >
                     <TacoButton
@@ -565,7 +565,7 @@ export default function Header(props: HeaderProps) {
                       }}
                     >
                       <StyledRefreshIcon />
-                      <span>Check Editing Status</span>
+                      <span>Check App Status</span>
                     </TacoButton>
                   </Tooltip>
                 </Flex>
@@ -576,7 +576,7 @@ export default function Header(props: HeaderProps) {
             <EditingNoticeWrapper>
               <ProfileImage source={user.avatarUrl} userName={user.username} side={24} />
               <EditingHintText>
-                {`${editingUser?.name || 'Someone'} is editing this app`}
+                {`${editingUser?.email || 'Someone'} is editing this app`}
               </EditingHintText>
               <WarningIcon />
             </EditingNoticeWrapper>
