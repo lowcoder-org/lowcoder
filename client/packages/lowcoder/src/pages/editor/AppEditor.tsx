@@ -34,6 +34,7 @@ import Flex from "antd/es/flex";
 import React from "react";
 import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { notificationInstance } from "components/GlobalInstances";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -115,10 +116,8 @@ const AppEditor = React.memo(() => {
     if (currentUser && application) {
       const lastEditedAt = dayjs(application?.lastEditedAt);
       const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
-      // const shouldBlockEditing = currentUser.id !== application?.createBy && lastEditedDiff < 5;
-      const shouldBlockEditing = lastEditedDiff < 5;
+      const shouldBlockEditing = currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
       setBlockEditing(shouldBlockEditing);
-      console.log('blockEditing', shouldBlockEditing, {user_id: currentUser.id, editingUserId: application.createBy, lastEditedDiff});
     }
   }, [application, currentUser]);
 
@@ -189,15 +188,21 @@ const AppEditor = React.memo(() => {
     fetchApplication();
   }, [fetchApplication]);
 
-  // useEffect(() => {
-  //   if(!blockEditing) return clearInterval(fetchInterval.current);
-  //   if(blockEditing) {
-  //     fetchInterval.current = window.setInterval(() => {
-  //       fetchApplication();
-  //     }, 60000);
-  //   }
-  //   return () => clearInterval(fetchInterval.current);
-  // }, [blockEditing, fetchApplication]);
+  useEffect(() => {
+    if(!blockEditing && fetchInterval.current) {
+      notificationInstance.info({
+        message: 'Editing Enabled',
+        description: 'Editing is now enabled. You can proceed with your changes.'
+      });
+      return clearInterval(fetchInterval.current);
+    }
+    if(blockEditing) {
+      fetchInterval.current = window.setInterval(() => {
+        fetchApplication();
+      }, 60000);
+    }
+    return () => clearInterval(fetchInterval.current);
+  }, [blockEditing, fetchApplication]);
 
   const fallbackUI = useMemo(() => (
     <Flex align="center" justify="center" vertical style={{
