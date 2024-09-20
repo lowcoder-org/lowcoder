@@ -2922,7 +2922,13 @@ export const en = {
     "editorMode_logic": "Logic",
     "editorMode_both": "Both",
     "editorMode_layout_tooltip": "Customise the component's appearance and layout, in the right window. Adjust how it looks, styles, and animates.",
-    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours."
+    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours.",
+    "AppEditingBlocked": "App Editing Blocked for:",
+    "AppEditingBlockedHint": "Changes will not be saved while another user is editing this app.",
+    "AppEditingBlockedMessage": "Please wait before check the editing status of the App.",
+    "AppEditingBlockedCheckStatus": "Check App Status",
+    "AppEditingBlockedSomeone": "Someone",
+    "AppEditingBlockedMessageSnipped": "is editing this app",
   },
   "userAuth": {
     "registerByEmail": "Sign Up",

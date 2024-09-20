@@ -2986,6 +2986,12 @@ export const ru = {
   "editorMode_both": "Оба",
   "editorMode_layout_tooltip": "Настройте внешний вид и расположение компонента в правом окне. Настройте его внешний вид, стили и анимацию.",
   "editorMode_logic_tooltip": "Настройте работу и взаимодействие вашего компонента в нужном окне. Управляйте его содержимым и интерактивным поведением.",
+  "AppEditingBlocked": "Редактирование приложения заблокировано для:",
+  "AppEditingBlockedHint": "Изменения не будут сохранены, пока другой пользователь редактирует это приложение.",
+  "AppEditingBlockedMessage": "Пожалуйста, подождите, прежде чем проверить статус редактирования приложения.",
+  "AppEditingBlockedCheckStatus": "Проверить статус приложения",
+  "AppEditingBlockedSomeone": "Кто-то",
+  "AppEditingBlockedMessageSnipped": "редактирует это приложение",
   },
   "userAuth": {
     ...en.userAuth,

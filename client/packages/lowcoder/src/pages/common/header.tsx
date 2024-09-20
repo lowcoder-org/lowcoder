@@ -388,6 +388,8 @@ export default function Header(props: HeaderProps) {
       UserApi.getUserDetail(application.editingUserId!)
         .then(resp => {
           if (validateResponse(resp)) {
+
+            console.log('editing user', resp.data.data);
             setEditingUser(resp.data.data);
           }
         });
@@ -539,19 +541,19 @@ export default function Header(props: HeaderProps) {
             style={{ width: 200 }}
             content={() => {
               return (
-                <Flex vertical gap={10} align="center">
-                  <Text>
-                    Changes will not be saved while another <br/> user is editing this app.
+                <Flex vertical gap={10} align="center" style={{maxWidth : "250px"}}>
+                  <Text style={{textAlign : "center"}}> 
+                    {trans("header.AppEditingBlockedHint")}
                   </Text>
                   <StyledCountdown
-                    title="App Editing Blocked for:"
+                    title={trans("header.AppEditingBlocked")}
                     value={editingCountdown.current}
                     onFinish={() => {
                       setEnableCheckEditingStatus(true)
                     }}
                   />
                   <Tooltip
-                    title="Please wait before check the editing status of the App."
+                    title={trans("header.AppEditingBlockedMessage")}
                     placement="bottom"
                   >
                     <TacoButton
@@ -565,7 +567,7 @@ export default function Header(props: HeaderProps) {
                       }}
                     >
                       <StyledRefreshIcon />
-                      <span>Check App Status</span>
+                      <span>{trans("header.AppEditingBlockedCheckStatus")}</span>
                     </TacoButton>
                   </Tooltip>
                 </Flex>
@@ -576,7 +578,7 @@ export default function Header(props: HeaderProps) {
             <EditingNoticeWrapper>
               <ProfileImage source={user.avatarUrl} userName={user.username} side={24} />
               <EditingHintText>
-                {`${editingUser?.email || 'Someone'} is editing this app`}
+                {`${editingUser?.email || trans("header.AppEditingBlockedSomeone")}` + " " + trans("header.AppEditingBlockedMessageSnipped")}
               </EditingHintText>
               <WarningIcon />
             </EditingNoticeWrapper>
