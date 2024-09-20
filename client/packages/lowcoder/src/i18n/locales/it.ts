@@ -2986,6 +2986,12 @@ export const it = {
   "editorMode_both": "Entrambi",
   "editorMode_layout_tooltip": "Personalizzare l'aspetto e il layout del componente, nella finestra di destra. Regolate l'aspetto, gli stili e le animazioni.",
   "editorMode_logic_tooltip": "Impostate il funzionamento e l'interazione del vostro componente, nella finestra giusta. Gestite il suo contenuto e i suoi comportamenti interattivi.",
+  "AppEditingBlocked": "Modifica dell'app bloccata per:",
+  "AppEditingBlockedHint": "Le modifiche non verranno salvate mentre un altro utente sta modificando questa app.",
+  "AppEditingBlockedMessage": "Attendere prima di controllare lo stato di modifica dell'app.",
+  "AppEditingBlockedCheckStatus": "Controlla lo stato dell'app",
+  "AppEditingBlockedSomeone": "Qualcuno",
+  "AppEditingBlockedMessageSnipped": "sta modificando questa app",
   },
   "userAuth": {
     ...en.userAuth,

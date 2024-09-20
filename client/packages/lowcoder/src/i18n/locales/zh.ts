@@ -2352,7 +2352,13 @@ export const zh: typeof en = {
         editorMode_logic: "应用程序逻辑",
         editorMode_both: "两者",
         editorMode_layout_tooltip: "在右侧窗口中自定义组件的外观和布局。调整它的外观、样式和动画。",
-        editorMode_logic_tooltip: "在右侧窗口中设置组件的工作和交互方式。管理其内容和交互行为。"
+        editorMode_logic_tooltip: "在右侧窗口中设置组件的工作和交互方式。管理其内容和交互行为。",
+        "AppEditingBlocked": "应用编辑已被阻止：",
+        "AppEditingBlockedHint": "在其他用户编辑此应用时，无法保存更改。",
+        "AppEditingBlockedMessage": "请稍候再检查应用的编辑状态。",
+        "AppEditingBlockedCheckStatus": "检查应用状态",
+        "AppEditingBlockedSomeone": "某人",
+        "AppEditingBlockedMessageSnipped": "正在编辑此应用",
     },
     userAuth: {
         ...en.userAuth,

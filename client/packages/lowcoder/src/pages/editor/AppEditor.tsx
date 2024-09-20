@@ -32,6 +32,9 @@ import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
 import history from "util/history";
 import Flex from "antd/es/flex";
 import React from "react";
+import dayjs from "dayjs";
+import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { notificationInstance } from "components/GlobalInstances";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -44,21 +47,39 @@ const AppEditorInternalView = lazy(
 );
 
 const AppEditor = React.memo(() => {
-  const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const dispatch = useDispatch();
   const params = useParams<AppPathParams>();
   const isUserViewModeCheck = useUserViewMode();
-  const isUserViewMode = params.viewMode ? isUserViewModeCheck : true;
-  const applicationId = params.applicationId || window.location.pathname.split("/")[2];
-  const paramViewMode = params.viewMode || window.location.pathname.split("/")[3];
-  const viewMode = (paramViewMode === "view" || paramViewMode === "admin") ? "published" : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing";
+  const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const currentUser = useSelector(getUser);
-  const dispatch = useDispatch();
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
-  const orgId = currentUser.currentOrgId;
+  const application = useSelector(currentApplication);
+
+  const isUserViewMode = useMemo(
+    () => params.viewMode ? isUserViewModeCheck : true,
+    [params.viewMode, isUserViewModeCheck]
+  );
+  const applicationId = useMemo(
+    () => params.applicationId || window.location.pathname.split("/")[2],
+    [params.applicationId, window.location.pathname]
+  );
+  const paramViewMode = useMemo(
+    () => params.viewMode || window.location.pathname.split("/")[3],
+    [params.viewMode, window.location.pathname]
+  );
+  const viewMode = useMemo(
+    () => (paramViewMode === "view" || paramViewMode === "admin")
+      ? "published"
+      : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
+    [paramViewMode]
+  );
+
   const firstRendered = useRef(false);
+  const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
+  const [blockEditing, setBlockEditing] = useState<boolean>(false);
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
@@ -83,7 +104,21 @@ const AppEditor = React.memo(() => {
   });
 
   const readOnly = isUserViewMode;
-  const compInstance = useRootCompInstance(appInfo, readOnly, isDataSourcePluginRegistered);
+  const compInstance = useRootCompInstance(
+    appInfo,
+    readOnly,
+    isDataSourcePluginRegistered,
+    blockEditing,
+  );
+
+  useEffect(() => {
+    if (currentUser && application) {
+      const lastEditedAt = dayjs(application?.lastEditedAt);
+      const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
+      const shouldBlockEditing = currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
+      setBlockEditing(shouldBlockEditing);
+    }
+  }, [application, currentUser]);
 
   // fetch dataSource and plugin
   useEffect(() => {
@@ -101,7 +136,7 @@ const AppEditor = React.memo(() => {
     }
   }, [dispatch, applicationId, paramViewMode]);
   
-  const fetchJSDataSourceByApp = () => {
+  const fetchJSDataSourceByApp = useCallback(() => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
@@ -109,7 +144,13 @@ const AppEditor = React.memo(() => {
       setIsDataSourcePluginRegistered(true);
     });
     dispatch(setShowAppSnapshot(false));
-  };
+  }, [
+    applicationId,
+    registryDataSourcePlugin,
+    setIsDataSourcePluginRegistered,
+    setShowAppSnapshot,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (!fetchOrgGroupsFinished) {
@@ -117,7 +158,7 @@ const AppEditor = React.memo(() => {
     }
   }, [dispatch, fetchOrgGroupsFinished, orgId]);
 
-  useEffect(() => {
+  const fetchApplication = useCallback(() => {
     dispatch(
       fetchApplicationInfo({
         type: viewMode,
@@ -140,7 +181,11 @@ const AppEditor = React.memo(() => {
         }
       })
     );
-  }, [viewMode, applicationId, dispatch]);
+  }, [viewMode, applicationId, dispatch, fetchJSDataSourceByApp]);
+
+  useEffect(() => {
+    fetchApplication();
+  }, [fetchApplication]);
 
   const fallbackUI = useMemo(() => (
     <Flex align="center" justify="center" vertical style={{
@@ -182,10 +227,12 @@ const AppEditor = React.memo(() => {
           <AppEditorInternalView
             appInfo={appInfo}
             readOnly={readOnly}
+            blockEditing={blockEditing}
             loading={
               !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
             }
             compInstance={compInstance}
+            fetchApplication={fetchApplication}
           />
         </Suspense>
       )}
