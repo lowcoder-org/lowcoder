@@ -1250,6 +1250,10 @@ export const en = {
     "ganttChartCompDesc" : "A chart that illustrates a project schedule, showing the start and finish dates of elements and dependencies.",
     "ganttChartCompKeywords" : "gantt chart, project management, schedule",
 
+    "kanbanCompName" : "Kanban Board (preview!)",
+    "kanbanCompDesc" : "A board for visualizing workflow, with columns representing stages of work and cards representing tasks.",
+    "kanbanCompKeywords" : "kanban, board, workflow, tasks",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
@@ -2446,7 +2450,8 @@ export const en = {
     "openUrl": "Open URL",
     "openApp": "Open App",
     "copyToClipboard": "Copy to Clipboard",
-    "downloadFile": "Download File"
+    "downloadFile": "Download File",
+    "logoutUser" : "Logout User",
   },
   "messageComp": {
     "info": "Send a Notification",

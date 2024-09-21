@@ -1042,6 +1042,9 @@ export const zh: typeof en = {
         "pageLayoutCompName": "布局容器",
         "pageLayoutCompDesc": "一个容器，用于创建包含页眉、页脚和主要内容区域的布局",
         "pageLayoutCompKeywords": "布局、容器、导航、页面",
+        "kanbanCompName" : "看板(预览!)",
+        "kanbanCompDesc" : "一个用于可视化工作流程的板,其中列代表工作阶段,卡片代表任务。",
+        "kanbanCompKeywords" : "看板、板、工作流程、任务",
     },
 
     comp: {

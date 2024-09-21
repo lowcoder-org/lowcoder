@@ -112,7 +112,7 @@ UtilsComp = withMethodExposing(UtilsComp, [
   {
     method: {
       name: "logoutUser",
-      description: trans("utilsComp.downloadFile"),
+      description: trans("utilsComp.logoutUser"),
       params: [],
     },
     execute: (comp, params) => {

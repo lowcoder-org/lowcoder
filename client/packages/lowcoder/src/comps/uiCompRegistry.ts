@@ -162,6 +162,7 @@ export type UICompType =
   | "basicChart"
   | "columnLayout"
   | "ganttChart"
+  | "kanban"
   ;
 
 
