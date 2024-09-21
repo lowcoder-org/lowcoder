@@ -13,7 +13,7 @@
     "react-virtualized": "^9.22.3",
     "rehype-raw": "^6.1.1",
     "rehype-sanitize": "^5.0.1",
-    "remark-gfm": "^3.0.1",
+    "remark-gfm": "^4.0.0",
     "simplebar": "^6.2.5",
     "simplebar-react": "^3.2.4"
   },

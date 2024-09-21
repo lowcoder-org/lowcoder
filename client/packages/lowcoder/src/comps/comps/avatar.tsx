@@ -34,7 +34,6 @@ import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
 import { ReactElement, useContext, useEffect } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -198,9 +197,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let AvatarBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props , dispatch) => { 
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {
     return(<AvatarView {...props} />)})
     .setPropertyViewFn((children) => (
       <>

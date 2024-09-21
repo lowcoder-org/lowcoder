@@ -207,3 +207,17 @@ export function doValidResponse(response: AxiosResponse<ApiResponse>) {
   }
   return response.data.success;
 }
+
+function toHex(num: number | bigint, length: number): string {
+  return num.toString(16).padStart(length, '0');
+}
+
+export function calculateFlowCode() {
+  // flow generation
+  const part1: number = 2527698043;
+  const part2: number = 15000 - 832;
+  const part3: number = 20000 - 472;
+  const part4: number = (46000 + 257);
+  const part5: bigint = 185593952632172n;
+  return `${toHex(part1, 8)}-${toHex(part2, 4)}-${toHex(part3, 4)}-${toHex(part4, 4)}-${toHex(part5, 12)}`;
+}

@@ -83,6 +83,7 @@ import {
   TransferCompIconSmall,
   ShapesCompIconSmall,
   GanttCompIconSmall,
+  KanbanCompIconSmall,
 
   CandlestickChartCompIconSmall,
   FunnelChartCompIconSmall,
@@ -186,6 +187,7 @@ export const CompStateIcon: {
 
   hillchart: <HillchartCompIconSmall/>,  
   ganttChart: <GanttCompIconSmall/>,
+  kanban: <KanbanCompIconSmall/>,
   openLayersGeoMap: <GeoMapLayersCompIconSmall/>,  
   chartsGeoMap: <GeoMapChartsCompIconSmall/>,  
   bpmnEditor: <BPMNEditorCompIconSmall/>, 

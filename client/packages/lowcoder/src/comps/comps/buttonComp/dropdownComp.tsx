@@ -22,7 +22,6 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
@@ -90,9 +89,7 @@ const DropdownTmpComp = (function () {
     onEvent: ButtonEventHandlerControl,
     style: styleControl(DropdownStyle, 'style'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-   useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const hasIcon =
       props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options

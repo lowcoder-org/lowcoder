@@ -19,7 +19,7 @@ export type InviteInfo = {
 
 class InviteApi extends Api {
   static getInviteURL = "/invitation";
-  static acceptInviteURL = (invitationId: string) => `/v1/invitation/${invitationId}/invite`;
+  static acceptInviteURL = (invitationId: string) => `/invitation/${invitationId}/invite`;
 
   // generate invitation
   static getInvite(request: GetInviteRequest): AxiosPromise<GenericApiResponse<InviteInfo>> {

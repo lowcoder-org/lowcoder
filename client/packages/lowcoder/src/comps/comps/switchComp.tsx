@@ -19,7 +19,6 @@ import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUti
 
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const EventOptions = [
   changeEvent,
@@ -105,9 +104,7 @@ let SwitchTmpComp = (function () {
     inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,

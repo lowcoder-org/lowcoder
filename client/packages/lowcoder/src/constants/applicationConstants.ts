@@ -91,6 +91,8 @@ export interface ApplicationMeta {
   folder: false;
   isLocalMarketplace?: boolean;
   applicationStatus: "NORMAL" | "RECYCLED" | "DELETED";
+  editingUserId: string | null;
+  lastEditedAt: number;
 }
 
 export interface FolderMeta {

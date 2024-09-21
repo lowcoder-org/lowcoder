@@ -1,6 +1,7 @@
 package org.lowcoder.api.application;
 
 
+import jakarta.persistence.Tuple;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,6 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import reactor.util.function.Tuple2;
 
 import java.util.Map;
 import java.util.Set;
@@ -69,7 +71,6 @@ public class ApplicationApiServiceIntegrationTest {
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
                         "org01",
-                        "",
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"),
@@ -105,7 +106,6 @@ public class ApplicationApiServiceIntegrationTest {
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
                         "org01",
-                        "",
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "table"),
@@ -126,5 +126,18 @@ public class ApplicationApiServiceIntegrationTest {
                         && bizException.getError() == BizError.NOT_AUTHORIZED
                         && bizException.getMessageKey().equals("APPLICATION_EDIT_ERROR_LACK_OF_DATASOURCE_PERMISSIONS"))
                 .verify();
+    }
+
+    @Test
+    @WithMockUser
+    public void testUpdateEditingStateSuccess() {
+        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "table"), Map.of("comp", "list"), null));
+        Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
+        Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId()));
+        StepVerifier.create(app)
+                .assertNext(application -> {
+                    Assertions.assertEquals("user01", application.getApplicationInfoView().getEditingUserId());
+                })
+                .verifyComplete();
     }
 }

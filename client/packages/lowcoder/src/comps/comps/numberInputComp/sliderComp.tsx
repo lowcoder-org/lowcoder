@@ -7,7 +7,6 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const SliderBasicComp = (function () {
   /**
@@ -19,9 +18,7 @@ const SliderBasicComp = (function () {
     vertical: BoolControl,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,

@@ -26,7 +26,6 @@ import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/sty
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -206,13 +205,7 @@ function RichTextEditor(props: IProps) {
   originOnChangeRef.current = props.onChange;
 
   const onChangeRef = useRef(
-    debounce > 0
-      ? _.debounce((v: string) => {
-          window.clearTimeout(isTypingRef.current);
-          isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
-          originOnChangeRef.current?.(v);
-        })
-      : (v: string) => originOnChangeRef.current?.(v)
+    (v: string) => originOnChangeRef.current?.(v)
   );
 
   // react-quill will not take effect after the placeholder is updated
@@ -291,10 +284,7 @@ function RichTextEditor(props: IProps) {
   );
 }
 
-const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);    
-
-
+const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   const handleChange = (v: string) => {
     props.value.onChange(v);
     props.onEvent("change");

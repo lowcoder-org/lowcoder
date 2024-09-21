@@ -146,7 +146,7 @@ function ThemeList(props: ThemeListProp) {
       <Column
         key="id"
         dataIndex="id"
-        render={(value, theme) =>
+        render={(value, theme: ThemeType) =>
           isAdmin && (
             <ControlCol>
               <EditButton

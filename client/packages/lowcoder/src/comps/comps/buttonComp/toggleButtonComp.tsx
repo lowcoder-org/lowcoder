@@ -25,7 +25,6 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -66,11 +65,10 @@ const ToggleTmpComp = (function () {
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
-    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return (
       <ButtonCompWrapperStyled

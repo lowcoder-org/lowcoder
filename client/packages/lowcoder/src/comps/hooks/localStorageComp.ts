@@ -61,6 +61,7 @@ LocalStorageComp = withMethodExposing(LocalStorageComp, [
           const parseStore = JSON.parse(originStore);
           parseStore[key] = value;
           localStorage.setItem(APP_STORE_NAMESPACE, JSON.stringify(parseStore));
+          comp.children.values.dispatchChangeValueAction(parseStore);
         } catch (e) {
           localStorage.setItem(APP_STORE_NAMESPACE, "{}");
         }
@@ -81,6 +82,7 @@ LocalStorageComp = withMethodExposing(LocalStorageComp, [
           const parseStore = JSON.parse(originStore);
           delete parseStore[key];
           localStorage.setItem(APP_STORE_NAMESPACE, JSON.stringify(parseStore));
+          comp.children.values.dispatchChangeValueAction(parseStore);
         } catch (e) {
           localStorage.setItem(APP_STORE_NAMESPACE, "{}");
         }
@@ -93,8 +95,9 @@ LocalStorageComp = withMethodExposing(LocalStorageComp, [
       description: trans("localStorageComp.clearItemDesc"),
       params: [],
     },
-    execute: () => {
+    execute: (comp) => {
       localStorage.removeItem(APP_STORE_NAMESPACE);
+      comp.children.values.dispatchChangeValueAction({});
     },
   },
 ]);

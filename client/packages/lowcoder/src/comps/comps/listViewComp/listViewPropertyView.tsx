@@ -65,9 +65,14 @@ export function listPropertyView(compType: ListCompType) {
                 label: trans('prop.horizontalGridCells'),
               })}
               {children.autoHeight.getPropertyView()}
-              {(!children.autoHeight.getView() || children.horizontal.getView()) && 
-                children.scrollbars.propertyView({
-                label: trans("prop.scrollbar"),
+              {(!children.autoHeight.getView()) && !children.horizontal.getView()&&
+                children.showVerticalScrollbar.propertyView({
+                label: trans("prop.showVerticalScrollbar"),
+               }  
+              )}
+              {(children.horizontal.getView()) && 
+                children.showHorizontalScrollbar.propertyView({
+                label: trans("prop.showHorizontalScrollbar"),
                }  
               )}
               {children.horizontal.propertyView({

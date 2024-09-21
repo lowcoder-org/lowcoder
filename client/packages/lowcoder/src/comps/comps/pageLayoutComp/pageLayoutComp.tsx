@@ -28,7 +28,6 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
@@ -65,8 +64,6 @@ const childrenMap = {
 // Compatible with old style data 2022-8-15
 const layoutBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props, dispatch);
-
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData
@@ -161,7 +158,7 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
     return [
       this.children.autoHeight.getPropertyView(),
       this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
-      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.contentScrollbar") }),
+      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.showVerticalScrollbar") }),
     ];
   }
 

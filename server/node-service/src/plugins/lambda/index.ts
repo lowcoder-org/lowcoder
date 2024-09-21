@@ -55,7 +55,7 @@ const lambdaPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
       const ret = await client.send(
         new InvokeCommand({
           FunctionName: actionData.functionName,
-          InvocationType: actionData.invocationType,
+          InvocationType: actionData.invocationType as InvocationType,
           Payload: Uint8Array.from(
             JSON.stringify(actionData.payload || {})
               .split("")

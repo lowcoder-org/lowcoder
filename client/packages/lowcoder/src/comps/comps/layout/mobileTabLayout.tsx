@@ -33,7 +33,6 @@ import { AlignRight } from "lowcoder-design";
 import { LayoutActionComp } from "./layoutActionComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
@@ -404,8 +403,6 @@ MobileTabLayoutTmp = withViewFn(MobileTabLayoutTmp, (comp) => {
   const showSeparator = comp.children.showSeparator.getView();
   const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
   const onEvent = comp.children.onEvent.getView();
-
-  useMergeCompStyles(childrenToProps(comp.children), comp.dispatch);
 
   useEffect(() => {
     comp.children.jsonTabs.dispatchChangeValueAction({

@@ -575,6 +575,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
+                .lastEditedAt(application.getLastEditedAt())
                 .publicToAll(application.isPublicToAll())
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile());

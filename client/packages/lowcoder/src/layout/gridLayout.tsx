@@ -471,16 +471,16 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
             isDraggable={isDraggable && isItemDraggable(item)}
             isResizable={isResizable && isItemResizable(item)}
             isSelectable={selectable}
-            transformScale={transformScale}
+            transformScale={transformScale || 1}
             w={item.w}
             h={extraItem?.hidden && !extraItem?.isSelected ? 0 : item.h}
             x={item.x}
             y={item.y}
             i={item.i}
-            minH={item.minH}
-            minW={item.minW}
-            maxH={item.maxH}
-            maxW={item.maxW}
+            minH={item.minH || 1}
+            minW={item.minW || 1}
+            maxH={item.maxH || Infinity}
+            maxW={item.maxW || Infinity}
             placeholder={item.placeholder}
             layoutHide={item.hide}
             static={item.static}
@@ -496,6 +496,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
               bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
             }}
             zIndex={zIndex}
+            className=""
           >
             {child}
           </GridItem>
@@ -1096,7 +1097,7 @@ const LayoutContainer = styled.div<{
   }`}
 `;
 
-export const ReactGridLayout = GridLayout;
+export const ReactGridLayout = React.memo(GridLayout);
 
 function moveOrResize(
   e: React.KeyboardEvent,

@@ -111,10 +111,6 @@ const DivStyled = styled.div`
     > div:first-child {
       margin-bottom: 6px;
     }
-    
-    .tooltipLabel {
-      white-space: nowrap;
-    }
 
   }
   // custom styles for icon selector

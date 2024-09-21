@@ -16,7 +16,7 @@ import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerCon
 import { jsonObjectExposingStateControl, stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl } from "comps/controls/codeControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 export function getStyle(style: ColorPickerStyleType) {
   return css`
@@ -70,9 +70,7 @@ const childrenMap = {
   presets: withDefault(ArrayOrJSONObjectControl, JSON.stringify(presets, null, 2)),
 };
 
-export const ColorPickerComp = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-
+export const ColorPickerComp = new UICompBuilder(childrenMap, (props) => {
   return props.label({
     children: (
       <ColorPickerWrapper
@@ -88,7 +86,7 @@ export const ColorPickerComp = new UICompBuilder(childrenMap, (props, dispatch) 
           props.color.onChange({
             hex: value.toHexString().toUpperCase(),
             hsb: value.toHsb(),
-            rgb: value.toRgb(),
+            rgb: value.toRgb() as any,
           })
           props.onEvent('change')
         }}

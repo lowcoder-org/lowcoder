@@ -27,8 +27,6 @@ import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -87,9 +85,7 @@ const SegmentChildrenMap = {
 };
 
 let SegmentedControlBasicComp = (function () {
-  return new UICompBuilder(SegmentChildrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-  
+  return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [
       validateState,
       handleChange,
@@ -106,7 +102,7 @@ let SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
-            handleChange(value.toString());
+            handleChange(String(value));
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)

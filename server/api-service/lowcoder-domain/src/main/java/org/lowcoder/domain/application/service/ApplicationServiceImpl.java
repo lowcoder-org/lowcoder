@@ -3,6 +3,7 @@ package org.lowcoder.domain.application.service;
 
 import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -90,6 +91,16 @@ public class ApplicationServiceImpl implements ApplicationService {
                     Map<String, Object> editingApplicationDSL = newApplication.getEditingApplicationDSL();
                     return updatePublishedApplicationDSL(applicationId, editingApplicationDSL)
                             .thenReturn(newApplication);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished) {
+        return findById(applicationId)
+                .flatMap(newApplication -> {
+                    Application application = Application.builder().editingUserId("").build();
+                    if(editingFinished) return mongoUpsertHelper.updateById(application, applicationId);
+                    return Mono.just(true);
                 });
     }
 
@@ -334,5 +345,14 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Flux<Application> findAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId) {
+        return repository.findByIdIn(List.of(applicationId))
+                .doOnNext(application -> application.setLastEditedAt(time))
+                .doOnNext(application -> application.setEditingUserId(visitorId))
+                .flatMap(repository::save)
+                .hasElements();
     }
 }

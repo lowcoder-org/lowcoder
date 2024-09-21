@@ -27,7 +27,7 @@ export const updateUserAction = (payload: UpdateUserPayload) => {
   return {
     type: ReduxActionTypes.UPDATE_USER_PROFILE,
     payload: payload,
-  };
+  }; 
 };
 
 export const updateUserSuccess = (payload: UpdateUserPayload) => {
@@ -70,7 +70,6 @@ export const fetchApiKeysAction = () => {
     type: ReduxActionTypes.FETCH_API_KEYS,
   };
 };
-
 export const fetchApiKeysSuccess = (payload: FetchApiKeysPayload) => {
   return {
     type: ReduxActionTypes.FETCH_API_KEYS_SUCCESS,

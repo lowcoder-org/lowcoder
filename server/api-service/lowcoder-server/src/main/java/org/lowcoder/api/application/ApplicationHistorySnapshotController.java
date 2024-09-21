@@ -2,6 +2,7 @@ package org.lowcoder.api.application;
 
 import static org.lowcoder.api.util.ViewBuilder.multiBuild;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -43,11 +44,12 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
         return sessionUserService.getVisitorId()
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, request.applicationId(),
                         ResourceAction.EDIT_APPLICATIONS))
-                .flatMap(visitorId -> applicationHistorySnapshotService.createHistorySnapshot(request.applicationId(),
+                .delayUntil(visitorId -> applicationHistorySnapshotService.createHistorySnapshot(request.applicationId(),
                         request.dsl(),
                         request.context(),
                         visitorId)
                 )
+                .flatMap(visitorId -> applicationService.updateLastEditedAt(request.applicationId(), Instant.now(), visitorId))
                 .map(ResponseView::success);
     }
 

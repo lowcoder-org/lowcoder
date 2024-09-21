@@ -32,6 +32,8 @@ import {
 import RefTreeComp from "./refTreeComp";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { useUserViewMode } from "util/hooks";
+import React from "react";
+import { isEqual } from "lodash";
 
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
@@ -55,7 +57,7 @@ const childrenMap = {
   preload: PreloadComp,
 };
 
-function RootView(props: RootViewProps) {
+const RootView = React.memo((props: RootViewProps) => {
   const previewTheme = useContext(ThemeContext);
   const { comp, isModuleRoot, ...divProps } = props;
   const [editorState, setEditorState] = useState<EditorState>();
@@ -143,7 +145,9 @@ function RootView(props: RootViewProps) {
       </PropertySectionContext.Provider>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps);
+});
 
 /**
  * Root Comp

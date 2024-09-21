@@ -67,9 +67,6 @@ import dayjs from "dayjs";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-
-
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -374,9 +371,7 @@ const CommentCompBase = (
 };
 
 let CommentBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) =>{ 
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
     <CommentCompBase {...props} dispatch={dispatch} />
   )})

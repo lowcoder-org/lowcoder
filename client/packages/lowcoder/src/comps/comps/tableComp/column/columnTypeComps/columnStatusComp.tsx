@@ -48,7 +48,7 @@ const StatusEdit = (props: StatusEditPropsType) => {
   const defaultStatus = useContext(StatusContext);
   const [status, setStatus] = useState(defaultStatus);
   const [allOptions, setAllOptions] = useState(BadgeStatusOptions);
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <Wrapper>
@@ -84,6 +84,7 @@ const StatusEdit = (props: StatusEditPropsType) => {
             value,
             status: status.find((item) => item.text === value)?.status || "none",
           });
+          setOpen(false)
         }}
         dropdownRender={(originNode: ReactNode) => (
           <DropdownStyled>
@@ -91,11 +92,12 @@ const StatusEdit = (props: StatusEditPropsType) => {
           </DropdownStyled>
         )}
         dropdownStyle={{ marginTop: "7px", padding: "8px 0 6px 0" }}
-        onBlur={props.onChangeEnd}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            props.onChangeEnd();
-          }
+        onBlur={() => {
+          props.onChangeEnd();
+          setOpen(false);
+        }}
+        onFocus={() => {
+          setOpen(true);
         }}
         onClick={() => setOpen(!open)}
       >

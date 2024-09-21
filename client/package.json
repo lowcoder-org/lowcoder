@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-root",
-  "version": "2.3.1",
+  "version": "2.4.5",
   "type": "module",
   "private": true,
   "workspaces": [
@@ -73,6 +73,7 @@
   "dependencies": {
     "@lottiefiles/react-lottie-player": "^3.5.3",
     "@remixicon/react": "^4.1.1",
+    "@supabase/supabase-js": "^2.45.4",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "@types/styled-components": "^5.1.34",
@@ -80,7 +81,6 @@
     "chalk": "4",
     "flag-icons": "^7.2.1",
     "number-precision": "^1.6.0",
-    "posthog-js": "^1.144.2",
     "react-countup": "^6.5.3",
     "react-player": "^2.11.0",
     "resize-observer-polyfill": "^1.5.1",

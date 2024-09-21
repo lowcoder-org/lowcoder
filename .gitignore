@@ -15,3 +15,6 @@ application-debug.yaml
 application-dev-localhost.yaml
 .vscode/settings.json
 .vscode/launch.json
+server/api-service/lowcoder-server/src/main/resources/application-local-dev.yaml
+translations/locales/node_modules/
+.vscode/settings.json

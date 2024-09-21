@@ -40,19 +40,21 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect } from "react";
+import React, { ReactNode, useContext, useEffect, useState } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { Section, sectionNames } from "components/Section";
-import { dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
+import { CommonPickerMethods, dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
-import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
+// import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd/es/time-picker";
 
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { timeZoneOptions } from "./timeZone";
+
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -82,6 +84,7 @@ const commonChildren = {
   ),
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
+  timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   viewRef: RefControl<CommonPickerMethods>,
   ...validationChildren,
 };
@@ -121,6 +124,7 @@ function validate(
 
 const childrenMap = {
   value: stringExposingStateControl("value"),
+  userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
   ...commonChildren,
   ...formDataChildren,
 };
@@ -141,14 +145,24 @@ export type TimeCompViewProps = Pick<
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon?: ReactNode | false;
   placeholder?: string | [string, string];
+  timeZone:string
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-
-  let time = null;
+export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+  let time: dayjs.Dayjs | null = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
+  }
+  
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
+
+  useEffect(() => {
+    const value = props.value.value ? dayjs(props.value.value, TimeParser) : null;
+    setTempValue(value);
+  }, [props.value.value])
+
+  const handleTimeZoneChange = (newTimeZone: any) => {
+    props.userTimeZone.onChange(newTimeZone)
   }
 
   return props.label({
@@ -157,12 +171,15 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    onMouseDown: (e) => e.stopPropagation(),
     children: (
       <TimeUIView
+        handleTimeZoneChange={handleTimeZoneChange}
+        timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
-        value={time?.isValid() ? time : null}
+        value={tempValue?.isValid() ? tempValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
@@ -178,8 +195,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
     ),
     ...validate(props),
   });
@@ -191,7 +207,9 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props, dispatch
           label: trans("prop.defaultValue"),
           tooltip: trans("time.formatTip"),
         })}
-        
+        {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+        })}
       </Section>
 
       <FormDataPropertyView {...children} />
@@ -251,29 +269,47 @@ export const timeRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
+    userRangeTimeZone: stringExposingStateControl("userRangeTimeZone" , Intl.DateTimeFormat().resolvedOptions().timeZone),
     ...formDataChildren,
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
-    let start = null;
+  return new UICompBuilder(childrenMap, (props) => {
+    let start: dayjs.Dayjs | null = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);
     }
-    let end = null;
+    let end: dayjs.Dayjs | null = null;
     if(props.end.value !== '') {
       end = dayjs(props.end.value, TimeParser);
     }
 
+    const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
+    const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
+
+    useEffect(() => {
+      const value = props.start.value ? dayjs(props.start.value, TimeParser) : null;
+      setTempStartValue(value);
+    }, [props.start.value])
+
+    useEffect(() => {
+      const value = props.end.value ? dayjs(props.end.value, TimeParser) : null;
+      setTempEndValue(value);
+    }, [props.end.value])
+
+    const handleTimeRangeZoneChange = (newTimeZone: any) => {
+      props.userRangeTimeZone.onChange(newTimeZone)
+    }
+    
     const children = (
       <TimeRangeUIView
+        handleTimeRangeZoneChange={handleTimeRangeZoneChange}
+        timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
         disabled={props.disabled}
-        start={start?.isValid() ? start : null}
-        end={end?.isValid() ? end : null}
+        start={tempStartValue?.isValid() ? tempStartValue : null}
+        end={tempEndValue?.isValid() ? tempEndValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         {...timePickerComps(props)}
         hourStep={props.hourStep as hourStepType}
@@ -301,6 +337,7 @@ export const timeRangeControl = (function () {
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
       children: children,
+      onMouseDown: (e) => e.stopPropagation(),
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
@@ -319,6 +356,9 @@ export const timeRangeControl = (function () {
             label: trans("time.end"),
             tooltip: trans("time.formatTip"),
           })}
+          {children.timeZone.propertyView({
+            label: trans("prop.timeZone")
+            })}
         </Section>
         
         <FormDataPropertyView {...children} />
@@ -374,16 +414,41 @@ export const timeRangeControl = (function () {
     .build();
 })();
 
+const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
+  const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
+  
+  const dateInTz = dayjs().tz(tz);
+  const offset = dateInTz.format('Z');
+  const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    .formatToParts().find(part => part.type === 'timeZoneName')?.value;
+
+  return { TimeZone: tz, Offset: offset, Name: timeZoneName };
+};
+
 export const TimePickerComp = withExposingConfigs(timePickerControl, [
   new NameConfig("value", trans("export.timePickerValueDesc")),
+
   depsConfig({
     name: "formattedValue",
     desc: trans("export.timePickerFormattedValueDesc"),
-    depKeys: ["value", "format"],
+    depKeys: ["value", "format", "timeZone", "userTimeZone"], 
     func: (input) => {
       const mom = Boolean(input.value) ? dayjs(input.value, TimeParser) : null;
-      return mom?.isValid() ? mom.format(input.format) : '';
+      const tz = input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone; // Get the selected timezone  
+      const timeInTz = mom?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+      const formattedTimeWithoffset = timeInTz?.format(input?.format);
+      return mom?.isValid() ?  (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
+      ? formattedTimeWithoffset  // Return formattedDateWithoffset if format includes 'Z' or is not available
+      : mom.format(input.format) // Otherwise, return mom.format(input.format)
+    : "";   
     },
+  }),
+
+  depsConfig({
+    name: "timeZone", 
+    desc: trans("export.timeZoneDesc"), 
+    depKeys: ["timeZone", "userTimeZone"], 
+    func: (input: { timeZone: any; userTimeZone: any; }) => getTimeZoneInfo(input.timeZone, input.userTimeZone)
   }),
   depsConfig({
     name: "invalid",
@@ -404,13 +469,20 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
   depsConfig({
     name: "formattedValue",
     desc: trans("export.timeRangeFormattedValueDesc"),
-    depKeys: ["start", "end", "format"],
+    depKeys: ["start", "end", "format", "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
       const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; // Get the selected timezone  
+      const startTimeInTz = start?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+      const endTimeInTz = end?.clone().tz(tz, true); 
       return [
-        start?.isValid() && start.format(input.format),
-        end?.isValid() && end.format(input.format),
+        start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
+        ? startTimeInTz?.format(input?.format)  // Return formattedTimeWithoffset if format includes 'Z' or is not available
+        :  start?.format(input.format),
+        end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z')) 
+        ? endTimeInTz?.format(input?.format) 
+        :  end?.format(input.format) ,
       ]
         .filter((item) => item)
         .join(" - ");
@@ -419,20 +491,36 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
   depsConfig({
     name: "formattedStartValue",
     desc: trans("export.timeRangeFormattedStartValueDesc"),
-    depKeys: ["start", "format"],
+    depKeys: ["start", "format" , "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
-      return start?.isValid() && start.format(input.format);
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone;
+      const startTimeInTz = start?.clone().tz(tz, true);
+      const formattedDate = startTimeInTz?.format(input?.format);
+      return start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z')) 
+      ? formattedDate
+      : start?.format(input.format);
     },
   }),
   depsConfig({
     name: "formattedEndValue",
     desc: trans("export.timeRangeFormattedEndValueDesc"),
-    depKeys: ["end", "format"],
+    depKeys: ["end", "format", "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
-      return end?.isValid() && end.format(input.format);
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; 
+      const endTimeInTz = end?.clone().tz(tz, true);
+      return end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))
+      ? endTimeInTz?.format(input?.format)  
+      : end?.format(input.format);
     },
+  }),
+  depsConfig({
+    name: "timeZone", 
+    desc: trans("export.timeZoneDesc"), 
+    depKeys: ["timeZone", "userRangeTimeZone"], 
+    func: (input:any) => getTimeZoneInfo(input.timeZone, input.userRangeTimeZone)
+
   }),
   depsConfig({
     name: "invalid",

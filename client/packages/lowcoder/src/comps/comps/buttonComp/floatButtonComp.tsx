@@ -17,7 +17,6 @@ import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { useContext, useEffect } from "react";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -133,8 +132,7 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
 };
 
 let FloatButtonBasicComp = (function () {
-    return new UICompBuilder(childrenMap, (props , dispatch) => {
-      useMergeCompStyles(props, dispatch);
+    return new UICompBuilder(childrenMap, (props) => {
       return(
         <FloatButtonView {...props} />
       )})

@@ -359,6 +359,7 @@ export function optionsControl<T extends OptionsControlType>(
     uniqField?: keyof ConstructorToView<T>;
     // manual mode list title
     title?: string;
+    autoIncField?: keyof PickNumberFields<ConstructorToView<T>>;
   }
 ) {
   type OptionViewType = ConstructorToView<T>;
@@ -369,6 +370,7 @@ export function optionsControl<T extends OptionsControlType>(
       manual: manualOptionsControl(VariantComp, {
         initOptions: config.initOptions,
         uniqField: config.uniqField,
+        autoIncField: config.autoIncField,
       }),
       mapData: mapOptionsControl(VariantComp, config.uniqField),
     },

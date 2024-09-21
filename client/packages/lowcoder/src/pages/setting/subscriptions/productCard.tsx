@@ -1,10 +1,9 @@
-// productCard.tsx
 import React from 'react';
 import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
-import { Card } from 'antd';
-import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined } from '@ant-design/icons';
-import { buildSubscriptionId } from "constants/routesURL";
+import { Card, Button } from 'antd';
+import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
 
 const ProductCardContainer = styled(Card)`
@@ -29,18 +28,6 @@ const PricingTypeDescription = styled.p`
   margin-bottom: 15px;
 `;
 
-const PricingTable = styled.div`
-  font-size: 14px;
-  color: ${GreyTextColor};
-  margin-top: 10px;
-`;
-
-const PriceItem = styled.div`
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 8px;
-`;
-
 interface Pricing {
   type: string;
   amount: string;
@@ -51,9 +38,12 @@ interface ProductCardProps {
   description: string;
   image: string;
   pricingType: string;
-  pricing: Pricing[];
   activeSubscription: boolean;
-  accessLink: string;
+  checkoutLink: string;
+  checkoutLinkDataLoaded?: boolean;
+  loading?: boolean;
+  subscriptionId: string;
+  productId: string;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
@@ -61,39 +51,52 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   description,
   image,
   pricingType,
-  pricing,
   activeSubscription,
-  accessLink
+  checkoutLink,
+  checkoutLinkDataLoaded,
+  loading,
+  subscriptionId,
+  productId,
 }) => {
 
-  const handleClick = () => {
-    history.push(buildSubscriptionId(accessLink));
+  const goToCheckout = () => {
+    if (checkoutLink) {
+      window.open(checkoutLink, '_blank');
+    }
+  };
+
+  const goToSubscriptionSettings = () => {
+    history.push(buildSubscriptionSettingsLink(subscriptionId, productId));
+  };
+
+  const goToSubscriptionInformation = () => {
+    history.push(buildSubscriptionInfoLink(productId));
   };
 
   return (
     <ProductCardContainer
       hoverable
+      loading={!checkoutLinkDataLoaded || loading}
       cover={<img alt={title} src={image} />}
       actions={[
-        <SettingOutlined key="setting" onClick={handleClick} />,
+        <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>Info</Button>,
         activeSubscription ? (
-          <CheckCircleOutlined key="check" style={{ color: 'green' }} />
+          <Button type="default" block onClick={goToSubscriptionSettings} style={{width:"90%"}} icon={<SettingOutlined />}>More</Button>
         ) : (
-          <PlusSquareOutlined key="add" style={{ color: 'blue' }} />
-        )
+        !activeSubscription && (
+          checkoutLinkDataLoaded ? (
+            <Button type="primary" block onClick={goToCheckout} style={{width:"90%", backgroundColor: "green"}}>
+              Subscribe Now
+            </Button>
+          ) : (
+            <LoadingOutlined key="wait" />
+          )
+        ))
       ]}
     >
       <ProductTitle>{title}</ProductTitle>
       <ProductDescription>{description}</ProductDescription>
-      <PricingTypeDescription>{pricingType}</PricingTypeDescription>
-      <PricingTable>
-        {pricing.map((price, index) => (
-          <PriceItem key={index}>
-            <span>{price.type}</span>
-            <span>{price.amount}</span>
-          </PriceItem>
-        ))}
-      </PricingTable>
+      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> | Subscribed: </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
     </ProductCardContainer>
   );
 };

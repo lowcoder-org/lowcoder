@@ -10,12 +10,23 @@ import { EditorContext } from "../../editorState";
 import dayjs from "dayjs";
 import { hasIcon } from "comps/utils";
 import { omit } from "lodash";
+import { timeZoneOptions } from "./timeZone";
+import { default as AntdSelect } from "antd/es/select";
 
 const { RangePicker } = TimePicker;
 
 const RangePickerStyled = styled((props: any) => <RangePicker {...props} />)<{ $style: DateTimeStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
+`;
+
+const StyledAntdSelect = styled(AntdSelect)`
+  width: 300px; 
+  margin: 10px 0px;
+  .ant-select-selector {
+    font-size: 14px;
+    line-height: 1.5;
+  }
 `;
 
 const TimeRangeMobileUIView = React.lazy(() =>
@@ -27,6 +38,7 @@ export interface TimeRangeUIViewProps extends TimeCompViewProps {
   end: dayjs.Dayjs | null;
   placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
+  handleTimeRangeZoneChange: (value:any) => void;
 }
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
@@ -44,7 +56,7 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
   return useUIView(
     <TimeRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange")}
+      {...omit(props, "onChange", "format")}
       value={[props.start, props.end]}
       order={true}
       hideDisabledOptions
@@ -54,6 +66,16 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
+      renderExtraFooter={() => (
+        props.timeZone === "UserChoice" && (
+          <StyledAntdSelect
+          placeholder="Select Time Zone"
+          options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
+          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
+          onChange={props.handleTimeRangeZoneChange}
+          />
+        )
+      )}
     />
   );
 };

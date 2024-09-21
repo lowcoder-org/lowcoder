@@ -33,10 +33,13 @@ public class ApplicationInfoView {
     @Nullable
     private final Instant lastViewTime; // user last visit time for this app
     private final Instant lastModifyTime; // app's last update time
+    private final Instant lastEditedAt;
 
     private final boolean publicToAll;
     private final boolean publicToMarketplace;
     private final boolean agencyProfile;
+
+    private final String editingUserId;
 
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();
@@ -44,6 +47,10 @@ public class ApplicationInfoView {
 
     public long getLastModifyTime() {
         return lastModifyTime == null ? 0 : lastModifyTime.toEpochMilli();
+    }
+
+    public long getLastEditedAt() {
+        return lastEditedAt == null ? 0 : lastEditedAt.toEpochMilli();
     }
 
     /**

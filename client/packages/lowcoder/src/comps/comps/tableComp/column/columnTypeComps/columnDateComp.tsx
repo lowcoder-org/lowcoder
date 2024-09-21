@@ -12,7 +12,7 @@ import { isNumber } from "lodash";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { CalendarCompIconSmall, PrevIcon, SuperPrevIcon } from "lowcoder-design";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
 
@@ -49,9 +49,9 @@ const DatePickerStyled = styled(DatePicker)<{ $open: boolean }>`
     top: 0.5px;
     display: flex;
     align-items: center;
-    background: #fff;
+    // background: #fff;
     padding: 0 3px;
-    border-left: 1px solid #d7d9e0;
+    // border-left: 1px solid #d7d9e0;
   }
 `;
 
@@ -149,11 +149,20 @@ type DateEditProps = {
 };
 
 export const DateEdit = (props: DateEditProps) => {
+  const pickerRef = useRef<any>();
   const [panelOpen, setPanelOpen] = useState(true);
   let value = dayjs(props.value, DateParser);
   if (!value.isValid()) {
     value = dayjs(0, DateParser);
   }
+
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(value);
+
+  useEffect(() => {
+    const value = props.value ? dayjs(props.value, DateParser) : null;
+    setTempValue(value);
+  }, [props.value])
+
   return (
     <Wrapper
       onKeyDown={(e) => {
@@ -161,18 +170,23 @@ export const DateEdit = (props: DateEditProps) => {
           props.onChangeEnd();
         }
       }}
+      onMouseDown={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+      }}
     >
       <DatePickerStyled
+        ref={pickerRef}
         $open={panelOpen}
         suffixIcon={<CalendarCompIconSmall />}
         prevIcon={<PrevIcon />}
         nextIcon={<IconNext />}
         superNextIcon={<IconSuperNext />}
         superPrevIcon={<SuperPrevIcon />}
-        allowClear={false}
+        allowClear={true}
         variant="borderless"
         autoFocus
-        defaultValue={value}
+        value={tempValue}
         showTime={props.showTime}
         showNow={true}
         defaultOpen={true}
@@ -183,8 +197,10 @@ export const DateEdit = (props: DateEditProps) => {
           overflow: "hidden",
         }}
         onOpenChange={(open) => setPanelOpen(open)}
-        onChange={(value, dateString) => props.onChange(dateString)}
-        onBlur={props.onChangeEnd}
+        onChange={(value, dateString) => {
+          props.onChange(dateString as string)
+        }}
+        onBlur={() => props.onChangeEnd()}
       />
     </Wrapper>
   );

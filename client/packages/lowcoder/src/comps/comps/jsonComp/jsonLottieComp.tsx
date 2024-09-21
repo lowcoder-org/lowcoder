@@ -18,7 +18,6 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
@@ -100,9 +99,7 @@ let JsonLottieTmpComp = (function () {
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return (
       <div
         style={{

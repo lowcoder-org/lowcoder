@@ -27,7 +27,6 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
@@ -41,6 +40,7 @@ const childrenMap = {
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
@@ -53,8 +53,6 @@ const childrenMap = {
 // Compatible with old style data 2022-8-15
 const TriContainerBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props, dispatch);
-
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData
@@ -141,7 +139,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      (!this.children.autoHeight.getView()) && this.children.scrollbars.propertyView({ label: trans("prop.scrollbar") })
+      (!this.children.autoHeight.getView()) && this.children.showVerticalScrollbar.propertyView({ label: trans("prop.showVerticalScrollbar") })
     ];
   }
 

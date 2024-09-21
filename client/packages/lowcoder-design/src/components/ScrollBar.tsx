@@ -5,10 +5,15 @@ import { DebouncedFunc } from 'lodash'; // Assuming you're using lodash's Deboun
 
 // import 'simplebar-react/dist/simplebar.min.css';
 
-const ScrollBarWrapper = styled.div<{ $hideplaceholder?: boolean }>`
+const ScrollBarWrapper = styled.div<{
+  $hideplaceholder?: boolean;
+  $overflow?: string;
+}>`
   min-height: 0;
-  height: 100%;
+  height: ${props => props.$overflow? props.$overflow === 'scroll' ? '300px' : '100%':'100%'
+  };
   width: 100%;
+  overflow:${props=>props.$overflow};
 
   .simplebar-scrollbar::before {
     background: rgba(139, 143, 163, 0.5) !important;
@@ -37,7 +42,9 @@ const ScrollBarWrapper = styled.div<{ $hideplaceholder?: boolean }>`
     bottom: 10px;
   }
 
-  ${props => Boolean(props.$hideplaceholder) && `
+  ${(props) =>
+    Boolean(props.$hideplaceholder) &&
+    `
     .simplebar-placeholder {
       display: none !important;
     }
@@ -50,6 +57,7 @@ interface IProps {
   children: React.ReactNode;
   className?: string;
   height?: string;
+  overflow?:string,
   style?: React.CSSProperties; // Add this line to include a style prop
   scrollableNodeProps?: {
     onScroll: DebouncedFunc<(e: any) => void>;
@@ -64,6 +72,7 @@ export const ScrollBar = ({
   className,
   children,
   style,
+  overflow,
   scrollableNodeProps,
   hideScrollbar = false,
   $hideplaceholder = false,

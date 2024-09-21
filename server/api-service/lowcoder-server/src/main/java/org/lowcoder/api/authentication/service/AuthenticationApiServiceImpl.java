@@ -116,7 +116,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
                                       String invitationId, boolean linKExistingUser) {
-        return updateOrCreateUser(authUser, linKExistingUser)
+        return updateOrCreateUser(authUser, linKExistingUser, false)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -147,7 +147,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser, boolean isSuperAdmin) {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
@@ -174,21 +174,8 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                         return userService.addNewConnectionAndReturnUser(user.getId(), authUser);
                     }
 
-                    // if the user is logging/registering via OAuth provider for the first time,
-                    // but is not anonymous, then just add a new connection
-
-                     userService.findById(authUser.getUid())
-                             .switchIfEmpty(Mono.empty())
-                             .filter(user -> {
-                                 // not logged in yet
-                                 return !user.isAnonymous();
-                             }).doOnNext(user -> {
-                                 userService.addNewConnection(user.getId(), authUser.toAuthConnection());
-                             }).subscribe();
-
-
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
-                        return userService.createNewUserByAuthUser(authUser);
+                        return userService.createNewUserByAuthUser(authUser, isSuperAdmin);
                     }
                     return Mono.error(new BizException(USER_NOT_EXIST, "USER_NOT_EXIST"));
                 });
@@ -219,15 +206,15 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         // clean old data
         oldConnection.setAuthId(authUser.getAuthContext().getAuthConfig().getId());
 
-        // Save the auth token which may be used in the future datasource or query.
-        oldConnection.setAuthConnectionAuthToken(
-                Optional.ofNullable(authUser.getAuthToken()).map(ConnectionAuthToken::of).orElse(null));
-        oldConnection.setRawUserInfo(authUser.getRawUserInfo());
-
         //if auth by google, set refresh token
         if (authUser.getAuthToken()!=null && oldConnection.getAuthConnectionAuthToken()!=null && StringUtils.isEmpty(authUser.getAuthToken().getRefreshToken()) && StringUtils.isNotEmpty(oldConnection.getAuthConnectionAuthToken().getRefreshToken())) {
             authUser.getAuthToken().setRefreshToken(oldConnection.getAuthConnectionAuthToken().getRefreshToken());
         }
+
+        // Save the auth token which may be used in the future datasource or query.
+        oldConnection.setAuthConnectionAuthToken(
+                Optional.ofNullable(authUser.getAuthToken()).map(ConnectionAuthToken::of).orElse(null));
+        oldConnection.setRawUserInfo(authUser.getRawUserInfo());
 
         user.setActiveAuthId(oldConnection.getAuthId());
     }
