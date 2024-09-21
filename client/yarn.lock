@@ -4059,6 +4059,77 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@supabase/auth-js@npm:2.65.0":
+  version: 2.65.0
+  resolution: "@supabase/auth-js@npm:2.65.0"
+  dependencies:
+    "@supabase/node-fetch": ^2.6.14
+  checksum: c6396f6c384f4787352a09e40c192cbf990dd566773b6e55eb7921726052144bfe592e2550bd1bd743545af3a03b2602ef41a9e69f9f966f84923049d0128404
+  languageName: node
+  linkType: hard
+
+"@supabase/functions-js@npm:2.4.1":
+  version: 2.4.1
+  resolution: "@supabase/functions-js@npm:2.4.1"
+  dependencies:
+    "@supabase/node-fetch": ^2.6.14
+  checksum: 786a1499b26b928f39b9af68b44bfc0a016c525d85c6b8bd2f6cd712e53db3ab5099ed4e7b1038ae8527dcee16a3aa8f80618a7227d322052810d378746d7154
+  languageName: node
+  linkType: hard
+
+"@supabase/node-fetch@npm:2.6.15, @supabase/node-fetch@npm:^2.6.14":
+  version: 2.6.15
+  resolution: "@supabase/node-fetch@npm:2.6.15"
+  dependencies:
+    whatwg-url: ^5.0.0
+  checksum: 9673b49236a56df49eb7ea5cb789cf4e8b1393069b84b4964ac052995e318a34872f428726d128f232139e17c3375a531e45e99edd3e96a25cce60d914b53879
+  languageName: node
+  linkType: hard
+
+"@supabase/postgrest-js@npm:1.16.1":
+  version: 1.16.1
+  resolution: "@supabase/postgrest-js@npm:1.16.1"
+  dependencies:
+    "@supabase/node-fetch": ^2.6.14
+  checksum: 695d41c935c8745a16ee3b597fe2d1b94ba69715f3b15da8f1e332ef4a556e41ba0591889fa37cadb53900e2c58f4298ece4dd13e35f6b25fbeb54c3e0aabc90
+  languageName: node
+  linkType: hard
+
+"@supabase/realtime-js@npm:2.10.2":
+  version: 2.10.2
+  resolution: "@supabase/realtime-js@npm:2.10.2"
+  dependencies:
+    "@supabase/node-fetch": ^2.6.14
+    "@types/phoenix": ^1.5.4
+    "@types/ws": ^8.5.10
+    ws: ^8.14.2
+  checksum: a98342e6a8437c2c14a86728abd12f21d853f167fb22ede46ef680cc0ef990bf7c8a8403c448ab335d884cfe8c3b2f6c4e3363dcb777511ee3abb6270d65a954
+  languageName: node
+  linkType: hard
+
+"@supabase/storage-js@npm:2.7.0":
+  version: 2.7.0
+  resolution: "@supabase/storage-js@npm:2.7.0"
+  dependencies:
+    "@supabase/node-fetch": ^2.6.14
+  checksum: 1796214103d0afae0d9e960bd22cbd621f746a845c56e409a5a7fa88cbdfcec6a53ac0ffb6b5197ec88540c8c17a5cc888ec3edf5928b48b83bb7f315a17465c
+  languageName: node
+  linkType: hard
+
+"@supabase/supabase-js@npm:^2.45.4":
+  version: 2.45.4
+  resolution: "@supabase/supabase-js@npm:2.45.4"
+  dependencies:
+    "@supabase/auth-js": 2.65.0
+    "@supabase/functions-js": 2.4.1
+    "@supabase/node-fetch": 2.6.15
+    "@supabase/postgrest-js": 1.16.1
+    "@supabase/realtime-js": 2.10.2
+    "@supabase/storage-js": 2.7.0
+  checksum: 5611e13a1ffd0e0773148eccdadcf746240b4d47dfe771220793c3f6ec2d8eedef638d27aa23a2b020bce3fb68efda511d4e9746792e7524349f7e17bd53eb99
+  languageName: node
+  linkType: hard
+
 "@svgr/babel-plugin-add-jsx-attribute@npm:8.0.0":
   version: 8.0.0
   resolution: "@svgr/babel-plugin-add-jsx-attribute@npm:8.0.0"
@@ -4911,6 +4982,13 @@ __metadata:
   version: 6.0.3
   resolution: "@types/parse5@npm:6.0.3"
   checksum: ddb59ee4144af5dfcc508a8dcf32f37879d11e12559561e65788756b95b33e6f03ea027d88e1f5408f9b7bfb656bf630ace31a2169edf44151daaf8dd58df1b7
+  languageName: node
+  linkType: hard
+
+"@types/phoenix@npm:^1.5.4":
+  version: 1.6.5
+  resolution: "@types/phoenix@npm:1.6.5"
+  checksum: b87416393159f0ba2812875fc2721914a3284cde8b1f263dfcd46f4149dae7f4efc2bfa062d558c8bbfb7ae2a9d802487b0dd4744ff08799386cbc49c19368f0
   languageName: node
   linkType: hard
 
@@ -9882,9 +9960,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::locator=lowcoder-root%40workspace%3A.":
+"eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::locator=lowcoder-frontend%40workspace%3A.":
   version: 0.0.0
-  resolution: "eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::version=0.0.0&hash=11e5a9&locator=lowcoder-root%40workspace%3A."
+  resolution: "eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::version=0.0.0&hash=11e5a9&locator=lowcoder-frontend%40workspace%3A."
   dependencies:
     requireindex: ~1.1.0
   checksum: 681f936c1933b0bc01e2b360df9f05a4cdb0a545a026e0311da0105a60eb3cf6f2f81145e12e5bfefd16eeff9272acfb7e41cc78a587c0487c49f311cd176a2e
@@ -13905,32 +13983,16 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: unknown
   linkType: soft
 
-"lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo":
+"lowcoder-frontend@workspace:.":
   version: 0.0.0-use.local
-  resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
-  dependencies:
-    "@types/react": ^18.2.45
-    "@types/react-dom": ^18.2.18
-    lowcoder-cli: "workspace:^"
-    lowcoder-core: ^0.0.1
-    lowcoder-design: ^0.0.1
-    lowcoder-sdk: "workspace:^"
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    typescript: 4.8.4
-    vite: ^4.5.2
-  languageName: unknown
-  linkType: soft
-
-"lowcoder-root@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "lowcoder-root@workspace:."
+  resolution: "lowcoder-frontend@workspace:."
   dependencies:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.18.6
     "@lottiefiles/react-lottie-player": ^3.5.3
     "@remixicon/react": ^4.1.1
     "@rollup/plugin-typescript": ^8.5.0
+    "@supabase/supabase-js": ^2.45.4
     "@testing-library/jest-dom": ^5.16.5
     "@testing-library/react": ^14.1.2
     "@testing-library/user-event": ^14.5.1
@@ -13976,6 +14038,23 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     tui-image-editor: ^3.15.3
     typescript: ^4.8.4
     whatwg-fetch: ^3.6.2
+  languageName: unknown
+  linkType: soft
+
+"lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo":
+  version: 0.0.0-use.local
+  resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
+  dependencies:
+    "@types/react": ^18.2.45
+    "@types/react-dom": ^18.2.18
+    lowcoder-cli: "workspace:^"
+    lowcoder-core: ^0.0.1
+    lowcoder-design: ^0.0.1
+    lowcoder-sdk: "workspace:^"
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    typescript: 4.8.4
+    vite: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -18109,9 +18188,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::locator=lowcoder-root%40workspace%3A.":
+"react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::locator=lowcoder-frontend%40workspace%3A.":
   version: 9.22.3
-  resolution: "react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::version=9.22.3&hash=56c4da&locator=lowcoder-root%40workspace%3A."
+  resolution: "react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::version=9.22.3&hash=56c4da&locator=lowcoder-frontend%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.7.2
     clsx: ^1.0.4
@@ -22347,6 +22426,21 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     utf-8-validate:
       optional: true
   checksum: 147ef9eab0251364e1d2c55338ad0efb15e6913923ccbfdf20f7a8a6cb8f88432bcd7f4d8f66977135bfad35575644f9983201c1a361019594a4e53977bf6d4e
+  languageName: node
+  linkType: hard
+
+"ws@npm:^8.14.2":
+  version: 8.18.0
+  resolution: "ws@npm:8.18.0"
+  peerDependencies:
+    bufferutil: ^4.0.1
+    utf-8-validate: ">=5.0.2"
+  peerDependenciesMeta:
+    bufferutil:
+      optional: true
+    utf-8-validate:
+      optional: true
+  checksum: 91d4d35bc99ff6df483bdf029b9ea4bfd7af1f16fc91231a96777a63d263e1eabf486e13a2353970efc534f9faa43bdbf9ee76525af22f4752cbc5ebda333975
   languageName: node
   linkType: hard
 

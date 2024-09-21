@@ -7,9 +7,7 @@ import { saveDataAsFile } from "../../util/fileUtils";
 import { openApp, recordToSearchStr } from "../../util/appUtils";
 import { trans } from "i18n";
 import { logoutAction } from "redux/reduxActions/userActions";
-import { useDispatch } from "react-redux";
-import { useCallback } from "react";
-
+import StoreRegistry from "@lowcoder-ee/redux/store/storeRegistry";
 
 const UtilsCompBase = simpleMultiComp({});
 export let UtilsComp = withExposingConfigs(UtilsCompBase, []);
@@ -114,11 +112,13 @@ UtilsComp = withMethodExposing(UtilsComp, [
   {
     method: {
       name: "logoutUser",
-      description: trans("utilsComp.downloadFile"),
+      description: trans("utilsComp.logoutUser"),
       params: [],
     },
     execute: (comp, params) => {
-      logoutAction({})
+      StoreRegistry.getStore().dispatch(
+        logoutAction({})
+      );
     },
   },
 ]);

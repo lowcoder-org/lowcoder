@@ -9,6 +9,7 @@ import {
   PublishApplicationPayload,
   RecycleApplicationPayload,
   RestoreApplicationPayload,
+  SetAppEditingStatePayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
@@ -96,7 +97,7 @@ class ApplicationApi extends Api {
   static publicToAllURL = (applicationId: string) => `/applications/${applicationId}/public-to-all`;
   static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
   static getMarketplaceAppURL = (applicationId: string) => `/applications/${applicationId}/view_marketplace`;
-
+  static setAppEditingStateURL = (applicationId: string) => `/applications/editState/${applicationId}`;
 
   static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
@@ -231,6 +232,13 @@ class ApplicationApi extends Api {
 
   static getMarketplaceApp(appId: string) {
     return Api.get(ApplicationApi.getMarketplaceAppURL(appId));
+  }
+
+  static setAppEditingState(request: SetAppEditingStatePayload): AxiosPromise<ApplicationResp> {
+    const { applicationId, editingFinished } = request;
+    return Api.put(ApplicationApi.setAppEditingStateURL(applicationId), {
+      editingFinished,
+    });
   }
 }
 

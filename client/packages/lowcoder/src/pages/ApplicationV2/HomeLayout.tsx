@@ -305,8 +305,9 @@ export interface HomeLayoutProps {
 
 export function HomeLayout(props: HomeLayoutProps) {
 
-
   const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [], mode } = props;
+
+  console.log("HomeLayout props: ", props);
 
   const categoryOptions = [
     { label: <FilterMenuItem>{trans("home.allCategories")}</FilterMenuItem>, value: 'All' },

@@ -53,6 +53,7 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   placement: withDefault(PositionControl, "top"),
@@ -237,11 +238,11 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     );
     return {
       label,
-      key: tab.key,
+      key: tab.key,                                                                            
       forceRender: true,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+          <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
             <ContainerInTab
               layout={containerProps.layout.getView()}
               items={gridItemCompToGridItems(containerProps.items.getView())}
@@ -258,8 +259,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
-      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "auto" : "100%"}}>
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <StyledTabs
             $animationStyle={props.animationStyle}
@@ -285,7 +285,6 @@ const TabbedContainer = (props: TabbedContainerProps) => {
           </StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
-    </ScrollBar>
   );
 };
 
@@ -329,8 +328,8 @@ export const TabbedContainerBaseComp = (function () {
                 })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
-                  children.scrollbars.propertyView({
-                    label: trans("prop.scrollbar"),
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
                   })
                 )}
               </Section>
@@ -465,3 +464,4 @@ export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, 
   new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
   NameConfigHidden,
 ]);
+

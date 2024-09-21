@@ -1,6 +1,6 @@
 /// <reference types="react" />
 import * as react from 'react';
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import * as react_jsx_runtime from 'react/jsx-runtime';
 
 type EvalMethods = Record<string, Record<string, Function>>;
@@ -32,6 +32,7 @@ type RecordOptionalNodeToValue<T> = {
 };
 interface FetchInfoOptions {
     ignoreManualDepReadyStatus?: boolean;
+    queryName?: string;
 }
 /**
  * the base structure for evaluate

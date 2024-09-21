@@ -768,7 +768,7 @@ export const Event = styled.div<{
 
 
 export const FormWrapper = styled(Form)<{
-  $modalStyle: EventModalStyleType
+  $modalStyle?: EventModalStyleType
 }>`
   .ant-form-item-label {
     width: 125px;
@@ -789,11 +789,11 @@ export const FormWrapper = styled(Form)<{
 
   // Setting style for input fields
   .ant-input {
-    background-color: ${(props) => props.$modalStyle.labelBackground };
-    border-color: ${(props) => props.$modalStyle.border};
-    border-width: ${(props) => props.$modalStyle.borderWidth};
-    border-style: ${(props) => props.$modalStyle.borderStyle};
-    color: ${(props) => props.$modalStyle.text};
+    background-color: ${(props) => props.$modalStyle?.labelBackground };
+    border-color: ${(props) => props.$modalStyle?.border};
+    border-width: ${(props) => props.$modalStyle?.borderWidth};
+    border-style: ${(props) => props.$modalStyle?.borderStyle};
+    color: ${(props) => props.$modalStyle?.text};
   }
 
 `;

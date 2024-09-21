@@ -199,7 +199,9 @@ export const en = {
     "toggleClose": "Enable Close Button",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
-    "scrollbar": "Show Scrollbars",
+    "scrollbar" : "Show Scrollbars",
+    "showVerticalScrollbar" : "Show Vertical Scrollbar",
+    "showHorizontalScrollbar" : "Show Horizontal Scrollbar",
     "siderScrollbar" : "Show Scrollbars in Sider",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
@@ -221,8 +223,6 @@ export const en = {
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
-    "showHorizontalScrollbar": "Show Horizontal Scrollbar",
-    "showVerticalScrollbar": "Show Vertical Scrollbar",
     "timeZone": "TimeZone",
   },
   "autoHeightProp": {
@@ -1249,6 +1249,10 @@ export const en = {
     "ganttChartCompName" : "Gantt Chart",
     "ganttChartCompDesc" : "A chart that illustrates a project schedule, showing the start and finish dates of elements and dependencies.",
     "ganttChartCompKeywords" : "gantt chart, project management, schedule",
+
+    "kanbanCompName" : "Kanban Board (preview!)",
+    "kanbanCompDesc" : "A board for visualizing workflow, with columns representing stages of work and cards representing tasks.",
+    "kanbanCompKeywords" : "kanban, board, workflow, tasks",
 
     // by mousheng
 
@@ -2446,7 +2450,8 @@ export const en = {
     "openUrl": "Open URL",
     "openApp": "Open App",
     "copyToClipboard": "Copy to Clipboard",
-    "downloadFile": "Download File"
+    "downloadFile": "Download File",
+    "logoutUser" : "Logout User",
   },
   "messageComp": {
     "info": "Send a Notification",
@@ -2922,7 +2927,13 @@ export const en = {
     "editorMode_logic": "Logic",
     "editorMode_both": "Both",
     "editorMode_layout_tooltip": "Customise the component's appearance and layout, in the right window. Adjust how it looks, styles, and animates.",
-    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours."
+    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours.",
+    "AppEditingBlocked": "App Editing Blocked for:",
+    "AppEditingBlockedHint": "Changes will not be saved while another user is editing this app.",
+    "AppEditingBlockedMessage": "Please wait before check the editing status of the App.",
+    "AppEditingBlockedCheckStatus": "Check App Status",
+    "AppEditingBlockedSomeone": "Someone",
+    "AppEditingBlockedMessageSnipped": "is editing this app",
   },
   "userAuth": {
     "registerByEmail": "Sign Up",

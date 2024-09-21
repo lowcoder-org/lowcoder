@@ -50,6 +50,8 @@ const childrenMap = {
   heightUnitOfRow: withDefault(NumberControl, 1),
   container: ContextContainerComp,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  showHorizontalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   showBorder: BoolControl,

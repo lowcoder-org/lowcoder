@@ -164,6 +164,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
       let ready = true;
 
       topDepends.forEach((paths, depend) => {
+        const pathsArr = Array.from(paths);
         const value = depend.evaluate(exposingNodes) as any;
         if (
           options?.ignoreManualDepReadyStatus &&
@@ -172,6 +173,9 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
         ) {
           return;
         }
+        // if query is dependent on itself, mark as ready
+        if (pathsArr?.[0] === options?.queryName) return;
+
         // wait for lazy loaded comps to load before executing query on page load
         if (!Object.keys(value).length && paths.size) {
           isFetching = true;

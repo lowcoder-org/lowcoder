@@ -7,7 +7,12 @@ import { useCompInstance } from "comps/utils/useCompInstance";
 import { MarkAppInitialized, perfMark } from "util/perfUtils";
 import { QueryApi } from "api/queryApi";
 
-export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, isReady: boolean) {
+export function useRootCompInstance(
+  appInfo: AppSummaryInfo,
+  readOnly: boolean,
+  isReady: boolean,
+  blockEditing?: boolean,
+) {
   const appId = appInfo.id;
   const params = useMemo(() => {
     return {
@@ -28,7 +33,7 @@ export function useRootCompInstance(appInfo: AppSummaryInfo, readOnly: boolean, 
     };
   }, [appId, appInfo.dsl, appInfo.moduleDsl, isReady, readOnly]);
   const [comp, container] = useCompInstance(params);
-  const history = useAppHistory(container, readOnly, appId);
+  const history = useAppHistory(container, readOnly, appId, blockEditing);
 
   useUnmount(() => {
     comp?.clearPreload();

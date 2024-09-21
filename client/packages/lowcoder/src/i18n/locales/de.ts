@@ -1,5 +1,5 @@
 
-import { en } from "./en.js";
+import { en } from "./en";
 export const de = {
     ...en,
     
@@ -1199,6 +1199,9 @@ export const de = {
   "ganttChartCompName": "Gantt-Diagramm",
   "ganttChartCompDesc": "Ein Diagramm, das einen Projektplan mit den Start- und Endterminen von Elementen und Abhängigkeiten darstellt.",
   "ganttChartCompKeywords": "Gantt-Diagramm, Projektmanagement, Zeitplan",
+  "kanbanCompName" : "Kanban Board (preview!)",
+  "kanbanCompDesc" : "Eine visuelle Organisationsmethode zur Verwaltung von Aufgaben und Workflows in einem Board mit Spalten und Karten.",
+  "kanbanCompKeywords" : "kanban, board, workflow, tasks",
   "colorPickerCompName": "Farbwähler",
   "colorPickerCompDesc": "Intuitive Farbauswahl zur individuellen Gestaltung.",
   "colorPickerCompKeywords": "farbe, auswahl, anpassung",
@@ -2986,7 +2989,13 @@ export const de = {
   "editorMode_both": "Beide",
   "editorMode_layout_tooltip": "Passen Sie im rechten Fenster das Erscheinungsbild und Layout der Komponente an. Passen Sie Aussehen, Stil und Animationen an.",
   "editorMode_logic_tooltip": "Richten Sie im rechten Fenster ein, wie Ihre Komponente funktioniert und interagiert. Verwalten Sie den Inhalt und das interaktive Verhalten.",
-  },
+  "AppEditingBlocked": "App-Bearbeitung blockiert für:",
+  "AppEditingBlockedHint": "Änderungen werden nicht gespeichert, während ein anderer Benutzer diese App bearbeitet.",
+  "AppEditingBlockedMessage": "Bitte warten Sie, bevor Sie den Bearbeitungsstatus der App überprüfen.",
+  "AppEditingBlockedCheckStatus": "App-Status prüfen",
+  "AppEditingBlockedSomeone": "Jemand",
+  "AppEditingBlockedMessageSnipped": "bearbeitet diese App",
+},
   "userAuth": {
     ...en.userAuth,
 

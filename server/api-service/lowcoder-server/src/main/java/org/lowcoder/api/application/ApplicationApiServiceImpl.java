@@ -256,18 +256,11 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
-                .zipWhen(tuple -> sessionUserService.getVisitorId())
                 .flatMap(tuple -> {
-                    ResourcePermission permission = tuple.getT1().getT1();
-                    Application application = tuple.getT1().getT2();
-                    List<Application> dependentModules = tuple.getT1().getT3();
-                    Map<String, Object> commonSettings = tuple.getT1().getT4();
-                    String visitorId = tuple.getT2();
-
-                    if(!visitorId.equals(application.getEditingUserId()) && (application.getLastEditedAt() == null || application.getLastEditedAt().compareTo(Instant.now().minusSeconds(300)) < 0)) {
-                        application.setEditingUserId(visitorId);
-                        application.setLastEditedAt(Instant.now());
-                    }
+                    ResourcePermission permission = tuple.getT1();
+                    Application application = tuple.getT2();
+                    List<Application> dependentModules = tuple.getT3();
+                    Map<String, Object> commonSettings = tuple.getT4();
 
                     Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
                             .collect(Collectors.toMap(Application::getId, Application::getLiveApplicationDsl, (a, b) -> b));
@@ -556,6 +549,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile())
                 .editingUserId(application.getEditingUserId())
+                .lastModifyTime(application.getUpdatedAt())
+                .lastEditedAt(application.getLastEditedAt())
                 .build();
     }
 

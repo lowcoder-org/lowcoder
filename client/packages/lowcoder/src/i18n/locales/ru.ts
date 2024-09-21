@@ -1,5 +1,5 @@
 
-import { en } from "./en.js";
+import { en } from "./en";
 export const ru = {
     ...en,
     
@@ -1199,6 +1199,9 @@ export const ru = {
   "ganttChartCompName": "Диаграмма Ганта",
   "ganttChartCompDesc": "Диаграмма, иллюстрирующая график проекта и показывающая даты начала и завершения элементов и зависимостей.",
   "ganttChartCompKeywords": "диаграмма Ганта, управление проектами, расписание",
+  "kanbanCompName" : "Kanban Board (preview!)",
+  "kanbanCompDesc" : "Компонент доски Kanban для управления рабочим процессом и задачами, используемый в методологии управления проектами Kanban.",
+  "kanbanCompKeywords" : "kanban, board, workflow, tasks",
   "colorPickerCompName": "Подборщик цветов",
   "colorPickerCompDesc": "Интуитивно понятный выбор цвета для персонализации.",
   "colorPickerCompKeywords": "цвет, подборщик, настройка",
@@ -2986,6 +2989,12 @@ export const ru = {
   "editorMode_both": "Оба",
   "editorMode_layout_tooltip": "Настройте внешний вид и расположение компонента в правом окне. Настройте его внешний вид, стили и анимацию.",
   "editorMode_logic_tooltip": "Настройте работу и взаимодействие вашего компонента в нужном окне. Управляйте его содержимым и интерактивным поведением.",
+  "AppEditingBlocked": "Редактирование приложения заблокировано для:",
+  "AppEditingBlockedHint": "Изменения не будут сохранены, пока другой пользователь редактирует это приложение.",
+  "AppEditingBlockedMessage": "Пожалуйста, подождите, прежде чем проверить статус редактирования приложения.",
+  "AppEditingBlockedCheckStatus": "Проверить статус приложения",
+  "AppEditingBlockedSomeone": "Кто-то",
+  "AppEditingBlockedMessageSnipped": "редактирует это приложение",
   },
   "userAuth": {
     ...en.userAuth,

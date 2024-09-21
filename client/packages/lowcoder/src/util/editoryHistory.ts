@@ -12,7 +12,12 @@ import { showCost } from "util/perfUtils";
 
 type OperationType = AppSnapshotContext["operations"];
 
-export function useAppHistory(compContainer: CompContainer, readOnly: boolean, appId: string) {
+export function useAppHistory(
+  compContainer: CompContainer,
+  readOnly: boolean,
+  appId: string,
+  blockEditing?: boolean,
+) {
   const reduxDispatch = useDispatch();
 
   return useMemo(() => {
@@ -32,7 +37,7 @@ export function useAppHistory(compContainer: CompContainer, readOnly: boolean, a
     };
 
     compContainer.addChangeListener((actions) => {
-      if (readOnly || !actions) {
+      if (readOnly || !actions || blockEditing) {
         return;
       }
       // maybe slow: comparing dsl by `toJson`
@@ -41,7 +46,7 @@ export function useAppHistory(compContainer: CompContainer, readOnly: boolean, a
       showCost("addHistory", () => addHistory(actions));
     });
     return history;
-  }, [appId, compContainer, reduxDispatch, readOnly]);
+  }, [appId, compContainer, reduxDispatch, readOnly, blockEditing]);
 }
 
 /**

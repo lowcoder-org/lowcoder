@@ -1,5 +1,5 @@
 
-import { en } from "./en.js";
+import { en } from "./en";
 export const pt = {
     ...en,
     
@@ -1199,6 +1199,9 @@ export const pt = {
   "ganttChartCompName": "Gráfico de Gantt",
   "ganttChartCompDesc": "Um gráfico que ilustra o calendário de um projeto, mostrando as datas de início e de fim dos elementos e as dependências.",
   "ganttChartCompKeywords": "gráfico de Gantt, gestão de projectos, calendário",
+  "kanbanCompName" : "Kanban Board (preview!)",
+  "kanbanCompDesc" : "Um quadro de kanban interativo para visualizar e gerenciar o fluxo de trabalho e as tarefas em um projeto.",
+  "kanbanCompKeywords" : "kanban, board, workflow, tasks",
   "colorPickerCompName": "Seletor de Cores",
   "colorPickerCompDesc": "Seleção intuitiva de cores para personalização.",
   "colorPickerCompKeywords": "cor, seletor, personalização",
@@ -2986,6 +2989,12 @@ export const pt = {
   "editorMode_both": "Ambos",
   "editorMode_layout_tooltip": "Personalize a aparência e o layout do componente, na janela direita. Ajuste sua aparência, estilo e animação.",
   "editorMode_logic_tooltip": "Configure como seu componente funciona e interage, na janela direita. Gerencie seu conteúdo e comportamentos interativos.",
+  "AppEditingBlocked": "Edição do aplicativo bloqueada para:",
+  "AppEditingBlockedHint": "As alterações não serão salvas enquanto outro usuário estiver editando este aplicativo.",
+  "AppEditingBlockedMessage": "Por favor, aguarde antes de verificar o status de edição do aplicativo.",
+  "AppEditingBlockedCheckStatus": "Verificar status do aplicativo",
+  "AppEditingBlockedSomeone": "Alguém",
+  "AppEditingBlockedMessageSnipped": "está editando este aplicativo",
   },
   "userAuth": {
     ...en.userAuth,

@@ -40,6 +40,7 @@ const childrenMap = {
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
@@ -138,7 +139,7 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      (!this.children.autoHeight.getView()) && this.children.scrollbars.propertyView({ label: trans("prop.scrollbar") })
+      (!this.children.autoHeight.getView()) && this.children.showVerticalScrollbar.propertyView({ label: trans("prop.showVerticalScrollbar") })
     ];
   }
 

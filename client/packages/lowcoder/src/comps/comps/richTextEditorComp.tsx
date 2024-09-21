@@ -205,13 +205,7 @@ function RichTextEditor(props: IProps) {
   originOnChangeRef.current = props.onChange;
 
   const onChangeRef = useRef(
-    debounce > 0
-      ? _.debounce((v: string) => {
-          window.clearTimeout(isTypingRef.current);
-          isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
-          originOnChangeRef.current?.(v);
-        })
-      : (v: string) => originOnChangeRef.current?.(v)
+    (v: string) => originOnChangeRef.current?.(v)
   );
 
   // react-quill will not take effect after the placeholder is updated
