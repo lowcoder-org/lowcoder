@@ -302,6 +302,7 @@ export const InitializeSubscription = () => {
   const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
   const [checkoutLinkDataLoaded, setCheckoutLinkDataLoaded] = useState<boolean>(false);
   const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
+  
   const [products, setProducts] = useState<Product[]>([
     {
       pricingType: "Monthly, per User",

@@ -3,10 +3,8 @@ import {
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
   FOLDER_URL,
-  FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
-  // MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
   SUPPORT_URL,
@@ -296,7 +294,7 @@ export default function ApplicationHome() {
             ],
           } : { items: [] },
 
-          /* supportSubscription ? {
+          supportSubscription ? {
             items: [
               {
                 text: <TabLabel>{trans("home.support")}</TabLabel>,
@@ -306,7 +304,7 @@ export default function ApplicationHome() {
                 icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],
-          } : { items: [] }, */
+          } : { items: [] },
 
           {
             items: [
