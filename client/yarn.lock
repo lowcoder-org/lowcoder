@@ -9960,9 +9960,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::locator=lowcoder-root%40workspace%3A.":
+"eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::locator=lowcoder-frontend%40workspace%3A.":
   version: 0.0.0
-  resolution: "eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::version=0.0.0&hash=11e5a9&locator=lowcoder-root%40workspace%3A."
+  resolution: "eslint-plugin-only-ascii@patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch::version=0.0.0&hash=11e5a9&locator=lowcoder-frontend%40workspace%3A."
   dependencies:
     requireindex: ~1.1.0
   checksum: 681f936c1933b0bc01e2b360df9f05a4cdb0a545a026e0311da0105a60eb3cf6f2f81145e12e5bfefd16eeff9272acfb7e41cc78a587c0487c49f311cd176a2e
@@ -13983,26 +13983,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: unknown
   linkType: soft
 
-"lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo":
+"lowcoder-frontend@workspace:.":
   version: 0.0.0-use.local
-  resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
-  dependencies:
-    "@types/react": ^18.2.45
-    "@types/react-dom": ^18.2.18
-    lowcoder-cli: "workspace:^"
-    lowcoder-core: ^0.0.1
-    lowcoder-design: ^0.0.1
-    lowcoder-sdk: "workspace:^"
-    react: ^18.2.0
-    react-dom: ^18.2.0
-    typescript: 4.8.4
-    vite: ^4.5.2
-  languageName: unknown
-  linkType: soft
-
-"lowcoder-root@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "lowcoder-root@workspace:."
+  resolution: "lowcoder-frontend@workspace:."
   dependencies:
     "@babel/preset-env": ^7.20.2
     "@babel/preset-typescript": ^7.18.6
@@ -14055,6 +14038,23 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     tui-image-editor: ^3.15.3
     typescript: ^4.8.4
     whatwg-fetch: ^3.6.2
+  languageName: unknown
+  linkType: soft
+
+"lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo":
+  version: 0.0.0-use.local
+  resolution: "lowcoder-plugin-demo@workspace:packages/lowcoder-plugin-demo"
+  dependencies:
+    "@types/react": ^18.2.45
+    "@types/react-dom": ^18.2.18
+    lowcoder-cli: "workspace:^"
+    lowcoder-core: ^0.0.1
+    lowcoder-design: ^0.0.1
+    lowcoder-sdk: "workspace:^"
+    react: ^18.2.0
+    react-dom: ^18.2.0
+    typescript: 4.8.4
+    vite: ^4.5.2
   languageName: unknown
   linkType: soft
 
@@ -18188,9 +18188,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::locator=lowcoder-root%40workspace%3A.":
+"react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::locator=lowcoder-frontend%40workspace%3A.":
   version: 9.22.3
-  resolution: "react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::version=9.22.3&hash=56c4da&locator=lowcoder-root%40workspace%3A."
+  resolution: "react-virtualized@patch:react-virtualized@npm%3A9.22.3#./.yarn/patches/react-virtualized-npm-9.22.3-0fff3cbf64.patch::version=9.22.3&hash=56c4da&locator=lowcoder-frontend%40workspace%3A."
   dependencies:
     "@babel/runtime": ^7.7.2
     clsx: ^1.0.4
