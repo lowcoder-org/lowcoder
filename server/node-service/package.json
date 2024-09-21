@@ -1,6 +1,6 @@
 {
-  "name": "taco-js-api",
-  "version": "0.1.1",
+  "name": "lowcoder-node-server",
+  "version": "2.4.6",
   "private": true,
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
@@ -46,12 +46,12 @@
     "@types/morgan": "^1.9.3",
     "@types/node": "^20.1.1",
     "@types/node-fetch": "^2.6.2",
-    "axios": "^1.2.0",
+    "axios": "^1.7.7",
     "base64-arraybuffer": "^1.0.2",
     "bluebird": "^3.7.2",
     "duckdb-async": "^0.10.0",
     "dynamodb-data-types": "^4.0.1",
-    "express": "^4.18.2",
+    "express": "^4.21.0",
     "express-async-errors": "^3.1.1",
     "firebase-admin": "^11.5.0",
     "formdata-node": "4",
