@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.toAuthentication;
@@ -109,6 +110,11 @@ public class UserSessionPersistenceFilter implements WebFilter {
         }
 
         OAuth2RequestContext oAuth2RequestContext = new OAuth2RequestContext(triple.getRight(), null, null);
+
+        log.info("Refreshing token for user: [ name: {}, id: {} ], orgId: {}, activeConnection: [ authId: {}, name: {}, orgIds: ({})]",
+                user.getName(), user.getId(),
+                orgId,
+                connection.getAuthId(), connection.getName(), StringUtils.join(connection.getOrgIds(), ", "));
 
         return authenticationService
                 .findAuthConfigByAuthId(orgId, connection.getAuthId())
