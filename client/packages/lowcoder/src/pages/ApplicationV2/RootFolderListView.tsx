@@ -9,6 +9,8 @@ export function RootFolderListView() {
   const user = useSelector(getUser);
   const allFolders = useSelector(foldersSelector);
 
+  console.log("RootFolderListView", allFolders);
+
   if (!user.currentOrgId) {
     return null;
   }

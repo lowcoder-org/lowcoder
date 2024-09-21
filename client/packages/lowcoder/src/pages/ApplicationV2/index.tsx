@@ -2,8 +2,8 @@ import {
   USER_PROFILE_URL,
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
-  // FOLDER_URL,
-  // FOLDER_URL_PREFIX,
+  FOLDER_URL,
+  FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
   // MODULE_APPLICATIONS_URL,
@@ -50,7 +50,7 @@ import { NewsView } from "./NewsView";
 import { OrgView } from "./OrgView";
 import styled, { css } from "styled-components";
 // import history from "../../util/history";
-// import { FolderView } from "./FolderView";
+import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
 // import { SideBarItemType } from "../../components/layout/SideBarSection";
@@ -333,6 +333,18 @@ export default function ApplicationHome() {
               },
             ],
           },
+
+          // this we need to show the Folders view in the Admin Area
+          {
+            items: [
+              {
+                text: "",
+                routePath: FOLDER_URL,
+                routeComp: FolderView,
+                visible: () => false,
+              }
+            ]
+          }
 
         ]}
       />
