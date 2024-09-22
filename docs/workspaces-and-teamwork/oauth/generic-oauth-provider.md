@@ -1,9 +1,9 @@
 # Generic OAuth Provider
 
-Since Lowcoder v2.4.0, a generic OAuth Provider has been introduced. The goal is to cover as many OAuth providers as possible without special implementation but give you, as an Admin, the freedom to connect to any OAuth Provider using a flexible configuration.
+Since OpenFlower v2.4.0, a generic OAuth Provider has been introduced. The goal is to cover as many OAuth providers as possible without special implementation but give you, as an Admin, the freedom to connect to any OAuth Provider using a flexible configuration.
 
 {% hint style="info" %}
-As communicated and voted by the community, we introduced the functionality in v2.4.0 but are still optimizing it, based on your feedback. Latest by Lowcoder v2.5.x this function is stable. (We expect anyhow already before that version a stable function of it.)
+As communicated and voted by the community, we introduced the functionality in v2.4.0 but are still optimizing it, based on your feedback. Latest by OpenFlower v2.5.x this function is stable. (We expect anyhow already before that version a stable function of it.)
 {% endhint %}
 
 OAuth Providers are configured individually per Workspace.
@@ -26,7 +26,7 @@ Now, you can use the button in the upper right corner to add a new OAuth Provide
 
 ### .well\_known URI
 
-The `.well-known/openid-configuration` URI is specifically part of the OpenID Connect (OIDC) standard. If a provider supports OpenID Connect, this endpoint provides a JSON document with the configuration details for OAuth and OIDC operations. Lowcoder will try to use this configuration data and will fill out the standard OAuth Provider Configuration fields as well as possible in the next screens of the Generic OAuth Provider Configurator.
+The `.well-known/openid-configuration` URI is specifically part of the OpenID Connect (OIDC) standard. If a provider supports OpenID Connect, this endpoint provides a JSON document with the configuration details for OAuth and OIDC operations. OpenFlower will try to use this configuration data and will fill out the standard OAuth Provider Configuration fields as well as possible in the next screens of the Generic OAuth Provider Configurator.
 
 <figure><img src="../../.gitbook/assets/Settings  OAuth  Well Known URI.png" alt="" width="563"><figcaption><p>Enter your Well Known URI to auto-fill the configuration in Step 2</p></figcaption></figure>
 
@@ -148,10 +148,10 @@ Meta Data describes the Auth Source, allowing you to influence the visual repres
 <figure><img src="../../.gitbook/assets/Settings  OAuth  Meta Data.png" alt="" width="563"><figcaption><p>Enter a Displayed Name, Category, Icon and a Description</p></figcaption></figure>
 
 {% hint style="danger" %}
-In Lowcoder v2.4.0 you must set the field "Source" to GENERIC
+In OpenFlower v2.4.0 you must set the field "Source" to GENERIC
 {% endhint %}
 
-From Lowcoder v2.4.1, the field "Source" will be hidden and filled out automatically.
+From OpenFlower v2.4.1, the field "Source" will be hidden and filled out automatically.
 
 ### OAuth Configuration
 
@@ -164,7 +164,7 @@ Scopes must be set with a space character between the scopes, not comma-separate
 {% endhint %}
 
 {% hint style="info" %}
-Some providers do only support OAuth - but not (yet?) OpenID. This means that the User Introspection Endpoints /userinfo are not available. For this case you can activate or deactivate this Introspection. (This function comes into effect at Lowcoder v2.4.1)
+Some providers do only support OAuth - but not (yet?) OpenID. This means that the User Introspection Endpoints /userinfo are not available. For this case you can activate or deactivate this Introspection. (This function comes into effect at OpenFlower v2.4.1)
 {% endhint %}
 
 ### Provider-Side Configuration
@@ -182,7 +182,7 @@ At your IDM you would need to prepare an OAuth Client resp. a OAuth Client Appli
 
 ### OAuth Data Mapping
 
-We introduce the possibility of mapping Data from OAuth providers to Lowcoder. We just started it in v2.4.0, and in this version, we enabled 4 attributes.
+We introduce the possibility of mapping Data from OAuth providers to OpenFlower. We just started it in v2.4.0, and in this version, we enabled 4 attributes.
 
 * UID (The User-ID in the IDM System)
 * Email (The Email Address of the User in the IDM System)
@@ -200,5 +200,5 @@ In v2.4.0 we support mapping out of the JWT (access\_token) from the IDM. In fut
 {% endhint %}
 
 {% hint style="info" %}
-In future versions of Lowcoder, we will also support Attribute Matching of Token Claims to User Groups and Roles.
+In future versions of OpenFlower, we will also support Attribute Matching of Token Claims to User Groups and Roles.
 {% endhint %}

@@ -2391,7 +2391,7 @@ export const zh: typeof en = {
         jsLibraryDownloadError: "JavaScript库下载错误",
         jsLibraryInstallSuccess: "JavaScript库安装成功",
         jsLibraryInstallFailed: "JavaScript库安装失败",
-        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.openflower.org/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
         jsLibraryInstallFailedHost: "{message}",
         add: "新增",
         jsHelpText: "向当前应用程序添加全局方法或变量.",
@@ -2556,7 +2556,7 @@ export const zh: typeof en = {
     },
     docUrls: {
         ...en.docUrls,
-        docHome: "https://docs.lowcoder.cloud/",
+        docHome: "https://docs.openflower.org/",
         components: "https://app.lowcoder.cloud/components/{compType}",
         module: "",
         optionList: "",
@@ -2565,12 +2565,12 @@ export const zh: typeof en = {
         aboutUs: "",
         changeLog: "",
         introVideo: "",
-        devNpmPlugin: "https://docs.lowcoder.cloud/build-plugins/develop-your-first-plugin",
+        devNpmPlugin: "https://docs.openflower.org/build-plugins/develop-your-first-plugin",
         devNpmPluginText: "如何开发npm插件?",
-        useHost: "https://docs.lowcoder.cloud/self-hosting/access-local-database-or-api",
+        useHost: "https://docs.openflower.org/self-hosting/access-local-database-or-api",
         eventHandlerSlowdown:
-        "https://docs.lowcoder.cloud/build-apps/event-handlers#debounce-and-throttle",
-        thirdLib: "https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries",
+        "https://docs.openflower.org/build-apps/event-handlers#debounce-and-throttle",
+        thirdLib: "https://docs.openflower.org/build-apps/write-javascript/use-third-party-libraries",
         thirdLibUrlText: "使用第三方插件库",
     },
     datasourceTutorial: {
@@ -2586,9 +2586,9 @@ export const zh: typeof en = {
     queryTutorial: {
         ...en.queryTutorial,
         js: "",
-        transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-        tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
-        dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
+        transformer: "https://docs.openflower.org/business-logic-in-apps/write-javascript/transformers",
+        tempState: "https://docs.openflower.org/business-logic-in-apps/write-javascript/temporary-state",
+        dataResponder: "https://docs.openflower.org/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
     },
     customComponent: {
         ...en.customComponent,

@@ -1,12 +1,12 @@
 ---
-description: A short tutorial walk through Lowcoder
+description: A short tutorial walk through OpenFlower
 ---
 
 # The "Hello World" walk
 
-At your first contact with Lowcoder you will see the Login Screen.&#x20;
+At your first contact with OpenFlower you will see the Login Screen.&#x20;
 
-<figure><img src="../.gitbook/assets/Login Screen.png" alt=""><figcaption><p>Lowcoder Login Screen</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Login Screen.png" alt=""><figcaption><p>OpenFlower Login Screen</p></figcaption></figure>
 
 If you haven't created your account yet, you can register a new account with the url /user/auth/register or the Sign up Link on the login page.&#x20;
 
@@ -14,11 +14,11 @@ If you haven't created your account yet, you can register a new account with the
 
 When you create a User without Invite-Link, this User will automatically get the role of an Administrator with own Workspace(s).
 
-The fist Screen of the Admin Panel of Lowcoder shows the overview of all Apps (in the current selected Workplace). For new Installations & logins, the Workplace is named by the eMail of the logged in User.
+The fist Screen of the Admin Panel of OpenFlower shows the overview of all Apps (in the current selected Workplace). For new Installations & logins, the Workplace is named by the eMail of the logged in User.
 
 <figure><img src="../.gitbook/assets/Admin  Apps.png" alt=""><figcaption><p>App overview as welcome screen</p></figcaption></figure>
 
-In Lowcoder you can create and find the building blocks of applications:
+In OpenFlower you can create and find the building blocks of applications:
 
 * Navigations
 * Mobile Navigations
@@ -60,7 +60,7 @@ In the red section, which opens automatically as soon as you click on a specific
 
 As soon as you like, you can share an App with selected users to test together.
 
-<figure><img src="../.gitbook/assets/Share Button" alt="" width="375"><figcaption><p>You can use the "Share" Button to invite other Lowcoder Users to use the App</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Share Button" alt="" width="375"><figcaption><p>You can use the "Share" Button to invite other OpenFlower Users to use the App</p></figcaption></figure>
 
 <figure><img src="../.gitbook/assets/App Editor  Share App.png" alt=""><figcaption><p>Select individual Users or make the App public for everyone.</p></figcaption></figure>
 

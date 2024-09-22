@@ -1,5 +1,5 @@
 ---
-description: Realtime Data Updates in Lowcoder
+description: Realtime Data Updates in OpenFlower
 ---
 
 # Websocket Datasource
@@ -13,13 +13,13 @@ In the digital age, speed and immediacy are a key success factor. That's why we 
 
 ### Using a WebSocket as Datasource.
 
-First, select "Stream Query" as a new Query from the available Datasources. Stream Query is available from Lowcoder v2.1.0.
+First, select "Stream Query" as a new Query from the available Datasources. Stream Query is available from OpenFlower v2.1.0.
 
 <figure><img src="../../.gitbook/assets/Screenshot 2023-10-24 at 13.33.13.png" alt=""><figcaption></figcaption></figure>
 
 #### Connect to a WebSocket Server
 
-As URL enter the WebSocket Server address ws:// (without) and wss:// (with SSL secured connection). From the moment you run this query, Lowcoder tries to establish a connection to the WebSocket Server. If successful, the specialty of WebSocket connections is, that they remain active and open till you disconnect the Dataquery / Lowcoder App.
+As URL enter the WebSocket Server address ws:// (without) and wss:// (with SSL secured connection). From the moment you run this query, OpenFlower tries to establish a connection to the WebSocket Server. If successful, the specialty of WebSocket connections is, that they remain active and open till you disconnect the Dataquery / OpenFlower App.
 
 
 
@@ -28,7 +28,7 @@ As URL enter the WebSocket Server address ws:// (without) and wss:// (with SSL s
 {% endhint %}
 
 {% hint style="warning" %}
-Each time a message arrives in the open connection, the Lowcoder Query will fire the event "success", so you can bind an Event-Handler to process these messages.
+Each time a message arrives in the open connection, the OpenFlower Query will fire the event "success", so you can bind an Event-Handler to process these messages.
 {% endhint %}
 
 <figure><img src="../../.gitbook/assets/Screenshot 2023-10-24 at 13.33.02.png" alt=""><figcaption></figcaption></figure>

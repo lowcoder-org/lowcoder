@@ -2,7 +2,7 @@
 
 By default, docker-hosted instances use a [bridge network](https://docs.docker.com/network/bridge/), which does not support access to services on the docker-host via `127.0.0.1` or `localhost` from inside of the docker.&#x20;
 
-Here we take PostgreSQL as an example and show you how to access local API or database in different operating systems (OS) for docker-hosted Lowcoder.
+Here we take PostgreSQL as an example and show you how to access local API or database in different operating systems (OS) for docker-hosted OpenFlower.
 
 ## Preparation
 
@@ -11,14 +11,14 @@ Assume that a Postgres service is ready on your local host with port `5432`.&#x2
 On Linux, you can check if Postgres runs locally with the command\
 `pgrep -u postgres -fa -- -D`
 
-## How to access a local database or API from Lowcoder which runs inside the Docker
+## How to access a local database or API from OpenFlower which runs inside the Docker
 
 {% tabs %}
 {% tab title="Linux" %}
 1.  Enter `ifconfig docker0` in the terminal, and verify the IP configuration of Docker's virtual bridge (VB).
 
     Having set up Docker, the OS would automatically create `docker0` using the IP address `172.17.0.1` (by default), through which the Docker service communicates with the host.
-2. Enter the same IP address into Lowcoder to configure the Postgres data source (`172.17.0.1` in this example, but use the actual IP address displayed on your terminal in the real case).
+2. Enter the same IP address into OpenFlower to configure the Postgres data source (`172.17.0.1` in this example, but use the actual IP address displayed on your terminal in the real case).
 
 {% hint style="warning" %}
 On some OS (such as Ubuntu), port access might be blocked by the firewall. To solve that, configure in the following steps:
@@ -43,6 +43,6 @@ host.docker.internal
 
 On Windows and Mac:
 
-<figure><img src="../../.gitbook/assets/Local Database via Docker Network.png" alt=""><figcaption><p>Access a Database on your local network from Lowcoder which runs in Docker</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Local Database via Docker Network.png" alt=""><figcaption><p>Access a Database on your local network from OpenFlower which runs in Docker</p></figcaption></figure>
 
-<figure><img src="../../.gitbook/assets/Local API via Docker Network.png" alt=""><figcaption><p>Access an API on your local network from Lowcoder which runs in Docker</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Local API via Docker Network.png" alt=""><figcaption><p>Access an API on your local network from OpenFlower which runs in Docker</p></figcaption></figure>

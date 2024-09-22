@@ -1,6 +1,6 @@
 # App Editor
 
-In Lowcoder, the app editor is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
+In OpenFlower, the app editor is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
 
 1. Toolbar on top
 2. Canvas (yellow)

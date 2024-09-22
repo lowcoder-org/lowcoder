@@ -1,6 +1,6 @@
 # Raspberry Pi
 
-It is possible to install and run Lowcoder on Raspberry Pi.&#x20;
+It is possible to install and run OpenFlower on Raspberry Pi.&#x20;
 
 * install a 64bit OS eg. using [RPi Imager](https://www.raspberrypi.com/software/)
 

@@ -437,7 +437,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                             </List.Item>
                             <List.Item>
                               <div style={{ width: "200px", color: "#aaa"}}>Currently, the preview of Font-Family here in the Theme Settings may now show the right font. However, the Font Family Attribute comes into effect in all your apps, which uses this Theme.
-                              <br/><br/><a href="https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/themes-and-styling#demo-2-custom-font-family" target="_blank">Remember, you neded to set the CSS inclue at App- or Workspace Level</a></div>
+                              <br/><br/><a href="https://docs.openflower.org/lowcoder-documentation/build-applications/themes-and-styling#demo-2-custom-font-family" target="_blank">Remember, you neded to set the CSS inclue at App- or Workspace Level</a></div>
                             </List.Item>
                           </Tooltip>
                         ))}

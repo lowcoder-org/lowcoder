@@ -1,4 +1,4 @@
-# Video Calls in Lowcoder
+# Video Calls in OpenFlower
 
 Collaboration features, especially interactive video calls, in customer-facing and internal employee apps are crucial for modern Applications.&#x20;
 
@@ -6,7 +6,7 @@ For customer-facing apps, this enhances engagement, provides immediate support, 
 
 For internal apps, it streamlines communication, enables real-time problem-solving, and promotes team cohesion, boosting productivity and innovation. Combining these collaboration tools ensures seamless interaction, reduces response times, and creates a more connected and efficient workflow, which is essential for maintaining a competitive edge and achieving business success.
 
-We wanted to give you, as an application developer, the maximum freedom at the smallest cost possible. After a research phase, we decided to integrate Agora SDK in Lowcoder so that you can build Video-Meeting Experiences inside your Apps.
+We wanted to give you, as an application developer, the maximum freedom at the smallest cost possible. After a research phase, we decided to integrate Agora SDK in OpenFlower so that you can build Video-Meeting Experiences inside your Apps.
 
 {% embed url="https://agora.io/" %}
 
@@ -16,7 +16,7 @@ To make the docs readable, we will name the user who is in a Video Meeting "**Yo
 
 ## Preparation
 
-To use Video Meetings based on Agora SDKs in Lowcoder, you need to create an Account with Agora.&#x20;
+To use Video Meetings based on Agora SDKs in OpenFlower, you need to create an Account with Agora.&#x20;
 
 {% embed url="https://console.agora.io" %}
 
@@ -69,7 +69,7 @@ To use the App Certificate (a token-based additional security layer for your mee
 
 {% embed url="https://github.com/AgoraIO-Community/agora-token-service" %}
 
-You can read more details about Agora [Token Management here](https://docs.agora.io/en/video-calling/get-started/authentication-workflow?platform=web). However, the public docker image and the ready integration in Lowcoder make it truly easy.
+You can read more details about Agora [Token Management here](https://docs.agora.io/en/video-calling/get-started/authentication-workflow?platform=web). However, the public docker image and the ready integration in OpenFlower make it truly easy.
 
 The public Standard Docker Image of the Token Server needs 3 ENV Variables:&#x20;
 
@@ -144,11 +144,11 @@ The following settings are mandatory:
 
 * Agora Application ID (copied from the Agora Project Console. Must be identical to the one used at the Agora Token Server)
 * Meeting Name: This is the Meeting Room Name. Everyone who knows this name can attend the Meeting. It should be a dynamic value, and you need to manage in your own Backend / Database the management of the Meeting Room Names
-* Host User ID: This is the Unique Identifier for a User in Agora Meetings. It _could_ be the UserID of Lowcoder Users - if your scenario offers Meetings only for Lowcoder Users. It should be a dynamic value, and you need to manage it in your own Backend / Database the management of the User IDs.
+* Host User ID: This is the Unique Identifier for a User in Agora Meetings. It _could_ be the UserID of OpenFlower Users - if your scenario offers Meetings only for OpenFlower Users. It should be a dynamic value, and you need to manage it in your own Backend / Database the management of the User IDs.
 * RTM and RTC Token are used when an Agore App Certificate and a Token Server is used. For each meeting instance, you need a fresh Token Pair.
 
 {% hint style="warning" %}
-A Meeting Room can be used for multiple Meetings. The Room is "open" as soon as created. Users who specify the same _channel name_ (In Lowcoder: "Meeting Name") join a common channel and interact with each other. "A channel is created when the first user joins. It ceases to exist when the last user leaves." The [Agora Docs](https://docs.agora.io/en/video-calling/overview/core-concepts?platform=web) can give more & deeper information to it.
+A Meeting Room can be used for multiple Meetings. The Room is "open" as soon as created. Users who specify the same _channel name_ (In OpenFlower: "Meeting Name") join a common channel and interact with each other. "A channel is created when the first user joins. It ceases to exist when the last user leaves." The [Agora Docs](https://docs.agora.io/en/video-calling/overview/core-concepts?platform=web) can give more & deeper information to it.
 {% endhint %}
 
 {% hint style="warning" %}
@@ -156,7 +156,7 @@ Tokens have to be generated at each start of a meeting for a meeting attendee. W
 {% endhint %}
 
 {% hint style="warning" %}
-Meeting Name (Meeting Room) & Host User ID have to be managed in your own Backend / Database. In regards to the Lowcoder App, they must be dynamic - as multiple Users may want to join the meeting - which is based on the same single Lowcoder App.
+Meeting Name (Meeting Room) & Host User ID have to be managed in your own Backend / Database. In regards to the OpenFlower App, they must be dynamic - as multiple Users may want to join the meeting - which is based on the same single OpenFlower App.
 {% endhint %}
 
 ### Meeting Controller Data & Functions
@@ -237,7 +237,7 @@ the Data Object **messages** will contain only the latest 100 Messages. As App C
 
 
 
-## Why Video Meetings in Lowcoder?
+## Why Video Meetings in OpenFlower?
 
 <figure><img src="../.gitbook/assets/Agora Meetings  The Big Picture.png" alt=""><figcaption></figcaption></figure>
 
@@ -245,7 +245,7 @@ A picture says more than 100 words. Or?&#x20;
 
 Despite all the amazing Developments in IT, the bridge between Meeting and "Working" or "Shopping," "Learning," or any other online Activity is not made.
 
-We encourage you to use Lowcoder and the first fully Lowcode Meeting App Generator in it, to create completely new and useful experiences for your App Users and Customers.
+We encourage you to use OpenFlower and the first fully Lowcode Meeting App Generator in it, to create completely new and useful experiences for your App Users and Customers.
 
 * Face-to-face online Support
 * Social Shopping - but together

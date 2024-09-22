@@ -3012,7 +3012,7 @@ export const pt: typeof en = {
         "jsLibraryDownloadError": "Erro ao baixar a biblioteca JavaScript",
         "jsLibraryInstallSuccess": "Biblioteca JavaScript instalada com sucesso",
         "jsLibraryInstallFailed": "Falha na instalação da biblioteca JavaScript",
-        "jsLibraryInstallFailedCloud": "Talvez a biblioteca não esteja disponível na Sandbox, [Documentação](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+        "jsLibraryInstallFailedCloud": "Talvez a biblioteca não esteja disponível na Sandbox, [Documentação](https://docs.openflower.org/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
         "jsLibraryInstallFailedHost": "{message}",
         "add": "Adicionar Novo",
         "jsHelpText": "Adicione um método ou variável global ao aplicativo atual.",
@@ -3685,10 +3685,10 @@ export const pt: typeof en = {
 
     docUrls: {
         ...en.docUrls,
-        docHome: "https://docs.lowcoder.cloud/",
-        apiDocHome: "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
+        docHome: "https://docs.openflower.org/",
+        apiDocHome: "https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
         components: "https://app.lowcoder.cloud/components/{compType}",
-        module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
+        module: "https://docs.openflower.org/lowcoder-documentation/build-applications/create-a-new-app/modules",
         optionList: "",
         terms: "https://lowcoder.cloud/terms",
         privacy: "https://lowcoder.cloud/privacy",
@@ -3697,9 +3697,9 @@ export const pt: typeof en = {
         introVideo: "",
         devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
         devNpmPluginText: "How to develop npm plugin",
-        useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
-        eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-        thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+        useHost: "https://docs.openflower.org/setup-and-run/self-hosting/access-local-database-or-api",
+        eventHandlerSlowdown: "https://docs.openflower.org/build-applications/app-interaction/event-handlers",
+        thirdLib: "https://docs.openflower.org/lowcoder-extension/use-third-party-libraries-in-apps",
         thirdLibUrlText: "Use third-party libraries",
     },
     datasourceTutorial: {
@@ -3715,9 +3715,9 @@ export const pt: typeof en = {
     queryTutorial: {
         ...en.queryTutorial,
         js: "",
-        transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-        tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
-        dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
+        transformer: "https://docs.openflower.org/business-logic-in-apps/write-javascript/transformers",
+        tempState: "https://docs.openflower.org/business-logic-in-apps/write-javascript/temporary-state",
+        dataResponder: "https://docs.openflower.org/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
     },
     customComponent: {
         ...en.customComponent,

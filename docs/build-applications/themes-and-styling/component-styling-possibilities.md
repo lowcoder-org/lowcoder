@@ -1,8 +1,8 @@
 # Component Styling Possibilities
 
-Lowcoder allows you to style your components in many ways and so enables you to build beautiful and customized applications.
+OpenFlower allows you to style your components in many ways and so enables you to build beautiful and customized applications.
 
-Since Lowcoder 2.3.0 we support more style attributes.
+Since OpenFlower 2.3.0 we support more style attributes.
 
 * Text Size
 * Font Weight

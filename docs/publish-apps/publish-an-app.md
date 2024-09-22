@@ -1,6 +1,6 @@
 # Publish an App
 
-Publishing an app in Lowcoder transitions it from a Editing State to a live (published) state. This allows users to access and interact with the app based on the sharing and publishing settings defined by the App Creator.
+Publishing an app in OpenFlower transitions it from a Editing State to a live (published) state. This allows users to access and interact with the app based on the sharing and publishing settings defined by the App Creator.
 
 ## Publishing States
 
@@ -34,13 +34,13 @@ An app can be published with different scopes, determining who can access the ap
 
 ## Marketplace Publishing
 
-Apps can also be published to Lowcoder marketplaces:
+Apps can also be published to OpenFlower marketplaces:
 
 <figure><img src="../.gitbook/assets/App Editor  Share Marketplace.png" alt="" width="563"><figcaption></figcaption></figure>
 
 1. **Public to Marketplace**:
    * After _sharing_ the app as "public to all", it can be further published to the marketplace.
-   * This makes the app available in the marketplace listings, either globally at app.lowcoder.cloud or within individual Lowcoder installations.
+   * This makes the app available in the marketplace listings, either globally at app.lowcoder.cloud or within individual OpenFlower installations.
 
 ## Workflow for Publishing an App
 
@@ -54,7 +54,7 @@ Apps can also be published to Lowcoder marketplaces:
 3. **Marketplace Publication** (Optional):
    * If desired, mark the app as "public to All" in the sharing dialogue. Now you can see the second option switch "Public to marketplace"
    * Then, publish the app to the marketplace as you publish other apps too.
-   * The app will be listed in the _global_ or local Lowcoder marketplace.&#x20;
+   * The app will be listed in the _global_ or local OpenFlower marketplace.&#x20;
 
 {% hint style="info" %}
 Global Marketplace means, if you published the app for the Marketplace on app.lowcoder.cloud

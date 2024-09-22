@@ -2,11 +2,11 @@
 
 If there is a special case handling, you can specify it additionally for the individual Event HandlerQueries support reading data from or writing data to your data sources. You can use Data Queries for all kinds of Data Sources, like Databases, Stream Data Sources, or classic Restful APIs. You can create queries while editing an app or in the query library.&#x20;
 
-All Data Queries in Lowcoder will always return JSON Data. When you call your Database, the result will get transformed into a JSON response for example. This is very useful to have ease of use for the data in all later places in Lowcoder without the need for a Data Serialization between Formats.
+All Data Queries in OpenFlower will always return JSON Data. When you call your Database, the result will get transformed into a JSON response for example. This is very useful to have ease of use for the data in all later places in OpenFlower without the need for a Data Serialization between Formats.
 
 ## Connect to a data source
 
-You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data sources in Lowcoder](../data-sources-in-lowcoder/).
+You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data sources in OpenFlower](../data-sources-in-lowcoder/).
 
 ## Create a query
 
@@ -18,7 +18,7 @@ The SQL Mode is suitable for everyone who queries the Database and for proficien
 
 <figure><img src="../../.gitbook/assets/App Editor  Database Query GUI.png" alt=""><figcaption><p>For many Databases there is a visual GUI Mode to execute prepared statements on the Database.</p></figcaption></figure>
 
-Lowcoder also offers a GUI Mode for Write-Operations on the Database, such as INSERT, UPDATE, and DELETE. This helps you to ease the Binding of user-made changes of Data in your App, back to the Databases.
+OpenFlower also offers a GUI Mode for Write-Operations on the Database, such as INSERT, UPDATE, and DELETE. This helps you to ease the Binding of user-made changes of Data in your App, back to the Databases.
 
 ### Metadata
 
@@ -26,11 +26,11 @@ You can view the metadata of databases such as PostgreSQL, MongoDB, and MySQL. C
 
 ### Dynamic Queries and Data Binding
 
-Lowcoder evaluates your query statement with JavaScript code inside `{{ }}` in real-time, and the result is displayed below in a floating box, so you can use it to check the correctness of the query statement.
+OpenFlower evaluates your query statement with JavaScript code inside `{{ }}` in real-time, and the result is displayed below in a floating box, so you can use it to check the correctness of the query statement.
 
 ## Trigger a query when:...
 
-Lowcoder triggers your queries in two modes: it runs automatically when "inputs change or on page load" or manually (and so invoked in other event handlers for example).&#x20;
+OpenFlower triggers your queries in two modes: it runs automatically when "inputs change or on page load" or manually (and so invoked in other event handlers for example).&#x20;
 
 ### Inputs change or on page load
 
@@ -49,7 +49,7 @@ For this mode of queries, they run only with your manual trigger, such as a butt
 
 In most cases, queries reading data, like **select** operations, can be set to the former mode, and those writing data, like **create**/**delete**/**update** operations, run the latter way.
 
-When Lowcoder detects your query statement switches from reading to writing data, the trigger mode switches to **Manually invoked** automatically, but not the other way around.
+When OpenFlower detects your query statement switches from reading to writing data, the trigger mode switches to **Manually invoked** automatically, but not the other way around.
 {% endhint %}
 
 {% hint style="info" %}

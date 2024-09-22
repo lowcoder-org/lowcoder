@@ -2,7 +2,7 @@
 
 ## App or Module?
 
-A [Module](modules.md) is a special type of App, which can be **re-used** inside of other Modules or Apps and especially it is possible to [embed](../../publish-apps/embedd-an-app/) the Module directly in your native Web-Application outside of Lowcoder.&#x20;
+A [Module](modules.md) is a special type of App, which can be **re-used** inside of other Modules or Apps and especially it is possible to [embed](../../publish-apps/embedd-an-app/) the Module directly in your native Web-Application outside of OpenFlower.&#x20;
 
 The Editor for Apps and Modules is the same, only Modules have some extra settings and parameters regarding the embedding.
 
@@ -14,7 +14,7 @@ Be aware that nested Modules "in each other" can cause a slowdown of the Applica
 
 ## Create a new Application or Module
 
-Click **New > App** (or **Module**) on the upper right of Lowcoder Admin Page. The App or Module will get created and the view switches automatically to the App Editor.
+Click **New > App** (or **Module**) on the upper right of OpenFlower Admin Page. The App or Module will get created and the view switches automatically to the App Editor.
 
 Only workspace **admins** and members of **Developers** group can create apps.
 

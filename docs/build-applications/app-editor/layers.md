@@ -1,10 +1,10 @@
 # Layers
 
-Lowcoder offers the fantastic feature of enabling a mode where components can freely overlap on the canvas, combined with precise control over the layering of these components. This advanced functionality diverges from traditional grid-based placement constraints, offering developers and designers unparalleled UI/UX creation flexibility.
+OpenFlower offers the fantastic feature of enabling a mode where components can freely overlap on the canvas, combined with precise control over the layering of these components. This advanced functionality diverges from traditional grid-based placement constraints, offering developers and designers unparalleled UI/UX creation flexibility.
 
-The control over component layering empowers you to build interfaces that are not only highly functional but also aesthetically pleasing. Layers are an essential step towards the Vision of Lowcoder to merge the ability to create "Apps, Websites, Presentations, and Collaboration Tools" inside a single Lowcode Platform.
+The control over component layering empowers you to build interfaces that are not only highly functional but also aesthetically pleasing. Layers are an essential step towards the Vision of OpenFlower to merge the ability to create "Apps, Websites, Presentations, and Collaboration Tools" inside a single Lowcode Platform.
 
-From Version 2.3.1 on we introduce this feature in several steps and develop it further by the feedback of the Lowcoder Community.
+From Version 2.3.1 on we introduce this feature in several steps and develop it further by the feedback of the OpenFlower Community.
 
 ### Step 1 - Simple Layers
 

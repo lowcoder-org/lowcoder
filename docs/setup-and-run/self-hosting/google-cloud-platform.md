@@ -4,7 +4,7 @@ description: How to Setup Seperate Images on Google Cloud Platform
 
 # Google Cloud Platform
 
-## Google Cloud Console Lowcoder Setup
+## Google Cloud Console OpenFlower Setup
 
 ### Creating a VPC Network
 

@@ -62,9 +62,9 @@ To develop a data source plugin, you'll mainly focus on:
 
 ### All plugins reside in the directory server/node-service/src/plugins
 
-For detailed information on how to develop a plugin, refer to our [detailed Guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/develop-data-source-plugins).
+For detailed information on how to develop a plugin, refer to our [detailed Guide](https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/develop-data-source-plugins).
 
-For information on how to contribute to Lowcoder, please view our [Contribution Guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/opensource-contribution).
+For information on how to contribute to Lowcoder, please view our [Contribution Guide](https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/opensource-contribution).
 
 
 ## Testing Your Plugin
