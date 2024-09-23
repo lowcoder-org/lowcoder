@@ -157,7 +157,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
           }}
         >
       <Wrapper $style={style} $animationStyle={animationStyle}>
-        <Layout style={{padding: "0px", overflow: container.mainScrollbars ? "scroll" : "inherit"}} hasSider={showSider && !container.innerSider}>
+        <Layout style={{padding: "0px", overflow: container.mainScrollbars ? "scroll" : "visible"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
               <Sider 
