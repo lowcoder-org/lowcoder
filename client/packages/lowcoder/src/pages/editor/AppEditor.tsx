@@ -115,7 +115,7 @@ const AppEditor = React.memo(() => {
     if (currentUser && application) {
       const lastEditedAt = dayjs(application?.lastEditedAt);
       const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
-      const shouldBlockEditing = currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
+      const shouldBlockEditing = Boolean(application?.editingUserId) && currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
       setBlockEditing(shouldBlockEditing);
     }
   }, [application, currentUser]);
