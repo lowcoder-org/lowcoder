@@ -18,7 +18,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, controlItem, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React, { useEffect } from "react";
@@ -95,6 +95,7 @@ const childrenMap = {
   matchColumnsHeight: withDefault(BoolControl, true),
   style: styleControl(ResponsiveLayoutRowStyle , 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
+  mainScrollbar: withDefault(BoolControl, false),
   animationStyle:styleControl(AnimationStyle , 'animationStyle'),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
@@ -138,12 +139,15 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     horizontalSpacing,
     animationStyle,
     horizontalGridCells,
+    mainScrollbar,
+    autoHeight
   } = props;
 
   return (
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
         <div style={{padding: style.margin, height: '100%'}}>
+        <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!mainScrollbar}>
           <RowWrapper
             $style={style}
             $animationStyle={animationStyle}
@@ -181,6 +185,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
               })
             }
           </RowWrapper>
+        </ScrollBar>
         </div>
         </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
@@ -214,6 +219,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
+                label: trans("prop.mainScrollbar")
+              })}
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}
