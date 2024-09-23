@@ -13,10 +13,18 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.sdk.exception.PluginException;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
 public final class QueryTimeoutUtils {
 
-    private static final int DEFAULT_QUERY_TIMEOUT_MILLIS = 10000;
+    private static int defaultQueryTimeoutMillis = 10000;
+
+    @Value("${default.query-timeout}")
+    public void setDefaultQueryTimeoutMillis(int defaultQueryTimeoutMillis) {
+        QueryTimeoutUtils.defaultQueryTimeoutMillis = defaultQueryTimeoutMillis;
+    }
 
     public static int parseQueryTimeoutMs(String timeoutStr, Map<String, Object> paramMap, int maxQueryTimeout) {
         return parseQueryTimeoutMs(renderMustacheString(timeoutStr, paramMap), maxQueryTimeout);
@@ -25,7 +33,7 @@ public final class QueryTimeoutUtils {
     @VisibleForTesting
     public static int parseQueryTimeoutMs(String timeoutStr, int maxQueryTimeout) {
         if (StringUtils.isBlank(timeoutStr)) {
-            return DEFAULT_QUERY_TIMEOUT_MILLIS;
+            return defaultQueryTimeoutMillis;
         }
 
         Pair<String, Integer> unitInfo = getUnitInfo(timeoutStr);
