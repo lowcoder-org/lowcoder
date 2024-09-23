@@ -11,6 +11,7 @@ on:
         options:
         - latest
         - test
+        - 2.4.6
       build_allinone:
         type: boolean
         description: 'Build the All-In-One image'
