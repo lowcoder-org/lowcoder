@@ -75,6 +75,7 @@ let TextAreaTmpComp = (function () {
     autoHeight: withDefault(AutoHeightControl, "fixed"),
     style: styleControl(InputFieldStyle, 'style') , 
     labelStyle: styleControl(LabelStyle ,'labelStyle' ),
+    textAreaScrollBar: withDefault(BoolControl, false),
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle')
   };
@@ -114,6 +115,10 @@ let TextAreaTmpComp = (function () {
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() &&
+                children.textAreaScrollBar.propertyView({
+                  label: trans("prop.textAreaScrollBar"),
+                })}
               {hiddenPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>
