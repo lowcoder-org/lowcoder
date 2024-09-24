@@ -2,7 +2,7 @@
 
 **Navigation** aggregates your apps onto the left sidebar and guides you to quickly find the needed app.
 
-On Lowcoder homepage, click **New** and select **Navigation** to create a navigation page.
+On OpenFlower homepage, click **New** and select **Navigation** to create a navigation page.
 
 ## Menu items
 

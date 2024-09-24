@@ -12,7 +12,7 @@ Simply run the below command to start a backend server.
 docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
 ```
 
-For more information, view our [docs](https://docs.lowcoder.cloud/lowcoder-documentation/setup-and-run/self-hosting)
+For more information, view our [docs](https://docs.openflower.org/lowcoder-documentation/setup-and-run/self-hosting)
 
 #### Build Docker image from source
 
@@ -92,7 +92,7 @@ yarn start
 ```
 
 After executing yarn start, the browser is automatically opened and you enter the component development environment.
-Please find more information in our [docs](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/develop-ui-components-for-apps)
+Please find more information in our [docs](https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/develop-ui-components-for-apps)
 
 2. Export components
 

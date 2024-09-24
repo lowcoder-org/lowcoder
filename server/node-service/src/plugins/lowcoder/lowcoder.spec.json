@@ -1,23 +1,23 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "Lowcoder Open Rest API",
+    "title": "OpenFlower Open Rest API",
     "version": "1.1",
-    "description": "The Lowcoder API is a RESTful web service designed to facilitate efficient interaction with the Lowcoder platform. This API allows developers to integrate and interact with various functionalities of the Lowcoder service programmatically.",
-    "termsOfService": "https://lowcoder.cloud/terms",
+    "description": "The OpenFlower API is a RESTful web service designed to facilitate efficient interaction with the OpenFlower platform. This API allows developers to integrate and interact with various functionalities of the OpenFlower service programmatically.",
+    "termsOfService": "",
     "license": {
       "name": "MIT"
     },
     "contact": {
-      "name": "Lowcoder Software LTD",
-      "email": "service@lowcoder.org",
-      "url": "https://lowcoder.cloud"
+      "name": "OpenFlower ",
+      "email": "",
+      "url": ""
     }
   },
   "servers": [
     {
       "url": "{scheme}://{domain}:{port}{basePath}",
-      "description": "Lowcoder Self-hosted Installation API Access",
+      "description": "OpenFlower Self-hosted Installation API Access",
       "variables": {
         "scheme": {
           "description": "HTTP scheme",
@@ -28,7 +28,7 @@
           ]
         },
         "domain": {
-          "description": "Lowcoder IP address or domain",
+          "description": "OpenFlower IP address or domain",
           "default": "localhost"
         },
         "port": {
@@ -42,8 +42,8 @@
       }
     },
     {
-      "url": "https://api-service.lowcoder.cloud",
-      "description": "Lowcoder Community Edition: Public Cloud API Access"
+      "url": "https://api-service.openflower.org",
+      "description": "OpenFlower: Public Cloud API Access"
     }
   ],
   "security": [
@@ -58,7 +58,7 @@
           "Application APIs"
         ],
         "summary": "Set Application as publicly available on marketplace but to only logged in users",
-        "description": "Set a Lowcoder Application identified by its ID as publicly available on marketplace but to only logged in users.",
+        "description": "Set a OpenFlower Application identified by its ID as publicly available on marketplace but to only logged in users.",
         "operationId": "setApplicationAsPublicToMarketplace",
         "parameters": [
           {
@@ -100,7 +100,7 @@
           "Application APIs"
         ],
         "summary": "Set Application as publicly available",
-        "description": "Set a Lowcoder Application identified by its ID as generally publicly available. This is a preparation to published a Lowcoder Application in production mode.",
+        "description": "Set a OpenFlower Application identified by its ID as generally publicly available. This is a preparation to published a OpenFlower Application in production mode.",
         "operationId": "setApplicationAsPublic",
         "parameters": [
           {
@@ -142,7 +142,7 @@
           "Application Permissions APIs"
         ],
         "summary": "Update Application permissions",
-        "description": "Update the permissions of a specific Lowcoder Application identified by its ID.",
+        "description": "Update the permissions of a specific OpenFlower Application identified by its ID.",
         "operationId": "updateApplicationPermissions",
         "parameters": [
           {
@@ -190,7 +190,7 @@
           "Application Permissions APIs"
         ],
         "summary": "Revoke permissions from Application",
-        "description": "Revoke permissions of a specific Lowcoder Application identified by its ID.",
+        "description": "Revoke permissions of a specific OpenFlower Application identified by its ID.",
         "operationId": "revokeApplicationPermissions",
         "parameters": [
           {
@@ -230,7 +230,7 @@
           "Application Permissions APIs"
         ],
         "summary": "Get Application permissions",
-        "description": "Retrieve the permissions of a specific Lowcoder Application identified by its ID.",
+        "description": "Retrieve the permissions of a specific OpenFlower Application identified by its ID.",
         "operationId": "listApplicationPermissions",
         "parameters": [
           {
@@ -260,7 +260,7 @@
           "Application Permissions APIs"
         ],
         "summary": "Grant permissions to Application",
-        "description": "Grant new permissions to a specific Lowcoder Application identified by its ID.",
+        "description": "Grant new permissions to a specific OpenFlower Application identified by its ID.",
         "operationId": "grantApplicationPermissions",
         "parameters": [
           {
@@ -302,7 +302,7 @@
           "Application APIs"
         ],
         "summary": "Set Application as agency profile",
-        "description": "Set a Lowcoder Application identified by its ID as as agency profile but to only logged in users.",
+        "description": "Set a OpenFlower Application identified by its ID as as agency profile but to only logged in users.",
         "operationId": "setApplicationAsAgencyProfile",
         "parameters": [
           {
@@ -344,7 +344,7 @@
           "Application APIs"
         ],
         "summary": "Get Application data in edit mode",
-        "description": "Retrieve the DSL data of a Lowcoder Application in edit-mode by its ID.",
+        "description": "Retrieve the DSL data of a OpenFlower Application in edit-mode by its ID.",
         "operationId": "getApplicationDataInEditMode",
         "parameters": [
           {
@@ -374,7 +374,7 @@
           "Application APIs"
         ],
         "summary": "Update Application by ID",
-        "description": "Update a Lowcoder Application identified by its ID.",
+        "description": "Update a OpenFlower Application identified by its ID.",
         "operationId": "updateApplication",
         "parameters": [
           {
@@ -414,7 +414,7 @@
           "Application APIs"
         ],
         "summary": "Delete Application by ID",
-        "description": "Permanently delete a Lowcoder Application identified by its ID.",
+        "description": "Permanently delete a OpenFlower Application identified by its ID.",
         "operationId": "deleteApplication",
         "parameters": [
           {
@@ -446,7 +446,7 @@
           "Application APIs"
         ],
         "summary": "Restore recycled Application",
-        "description": "Restore a previously recycled Lowcoder Application identified by its ID",
+        "description": "Restore a previously recycled OpenFlower Application identified by its ID",
         "operationId": "restoreRecycledApplication",
         "parameters": [
           {
@@ -478,7 +478,7 @@
           "Application APIs"
         ],
         "summary": "Move Application to bin (do not delete)",
-        "description": "Move a Lowcoder Application identified by its ID to the recycle bin without permanent deletion.",
+        "description": "Move a OpenFlower Application identified by its ID to the recycle bin without permanent deletion.",
         "operationId": "recycleApplication",
         "parameters": [
           {
@@ -510,7 +510,7 @@
           "Application APIs"
         ],
         "summary": "Publish Application for users",
-        "description": "Set a Lowcoder Application identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Apps gets published in production mode.",
+        "description": "Set a OpenFlower Application identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The OpenFlower Apps gets published in production mode.",
         "operationId": "publicApplication",
         "parameters": [
           {
@@ -574,7 +574,7 @@
           "Application APIs"
         ],
         "summary": "Create a new Application",
-        "description": "Create a new Lowcoder Application based on the Organization-ID where the authenticated or impersonated user has access.",
+        "description": "Create a new OpenFlower Application based on the Organization-ID where the authenticated or impersonated user has access.",
         "operationId": "createApplication",
         "requestBody": {
           "content": {
@@ -606,7 +606,7 @@
           "Application APIs"
         ],
         "summary": "Get Marketplace Application data in view mode",
-        "description": "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID for the Marketplace.",
+        "description": "Retrieve the DSL data of a OpenFlower Application in view-mode by its ID for the Marketplace.",
         "operationId": "getMarketplaceApplicationDataInViewMode",
         "parameters": [
           {
@@ -638,7 +638,7 @@
           "Application APIs"
         ],
         "summary": "Get Agency profile Application data in view mode",
-        "description": "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID marked as Agency Profile.",
+        "description": "Retrieve the DSL data of a OpenFlower Application in view-mode by its ID marked as Agency Profile.",
         "operationId": "getAgencyProfileApplicationDataInViewMode",
         "parameters": [
           {
@@ -670,7 +670,7 @@
           "Application APIs"
         ],
         "summary": "Get Application data in view mode",
-        "description": "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID.",
+        "description": "Retrieve the DSL data of a OpenFlower Application in view-mode by its ID.",
         "operationId": "getApplicatioDataInViewMode",
         "parameters": [
           {
@@ -702,7 +702,7 @@
           "Application APIs"
         ],
         "summary": "List recycled Applications in bin",
-        "description": "List all the recycled Lowcoder Applications in the recycle bin where the authenticated or impersonated user has access.",
+        "description": "List all the recycled OpenFlower Applications in the recycle bin where the authenticated or impersonated user has access.",
         "operationId": "listRecycledApplications",
         "responses": {
           "200": {
@@ -724,7 +724,7 @@
           "Application APIs"
         ],
         "summary": "List Marketplace Applications",
-        "description": "Retrieve a list of Lowcoder Applications that are published to the Marketplace",
+        "description": "Retrieve a list of OpenFlower Applications that are published to the Marketplace",
         "operationId": "listMarketplaceApplications",
         "parameters": [
           {
@@ -757,7 +757,7 @@
           "Application APIs"
         ],
         "summary": "List Applications of current User",
-        "description": "Retrieve a list of Lowcoder Applications accessible by the authenticated or impersonated user.",
+        "description": "Retrieve a list of OpenFlower Applications accessible by the authenticated or impersonated user.",
         "operationId": "listApplications",
         "parameters": [
           {
@@ -812,7 +812,7 @@
           "Application APIs"
         ],
         "summary": "Get the homepage Application of current User",
-        "description": "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user.",
+        "description": "Retrieve the first displayed OpenFlower Application for an authenticated or impersonated user.",
         "operationId": "getUserHomepageApplication",
         "parameters": [
           {
@@ -846,7 +846,7 @@
           "Application APIs"
         ],
         "summary": "List agency profile Applications",
-        "description": "Retrieve a list of Lowcoder Applications that are set as agency profiles",
+        "description": "Retrieve a list of OpenFlower Applications that are set as agency profiles",
         "operationId": "listAgencyProfileApplications",
         "parameters": [
           {
@@ -879,7 +879,7 @@
           "Application History APIs"
         ],
         "summary": "Create Application Snapshot",
-        "description": "Create a snapshot of an Application DSL within Lowcoder, capturing its current state for future reference.",
+        "description": "Create a snapshot of an Application DSL within OpenFlower, capturing its current state for future reference.",
         "operationId": "createApplicationSnapshot",
         "requestBody": {
           "content": {
@@ -911,7 +911,7 @@
           "Application History APIs"
         ],
         "summary": "List Application Snapshots",
-        "description": "Retrieve a list of Snapshots associated with a specific Application within Lowcoder.",
+        "description": "Retrieve a list of Snapshots associated with a specific Application within OpenFlower.",
         "operationId": "listApplicationSnapshots",
         "parameters": [
           {
@@ -963,7 +963,7 @@
           "Application History APIs"
         ],
         "summary": "Retrieve Application Snapshot",
-        "description": "Retrieve a specific Application Snapshot within Lowcoder using the Application and Snapshot IDs.",
+        "description": "Retrieve a specific Application Snapshot within OpenFlower using the Application and Snapshot IDs.",
         "operationId": "getApplicationSnapshot",
         "parameters": [
           {
@@ -1003,7 +1003,7 @@
           "Bundle APIs"
         ],
         "summary": "Update Bundle",
-        "description": "Modify the properties and settings of an existing Bundle Bundle within Lowcoder.",
+        "description": "Modify the properties and settings of an existing Bundle Bundle within OpenFlower.",
         "operationId": "updateBundle",
         "requestBody": {
           "content": {
@@ -1033,7 +1033,7 @@
           "Bundle APIs"
         ],
         "summary": "Create new Bundle",
-        "description": "Create a new Application Bundle within the Lowcoder to organize Applications effectively.",
+        "description": "Create a new Application Bundle within the OpenFlower to organize Applications effectively.",
         "operationId": "createBundle",
         "requestBody": {
           "content": {
@@ -1065,7 +1065,7 @@
           "Bundle APIs"
         ],
         "summary": "Delete Bundle",
-        "description": "Permanently remove an Application Bundle from Lowcoder using its unique ID.",
+        "description": "Permanently remove an Application Bundle from OpenFlower using its unique ID.",
         "operationId": "deleteBundle",
         "parameters": [
           {
@@ -1140,7 +1140,7 @@
           "Bundle APIs"
         ],
         "summary": "Set Bundle as publicly available on marketplace but to only logged in users",
-        "description": "Set a Lowcoder Bundle identified by its ID as publicly available on marketplace but to only logged in users.",
+        "description": "Set a OpenFlower Bundle identified by its ID as publicly available on marketplace but to only logged in users.",
         "operationId": "setBundleAsPublicToMarketplace",
         "parameters": [
           {
@@ -1182,7 +1182,7 @@
           "Bundle APIs"
         ],
         "summary": "Set Bundle as publicly available",
-        "description": "Set a Lowcoder Bundle identified by its ID as generally publicly available. This is a preparation to published a Lowcoder Bundle in production mode.",
+        "description": "Set a OpenFlower Bundle identified by its ID as generally publicly available. This is a preparation to published a OpenFlower Bundle in production mode.",
         "operationId": "setBundleAsPublic",
         "parameters": [
           {
@@ -1224,7 +1224,7 @@
           "Bundle Permissions APIs"
         ],
         "summary": "Update Bundle permissions",
-        "description": "Modify permissions associated with a specific Bundle Bundle within Lowcoder.",
+        "description": "Modify permissions associated with a specific Bundle Bundle within OpenFlower.",
         "operationId": "updateBundlePermissions",
         "parameters": [
           {
@@ -1272,7 +1272,7 @@
           "Bundle Permissions APIs"
         ],
         "summary": "Revoke permissions from Bundle",
-        "description": "Remove specific permissions from an Bundle Bundle within Lowcoder, ensuring that selected Users or User-Groups no longer have access.",
+        "description": "Remove specific permissions from an Bundle Bundle within OpenFlower, ensuring that selected Users or User-Groups no longer have access.",
         "operationId": "revokeBundlePermissions",
         "parameters": [
           {
@@ -1312,7 +1312,7 @@
           "Bundle APIs"
         ],
         "summary": "Set Bundle as agency profile",
-        "description": "Set a Lowcoder Bundle identified by its ID as as agency profile but to only logged in users.",
+        "description": "Set a OpenFlower Bundle identified by its ID as as agency profile but to only logged in users.",
         "operationId": "setBundleAsAgencyProfile",
         "parameters": [
           {
@@ -1354,7 +1354,7 @@
           "Bundle APIs"
         ],
         "summary": "Restore recycled Bundle",
-        "description": "Restore a previously recycled Lowcoder Bundle identified by its ID",
+        "description": "Restore a previously recycled OpenFlower Bundle identified by its ID",
         "operationId": "restoreRecycledBundle",
         "parameters": [
           {
@@ -1386,7 +1386,7 @@
           "Bundle APIs"
         ],
         "summary": "Move Bundle to bin (do not delete)",
-        "description": "Move a Lowcoder Bundle identified by its ID to the recycle bin without permanent deletion.",
+        "description": "Move a OpenFlower Bundle identified by its ID to the recycle bin without permanent deletion.",
         "operationId": "recycleBundle",
         "parameters": [
           {
@@ -1418,7 +1418,7 @@
           "Bundle APIs"
         ],
         "summary": "Move App to Bundle",
-        "description": "Relocate an application to a different bundle in Lowcoder using its unique ID.",
+        "description": "Relocate an application to a different bundle in OpenFlower using its unique ID.",
         "operationId": "moveApp",
         "parameters": [
           {
@@ -1466,7 +1466,7 @@
           "Bundle APIs"
         ],
         "summary": "Add App to Bundle",
-        "description": "Add an application to a bundle in Lowcoder using its unique ID.",
+        "description": "Add an application to a bundle in OpenFlower using its unique ID.",
         "operationId": "addApp",
         "parameters": [
           {
@@ -1506,7 +1506,7 @@
           "Bundle APIs"
         ],
         "summary": "Publish Bundle for users",
-        "description": "Set a Lowcoder Bundle identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Bundle gets published in production mode.",
+        "description": "Set a OpenFlower Bundle identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The OpenFlower Bundle gets published in production mode.",
         "operationId": "publicBundle",
         "parameters": [
           {
@@ -1538,7 +1538,7 @@
           "Bundle Permissions APIs"
         ],
         "summary": "Get Bundle permissions",
-        "description": "Retrieve detailed information about permissions associated with a specific Bundle Bundle within Lowcoder.",
+        "description": "Retrieve detailed information about permissions associated with a specific Bundle Bundle within OpenFlower.",
         "operationId": "listBundlePermissions",
         "parameters": [
           {
@@ -1568,7 +1568,7 @@
           "Bundle Permissions APIs"
         ],
         "summary": "Grant permissions to Bundle",
-        "description": "Assign new permissions to a specific Bundle Bundle within Lowcoder, allowing authorized users to access it.",
+        "description": "Assign new permissions to a specific Bundle Bundle within OpenFlower, allowing authorized users to access it.",
         "operationId": "grantBundlePermissions",
         "parameters": [
           {
@@ -1610,7 +1610,7 @@
           "Bundle APIs"
         ],
         "summary": "Get Bundle data in view mode",
-        "description": "Retrieve the data of a Lowcoder Bundle in view-mode by its ID.",
+        "description": "Retrieve the data of a OpenFlower Bundle in view-mode by its ID.",
         "operationId": "getBundleDataInViewMode",
         "parameters": [
           {
@@ -1642,7 +1642,7 @@
           "Bundle APIs"
         ],
         "summary": "Get Marketplace Bundle data in view mode",
-        "description": "Retrieve the DSL data of a Lowcoder Bundle in view-mode by its ID for the Marketplace.",
+        "description": "Retrieve the DSL data of a OpenFlower Bundle in view-mode by its ID for the Marketplace.",
         "operationId": "getMarketplaceBundleDataInViewMode",
         "parameters": [
           {
@@ -1674,7 +1674,7 @@
           "Bundle APIs"
         ],
         "summary": "Get Agency profile Bundle data in view mode",
-        "description": "Retrieve the DSL data of a Lowcoder Bundle in view-mode by its ID marked as Agency Profile.",
+        "description": "Retrieve the DSL data of a OpenFlower Bundle in view-mode by its ID marked as Agency Profile.",
         "operationId": "getAgencyProfileBundleDataInViewMode",
         "parameters": [
           {
@@ -1706,7 +1706,7 @@
           "Bundle APIs"
         ],
         "summary": "Get Bundle contents",
-        "description": "Retrieve the contents of an Bundle Bundle within Lowcoder, including Bundles.",
+        "description": "Retrieve the contents of an Bundle Bundle within OpenFlower, including Bundles.",
         "operationId": "listBundleContents",
         "parameters": [
           {
@@ -1751,7 +1751,7 @@
           "Bundle APIs"
         ],
         "summary": "List recycled Bundles in bin",
-        "description": "List all the recycled Lowcoder Bundles in the recycle bin where the authenticated or impersonated user has access.",
+        "description": "List all the recycled OpenFlower Bundles in the recycle bin where the authenticated or impersonated user has access.",
         "operationId": "listRecycledBundles",
         "responses": {
           "200": {
@@ -1773,7 +1773,7 @@
           "Bundle APIs"
         ],
         "summary": "List Marketplace Bundles",
-        "description": "Retrieve a list of Lowcoder Bundles that are published to the Marketplace",
+        "description": "Retrieve a list of OpenFlower Bundles that are published to the Marketplace",
         "operationId": "listMarketplaceBundles",
         "responses": {
           "200": {
@@ -1795,7 +1795,7 @@
           "Bundle APIs"
         ],
         "summary": "List Bundles of current User",
-        "description": "Retrieve a list of Lowcoder Bundles accessible by the authenticated or impersonated user.",
+        "description": "Retrieve a list of OpenFlower Bundles accessible by the authenticated or impersonated user.",
         "operationId": "listBundles",
         "parameters": [
           {
@@ -1832,7 +1832,7 @@
           "Bundle APIs"
         ],
         "summary": "List agency profile Bundles",
-        "description": "Retrieve a list of Lowcoder Bundles that are set as agency profiles",
+        "description": "Retrieve a list of OpenFlower Bundles that are set as agency profiles",
         "operationId": "listAgencyProfileBundles",
         "responses": {
           "200": {
@@ -1854,7 +1854,7 @@
           "Folder APIs"
         ],
         "summary": "Update Folder",
-        "description": "Modify the properties and settings of an existing Application Folder within Lowcoder.",
+        "description": "Modify the properties and settings of an existing Application Folder within OpenFlower.",
         "operationId": "updateFolder",
         "requestBody": {
           "content": {
@@ -1884,7 +1884,7 @@
           "Folder APIs"
         ],
         "summary": "Create new Folder",
-        "description": "Create a new Application Folder within the Lowcoder to organize Applications effectively.",
+        "description": "Create a new Application Folder within the OpenFlower to organize Applications effectively.",
         "operationId": "createFolder",
         "requestBody": {
           "content": {
@@ -1916,7 +1916,7 @@
           "Folder Permissions APIs"
         ],
         "summary": "Update Folder permissions",
-        "description": "Modify permissions associated with a specific Application Folder within Lowcoder.",
+        "description": "Modify permissions associated with a specific Application Folder within OpenFlower.",
         "operationId": "updateFolderPermissions",
         "parameters": [
           {
@@ -1964,7 +1964,7 @@
           "Folder Permissions APIs"
         ],
         "summary": "Revoke permissions from Folder",
-        "description": "Remove specific permissions from an Application Folder within Lowcoder, ensuring that selected Users or User-Groups no longer have access.",
+        "description": "Remove specific permissions from an Application Folder within OpenFlower, ensuring that selected Users or User-Groups no longer have access.",
         "operationId": "revokeFolderPermissions",
         "parameters": [
           {
@@ -2004,7 +2004,7 @@
           "Folder APIs"
         ],
         "summary": "Move Folder",
-        "description": "Relocate an Application Folder to a different location in the Folder hierarchy in Lowcoder using its unique ID.",
+        "description": "Relocate an Application Folder to a different location in the Folder hierarchy in OpenFlower using its unique ID.",
         "operationId": "moveFolder",
         "parameters": [
           {
@@ -2044,7 +2044,7 @@
           "Folder Permissions APIs"
         ],
         "summary": "Get Folder permissions",
-        "description": "Retrieve detailed information about permissions associated with a specific Application Folder within Lowcoder.",
+        "description": "Retrieve detailed information about permissions associated with a specific Application Folder within OpenFlower.",
         "operationId": "listFolderPermissions",
         "parameters": [
           {
@@ -2074,7 +2074,7 @@
           "Folder Permissions APIs"
         ],
         "summary": "Grant permissions to Folder",
-        "description": "Assign new permissions to a specific Application Folder within Lowcoder, allowing authorized users to access it.",
+        "description": "Assign new permissions to a specific Application Folder within OpenFlower, allowing authorized users to access it.",
         "operationId": "grantFolderPermissions",
         "parameters": [
           {
@@ -2116,7 +2116,7 @@
           "Folder APIs"
         ],
         "summary": "Get Folder contents",
-        "description": "Retrieve the contents of an Application Folder within Lowcoder, including Applications and Subfolders.",
+        "description": "Retrieve the contents of an Application Folder within OpenFlower, including Applications and Subfolders.",
         "operationId": "listFolderContents",
         "parameters": [
           {
@@ -2161,7 +2161,7 @@
           "Folder APIs"
         ],
         "summary": "Delete Folder",
-        "description": "Permanently remove an Application Folder from Lowcoder using its unique ID.",
+        "description": "Permanently remove an Application Folder from OpenFlower using its unique ID.",
         "operationId": "deleteFolder",
         "parameters": [
           {
@@ -2193,7 +2193,7 @@
           "Data Source APIs"
         ],
         "summary": "Create new data source",
-        "description": "Create a new data source in Lowcoder for data retrieval or storage.",
+        "description": "Create a new data source in OpenFlower for data retrieval or storage.",
         "operationId": "createDatasource",
         "requestBody": {
           "content": {
@@ -2225,7 +2225,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data source by ID",
-        "description": "Retrieve a specific data source within Lowcoder by its ID.",
+        "description": "Retrieve a specific data source within OpenFlower by its ID.",
         "operationId": "getDatasource",
         "parameters": [
           {
@@ -2255,7 +2255,7 @@
           "Data Source APIs"
         ],
         "summary": "Update data source by ID",
-        "description": "Modify the properties and settings of a data source within Lowcoder using its ID.",
+        "description": "Modify the properties and settings of a data source within OpenFlower using its ID.",
         "operationId": "updateDatasource",
         "parameters": [
           {
@@ -2295,7 +2295,7 @@
           "Data Source APIs"
         ],
         "summary": "Delete data source by ID",
-        "description": "Permanently remove a data source within Lowcoder using its ID.",
+        "description": "Permanently remove a data source within OpenFlower using its ID.",
         "operationId": "deleteDatasource",
         "parameters": [
           {
@@ -2327,7 +2327,7 @@
           "Data Source Permissions APIs"
         ],
         "summary": "Get data source permissions",
-        "description": "Retrieve permissions associated with a specific data source within Lowcoder, identified by its ID.",
+        "description": "Retrieve permissions associated with a specific data source within OpenFlower, identified by its ID.",
         "operationId": "listDatasourcePermissions",
         "parameters": [
           {
@@ -2357,7 +2357,7 @@
           "Data Source Permissions APIs"
         ],
         "summary": "Update data source permission",
-        "description": "Modify a specific data source permission within Lowcoder, identified by its ID.",
+        "description": "Modify a specific data source permission within OpenFlower, identified by its ID.",
         "operationId": "updateDatasourcePermission",
         "parameters": [
           {
@@ -2399,7 +2399,7 @@
           "Data Source Permissions APIs"
         ],
         "summary": "Grant permissions to data source",
-        "description": "Assign permissions for selected users or user-groups to a specific data source within Lowcoder, identified by its ID.",
+        "description": "Assign permissions for selected users or user-groups to a specific data source within OpenFlower, identified by its ID.",
         "operationId": "grantDatasourcePermissions",
         "parameters": [
           {
@@ -2439,7 +2439,7 @@
           "Data Source Permissions APIs"
         ],
         "summary": "Revoke permission from data source",
-        "description": "Revoke a specific permission from a data source within Lowcoder, identified by its ID.",
+        "description": "Revoke a specific permission from a data source within OpenFlower, identified by its ID.",
         "operationId": "revokeDatasourcePermission",
         "parameters": [
           {
@@ -2471,7 +2471,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data source structure",
-        "description": "Retrieve the structure and schema of a data source within Lowcoder, identified by its ID.",
+        "description": "Retrieve the structure and schema of a data source within OpenFlower, identified by its ID.",
         "operationId": "getDatasourceStructure",
         "parameters": [
           {
@@ -2512,7 +2512,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data sources by Organization ID",
-        "description": "List data sources associated with a specific Organization-ID within Lowcoder.",
+        "description": "List data sources associated with a specific Organization-ID within OpenFlower.",
         "operationId": "listDatasourcesByOrg",
         "parameters": [
           {
@@ -2544,7 +2544,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data sources by Application ID",
-        "description": "List data sources associated with a specific Application-ID within Lowcoder.",
+        "description": "List data sources associated with a specific Application-ID within OpenFlower.",
         "operationId": "listDatasourcesByApp",
         "parameters": [
           {
@@ -2576,7 +2576,7 @@
           "Data Source APIs"
         ],
         "summary": "Get Node service plugins",
-        "description": "Retrieve a list of node service plugins available within Lowcoder.",
+        "description": "Retrieve a list of node service plugins available within OpenFlower.",
         "operationId": "listNodeServicePlugins",
         "parameters": [
           {
@@ -2608,7 +2608,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data source information",
-        "description": "Obtain information related to a data source within Lowcoder.",
+        "description": "Obtain information related to a data source within OpenFlower.",
         "operationId": "getDatasourceInfo",
         "parameters": [
           {
@@ -2640,7 +2640,7 @@
           "Data Source APIs"
         ],
         "summary": "Test data source",
-        "description": "Verify the functionality and connectivity of a data source within the Lowcoder platform, identified by its ID.",
+        "description": "Verify the functionality and connectivity of a data source within the OpenFlower platform, identified by its ID.",
         "operationId": "testDatasource",
         "requestBody": {
           "content": {
@@ -2672,7 +2672,7 @@
           "Data Source APIs"
         ],
         "summary": "Get data source dynamic config",
-        "description": "Get additional dynamic configuration parameter information of data source within Lowcoder.",
+        "description": "Get additional dynamic configuration parameter information of data source within OpenFlower.",
         "operationId": "getDatasourceDynamicConfig",
         "requestBody": {
           "content": {
@@ -2707,7 +2707,7 @@
           "Query Execution APIs"
         ],
         "summary": "Execute query from node service",
-        "description": "Execute a data Query from a Node service within Lowcoder, facilitating data retrieval and processing. Node Service is used for extended Data Source Plugins.",
+        "description": "Execute a data Query from a Node service within OpenFlower, facilitating data retrieval and processing. Node Service is used for extended Data Source Plugins.",
         "operationId": "executeQueryFromNodeService",
         "requestBody": {
           "content": {
@@ -2739,7 +2739,7 @@
           "Query Execution APIs"
         ],
         "summary": "Execute query from API service",
-        "description": "Execute a data Query from an API service within Lowcoder, facilitating data retrieval and processing. API Service is used for standard Data Sources like Databases.",
+        "description": "Execute a data Query from an API service within OpenFlower, facilitating data retrieval and processing. API Service is used for standard Data Sources like Databases.",
         "operationId": "executeQueryFromApiService",
         "requestBody": {
           "content": {
@@ -2771,7 +2771,7 @@
           "Library Queries Record APIs"
         ],
         "summary": "Get Library Query Records",
-        "description": "Retrieve a list of Library Query Records, which store information related to executed queries within Lowcoder and the current Organization / Workspace by the impersonated User",
+        "description": "Retrieve a list of Library Query Records, which store information related to executed queries within OpenFlower and the current Organization / Workspace by the impersonated User",
         "operationId": "listLibraryQueryRecords",
         "parameters": [
           {
@@ -2811,7 +2811,7 @@
           "Library Queries Record APIs"
         ],
         "summary": "Get Library Query Record",
-        "description": "Retrieve a specific Library Query Record within Lowcoder using the associated library query ID.",
+        "description": "Retrieve a specific Library Query Record within OpenFlower using the associated library query ID.",
         "operationId": "getLibraryQueryRecord",
         "parameters": [
           {
@@ -2843,7 +2843,7 @@
           "Query Library APIs"
         ],
         "summary": "Get Data Query Libraries for organization",
-        "description": "Retrieve a list of Library Queries for a specific Organization within Lowcoder.",
+        "description": "Retrieve a list of Library Queries for a specific Organization within OpenFlower.",
         "operationId": "listLibrartQueriesByOrg",
         "responses": {
           "200": {
@@ -2865,7 +2865,7 @@
           "Query Library APIs"
         ],
         "summary": "Get Data Query Libraries in dropdown format",
-        "description": "Retrieve Library Queries in a dropdown format within Lowcoder, suitable for selection in user interfaces.",
+        "description": "Retrieve Library Queries in a dropdown format within OpenFlower, suitable for selection in user interfaces.",
         "operationId": "listLibraryQueriesForDropDown",
         "responses": {
           "200": {
@@ -2887,7 +2887,7 @@
           "Library Queries Record APIs"
         ],
         "summary": "Delete Library Query Record",
-        "description": "Permanently remove a specific Library Query Record from Lowcoder using its unique record ID.",
+        "description": "Permanently remove a specific Library Query Record from OpenFlower using its unique record ID.",
         "operationId": "deleteLibrartQueryRecord",
         "parameters": [
           {
@@ -2912,7 +2912,7 @@
           "Query Library APIs"
         ],
         "summary": "Publish a Data Query Library for usage",
-        "description": "Publish a Library Query for usage within Lowcoder, making it available for other users to utilize.",
+        "description": "Publish a Library Query for usage within OpenFlower, making it available for other users to utilize.",
         "operationId": "publishLibraryQuery",
         "parameters": [
           {
@@ -2954,7 +2954,7 @@
           "Query Library APIs"
         ],
         "summary": "Create a Library for Data Queries",
-        "description": "Create a new Library Query within Lowcoder for storing and managing reusable Data Queries.",
+        "description": "Create a new Library Query within OpenFlower for storing and managing reusable Data Queries.",
         "operationId": "createLibraryQuery",
         "requestBody": {
           "content": {
@@ -2986,7 +2986,7 @@
           "Query Library APIs"
         ],
         "summary": "Update a Data Query Library",
-        "description": "Modify the properties and settings of an existing Library Query within Lowcoder identified by its unique ID.",
+        "description": "Modify the properties and settings of an existing Library Query within OpenFlower identified by its unique ID.",
         "operationId": "updateLibraryQuery",
         "parameters": [
           {
@@ -3026,7 +3026,7 @@
           "Query Library APIs"
         ],
         "summary": "Delete a Data Query Library",
-        "description": "Permanently remove a Library Query from Lowcoder using its unique ID.",
+        "description": "Permanently remove a Library Query from OpenFlower using its unique ID.",
         "operationId": "deleteLibraryQuery",
         "parameters": [
           {
@@ -3058,7 +3058,7 @@
           "Organization APIs"
         ],
         "summary": "Create a new Organization",
-        "description": "Create a new Organization (Workspace) within the Lowcoder platform as a encapsulated space for Applications, Users and Resources.",
+        "description": "Create a new Organization (Workspace) within the OpenFlower platform as a encapsulated space for Applications, Users and Resources.",
         "operationId": "createOrganization",
         "requestBody": {
           "content": {
@@ -3090,7 +3090,7 @@
           "Organization APIs"
         ],
         "summary": "Upload Organization Logo",
-        "description": "Upload an Organization logo for branding and identification for a Lowcoder Organization / Workspace.",
+        "description": "Upload an Organization logo for branding and identification for a OpenFlower Organization / Workspace.",
         "operationId": "uploadOrganizationLogo",
         "parameters": [
           {
@@ -3137,7 +3137,7 @@
           "Organization APIs"
         ],
         "summary": "Delete Organization Logo",
-        "description": "Remove the logo associated with an Organization within Lowcoder.",
+        "description": "Remove the logo associated with an Organization within OpenFlower.",
         "operationId": "deleteOrganizationLogo",
         "parameters": [
           {
@@ -3169,7 +3169,7 @@
           "Organization Member APIs"
         ],
         "summary": "List Organization Members",
-        "description": "Retrieve a list of members belonging to an Organization within Lowcoder.",
+        "description": "Retrieve a list of members belonging to an Organization within OpenFlower.",
         "operationId": "listOrganizationMembers",
         "parameters": [
           {
@@ -3221,7 +3221,7 @@
           "Organization Member APIs"
         ],
         "summary": "Get supported data source types for Organization",
-        "description": "Retrieve a list of supported datasource types for an Organization within Lowcoder.",
+        "description": "Retrieve a list of supported datasource types for an Organization within OpenFlower.",
         "operationId": "getOrganizationDatasourceTypes",
         "parameters": [
           {
@@ -3293,7 +3293,7 @@
           "Organization APIs"
         ],
         "summary": "Delete Organization by ID",
-        "description": "Permanently remove an User from an Organization in Lowcoder using its unique IDs.",
+        "description": "Permanently remove an User from an Organization in OpenFlower using its unique IDs.",
         "operationId": "deleteOrganization",
         "parameters": [
           {
@@ -3333,7 +3333,7 @@
           "Organization Member APIs"
         ],
         "summary": "Remove current user from Organization",
-        "description": "Allow the current user to voluntarily leave an Organization in Lowcoder, removing themselves from the organization's membership.",
+        "description": "Allow the current user to voluntarily leave an Organization in OpenFlower, removing themselves from the organization's membership.",
         "operationId": "leaveOrganization",
         "parameters": [
           {
@@ -3365,7 +3365,7 @@
           "Organization APIs"
         ],
         "summary": "Delete Organization by ID",
-        "description": "Permanently remove an Organization from Lowcoder using its unique ID.",
+        "description": "Permanently remove an Organization from OpenFlower using its unique ID.",
         "operationId": "deleteOrganization_1",
         "parameters": [
           {
@@ -3397,7 +3397,7 @@
           "Organization APIs"
         ],
         "summary": "Update Organization by ID",
-        "description": "Modify the properties and settings of an existing Organization within Lowcoder identified by its unique ID.",
+        "description": "Modify the properties and settings of an existing Organization within OpenFlower identified by its unique ID.",
         "operationId": "updateOrganization",
         "parameters": [
           {
@@ -3439,7 +3439,7 @@
           "Organization Member APIs"
         ],
         "summary": "Update role of Member in Organization",
-        "description": "Change the Role of a specific Member (User) within an Organization in Lowcoder using the unique ID of a user and the name of the existing Role.",
+        "description": "Change the Role of a specific Member (User) within an Organization in OpenFlower using the unique ID of a user and the name of the existing Role.",
         "operationId": "updateOrganizationMemberRole",
         "parameters": [
           {
@@ -3481,7 +3481,7 @@
           "Organization APIs"
         ],
         "summary": "Get Organization common Settings",
-        "description": "Retrieve common settings (such as Themes and Auth Sources) and configurations for an Organization within Lowcoder using its unique ID.",
+        "description": "Retrieve common settings (such as Themes and Auth Sources) and configurations for an Organization within OpenFlower using its unique ID.",
         "operationId": "getOrganizationSettings",
         "parameters": [
           {
@@ -3511,7 +3511,7 @@
           "Organization APIs"
         ],
         "summary": "Update Organization common Settings",
-        "description": "Modify common settings (such as Themes) and configurations for a Lowcoder Organization / Workspace.",
+        "description": "Modify common settings (such as Themes) and configurations for a OpenFlower Organization / Workspace.",
         "operationId": "updateOrganizationSettings",
         "parameters": [
           {
@@ -3553,7 +3553,7 @@
           "Organization Member APIs"
         ],
         "summary": "Switch current users Organization",
-        "description": "Trigger a switch of the active Organization for the current User within Lowcoder in regards to the Session. After this switch, the impersonated user will see all resources from the new / selected Organization.",
+        "description": "Trigger a switch of the active Organization for the current User within OpenFlower in regards to the Session. After this switch, the impersonated user will see all resources from the new / selected Organization.",
         "operationId": "switchOrganization",
         "parameters": [
           {
@@ -3585,7 +3585,7 @@
           "User invitation APIs"
         ],
         "summary": "Create user Invitation",
-        "description": "Create a generic User-Invitation within Lowcoder to invite new users to join the platform. Internally an invite Link based on inviting User and it's current Organization / Workspace is built.",
+        "description": "Create a generic User-Invitation within OpenFlower to invite new users to join the platform. Internally an invite Link based on inviting User and it's current Organization / Workspace is built.",
         "operationId": "createUserInvitation",
         "parameters": [
           {
@@ -3617,7 +3617,7 @@
           "User invitation APIs"
         ],
         "summary": "Get Invitation",
-        "description": "Retrieve information about a specific Invitation within Lowcoder, including details about the Invitee and the connected Organization / Workspace.",
+        "description": "Retrieve information about a specific Invitation within OpenFlower, including details about the Invitee and the connected Organization / Workspace.",
         "operationId": "getInvitation",
         "parameters": [
           {
@@ -3649,7 +3649,7 @@
           "User invitation APIs"
         ],
         "summary": "Invite User",
-        "description": "Proceed the actual Invite for User to an Lowcoder Organization / Workspace using an existing Invitation identified by its ID.",
+        "description": "Proceed the actual Invite for User to an OpenFlower Organization / Workspace using an existing Invitation identified by its ID.",
         "operationId": "inviteUser",
         "parameters": [
           {
@@ -3681,7 +3681,7 @@
           "User APIs"
         ],
         "summary": "Update current User",
-        "description": "Enable the current User to update their Profile information within Lowcoder, ensuring accuracy and relevance.",
+        "description": "Enable the current User to update their Profile information within OpenFlower, ensuring accuracy and relevance.",
         "operationId": "updateUser",
         "requestBody": {
           "content": {
@@ -3713,7 +3713,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Update User Password",
-        "description": "Allow the User to update their Password within Lowcoder, enhancing security and account management.",
+        "description": "Allow the User to update their Password within OpenFlower, enhancing security and account management.",
         "operationId": "updatePassword",
         "requestBody": {
           "content": {
@@ -3743,7 +3743,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Set User Password",
-        "description": "Set a new Password for the User within Lowcoder, ensuring secure access to their account.",
+        "description": "Set a new Password for the User within OpenFlower, ensuring secure access to their account.",
         "operationId": "setPassword",
         "parameters": [
           {
@@ -3775,7 +3775,7 @@
           "User APIs"
         ],
         "summary": "Mark current user with help shown status",
-        "description": "Indicate that the current user has been shown help or guidance within Lowcoder, helping track user assistance efforts.",
+        "description": "Indicate that the current user has been shown help or guidance within OpenFlower, helping track user assistance efforts.",
         "operationId": "newUserGuidanceShown",
         "responses": {
           "200": {
@@ -3797,7 +3797,7 @@
           "User APIs"
         ],
         "summary": "Mark current User with Status",
-        "description": "Mark the current User with a specific Status within Lowcoder, allowing for status tracking or updates.",
+        "description": "Mark the current User with a specific Status within OpenFlower, allowing for status tracking or updates.",
         "operationId": "markUserStatus",
         "requestBody": {
           "content": {
@@ -3829,7 +3829,7 @@
           "User APIs"
         ],
         "summary": "Get User Details by ID",
-        "description": "Retrieve specific User Details within Lowcoder using their unique user ID.",
+        "description": "Retrieve specific User Details within OpenFlower using their unique user ID.",
         "operationId": "getUserDetails",
         "parameters": [
           {
@@ -3861,7 +3861,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Upload users profile photo by ID",
-        "description": "Upload or change the profile photo of a specific User within Lowcoder using their user ID for identification.",
+        "description": "Upload or change the profile photo of a specific User within OpenFlower using their user ID for identification.",
         "operationId": "uploadUserProfilePhotoById",
         "parameters": [
           {
@@ -3886,7 +3886,7 @@
           "User APIs"
         ],
         "summary": "Get current User Profile",
-        "description": "Retrieve the profile information of the current user within Lowcoder, including their identity, name, avatar, email, IP address, group memberships, and details of the current Organization / Workspace.",
+        "description": "Retrieve the profile information of the current user within OpenFlower, including their identity, name, avatar, email, IP address, group memberships, and details of the current Organization / Workspace.",
         "operationId": "getUserProfile",
         "responses": {
           "200": {
@@ -3908,7 +3908,7 @@
           "User APIs"
         ],
         "summary": "Get current User Information",
-        "description": "Retrieve comprehensive information about the current user within Lowcoder, including their ID, name, avatar URL, email, IP address and group memberships.",
+        "description": "Retrieve comprehensive information about the current user within OpenFlower, including their ID, name, avatar URL, email, IP address and group memberships.",
         "operationId": "getUserInfo",
         "responses": {
           "200": {
@@ -3930,7 +3930,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Reset User Password",
-        "description": "Initiate a Password Reset process for the user within Lowcoder, allowing them to regain access to their account.",
+        "description": "Initiate a Password Reset process for the user within OpenFlower, allowing them to regain access to their account.",
         "operationId": "resetPassword",
         "requestBody": {
           "content": {
@@ -3994,7 +3994,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Get current User profile photo",
-        "description": "Retrieve the profile photo of the current User within Lowcoder, if available.",
+        "description": "Retrieve the profile photo of the current User within OpenFlower, if available.",
         "operationId": "getUserProfilePhoto",
         "responses": {
           "200": {
@@ -4007,7 +4007,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Upload current Users profile photo",
-        "description": "Allow the current User to upload or change their profile photo within Lowcoder for personalization.",
+        "description": "Allow the current User to upload or change their profile photo within OpenFlower for personalization.",
         "operationId": "uploadUserProfilePhoto",
         "requestBody": {
           "content": {
@@ -4044,7 +4044,7 @@
           "User Profile Photo APIs"
         ],
         "summary": "Delete current users profile photo",
-        "description": "Remove the profile Photo associated with the current User within Lowcoder.",
+        "description": "Remove the profile Photo associated with the current User within OpenFlower.",
         "operationId": "deleteUserProfilePhoto",
         "responses": {
           "200": {
@@ -4098,7 +4098,7 @@
           "Group APIs"
         ],
         "summary": "Create User Group",
-        "description": "Create a new User Group within the current Lowcoder Organization / Workspace for organizing and managing your Application users.",
+        "description": "Create a new User Group within the current OpenFlower Organization / Workspace for organizing and managing your Application users.",
         "operationId": "createGroup",
         "requestBody": {
           "content": {
@@ -4130,7 +4130,7 @@
           "Group APIs"
         ],
         "summary": "Update User Group",
-        "description": "Modify the properties and settings of an existing User Group within Lowcoder, identified by the unique ID of a User Group.",
+        "description": "Modify the properties and settings of an existing User Group within OpenFlower, identified by the unique ID of a User Group.",
         "operationId": "updateGroup",
         "parameters": [
           {
@@ -4172,7 +4172,7 @@
           "Group Members APIs"
         ],
         "summary": "Update User Group member role",
-        "description": "Modify the Role of a specific Member within a User Group in Lowcoder, ensuring proper access control.",
+        "description": "Modify the Role of a specific Member within a User Group in OpenFlower, ensuring proper access control.",
         "operationId": "updateRoleForGroupMember",
         "parameters": [
           {
@@ -4214,7 +4214,7 @@
           "Group Members APIs"
         ],
         "summary": "Add User to User Group",
-        "description": "Include a User as a member of a specified User Group in Lowcoder, granting them access to group resources.",
+        "description": "Include a User as a member of a specified User Group in OpenFlower, granting them access to group resources.",
         "operationId": "addUserToGroup",
         "parameters": [
           {
@@ -4256,7 +4256,7 @@
           "Group Members APIs"
         ],
         "summary": "List User Group Members",
-        "description": "Retrieve a list of Users / Members within a specific User Group in Lowcoder, showing the group's composition.",
+        "description": "Retrieve a list of Users / Members within a specific User Group in OpenFlower, showing the group's composition.",
         "operationId": "listGroupMembers",
         "parameters": [
           {
@@ -4308,7 +4308,7 @@
           "Group APIs"
         ],
         "summary": "List User Groups",
-        "description": "Retrieve a list of User Groups within Lowcoder, providing an overview of available groups, based on the access rights of the currently impersonated User.",
+        "description": "Retrieve a list of User Groups within OpenFlower, providing an overview of available groups, based on the access rights of the currently impersonated User.",
         "operationId": "listGroups",
         "responses": {
           "200": {
@@ -4330,7 +4330,7 @@
           "Group Members APIs"
         ],
         "summary": "Remove a User from User Group",
-        "description": "Remove a specific User from a User Group within Lowcoder, revoking their access to the Group resources.",
+        "description": "Remove a specific User from a User Group within OpenFlower, revoking their access to the Group resources.",
         "operationId": "removeUserFromGroup",
         "parameters": [
           {
@@ -4370,7 +4370,7 @@
           "Group Members APIs"
         ],
         "summary": "Remove current User from User Group",
-        "description": "Allow the current user to voluntarily leave a User Group in Lowcoder, removing themselves from the group's membership.",
+        "description": "Allow the current user to voluntarily leave a User Group in OpenFlower, removing themselves from the group's membership.",
         "operationId": "leaveGroup",
         "parameters": [
           {
@@ -4402,7 +4402,7 @@
           "Group APIs"
         ],
         "summary": "Delete User Group",
-        "description": "Permanently remove a User Group from Lowcoder using its unique ID.",
+        "description": "Permanently remove a User Group from OpenFlower using its unique ID.",
         "operationId": "deleteGroup",
         "parameters": [
           {
@@ -4434,7 +4434,7 @@
           "Authentication APIs"
         ],
         "summary": "Delete authentication configuration",
-        "description": "Delete a specific Lowcoder authentication configuration.",
+        "description": "Delete a specific OpenFlower authentication configuration.",
         "operationId": "deleteAuthConfig",
         "parameters": [
           {
@@ -4506,7 +4506,7 @@
           "Authentication APIs"
         ],
         "summary": "Login with third party",
-        "description": "Authenticate a Lowcoder User using third-party login credentials.",
+        "description": "Authenticate a OpenFlower User using third-party login credentials.",
         "operationId": "loginWithThirdParty",
         "parameters": [
           {
@@ -4578,7 +4578,7 @@
           "Authentication APIs"
         ],
         "summary": "Link current account with third party auth provider",
-        "description": "Authenticate a Lowcoder User using third-party login credentials and link to the existing session/account",
+        "description": "Authenticate a OpenFlower User using third-party login credentials and link to the existing session/account",
         "operationId": "linkAccountWithTP",
         "parameters": [
           {
@@ -4641,8 +4641,8 @@
         "tags": [
           "Authentication APIs"
         ],
-        "summary": "Logout from Lowcoder",
-        "description": "End a logged in Session of a Lowcoder User on the Lowcoder platform.",
+        "summary": "Logout from OpenFlower",
+        "description": "End a logged in Session of a OpenFlower User on the OpenFlower platform.",
         "operationId": "logout",
         "responses": {
           "200": {
@@ -4664,7 +4664,7 @@
           "Authentication APIs"
         ],
         "summary": "Login with user and password (Form based Login)",
-        "description": "Authenticate a Lowcoder User using traditional username and password credentials (Form Login).",
+        "description": "Authenticate a OpenFlower User using traditional username and password credentials (Form Login).",
         "operationId": "loginWithUserPassword",
         "parameters": [
           {
@@ -4714,7 +4714,7 @@
           "Authentication APIs"
         ],
         "summary": "Create authentication configuration",
-        "description": "Configure a new authentication method to enable Lowcoder Users to log in, for instance, through OAuth or other similar mechanisms, for the current selected Organization, based on the impersonated User",
+        "description": "Configure a new authentication method to enable OpenFlower Users to log in, for instance, through OAuth or other similar mechanisms, for the current selected Organization, based on the impersonated User",
         "operationId": "createAuthConfig",
         "requestBody": {
           "content": {
@@ -4746,7 +4746,7 @@
           "Authentication APIs"
         ],
         "summary": "Create API key for current user",
-        "description": "Generate an Lowcoder API key. The API key will inherit all rights of the current impersonated user.",
+        "description": "Generate an OpenFlower API key. The API key will inherit all rights of the current impersonated user.",
         "operationId": "createApiKey",
         "requestBody": {
           "content": {
@@ -4800,7 +4800,7 @@
           "Authentication APIs"
         ],
         "summary": "Get API keys of the current User",
-        "description": "Retrieve a list of LOwcoder API keys associated with the current impersonated user.",
+        "description": "Retrieve a list of OpenFlower API keys associated with the current impersonated user.",
         "operationId": "listApiKeys",
         "responses": {
           "200": {
@@ -4822,7 +4822,7 @@
           "Image Assets APIs"
         ],
         "summary": "Retrieve Image Asset",
-        "description": "Retrieve an image asset within Lowcoder using its unique ID, which can be used for various purposes such as displaying images in applications.",
+        "description": "Retrieve an image asset within OpenFlower using its unique ID, which can be used for various purposes such as displaying images in applications.",
         "operationId": "getAsset",
         "parameters": [
           {
@@ -4847,7 +4847,7 @@
           "Javascript Library APIs"
         ],
         "summary": "Get Javascript Library recommendations",
-        "description": "Retrieve the standard list of JavaScript libraries within Lowcoder, as recommendation.",
+        "description": "Retrieve the standard list of JavaScript libraries within OpenFlower, as recommendation.",
         "operationId": "getJsLibraryRecommendations",
         "responses": {
           "200": {
@@ -4869,7 +4869,7 @@
           "Javascript Library APIs"
         ],
         "summary": "Get Javascript Library metadata",
-        "description": "Retrieve metadata information for JavaScript libraries within Lowcoder based on an Array as \"name\" parameter to name the desired libraries, providing details about available libraries.",
+        "description": "Retrieve metadata information for JavaScript libraries within OpenFlower based on an Array as \"name\" parameter to name the desired libraries, providing details about available libraries.",
         "operationId": "getJsLibraryMetadata",
         "parameters": [
           {
@@ -4904,7 +4904,7 @@
           "Status checks APIs"
         ],
         "summary": "Run health check",
-        "description": "Perform a health check within Lowcoder to ensure the system's overall operational health and availability.",
+        "description": "Perform a health check within OpenFlower to ensure the system's overall operational health and availability.",
         "operationId": "healthCheck",
         "responses": {
           "200": {
@@ -4925,8 +4925,8 @@
         "tags": [
           "Server Setting APIs"
         ],
-        "summary": "Get Lowcoder server settings",
-        "description": "Retrieve the list of server settings for Lowcoder.",
+        "summary": "Get OpenFlower server settings",
+        "description": "Retrieve the list of server settings for OpenFlower.",
         "operationId": "serverSettings",
         "responses": {
           "200": {
@@ -8260,8 +8260,8 @@
     }
   },
   "externalDocs": {
-    "url": "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
-    "description": "Lowcoder Documentation"
+    "url": "https://docs.openflower.org/OpenFlower-extension/OpenFlower-open-rest-api",
+    "description": "OpenFlower Documentation"
   },
   "tags": [
     {

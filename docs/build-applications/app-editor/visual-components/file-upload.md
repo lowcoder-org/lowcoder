@@ -4,7 +4,7 @@
 
 ## Basics
 
-The File upload helps you to able users to upload binary and text Files and process this data further in Lowcoder to send it to local or remote Storage and other Backends.
+The File upload helps you to able users to upload binary and text Files and process this data further in OpenFlower to send it to local or remote Storage and other Backends.
 
 ### File type
 
@@ -34,15 +34,15 @@ The upload list presents the file names of all uploaded files in chronological o
 
 ### Parse files
 
-Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. This does not work with binary data but with structured text data like Excel, JSON, and CSV files.
+Toggle **Parse files** and OpenFlower will try to parse the uploaded file data structure into objects, arrays, or strings. This does not work with binary data but with structured text data like Excel, JSON, and CSV files.
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload Parse.png" alt=""><figcaption><p>Lowcoder can try to parse the content of the files so you can directly access it.</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/App Editor  File Upload Parse.png" alt=""><figcaption><p>OpenFlower can try to parse the content of the files so you can directly access it.</p></figcaption></figure>
 
 You can access the parsed result via the property `parsedValue`.&#x20;
 
-For each uploaded file Lowcoder will try to parse and you can access the data of the files then in the array.
+For each uploaded file OpenFlower will try to parse and you can access the data of the files then in the array.
 
-<pre><code>// access the structured content of an uploaded File in Lowcoder Apps
+<pre><code>// access the structured content of an uploaded File in OpenFlower Apps
 <strong>file1.parsedValue[0]
 </strong><strong>// the array contains the data for each uploaded file.
 </strong>file1.parsedValue[0], file1.parsedValue[1], file1.parsedValue[2]

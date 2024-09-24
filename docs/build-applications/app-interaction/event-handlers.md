@@ -1,6 +1,6 @@
 # Event handlers
 
-In Lowcoder, event handlers are responsible for collecting and processing events from components and queries, and executing subsequent actions. For example, for a **Button** component, you can add an event handler to trigger the **Run query** action \*\*\*\* in response to the button **Click** event.
+In OpenFlower, event handlers are responsible for collecting and processing events from components and queries, and executing subsequent actions. For example, for a **Button** component, you can add an event handler to trigger the **Run query** action \*\*\*\* in response to the button **Click** event.
 
 Set event handlers wisely to provide a reactive and responsive user experience (UX). For example, triggering a **get-all** query after **insert-new-data** query finishes enables table automatically refresh.
 
@@ -22,7 +22,7 @@ Running a query can result in success or failure, so queries have two events: **
 
 ## Actions
 
-There are a number of event handler actions available in Lowcoder for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
+There are a number of event handler actions available in OpenFlower for handling different scenarios. Set them in the **Action** dropdown list in an event handler.
 
 {% hint style="info" %}
 See advanced on this page to know advanced settings.
@@ -42,7 +42,7 @@ Store data in a temporary state.
 
 ### Go to app
 
-Navigate to an Lowcoder app with optional query or hash parameters.
+Navigate to an OpenFlower app with optional query or hash parameters.
 
 | Parameter            | Function                                                                                            |
 | -------------------- | --------------------------------------------------------------------------------------------------- |

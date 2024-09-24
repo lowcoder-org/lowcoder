@@ -78,57 +78,57 @@ export function SettingHome() {
 
     // Premium features
 
-    {
-      key: SettingPageEnum.Environments,
-      label: (
-        <span>
-          <span className="text">{trans("settings.environments")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
-        </span>
-      ),
-      disabled: true,
-    },
-    {
-      key: SettingPageEnum.AppUsage,
-      label: (
-        <span>
-          <span className="text">{trans("settings.appUsage")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
-        </span>
-      ),
-      disabled: true,
-    },
-    {
-      key: SettingPageEnum.Audit,
-      label: (
-        <span>
-          <span className="text">{trans("settings.audit")}</span>
-          {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          )}
-        </span>
-      ),
-      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
-    },
-    {
-      key: SettingPageEnum.Branding,
-      label: (
-        <span>
-          <span className="text">{trans("settings.branding")}</span>
-          {(!isEE() ||
-            !currentOrgAdmin(user) ||
-            !enableCustomBrand(config) ||
-            (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          )}
-        </span>
-      ),
-      disabled:
-        !isEE() ||
-        !currentOrgAdmin(user) ||
-        !enableCustomBrand(config) ||
-        (!isSelfDomain(config) && !isEnterpriseMode(config)),
-    },
+    // {
+    //   key: SettingPageEnum.Environments,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.environments")}</span>
+    //       <FreeLimitTag text={trans("settings.premium")} />
+    //     </span>
+    //   ),
+    //   disabled: true,
+    // },
+    // {
+    //   key: SettingPageEnum.AppUsage,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.appUsage")}</span>
+    //       <FreeLimitTag text={trans("settings.premium")} />
+    //     </span>
+    //   ),
+    //   disabled: true,
+    // },
+    // {
+    //   key: SettingPageEnum.Audit,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.audit")}</span>
+    //       {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+    //         <FreeLimitTag text={trans("settings.premium")} />
+    //       )}
+    //     </span>
+    //   ),
+    //   disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+    // },
+    // {
+    //   key: SettingPageEnum.Branding,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.branding")}</span>
+    //       {(!isEE() ||
+    //         !currentOrgAdmin(user) ||
+    //         !enableCustomBrand(config) ||
+    //         (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+    //         <FreeLimitTag text={trans("settings.premium")} />
+    //       )}
+    //     </span>
+    //   ),
+    //   disabled:
+    //     !isEE() ||
+    //     !currentOrgAdmin(user) ||
+    //     !enableCustomBrand(config) ||
+    //     (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    // },
   ];
 
   {/* {
@@ -151,9 +151,9 @@ export function SettingHome() {
             } }
             items={items} />
 
-          <Card style={{marginTop: "40px", color:"#aaa"}}>
+          {/* <Card style={{marginTop: "40px", color:"#aaa"}}>
             <div>If you are interested in early access to the upcoming Enterprise Edition, please contact us: <a href="mailto:service@lowcoder.cloud">service@lowcoder.cloud</a></div>
-          </Card>
+          </Card> */}
         </SubSideBar>
         {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
         {selectKey === SettingPageEnum.Organization && <Organization />}

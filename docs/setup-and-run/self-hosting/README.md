@@ -1,6 +1,6 @@
 # Self-hosting
 
-In this article, you will be guided through how to host Lowcoder on your own server using Docker-Compose or Docker.
+In this article, you will be guided through how to host OpenFlower on your own server using Docker-Compose or Docker.
 
 There are multiple ways of installation. We directly support:
 
@@ -30,7 +30,7 @@ Recommended system spec: 1-core CPU and 2 GB RAM.
 Windows users are recommended to use PowerShell for running the commands below.
 {% endhint %}
 
-In your working directory, run the following commands to make a directory named `Lowcoder` to store the data of Lowcoder:
+In your working directory, run the following commands to make a directory named `OpenFlower` to store the data of OpenFlower:
 
 ```bash
 mkdir lowcoder
@@ -67,8 +67,8 @@ curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/
     docker logs -f lowcoder
     ```
 
-    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the Lowcoder service has officially started:
-4. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Lowcoder will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+    When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the OpenFlower service has officially started:
+4. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 {% endtab %}
 
 {% tab title="Docker" %}
@@ -86,7 +86,7 @@ docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" low
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
-Run the following commands to update to the latest Lowcoder image:
+Run the following commands to update to the latest OpenFlower image:
 
 ```bash
 docker-compose pull
@@ -96,13 +96,13 @@ docker-compose up -d
 {% endtab %}
 
 {% tab title="Docker" %}
-Run the following commands to update to the latest Lowcoder image:
+Run the following commands to update to the latest OpenFlower image:
 
 {% code overflow="wrap" %}
 ```bash
 docker pull lowcoderorg/lowcoder-ce
-docker rm -fv Lowcoder
-docker run -d --name Lowcoder -p 3000:3000 -v "$PWD/stacks:/Lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker rm -fv OpenFlower
+docker run -d --name OpenFlower -p 3000:3000 -v "$PWD/stacks:/OpenFlower-stacks" lowcoderorg/lowcoder-ce
 ```
 {% endcode %}
 {% endtab %}
@@ -118,7 +118,7 @@ Multi-Image Installation to scale. API-Service & Node-Service can get scaled ind
 
 ### Separate images: services in stateless containers <a href="#multi" id="multi"></a>
 
-For bigger expected loads that need scaling in a cluster environment, we offer separate images for stateless containers of the backend and frontend service with a customizable Dockerfile. A well-functioning Lowcoder deployment consists of below services:
+For bigger expected loads that need scaling in a cluster environment, we offer separate images for stateless containers of the backend and frontend service with a customizable Dockerfile. A well-functioning OpenFlower deployment consists of below services:
 
 * **api-service**: Backend service.
 * **node-service**: Backend service.
@@ -132,7 +132,7 @@ For bigger expected loads that need scaling in a cluster environment, we offer s
 
 #### Deploy
 
-1.  In your working directory, run the following commands to make a directory named `lowcoder` to store the data of Lowcoder:
+1.  In your working directory, run the following commands to make a directory named `lowcoder` to store the data of OpenFlower:
 
     ```bash
     mkdir lowcoder
@@ -153,7 +153,7 @@ For bigger expected loads that need scaling in a cluster environment, we offer s
     ```bash
     docker-compose -f docker-compose-multi.yml up -d
     ```
-5. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. Lowcoder will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+5. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
 ## 3) Update to the latest version <a href="#update-multi" id="update-multi"></a>
 
@@ -205,7 +205,7 @@ For more information about configurations and environment variables, see [Config
 
 ### Use your own MongoDB and Redis
 
-By default, Lowcoder uses the built-in MongoDB and Redis installed inside the container, and you can replace them with your own MongoDB and Redis clusters.
+By default, OpenFlower uses the built-in MongoDB and Redis installed inside the container, and you can replace them with your own MongoDB and Redis clusters.
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
@@ -249,7 +249,7 @@ docker run -d --name lowcoder -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stack
 
 ### Install SSL certificate
 
-With an SSL certificate, you can securely visit self-hosted Lowcoder with HTTPS protocol. Here are the steps to install your SSL certificate before starting a container:
+With an SSL certificate, you can securely visit self-hosted OpenFlower with HTTPS protocol. Here are the steps to install your SSL certificate before starting a container:
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
@@ -284,9 +284,9 @@ ENV Variables for Helm, Docker Compose, and Docker installations are to find in 
 
 ### ENV Variables for the all-in-one image
 
-This image contains all services needed to run Lowcoder platform in one container.
+This image contains all services needed to run OpenFlower platform in one container.
 
-<table><thead><tr><th width="355">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_REDIS_ENABLED</code></td><td>If <strong>true</strong> redis server is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MONGODB_ENABLED</code></td><td>If <strong>true</strong> mongo database is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MONGODB_EXPOSED</code></td><td>If <strong>true</strong> mongo database accept connections from outside the docker</td><td><code>false</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_ENABLED</code></td><td>If <strong>true</strong> lowcoder api-service is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_ENABLED</code></td><td>If <strong>true</strong> lowcoder node-service is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_FRONTEND_ENABLED</code></td><td>If <strong>true</strong> lowcoder web frontend is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MONGODB_URL</code></td><td>Mongo database connection string</td><td><code>mongodb://localhost:27017/lowcoder?authSource=admin</code></td></tr><tr><td><code>LOWCODER_REDIS_URL</code></td><td>Redis server URL</td><td><code>redis://localhost:6379</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_PASSWORD</code></td><td>Encryption password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_SALT</code></td><td>Salt used for encrypting password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_CORS_DOMAINS</code></td><td>CORS allowed domains</td><td><code>*</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>Lowcoder max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>Lowcoder max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>Lowcoder API service URL</td><td><code>http://localhost:8080</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_URL</code></td><td>Lowcoder Node service (js executor) URL</td><td><code>http://localhost:6060</code></td></tr><tr><td><code>LOWCODER_MAX_ORGS_PER_USER</code></td><td>Default maximum organizations per user</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_MEMBERS_PER_ORG</code></td><td>Default maximum members per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_GROUPS_PER_ORG</code></td><td>Default maximum groups per organization</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_APPS_PER_ORG</code></td><td>Default maximum applications per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_DEVELOPERS</code></td><td>Default maximum developers</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_WORKSPACE_MODE</code></td><td>SAAS to activate, ENTERPRISE to switch off - Workspaces</td><td><code>SAAS</code></td></tr><tr><td><code>LOWCODER_EMAIL_SIGNUP_ENABLED</code></td><td>Control if users create their own Workspace automatic when Sign Up</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_CREATE_WORKSPACE_ON_SIGNUP</code></td><td>IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MARKETPLACE_PRIVATE_MODE</code></td><td>Control if not to show Apps on the local Marketplace to anonymous users</td><td><code>true</code></td></tr></tbody></table>
+<table><thead><tr><th width="355">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_REDIS_ENABLED</code></td><td>If <strong>true</strong> redis server is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MONGODB_ENABLED</code></td><td>If <strong>true</strong> mongo database is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MONGODB_EXPOSED</code></td><td>If <strong>true</strong> mongo database accept connections from outside the docker</td><td><code>false</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_ENABLED</code></td><td>If <strong>true</strong> lowcoder api-service is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_ENABLED</code></td><td>If <strong>true</strong> lowcoder node-service is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_FRONTEND_ENABLED</code></td><td>If <strong>true</strong> lowcoder web frontend is started in the container</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MONGODB_URL</code></td><td>Mongo database connection string</td><td><code>mongodb://localhost:27017/lowcoder?authSource=admin</code></td></tr><tr><td><code>LOWCODER_REDIS_URL</code></td><td>Redis server URL</td><td><code>redis://localhost:6379</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_PASSWORD</code></td><td>Encryption password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_SALT</code></td><td>Salt used for encrypting password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_CORS_DOMAINS</code></td><td>CORS allowed domains</td><td><code>*</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>OpenFlower max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>OpenFlower max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>OpenFlower API service URL</td><td><code>http://localhost:8080</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_URL</code></td><td>OpenFlower Node service (js executor) URL</td><td><code>http://localhost:6060</code></td></tr><tr><td><code>LOWCODER_MAX_ORGS_PER_USER</code></td><td>Default maximum organizations per user</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_MEMBERS_PER_ORG</code></td><td>Default maximum members per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_GROUPS_PER_ORG</code></td><td>Default maximum groups per organization</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_APPS_PER_ORG</code></td><td>Default maximum applications per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_DEVELOPERS</code></td><td>Default maximum developers</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_WORKSPACE_MODE</code></td><td>SAAS to activate, ENTERPRISE to switch off - Workspaces</td><td><code>SAAS</code></td></tr><tr><td><code>LOWCODER_EMAIL_SIGNUP_ENABLED</code></td><td>Control if users create their own Workspace automatic when Sign Up</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_CREATE_WORKSPACE_ON_SIGNUP</code></td><td>IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up</td><td><code>true</code></td></tr><tr><td><code>LOWCODER_MARKETPLACE_PRIVATE_MODE</code></td><td>Control if not to show Apps on the local Marketplace to anonymous users</td><td><code>true</code></td></tr></tbody></table>
 
 Also, you should set the API-KEY secret, whcih should be a string of at least 32 random characters On linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
 
@@ -294,15 +294,15 @@ Also, you should set the API-KEY secret, whcih should be a string of at least 32
 
 ### ENV Variables for the api-service image
 
-<table><thead><tr><th width="352">Environment variable</th><th width="267">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MONGODB_URL</code></td><td>Mongo database connection string</td><td><code>mongodb://localhost:27017/lowcoder?authSource=admin</code></td></tr><tr><td><code>LOWCODER_REDIS_URL</code></td><td>Redis server URL</td><td><code>redis://localhost:6379</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_PASSWORD</code></td><td>Encryption password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_SALT</code></td><td>Salt used for encrypting password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_CORS_DOMAINS</code></td><td>CORS allowed domains</td><td><code>*</code></td></tr><tr><td><code>LOWCODER_MAX_ORGS_PER_USER</code></td><td>Default maximum organizations per user</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_MEMBERS_PER_ORG</code></td><td>Default maximum members per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_GROUPS_PER_ORG</code></td><td>Default maximum groups per organization</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_APPS_PER_ORG</code></td><td>Default maximum applications per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_DEVELOPERS</code></td><td>Default maximum developers</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>Lowcoder max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>Lowcoder max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_WORKSPACE_MODE</code></td><td>SAAS to activate, ENTERPRISE to switch off - Workspaces</td><td><code>SAAS</code></td></tr><tr><td><code>LOWCODER_EMAIL_SIGNUP_ENABLED</code></td><td>Control is users can create their own Workspace when Sign Up</td><td><code>true</code></td></tr></tbody></table>
+<table><thead><tr><th width="352">Environment variable</th><th width="267">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MONGODB_URL</code></td><td>Mongo database connection string</td><td><code>mongodb://localhost:27017/lowcoder?authSource=admin</code></td></tr><tr><td><code>LOWCODER_REDIS_URL</code></td><td>Redis server URL</td><td><code>redis://localhost:6379</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_PASSWORD</code></td><td>Encryption password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_DB_ENCRYPTION_SALT</code></td><td>Salt used for encrypting password</td><td><code>lowcoder.org</code></td></tr><tr><td><code>LOWCODER_CORS_DOMAINS</code></td><td>CORS allowed domains</td><td><code>*</code></td></tr><tr><td><code>LOWCODER_MAX_ORGS_PER_USER</code></td><td>Default maximum organizations per user</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_MEMBERS_PER_ORG</code></td><td>Default maximum members per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_GROUPS_PER_ORG</code></td><td>Default maximum groups per organization</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_APPS_PER_ORG</code></td><td>Default maximum applications per organization</td><td><code>1000</code></td></tr><tr><td><code>LOWCODER_MAX_DEVELOPERS</code></td><td>Default maximum developers</td><td><code>100</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>OpenFlower max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>OpenFlower max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_WORKSPACE_MODE</code></td><td>SAAS to activate, ENTERPRISE to switch off - Workspaces</td><td><code>SAAS</code></td></tr><tr><td><code>LOWCODER_EMAIL_SIGNUP_ENABLED</code></td><td>Control is users can create their own Workspace when Sign Up</td><td><code>true</code></td></tr></tbody></table>
 
 ### ENV Variables for the node-service image
 
-<table><thead><tr><th width="358">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>Lowcoder API service URL</td><td><code>http://localhost:8080</code></td></tr></tbody></table>
+<table><thead><tr><th width="358">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>OpenFlower API service URL</td><td><code>http://localhost:8080</code></td></tr></tbody></table>
 
 ### ENV Variables for the web frontend image
 
-<table><thead><tr><th width="360">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>Lowcoder max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>Lowcoder max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>Lowcoder API service URL</td><td><code>http://localhost:8080</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_URL</code></td><td>Lowcoder Node service (js executor) URL</td><td><code>http://localhost:6060</code></td></tr></tbody></table>
+<table><thead><tr><th width="360">Environment variable</th><th width="263">Description</th><th>Default-Value</th></tr></thead><tbody><tr><td><code>LOWCODER_PUID</code></td><td>ID of user running services. It will own all created logs and data.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_PGID</code></td><td>ID of group of the user running services.</td><td><code>9001</code></td></tr><tr><td><code>LOWCODER_MAX_QUERY_TIMEOUT</code></td><td>OpenFlower max query timeout (in seconds)</td><td><code>120</code></td></tr><tr><td><code>LOWCODER_MAX_REQUEST_SIZE</code></td><td>OpenFlower max request size</td><td><code>20m</code></td></tr><tr><td><code>LOWCODER_API_SERVICE_URL</code></td><td>OpenFlower API service URL</td><td><code>http://localhost:8080</code></td></tr><tr><td><code>LOWCODER_NODE_SERVICE_URL</code></td><td>OpenFlower Node service (js executor) URL</td><td><code>http://localhost:6060</code></td></tr></tbody></table>
 
 ## Health checks
 

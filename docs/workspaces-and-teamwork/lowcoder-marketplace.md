@@ -1,10 +1,10 @@
-# Lowcoder Marketplace
+# OpenFlower Marketplace
 
-The Lowcoder Application Marketplace is a platform where the Lowcoder Community comes together to share and explore applications and modules.&#x20;
+The OpenFlower Application Marketplace is a platform where the OpenFlower Community comes together to share and explore applications and modules.&#x20;
 
-It's the spot for app developers and business people to find innovative solutions in Lowcoder that can help streamline operations and enhance project outcomes. Here, users can contribute their own creations, tapping into a pool of shared knowledge and resources.&#x20;
+It's the spot for app developers and business people to find innovative solutions in OpenFlower that can help streamline operations and enhance project outcomes. Here, users can contribute their own creations, tapping into a pool of shared knowledge and resources.&#x20;
 
-For us It's all about harnessing the power of collaboration to bring the best out of the Lowcoder platform, making it easier for everyone to achieve their goals with speed of light.
+For us It's all about harnessing the power of collaboration to bring the best out of the OpenFlower platform, making it easier for everyone to achieve their goals with speed of light.
 
 ## Global and Local App Marketplace
 
@@ -23,11 +23,11 @@ In self-hosted installations, both Marketplaces are available and show the apps 
 {% embed url="https://app.supademo.com/demo/me6zeg4Oe9GCKtAiMWTCu" %}
 
 {% hint style="info" %}
-If you publish your App in the Lowcoder Editor on [app.lowcoder.cloud](https://app.lowcoder.cloud), your App will be listed on the "global Marketplace" and every Lowcoder User can see and use the App.
+If you publish your App in the OpenFlower Editor on [app.lowcoder.cloud](https://app.lowcoder.cloud), your App will be listed on the "global Marketplace" and every OpenFlower User can see and use the App.
 {% endhint %}
 
 {% hint style="warning" %}
-If you publish your App in the Lowcoder Editor on your self-hosted Installation, only Users inside your self-hosted Installation can see and use these Apps.
+If you publish your App in the OpenFlower Editor on your self-hosted Installation, only Users inside your self-hosted Installation can see and use these Apps.
 {% endhint %}
 
 ## Adding Title, Description, Category and Icon

@@ -2,7 +2,7 @@
 
 Charts and graphs are visual representations of data that are used to simplify complex information and make it easier to understand. They can help highlight key insights and provide a quick summary of data that would otherwise be difficult to interpret. Charts and graphs come in different forms, such as bar graphs, line graphs, pie charts, scatter plots, and more, each suited for different types of data and analytical purposes.
 
-Lowcoder allows you to insert multiple forms of charts and graphs into your apps to satisfy your needs in different use cases.
+OpenFlower allows you to insert multiple forms of charts and graphs into your apps to satisfy your needs in different use cases.
 
 ## UI mode
 
@@ -55,17 +55,17 @@ Then reference the value of the transformer `{{transformer1.value}}` as the data
 
 ### Chart type
 
-Lowcoder supports four types of charts: bar chart, line chart, scatter chart, and pie chart. You can select the chart type in **Properties** > **Data** > **Chart type**. You can also customize the layout and style of your chart in **Properties** tab.
+OpenFlower supports four types of charts: bar chart, line chart, scatter chart, and pie chart. You can select the chart type in **Properties** > **Data** > **Chart type**. You can also customize the layout and style of your chart in **Properties** tab.
 
 ### X-axis
 
 Bar charts, line charts, and pie charts map values to categorical variables. Thus, in such charts, the X-axis usually shows non-numeric data—for example, date or department.
 
-By default, Lowcoder automatically detects the X-axis data and its type. You can also manually select one among "Category axis", "Value axis", "Time axis", or "Log axis". For detailed information, see [X axis type](https://echarts.apache.org/en/option.html#xAxis.type).
+By default, OpenFlower automatically detects the X-axis data and its type. You can also manually select one among "Category axis", "Value axis", "Time axis", or "Log axis". For detailed information, see [X axis type](https://echarts.apache.org/en/option.html#xAxis.type).
 
 ### Chart series
 
-In most types of charts, the **Chart series** (Y-axis) presents numeric values for the categories on X-axis. By default, Lowcoder populates all numeric fields to Y-axis. You can hide unnecessary fields in **Properties** > **Chart series**.
+In most types of charts, the **Chart series** (Y-axis) presents numeric values for the categories on X-axis. By default, OpenFlower populates all numeric fields to Y-axis. You can hide unnecessary fields in **Properties** > **Chart series**.
 
 ## Echarts JSON
 

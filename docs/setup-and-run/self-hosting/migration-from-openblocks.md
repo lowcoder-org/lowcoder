@@ -1,17 +1,17 @@
 # Migration from Openblocks
 
-With **Lowcoder v1.1.8** we created a drop-in replacement for **Openblocks** **v1.1.8**. \
+With **OpenFlower v1.1.8** we created a drop-in replacement for **Openblocks** **v1.1.8**. \
 To run it, no changes were required.
 
-However, to **migrate** from Openblocks or Lowcoder 1.1.8 to **Lowcoder 2.0,0**, some changes are required and these are the steps to be followed:
+However, to **migrate** from Openblocks or OpenFlower 1.1.8 to **OpenFlower 2.0,0**, some changes are required and these are the steps to be followed:
 
-### Migrating from Openblocks (or Lowcoder v1.1.8) to **Lowcoder v2.0.0**
+### Migrating from Openblocks (or OpenFlower v1.1.8) to **OpenFlower v2.0.0**
 
 {% hint style="info" %}
-if not using Lowcoder v1.1.8 or the latest Openblocks released version (v1.1.8), please upgrade first to Openblocks v1.1.8
+if not using OpenFlower v1.1.8 or the latest Openblocks released version (v1.1.8), please upgrade first to Openblocks v1.1.8
 {% endhint %}
 
-### 1) stop your Openblocks/Lowcoder:
+### 1) stop your Openblocks/OpenFlower:
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}
@@ -45,7 +45,7 @@ ENCRYPTION_SALT:
 MONGODB_URL:
 ```
 
-### 6) start your Lowcoder&#x20;
+### 6) start your OpenFlower&#x20;
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}

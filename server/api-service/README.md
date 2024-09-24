@@ -135,4 +135,4 @@ or respective for debugging: Navigate to the file server/api-service/lowcoder-se
 
 Now, you can check the status of the service by visiting http://localhost:8080 through your browser.
 
-For information on how to contribute to Lowcoder, please view our [Contribution Guide](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/opensource-contribution).
+For information on how to contribute to Lowcoder, please view our [Contribution Guide](https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/opensource-contribution).

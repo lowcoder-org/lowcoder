@@ -1,6 +1,6 @@
 # Embed App in HTML Pages
 
-It is also possible to embed Lowcoder Apps on any HTML Page with simple Scripts, that we provide on sdk.lowcoder.cloud. This enables you to embed Lowcoder Apps even without deep knowledge of React or Web Development.
+It is also possible to embed OpenFlower Apps on any HTML Page with simple Scripts, that we provide on sdk.lowcoder.cloud. This enables you to embed OpenFlower Apps even without deep knowledge of React or Web Development.
 
 Place the standard JavaScript Files in your \<HEAD> part of the HTML page.
 
@@ -9,7 +9,7 @@ Place the standard JavaScript Files in your \<HEAD> part of the HTML page.
 <script src="https://unpkg.com/react-dom@16.4.1/umd/react-dom.production.min.js"></script>
 ```
 
-And now the Lowcoder SDK Scripts, as the last tags before the \</BODY> closing tag.
+And now the OpenFlower SDK Scripts, as the last tags before the \</BODY> closing tag.
 
 ```
 <script src="https://sdk.lowcoder.cloud/bundle.js"></script>

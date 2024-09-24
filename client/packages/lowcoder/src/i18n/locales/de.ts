@@ -2398,7 +2398,7 @@ export const de: typeof en = {
       "jsLibraryDownloadError": "Fehler beim Herunterladen der JavaScript-Bibliothek",
       "jsLibraryInstallSuccess": "Die JavaScript-Bibliothek wurde erfolgreich installiert",
       "jsLibraryInstallFailed": "Installation der JavaScript-Bibliothek fehlgeschlagen",
-      "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+      "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.openflower.org/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
       "jsLibraryInstallFailedHost": "{message}",
       "add": "Neu hinzufügen",
       "jsHelpText": "Füge eine globale Methode oder Variable zur aktuellen Anwendung hinzu.",

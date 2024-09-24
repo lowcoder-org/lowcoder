@@ -18,7 +18,7 @@ public interface OrganizationService {
             "Here is the link to reset your password: %s<br/>" +
             "Please note that the link will expire after 12 hours.<br/><br/>" +
             "Regards,<br/>" +
-            "The Lowcoder Team</p>";
+            "Open Flower Team</p>";
 
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();

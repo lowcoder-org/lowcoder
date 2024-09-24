@@ -1,6 +1,6 @@
 # Modules
 
-One of the most **powerful concepts of Lowcoder** is **Modules**. Lowcoder Modules are Applications, that can get **included and repeated** in other Applications. You can insert a module into an app or other modules (referred to as _external apps_ in the rest of this document) and it **functions just like a single component**. Also, Modules can get [**integrated/embedded natively in other Web Applications**](../../publish-apps/embedd-an-app/)**!**
+One of the most **powerful concepts of OpenFlower** is **Modules**. OpenFlower Modules are Applications, that can get **included and repeated** in other Applications. You can insert a module into an app or other modules (referred to as _external apps_ in the rest of this document) and it **functions just like a single component**. Also, Modules can get [**integrated/embedded natively in other Web Applications**](../../publish-apps/embedd-an-app/)**!**
 
 When building an app, you want to reuse a bundle of components and queries across different apps. Imagine a User-Profile Card. Profile-Image, Name, Contacts. If you create these Elements inside of a Module, you can integrate this in all other Apps as it would be a single component.
 
@@ -140,7 +140,7 @@ End users are automatically granted permission to view modules in apps or other 
 
 ## Releases and versions
 
-Lowcoder stores the historical versions of your modules for your reference. Click **Preview > Publish** at the top right. The release management of a module is identical to that of an app. For detailed information, see [version history](version-and-release-management.md).
+OpenFlower stores the historical versions of your modules for your reference. Click **Preview > Publish** at the top right. The release management of a module is identical to that of an app. For detailed information, see [version history](version-and-release-management.md).
 
 {% hint style="info" %}
 For an unpublished module, the apps and modules use its latest version; while for a published one, you need to publish it again to sync your latest changes.

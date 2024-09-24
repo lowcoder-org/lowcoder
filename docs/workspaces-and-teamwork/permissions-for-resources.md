@@ -1,6 +1,6 @@
 # Permissions for Resources
 
-Lowcoder implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, navigations, folders, query library, and data sources.
+OpenFlower implements [Role-based Access Control](https://en.wikipedia.org/wiki/Role-based\_access\_control) (RBAC) by assigning a set of permissions to different roles. These permissions determine the actions users can take on resources, including apps, modules, navigations, folders, query library, and data sources.
 
 Only workspace admins and members of **Developers** group are allowed to create resources. Workspace admins are in fact the owner of all resources.
 
@@ -33,7 +33,7 @@ The available roles and their corresponding permissions are listed in the table 
 
 If you want to make an app or a module or a navigation public to all users (including anonymous users), you can toggle on **Make the app public** in **Share** settings.
 
-<figure><img src="../.gitbook/assets/App Editor  Share App public.png" alt=""><figcaption><p>Apps can be public viewable without Lowcoder Login</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/App Editor  Share App public.png" alt=""><figcaption><p>Apps can be public viewable without OpenFlower Login</p></figcaption></figure>
 
 ## 3) Data sources
 
@@ -41,7 +41,7 @@ Only workspace admins and developers can view the **Data Sources** page and crea
 
 <figure><img src="../.gitbook/assets/Admin  Datasources.png" alt=""><figcaption><p>Overview of all Datasources of a Workspace</p></figcaption></figure>
 
-For each data source, workspace admins and the creator can change its **Access Control**. Go to Lowcoder homepage > **Data Sources**, and click `···` > **Access Control**.
+For each data source, workspace admins and the creator can change its **Access Control**. Go to OpenFlower homepage > **Data Sources**, and click `···` > **Access Control**.
 
 <figure><img src="../.gitbook/assets/Datasource Editor  Member Rights.png" alt=""><figcaption><p>Set Permissions based on Roles for an Datasource</p></figcaption></figure>
 
@@ -53,6 +53,6 @@ The permissions of these two roles are listed in the following table:
 
 ## 4) Query library
 
-Workspace Admins and members of Developers group can create Query Library in Lowcoder and have read, write, use, and delete permissions for queries (if they can use the query's corresponding data source).
+Workspace Admins and members of Developers group can create Query Library in OpenFlower and have read, write, use, and delete permissions for queries (if they can use the query's corresponding data source).
 
 <figure><img src="../.gitbook/assets/Query Library  New Query.png" alt=""><figcaption></figcaption></figure>

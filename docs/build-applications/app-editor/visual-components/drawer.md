@@ -1,6 +1,6 @@
 # Drawer
 
-In Lowcoder, **Drawer** is an overlay sidebar to display information or perform operations, without interrupting the workflow on the main window.
+In OpenFlower, **Drawer** is an overlay sidebar to display information or perform operations, without interrupting the workflow on the main window.
 
 The following example builds a shopping cart using a drawer.
 

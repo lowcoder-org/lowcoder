@@ -1,4 +1,4 @@
-# Lowcoder docker image
+# OpenFlower docker image
 
 Included Dockerfile can be used to build an **all-in-one** image with all required services installed and running within one container, or separate images for frontend and backend services.
 
@@ -7,7 +7,7 @@ For examples on running the all-in-one image or the multi image deployment see *
 
 ## all-in-one image
 
-This image contains all services needed to run Lowcoder platform in one container.
+This image contains all services needed to run OpenFlower platform in one container.
 
 ### Building the image
 
@@ -37,11 +37,11 @@ Image can be configured by setting environment variables.
 | `LOWCODER_DB_ENCRYPTION_SALT`       | Salt used for encrypting password                                       | `lowcoder.org`                                        |
 | `LOWCODER_CORS_DOMAINS`             | CORS allowed domains                                                    | `*`                                                   |
 | `LOWCODER_PUBLIC_URL`               | The URL of the public User Interface                                    | `localhost:3000`                                      |
-| `LOWCODER_MAX_REQUEST_SIZE`         | Lowcoder max request size                                               | `20m`                                                 |
-| `LOWCODER_MAX_QUERY_TIMEOUT`        | Lowcoder max query timeout (in seconds)                                 | `120`                                                 |
+| `LOWCODER_MAX_REQUEST_SIZE`         | OpenFlower max request size                                               | `20m`                                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`        | OpenFlower max query timeout (in seconds)                                 | `120`                                                 |
 | `LOWCODER_API_RATE_LIMIT`           | Number of max Request per Second                                        | `100`                                                 |
-| `LOWCODER_API_SERVICE_URL`          | Lowcoder API service URL                                                | `http://localhost:8080`                               |
-| `LOWCODER_NODE_SERVICE_URL`         | Lowcoder Node service (js executor) URL                                 | `http://localhost:6060`                               |
+| `LOWCODER_API_SERVICE_URL`          | OpenFlower API service URL                                                | `http://localhost:8080`                               |
+| `LOWCODER_NODE_SERVICE_URL`         | OpenFlower Node service (js executor) URL                                 | `http://localhost:6060`                               |
 | `LOWCODER_MAX_ORGS_PER_USER`        | Default maximum organizations per user                                  | `100`                                                 |
 | `LOWCODER_MAX_MEMBERS_PER_ORG`      | Default maximum members per organization                                | `1000`                                                |
 | `LOWCODER_MAX_GROUPS_PER_ORG`       | Default maximum groups per organization                                 | `100`                                                 |
@@ -51,7 +51,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_EMAIL_SIGNUP_ENABLED`     | Control if users create their own Workspace automatic when Sign Up      | `true`                                                |
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP` | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up   | `true`               |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
-| `LOWCODER_SUPERUSER_USERNAME` | Username of the Super-User of an Lowcoder Installation | `admin@localhost`                                                |
+| `LOWCODER_SUPERUSER_USERNAME` | Username of the Super-User of an OpenFlower Installation | `admin@localhost`                                                |
 | `LOWCODER_SUPERUSER_PASSWORD` | Control if not to show Apps on the local Marketplace to anonymous users |                                                 |
 
 
@@ -80,7 +80,7 @@ To enable secure Password Reset flow for the users, you need to configure your o
 
 ## Building api-service image
 
-Standalone Lowcoder api-service image.
+Standalone OpenFlower api-service image.
 
 ### Building the image
 
@@ -109,13 +109,13 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MAX_GROUPS_PER_ORG`   | Default maximum groups per organization                             | `100`                                                 |
 | `LOWCODER_MAX_APPS_PER_ORG`     | Default maximum applications per organization                       | `1000`                                                |
 | `LOWCODER_MAX_DEVELOPERS`       | Default maximum developers                                          | `100`                                                 |
-| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
-| `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | OpenFlower max query timeout (in seconds)                             | `120`                                                 |
+| `LOWCODER_MAX_REQUEST_SIZE`     | OpenFlower max request size                                           | `20m`                                                 |
 | `LOWCODER_WORKSPACE_MODE`       | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
 | `LOWCODER_EMAIL_SIGNUP_ENABLED` | Control is users can create their own Workspace when Sign Up        | `true`                                                |
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP` | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up   | `true`               |
 | `LOWCODER_MARKETPLACE_PRIVATE_MODE` | Control if not to show Apps on the local Marketplace to anonymous users | `true`                                                |
-| `LOWCODER_SUPERUSER_USERNAME` | Username of the Super-User of an Lowcoder Installation | `admin@localhost`                                                |
+| `LOWCODER_SUPERUSER_USERNAME` | Username of the Super-User of an OpenFlower Installation | `admin@localhost`                                                |
 | `LOWCODER_SUPERUSER_PASSWORD` | Control if not to show Apps on the local Marketplace to anonymous users |                                                 |
 
 Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters. (from Lowcoder v2.3.x on)
@@ -142,7 +142,7 @@ To enable secure Password Reset flow for the users, you need to configure your o
 
 ## Building node-service image
 
-Standalone Lowcoder node-service (JS executor) image.
+Standalone OpenFlower node-service (JS executor) image.
 
 ### Building the image
 
@@ -160,11 +160,11 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
-| `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
+| `LOWCODER_API_SERVICE_URL`      | OpenFlower API service URL                                            | `http://localhost:8080`                                 |
 
 ## Building web frontend image
 
-Standalone Lowcoder web frontend image.
+Standalone OpenFlower web frontend image.
 
 ### Building the image
 
@@ -182,9 +182,9 @@ Image can be configured by setting environment variables.
 | --------------------------------| --------------------------------------------------------------------| ------------------------------------------------------- |
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
-| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
-| `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                   |
-| `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
-| `LOWCODER_NODE_SERVICE_URL`     | Lowcoder Node service (js executor) URL                             | `http://localhost:6060`                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | OpenFlower max query timeout (in seconds)                             | `120`                                                 |
+| `LOWCODER_MAX_REQUEST_SIZE`     | OpenFlower max request size                                           | `20m`                                                   |
+| `LOWCODER_API_SERVICE_URL`      | OpenFlower API service URL                                            | `http://localhost:8080`                                 |
+| `LOWCODER_NODE_SERVICE_URL`     | OpenFlower Node service (js executor) URL                             | `http://localhost:6060`                                 |
 
 

@@ -1,8 +1,8 @@
 # Configure IP allowlists
 
-If your data source has firewall rules, it is vital to add IP addresses of Lowcoder to the allowlist before connection. Then you can connect to databases or APIs and create queries.
+If your data source has firewall rules, it is vital to add IP addresses of OpenFlower to the allowlist before connection. Then you can connect to databases or APIs and create queries.
 
-## Allow IP addresses of Lowcoder
+## Allow IP addresses of OpenFlower
 
 Add the following IP addresses to your data source allowlist when needed:
 

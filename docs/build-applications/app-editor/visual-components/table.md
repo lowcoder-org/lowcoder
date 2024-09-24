@@ -2,7 +2,7 @@
 
 The Standard Table is a highly functional and feature-rich component. It is recommended for Server-Side paging and filtering when data display for tables needs many individual settings.
 
-The Lowcoder Table supports auto-size as a component as well as fixed size, where the Header and Toolbar can be fixed when the Table-Body is scrollable.
+The OpenFlower Table supports auto-size as a component as well as fixed size, where the Header and Toolbar can be fixed when the Table-Body is scrollable.
 
 {% embed url="https://app.supademo.com/demo/NEYc5eNZNchrXkpjo2GJs" %}
 Header & Toolbar can be fixed

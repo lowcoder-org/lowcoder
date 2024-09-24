@@ -1,6 +1,6 @@
 # Calendar
 
-The Calendar Component is a feature-rich way to organize and edit date and calendar entries in Lowcoder. To offer the best experience for Calendars, we integrated the [fullcalendar.io](https://fullcalendar.io/docs) Project.
+The Calendar Component is a feature-rich way to organize and edit date and calendar entries in OpenFlower. To offer the best experience for Calendars, we integrated the [fullcalendar.io](https://fullcalendar.io/docs) Project.
 
 You can refer to the documentation like this: [https://fullcalendar.io/docs](https://fullcalendar.io/docs)
 

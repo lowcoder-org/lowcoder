@@ -16,7 +16,7 @@ After configuring the Callback URLs, you can "Generate a new client secret".&#x2
 Make sure you copy the client secret directly, as it is displayed only once. Later you cannot copy it again.
 {% endhint %}
 
-Now you go back to Lowcoder Settings > Auth Providers and click "Add OAuth Provider" and select GitHub from the list of Auth Providers.
+Now you go back to OpenFlower Settings > Auth Providers and click "Add OAuth Provider" and select GitHub from the list of Auth Providers.
 
 <figure><img src="../../.gitbook/assets/OAuth Add Provider.png" alt=""><figcaption></figcaption></figure>
 
@@ -24,7 +24,7 @@ You can copy and paste now the Client ID and Client Secret from the GitHub Clien
 
 <figure><img src="../../.gitbook/assets/GitHub setup Auth Client.png" alt=""><figcaption></figcaption></figure>
 
-Thats it! Now you can invite new Users to Lowcoder. They can choose GitHub to Sign Up (register) or Sign in / log in.
+Thats it! Now you can invite new Users to OpenFlower. They can choose GitHub to Sign Up (register) or Sign in / log in.
 
 <figure><img src="../../.gitbook/assets/OAuth Register with Invite Link (1).png" alt=""><figcaption></figcaption></figure>
 

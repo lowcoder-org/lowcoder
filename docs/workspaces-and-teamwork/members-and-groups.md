@@ -1,10 +1,10 @@
 # Members and Groups
 
-In Lowcoder, you can organize the members of your workspace using different groups, and assign roles to groups to manage [permissions for resources](permissions-for-resources.md). You can find members and groups settings in **Settings** on the Lowcoder Admin Page.
+In OpenFlower, you can organize the members of your workspace using different groups, and assign roles to groups to manage [permissions for resources](permissions-for-resources.md). You can find members and groups settings in **Settings** on the OpenFlower Admin Page.
 
 ## Roles
 
-There are the following Roles for Users in Lowcoder:
+There are the following Roles for Users in OpenFlower:
 
 ### For Workspaces
 
@@ -28,9 +28,9 @@ There are the following Roles for Users in Lowcoder:
 
 <figure><img src="../.gitbook/assets/Datasource Editor  Member Rights.png" alt=""><figcaption><p>User Roles for Datasources</p></figcaption></figure>
 
-A User in Lowcoder is an admin for his own Workspace when registered without an invite link. However, each user can be a member of one or multiple Worspaces.
+A User in OpenFlower is an admin for his own Workspace when registered without an invite link. However, each user can be a member of one or multiple Worspaces.
 
-In Lowcoder, you can organize the members of your workspace using different groups, and assign roles to groups to manage permissions for resources. You can find members and groups settings in **Settings** on Lowcoder Admin Page.
+In OpenFlower, you can organize the members of your workspace using different groups, and assign roles to groups to manage permissions for resources. You can find members and groups settings in **Settings** on OpenFlower Admin Page.
 
 ## Workspace members
 
@@ -47,7 +47,7 @@ You can invite members to your workspace by managing **All Members** group. Open
 
 <figure><img src="../.gitbook/assets/Admin  Invite Members.png" alt=""><figcaption></figcaption></figure>
 
-You can also find the shortcut to  **Invite members** on the bottom left of the Lowcoder Admin Page.
+You can also find the shortcut to  **Invite members** on the bottom left of the OpenFlower Admin Page.
 
 {% hint style="info" %}
 Permission to invite new members to a Workspace is restricted to workspace **admins** and **developers group**.
@@ -65,7 +65,7 @@ Group-based management helps to organize members from different functional depar
 
 ### The default Group "Developers"
 
-Lowcoder creates a **Developers** group by default which cannot be deleted, and workspace admins can add members to it. The members of the Developers Group can create new resources including apps, modules, navigations, folders, and data sources, and can manage the query library. Workspace admins can add members to the Developers Group.
+OpenFlower creates a **Developers** group by default which cannot be deleted, and workspace admins can add members to it. The members of the Developers Group can create new resources including apps, modules, navigations, folders, and data sources, and can manage the query library. Workspace admins can add members to the Developers Group.
 
 ### The default Group "All members"
 

@@ -1,6 +1,6 @@
 # OAuth
 
-Since Lowcoder 2.1.3 we support OAuth for 4 standard sources. The list will increase and be completed by a generic OAUTH configuration ability.
+Since OpenFlower 2.1.3 we support OAuth for 4 standard sources. The list will increase and be completed by a generic OAUTH configuration ability.
 
 As for now we support:
 
@@ -36,15 +36,15 @@ Based on a URL pattern you can guide new Users to your Workspace welcome page, w
 // URL pattern to show the Workspace welcome page
 // The Workspace-ID == the Org ID.
 
-https://<your Lowcoder location>/org/<your org Id>/auth/login?redirectUrl=...
+https://<your OpenFlower location>/org/<your org Id>/auth/login?redirectUrl=...
 ```
 
 ### Manage Login Methods (Auth Providers)
 
-In the Admin area of Lowcoder select Settings > Auth Providers. Here you see the list of currently active auth providers. At the beginning, you will always see the standard-provider "Email"
+In the Admin area of OpenFlower select Settings > Auth Providers. Here you see the list of currently active auth providers. At the beginning, you will always see the standard-provider "Email"
 
 {% hint style="warning" %}
-In Lowcoder, Auth Providers except Email are bound to the Workspace. That means, that per workspace you can have individual settings and Auth Provider.
+In OpenFlower, Auth Providers except Email are bound to the Workspace. That means, that per workspace you can have individual settings and Auth Provider.
 {% endhint %}
 
 <figure><img src="../../.gitbook/assets/OAuth Providers.png" alt=""><figcaption><p>the list of Auth Providers per Workspace can be different -exept the Standard Provider Email</p></figcaption></figure>

@@ -1,6 +1,6 @@
 # Develop Data Source Plugins
 
-This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [Lowcoder](https://github.com/Lowcoder-dev/Lowcoder)--the open source project.
+This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [OpenFlower](https://github.com/OpenFlower-dev/OpenFlower)--the open source project.
 
 ## Basics
 
@@ -12,7 +12,7 @@ A data source plugin is described by a **JavaScript Object** which mainly consis
 * Definition of the **Action list** for data source queries and the configuration form for each Action.
 * Definition of the **execution logic** for Actions.
 
-Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/server/node-service/src/plugins/s3).
+Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/OpenFlower-dev/OpenFlower/tree/develop/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/OpenFlower-dev/OpenFlower/tree/develop/server/node-service/src/plugins/s3).
 
 ## Overall definition of a plugin
 
@@ -160,7 +160,7 @@ A data source query consists of multiple **Actions**. In actual use, after a use
 The `actions` field defines the list of query actions supported by the current data source. Each field is described as follows:
 
 * `actionName`: the identifier of the action. Must be **unique** within the current data source definition scope.
-* `label`: the name of the action displayed in Lowcoder interface.
+* `label`: the name of the action displayed in OpenFlower interface.
 *   `params`: The field list of the action configuration form, and the type `CommonParamConfig` is defined as follows:
 
     ```typescript
@@ -268,7 +268,7 @@ Due to various reasons, the generated plugin code needs to be correctly validate
 
 ## Testing
 
-Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/client#readme) and test the data source plugin in following aspects:
+Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/OpenFlower-dev/OpenFlower/tree/develop/client#readme) and test the data source plugin in following aspects:
 
 1. Make sure the data source plugin has been added to the plugin list in the file `src/plugins/index.ts`.
 2. Start the node-service server in the `node-service` directory by executing `yarn dev`.
@@ -277,11 +277,11 @@ Necessary testing should be done before publishing the plugin. Testing a data so
     {% code overflow="wrap" %}
     ```bash
     # Enter the image command-line tool
-    docker exec -it Lowcoder bash
+    docker exec -it OpenFlower bash
 
     # Enter the mongo command-line tool
     mongo
-    use Lowcoder;
+    use OpenFlower;
 
     # Insert a service configuration
     db.serverConfig.insert({key: "deployment.js-executor.host", value: "http://<IP-ADDR>:6060/"})
@@ -292,4 +292,4 @@ You can then use the data source plugin just developed in this environment.
 
 ## What's next
 
-Congrats! After testing the data source plugin, you can submit a [Pull Request](https://github.com/Lowcoder-dev/Lowcoder/pulls) now.
+Congrats! After testing the data source plugin, you can submit a [Pull Request](https://github.com/OpenFlower-dev/OpenFlower/pulls) now.

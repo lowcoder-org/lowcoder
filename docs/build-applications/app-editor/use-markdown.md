@@ -1,6 +1,6 @@
 # Use Markdown
 
-Lowcoder supports you using the lightweight markup language Markdown to format texts in your app, such as changing the font size, inserting code, and adding a list. You can also embed HTML-formatted text in Markdown for more styling options.
+OpenFlower supports you using the lightweight markup language Markdown to format texts in your app, such as changing the font size, inserting code, and adding a list. You can also embed HTML-formatted text in Markdown for more styling options.
 
 Use Markdown in **Text** and **Table** components.
 
@@ -9,7 +9,7 @@ Use Markdown in **Text** and **Table** components.
 
 ## Markdown basics
 
-All Markdown syntax is valid in Lowcoder.
+All Markdown syntax is valid in OpenFlower.
 
 * **Headings**: Use hashtag (#) before heading. More hashtags, lower heading level.
 * **Paragraphs**: Use a blank line to separate texts into paragraphs.
@@ -19,7 +19,7 @@ All Markdown syntax is valid in Lowcoder.
 * **Lists**: Use hyphen (-), asterisk (∗), or plus sign (+) followed by a whitespace to create an unordered list, and use numbers followed by a period (.) to create an ordered list.
 * **Code**: Use backticks (\`) before and after code to denote `` `code` `` in plain text, and three backticks (\`\`\`) to present ` ```code block``` `.
 * **Horizontal rules**: Use at least three asterisks (∗∗∗), hyphens (---), or underscores (\_ \_ \_) at the beginning of a line to create a horizontal rule.
-* **Links**: Use square brackets (\[]) for the display text and parenthesis (()) for the link address. Note that no space should be inbetween. For example, `[Lowcoder](https://docs.Lowcoder.cloud)`.
+* **Links**: Use square brackets (\[]) for the display text and parenthesis (()) for the link address. Note that no space should be inbetween. For example, `[OpenFlower](https://docs.openflower.org)`.
 * **Images**: Use an exclamation mark (!) to start an image shiinsertion, and then use square bracket (\[]) for the alternative text and parenthesis (()) for the link address or source path. The caption can follow the parentheses or start at a new line.
 * **Escaping characters**: Use backslash (\\) to display the special symbols that Markdown uses. For instance, to print ` `` ` in plain text, you should use `` \`\` `` in Markdown.
 
@@ -36,10 +36,10 @@ You can also use GitHub Flavored Markdown (GFM) extensions for additional syntax
 
 ## HTML support
 
-In Lowcoder, you can use most HTML tags and properties. For more information, see [Embed HTML in Markdown](https://www.markdownguide.org/basic-syntax/#html).
+In OpenFlower, you can use most HTML tags and properties. For more information, see [Embed HTML in Markdown](https://www.markdownguide.org/basic-syntax/#html).
 
 {% hint style="warning" %}
-For security reasons, a few HTML tags including **iframe** and **script** are not permitted in Lowcoder.
+For security reasons, a few HTML tags including **iframe** and **script** are not permitted in OpenFlower.
 {% endhint %}
 
 ### Appendix: Supported HTML tags

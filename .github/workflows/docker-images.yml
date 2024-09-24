@@ -5,34 +5,34 @@ on:
     inputs:
       imageTag:
         type: choice
-        description: 'Choose a tag for built docker image(s)'
+        description: "Choose a tag for built docker image(s)"
         required: true
-        default: 'latest'
+        default: "latest"
         options:
-        - latest
-        - test
+          - latest
+          - test
       build_allinone:
         type: boolean
-        description: 'Build the All-In-One image'
+        description: "Build the All-In-One image"
         default: true
       build_frontend:
         type: boolean
-        description: 'Build the Frontend image'
+        description: "Build the Frontend image"
         default: true
       build_nodeservice:
         type: boolean
-        description: 'Build the Node service image'
+        description: "Build the Node service image"
         default: true
       build_apiservice:
         type: boolean
-        description: 'Build the API service image'
+        description: "Build the API service image"
         default: true
   push:
     branches: dev
     paths:
-      - 'client/**'
-      - 'server/**'
-      - 'deploy/docker/**'
+      - "client/**"
+      - "server/**"
+      - "deploy/docker/**"
   release:
     types: [released]
 
@@ -45,13 +45,13 @@ jobs:
         run: |
           # Get the short SHA of last commit
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "${GITHUB_ENV}"
-          
+
           # Get branch name - we don't use github.ref_head_name since we don't build on PRs
           echo "BRANCH_NAME=${{ github.ref_name }}" >> "${GITHUB_ENV}"
-          
+
           # Set docker image tag
           echo "IMAGE_TAG=${{ inputs.imageTag || github.ref_name }}" >> "${GITHUB_ENV}"
-          
+
           # Control which images to build
           echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
@@ -69,12 +69,12 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Setup Docker Buildx with cloud driver
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "haighis/lowcoder-cloud-builder"
+      # - name: Setup Docker Buildx with cloud driver
+      #   uses: docker/setup-buildx-action@v3
+      #   with:
+      #     version: "lab:latest"
+      #     driver: cloud
+      #     endpoint: "haighis/lowcoder-cloud-builder"
 
       - name: Build and push the all-in-one image
         if: ${{ env.BUILD_ALLINONE == 'true' }}
@@ -132,4 +132,3 @@ jobs:
             linux/arm64
           push: true
           tags: haighis/lowcoder-ce-api-service:${{ env.IMAGE_TAG }}
-

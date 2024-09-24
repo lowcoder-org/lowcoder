@@ -1,6 +1,6 @@
 # Develop UI components for Apps
 
-With Lowcoder plugins, you can develop customized components that are consistent with native components for your specific scenarios.
+With OpenFlower plugins, you can develop customized components that are consistent with native components for your specific scenarios.
 
 ## Initialization
 
@@ -23,7 +23,7 @@ After executing `yarn start`, the browser is automatically opened and you enter 
 
 ## Plugin configurations
 
-In `Lowcoder` field in `package.json` file, you need to define the component properties. For example, the following is the explanation of several fields:
+In `OpenFlower` field in `package.json` file, you need to define the component properties. For example, the following is the explanation of several fields:
 
 * `comps` defines UI components contained in the plugin. For each component, the key name of the object is the unique identity, and the value is metadata.
 * `comps[someCompKey].name` defines the component name shown in the **Insert** tab.
@@ -33,7 +33,7 @@ In `Lowcoder` field in `package.json` file, you need to define the component pro
   * h: height of the component. Counted by the number of grid cells (range: >= 1).
 
 ```bash
-  "Lowcoder": {
+  "OpenFlower": {
     "description": "",
     "comps": {
       "hello_world": {
@@ -78,7 +78,7 @@ If you do not specify the parameter `--publish`, the `tar` file will be saved in
 
 ## Import plugins
 
-In the Lowcoder app, click **Insert** > **Extensions** > **Add npm plugin** in the right pane.&#x20;
+In the OpenFlower app, click **Insert** > **Extensions** > **Add npm plugin** in the right pane.&#x20;
 
 Input your npm package's URL or name, and then you can use your customized components.
 
@@ -92,4 +92,4 @@ https://www.npmjs.com/package/my-plugin
 
 ## Code demo
 
-For code demo, refer to Lowcoder Github.
+For code demo, refer to OpenFlower Github.

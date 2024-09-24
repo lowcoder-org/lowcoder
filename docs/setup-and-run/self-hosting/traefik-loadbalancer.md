@@ -1,6 +1,6 @@
 # Traefik loadbalancer
 
-Thanks to the amazing contribution of [https://github.com/timconsidine](https://github.com/timconsidine) Lowcoder can work smoothly with the Traefik as Loadbalancer.
+Thanks to the amazing contribution of [https://github.com/timconsidine](https://github.com/timconsidine) OpenFlower can work smoothly with the Traefik as Loadbalancer.
 
 This is a docker-compose.yaml file, which shows the necessary settings.
 
@@ -8,7 +8,7 @@ This is a docker-compose.yaml file, which shows the necessary settings.
 version: "3"
 
 services:
-  ## Start Lowcoder (all-in-one)
+  ## Start OpenFlower (all-in-one)
   lowcoder-api-service:
     image: lowcoderorg/lowcoder-ce:latest
     container_name: lowcoder

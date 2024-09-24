@@ -3,7 +3,7 @@
 ## Deploy
 
 1. [Sign up](https://signup.heroku.com/) for a new Heroku account, or [log in](https://id.heroku.com/login) to get started.
-2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/Lowcoder-dev/Lowcoder).
+2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/OpenFlower-dev/OpenFlower).
 3. Set the **App name** which will be part of the app URL later, and choose a region.
 4. (Not required) Fill in the **Config Vars** according to the descriptions. These are all optional variables used for environment-specific configuration. You can skip this step and manage environment variables later.
 5. Click the **Deploy app** button.
@@ -12,7 +12,7 @@ It usually takes around three minutes to start the app.
 
 Click the **View** button to open the new app, which should be available at **https://your\_app\_name.herokuapp.com/**.
 
-On the welcome page, Click **Sign up** to get started. Lowcoder will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
+On the welcome page, Click **Sign up** to get started. OpenFlower will automatically create a workspace for you. Then you can start building your apps and invite members to your workspace.
 
 ## Configure app settings
 
@@ -48,7 +48,7 @@ For more help, see [Custom Domain Names for Apps](https://devcenter.heroku.com/a
 
 You can use the [Heroku CLI](https://devcenter.heroku.com/categories/command-line) to update your Docker image to the latest version. The basic logic behind the following steps is to pull the newest code from the GitHub repository, build an image locally using the Docker engine, and deploy the updated image using the Heroku CLI. Before you start, make sure you have [Heroku CLI](https://devcenter.heroku.com/categories/command-line) and [Docker](https://www.docker.com/) installations locally (required).
 
-1\. Get the latest code by cloning the [`Lowcoder-org/Lowcoder`](https://github.com/lowcoder-org/lowcoder) repository from GitHub.
+1\. Get the latest code by cloning the [`OpenFlower-org/OpenFlower`](https://github.com/lowcoder-org/lowcoder) repository from GitHub.
 
 ```bash
 git clone https://github.com/lowcoder-org/lowcoder.git
@@ -57,7 +57,7 @@ git clone https://github.com/lowcoder-org/lowcoder.git
 2\. Move to the `heroku` folder.
 
 ```bash
-cd Lowcoder/deploy/heroku
+cd OpenFlower/deploy/heroku
 ```
 
 3\. Log in to Heroku CLI.

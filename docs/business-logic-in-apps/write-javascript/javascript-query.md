@@ -191,7 +191,7 @@ function getCurrentDate() {
 
 ## Add preloaded scripts
 
-Lowcoder supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
+OpenFlowerer supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
 
 For workspace-level, go to ⚙️ **Settings** > **Advanced**.
 
@@ -199,4 +199,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in Lowcoder. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder/issues) or [Discord](https://discord.gg/3JKuvhWzTx) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in OpenFlowerer. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder/issues) or [Discord](https://discord.gg/3JKuvhWzTx) if you encounter any issues.
