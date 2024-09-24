@@ -121,13 +121,13 @@
 
 * [Share an App](publish-apps/share-an-app.md)
 * [Publish an App](publish-apps/publish-an-app.md)
-* [Embedd an App](publish-apps/embedd-an-app/README.md)
-  * [Embed App in HTML Pages](publish-apps/embedd-an-app/embed-app-in-html-pages.md)
-  * [Embed App in WordPress Pages](publish-apps/embedd-an-app/embed-app-in-wordpress-pages.md)
-  * [Embed Apps in React](publish-apps/embedd-an-app/embed-apps-in-react.md)
-  * [Embed Apps in NEXT.JS](publish-apps/embedd-an-app/embed-apps-in-next.js.md)
-  * [Native embed SDK](publish-apps/embedd-an-app/native-embed-sdk/README.md)
-    * [Build the SDK from Source](publish-apps/embedd-an-app/native-embed-sdk/build-the-sdk-from-source.md)
+* [Embed an App](publish-apps/embed-an-app/README.md)
+  * [Embed App in HTML Pages](publish-apps/embed-an-app/embed-app-in-html-pages.md)
+  * [Embed App in WordPress Pages](publish-apps/embed-an-app/embed-app-in-wordpress-pages.md)
+  * [Embed Apps in React](publish-apps/embed-an-app/embed-apps-in-react.md)
+  * [Embed Apps in NEXT.JS](publish-apps/embed-an-app/embed-apps-in-next.js.md)
+  * [Native embed SDK](publish-apps/embed-an-app/native-embed-sdk/README.md)
+    * [Build the SDK from Source](publish-apps/embed-an-app/native-embed-sdk/build-the-sdk-from-source.md)
 
 ## 🔥 Lowcoder Extension
 

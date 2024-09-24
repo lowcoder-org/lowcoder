@@ -1,6 +1,6 @@
 # Modules
 
-One of the most **powerful concepts of Lowcoder** is **Modules**. Lowcoder Modules are Applications, that can get **included and repeated** in other Applications. You can insert a module into an app or other modules (referred to as _external apps_ in the rest of this document) and it **functions just like a single component**. Also, Modules can get [**integrated/embedded natively in other Web Applications**](../../publish-apps/embedd-an-app/)**!**
+One of the most **powerful concepts of Lowcoder** is **Modules**. Lowcoder Modules are Applications, that can get **included and repeated** in other Applications. You can insert a module into an app or other modules (referred to as _external apps_ in the rest of this document) and it **functions just like a single component**. Also, Modules can get [**integrated/embedded natively in other Web Applications**](../../publish-apps/embed-an-app/)**!**
 
 When building an app, you want to reuse a bundle of components and queries across different apps. Imagine a User-Profile Card. Profile-Image, Name, Contacts. If you create these Elements inside of a Module, you can integrate this in all other Apps as it would be a single component.
 
