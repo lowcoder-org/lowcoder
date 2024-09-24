@@ -96,10 +96,7 @@ const childrenMap = {
     name: "{{currentUser.name}}",
     email: "{{currentUser.email}}",
   }),
-  mentionList: jsonControl(checkMentionListData, {
-    "@": ["Li Lei", "Han Meimei"],
-    "#": ["123", "456", "789"],
-  }),
+  mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(CommentStyle , 'style'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
