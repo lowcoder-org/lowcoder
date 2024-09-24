@@ -203,6 +203,7 @@ export const en = {
     "siderScrollbar" : "Show Scrollbars in Sider",
     "mainScrollbar": "Show Scrollbars in main content",
     "modalScrollbar": "Show Scrollbars in Modal",
+    "drawerScrollbar": "Show Scrollbars in Drawer",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
     "siderWidthTooltip" : "Sider width supports percentages (%) and pixels (px).",
