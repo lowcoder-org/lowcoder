@@ -32,6 +32,7 @@ export const Wrapper = styled.div<{
   $style?: CalendarStyleType;
   $theme?: ThemeDetail;
   $left?: number;
+  $showVerticalScrollbar?:boolean;
 }>`
   position: relative;
   height: 100%;
@@ -358,6 +359,9 @@ export const Wrapper = styled.div<{
   .fc .fc-scrollgrid,
   .fc .fc-scrollgrid table {
     width: 100% !important;
+  }
+  .fc-scroller.fc-scroller-liquid-absolute::-webkit-scrollbar {
+    display:${(props) => (props.$showVerticalScrollbar ? 'block' : 'none')};
   }
 
   // event
