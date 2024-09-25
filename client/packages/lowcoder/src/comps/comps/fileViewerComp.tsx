@@ -42,12 +42,18 @@ const StyledDiv = styled.div<{$style: FileViewerStyleType;}>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,animationStyle:AnimationStyleType }) => {
+const DraggableFileViewer = (props: {
+  src: string;
+  style: FileViewerStyleType,
+  animationStyle:AnimationStyleType,
+  showVerticalScrollbar: boolean,
+}) => {
   const [isActive, setActive] = useState(false);
 
   return (
     <StyledDiv
       $style={props.style}
+      id="fileViewer"
       onClick={(e) => setActive(true)}
       onMouseLeave={(e) => setActive(false)}
     >
@@ -83,7 +89,12 @@ let FileViewerBasicComp = (function () {
         </ErrorWrapper>
       );
     }
-    return <DraggableFileViewer src={props.src} style={props.style} animationStyle={props.animationStyle}/>;
+    return <DraggableFileViewer
+      src={props.src}
+      style={props.style}
+      animationStyle={props.animationStyle}
+      showVerticalScrollbar={props.showVerticalScrollbar}
+    />;
   })
     .setPropertyViewFn((children) => {
       return (
