@@ -18,7 +18,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { ScrollBar, Section, controlItem, sectionNames } from "lowcoder-design";
+import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import React, { useEffect } from "react";
@@ -47,6 +47,7 @@ import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
   $animationStyle: AnimationStyleType;
+  $showScrollbar:boolean
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -56,8 +57,12 @@ const RowWrapper = styled(Row)<{
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
   background-color: ${(props) => props.$style.background};
-  overflow-x: auto;
   rotate: ${props=> props.$style.rotation}
+  overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
+   ::-webkit-scrollbar {
+    display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
+  }
+
 `;
 
 const ColWrapper = styled(Col)<{
@@ -147,10 +152,10 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
         <div style={{padding: style.margin, height: '100%'}}>
-        <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!mainScrollbar}>
           <RowWrapper
             $style={style}
             $animationStyle={animationStyle}
+            $showScrollbar={mainScrollbar}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
           >
@@ -185,7 +190,6 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
               })
             }
           </RowWrapper>
-        </ScrollBar>
         </div>
         </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
