@@ -10,7 +10,7 @@ import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
@@ -18,6 +18,7 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 const sizeOptions = [
   {
@@ -76,6 +77,7 @@ const statusOptions = [
 ]
 
 const StepsChildrenMap = {
+  autoHeight: AutoHeightControl,
   initialValue: numberExposingStateControl("1"),
   value: stringExposingStateControl("value"),
   stepStatus : stringExposingStateControl("process"),
@@ -92,13 +94,16 @@ const StepsChildrenMap = {
   options: StepOptionControl,
   style: styleControl(StepsStyle , 'style'),
   viewRef: RefControl<HTMLDivElement>,
-  animationStyle: styleControl(AnimationStyle ,'animationStyle' )
+  animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
+  showVerticalScrollbar: withDefault(BoolControl, false),
 };
 
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}
+      height: 100%;
+      overflow-y: scroll;
       min-height: 24px;
       max-width: ${widthCalculator(props.style.margin)};
       max-height: ${heightCalculator(props.style.margin)};
@@ -168,6 +173,14 @@ let StepControlBasicComp = (function () {
             }}
           >
           <StyledWrapper style={props.style} $animationStyle={props.animationStyle}>
+          <ScrollBar
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow="scroll"
+            hideScrollbar={!props.showVerticalScrollbar}>
             <Steps 
               initial={props.initialValue.value -1}
               current={current}
@@ -191,6 +204,7 @@ let StepControlBasicComp = (function () {
                 />
               ))}
             </Steps>
+            </ScrollBar>
           </StyledWrapper>
         </ConfigProvider>
     );
@@ -217,6 +231,12 @@ let StepControlBasicComp = (function () {
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
+            {children.autoHeight.getPropertyView()}
+            {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
@@ -259,6 +279,12 @@ let StepControlBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+StepControlBasicComp = class extends StepControlBasicComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
 
 export const StepComp = withExposingConfigs(StepControlBasicComp, [
   new NameConfig("value", trans("step.valueDesc")),
