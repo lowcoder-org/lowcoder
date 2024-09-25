@@ -769,8 +769,6 @@ export const Event = styled.div<{
   }
 `;
 
-
-
 export const FormWrapper = styled(Form)<{
   $modalStyle?: EventModalStyleType
 }>`
@@ -938,10 +936,10 @@ export const FirstDayOptions = [
   },
 ];
 
-export const defaultData = [
+export const defaultEvents = [
   {
     id: "1",
-    title: "Coding",
+    label: "Coding",
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -960,18 +958,42 @@ export const defaultData = [
   },
   {
     id: "2",
-    title: "Rest",
+    label: "Rest",
     start: dayjs().hour(24).format(DATE_FORMAT),
     end: dayjs().hour(48).format(DATE_FORMAT),
     color: "#079968",
     allDay: true,
+  },
+  {
+    id: "3",
+    resourceId: "d1",
+    label: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "4",
+    resourceId: "b",
+    label: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "5",
+    resourceId: "a",
+    label: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
   },
 ];
 export const resourcesEventsDefaultData = [
   {
     id: "1",
     resourceId: "d1",
-    title: "event 1",
+    label: "event 1",
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -979,7 +1001,7 @@ export const resourcesEventsDefaultData = [
   {
     id: "2",
     resourceId: "b",
-    title: "event 5",
+    label: "event 5",
     start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
@@ -987,7 +1009,7 @@ export const resourcesEventsDefaultData = [
   {
     id: "3",
     resourceId: "a",
-    title: "event 3",
+    label: "event 3",
     start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",

@@ -1,7 +1,8 @@
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
+import { default as ColorPicker } from "antd/es/color-picker";
 import { trans, getCalendarLocale } from "../../i18n/comps";
-import { createRef, useContext, useRef, useState, useEffect } from "react";
+import { createRef, useContext, useRef, useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
@@ -49,7 +50,10 @@ import {
   EditorContext,
   CompNameContext,
   AnimationStyle,
-  EventModalStyle
+  EventModalStyle,
+  migrateOldData,
+  controlItem,
+  depsConfig,
 } from 'lowcoder-sdk';
 
 import {
@@ -60,7 +64,7 @@ import {
   Event,
   Remove,
   EventType,
-  defaultData,
+  defaultEvents,
   ViewType,
   buttonText,
   headerToolbar,
@@ -71,18 +75,68 @@ import {
   viewClassNames,
   FormWrapper,
   resourcesDefaultData,
-  resourcesEventsDefaultData,
   resourceTimeLineHeaderToolbar,
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
+import { EventOptionControl } from "./eventOptionsControl";
+
+function fixOldData(oldData: any) {
+  if(!Boolean(oldData)) return;
+  let {events, resourcesEvents, ...data } = oldData;
+  let allEvents: any[] = [];
+
+  if (events && typeof events === 'string') {
+    let eventsList = JSON.parse(events);
+    if (eventsList && eventsList.length) {
+      eventsList = eventsList?.map(event => {
+        const {title, ...eventData} = event;
+        return {
+          ...eventData,
+          label: title, // replace title field with label
+        }
+      });
+      allEvents = allEvents.concat(eventsList);
+    }
+  }
+  if (resourcesEvents && typeof resourcesEvents === 'string') {
+    let resourceEventsList = JSON.parse(resourcesEvents);
+    if (resourceEventsList && resourceEventsList.length) {
+      resourceEventsList = resourceEventsList?.map(event => {
+        const {title, ...eventData} = event;
+        return {
+          ...eventData,
+          label: title, // replace title field with label
+        }
+      });
+      allEvents = allEvents.concat(resourceEventsList);
+    }
+  }
+  
+  if (allEvents.length) {
+    return {
+      ...data,
+      events: {
+        manual: {
+          manual: allEvents,
+        },
+        mapData: {
+          data: JSON.stringify(allEvents, null, 2),
+        },
+        optionType: "manual",
+      },
+    };
+  }
+  return {
+    ...data,
+    events,
+  };
+}
 
 let childrenMap: any = {
-  events: jsonValueExposingStateControl("events", defaultData),
-  resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
+  events: EventOptionControl,
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
   onEvent: CalendarEventHandlerControl ? CalendarEventHandlerControl : ChangeEventHandlerControl,
-  // onDropEvent: safeDragEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -98,6 +152,7 @@ let childrenMap: any = {
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   showVerticalScrollbar: withDefault(BoolControl, false),
 };
+
 // this should ensure backwards compatibility with older versions of the SDK
 if (DragEventHandlerControl) { 
   childrenMap = {
@@ -115,7 +170,6 @@ if (EventModalStyle) {
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props: { 
     events: any; 
-    resourcesEvents: any; 
     resources: any; 
     resourceName : string
     onEvent?: any;
@@ -143,7 +197,6 @@ let CalendarBasicComp = (function () {
       useContext(CompNameContext)
     );
     const onEventVal = comp?.toJsonValue()?.comp?.onEvent;
-  
 
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
@@ -157,17 +210,20 @@ let CalendarBasicComp = (function () {
     }, [props.licenseKey]);
 
     let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
-    let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? props.resourcesEvents : props.events;
+    let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
+      ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
+      : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
 
     // we use one central stack of events for all views
-    let events = Array.isArray(currentEvents.value) ? currentEvents.value.map((item: EventType) => {
+    let events = Array.isArray(currentEvents) ? currentEvents.map((item: EventType) => {
       return {
-        title: item.title,
+        title: item.label,
         id: item.id,
         start: dayjs(item.start, DateParser).format(),
         end: dayjs(item.end, DateParser).format(),
         allDay: item.allDay,
         resourceId: item.resourceId ? item.resourceId : null,
+        groupId: item.groupId ? item.groupId : null,
         backgroundColor: item.backgroundColor,
         extendedProps: {
           color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
@@ -184,7 +240,7 @@ let CalendarBasicComp = (function () {
         animationDuration:item?.animationDuration,
         animationIterationCount:item?.animationIterationCount
       }}
-    }) : [currentEvents.value];
+    }) : [currentEvents];
 
 
     const resources = props.resources.value;
@@ -266,6 +322,18 @@ let CalendarBasicComp = (function () {
       showVerticalScrollbar
     } = props;
 
+    const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
+      comp.children?.comp.children.events.children.manual.children.manual.dispatch(
+        comp.children?.comp.children.events.children.manual.children.manual.setChildrensAction(
+          data
+        )
+      );
+      comp.children?.comp.children.events.children.mapData.children.data.dispatchChangeValueAction(
+        JSON.stringify(data)
+      );
+      props.onEvent("change");
+    }, [comp, props.onEvent]);
+
     function renderEventContent(eventInfo: EventContentArg) {
       const isList = eventInfo.view.type === "listWeek";
       let sizeClass = "";
@@ -307,11 +375,10 @@ let CalendarBasicComp = (function () {
             className="event-remove"
             onClick={(e) => {
               e.stopPropagation();
-              props.onEvent("change");
-              const event = events.filter(
+              const events = props.events.filter(
                 (item: EventType) => item.id !== eventInfo.event.id
               );
-              props.events.onChange(event);
+              handleEventDataChange(events);
             }}
             onMouseDown={(e) => {
               e.stopPropagation();
@@ -324,14 +391,23 @@ let CalendarBasicComp = (function () {
       );
     }
     const handleDbClick = () => {
-      const event = props.events.value.find(
+      const event = props.events.find(
         (item: EventType) => item.id === editEvent.current?.id
       ) as EventType;
       if (!editable || !editEvent.current) {
         return;
       }
       if (event) {
-        const { title, groupId, color, id , backgroundColor,detail,titleColor,detailColor,
+        const {
+          id ,
+          label,
+          detail,
+          groupId,
+          resourceId,
+          color,
+          backgroundColor,
+          titleColor,
+          detailColor,
           titleFontWeight,
           titleFontStyle,
           detailFontWeight,
@@ -340,12 +416,11 @@ let CalendarBasicComp = (function () {
           animationDelay,
           animationDuration,
           animationIterationCount,
-
-          
         } = event;
         const eventInfo = {
-          title,
+          label,
           groupId,
+          resourceId,
           color,
           id,
           backgroundColor,
@@ -377,7 +452,7 @@ let CalendarBasicComp = (function () {
         allDay: info.allDay,
         start: info.startStr,
         end: info.endStr,
-      };
+      } as EventType;
       const view = info.view.type as ViewType;
       const duration = dayjs(info.end).diff(dayjs(info.start), "minutes");
       const singleClick =
@@ -408,9 +483,9 @@ let CalendarBasicComp = (function () {
         customStyles: {
           backgroundColor:props?.modalStyle?.background,
           animationStyle:props?.animationStyle,
-         },
-         width: "450px",
-          content: (
+        },
+        width: "450px",
+        content: (
           <Tabs defaultActiveKey="1">
             <Tabs.TabPane tab={trans("calendar.general")} key="1">
               <FormWrapper form={form} $modalStyle={modalStyle}>
@@ -429,7 +504,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventName")}
-                  name="title"
+                  name="label"
                   rules={[
                     { required: true, message: trans("calendar.eventNameRequire") },
                   ]}
@@ -448,6 +523,12 @@ let CalendarBasicComp = (function () {
                 >
                   <Input />
                 </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventResourceId")}
+                  name="resourceId"
+                >
+                  <Input />
+                </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
@@ -456,25 +537,53 @@ let CalendarBasicComp = (function () {
                   label={trans("calendar.eventTitleColor")}
                   name="titleColor"
                 >
-                  <Input />
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('titleColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('titleColor', hex)}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventdetailColor")}
                   name="detailColor"
                 >
-                  <Input />
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('detailColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('detailColor', hex)}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventColor")}
                   name="color"
                 >
-                  <Input />
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('color')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('color', hex)}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventBackgroundColor")}
                   name="backgroundColor"
                 >
-                  <Input />
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('backgroundColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('backgroundColor', hex)}
+                  />
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
@@ -539,7 +648,17 @@ let CalendarBasicComp = (function () {
         onConfirm: () => {
           form.submit();
           return form.validateFields().then(() => {
-            const { id, groupId, color, title = "", backgroundColor,detail,titleColor,detailColor , titleFontWeight,
+            const {
+              id,
+              label = "",
+              detail,
+              groupId,
+              resourceId,
+              color,
+              backgroundColor,
+              titleColor,
+              detailColor,
+              titleFontWeight,
               titleFontStyle,
               detailFontWeight,
               detailFontStyle,
@@ -547,7 +666,7 @@ let CalendarBasicComp = (function () {
               animationDelay,
               animationDuration,
               animationIterationCount } = form.getFieldsValue();
-            const idExist = props.events.value.findIndex(
+            const idExist = props.events.findIndex(
               (item: EventType) => item.id === id
             );
             if (idExist > -1 && id !== eventId) {
@@ -557,14 +676,15 @@ let CalendarBasicComp = (function () {
               throw new Error();
             }
             if (ifEdit) {
-              const changeEvents = props.events.value.map((item: EventType) => {
+              const changeEvents = props.events.map((item: EventType) => {
                 if (item.id === eventId) {
                   return {
                     ...item,
-                    title,
+                    label,
                     detail,
                     id,
                     ...(groupId !== undefined ? { groupId } : null),
+                    ...(resourceId !== undefined ? { resourceId } : null),
                     ...(color !== undefined ? { color } : null),
                     ...(backgroundColor !== undefined ? { backgroundColor } : null),
                     ...(titleColor !== undefined ? { titleColor } : null),
@@ -582,14 +702,14 @@ let CalendarBasicComp = (function () {
                   return item;
                 }
               });
-              props.events.onChange(changeEvents);
+              handleEventDataChange(changeEvents);
             } else {
               const createInfo = {
                 allDay: event.allDay,
                 start: event.start,
                 end: event.end,
                 id,
-                title,
+                label,
                 detail,
                 titleFontWeight,
                 titleFontStyle,
@@ -600,14 +720,14 @@ let CalendarBasicComp = (function () {
                 animationDuration,
                 animationIterationCount,
                 ...(groupId !== undefined ? { groupId } : null),
+                ...(resourceId !== undefined ? { resourceId } : null),
                 ...(color !== undefined ? { color } : null),
                 ...(backgroundColor !== undefined ? { backgroundColor } : null),
                 ...(titleColor !== undefined ? { titleColor } : null),
                 ...(detailColor !== undefined ? { detailColor } : null),
               };
-              props.events.onChange([...props.events.value, createInfo]);
+              handleEventDataChange([...props.events, createInfo]);
             }
-            props.onEvent("change");
             form.resetFields();
           }); //small change
         },
@@ -623,6 +743,7 @@ let CalendarBasicComp = (function () {
         props.onDropEvent("dropEvent");
       }
     };
+
     return (
       <Wrapper
         ref={ref}
@@ -731,7 +852,7 @@ let CalendarBasicComp = (function () {
             }}
             eventDragStop={(info) => {
               if (info.view) {
-                handleDrop
+                handleDrop();
               }
             }}
           />
@@ -741,7 +862,6 @@ let CalendarBasicComp = (function () {
   })
     .setPropertyViewFn((children: { 
       events: { propertyView: (arg0: {}) => any; }; 
-      resourcesEvents: { propertyView: (arg0: {}) => any; };
       resources: { propertyView: (arg0: {}) => any; };
       resourceName: { propertyView: (arg0: {}) => any; };
       onEvent: { propertyView: ({title}?: {title?: string}) => any; }; 
@@ -762,20 +882,24 @@ let CalendarBasicComp = (function () {
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
       showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
     }) => {
-
       const license = children.licenseKey.getView();
       
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.defaultDate.propertyView({ label: trans("calendar.defaultDate"), tooltip: trans("calendar.defaultDateTooltip"), })}
-            {children.events.propertyView({label: trans("calendar.events")})}
-            {license == "" ? null : children.resourcesEvents.propertyView({label: trans("calendar.resourcesEvents")})}
+            {controlItem({filterText: 'events'}, (
+              <p style={{fontSize: '13px', marginTop: '10px'}}>{trans("calendar.events")}</p>
+            ))}
+            {children.events.propertyView({
+              title: "Events",
+              newOptionLabel: "Event",
+            })}
           </Section>
           { license != "" && 
             <Section name={trans("calendar.resources")}>
-              {children.resources.propertyView({label: trans("calendar.resources")})}
               {children.resourceName.propertyView({label: trans("calendar.resourcesName")})}
+              {children.resources.propertyView({label: trans("calendar.resources")})}
             </Section>
           }
           <Section name={sectionNames.interaction}>
@@ -824,11 +948,35 @@ CalendarBasicComp = class extends CalendarBasicComp {
   }
 };
 
+CalendarBasicComp = migrateOldData(CalendarBasicComp, fixOldData)
+
 const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
-  new NameConfig("events", trans("calendar.events")),
-  new NameConfig("resourcesEvents", trans("calendar.resourcesEvents")),
-  new NameConfig("resources", trans("calendar.resources")),
   NameConfigHidden,
+  new NameConfig("resources", trans("calendar.resources")),
+  depsConfig({
+    name: "allEvents",
+    desc: trans("calendar.events"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events;
+    },
+  }),
+  depsConfig({
+    name: "events",
+    desc: trans("calendar.events"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events.filter(event => !Boolean(event.resourceId));
+    },
+  }),
+  depsConfig({
+    name: "resourcesEvents",
+    desc: trans("calendar.resourcesEvents"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events.filter(event => Boolean(event.resourceId));
+    },
+  }),
 ]);
 
 let CalendarComp = withMethodExposing(TmpCalendarComp, [

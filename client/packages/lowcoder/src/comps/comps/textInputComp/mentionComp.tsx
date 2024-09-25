@@ -98,10 +98,7 @@ let MentionTmpComp = (function () {
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
-    mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
-    }),
+    mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
     onEvent: eventHandlerControl(EventOptions),
     invalid: booleanExposingStateControl("invalid"),
   };
