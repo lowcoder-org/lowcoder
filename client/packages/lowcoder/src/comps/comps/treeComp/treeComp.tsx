@@ -1,11 +1,10 @@
 import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { default as Tree } from "antd/es/tree";
 import { useEffect, useState } from "react";
 import styled from "styled-components";
-import ReactResizeDetector from "react-resize-detector";
 import { StyleConfigType, styleControl } from "comps/controls/styleControl";
 import {  InputFieldStyle, LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
@@ -13,8 +12,6 @@ import { withDefault } from "comps/generators";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
 import {
-  advancedSection,
-  expandSection,
   formSection,
   // intersectSection,
   treeCommonChildren,
@@ -24,8 +21,6 @@ import {
   valuePropertyView,
 } from "./treeUtils";
 import {
-  SelectInputInvalidConfig,
-  SelectInputValidationChildren,
   SelectInputValidationSection,
 } from "../selectInputComp/selectInputConstants";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
@@ -33,10 +28,11 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
-const Container = styled.div<TreeStyleType>`
+const Container = styled.div<TreeStyleType & { verticalScrollbar: boolean }>`
   height: 100%;
   padding: 4px;
   background: ${(props) => props.background};
@@ -45,18 +41,8 @@ const Container = styled.div<TreeStyleType>`
   .ant-tree-show-line .ant-tree-switcher {
     background: ${(props) => props.background};
   }
-  .ant-tree:hover .ant-tree-list-scrollbar-show {
-    display: block !important;
-  }
-  .ant-tree-list-scrollbar {
-    width: 6px !important;
-  }
-  .ant-tree-list-scrollbar-thumb {
-    border-radius: 9999px !important;
-    background: rgba(139, 143, 163, 0.2) !important;
-  }
-  .ant-tree-list-scrollbar-thumb:hover {
-    background: rgba(139, 143, 163, 0.5) !important;
+  .simplebar-vertical {
+    display: ${(props) => props.verticalScrollbar ? 'block' : 'none'};
   }
 `;
 
@@ -74,6 +60,8 @@ const childrenMap = {
   checkStrictly: BoolControl,
   autoExpandParent: BoolControl,
   label: withDefault(LabelControl, { position: "column" }),
+  autoHeight: AutoHeightControl,
+  verticalScrollbar: withDefault(BoolControl, false),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   style: styleControl(InputFieldStyle , 'style'),
@@ -101,50 +89,46 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
     labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     children: (
-      <ReactResizeDetector
-        onResize={(w, h) => setHeight(h)}
-        render={() => (
-          <Container {...props.inputFieldStyle}>
-            <Tree
-              key={selectType}
-              disabled={props.disabled}
-              height={height}
-              rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
-              fieldNames={{ title: "label", key: "value" }}
-              treeData={treeData}
-              selectable={selectable}
-              multiple={selectType === "multi"}
-              selectedKeys={selectable ? value.value : []}
-              checkable={checkable}
-              checkedKeys={
-                checkable
-                  ? checkStrictly
-                    ? { checked: value.value, halfChecked: [] }
-                    : value.value
-                  : undefined
-              }
-              checkStrictly={checkStrictly}
-              showLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
-              expandedKeys={expanded.value}
-              autoExpandParent={props.autoExpandParent}
-              onSelect={(keys) => {
-                value.onChange(keys as (string | number)[]);
-                props.onEvent("change");
-              }}
-              onCheck={(keys) => {
-                value.onChange(Array.isArray(keys) ? keys as (string | number)[] : keys.checked as (string | number)[]);
-                props.onEvent("change");
-              }}
-              onExpand={(keys) => {
-                expanded.onChange(keys as (string | number)[]);
-              }}
-              onFocus={() => props.onEvent("focus")}
-              onBlur={() => props.onEvent("blur")}
-            />
-        </Container>
-        )}
-      >
-      </ReactResizeDetector>
+      <Container {...props.inputFieldStyle} verticalScrollbar={props.verticalScrollbar}>
+        <ScrollBar style={{ margin: 0, padding: 0 }}>
+          <Tree
+            key={selectType}
+            disabled={props.disabled}
+            height={height}
+            rootStyle={{ background: "transparent", color: props.inputFieldStyle.text }}
+            fieldNames={{ title: "label", key: "value" }}
+            treeData={treeData}
+            selectable={selectable}
+            multiple={selectType === "multi"}
+            selectedKeys={selectable ? value.value : []}
+            checkable={checkable}
+            checkedKeys={
+              checkable
+                ? checkStrictly
+                  ? { checked: value.value, halfChecked: [] }
+                  : value.value
+                : undefined
+            }
+            checkStrictly={checkStrictly}
+            showLine={props.showLine ? { showLeafIcon: props.showLeafIcon } : false}
+            expandedKeys={expanded.value}
+            autoExpandParent={props.autoExpandParent}
+            onSelect={(keys) => {
+              value.onChange(keys as (string | number)[]);
+              props.onEvent("change");
+            }}
+            onCheck={(keys) => {
+              value.onChange(Array.isArray(keys) ? keys as (string | number)[] : keys.checked as (string | number)[]);
+              props.onEvent("change");
+            }}
+            onExpand={(keys) => {
+              expanded.onChange(keys as (string | number)[]);
+            }}
+            onFocus={() => props.onEvent("focus")}
+            onBlur={() => props.onEvent("blur")}
+          />
+        </ScrollBar>
+      </Container>
     ),
   });
 };
@@ -179,6 +163,11 @@ let TreeBasicComp = (function () {
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
+            {children.autoHeight.getPropertyView()}
+            {!children.autoHeight.getView() && 
+              children.verticalScrollbar.propertyView({
+                label: trans("prop.showVerticalScrollbar")
+              })}
             {children.expanded.propertyView({ label: trans("tree.expanded") })}
             {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
             {children.showLine.propertyView({ label: trans("tree.showLine") })}
@@ -202,7 +191,7 @@ let TreeBasicComp = (function () {
 
 TreeBasicComp = class extends TreeBasicComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 
