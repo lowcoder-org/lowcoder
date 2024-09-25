@@ -8,7 +8,7 @@ import {
 } from "lowcoder-core";
 import { trans } from "i18n";
 import { UICompBuilder, withDefault } from "../../generators";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
@@ -62,6 +62,8 @@ const childrenMap = {
   value: jsonControl(convertTimeLineData, timelineDate),
   mode: dropdownControl(modeOptions, "alternate"),
   reverse: BoolControl,
+  autoHeight: AutoHeightControl,
+  verticalScrollbar: withDefault(BoolControl, false),
   pending: withDefault(StringControl, trans("timeLine.defaultPending")),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(TimeLineStyle, 'style'),
@@ -136,31 +138,33 @@ const TimelineComp = (
   }));
 
   return (
-    <div
-      style={{
-        margin: style.margin ?? '3px',
-        padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
-        width: widthCalculator(style.margin ?? '3px'),
-        height: heightCalculator(style.margin ?? '3px'),
-        background: style.background,
-        overflow: "auto",
-        overflowX: "hidden",
-        borderRadius: style.radius,
-      }}
-    >
-      <Timeline
-        mode={props?.mode || "left"}
-        reverse={props?.reverse}
-        pending={
-          props?.pending && (
-            <span style={{ color: style?.titleColor }}>
-              {props?.pending || ""}
-            </span>
-          )
-        }
-        items={timelineItems}
-      />
-    </div>
+    <ScrollBar hideScrollbar={!props.verticalScrollbar}>
+      <div
+        style={{
+          margin: style.margin ?? '3px',
+          padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
+          width: widthCalculator(style.margin ?? '3px'),
+          height: heightCalculator(style.margin ?? '3px'),
+          background: style.background,
+          overflow: "auto",
+          overflowX: "hidden",
+          borderRadius: style.radius,
+        }}
+      >
+        <Timeline
+          mode={props?.mode || "left"}
+          reverse={props?.reverse}
+          pending={
+            props?.pending && (
+              <span style={{ color: style?.titleColor }}>
+                {props?.pending || ""}
+              </span>
+            )
+          }
+          items={timelineItems}
+        />
+      </div>
+    </ScrollBar>
   );
 };
 
@@ -187,6 +191,11 @@ let TimeLineBasicComp = (function () {
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <><Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && 
+                children.verticalScrollbar.propertyView({
+                  label: trans("prop.showVerticalScrollbar")
+                })}
               {children.mode.propertyView({
                 label: trans("timeLine.mode"),
                 tooltip: trans("timeLine.modeTooltip"),
@@ -211,7 +220,7 @@ let TimeLineBasicComp = (function () {
 
 TimeLineBasicComp = class extends TimeLineBasicComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 
