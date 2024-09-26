@@ -29,7 +29,7 @@ const EventOptions = [
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
 ] as const;
 
-const getStyle = (style: ModalStyleType) => {
+const getStyle = (style: ModalStyleType, modalScrollbar: boolean) => {
   return css`
     .ant-modal-content {
       border-radius: ${style.radius};
@@ -48,6 +48,9 @@ const getStyle = (style: ModalStyleType) => {
       > .ant-modal-body {
         background-color: ${style.background};
       }
+    }
+    div.ant-modal-body div.react-grid-layout::-webkit-scrollbar {
+      display: ${modalScrollbar ? "block" : "none"};
     }
     .ant-modal-close {
       inset-inline-end: 10px !important;
@@ -80,8 +83,8 @@ function extractMarginValues(style: ModalStyleType) {
   return valuesarray;
 }
 
-const ModalStyled = styled.div<{ $style: ModalStyleType }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+const ModalStyled = styled.div<{ $style: ModalStyleType, $modalScrollbar: boolean }>`
+  ${(props) => props.$style && getStyle(props.$style, props.$modalScrollbar)}
 `;
 
 const ModalWrapper = styled.div`
@@ -105,6 +108,7 @@ let TmpModalComp = (function () {
       autoHeight: AutoHeightControl,
       title: StringControl,
       titleAlign: HorizontalAlignmentControl,
+      modalScrollbar: withDefault(BoolControl, false),
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
@@ -174,7 +178,7 @@ let TmpModalComp = (function () {
                 if (open) props.onEvent("open");
               }}
               zIndex={Layers.modal}
-              modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
+              modalRender={(node) => <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>{node}</ModalStyled>}
               mask={props.showMask}
               className={props.className as string}
               data-testid={props.dataTestId as string}
@@ -203,6 +207,10 @@ let TmpModalComp = (function () {
             label: trans('prop.horizontalGridCells'),
           })}
           {children.autoHeight.getPropertyView()}
+          {!children.autoHeight.getView() && 
+            children.modalScrollbar.propertyView({
+              label: trans("prop.modalScrollbar")
+            })}
           {!children.autoHeight.getView() &&
             children.height.propertyView({
               label: trans("modalComp.modalHeight"),

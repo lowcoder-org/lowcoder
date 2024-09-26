@@ -53,6 +53,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
+  mainScrollbars: withDefault(BoolControl, false),
   style: styleControl(ContainerStyle , 'style'),
   headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
   siderStyle: styleControl(ContainerSiderStyle , 'siderStyle'),
@@ -157,8 +158,13 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
+      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar") }),
       (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.showVerticalScrollbar") }),
+      (!this.children.autoHeight.getView()) && (
+        !this.children.siderScrollbars.getView() ||
+        !this.children.contentScrollbars.getView()
+       ) &&
+         this.children.mainScrollbars.propertyView({ label: trans("prop.mainScrollbar") }),
     ];
   }
 

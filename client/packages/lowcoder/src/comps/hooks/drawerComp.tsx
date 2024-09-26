@@ -41,10 +41,13 @@ const DrawerWrapper = styled.div`
   }
 `;
 
-const StyledDrawer = styled(Drawer)<{$titleAlign?: string}>`
+const StyledDrawer = styled(Drawer)<{$titleAlign?: string, $drawerScrollbar: boolean}>`
   .ant-drawer-header-title {
     margin: 0px 20px !important;
     text-align: ${(props) => props.$titleAlign || "center"};
+  }
+  div.ant-drawer-body div.react-grid-layout::-webkit-scrollbar {
+    display: ${(props) => props.$drawerScrollbar ? "block" : "none"};
   }
 `;
 
@@ -93,6 +96,7 @@ let TmpDrawerComp = (function () {
       titleAlign: HorizontalAlignmentControl,
       horizontalGridCells: SliderControl,
       autoHeight: AutoHeightControl,
+      drawerScrollbar: withDefault(BoolControl, true),
       style: styleControl(DrawerStyle),
       placement: PositionControl,
       closePosition: withDefault(LeftRightControl, "left"),
@@ -137,6 +141,7 @@ let TmpDrawerComp = (function () {
               }}
               title={props.title}
               $titleAlign={props.titleAlign}
+              $drawerScrollbar={props.drawerScrollbar}
               closable={false}
               placement={props.placement}
               open={props.visible.value}
@@ -209,6 +214,7 @@ let TmpDrawerComp = (function () {
           {children.horizontalGridCells.propertyView({
             label: trans('prop.horizontalGridCells'),
           })}
+          {children.drawerScrollbar.propertyView({ label: trans("prop.drawerScrollbar") })}
           {children.maskClosable.propertyView({
             label: trans("prop.maskClosable"),
           })}

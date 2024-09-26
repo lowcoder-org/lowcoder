@@ -349,6 +349,7 @@ export const en = {
     animationIterationCount:"IterationCount",
     timeZone:"Time Zone",
     timeRange:"Time Range",
+    showVerticalScrollbar:"Show Vertical ScrollBar"
   },
   timeZone: {
   "UTC-12:00": "(UTC-12:00) Int'l Date Line W",

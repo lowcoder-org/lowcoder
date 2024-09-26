@@ -6,6 +6,7 @@ import { ReactNode } from "react";
 import styled from "styled-components";
 import { CustomSelect } from "./customSelect";
 import { EllipsisTextCss } from "./Label";
+import { useEffect } from "react";
 import { TacoMarkDown } from "./markdown";
 import { Tooltip, ToolTipLabel } from "./toolTip";
 
@@ -157,6 +158,19 @@ interface DropdownProps<T extends OptionsType> extends Omit<SelectProps, "placem
 export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
   const { placement = "right" } = props;
   const valueInfoMap = _.fromPairs(props.options.map((option) => [option.value, option]));
+
+  useEffect(() => {
+    const dropdownElems = document.querySelectorAll<HTMLElement>("div.ant-dropdown ul.ant-dropdown-menu");
+    for (let index = 0; index < dropdownElems.length; index++) {
+      const element = dropdownElems[index];
+      console.log(element);
+      element.style.maxHeight = "300px";
+      element.style.overflowY = "scroll";
+      element.style.minWidth = "150px";
+      element.style.paddingRight = "10px";
+    }
+  }, []);
+
   return (
     <FlexDiv style={props.style} className={props.className}>
       {props.label && (

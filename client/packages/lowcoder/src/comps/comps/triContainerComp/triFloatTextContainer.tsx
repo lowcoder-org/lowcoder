@@ -7,7 +7,7 @@ import {
 } from "comps/controls/styleControlConstants";
 import { EditorContext } from "comps/editorState";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { HintPlaceHolder, TacoMarkDown } from "lowcoder-design";
+import { HintPlaceHolder, ScrollBar, TacoMarkDown } from "lowcoder-design";
 import { ReactNode, useContext } from "react";
 import styled, { css } from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
@@ -76,6 +76,7 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   display: flex;
   flex-flow: column;
   height: 100%;
+  overflow-y: scroll;
   border: ${(props) => props.$style.borderWidth} ${(props) => (props.$style.borderStyle ? props.$style.borderStyle : "solid")} ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   background-color: ${(props) => props.$style.background};
@@ -194,45 +195,42 @@ export function TriContainer(props: TriContainerProps) {
       )}
       {showBody && (
         <BackgroundColorContext.Provider value={container.style.background}>
-          <div
-            style={{
-              overflowY: "scroll",
-              background: `${container.style.background}`,
-            }}
-          >
-            <BodyInnerGrid
-              $showBorder={false}
-              {...otherBodyProps}
-              horizontalGridCells={horizontalGridCells}
-              items={gridItemCompToGridItems(bodyItems)}
-              autoHeight={container.autoHeight}
-              emptyRows={14}
-              minHeight={showHeader ? "143px" : "142px"}
-              containerPadding={[0, 0]}
-              hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
-              $backgroundColor={bodyStyle?.background || 'transparent'}
-              $borderColor={style?.border}
-              $borderWidth={style?.borderWidth}
-              style={{
-                float: `${props.float}`,
-                width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
-                height: "100%",
-                ...container.bodyStyle
-              }}
-              />
-            <FloatTextWrapper
-              $style={props.style}
-              $horizontalAlignment={props.horizontalAlignment}
-            >
-              <p>
-                {props.type === "markdown" ? (
-                  <TacoMarkDown>{text.value}</TacoMarkDown>
-                ) : (
-                  text.value
-                )}
-              </p>
-            </FloatTextWrapper>
-          </div>
+          <ScrollBar style={{ height: container.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!container.showVerticalScrollbar}>
+            <div style={{ background: `${container.style.background}` }}>
+              <BodyInnerGrid
+                $showBorder={false}
+                {...otherBodyProps}
+                horizontalGridCells={horizontalGridCells}
+                items={gridItemCompToGridItems(bodyItems)}
+                autoHeight={container.autoHeight}
+                emptyRows={14}
+                minHeight={showHeader ? "143px" : "142px"}
+                containerPadding={[0, 0]}
+                hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
+                $backgroundColor={bodyStyle?.background || 'transparent'}
+                $borderColor={style?.border}
+                $borderWidth={style?.borderWidth}
+                style={{
+                  float: `${props.float}`,
+                  width: `${props.float === "none" ? "100%" : `${props.width}%`}`,
+                  height: "100%",
+                  ...container.bodyStyle
+                }}
+                />
+              <FloatTextWrapper
+                $style={props.style}
+                $horizontalAlignment={props.horizontalAlignment}
+              >
+                <p>
+                  {props.type === "markdown" ? (
+                    <TacoMarkDown>{text.value}</TacoMarkDown>
+                  ) : (
+                    text.value
+                  )}
+                </p>
+              </FloatTextWrapper>
+            </div>
+          </ScrollBar>
         </BackgroundColorContext.Provider>
       )}
       {showFooter && (

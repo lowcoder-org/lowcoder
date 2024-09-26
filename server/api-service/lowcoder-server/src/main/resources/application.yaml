@@ -53,6 +53,7 @@ default:
   org-app-count: ${LOWCODER_MAX_APPS_PER_ORG:1000}
   developer-count: ${LOWCODER_MAX_DEVELOPERS:50}
   api-rate-limit: ${LOWCODER_API_RATE_LIMIT:50}
+  query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10}
 
 common:
   cookie-name: LOWCODER_CE_SELFHOST_TOKEN

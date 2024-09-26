@@ -56,6 +56,8 @@ import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
 import { fetchHomeData } from "./redux/reduxActions/applicationActions";
+import { getNpmPackageMeta } from "./comps/utils/remote";
+import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -90,6 +92,7 @@ type AppIndexProps = {
   fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
+  fetchLowcoderCompVersions: () => void;
   getCurrentUser: () => void;
   favicon: string;
   brandName: string;
@@ -112,6 +115,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       this.props.fetchConfig(this.props.currentOrgId);
       if (!this.props.currentUserAnonymous) {
         this.props.fetchHomeData(this.props.currentUserAnonymous);
+        this.props.fetchLowcoderCompVersions();
       }
     }
   }
@@ -418,10 +422,21 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(fetchUserAction());
   },
   fetchConfig: (orgId?: string) => dispatch(fetchConfigAction(orgId)),
-
   fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
     dispatch(fetchHomeData({}));
-  }
+  },
+  fetchLowcoderCompVersions: async () => {
+    try {
+      dispatch(setLowcoderCompsLoading(true));
+      const packageMeta = await getNpmPackageMeta('lowcoder-comps');
+      if (packageMeta?.versions) {
+        dispatch(packageMetaReadyAction('lowcoder-comps', packageMeta));
+      }
+      dispatch(setLowcoderCompsLoading(false));
+    } catch (_) {
+      dispatch(setLowcoderCompsLoading(false));
+    }
+  },
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);
