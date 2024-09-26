@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("testFolder")
 //@RunWith(SpringRunner.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FolderApiServiceTest {
