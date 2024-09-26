@@ -39,7 +39,7 @@ const getStyle = (style: ContainerStyleType) => {
   `;
 };
 
-const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType }>`
+const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType, $mainScrollbars: boolean }>`
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -47,6 +47,10 @@ const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:Animatio
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
   ${props=>props.$animationStyle}
+
+  #pageLayout::-webkit-scrollbar {
+    display: ${(props) => props.$mainScrollbars ? "block" : "none"};
+  }
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
@@ -156,8 +160,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             },
           }}
         >
-      <Wrapper $style={style} $animationStyle={animationStyle}>
-        <Layout style={{padding: "0px", overflow: container.mainScrollbars ? "scroll" : "visible"}} hasSider={showSider && !container.innerSider}>
+      <Wrapper $style={style} $animationStyle={animationStyle} $mainScrollbars={container.mainScrollbars}>
+        <Layout id="pageLayout" style={{padding: "0px", overflowY: "scroll"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
               <Sider 
