@@ -4,6 +4,8 @@ import { default as ColorPicker } from "antd/es/color-picker";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import { createRef, useContext, useRef, useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
@@ -54,6 +56,7 @@ import {
   migrateOldData,
   controlItem,
   depsConfig,
+  stringExposingStateControl
 } from 'lowcoder-sdk';
 
 import {
@@ -80,6 +83,10 @@ import {
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
 import { timeZoneOptions } from "./timeZone";
+import { Select } from 'antd';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -152,6 +159,8 @@ let childrenMap: any = {
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -191,6 +200,8 @@ let CalendarBasicComp = (function () {
     animationStyle?:any;
     modalStyle?:any;
     timeZone?: string; 
+    showVerticalScrollbar?:boolean
+    userTimeZone?:any
   }) => {
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
@@ -207,6 +218,12 @@ let CalendarBasicComp = (function () {
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
+
+    useEffect(() => {
+      form.setFieldsValue({
+        userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
+      });
+    }, []); 
 
     let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
     let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
@@ -318,7 +335,8 @@ let CalendarBasicComp = (function () {
       licenseKey,
       resourceName,
       modalStyle,
-      timeZone
+      timeZone,
+      showVerticalScrollbar
     } = props;
 
     const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
@@ -445,6 +463,12 @@ let CalendarBasicComp = (function () {
         }
       }
     };
+    const handleDateZoneChange = (newTimeZone: any) => {
+      props.userTimeZone.onChange(newTimeZone)
+      form.setFieldsValue({
+        userTimeZone:newTimeZone 
+      });
+    } 
 
     const handleCreate = (info: DateSelectArg) => {
       const event = {
@@ -502,19 +526,26 @@ let CalendarBasicComp = (function () {
                   name="detail"
                 >
                   <Input />
-                </Form.Item>
-                <Form.Item
-                  label={trans("calendar.timeZone")}
-                  name="timeZone"
-                >
-                  <Input />
-                </Form.Item>
+                </Form.Item>     
                 <Form.Item
                   label={trans("calendar.timeRange")}
                   name="timeRange"
                 >
                   <Input />
                 </Form.Item>
+                {props.timeZone === "UserChoice" &&  
+                <Form.Item
+                  label={trans("calendar.timeZone")}
+                  name="userTimeZone"
+                >
+                 <Select
+                  // defaultValue={form.getFieldValue('userTimeZone')}
+                  value={form.getFieldValue('userTimeZone')}
+                  style={{ width: 340 , borderRadius:2 }}
+                  onChange={(value)=>{handleDateZoneChange(value)}}
+                  options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
+                  />
+                </Form.Item>}
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.advanced")} key="2">
@@ -669,6 +700,8 @@ let CalendarBasicComp = (function () {
               detail,
               groupId,
               resourceId,
+              userTimeZone,
+              timeRange,
               color,
               backgroundColor,
               titleColor,
@@ -695,11 +728,13 @@ let CalendarBasicComp = (function () {
                 if (item.id === eventId) {
                   return {
                     ...item,
-                    label,
-                    detail,
-                    id,
+                    ...(label !== undefined ? { label } : null),
+                    ...(detail !== undefined ? { detail } : null),
+                    ...(id !== undefined ? { id } : null),
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(resourceId !== undefined ? { resourceId } : null),
+                    ...(userTimeZone !== undefined ? { userTimeZone } : null),
+                    ...(timeRange !== undefined ? { timeRange } : null),
                     ...(color !== undefined ? { color } : null),
                     ...(backgroundColor !== undefined ? { backgroundColor } : null),
                     ...(titleColor !== undefined ? { titleColor } : null),
@@ -734,6 +769,8 @@ let CalendarBasicComp = (function () {
                 animationDelay,
                 animationDuration,
                 animationIterationCount,
+                ...(userTimeZone !== undefined ? { userTimeZone } : null),
+                ...(timeRange !== undefined ? { timeRange } : null),
                 ...(groupId !== undefined ? { groupId } : null),
                 ...(resourceId !== undefined ? { resourceId } : null),
                 ...(color !== undefined ? { color } : null),
@@ -765,6 +802,7 @@ let CalendarBasicComp = (function () {
         $editable={editable}
         $style={style}
         $theme={theme?.theme}
+        $showVerticalScrollbar={showVerticalScrollbar}
         onDoubleClick={handleDbClick}
         $left={left}
         key={initialDate ? currentView + initialDate : currentView}
@@ -893,8 +931,9 @@ let CalendarBasicComp = (function () {
       style: { getPropertyView: () => any; };
       animationStyle:  { getPropertyView: () => any; };
       modalStyle: { getPropertyView: () => any; };
-      licenseKey: { getView: () => any; propertyView: (arg0: { label: string; tooltip: string; }) => any; };
+      licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
       timeZone: { propertyView: (arg0: { label: string; }) => any; }; 
+      showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
     }) => {
       const license = children.licenseKey.getView();
       
@@ -942,6 +981,7 @@ let CalendarBasicComp = (function () {
               ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
               : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
             {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
+            {children.showVerticalScrollbar.propertyView({ label: trans("calendar.showVerticalScrollbar")})}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -957,6 +997,17 @@ let CalendarBasicComp = (function () {
     })
     .build();
 })();
+
+const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
+  const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
+  
+  const dateInTz = dayjs().tz(tz);
+  const offset = dateInTz.format('Z');
+  const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    .formatToParts().find(part => part.type === 'timeZoneName')?.value;
+
+  return { TimeZone: tz, Offset: offset, Name: timeZoneName };
+};
 
 CalendarBasicComp = class extends CalendarBasicComp {
   override autoHeight(): boolean {
@@ -992,6 +1043,12 @@ const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
     func: (input: { events: any[]; }) => {
       return input.events.filter(event => Boolean(event.resourceId));
     },
+  }),
+  depsConfig({
+    name: "timeZone",
+    desc: trans("calendar.timeZone"), 
+    depKeys: ["timeZone",],
+    func: (input: { timeZone: any; userTimeZone: any; }) => getTimeZoneInfo(input.timeZone, input.userTimeZone)
   }),
 ]);
 
