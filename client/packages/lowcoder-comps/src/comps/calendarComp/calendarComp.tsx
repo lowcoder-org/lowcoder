@@ -79,6 +79,7 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
+import { timeZoneOptions } from "./timeZone";
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -150,6 +151,7 @@ let childrenMap: any = {
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -187,7 +189,8 @@ let CalendarBasicComp = (function () {
     currentFreeView?: string; 
     currentPremiumView?: string; 
     animationStyle?:any;
-    modalStyle?:any
+    modalStyle?:any;
+    timeZone?: string; 
   }) => {
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
@@ -315,6 +318,7 @@ let CalendarBasicComp = (function () {
       licenseKey,
       resourceName,
       modalStyle,
+      timeZone
     } = props;
 
     const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
@@ -890,6 +894,7 @@ let CalendarBasicComp = (function () {
       animationStyle:  { getPropertyView: () => any; };
       modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; tooltip: string; }) => any; };
+      timeZone: { propertyView: (arg0: { label: string; }) => any; }; 
     }) => {
       const license = children.licenseKey.getView();
       
@@ -904,6 +909,9 @@ let CalendarBasicComp = (function () {
               title: "Events",
               newOptionLabel: "Event",
             })}
+            {children.timeZone.propertyView({
+            label: trans("calendar.timeZone")
+             })}
           </Section>
           { license != "" && 
             <Section name={trans("calendar.resources")}>
