@@ -14,15 +14,15 @@ import { i18nObjs, trans } from "i18n";
 import type { JSONSchema7 } from "json-schema";
 import styled from "styled-components";
 import { toBoolean, toNumber, toString } from "util/convertUtils";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames, ScrollBar } from "lowcoder-design";
 import { jsonObjectControl } from "../../controls/codeControl";
 import { eventHandlerControl, submitEvent } from "../../controls/eventHandlerControl";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
-
+import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
@@ -47,6 +47,11 @@ const Container = styled.div<{
 
   label[for="root-title"] {
     font-size: 18px;
+  }
+
+  .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   #root-description {
@@ -188,7 +193,9 @@ let FormBasicComp = (function () {
   const childrenMap = {
     resetAfterSubmit: BoolControl,
     schema: jsonObjectControl(i18nObjs.jsonForm.defaultSchema),
+    showVerticalScrollbar: withDefault(BoolControl, false),
     uiSchema: jsonObjectControl(i18nObjs.jsonForm.defaultUiSchema),
+    autoHeight: AutoHeightControl,
     data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
     style: styleControl(JsonSchemaFormStyle , 'style'),
@@ -202,6 +209,15 @@ let FormBasicComp = (function () {
 
     return (
       <Container $style={props.style} $animationStyle={props.animationStyle}>
+        <ScrollBar
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow={"hidden"}
+            hideScrollbar={!props.showVerticalScrollbar}
+          >
         <ErrorBoundary>
           <Form
             validator={validator}
@@ -226,6 +242,7 @@ let FormBasicComp = (function () {
             }
           />
         </ErrorBoundary>
+        </ScrollBar>
       </Container>
     );
   })
@@ -325,9 +342,16 @@ let FormBasicComp = (function () {
               })}
             </Section>
           )}
-
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
+             <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
+              </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
               </Section>
@@ -342,6 +366,13 @@ let FormBasicComp = (function () {
     })
     .build();
 })();
+
+FormBasicComp = class extends FormBasicComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
+
 
 let FormTmpComp = withExposingConfigs(FormBasicComp, [
   depsConfig({

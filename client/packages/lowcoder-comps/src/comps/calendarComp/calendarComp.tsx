@@ -150,6 +150,7 @@ let childrenMap: any = {
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  showVerticalScrollbar: withDefault(BoolControl, false),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -188,7 +189,10 @@ let CalendarBasicComp = (function () {
     currentPremiumView?: string; 
     animationStyle?:any;
     modalStyle?:any
-  }) => {
+    showVerticalScrollbar?:boolean
+
+  }, dispatch: any) => {
+  
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
     );
@@ -315,6 +319,7 @@ let CalendarBasicComp = (function () {
       licenseKey,
       resourceName,
       modalStyle,
+      showVerticalScrollbar
     } = props;
 
     const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
@@ -745,6 +750,7 @@ let CalendarBasicComp = (function () {
         $editable={editable}
         $style={style}
         $theme={theme?.theme}
+        $showVerticalScrollbar={showVerticalScrollbar}
         onDoubleClick={handleDbClick}
         $left={left}
         key={initialDate ? currentView + initialDate : currentView}
@@ -873,7 +879,8 @@ let CalendarBasicComp = (function () {
       style: { getPropertyView: () => any; };
       animationStyle:  { getPropertyView: () => any; };
       modalStyle: { getPropertyView: () => any; };
-      licenseKey: { getView: () => any; propertyView: (arg0: { label: string; tooltip: string; }) => any; };
+      licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
+      showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
     }) => {
       const license = children.licenseKey.getView();
       
@@ -918,6 +925,7 @@ let CalendarBasicComp = (function () {
               ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
               : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
             {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
+            {children.showVerticalScrollbar.propertyView({ label: trans("calendar.showVerticalScrollbar")})}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}

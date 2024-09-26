@@ -345,7 +345,8 @@ export const en = {
     animationType:"Type",
     animationDelay:"Delay",
     animationDuration:"Duration",
-    animationIterationCount:"IterationCount"
+    animationIterationCount:"IterationCount",
+    showVerticalScrollbar:"Show Vertical ScrollBar"
   },
 };
 
