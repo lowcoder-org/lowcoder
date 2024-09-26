@@ -232,11 +232,6 @@ let StepControlBasicComp = (function () {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
-            {!children.autoHeight.getView() && (
-                  children.showVerticalScrollbar.propertyView({
-                    label: trans("prop.showVerticalScrollbar"),
-                  })
-                )}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
@@ -261,6 +256,9 @@ let StepControlBasicComp = (function () {
             { children.displayType.getView() != "inline" && !children.showDots.getView() && (
               children.showIcons.propertyView({label: trans("step.showIcons")}
             ))}
+            {!children.autoHeight.getView() && (
+              children.showVerticalScrollbar.propertyView({label: trans("prop.showVerticalScrollbar")})
+            )}
           </Section>
         )}
 
