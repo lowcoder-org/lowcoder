@@ -1,5 +1,5 @@
 import { ConfigProvider, Steps} from "antd";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, RadiusControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl, numberExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -96,10 +96,19 @@ const StepsChildrenMap = {
   viewRef: RefControl<HTMLDivElement>,
   animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
   showVerticalScrollbar: withDefault(BoolControl, false),
+  minHorizontalWidth: withDefault(RadiusControl, ''),
 };
 
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
+
+    const ScrollWrapper = styled.div<{ $showHorizontalScroll: boolean }>`
+      overflow-x: scroll;
+      ::-webkit-scrollbar {
+        display: ${props => props.$showHorizontalScroll ? "block" : "none"};
+      }
+    `;
+
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}
       height: 100%;
@@ -176,6 +185,7 @@ let StepControlBasicComp = (function () {
           <ScrollBar
             style={{
               height: props.autoHeight ? "auto" : "100%",
+              minWidth: props.minHorizontalWidth,
               margin: "0px",
               padding: "0px",
             }}
@@ -232,6 +242,15 @@ let StepControlBasicComp = (function () {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
+            {!children.autoHeight.getView() && (
+              children.showVerticalScrollbar.propertyView({
+                label: trans("prop.showVerticalScrollbar"),
+              })
+            )}
+            {children.minHorizontalWidth.propertyView({
+                label: trans("prop.minHorizontalWidth"),
+                placeholder: '100px',
+              })}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
