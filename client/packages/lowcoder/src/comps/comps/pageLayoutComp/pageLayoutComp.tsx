@@ -159,12 +159,12 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
     return [
       this.children.autoHeight.getPropertyView(),
       this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar") }),
-      (!this.children.autoHeight.getView()) && (
-       !this.children.siderScrollbars.getView() ||
-       !this.children.contentScrollbars.getView()
-      ) &&
-        this.children.mainScrollbars.propertyView({ label: trans("prop.mainScrollbar") }),
       (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.showVerticalScrollbar") }),
+      (!this.children.autoHeight.getView()) && (
+        !this.children.siderScrollbars.getView() ||
+        !this.children.contentScrollbars.getView()
+       ) &&
+         this.children.mainScrollbars.propertyView({ label: trans("prop.mainScrollbar") }),
     ];
   }
 
