@@ -14,6 +14,8 @@ import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 import React from "react";
+import type { AppState } from "@lowcoder-ee/redux/reducers";
+import { useSelector } from "react-redux";
 
 const ViewError = styled.div`
   display: flex;
@@ -60,11 +62,14 @@ const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompView
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
+  const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 
   let packageVersion = 'latest';
   // lowcoder-comps's package version
   if (isLowcoderComp) {
-    packageVersion = lowcoderCompPackageVersion;
+    packageVersion = lowcoderCompPackageVersion === 'latest' && Boolean(latestLowcoderCompsVersion)
+      ? latestLowcoderCompsVersion
+      : lowcoderCompPackageVersion;
   }
   // component plugin's package version
   else if (compState.comp?.comp?.version) {
