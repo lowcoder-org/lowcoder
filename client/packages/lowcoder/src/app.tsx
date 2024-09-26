@@ -427,13 +427,14 @@ const mapDispatchToProps = (dispatch: any) => ({
   },
   fetchLowcoderCompVersions: async () => {
     try {
-      dispatch(setLowcoderCompsLoading(true)); 
+      dispatch(setLowcoderCompsLoading(true));
       const packageMeta = await getNpmPackageMeta('lowcoder-comps');
       if (packageMeta?.versions) {
         dispatch(packageMetaReadyAction('lowcoder-comps', packageMeta));
       }
+      dispatch(setLowcoderCompsLoading(false));
     } catch (_) {
-      dispatch(setLowcoderCompsLoading(false)); 
+      dispatch(setLowcoderCompsLoading(false));
     }
   },
 });
