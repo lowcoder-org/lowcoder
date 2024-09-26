@@ -95,7 +95,7 @@ const StepsChildrenMap = {
   style: styleControl(StepsStyle , 'style'),
   viewRef: RefControl<HTMLDivElement>,
   animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
-  showVerticalScrollbar: withDefault(BoolControl, false),
+  showScrollBars: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, ''),
 };
 
@@ -182,7 +182,7 @@ let StepControlBasicComp = (function () {
               padding: "0px",
             }}
             overflow="scroll"
-            hideScrollbar={!props.showVerticalScrollbar}>
+            hideScrollbar={!props.showScrollBars}>
             <Steps 
               initial={props.initialValue.value -1}
               current={current}
@@ -197,6 +197,7 @@ let StepControlBasicComp = (function () {
             >
               {props.options.map((option, index) => (
                 <Steps.Step 
+                  style={{minWidth:props.minHorizontalWidth || '100%'}}
                   key={index}
                   title={option.label}
                   subTitle={option.subTitle}
@@ -234,15 +235,6 @@ let StepControlBasicComp = (function () {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
-            {!children.autoHeight.getView() && (
-              children.showVerticalScrollbar.propertyView({
-                label: trans("prop.showVerticalScrollbar"),
-              })
-            )}
-            {children.minHorizontalWidth.propertyView({
-                label: trans("prop.minHorizontalWidth"),
-                placeholder: '100px',
-              })}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
@@ -261,15 +253,23 @@ let StepControlBasicComp = (function () {
                 radioButton: true,
               })
             }
+            {children.direction.getView() == "horizontal" && (
+              children.minHorizontalWidth.propertyView({
+                label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
+              })
+            )}
+            {!children.autoHeight.getView() && (
+              children.showScrollBars.propertyView({
+              label: trans("prop.scrollbar"),
+            })
+            )}
             { children.displayType.getView() != "inline" && !children.showIcons.getView() && (
               children.showDots.propertyView({label: trans("step.showDots")}
             ))}
             { children.displayType.getView() != "inline" && !children.showDots.getView() && (
               children.showIcons.propertyView({label: trans("step.showIcons")}
             ))}
-            {!children.autoHeight.getView() && (
-              children.showVerticalScrollbar.propertyView({label: trans("prop.showVerticalScrollbar")})
-            )}
           </Section>
         )}
 
