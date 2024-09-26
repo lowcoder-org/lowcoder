@@ -101,14 +101,6 @@ const StepsChildrenMap = {
 
 let StepControlBasicComp = (function () {
   return new UICompBuilder(StepsChildrenMap, (props) => {
-
-    const ScrollWrapper = styled.div<{ $showHorizontalScroll: boolean }>`
-      overflow-x: scroll;
-      ::-webkit-scrollbar {
-        display: ${props => props.$showHorizontalScroll ? "block" : "none"};
-      }
-    `;
-
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}
       height: 100%;
