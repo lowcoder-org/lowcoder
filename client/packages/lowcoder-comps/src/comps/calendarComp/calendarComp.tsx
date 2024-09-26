@@ -479,24 +479,11 @@ let CalendarBasicComp = (function () {
           backgroundColor:props?.modalStyle?.background,
           animationStyle:props?.animationStyle,
         },
-        width: "450px",
+        width: "500px",
         content: (
           <Tabs defaultActiveKey="1">
-            <Tabs.TabPane tab={trans("calendar.general")} key="1">
+             <Tabs.TabPane tab={trans("calendar.general")} key="1">
               <FormWrapper form={form} $modalStyle={modalStyle}>
-                <Form.Item
-                  label={
-                    <Tooltip title={trans("calendar.eventIdTooltip")}>
-                      {trans("calendar.eventId")}
-                    </Tooltip>
-                  }
-                  name="id"
-                  rules={[
-                    { required: true, message: trans("calendar.eventIdRequire") },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventName")}
                   name="label"
@@ -509,6 +496,35 @@ let CalendarBasicComp = (function () {
                 <Form.Item
                   label={trans("calendar.eventdetail")}
                   name="detail"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.timeZone")}
+                  name="timeZone"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.timeRange")}
+                  name="timeRange"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.advanced")} key="2">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={
+                    <Tooltip title={trans("calendar.eventIdTooltip")}>
+                      {trans("calendar.eventId")}
+                    </Tooltip>
+                  }
+                  name="id"
+                  rules={[
+                    { required: true, message: trans("calendar.eventIdRequire") },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
@@ -526,7 +542,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
+            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="3">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleColor")}
@@ -582,7 +598,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
+            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="4">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleFontWeight")}
@@ -610,7 +626,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.animations")} key="4">
+            <Tabs.TabPane tab={trans("calendar.animations")} key="5">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.animationType")}

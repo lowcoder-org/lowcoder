@@ -335,6 +335,7 @@ export const en = {
     eventResourceId: "Resource ID",
     dragDropEventHandlers: "Drag/Drop Event Handlers",
     general: "General",
+    advanced: "Advanced",
     colorStyles:"Color Styles",
     fontStyles:"Font Styles",
     animations:"Animations",
@@ -345,7 +346,9 @@ export const en = {
     animationType:"Type",
     animationDelay:"Delay",
     animationDuration:"Duration",
-    animationIterationCount:"IterationCount"
+    animationIterationCount:"IterationCount",
+    timeZone:"Time Zone",
+    timeRange:"Time Range",
   },
 };
 
