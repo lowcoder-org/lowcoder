@@ -54,4 +54,4 @@ logging:
     org.lowcoder: debug
 
 default:
-  query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT_MILLIS:10000}
+  query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10s}

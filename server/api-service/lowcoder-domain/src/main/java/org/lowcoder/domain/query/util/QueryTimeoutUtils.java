@@ -19,11 +19,11 @@ import org.springframework.stereotype.Component;
 @Component
 public final class QueryTimeoutUtils {
 
-    private static int defaultQueryTimeoutMillis = 10000;
+    private static int defaultQueryTimeout = 10;
 
     @Value("${default.query-timeout}")
-    public void setDefaultQueryTimeoutMillis(int defaultQueryTimeoutMillis) {
-        QueryTimeoutUtils.defaultQueryTimeoutMillis = defaultQueryTimeoutMillis;
+    public void setDefaultQueryTimeoutMillis(int defaultQueryTimeout) {
+        QueryTimeoutUtils.defaultQueryTimeout = defaultQueryTimeout;
     }
 
     public static int parseQueryTimeoutMs(String timeoutStr, Map<String, Object> paramMap, int maxQueryTimeout) {
@@ -33,7 +33,7 @@ public final class QueryTimeoutUtils {
     @VisibleForTesting
     public static int parseQueryTimeoutMs(String timeoutStr, int maxQueryTimeout) {
         if (StringUtils.isBlank(timeoutStr)) {
-            return defaultQueryTimeoutMillis;
+            return Math.min(defaultQueryTimeout * 1000, (int)Duration.ofSeconds(maxQueryTimeout).toMillis());
         }
 
         Pair<String, Integer> unitInfo = getUnitInfo(timeoutStr);
