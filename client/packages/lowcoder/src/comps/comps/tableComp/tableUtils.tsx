@@ -465,8 +465,8 @@ export function genSelectionParams(
   filterData: RecordType[],
   selection: string
 ): Record<string, unknown> | undefined {
-  const idx = filterData.findIndex((row) => row[OB_ROW_ORI_INDEX] === selection);
-  if (idx < 0) {
+  const idx = filterData?.findIndex((row) => row[OB_ROW_ORI_INDEX] === selection);
+  if (!Boolean(filterData) || idx < 0) {
     return undefined;
   }
   const currentRow = filterData[idx];
