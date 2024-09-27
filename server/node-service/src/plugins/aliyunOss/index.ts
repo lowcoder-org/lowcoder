@@ -10,9 +10,9 @@ const ossPlugin: DataSourcePluginFactory = (context: PluginContext) => {
     return {
       id: "oss",
       name: i18n.trans("name"),
-      icon: "https://img.alicdn.com/tfs/TB1_ZXuNcfpK1RjSZFOXXa6nFXa-32-32.ico",
+      icon: "alibabaOss.svg",
       description: i18n.trans("description"),
-      category: "api",
+      category: "Assets",
       dataSourceConfig: getDataSourceConfig(i18n),
       queryConfig: getQueryConfig(i18n),
   
