@@ -7,8 +7,8 @@ export const MEMBER_ROLE = "member";
 
 export const NEW_ORG_PREFIX = trans("orgSettings.newOrg");
 
-export const TacoRoles = [SUPER_ADMIN_ROLE, ADMIN_ROLE, MEMBER_ROLE] as const;
-export type RoleIdType = typeof TacoRoles[number];
+export const TacoRoles = [ADMIN_ROLE, MEMBER_ROLE] as const;
+export type RoleIdType = typeof TacoRoles[number] | "super_admin";
 type RoleInfoType = Record<RoleIdType, { name: string; desc: string }>;
 
 export const GroupRoleInfo: RoleInfoType = {
