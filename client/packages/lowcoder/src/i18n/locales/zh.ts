@@ -1738,6 +1738,7 @@ export const zh: typeof en = {
     memberSettings: {
         ...en.memberSettings,
         admin: "管理员",
+        superAdmin: "超级管理员",
         adminGroupRoleInfo: "管理员可以管理群组成员和资源",
         adminOrgRoleInfo: "拥有所有资源并可以管理群组.",
         member: "成员",
