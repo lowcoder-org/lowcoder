@@ -1,19 +1,16 @@
 package org.lowcoder.infra.config;
 
-import java.lang.reflect.Field;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.lowcoder.infra.config.AutoReloadConfigFactory;
-import org.lowcoder.infra.config.AutoReloadConfigInstanceImpl;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.test.JsonFileReader;
 import org.lowcoder.sdk.util.JsonUtils;
+
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 
 public class AutoReloadConfigInstanceImplTest {
 

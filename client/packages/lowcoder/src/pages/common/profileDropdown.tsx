@@ -27,7 +27,7 @@ import { trans } from "i18n";
 import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
 
 const { Item } = Menu;
 

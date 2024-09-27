@@ -12,8 +12,7 @@ RUN --mount=type=cache,target=/root/.m2 mvn -f pom.xml clean package -DskipTests
 RUN mkdir -p /lowcoder/api-service/config /lowcoder/api-service/logs /lowcoder/plugins
 
 # Copy lowcoder server configuration
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application.yml /lowcoder/api-service/config/
-COPY server/api-service/lowcoder-server/src/main/resources/selfhost/ce/application-selfhost.yml /lowcoder/api-service/config/
+COPY server/api-service/lowcoder-server/src/main/resources/application.yaml /lowcoder/api-service/config/
 
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
@@ -26,7 +25,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy as lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -34,27 +33,26 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
   && addgroup --system --gid 9001 lowcoder \
   && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
 
+
 # Copy lowcoder server configuration
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /lowcoder/api-service
 
 # Copy lowcoder api service app, dependencies and libs
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/app /lowcoder/api-service/app
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/dependencies /lowcoder/api-service/dependencies
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
-COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/distribution/target/lowcoder-api-service-bin/set-classpath.sh /lowcoder/api-service/set-classpath.sh
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/lowcoder-api-service.jar /lowcoder/api-service/lowcoder-api-service.jar
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
+COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
 
 EXPOSE 8080
-CMD [ "sh" , "/lowcoder/api-service/entrypoint.sh" ]
+CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
 
 #############################################################################
 
 ##
 ## Build lowcoder node service
 ##
-FROM ubuntu:jammy as build-node-service
+FROM ubuntu:jammy AS build-node-service
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates build-essential gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -83,10 +81,10 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy as lowcoder-ce-node-service
+FROM ubuntu:jammy AS lowcoder-ce-node-service
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
 
 # Add nodejs repo and keys
 RUN mkdir -p /etc/apt/keyrings \
@@ -112,14 +110,14 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ## Build lowcoder client application
 ##
 FROM node:20.2-slim AS build-client
-COPY ./client /lowcoder-client
-WORKDIR /lowcoder-client
-RUN yarn --immutable
-
-# TODO: build lowcoder-comps
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+# Build client
+COPY ./client /lowcoder-client
+WORKDIR /lowcoder-client
+RUN yarn --immutable
 
 ARG REACT_APP_COMMIT_ID=test
 ARG REACT_APP_ENV=production
@@ -127,6 +125,20 @@ ARG REACT_APP_EDITION=community
 ARG REACT_APP_DISABLE_JS_SANDBOX=true
 RUN yarn build
 
+# Build lowcoder-comps
+WORKDIR /lowcoder-client/packages/lowcoder-comps
+RUN yarn install
+RUN yarn build
+RUN tar -zxf lowcoder-comps-*.tgz && mv package lowcoder-comps
+
+# Build lowcoder-sdk
+WORKDIR /lowcoder-client/packages/lowcoder-sdk
+RUN yarn install
+RUN yarn build
+
+WORKDIR /lowcoder-client/packages/lowcoder-sdk-webpack-bundle
+RUN yarn install
+RUN yarn build
 
 ##
 ## Intermediary Lowcoder client image
@@ -134,7 +146,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 as lowcoder-ce-frontend
+FROM nginx:1.27.1 AS lowcoder-ce-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -143,8 +155,15 @@ RUN usermod --login lowcoder --uid 9001 nginx \
   && rm -f /etc/nginx/nginx.conf \
   && mkdir -p /lowcoder/assets
 
-# Copy lowcoder client data
+# Copy lowcoder client
 COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+# Copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+# Copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+# Copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+
 
 # Copy additional nginx init scripts
 COPY deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
@@ -153,6 +172,7 @@ COPY deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-upda
 RUN chmod +x /docker-entrypoint.d/00-change-nginx-user.sh && \
     chmod +x /docker-entrypoint.d/01-update-nginx-conf.sh
 
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
 COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
 COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
 COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
@@ -167,30 +187,29 @@ EXPOSE 3443
 ##
 ## Build Lowcoder all-in-one image
 ##
-FROM lowcoder-ce-frontend
+FROM ubuntu:jammy
 LABEL maintainer="lowcoder"
 
-RUN apt update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
+# Install essential tools
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg bash lsb-release \
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && apt-get clean
 
-# Add nodejs repo and keys
-RUN mkdir -p /etc/apt/keyrings \
-  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
-  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list
+# Add required apt repositories and signing keys
+RUN curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /usr/share/keyrings/nodesource-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nodesource-keyring.gpg] https://deb.nodesource.com/node_20.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb `lsb_release -cs` main" | tee /etc/apt/sources.list.d/redis.list \
+  && curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg] https://repo.mongodb.org/apt/ubuntu `lsb_release -cs`/mongodb-org/7.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-7.0.list \
+  && curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg \
+  && echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] http://nginx.org/packages/mainline/ubuntu `lsb_release -cs` nginx" | tee /etc/apt/sources.list.d/nginx.list
 
 
 # Install required packages
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y bash gnupg curl lsb-release \
-  && curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb bullseye main" | tee /etc/apt/sources.list.d/redis.list \
-  && curl -fsSL https://www.mongodb.org/static/pgp/server-4.4.asc | gpg --dearmor -o /usr/share/keyrings/mongodb-archive-keyring.gpg \
-  && echo "deb [signed-by=/usr/share/keyrings/mongodb-archive-keyring.gpg arch=amd64,arm64] http://repo.mongodb.org/apt/ubuntu focal/mongodb-org/4.4 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list \
-  && if [ "$(dpkg --print-architecture)" = "amd64" ] || [ "$(dpkg --print-architecture)" = "i386" ]; then \
-    curl -sL http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  else \
-    curl -sL http://ports.ubuntu.com/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb --output libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb; \
-  fi \
-  && dpkg -i libssl1.1_1.1.1f-1ubuntu2_$(dpkg --print-architecture).deb \
-  && apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends -y \
+      nginx=1.27.1-1~jammy \
       mongodb-org \
       redis \
       supervisor \
@@ -198,8 +217,39 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
       nodejs \
       openjdk-17-jdk-headless \
   && npm install -g yarn \
-  && rm -rf /var/cache/apt/lists \
-  && mkdir -p /lowcoder/assets
+  && rm -rf /var/cache/apt/lists /var/lib/apt/lists/* /var/log/dpkg.log \
+  && apt-get clean \
+  && rm -rf /tmp/*
+
+# Use configuration setup from official nginx image
+RUN rm -rf /etc/nginx/nginx.conf
+COPY --from=nginx:1.27.1 /docker-entrypoint.d /docker-entrypoint.d
+COPY --from=nginx:1.27.1 /docker-entrypoint.sh /docker-entrypoint.sh
+
+# Add lowcoder user
+RUN usermod --login lowcoder --uid 9001 nginx \
+  && groupmod --new-name lowcoder --gid 9001 nginx
+
+# Copy additional nginx init scripts and configs
+COPY --chmod=0755 deploy/docker/frontend/00-change-nginx-user.sh /docker-entrypoint.d/00-change-nginx-user.sh
+COPY --chmod=0755 deploy/docker/frontend/01-update-nginx-conf.sh /docker-entrypoint.d/01-update-nginx-conf.sh
+COPY deploy/docker/frontend/server.conf /etc/nginx/server.conf
+COPY deploy/docker/frontend/nginx-http.conf /etc/nginx/nginx-http.conf
+COPY deploy/docker/frontend/nginx-https.conf /etc/nginx/nginx-https.conf
+COPY deploy/docker/frontend/ssl-certificate.conf /etc/nginx/ssl-certificate.conf
+COPY deploy/docker/frontend/ssl-params.conf /etc/nginx/ssl-params.conf
+
+
+# Add lowcoder frontend
+#    copy lowcoder client
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder/build/ /lowcoder/client
+#    copy lowcoder components
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-comps/lowcoder-comps /lowcoder/client-comps
+#    copy lowcoder SDK
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk /lowcoder/client-sdk
+#    copy lowcoder SDK webpack bundle
+COPY --chown=lowcoder:lowcoder --from=build-client /lowcoder-client/packages/lowcoder-sdk-webpack-bundle/dist /lowcoder/client-embed
+RUN mkdir -p /lowcoder/assets/ && chown lowcoder:lowcoder /lowcoder/assets/
 
 # Add lowcoder api-service
 COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
@@ -213,6 +263,17 @@ COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc
 
 # Add startup script
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/entrypoint.sh /lowcoder/entrypoint.sh
+
+# Fixes for OpenShift compatibility (after all files are copied)
+RUN echo  \
+  && adduser lowcoder root \
+  && mkdir -p /lowcoder-stacks \
+  && for i in /lowcoder-stacks /lowcoder/assets /lowcoder/api-service/logs /lowcoder/etc/supervisord; do \
+       chmod -R g+rw "$i"; \
+       chown -R lowcoder:root "$i"; \
+     done \
+  && chown -R lowcoder:root /var/log \
+  && chmod -R g+rw /run /etc/nginx /var/cache/nginx /var/log
 
 EXPOSE 27017
 EXPOSE 3000

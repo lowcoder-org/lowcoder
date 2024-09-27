@@ -5,6 +5,7 @@ import { withType } from "comps/generators";
 import { trans } from "i18n";
 import { Dropdown } from "lowcoder-design/src/components/Dropdown";
 import { BooleanComp } from "./columnTypeComps/columnBooleanComp";
+import { SwitchComp } from "./columnTypeComps/columnSwitchComp";
 import { DateComp } from "./columnTypeComps/columnDateComp";
 import { ImageComp } from "./columnTypeComps/columnImgComp";
 import { LinkComp } from "./columnTypeComps/columnLinkComp";
@@ -18,7 +19,14 @@ import { ColumnSelectComp } from "./columnTypeComps/columnSelectComp";
 import { SimpleTextComp } from "./columnTypeComps/simpleTextComp";
 import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
+import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
+import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
+
 const actionOptions = [
+  {
+    label: trans("table.avatars"),
+    value: "avatars",
+  },
   {
     label: trans("table.text"),
     value: "text",
@@ -42,6 +50,10 @@ const actionOptions = [
   {
     label: trans("table.select"),
     value: "select",
+  },
+  {
+    label: trans("table.dropdown"),
+    value: "dropdown",
   },
   {
     label: trans("table.badgeStatus"),
@@ -72,6 +84,10 @@ const actionOptions = [
     value: "boolean",
   },
   {
+    label: trans("table.switch"),
+    value: "switch",
+  },
+  {
     label: trans("table.rating"),
     value: "rating",
   },
@@ -82,6 +98,7 @@ const actionOptions = [
 ] as const;
 
 export const ColumnTypeCompMap = {
+  avatars: ColumnAvatarsComp,
   text: SimpleTextComp,
   number: ColumnNumberComp,
   button: ButtonComp,
@@ -89,11 +106,13 @@ export const ColumnTypeCompMap = {
   link: LinkComp,
   tag: ColumnTagsComp,
   select: ColumnSelectComp,
+  dropdown: ColumnDropdownComp,
   links: ColumnLinksComp,
   image: ImageComp,
   markdown: ColumnMarkdownComp,
   dateTime: DateTimeComp,
   boolean: BooleanComp,
+  switch: SwitchComp,
   rating: RatingComp,
   progress: ProgressComp,
   date: DateComp,

@@ -15,11 +15,15 @@ import { Button100, ButtonCompWrapper, buttonRefMethods } from "./buttonCompCons
 import { IconControl } from "comps/controls/iconControl";
 import { AlignWithStretchControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
-import { ToggleButtonStyle } from "comps/controls/styleControlConstants";
+import {
+  AnimationStyle,
+  AnimationStyleType,
+  ToggleButtonStyle,
+} from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
 
 const IconWrapper = styled.div`
@@ -29,7 +33,9 @@ const IconWrapper = styled.div`
 const ButtonCompWrapperStyled = styled(ButtonCompWrapper)<{
   $align: "left" | "center" | "right" | "stretch";
   $showBorder: boolean;
+  $animationStyle: AnimationStyleType;
 }>`
+  ${(props) => props.$animationStyle}
   width: 100%;
   display: flex;
   justify-content: ${(props) => props.$align};
@@ -54,19 +60,22 @@ const ToggleTmpComp = (function () {
     falseIcon: withDefault(IconControl, "/icon:solid/AngleDown"),
     iconPosition: LeftRightControl,
     alignment: AlignWithStretchControl,
-    style: styleControl(ToggleButtonStyle),
-    showBorder: withDefault(BoolControl, true), 
+    style: styleControl(ToggleButtonStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
+
     return (
       <ButtonCompWrapperStyled
         disabled={props.disabled}
         $align={props.alignment}
         $showBorder={props.showBorder}
+        $animationStyle={props.animationStyle}
       >
         <Button100
           ref={props.viewRef}
@@ -122,13 +131,21 @@ const ToggleTmpComp = (function () {
           </>
         )}
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.style}>
-            {children.showBorder.propertyView({ label: trans("toggleButton.showBorder") })}
-            {children.style.getPropertyView()}
-          </Section></>
-        )}
-
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.style}>
+              {children.showBorder.propertyView({
+                label: trans("toggleButton.showBorder"),
+              })}
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
+          )}
+        
       </>
     ))
     .setExposeMethodConfigs(buttonRefMethods)

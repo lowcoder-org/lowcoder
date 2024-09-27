@@ -11,14 +11,15 @@ import {
   LabelStyle,
   SignatureStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
+  SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
@@ -95,15 +96,15 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
 `;
 
 const childrenMap = {
-  tips: withDefault(StringControl, trans("signature.signHere")),
+  tips: withDefault(StringControl, trans('signature.signHere')),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, { position: "column", text: "" }),
-  style: styleControl(SignatureStyle),
-  labelStyle: styleControl(LabelStyle),
+  label: withDefault(LabelControl, {position: 'column', text: ''}),
+  style: styleControl(SignatureContainerStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
-  value: stateComp(""),
-
+  value: stateComp(''),
+  inputFieldStyle: styleControl(SignatureStyle , 'inputFieldStyle'),
   ...formDataChildren,
 };
 
@@ -128,7 +129,8 @@ let SignatureTmpComp = (function () {
     };
     return props.label({
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {
@@ -140,7 +142,7 @@ let SignatureTmpComp = (function () {
             onMouseDown={(e) => {
               e.preventDefault();
             }}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             $isEmpty={!props.value && !isBegin}
           >
             <div className="signature">
@@ -149,7 +151,7 @@ let SignatureTmpComp = (function () {
                   ref={(ref) => {
                     canvas = ref;
                   }}
-                  penColor={props.style.pen}
+                  penColor={props.inputFieldStyle.pen}
                   clearOnResize={false}
                   canvasProps={{
                     className: "sigCanvas",
@@ -227,6 +229,9 @@ let SignatureTmpComp = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
               </Section>
             </>
           )}

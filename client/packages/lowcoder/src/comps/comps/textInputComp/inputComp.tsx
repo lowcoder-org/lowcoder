@@ -1,7 +1,7 @@
 import { Input, Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, LabelStyleType } from "comps/controls/styleControlConstants";
 import {
   NameConfig,
   NameConfigPlaceHolder,
@@ -31,16 +31,18 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { InputRef } from "antd/es/input";
 import { RefControl } from "comps/controls/refControl";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 /**
  * Input Comp
  */
 
-const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
+const InputStyle = styled(Input)<{$style: InputLikeStyleType}>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -49,10 +51,12 @@ const childrenMap = {
   viewRef: RefControl<InputRef>,
   showCount: BoolControl,
   allowClear: BoolControl,
-  style: styleControl(InputLikeStyle),
-  labelStyle: styleControl(LabelStyle),
+  style: styleControl(InputFieldStyle, 'style'), 
+  labelStyle:styleControl(LabelStyle, 'labelStyle'), 
   prefixIcon: IconControl,
   suffixIcon: IconControl,
+  inputFieldStyle: styleControl(InputLikeStyle, 'inputFieldStyle') ,
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
 };
 
 let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -65,13 +69,15 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
         ref={props.viewRef}
         showCount={props.showCount}
         allowClear={props.allowClear}
-        $style={props.style}
+        $style={props.inputFieldStyle}
         prefix={hasIcon(props.prefixIcon) && props.prefixIcon}
         suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
     style: props.style,
     labelStyle: props.labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
+    animationStyle:props.animationStyle,
     ...validateState,
   });
 })
@@ -102,6 +108,8 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
           <>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
             <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
           </>
         )}
       </>

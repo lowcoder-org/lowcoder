@@ -10,7 +10,7 @@ import {
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ScannerEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ButtonStyle } from "comps/controls/styleControlConstants";
+import { DropdownStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { CustomModal, Section, sectionNames } from "lowcoder-design";
@@ -21,7 +21,7 @@ import { trans } from "i18n";
 import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
 
@@ -70,7 +70,7 @@ const ScannerTmpComp = (function () {
     maskClosable: withDefault(BoolControl, true),
     onEvent: ScannerEventHandlerControl,
     disabled: BoolCodeControl,
-    style: styleControl(ButtonStyle),
+    style: styleControl(DropdownStyle, 'style'),
     viewRef: RefControl<HTMLElement>,
   };
   return new UICompBuilder(childrenMap, (props) => {

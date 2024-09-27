@@ -18,4 +18,5 @@ public interface ApplicationHistorySnapshotService {
 
     Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId);
 
+    Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId);
 }

@@ -8,6 +8,7 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
+// import duckdbPlugin from "./duckdb";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
 import stripePlugin from "./stripe";
@@ -33,47 +34,80 @@ import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
 import ossPlugin from "./aliyunOss";
 import appConfigPlugin from "./appconfig";
+import tursoPlugin from "./turso";
+import postmanEchoPlugin from "./postmanEcho";
+import lowcoderPlugin from "./lowcoder";
+import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
-  s3Plugin,
-  ossPlugin,
-  openApiPlugin,
-  n8nPlugin,
+  
+  // Databases
   dynamoDBPlugin,
-  firebasePlugin,
   couchdbPlugin,
-  wooCommercePlugin,
-  openAiPlugin,
+  // duckdbPlugin,
+  faunaPlugin,
+  tursoPlugin,
+  firebirdsqlPlugin,
+
+  // Big Data
   athenaPlugin,
-  lambdaPlugin,
-  googleCloudStorage,
-  stripePlugin,
-  asanaPlugin,
-  circleCiPlugin,
-  frontPlugin,
-  githubPlugin,
+  bigQueryPlugin,
+
+  // AI
+  openAiPlugin,
   huggingFacePlugin,
   huggingFaceInferencePlugin,
-  jiraPlugin,
-  oneSignalPlugin,
+  didPlugin,
+
+  //DevOps
+  appConfigPlugin,
+  datadogPlugin,
+  circleCiPlugin,
+
+  // App Development
+  openApiPlugin,
+  postmanEchoPlugin,
+  lowcoderPlugin,
+  githubPlugin,
+  gitlabPlugin,
+  lambdaPlugin,
+  firebasePlugin,
+  supabaseApiPlugin,
+  
+  // Workflow
+  n8nPlugin,
+
+  // Messaging
+  twilioPlugin,
   sendGridPlugin,
-  shopifyPlugin,
-  slackPlugin,
+  oneSignalPlugin,
+  
+  // Assets
+  s3Plugin,
+  googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  ossPlugin,
+  
+  // Project Management
+  asanaPlugin,
+  jiraPlugin,
   notionPlugin,
-  datadogPlugin,
-  twilioPlugin,
-  gitlabPlugin,
-  faunaPlugin,
-  didPlugin,
-  bigQueryPlugin,
-  appConfigPlugin
+  slackPlugin,
+
+  // CRM
+  frontPlugin,
+
+  // E-commerce
+  stripePlugin,
+  shopifyPlugin,
+  wooCommercePlugin,
 ];
 
 try {
   plugins = require("../ee/plugins").default;
   console.info("using ee plugins");
-} catch {}
+} catch { }
 
 export default plugins;

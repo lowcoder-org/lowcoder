@@ -1,8 +1,7 @@
 package org.lowcoder.sdk.exception;
 
-import org.slf4j.helpers.MessageFormatter;
-
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.helpers.MessageFormatter;
 
 @Slf4j
 public class ServerException extends BaseException {

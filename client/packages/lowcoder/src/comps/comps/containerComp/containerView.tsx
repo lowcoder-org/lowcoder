@@ -24,7 +24,7 @@ import {
   DEFAULT_GRID_COLUMNS,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -60,7 +60,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -121,6 +121,7 @@ type ExtraProps = {
   isSelectable?: boolean;
   overflow?: string;
   enableGridLines?: boolean;
+  horizontalGridCells?: number;
   onRowCountChange?: (rowHeight: number) => void;
 };
 
@@ -222,15 +223,18 @@ const onDrop = async (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
-    const {
-      defaultDataFnName,
-      defaultDataFnPath,
-    } = uiCompRegistry[compType as UICompType];
-
     let defaultDataFn = undefined;
-    if(defaultDataFnName && defaultDataFnPath) {
-      const module = await import(`../../${defaultDataFnPath}.tsx`);
-      defaultDataFn = module[defaultDataFnName];
+    
+    if (!compInfo.isRemote) {
+      const {
+        defaultDataFnName,
+        defaultDataFnPath,
+      } = uiCompRegistry[compType as UICompType];
+  
+      if(defaultDataFnName && defaultDataFnPath) {
+        const module = await import(`../../${defaultDataFnPath}.tsx`);
+        defaultDataFn = module[defaultDataFnName];
+      }
     }
 
     const widgetValue: GridItemDataType = {
@@ -290,9 +294,10 @@ const getExtraLayout = (
     const autoHeight = item.autoHeight;
     const name = item.name;
     const compType = item.compType;
+    const comp = item.comp;
     const isSelected = selectedCompNames.has(name) || dragSelectedNames?.has?.(name);
     const hidden = item.hidden;
-    return { autoHeight, isSelected, name, hidden, compType };
+    return { autoHeight, isSelected, name, hidden, compType, comp };
   });
 };
 
@@ -308,7 +313,7 @@ const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
-const GridItemWrapper = React.forwardRef(
+const GridItemWrapper = React.memo(React.forwardRef(
   (
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -321,11 +326,11 @@ const GridItemWrapper = React.forwardRef(
       </ItemWrapper>
     );
   }
-);
+));
 
 type GirdItemViewRecord = Record<string, GridItem>;
 
-export function InnerGrid(props: ViewPropsWithSelect) {
+export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const {
     positionParams,
     rowCount = Infinity,
@@ -334,16 +339,22 @@ export function InnerGrid(props: ViewPropsWithSelect) {
     enableGridLines,
     isRowCountLocked,
   } = props;
+  const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
+  const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
   const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
+  // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
-  const defaultGrid =
-    useContext(ThemeContext)?.theme?.gridColumns ||
+  const defaultGrid = useMemo(() => {
+    return horizontalGridCells ||
+    currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
     "12";
+  }, [horizontalGridCells, currentTheme?.gridColumns, defaultTheme?.gridColumns]);
+
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
@@ -376,7 +387,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const canAddSelect = useMemo(
     () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
-    [containerSelectNames, editorState]
+    [containerSelectNames, editorState.selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
@@ -423,16 +434,21 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       onPositionParamsChange,
       onRowCountChange,
       positionParams,
-      props,
+      props.dispatch,
+      props.containerPadding,
     ]
   );
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
       editorState.setSelectedCompNames(names);
     },
-    [editorState]
+    [editorState.setSelectedCompNames]
   );
-  const { width, ref } = useResizeDetector({ onResize, handleHeight: isRowCountLocked });
+
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+  });
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -455,9 +471,10 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const clickItem = useCallback(
     (
       e: React.MouseEvent<HTMLDivElement,
-      globalThis.MouseEvent>, name: string
+      globalThis.MouseEvent>,
+      name: string,
     ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
-    [canAddSelect, containerSelectNames, setSelectedNames]
+    [selectItem, canAddSelect, containerSelectNames, setSelectedNames]
   );
 
   useEffect(() => {
@@ -546,7 +563,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       {itemViews}
     </ReactGridLayout>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
 
 function selectItem(
   e: MouseEvent<HTMLDivElement>,

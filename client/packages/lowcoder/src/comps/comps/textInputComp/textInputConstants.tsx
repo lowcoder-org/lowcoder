@@ -250,8 +250,9 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
       font-style:${style.fontStyle};
       text-transform:${style.textTransform};
       text-decoration:${style.textDecoration};
-      // background-color: ${style.background};
+      background-color: ${style.background};
       border-color: ${style.border};
+      // line-height: ${style.lineHeight};
 
       &:focus,
       &.ant-input-affix-wrapper-focused {

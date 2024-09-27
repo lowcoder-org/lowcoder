@@ -1,36 +1,22 @@
 package org.lowcoder.domain.organization.service;
 
-import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
-import static org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE;
-import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
-import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
-import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
-import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
-import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
-
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
-
+import com.github.f4b6a3.uuid.UuidCreator;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetRepository;
 import org.lowcoder.domain.asset.service.AssetService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.event.OrgDeletedEvent;
-import org.lowcoder.domain.organization.model.MemberRole;
-import org.lowcoder.domain.organization.model.Organization;
-import org.lowcoder.domain.organization.model.OrganizationDomain;
-import org.lowcoder.domain.organization.model.OrganizationState;
-import org.lowcoder.domain.organization.model.QOrganization;
+import org.lowcoder.domain.organization.model.*;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -41,54 +27,47 @@ import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.UriUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Locale;
+
+import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
+import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
+import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
+import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
+import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+import static org.lowcoder.sdk.util.LocaleUtils.getLocale;
+import static org.lowcoder.sdk.util.LocaleUtils.getMessage;
+
 @Slf4j
+@RequiredArgsConstructor
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
-    private final Conf<Integer> logoMaxSizeInKb;
+    private final UserRepository userRepository;
+    private Conf<Integer> logoMaxSizeInKb;
+    private final AssetRepository assetRepository;
+    private final AssetService assetService;
+    private final OrgMemberService orgMemberService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final OrganizationRepository repository;
+    private final GroupService groupService;
+    private final ApplicationContext applicationContext;
+    private final CommonConfig commonConfig;
+    private final ConfigCenter configCenter;
 
-    private static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
-            "Here is the link to reset your password: %s<br/>" +
-            "Please note that the link will expire after 12 hours.<br/><br/>" +
-            "Regards,<br/>" +
-            "The Lowcoder Team</p>";
-
-    @Autowired
-    private AssetRepository assetRepository;
-
-    @Autowired
-    private AssetService assetService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-
-    @Autowired
-    private OrganizationRepository repository;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
-    private CommonConfig commonConfig;
-
-    @Autowired
-    public OrganizationServiceImpl(ConfigCenter configCenter) {
+    @PostConstruct
+    private void init()
+    {
         logoMaxSizeInKb = configCenter.asset().ofInteger("logoMaxSizeInKb", 300);
     }
 
@@ -99,6 +78,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             String userOrgSuffix = getMessage(locale, "USER_ORG_SUFFIX");
 
             Organization organization = new Organization();
+            organization.setGid(UuidCreator.getTimeOrderedEpoch().toString());
             organization.setName(user.getName() + userOrgSuffix);
             organization.setIsAutoGeneratedOrganization(true);
             // saas mode
@@ -159,7 +139,7 @@ public class OrganizationServiceImpl implements OrganizationService {
                         return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ORGANIZATION));
                     }
                     organization.setCommonSettings(new OrganizationCommonSettings());
-                    organization.getCommonSettings().put("PASSWORD_RESET_EMAIL_TEMPLATE",
+                    organization.getCommonSettings().put(OrganizationCommonSettings.PASSWORD_RESET_EMAIL_TEMPLATE,
                             PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT);
                     organization.setState(ACTIVE);
                     return Mono.just(organization);
@@ -173,6 +153,12 @@ public class OrganizationServiceImpl implements OrganizationService {
         return groupService.createAllUserGroup(newOrg.getId())
                 .then(groupService.createDevGroup(newOrg.getId()))
                 .then(setOrgAdmin(userId, newOrg, isSuperAdmin))
+                .then(userRepository.findBySuperAdminIsTrue().flatMap(superAdminUser -> {
+                    if(!userId.equals(superAdminUser.getId())) {
+                        return setOrgSuperAdmin(superAdminUser.getId(), newOrg);
+                    }
+                    return Mono.empty();
+                }).then())
                 .thenReturn(newOrg);
     }
 
@@ -180,14 +166,25 @@ public class OrganizationServiceImpl implements OrganizationService {
         return orgMemberService.addMember(newOrg.getId(), userId, isSuperAdmin ? MemberRole.SUPER_ADMIN : MemberRole.ADMIN);
     }
 
+    private Mono<Boolean> setOrgSuperAdmin(String userId, Organization newOrg) {
+        return orgMemberService.addMember(newOrg.getId(), userId, MemberRole.SUPER_ADMIN);
+    }
+
     @Override
     public Mono<Organization> getById(String id) {
+        if(FieldName.isGID(id))
+            return repository.findByGidAndState(id, ACTIVE)
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
         return repository.findByIdAndState(id, ACTIVE)
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
     }
 
     @Override
     public Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId) {
+        if(FieldName.isGID(orgId))
+            return repository.findByGidAndState(orgId, ACTIVE)
+                    .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
+                    .map(Organization::getCommonSettings);
         return repository.findByIdAndState(orgId, ACTIVE)
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                 .map(Organization::getCommonSettings);
@@ -195,7 +192,14 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Flux<Organization> getByIds(Collection<String> ids) {
+        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
+            return repository.findByGidInAndState(ids, ACTIVE);
         return repository.findByIdInAndState(ids, ACTIVE);
+    }
+
+    @Override
+    public Flux<Organization> getAllActive() {
+        return repository.findByState(ACTIVE);
     }
 
     @Override
@@ -221,7 +225,10 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     @Override
     public Mono<Boolean> deleteLogo(String organizationId) {
-        return repository.findByIdAndState(organizationId, ACTIVE)
+        Mono<Organization> organizationMono;
+        if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
+        else organizationMono = repository.findByIdAndState(organizationId, ACTIVE);
+        return organizationMono
                 .flatMap(organization -> {
                     // delete from asset repo.
                     final String prevAssetId = organization.getLogoAssetId();

@@ -1,39 +1,25 @@
 package org.lowcoder.api.application;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.v3.oas.annotations.Operation;
+import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
-
-//Falk: shouldn't be here ...?
-// import org.lowcoder.api.application.view.AgencyProfileApplicationView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
-import com.fasterxml.jackson.annotation.JsonProperty;
-
-import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = {Url.APPLICATION_URL, NewUrl.APPLICATION_URL})
@@ -150,6 +136,16 @@ public interface ApplicationEndpoints
 	)
     @PostMapping("/{applicationId}/publish")
     public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "updateApplicationEditingState",
+			summary = "Update Application editing state",
+			description = "Update the editing state of a specific Lowcoder Application identified by its ID."
+	)
+	@PutMapping("/editState/{applicationId}")
+	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
+														@RequestBody UpdateEditStateRequest updateEditStateRequest);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -299,5 +295,7 @@ public interface ApplicationEndpoints
                                            Map<String, Object> editingApplicationDSL,
                                            @Nullable String folderId) {
     }
+	public record UpdateEditStateRequest(Boolean editingFinished) {
+	}
 
 }

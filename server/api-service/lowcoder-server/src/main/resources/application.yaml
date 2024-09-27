@@ -1,0 +1,125 @@
+auth:
+  api-key:
+    secret: ${LOWCODER_API_KEY_SECRET:5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b}
+  email:
+    enable: ${LOWCODER_EMAIL_AUTH_ENABLED:true}
+    enable-register: ${LOWCODER_EMAIL_SIGNUP_ENABLED:true}
+  workspace-creation: ${LOWCODER_CREATE_WORKSPACE_ON_SIGNUP:true}
+
+spring:
+  data:
+    mongodb:
+      authentication-database: admin
+      auto-index-creation: false
+      uri: ${LOWCODER_MONGODB_URL:mongodb://lowcoder:secret123@localhost:27017/lowcoder?retryWrites=true&loadBalanced=false&connectTimeoutMS=10000&authSource=admin&authMechanism=SCRAM-SHA-256}
+    redis:
+      url: ${LOWCODER_REDIS_URL:redis://localhost:6379}
+  main:
+    allow-bean-definition-overriding: false
+    allow-circular-references: false
+  codec:
+    max-in-memory-size: 20MB
+  webflux:
+    base-path: /
+  mail:
+    host: ${LOWCODER_ADMIN_SMTP_HOST:localhost}
+    port: ${LOWCODER_ADMIN_SMTP_PORT:587}
+    username: ${LOWCODER_ADMIN_SMTP_USERNAME:info@localhost}
+    password: ${LOWCODER_ADMIN_SMTP_PASSWORD:s3cr3t}
+    properties:
+      mail:
+        smtp:
+          auth: ${LOWCODER_ADMIN_SMTP_AUTH:true}
+          ssl:
+            enable: ${LOWCODER_ADMIN_SMTP_SSL_ENABLED:false}
+          starttls:
+            enable: ${LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED:true}
+            required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
+        transport:
+          protocol: smtp
+server:
+  compression:
+    enabled: true
+  forward-headers-strategy: NATIVE
+  http2:
+    enabled: true
+  port: 8080
+  shutdown: graceful
+
+default:
+  orgs-per-user: ${LOWCODER_MAX_ORGS_PER_USER:100}
+  org-member-count: ${LOWCODER_MAX_MEMBERS_PER_ORG:1000}
+  org-group-count: ${LOWCODER_MAX_GROUPS_PER_ORG:100}
+  org-app-count: ${LOWCODER_MAX_APPS_PER_ORG:1000}
+  developer-count: ${LOWCODER_MAX_DEVELOPERS:50}
+  api-rate-limit: ${LOWCODER_API_RATE_LIMIT:50}
+  query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10}
+
+common:
+  cookie-name: LOWCODER_CE_SELFHOST_TOKEN
+  product: lowcoder
+  domain:
+    default-value: lowcoder.org
+  cloud: false
+  version: 2.1.4
+  apiVersion: 1.1
+  block-hound-enable: false
+  encrypt:
+    password: ${LOWCODER_DB_ENCRYPTION_PASSWORD:lowcoder.org}
+    salt: ${LOWCODER_DB_ENCRYPTION_SALT:lowcoder.org}
+  security:
+    corsAllowedDomainString: ${LOWCODER_CORS_DOMAINS:*}
+  js-executor:
+    host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
+  max-query-request-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
+  max-query-response-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
+  max-upload-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
+  max-query-timeout: ${LOWCODER_MAX_QUERY_TIMEOUT:120}
+  workspace:
+    mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
+  plugin-dirs:
+    - ${LOWCODER_PLUGINS_DIR:../plugins}
+  super-admin:
+    username: ${LOWCODER_SUPERUSER_USERNAME:admin@localhost}
+    password: ${LOWCODER_SUPERUSER_PASSWORD:}
+  marketplace:
+    private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
+  lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
+  notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
+
+material:
+  mongodb-grid-fs:
+    bucket-name: material
+
+springdoc:
+  api-docs:
+    path: /api/docs/openapi.json
+  swagger-ui:
+    path: /api/docs/swagger-ui
+  paths-to-exclude: /api/v1/**
+
+management:
+  endpoints:
+    enabled-by-default: false
+    web:
+      base-path: "/api/status"
+      exposure:
+        include: "health,metrics,prometheus"
+  endpoint:
+    health:
+      show-details: never
+      show-components: always
+      enabled: true
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+  health:
+    mail:
+      enabled: false
+    db:
+      enabled: true
+    redis:
+      enabled: true
+    diskspace:
+      enabled: false

@@ -8,44 +8,52 @@ import { trans } from "i18n";
 import _ from "lodash";
 import { DocLink } from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
-import { ReactNode } from "react";
+import { ReactNode, useState } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";
 import { JSONObject } from "util/jsonTypes";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 const TemporaryStateItemCompBase = new MultiCompBuilder(
-  {
-    name: SimpleNameComp,
-    value: jsonValueStateControl(null),
-  },
-  () => null
-)
+    {
+      name: SimpleNameComp,
+      value: jsonValueStateControl(null),
+    },
+    () => null
+  )
   .setPropertyViewFn((children) => {
     return (
-      <BottomTabs
-        type={BottomResTypeEnum.TempState}
-        tabsConfig={[
-          {
-            key: "general",
-            title: trans("query.generalTab"),
-            children: children.value.propertyView({
-              label: trans("temporaryState.value"),
-              tooltip: trans("temporaryState.valueTooltip"),
-              placement: "bottom",
-              extraChildren: QueryTutorials.tempState && (
-                <><br/><TacoMarkDown>{trans("temporaryState.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState} title={trans("temporaryState.documentationText")}>
-                  {trans("temporaryState.docLink")}
-                </DocLink></>
-              ),
-            }),
-          },
-        ]}
-        tabTitle={children.name.getView()}
-        status=""
-      />
-    );
+        <BottomTabs
+          type={BottomResTypeEnum.TempState}
+          tabsConfig={[
+            {
+              key: "general",
+              title: trans("query.generalTab"),
+              children: children.value.propertyView({
+                label: trans("temporaryState.value"),
+                tooltip: trans("temporaryState.valueTooltip"),
+                placement: "bottom",
+                extraChildren: QueryTutorials.tempState && (
+                  <><br/><TacoMarkDown>{trans("temporaryState.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState} title={trans("temporaryState.documentationText")}>
+                    {trans("temporaryState.docLink")}
+                  </DocLink><br/><br/>
+
+                  <SupaDemoDisplay
+                    url={trans("supademos.temporarystate")}
+                    modalWidth="80%"
+                    modalTop="20px"
+                  />
+                  </>
+                ),
+              }),
+            },
+          ]}
+          tabTitle={children.name.getView()}
+          status=""
+        />
+      );
   })
   .build();
 
@@ -80,7 +88,10 @@ const TemporaryStateItemCompWithMethodExpose = withMethodExposing(TemporaryState
       description: "",
     },
     execute: async (comp, params) => {
-      comp.children.value.change(params?.[0]);
+      return new Promise(async (resolve) => {
+        await comp.children.value.change(params?.[0]);
+        resolve(params?.[0])
+      })
     },
   },
   {
@@ -99,24 +110,27 @@ const TemporaryStateItemCompWithMethodExpose = withMethodExposing(TemporaryState
       description: "",
     },
     execute: async (comp, params) => {
-      const { value: prev, onChange } = comp.children.value.getView();
-      const [path, value] = params;
-      if (
-        !Array.isArray(path) ||
-        !path.every((i) => typeof i === "string" || typeof i === "number")
-      ) {
-        throw new Error(trans("temporaryState.pathTypeError"));
-      }
-      if (!_.isPlainObject(prev) && !Array.isArray(prev)) {
-        throw new Error(
-          trans("temporaryState.unStructuredError", {
-            path: JSON.stringify(path),
-            prev: JSON.stringify(prev),
-          })
-        );
-      }
-      const nextValue = _.set(_.cloneDeep(prev as JSONObject), path as (string | number)[], value);
-      onChange(nextValue);
+      return new Promise(async (resolve) => {
+        const { value: prev, onChange } = comp.children.value.getView();
+        const [path, value] = params;
+        if (
+          !Array.isArray(path) ||
+          !path.every((i) => typeof i === "string" || typeof i === "number")
+        ) {
+          throw new Error(trans("temporaryState.pathTypeError"));
+        }
+        if (!_.isPlainObject(prev) && !Array.isArray(prev)) {
+          throw new Error(
+            trans("temporaryState.unStructuredError", {
+              path: JSON.stringify(path),
+              prev: JSON.stringify(prev),
+            })
+          );
+        }
+        const nextValue = _.set(_.cloneDeep(prev as JSONObject), path as (string | number)[], value);
+        await onChange(nextValue);
+        resolve(nextValue);
+      })
     },
   },
 ]);

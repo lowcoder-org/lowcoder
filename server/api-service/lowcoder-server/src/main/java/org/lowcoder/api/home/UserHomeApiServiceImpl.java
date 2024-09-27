@@ -1,25 +1,13 @@
 package org.lowcoder.api.home;
 
-import static java.util.Objects.isNull;
-import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
-import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
-import static org.lowcoder.sdk.util.StreamUtils.collectList;
-
-import java.time.Instant;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
+import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
@@ -27,6 +15,11 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.bundle.model.Bundle;
+import org.lowcoder.domain.bundle.model.BundleElement;
+import org.lowcoder.domain.bundle.model.BundleStatus;
+import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
+import org.lowcoder.domain.bundle.service.BundleService;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -42,48 +35,40 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static java.util.Objects.isNull;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_APPLICATIONS;
+import static org.lowcoder.domain.permission.model.ResourceAction.READ_BUNDLES;
+import static org.lowcoder.infra.util.MonoUtils.emptyIfNull;
+import static org.lowcoder.sdk.util.StreamUtils.collectList;
+
+
+@RequiredArgsConstructor
 @Component
 public class UserHomeApiServiceImpl implements UserHomeApiService {
 
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private ApplicationService applicationService;
-
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserStatusService userStatusService;
-
-    @Autowired
-    private OrgDevChecker orgDevChecker;
-    @Autowired
-    private FolderApiService folderApiService;
-    @Autowired
-    private UserApplicationInteractionService userApplicationInteractionService;
-
-    @Autowired
-    private CommonConfig config;
+    private final SessionUserService sessionUserService;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
+    private final ApplicationService applicationService;
+    private final ResourcePermissionService resourcePermissionService;
+    private final UserService userService;
+    private final UserStatusService userStatusService;
+    private final OrgDevChecker orgDevChecker;
+    private final FolderApiService folderApiService;
+    private final UserApplicationInteractionService userApplicationInteractionService;
+    private final CommonConfig config;
+    private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
+    private final BundleService bundleService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -124,11 +109,13 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     return Mono.zip(orgAndRolesMono, orgDevChecker.isCurrentOrgDev())
                             .map(tuple2 -> {
                                 List<OrgAndVisitorRoleView> orgAndRoles = tuple2.getT1();
+                                orgAndRoles.forEach(orgAndRole -> orgAndRole.getOrg().setCommonSettings(orgAndRole.getOrg().getCommonSettings().sanitized()));
                                 boolean isOrgDev = tuple2.getT2();
                                 return UserProfileView.builder()
                                         .id(user.getId())
                                         .username(user.getName())
                                         .isAnonymous(user.isAnonymous())
+                                        .uiLanguage(user.getUiLanguage())
                                         .avatarUrl(user.getAvatarUrl())
                                         .avatar(user.getAvatar())
                                         .connections(user.getConnections())
@@ -202,7 +189,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-            @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -237,7 +224,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     return applicationFlux
@@ -249,15 +236,88 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
                                 return resourcePermissionMap.containsKey(application.getId());
                             })
-                            .map(tuple -> {
+                            .flatMap(tuple -> {
                                 // build view
                                 Application application = tuple.getT1();
                                 Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
                                 Map<String, User> userMap = tuple.getT3();
                                 Map<String, Instant> applicationLastViewTimeMap = tuple.getT4();
-                                ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
-                                return buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
-                                        withContainerSize);
+
+                                return bundleElementRelationServiceImpl.getByElementIds(List.of(Objects.requireNonNull(application.getId())))
+                                        .mapNotNull(BundleElement::position)
+                                        .defaultIfEmpty(0L)
+                                        .collectList()
+                                        .flatMap(positions -> {
+                                            long position = positions.isEmpty() ? 0 : positions.get(0);
+                                            ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
+                                            return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
+                                                    position, withContainerSize));
+                                        });
+                            });
+                });
+    }
+
+    @Override
+    public Flux<BundleInfoView> getAllAuthorisedBundles4CurrentOrgMember(@Nullable BundleStatus bundleStatus) {
+
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMapMany(orgMember -> {
+                    String visitorId = orgMember.getUserId();
+                    String currentOrgId = orgMember.getOrgId();
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(() -> {
+                                return bundleService.findByUserId(visitorId);
+                            })
+                            .filter(bundle -> isNull(bundleStatus) || bundle.getBundleStatus() == bundleStatus)
+                            .cache()
+                            .collectList()
+                            .flatMapIterable(Function.identity());
+
+                    Mono<Map<String, ResourcePermission>> resourcePermissionMapMono = bundleFlux
+                            .mapNotNull(Bundle::getId)
+                            .collectList()
+                            .flatMap(bundleIds -> resourcePermissionService.getMaxMatchingPermission(visitorId, bundleIds,
+                                    READ_BUNDLES))
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(userService::getByIds)
+                            .cache();
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), resourcePermissionMapMono, userMapMono))
+                            .filter(tuple -> {
+                                // filter by permission
+                                Bundle bundle = tuple.getT1();
+                                Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
+                                return resourcePermissionMap.containsKey(bundle.getId());
+                            })
+                            .flatMap(tuple -> {
+                                // build view
+                                Bundle bundle = tuple.getT1();
+                                Map<String, ResourcePermission> resourcePermissionMap = tuple.getT2();
+                                Map<String, User> userMap = tuple.getT3();
+
+                                BundleInfoView bundleInfoView = BundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
+                                        .image(bundle.getImage())
+                                        .name(bundle.getName())
+                                        .title(bundle.getTitle())
+                                        .category(bundle.getCategory())
+                                        .description(bundle.getDescription())
+                                        .publicToAll(bundle.getPublicToAll())
+                                        .publicToMarketplace(bundle.getPublicToMarketplace())
+                                        .agencyProfile(bundle.getAgencyProfile())
+                                        .createTime(bundle.getCreatedAt())
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
+                                        .agencyProfile(bundle.getAgencyProfile())
+                                        .build();
+                                return Mono.just(bundleInfoView);
                             });
                 });
     }
@@ -273,7 +333,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     // application flux
-                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllMarketplaceApps())
+                    Flux<Application> applicationFlux = Flux.defer(applicationService::findAllMarketplaceApps)
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                             .cache();
 
@@ -281,7 +341,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     // org map
@@ -341,7 +401,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
                     // application flux
-                    Flux<Application> applicationFlux = Flux.defer(() -> applicationService.findAllAgencyProfileApps())
+                    Flux<Application> applicationFlux = Flux.defer(applicationService::findAllAgencyProfileApps)
                             .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                             .cache();
 
@@ -349,7 +409,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     Mono<Map<String, User>> userMapMono = applicationFlux
                             .flatMap(application -> emptyIfNull(application.getCreatedBy()))
                             .collectList()
-                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .flatMap(userService::getByIds)
                             .cache();
 
                     // org map
@@ -388,10 +448,122 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 });
     }
 
+    @Override
+    public Flux<MarketplaceBundleInfoView> getAllMarketplaceBundles() {
+
+        return sessionUserService.isAnonymousUser()
+                .flatMapMany(isAnonymousUser -> {
+
+                    if(config.getMarketplace().isPrivateMode() && isAnonymousUser) {
+                        return Mono.empty();
+                    }
+
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(bundleService::findAllMarketplaceBundles)
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(userService::getByIds)
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), userMapMono, orgMapMono))
+                            .map(tuple2 -> {
+                                // build view
+                                Bundle bundle = tuple2.getT1();
+                                Map<String, User> userMap = tuple2.getT2();
+                                Map<String, Organization> orgMap = tuple2.getT3();
+
+                                return MarketplaceBundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
+                                        .name(bundle.getName())
+                                        .bundleStatus(bundle.getBundleStatus())
+                                        .orgId(bundle.getOrganizationId())
+                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
+                                        .build();
+
+                            });
+
+                });
+    }
+
+    @Override
+    public Flux<MarketplaceBundleInfoView> getAllAgencyProfileBundles() {
+
+        return sessionUserService.getVisitorOrgMemberCache()
+                .flatMapMany(orgMember -> {
+                    // bundle flux
+                    Flux<Bundle> bundleFlux = Flux.defer(bundleService::findAllAgencyProfileBundles)
+                            .cache();
+
+                    // user map
+                    Mono<Map<String, User>> userMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getCreatedBy()))
+                            .collectList()
+                            .flatMap(creatorIds -> userService.getByIds(creatorIds))
+                            .cache();
+
+                    // org map
+                    Mono<Map<String, Organization>> orgMapMono = bundleFlux
+                            .flatMap(bundle -> emptyIfNull(bundle.getOrganizationId()))
+                            .collectList()
+                            .flatMap(orgIds -> organizationService.getByIds(orgIds)
+                                    .collectList()
+                                    .map(it -> it.stream().collect(Collectors.toMap(Organization::getId, Function.identity())))
+                            )
+                            .cache();
+
+
+                    return bundleFlux
+                            .flatMap(bundle -> Mono.zip(Mono.just(bundle), userMapMono, orgMapMono))
+                            .map(tuple -> {
+                                // build view
+                                Bundle bundle = tuple.getT1();
+                                Map<String, User> userMap = tuple.getT2();
+                                Map<String, Organization> orgMap = tuple.getT3();
+                                return MarketplaceBundleInfoView.builder()
+                                        .bundleId(bundle.getId())
+                                        .bundleGid(bundle.getGid())
+                                        .name(bundle.getName())
+                                        .bundleStatus(bundle.getBundleStatus())
+                                        .orgId(bundle.getOrganizationId())
+                                        .orgName(orgMap.get(bundle.getOrganizationId()).getName())
+                                        .creatorEmail(Optional.ofNullable(userMap.get(bundle.getCreatedBy()))
+                                                .map(User::getName)
+                                                .orElse(""))
+                                        .createAt(bundle.getCreatedAt().toEpochMilli())
+                                        .createBy(bundle.getCreatedBy())
+                                        .build();
+                            });
+
+                });
+    }
+
     private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
-            boolean withContainerSize) {
+                                          Long bundlePosition, boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
+                .applicationGid(application.getGid())
                 .orgId(application.getOrganizationId())
                 .name(application.getName())
                 .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
@@ -403,6 +575,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .applicationStatus(application.getApplicationStatus())
                 .lastModifyTime(application.getUpdatedAt())
                 .lastViewTime(lastViewTime)
+                .lastEditedAt(application.getLastEditedAt())
                 .publicToAll(application.isPublicToAll())
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile());

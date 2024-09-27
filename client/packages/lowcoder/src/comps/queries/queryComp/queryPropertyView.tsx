@@ -31,6 +31,7 @@ import { QueryComp } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
 import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
 import { StreamQuery } from "../httpQuery/streamQuery";
+import SupaDemoDisplay from "../../utils/supademoDisplay";
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -94,7 +95,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
                   {children.timeout.propertyView({
                     label: trans("query.timeout"),
                     placeholder: "10s",
-                    tooltip: trans("query.timeoutTooltip", { maxSeconds: 120, defaultSeconds: 10 }),
+                    tooltip: trans("query.timeoutTooltip", { maxSeconds: 3600, defaultSeconds: 10 }),
                     placement: "bottom",
                   })}
                 </QuerySectionWrapper>
@@ -362,6 +363,72 @@ export const QueryGeneralPropertyView = (props: {
             </QueryConfigLabel>
             {children.onEvent.getPropertyView()}
           </QueryConfigWrapper>
+
+          <br/>    
+          
+          {["postgres", "mysql", "mssql", "oracle", "mariadb"].includes(datasourceType) && (
+            <SupaDemoDisplay
+              url={trans("supademos.dataquery2table")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "restApi" && (
+            <SupaDemoDisplay
+              url={trans("supademos.restApiQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {/* {datasourceType === "js" && (
+            <SupaDemoDisplay
+              url={trans("supademos.jsQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "streamApi" && (
+            <SupaDemoDisplay
+            url={trans("supademos.streamApiQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "mongodb" && (
+            <SupaDemoDisplay
+              url={trans("supademos.mongodbQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "libraryQuery" && (
+            <SupaDemoDisplay
+              url={trans("supademos.libraryQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "googleSheets" && (
+            <SupaDemoDisplay
+              url={trans("supademos.googleSheets")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "graphql" && (
+            <SupaDemoDisplay
+              url={trans("supademos.graphqlQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )}
+          {datasourceType === "snowflake" && (
+            <SupaDemoDisplay
+              url={trans("supademos.snowflakeQuery")}
+              modalWidth="80%"
+              modalTop="20px"
+            />
+          )} */}
         </QuerySectionWrapper>
       )}
     </QueryPropertyViewWrapper>

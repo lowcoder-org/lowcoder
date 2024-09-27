@@ -15,6 +15,7 @@ import {
   lightenColor,
   toHex,
   UnderlineCss,
+  EventModalStyleType
 } from "lowcoder-sdk";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -27,10 +28,11 @@ import {
 import { default as Form } from "antd/es/form";
 
 export const Wrapper = styled.div<{
-  $editable: boolean;
-  $style: CalendarStyleType;
+  $editable?: boolean;
+  $style?: CalendarStyleType;
   $theme?: ThemeDetail;
   $left?: number;
+  $showVerticalScrollbar?:boolean;
 }>`
   position: relative;
   height: 100%;
@@ -358,10 +360,14 @@ export const Wrapper = styled.div<{
   .fc .fc-scrollgrid table {
     width: 100% !important;
   }
+  .fc-scroller.fc-scroller-liquid-absolute::-webkit-scrollbar {
+    display:${(props) => (props.$showVerticalScrollbar ? 'block' : 'none')};
+  }
 
   // event
   .fc-timegrid-event .fc-event-main {
     padding: 4px 0 4px 1px;
+    
   }
   .fc-event {
     position: relative;
@@ -635,7 +641,7 @@ export const Wrapper = styled.div<{
   }
 `;
 
-export const Remove = styled.div<{ isList: boolean }>`
+export const Remove = styled.div<{ $isList: boolean }>`
   position: absolute;
   pointer-events: auto;
   top: 0;
@@ -652,27 +658,31 @@ export const Remove = styled.div<{ isList: boolean }>`
 `;
 
 export const Event = styled.div<{
-  bg: string;
   theme: Object;
-  isList: boolean;
-  allDay: boolean;
+  $isList: boolean;
+  $allDay: boolean;
   $style: CalendarStyleType;
+  $backgroundColor:string;
+  $extendedProps: any;
 }>`
   height: 100%;
   width: 100%;
   pointer-events: none;
   border-radius: 4px;
-  box-shadow: ${(props) => !props.isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
+  box-shadow: ${(props) => !props.$isList && "0 0 5px 0 rgba(0, 0, 0, 0.15)"};
   border: 1px solid ${(props) => props.$style.border};
-  display: ${(props) => props.isList && "flex"};
-  background-color: ${(props) =>
-    !props.isList && lightenColor(props.$style.background, 0.1)};
+  display: ${(props) => props.$isList && "flex"};
+  background-color:${(props) => props?.$backgroundColor || "#ffffff"} ;
   overflow: hidden;
   font-size: 13px;
   line-height: 19px;
   padding-right: 20px;
   overflow: hidden;
   position: relative;
+  animation: ${(props) => props?.$extendedProps?.animation || ""};
+  animation-delay: ${(props) => props?.$extendedProps?.animationDelay || ""} ;
+  animation-duration: ${(props) => props?.$extendedProps?.animationDuration || ""};
+  animation-iteration-count: ${(props) => props?.$extendedProps?.animationIterationCount || ""};
   &::before {
     content: "";
     position: absolute;
@@ -682,12 +692,12 @@ export const Event = styled.div<{
     left: 2px;
     top: 2px;
     border-radius: 3px;
-    background-color: ${(props) => props.bg};
+    background-color: ${(props) => props.$extendedProps?.color};
   }
 
   .event-time {
     color: ${(props) =>
-      !props.isList &&
+      !props.$isList &&
       (isDarkColor(props.$style.text)
         ? lightenColor(props.$style.text, 0.2)
         : props.$style.text)};
@@ -696,11 +706,21 @@ export const Event = styled.div<{
     margin-top: 2px;
   }
   .event-title {
-    color: ${(props) => !props.isList && props.$style.text};
-    font-weight: 500;
+    color: ${(props) => props?.$extendedProps?.titleColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.titleFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.titleFontStyle || ""};
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
+  }
+  .event-detail {
+    color: ${(props) => props?.$extendedProps?.detailColor || "#000000"};
+    font-weight: ${(props) => props?.$extendedProps?.detailFontWeight || "normal"};
+    font-style: ${(props) => props?.$extendedProps?.detailFontStyle || "italic"};
+    margin-left: 15px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-top: 2px; 
   }
 
   &.small {
@@ -708,7 +728,9 @@ export const Event = styled.div<{
     .event-time {
       display: none;
     }
-    .event-title {
+    .event-title,
+    .event-detail
+    {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -717,7 +739,9 @@ export const Event = styled.div<{
   &.middle {
     padding-top: 2px;
     .event-time,
-    .event-title {
+    .event-title,
+     .event-detail
+     {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
@@ -730,59 +754,100 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-      isDarkColor(props.$style.background) && props.$style.background};
+    `rgba(${props?.$extendedProps?.color}, 0.3)`};
     &::before {
-      background-color: ${(props) =>
-        toHex(props.$style.text) === "#3C3C3C"
-          ? "#8B8FA3"
-          : isDarkColor(props.$style.text)
-            ? lightenColor(props.$style.text, 0.3)
-            : props.$style.text};
+    background-color: ${(props) => props?.$extendedProps?.color};
+    opacity: 0.3;
     }
     &::before,
     .event-title,
-    .event-time {
+    .event-time,
+    .event-detail
+    {
       opacity: 0.35;
     }
   }
 `;
 
-export const FormWrapper = styled(Form)`
+export const FormWrapper = styled(Form)<{
+  $modalStyle?: EventModalStyleType
+}>`
   .ant-form-item-label {
-    width: 100px;
+    width: 125px;
     text-align: left;
     line-height: 18px;
+
     label:not(.ant-form-item-required) {
-      margin-left: 11px;
+      margin-left: 2px;
+    }
+      label.ant-form-item-required{
+      margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
+      
     }
   }
+
+  // Setting style for input fields
+  .ant-input {
+    background-color: ${(props) => props.$modalStyle?.labelBackground };
+    border-color: ${(props) => props.$modalStyle?.border};
+    border-width: ${(props) => props.$modalStyle?.borderWidth};
+    border-style: ${(props) => props.$modalStyle?.borderStyle};
+    color: ${(props) => props.$modalStyle?.text};
+  }
+
 `;
 
 export type EventType = {
+  animationIterationCount: any;
+  animationDuration: any;
+  animationDelay: any;
+  animation: any;
+  titleFontWeight: any;
+  titleFontStyle: any;
+  detailFontWeight: any;
+  detailFontStyle: any;
   id?: string;
+  resourceId?: string;
   label?: string;
   title?: string;
   start?: string;
   end?: string;
   allDay?: boolean;
   color?: string;
+  backgroundColor?:string;
   groupId?: string;
   value?: string;
+  detail?:string;
+  titleColor?:string;
+  detailColor?:string;
 };
 
 export enum ViewType {
+  YEAR = "multiMonthYear",
   MONTH = "dayGridMonth",
   WEEK = "timeGridWeek",
   DAY = "timeGridDay",
+  DAYLIST = "dayGridDay",
   LIST = "listWeek",
   TIMEGRID = "timeGridDay",
 }
 
-
 export const DefaultWithPremiumViewOptions = [
+  {
+    label: trans("calendar.resourceTimeGridDay"),
+    value: "resourceTimeGridDay",
+  },
+  {
+    label: trans("calendar.timeline"),
+    value: "resourceTimelineDay",
+  },
+  {
+    label: trans("calendar.year"),
+    value: "multiMonthYear",
+  },
   {
     label: trans("calendar.month"),
     value: "dayGridMonth",
@@ -792,8 +857,12 @@ export const DefaultWithPremiumViewOptions = [
     value: "timeGridWeek",
   },
   {
-    label: trans("calendar.timeline"),
-    value: "resourceTimeline",
+    label: trans("calendar.weekdaygrid"),
+    value: "dayGridWeek",
+  },
+  {
+    label: trans("calendar.daygrid"),
+    value: "dayGridDay",
   },
   {
     label: trans("calendar.day"),
@@ -807,12 +876,24 @@ export const DefaultWithPremiumViewOptions = [
 
 export const DefaultWithFreeViewOptions = [
   {
+    label: trans("calendar.year"),
+    value: "multiMonthYear",
+  },
+  {
     label: trans("calendar.month"),
     value: "dayGridMonth",
   },
   {
     label: trans("calendar.week"),
     value: "timeGridWeek",
+  },
+  {
+    label: trans("calendar.weekdaygrid"),
+    value: "dayGridWeek",
+  },
+  {
+    label: trans("calendar.daygrid"),
+    value: "dayGridDay",
   },
   {
     label: trans("calendar.day"),
@@ -855,20 +936,109 @@ export const FirstDayOptions = [
   },
 ];
 
-export const defaultData = [
+export const defaultEvents = [
   {
     id: "1",
-    title: "Coding",
+    label: "Coding",
     start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
     end: dayjs().hour(12).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+    backgroundColor:"#ffffff",
+    detail: 'Discuss project milestones and deliverables.',
+    titleColor:"#000000",
+    detailColor:"#000000",
+    titleFontWeight:"normal",
+    titleFontStyle:"italic",
+    detailFontWeight:"normal",
+    detailFontStyle:"italic",
+    animation:"none",
+    animationDelay:"0s",
+    animationDuration:"0s",
+    animationIterationCount:"0",
+  },
+  {
+    id: "2",
+    label: "Rest",
+    start: dayjs().hour(24).format(DATE_FORMAT),
+    end: dayjs().hour(48).format(DATE_FORMAT),
+    color: "#079968",
+    allDay: true,
+  },
+  {
+    id: "3",
+    resourceId: "d1",
+    label: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "4",
+    resourceId: "b",
+    label: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "5",
+    resourceId: "a",
+    label: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+];
+export const resourcesEventsDefaultData = [
+  {
+    id: "1",
+    resourceId: "d1",
+    label: "event 1",
+    start: dayjs().hour(10).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
   },
   {
     id: "2",
-    title: "Rest",
-    start: dayjs().hour(24).format(DATE_FORMAT),
-    end: dayjs().hour(48).format(DATE_FORMAT),
-    allDay: true,
+    resourceId: "b",
+    label: "event 5",
+    start: dayjs().hour(8).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(16).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+  {
+    id: "3",
+    resourceId: "a",
+    label: "event 3",
+    start: dayjs().hour(12).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+  },
+];
+
+export const resourcesDefaultData = [
+  {
+    id: "a",
+    title: "Auditorium A",
+  },
+  {
+    id: "b",
+    title: "Auditorium B",
+    eventColor: "green",
+  },
+  {
+    id: "d",
+    title: "Auditorium D",
+    children: [
+      {
+        id: "d1",
+        title: "Room D1",
+      },
+      {
+        id: "d2",
+        title: "Room D2",
+      },
+    ],
   },
 ];
 
@@ -884,6 +1054,16 @@ export const buttonText = {
 export const headerToolbar = {
   left: "title",
   right: "prev today next dayGridMonth,timeGridWeek,timeGridDay,listWeek",
+};
+
+export const resourceTimeLineHeaderToolbar = {
+  left: "title",
+  right:
+    "prev today next resourceTimelineMonth,resourceTimelineWeek,resourceTimelineDay",
+};
+export const resourceTimeGridHeaderToolbar = {
+  left: "title",
+  right: "prev today next",
 };
 
 const weekHeadContent = (info: DayHeaderContentArg) => {
@@ -930,7 +1110,17 @@ export const slotLabelFormat = [
   {
     hour: "2-digit",
     minute: "2-digit",
-  },
+  }, 
+] as FormatterInput[];
+
+export const slotLabelFormatWeek = [
+  { week: "short" },
+  { hour: "2-digit" }, 
+] as FormatterInput[];
+
+export const slotLabelFormatMonth = [
+  { week: "short" },
+  { weekday: "short" }
 ] as FormatterInput[];
 
 export const viewClassNames = (info: ViewContentArg) => {
@@ -944,3 +1134,4 @@ export const viewClassNames = (info: ViewContentArg) => {
   }
   return className;
 };
+

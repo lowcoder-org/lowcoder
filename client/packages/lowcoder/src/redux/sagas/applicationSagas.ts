@@ -22,6 +22,7 @@ import {
   PublishApplicationPayload,
   RecycleApplicationPayload,
   RestoreApplicationPayload,
+  SetAppEditingStatePayload,
   UpdateApplicationPayload,
   UpdateAppMetaPayload,
   UpdateAppPermissionPayload,
@@ -242,7 +243,8 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
       return;
     } else if (!isValidResponse) {
       if (response.data.code === SERVER_ERROR_CODES.NO_PERMISSION_TO_REQUEST_APP) {
-        history.push(BASE_URL);
+        // history.push(BASE_URL);
+        action.payload.onError?.(response.data.message);
       }
       throw Error(response.data.message);
     }
@@ -390,6 +392,17 @@ function* fetchAllMarketplaceAppsSaga() {
   }
 }
 
+function* setAppEditingStateSaga(action: ReduxAction<SetAppEditingStatePayload>) {
+  try {
+    yield call(
+      ApplicationApi.setAppEditingState,
+      action.payload
+    ); 
+  } catch (error) {
+    log.debug("set app editing state: ", error);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -415,5 +428,6 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS,
       fetchAllMarketplaceAppsSaga,
     ),
+    takeLatest(ReduxActionTypes.SET_APP_EDITING_STATE, setAppEditingStateSaga),
   ]);
 }

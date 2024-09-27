@@ -1,22 +1,19 @@
 package org.lowcoder.sdk.models;
 
-import java.time.Instant;
-
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.LastModifiedBy;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.domain.Persistable;
-import org.springframework.data.mongodb.core.index.Indexed;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
+import org.springframework.data.annotation.*;
+import org.springframework.data.domain.Persistable;
+import org.springframework.data.mongodb.core.index.Indexed;
+
+import java.io.Serializable;
+import java.time.Instant;
 
 /**
  *
@@ -24,8 +21,10 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@SuperBuilder
 @JsonIgnoreProperties(ignoreUnknown = true)
-public abstract class HasIdAndAuditing implements Persistable<String>, VersionedModel {
+@NoArgsConstructor
+public abstract class HasIdAndAuditing implements Persistable<String>, VersionedModel, Serializable {
 
     private static final long serialVersionUID = 7459916000501322717L;
 

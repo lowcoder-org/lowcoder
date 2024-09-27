@@ -132,7 +132,14 @@ export type FetchAppInfoPayload = {
   applicationId: string;
   type: ApplicationDSLType;
   onSuccess?: (info: AppSummaryInfo) => void;
+  onError?: (error: string) => void;
 };
+
+export type SetAppEditingStatePayload = {
+  applicationId: string;
+  editingFinished: boolean;
+};
+
 export const fetchApplicationInfo = (payload: FetchAppInfoPayload) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_DETAIL,
   payload: payload,
@@ -167,5 +174,10 @@ export type DeleteAppPermissionPayload = {
 };
 export const deleteAppPermission = (payload: DeleteAppPermissionPayload) => ({
   type: ReduxActionTypes.DELETE_APP_PERMISSION,
+  payload: payload,
+});
+
+export const setAppEditingState = (payload: SetAppEditingStatePayload) => ({
+  type: ReduxActionTypes.SET_APP_EDITING_STATE,
   payload: payload,
 });

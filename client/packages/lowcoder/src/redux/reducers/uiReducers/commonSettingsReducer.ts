@@ -3,9 +3,24 @@ import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { CommonSettingResponseData, ThemeType } from "api/commonSettingApi";
 import { GenericApiResponse } from "api/apiResponses";
 
+export interface NpmRegistryConfigEntry {
+  scope: {
+    type: "organization" | "package" | "global";
+    pattern?: string;
+  };
+  registry: {
+    url: string;
+    auth: {
+      type: "none" | "basic" | "bearer";
+      credentials?: string;
+    };
+  };
+}
+
 export interface CommonSettingsState {
   settings: {
     npmPlugins?: string[] | null;
+    npmRegistries?: NpmRegistryConfigEntry[] | null
     themeList?: ThemeType[] | null;
     defaultTheme?: string | null;
     defaultHomePage?: string | null;
@@ -14,6 +29,7 @@ export interface CommonSettingsState {
     preloadLibs?: string[] | null;
     applyPreloadCSSToHomePage?: boolean | null;
     runJavaScriptInHost?: boolean | null;
+    showHeaderInPublicApps?: boolean;
   };
   setResult: boolean;
 

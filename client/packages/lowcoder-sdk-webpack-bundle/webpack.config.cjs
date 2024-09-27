@@ -95,15 +95,14 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    // publicPath: "https://sdk.lowcoder.cloud/",
-    publicPath: "https://webviewer.lowcoder.cloud/",
+    publicPath: "https://sdk.lowcoder.cloud/",
     filename: '[name].bundle.js',
     clean: true,
   },
   plugins: [
     new webpack.DefinePlugin({
       ...define,
-      REACT_APP_API_HOST: JSON.stringify(apiBaseUrl),
+      REACT_APP_API_SERVICE_URL: JSON.stringify(apiBaseUrl),
       REACT_APP_BUNDLE_TYPE: JSON.stringify("sdk"),
     }),
     new webpack.IgnorePlugin({
@@ -118,6 +117,23 @@ module.exports = {
     //     "./index.html",
     //   ],
     // }),
+    new CopyPlugin({
+      patterns: [
+        "./index.html",
+        { 
+          from: 'src/custom_component/*.html', // Path to source files
+          to: '[name][ext]', // Pattern for the output, '[name][ext]' will keep the original file name and extension
+        },
+        {
+          from: 'src/custom_component/index_custom_component_files', // Path to your folder
+          to: 'index_custom_component_files/', // Destination path in the dist folder
+        },
+        {
+          from: 'netlify.toml', // Path to your netlify.toml file
+          to: 'netlify.toml', // Destination filename in the dist folder
+        },
+      ],
+    }),
     isVisualizerEnabled && new BundleAnalyzerPlugin()
   ],
   optimization: {

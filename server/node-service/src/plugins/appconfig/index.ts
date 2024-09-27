@@ -56,8 +56,8 @@ function getAppConfigDataClient(dataSourceConfig: DataSourceDataType) {
 
 const appConfigPlugin: DataSourcePlugin<ActionDataType, DataSourceDataType> = {
   id: "appconfig",
-  name: "AppConfig",
-  category: "api",
+  name: "AWS AppConfig",
+  category: "DevOps",
   icon: "appconfig.svg",
   dataSourceConfig,
   queryConfig,

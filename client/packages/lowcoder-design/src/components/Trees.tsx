@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import { ReactComponent as Folded } from "icons/icon-folded.svg";
+import { ReactComponent as Folded } from "icons/v1/icon-folded.svg";
 import { DataNode, TreeProps } from "antd/es/tree";
 import DirectoryTree from "antd/es/tree/DirectoryTree";
 

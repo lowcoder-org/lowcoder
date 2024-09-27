@@ -10,7 +10,7 @@ import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
-const ButtonTypeOptions = [
+export const ButtonTypeOptions = [
   {
     label: trans("table.primaryButton"),
     value: "primary",
@@ -18,6 +18,10 @@ const ButtonTypeOptions = [
   {
     label: trans("table.defaultButton"),
     value: "default",
+  },
+  {
+    label: trans("text"),
+    value: "text",
   },
 ] as const;
 
@@ -41,6 +45,7 @@ export const ButtonComp = (function () {
             loading={props.loading}
             disabled={props.disabled}
             $buttonStyle={props.buttonType === "primary" ? style : undefined}
+            style={{margin: 0}}
           >
             {/* prevent the button from disappearing */}
             {!props.text ? " " : props.text}

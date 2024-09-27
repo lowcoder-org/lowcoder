@@ -1,24 +1,19 @@
 package org.lowcoder.sdk.models;
 
-import org.apache.commons.lang3.StringUtils;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.lang3.StringUtils;
 
 @ToString
 @EqualsAndHashCode
+@Builder
+@Jacksonized
 public class Endpoint {
 
     private final String host;
     private final Long port;
-
-    @JsonCreator
-    public Endpoint(String host, Long port) {
-        this.host = host;
-        this.port = port;
-    }
 
     public Long getPort() {
         return port;

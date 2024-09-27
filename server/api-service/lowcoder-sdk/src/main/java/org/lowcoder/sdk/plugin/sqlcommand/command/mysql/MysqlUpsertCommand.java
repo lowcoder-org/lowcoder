@@ -1,15 +1,6 @@
 package org.lowcoder.sdk.plugin.sqlcommand.command.mysql;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPSERT_COMMAND;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.INSERT_CHANGE_SET_FORM_KEY;
-import static org.lowcoder.sdk.plugin.common.constant.Constants.UPDATE_CHANGE_SET_FORM_KEY;
-import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
-import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
-
-import java.util.List;
-import java.util.Map;
-
+import com.google.common.annotations.VisibleForTesting;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet;
@@ -18,7 +9,15 @@ import org.lowcoder.sdk.plugin.sqlcommand.command.UpsertCommand;
 import org.lowcoder.sdk.plugin.sqlcommand.filter.FilterSet;
 import org.lowcoder.sdk.util.MustacheHelper;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.util.List;
+import java.util.Map;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_UPSERT_COMMAND;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.INSERT_CHANGE_SET_FORM_KEY;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.UPDATE_CHANGE_SET_FORM_KEY;
+import static org.lowcoder.sdk.plugin.sqlcommand.changeset.ChangeSet.parseChangeSet;
+import static org.lowcoder.sdk.plugin.sqlcommand.command.GuiConstants.MYSQL_COLUMN_DELIMITER;
 
 public class MysqlUpsertCommand extends UpsertCommand {
 

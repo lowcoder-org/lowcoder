@@ -1,4 +1,4 @@
-import { readYaml } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
 import _ from "lodash";
 import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
@@ -8,7 +8,9 @@ import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 
 const spec = readYaml(path.join(__dirname, "./asana.spec.yaml"));
-
+const specs = {
+  "v1.0": spec,
+}
 
 const dataSourceConfig = {
   type: "dataSource",
@@ -23,7 +25,15 @@ const dataSourceConfig = {
       "key": "personalAccessToken.value",
       "label": "Token",
       "tooltip": "A [personal access token](https://developers.asana.com/docs/personal-access-token) allows access to the api for the user who created it. This should be kept a secret and be treated like a password.",
-    }
+    },
+    {
+      label: "Spec Version",
+      key: "specVersion",
+      type: "select",
+      tooltip: "Version of the spec file.",
+      placeholder: "v1.0",
+      options: specsToOptions(specs)
+    },
   ]
 } as const;
 
@@ -39,10 +49,10 @@ const asanaPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "asana",
   name: "Asana",
   icon: "asana.svg",
-  category: "api",
+  category: "Project Management",
   dataSourceConfig,
-  queryConfig: async () => {
-    const { actions, categories } = await parseOpenApi(spec as OpenAPI.Document, parseOptions);
+  queryConfig: async (data) => {
+    const { actions, categories } = await parseOpenApi(version2spec(specs, data.specVersion) as OpenAPI.Document, parseOptions);
     return {
       type: "query",
       label: "Action",
@@ -58,8 +68,9 @@ const asanaPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       url: "",
       serverURL: "",
       dynamicParamsConfig: dataSourceConfig,
+      specVersion: dataSourceConfig.specVersion,
     };
-    return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
+    return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };
 

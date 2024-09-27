@@ -1,6 +1,6 @@
 import { EditorContext } from "comps/editorState";
 import { EditorContainer } from "pages/common/styledComponent";
-import { Profiler, useContext, useRef, useState } from "react";
+import React, { Profiler, useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import { profilerCallback } from "util/cacheUtils";
 import {
@@ -15,11 +15,12 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { isEqual } from "lodash";
 
 // min-height: 100vh;
 
@@ -72,7 +73,7 @@ function getDragSelectedNames(
 
 const EmptySet = new Set<string>();
 
-export function CanvasView(props: ContainerBaseProps) {
+export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
   const scrollContainerRef = useRef(null);
@@ -105,7 +106,6 @@ export function CanvasView(props: ContainerBaseProps) {
     cols: parseInt(defaultGrid),
   };
   //////////////////////
-
   if (readOnly) {
     return (
       <UICompContainer
@@ -114,21 +114,17 @@ export function CanvasView(props: ContainerBaseProps) {
         className={CNRootContainer}
         $bgColor={bgColor}
       >
-        <div>
-          <ScrollBar style={{ height: "100%", margin: "0px", padding: "0px" }}>
-            <Profiler id="Panel" onRender={profilerCallback}>
-              <InnerGrid
-                containerPadding={rootContainerPadding}
-                overflow={rootContainerOverflow}
-                {...props}
-                positionParams={positionParams} // Added By Aqib Mirza
-                {...gridLayoutCanvasProps}
-                bgColor={bgColor}
-                radius="0px"
-              />
-            </Profiler>
-          </ScrollBar>
-        </div>
+        <Profiler id="Panel" onRender={profilerCallback}>
+          <InnerGrid
+            containerPadding={rootContainerPadding}
+            overflow={rootContainerOverflow}
+            {...props}
+            positionParams={positionParams} // Added By Aqib Mirza
+            {...gridLayoutCanvasProps}
+            bgColor={bgColor}
+            radius="0px"
+          />
+        </Profiler>
       </UICompContainer>
     );
   }
@@ -171,4 +167,6 @@ export function CanvasView(props: ContainerBaseProps) {
       </EditorContainer>
     </CanvasContainer>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});

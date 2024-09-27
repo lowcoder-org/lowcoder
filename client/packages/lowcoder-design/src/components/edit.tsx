@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ReactComponent as Edit } from "icons/icon-text-edit.svg";
+import { ReactComponent as Edit } from "icons/v1/icon-text-edit.svg";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import { Input } from "../components/Input";
 import { InputProps, InputRef } from "antd/es/input";

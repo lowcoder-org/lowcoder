@@ -1,5 +1,16 @@
 package org.lowcoder.plugin.redis.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
+import lombok.extern.slf4j.Slf4j;
+import org.lowcoder.sdk.config.JsonViews;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
+
+import java.util.Map;
+import java.util.function.Function;
+
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
 import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_ARGUMENT_ERROR;
@@ -8,22 +19,10 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
 import static org.lowcoder.sdk.util.JsonUtils.fromJson;
 import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
-import java.util.Map;
-import java.util.function.Function;
-
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
-
 @Slf4j
 @Getter
 @Builder
+@Jacksonized
 public class RedisDatasourceConfig implements DatasourceConnectionConfig {
 
     private final String host;
@@ -35,17 +34,6 @@ public class RedisDatasourceConfig implements DatasourceConnectionConfig {
     private final boolean usingUri;
     @JsonView(JsonViews.Internal.class)
     private String uri;
-
-    @JsonCreator
-    public RedisDatasourceConfig(String host, Long port, boolean usingSsl, String username, String password, boolean usingUri, String uri) {
-        this.host = host;
-        this.port = port;
-        this.usingSsl = usingSsl;
-        this.username = username;
-        this.password = password;
-        this.usingUri = usingUri;
-        this.uri = uri;
-    }
 
     public static RedisDatasourceConfig buildFrom(Map<String, Object> requestMap) {
         RedisDatasourceConfig result = fromJson(toJson(requestMap), RedisDatasourceConfig.class);

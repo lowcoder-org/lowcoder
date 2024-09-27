@@ -4,9 +4,9 @@ import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
-import { SwitchStyle, SwitchStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import { SwitchStyle, SwitchStyleType, LabelStyle,  InputFieldStyle, AnimationStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, lightenColor, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
@@ -17,7 +17,7 @@ import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 const EventOptions = [
@@ -37,13 +37,16 @@ const EventOptions = [
 const getStyle = (style: SwitchStyleType) => {
   return css`
     .ant-switch-handle::before {
-      background-color: ${style.handle};
+      background: ${style.handle};
     }
     button {
       background-image: none;
-      background-color: ${style.unchecked};
+      background: ${style.unchecked};
       &.ant-switch-checked {
-        background-color: ${style.checked};
+        background: ${style.checked};
+        &:hover:not(.ant-switch-disabled) {
+          background: ${lightenColor(style.checked, 0.2)}
+        }
       }
     }
   `;
@@ -89,18 +92,26 @@ let SwitchTmpComp = (function () {
     label: LabelControl,
     onEvent: eventHandlerControl(EventOptions),
     disabled: BoolCodeControl,
-    style: migrateOldData(styleControl(SwitchStyle), fixOldData),
-    labelStyle: styleControl(LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false)),
+    style: styleControl(InputFieldStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    labelStyle: styleControl(
+      LabelStyle.filter(
+        (style) => ['accent', 'validate'].includes(style.name) === false
+      ),
+      'labelStyle'
+    ),
     viewRef: RefControl<HTMLElement>,
-
+    inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
-        <SwitchWrapper disabled={props.disabled} $style={props.style}>
+        <SwitchWrapper disabled={props.disabled} $style={props.inputFieldStyle}>
           <Switch
             checked={props.value.value}
             disabled={props.disabled}
@@ -143,6 +154,12 @@ let SwitchTmpComp = (function () {
               </Section>
               <Section name={sectionNames.labelStyle}>
                 {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
               </Section>
             </>
           )}

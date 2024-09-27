@@ -128,7 +128,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           key="role"
           render={(value, record: GroupUser) => (
             <CustomSelect
-              style={{ width: "96px", height: "32px" }}
+              style={{ width: "140px", height: "32px" }}
               dropdownStyle={{ width: "149px" }}
               defaultValue={record.role}
               key={record.role}

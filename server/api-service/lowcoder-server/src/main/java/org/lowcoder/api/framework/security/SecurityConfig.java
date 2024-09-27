@@ -1,24 +1,8 @@
 package org.lowcoder.api.framework.security;
 
 
-import static org.lowcoder.infra.constant.NewUrl.GITHUB_STAR;
-import static org.lowcoder.infra.constant.Url.APPLICATION_URL;
-import static org.lowcoder.infra.constant.Url.CONFIG_URL;
-import static org.lowcoder.infra.constant.Url.CUSTOM_AUTH;
-import static org.lowcoder.infra.constant.Url.DATASOURCE_URL;
-import static org.lowcoder.infra.constant.Url.GROUP_URL;
-import static org.lowcoder.infra.constant.Url.INVITATION_URL;
-import static org.lowcoder.infra.constant.Url.ORGANIZATION_URL;
-import static org.lowcoder.infra.constant.Url.QUERY_URL;
-import static org.lowcoder.infra.constant.Url.STATE_URL;
-import static org.lowcoder.infra.constant.Url.USER_URL;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER;
-import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
-
-import java.util.List;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
 import org.lowcoder.api.authentication.service.AuthenticationApiServiceImpl;
 import org.lowcoder.api.authentication.util.JWTUtils;
@@ -50,7 +34,12 @@ import org.springframework.web.cors.reactive.CorsConfigurationSource;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
 import org.springframework.web.server.adapter.ForwardedHeaderTransformer;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
+import static org.lowcoder.infra.constant.NewUrl.GITHUB_STAR;
+import static org.lowcoder.infra.constant.Url.*;
+import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER;
+import static org.lowcoder.sdk.constants.Authentication.ANONYMOUS_USER_ID;
 
 @RequiredArgsConstructor
 @Configuration
@@ -89,6 +78,11 @@ public class SecurityConfig {
             .httpBasic(Customizer.withDefaults())
             .authorizeExchange(customizer -> customizer
                 .matchers(
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/home"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/home")
+                )
+                    .authenticated()
+                .matchers(
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/otp/send"), // sms verification
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/phone/login"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, CUSTOM_AUTH + "/ldap/login"),
@@ -100,7 +94,10 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, STATE_URL + "/healthCheck"),
                         // used in public viewed apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, FLOW_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL + "/deploymentId"), // system config
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view_marketplace"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/marketplace-apps"), // marketplace apps
@@ -113,6 +110,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, DATASOURCE_URL + "/jsDatasourcePlugins"),
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GITHUB_STAR),
@@ -128,8 +126,12 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.INVITATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/logout"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.FLOW_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL + "/deploymentId"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, NewUrl.STATE_URL + "/healthCheck"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/*/view_marketplace"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.APPLICATION_URL + "/marketplace-apps"), // marketplace apps
@@ -141,6 +143,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/docs/**")
                 )
@@ -181,6 +184,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration(CONFIG_URL, skipCheckCorsForAll);
         source.registerCorsConfiguration(GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(QUERY_URL + "/execute", skipCheckCorsForAll);
+        source.registerCorsConfiguration(APPLICATION_URL + "/*", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/*/view", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
         source.registerCorsConfiguration(APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);
@@ -192,6 +196,7 @@ public class SecurityConfig {
         source.registerCorsConfiguration(NewUrl.CONFIG_URL, skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.GROUP_URL + "/list", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.QUERY_URL + "/execute", skipCheckCorsForAll);
+        source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/*/view_marketplace", skipCheckCorsForAll);
         source.registerCorsConfiguration(NewUrl.APPLICATION_URL + "/marketplace-apps", skipCheckCorsForAll);

@@ -1,7 +1,6 @@
 package org.lowcoder.api.framework.plugin.security;
 
-import java.lang.reflect.Method;
-
+import lombok.extern.slf4j.Slf4j;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.api.EndpointExtension;
@@ -15,12 +14,10 @@ import org.springframework.security.authorization.ExpressionAuthorizationDecisio
 import org.springframework.security.authorization.ReactiveAuthorizationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-//@Component
+@Component
 public class PluginAuthorizationManager implements ReactiveAuthorizationManager<MethodInvocation>
 {
 	private final MethodSecurityExpressionHandler expressionHandler;

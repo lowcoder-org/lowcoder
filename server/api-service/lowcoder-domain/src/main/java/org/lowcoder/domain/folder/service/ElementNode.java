@@ -1,11 +1,10 @@
 package org.lowcoder.domain.folder.service;
 
-import java.util.function.Function;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.function.Function;
 
 @Setter
 @Getter

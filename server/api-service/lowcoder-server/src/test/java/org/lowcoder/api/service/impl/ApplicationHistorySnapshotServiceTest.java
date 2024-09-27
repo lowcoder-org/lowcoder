@@ -2,6 +2,7 @@ package org.lowcoder.api.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;

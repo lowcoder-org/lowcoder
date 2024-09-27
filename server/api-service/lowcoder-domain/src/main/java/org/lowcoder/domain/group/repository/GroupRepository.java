@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 public interface GroupRepository extends ReactiveMongoRepository<Group, String> {
 
     Flux<Group> findByIdIn(Collection<String> id);
+    Flux<Group> findByGid(String id);
 
     Flux<Group> findByOrganizationId(String organizationId);
 

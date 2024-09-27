@@ -5,7 +5,7 @@ import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -44,15 +44,17 @@ const getStyle = (style: ProgressStyleType) => {
   `;
 };
 
-export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
+export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType,$animationStyle?: AnimationStyleType}>`
   ${(props) => props.$style && getStyle(props.$style)}
+  ${props=>props.$animationStyle}
 `;
 
 const ProgressBasicComp = (function () {
   const childrenMap = {
-    value: numberExposingStateControl("value", 60),
+    value: numberExposingStateControl('value', 60),
     showInfo: BoolControl,
-    style: styleControl(ProgressStyle),
+    style: styleControl(ProgressStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
@@ -60,6 +62,7 @@ const ProgressBasicComp = (function () {
         percent={Math.round(props.value.value)}
         showInfo={props.showInfo}
         $style={props.style}
+        $animationStyle={props.animationStyle}
       />
     );
   })
@@ -83,9 +86,14 @@ const ProgressBasicComp = (function () {
           )}
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.style}>
+            <>
+              <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
             </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+            </>
           )}
         </>
       );

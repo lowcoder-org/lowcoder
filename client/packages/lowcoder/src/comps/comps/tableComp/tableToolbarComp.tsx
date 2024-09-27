@@ -7,8 +7,8 @@ import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { defaultTheme, TableToolbarStyleType } from "comps/controls/styleControlConstants";
-import { stateComp } from "comps/generators";
+import { TableToolbarStyleType } from "comps/controls/styleControlConstants";
+import { stateComp, withDefault } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
@@ -28,7 +28,7 @@ import {
   LinkButton,
   pageItemRender,
   RefreshIcon,
-  SettingIcon,
+  TableColumnVisibilityIcon,
   SuspensionBox,
   TacoButton,
   TacoInput,
@@ -38,6 +38,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -60,8 +61,8 @@ const getStyle = (
     postion: -webkit-sticky;
     left: 0px !important;
     margin: ${style.margin} !important;
+    z-index: 999;
 
-    ${fixedToolbar && `z-index: 99;`};
     ${fixedToolbar && position === 'below' && `bottom: 0;`};
     ${fixedToolbar && position === 'above' && `top: 0;` };
 
@@ -96,14 +97,15 @@ const getStyle = (
       }
 
       .column-setting {
+        width: 20px;
         cursor: pointer;
 
         * {
-          ${style.toolbarText !== defaultTheme.textDark ? `stroke: ${style.toolbarText}` : null}
+          ${style.toolbarText && style.toolbarText !== defaultTheme.textDark ? `fill: ${style.toolbarText}` : `fill: #8b8fa3`} 
         }
 
         &:hover * {
-          stroke: ${theme?.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -559,6 +561,8 @@ export const TableToolbarComp = (function () {
     // searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
+    columnSeparator: withDefault(StringControl, ','),
+    showUpdateButtons: withDefault(BoolControl, true),
   };
 
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
@@ -584,9 +588,14 @@ export const TableToolbarComp = (function () {
         label: trans("table.fixedToolbar"),
         tooltip: trans("table.fixedToolbarTooltip")
       }),
+      children.showUpdateButtons.propertyView({ label: trans("table.showUpdateButtons")}),
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
+      children.showDownload.getView() && children.columnSeparator.propertyView({
+        label: trans("table.columnSeparator"),
+        tooltip: trans("table.columnSeparatorTooltip"),
+      }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
       /* children.searchText.propertyView({
         label: trans("table.searchText"),
@@ -793,7 +802,7 @@ export function TableToolbar(props: {
               visible={settingVisible}
               setVisible={setSettingVisible}
               content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={SettingIcon}
+              Icon={TableColumnVisibilityIcon}
               iconClassName="column-setting"
             />
           )}
@@ -809,7 +818,7 @@ export function TableToolbar(props: {
             }
           }}
         />
-        {hasChange && (
+        {hasChange && toolbar.showUpdateButtons && (
           <SaveChangeButtons>
             <Button onClick={onCancelChanges}>{trans("cancel")}</Button>
             <Button type="primary" onClick={onSaveChanges}>

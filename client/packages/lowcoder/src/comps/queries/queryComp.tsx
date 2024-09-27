@@ -134,7 +134,7 @@ const childrenMap = {
   // advanced
   timeout: paramsMillisecondsControl({
     left: 0,
-    right: 120 * 1000,
+    right: 3200 * 1000,
     defaultValue: 10 * 1000,
   }),
   confirmationModal: QueryConfirmationModal,
@@ -208,6 +208,7 @@ QueryCompTmp = class extends QueryCompTmp {
         queryDepFetchInfo: new FetchCheckNode(this.runningDependNodes(), {
           ignoreManualDepReadyStatus:
             this.children.compType.getView() === "js" && getTriggerType(this) === "automatic",
+          queryName: this.children.name.value,
         }),
       },
       updateNodeFields: (value: any) => {
@@ -282,7 +283,7 @@ function QueryView(props: QueryViewProps) {
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
-      }, 100);
+      }, 300);
     }
   }, []);
 

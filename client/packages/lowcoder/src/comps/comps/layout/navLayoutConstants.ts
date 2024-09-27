@@ -3,6 +3,7 @@ import { trans } from "i18n";
 export const ModeOptions = [
   { label: trans("navLayout.modeInline"), value: "inline" },
   { label: trans("navLayout.modeVertical"), value: "vertical" },
+  { label: trans("navLayout.modeHorizontal"), value: "horizontal" },
 ] as const;
 
 export const DataOption = {
@@ -73,5 +74,32 @@ export const jsonMenuItems = [
       url: "https://www.lowcoder.cloud",
       newTab: true,
     },
+  }
+]
+
+export const mobileNavJsonMenuItems = [
+  {
+    label: "Option 1",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149338.png",
+    app: {
+      appId: "",
+    },
+    hidden: false,
+  },
+  {
+    label: "Option 2",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149206.png",
+    app: {
+      appId: "",
+    },
+    hidden: false,
+  },
+  {
+    label: "Option 2",
+    icon: "https://cdn-icons-png.flaticon.com/128/149/149206.png",
+    app: {
+      appId: "",
+    },
+    hidden: true,
   }
 ]

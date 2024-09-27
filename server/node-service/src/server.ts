@@ -14,6 +14,14 @@ const prefix = "/node-service";
 
 const router = express();
 
+router.get("/", (req, res) => {
+  res.status(200).json({
+    code: 1,
+    message: "Lowcoder Node Service is up and running",
+    success: true
+  });
+});
+
 /** Static */
 router.use(prefix, express.static(path.join(__dirname, "static")));
 

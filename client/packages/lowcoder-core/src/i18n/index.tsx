@@ -3,12 +3,20 @@ import IntlMessageFormat from "intl-messageformat";
 import log from "loglevel";
 import { Fragment } from "react";
 
+// this is a copy of the translator from ../../lib/index.js
+// TODO: check if this file is used at all
+
 const defaultLocale = "en";
 
 let locales = [defaultLocale];
 
+// Falk - Adapted the central translator to check if a localStorage key is existing.
+const uiLanguage = localStorage.getItem('lowcoder_uiLanguage');
 if (globalThis.navigator) {
-  if (navigator.languages && navigator.languages.length > 0) {
+  if (uiLanguage) {  
+    locales = [uiLanguage];
+  } 
+  else if (navigator.languages && navigator.languages.length > 0) {
     locales = [...navigator.languages];
   } else {
     locales = [navigator.language || ((navigator as any).userLanguage as string) || defaultLocale];
@@ -68,6 +76,7 @@ function getDataByLocale<T>(
   filterLocales?: string,
   targetLocales?: string[]
 ) {
+
   let localeInfos = [...fallbackLocaleInfos];
 
   const targetLocaleInfo = parseLocales(targetLocales || []);
@@ -96,8 +105,11 @@ function getDataByLocale<T>(
       return { data: data as T, language: name.slice(0, 2) };
     }
   }
-
-  throw new Error(`Not found ${names}`);
+  
+  console.error(`Not found ${names}`);
+  // return fallback data for en language
+  return { data: fileData['en'], language: 'en'};
+  // throw new Error(`Not found ${names}`);
 }
 
 type AddDot<T extends string> = T extends "" ? "" : `.${T}`;
@@ -169,7 +181,7 @@ export class Translator<Messages extends object> {
     // If still not found, return a default message or the key itself
     if (message === undefined) {
       console.warn(`Translation missing for key: ${key}`);
-      `oups! ${key}`;
+      message = `oups! ${key}`;
     }
   
     return message;
@@ -187,5 +199,5 @@ export class Translator<Messages extends object> {
 }
 
 export function getI18nObjects<I18nObjects>(fileData: object, filterLocales?: string) {
-  return getDataByLocale<I18nObjects>(fileData, "Obj", filterLocales).data;
+  return getDataByLocale<I18nObjects>(fileData, "Obj", filterLocales)?.data;
 }

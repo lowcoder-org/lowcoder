@@ -1,6 +1,18 @@
 package org.lowcoder.domain.permission.service;
 
-import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
+import com.google.common.collect.Maps;
+import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.bundle.model.BundleRequestType;
+import org.lowcoder.domain.datasource.model.Datasource;
+import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.permission.model.ResourceAction;
+import org.lowcoder.domain.permission.model.ResourcePermission;
+import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.model.ResourceType;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,30 +21,15 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.lowcoder.domain.application.model.ApplicationRequestType;
-import org.lowcoder.domain.datasource.model.Datasource;
-import org.lowcoder.domain.datasource.service.DatasourceService;
-import org.lowcoder.domain.permission.model.ResourceAction;
-import org.lowcoder.domain.permission.model.ResourcePermission;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.model.ResourceType;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Component;
+import static org.lowcoder.domain.permission.model.ResourceHolder.USER;
 
-import com.google.common.collect.Maps;
-
-import reactor.core.publisher.Mono;
-
-@Lazy
+@RequiredArgsConstructor
 @Component
 class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
     private static final ResourceRole SYSTEM_STATIC_DATASOURCE_USER_ROLE = ResourceRole.OWNER;
 
-    @Autowired
-    private DatasourceService datasourceService;
+    private final DatasourceService datasourceService;
 
     @Override
     protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserPermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
@@ -40,7 +37,7 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
     }
 
     @Override
-    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction) {
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserPublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction, String userId) {
         return Mono.just(Collections.emptyMap());
     }
 
@@ -52,11 +49,21 @@ class DatasourcePermissionHandler extends ResourcePermissionHandler {
 
 	@Override
 	protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserApplicationPublicResourcePermissions(
-			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType) {
+			Collection<String> resourceIds, ResourceAction resourceAction, ApplicationRequestType requestType, String userId) {
         return Mono.just(Collections.emptyMap());
 	}
 
-	@Override
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getAnonymousUserBundlePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
+    protected Mono<Map<String, List<ResourcePermission>>> getNonAnonymousUserBundlePublicResourcePermissions(Collection<String> resourceIds, ResourceAction resourceAction, BundleRequestType requestType, String userId) {
+        return Mono.just(Collections.emptyMap());
+    }
+
+    @Override
     protected Mono<String> getOrgId(String resourceId) {
         return datasourceService.getById(resourceId)
                 .map(Datasource::getOrganizationId);

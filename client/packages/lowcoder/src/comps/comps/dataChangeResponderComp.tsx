@@ -21,6 +21,7 @@ import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bot
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 const dataChangeEvent: EventConfigType = {
   label: "onDataChange",
@@ -71,7 +72,15 @@ const DataResponderItemCompBase = new MultiCompBuilder(
                 </QuerySectionWrapper>
               </QueryPropertyViewWrapper><><TacoMarkDown>{trans("dataResponder.documentationText")}</TacoMarkDown><DocLink style={{ marginTop: 8 }} href={QueryTutorials.dataResponder} title={trans("dataResponder.documentationText")}>
                 {trans("dataResponder.docLink")}
-              </DocLink></></>
+              </DocLink><br/><br/>
+
+              <SupaDemoDisplay
+                url={trans("supademos.dataresponder")}
+                modalWidth="80%"
+                modalTop="20px"
+              />
+              
+              </></>
               
             ),
           },

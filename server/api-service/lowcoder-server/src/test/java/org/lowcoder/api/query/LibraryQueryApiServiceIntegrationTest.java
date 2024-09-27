@@ -1,17 +1,19 @@
 package org.lowcoder.api.query;
 
-import org.junit.Assert;
-import org.junit.Ignore;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
+import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.api.datasource.DatasourceApiService;
 import org.lowcoder.api.datasource.DatasourceApiServiceIntegrationTest;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.domain.query.model.LibraryQuery;
+import org.lowcoder.sdk.constants.FieldName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -23,13 +25,22 @@ import static org.lowcoder.api.common.mockuser.WithMockUser.DEFAULT_CURRENT_ORG_
 
 @SuppressWarnings("SameParameterValue")
 @SpringBootTest
-@RunWith(SpringRunner.class)
+@ActiveProfiles("test")
+@Disabled("Enable after all plugins are loaded in test mode")
+//@RunWith(SpringRunner.class)
 public class LibraryQueryApiServiceIntegrationTest {
 
     @Autowired
     private DatasourceApiService datasourceApiService;
     @Autowired
     private LibraryQueryApiService libraryQueryApiService;
+    @Autowired
+    private InitData initData;
+
+    @BeforeEach
+    public void beforeEach() {
+        initData.init();
+    }
 
     @Test
     @WithMockUser
@@ -39,7 +50,10 @@ public class LibraryQueryApiServiceIntegrationTest {
                 .then(libraryQueryApiService.listLibraryQueries());
 
         StepVerifier.create(listMono)
-                .assertNext(libraryQueryViews -> Assert.assertNotNull(find(libraryQueryViews, "query01")))
+                .assertNext(libraryQueryViews -> {
+                    Assertions.assertNotNull(find(libraryQueryViews, "query01"));
+                    Assertions.assertTrue(FieldName.isGID(find(libraryQueryViews, "query01").gid()));
+                })
                 .verifyComplete();
     }
 

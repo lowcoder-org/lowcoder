@@ -7,6 +7,7 @@ export enum AuthType {
   Github = "GITHUB",
   Ory = "ORY",
   KeyCloak = "KEYCLOAK",
+  Generic = "GENERIC",
 }
 
 export const IdSource = [
@@ -15,7 +16,29 @@ export const IdSource = [
   AuthType.Form,
   AuthType.Ory,
   AuthType.KeyCloak,
+  AuthType.Generic,
 ];
+
+export enum AuthCategoriesEnum {
+  ENTERPISE_ENTITY = "Enterprise Identity",
+  CLOUD_SERVICES = "Cloud Services",
+  SOCIAL_MEDIA = "Social Media",
+  DEVELOPMENT = "Development",
+  TOOLS_AND_PRODUCTIVITY = "Tools & Productivity",
+}
+
+type AuthCategoriesEnumKey = keyof typeof AuthCategoriesEnum;
+const AuthCategories = Object.keys(AuthCategoriesEnum).map(
+  (cat) => {
+    const value = AuthCategoriesEnum[cat as AuthCategoriesEnumKey];
+    return {
+      label: value,
+      value: cat
+    }
+  }
+);
+
+const GenericProviderCategories = [{label: "Generic OAuth Provider", value: "GENERIC"}];
 
 export const validatorOptions = [];
 
@@ -62,9 +85,29 @@ export const authConfig = {
       scope: "Scope",
     },
   },
+  [AuthType.Generic]: {
+    sourceName: "Generic",
+    sourceValue: AuthType.Generic,
+    form: {
+      source: { label: trans("idSource.source"), isRequire: true, isList: true, options: GenericProviderCategories},
+      sourceName: { label: trans("idSource.sourceName"), isRequire: true },
+      sourceDescription: { label: trans("idSource.sourceDescription"), isRequire: false },
+      sourceIcon: { label: trans("idSource.sourceIcon"), isIcon: true, isRequire: true, },
+      sourceCategory: { label: trans("idSource.sourceCategory"), isRequire: true, isList: true, options: AuthCategories },
+      ...clientIdandSecretConfig,
+      issuerUri: { label: trans("idSource.souceIssuerURI"), isRequire: true },
+      authorizationEndpoint: { label: trans("idSource.souceAuthorizationEndpoint"), isRequire: true },
+      tokenEndpoint: { label: trans("idSource.souceTokenEndpoint"), isRequire: true },
+      userInfoEndpoint: { label: trans("idSource.souceUserInfoEndpoint"), isRequire: true },
+      // jwks: { label: 'Authorize URL', isRequire: true },
+      scope: "Scope",
+      userInfoIntrospection: { label: trans("idSource.userInfoIntrospection"), isSwitch: true, isRequire: false},
+      userCanSelectAccounts: { label: trans("idSource.userCanSelectAccounts"), isSwitch: true, isRequire: false},
+    },
+  },
 } as { [key: string]: { sourceName: string; sourceValue: AuthType, form: FormItemType } };
 
-export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak];
+export const FreeTypes = [AuthType.Google, AuthType.Github, AuthType.Form, AuthType.Ory, AuthType.KeyCloak, AuthType.Generic];
 
 export const authTypeDisabled = (type: AuthType, enableEnterpriseLogin?: boolean) => {
   return !FreeTypes.includes(type);
@@ -83,6 +126,8 @@ export type ItemType = {
   isList?: boolean;
   isRequire?: boolean;
   isPassword?: boolean;
+  isIcon?: boolean;
+  isSwitch?: boolean;
   hasLock?: boolean;
   tip?: string;
 }

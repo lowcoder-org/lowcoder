@@ -70,7 +70,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const IconPicker = (props: {
+export const IconPicker = (props: {
   value: string;
   onChange: (value: string) => void;
   label?: ReactNode;
@@ -208,7 +208,7 @@ type ChangeModeAction = {
   useCodeEditor: boolean;
 };
 
-function IconControlView(props: { value: string }) {
+export function IconControlView(props: { value: string }) {
   const { value } = props;
   const icon = useIcon(value);
   if (icon) {

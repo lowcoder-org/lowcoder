@@ -1,45 +1,34 @@
 package org.lowcoder.infra.birelation;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.google.common.base.MoreObjects;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
+import lombok.extern.jackson.Jacksonized;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.google.common.base.MoreObjects;
-
-import lombok.Builder;
-
-@Builder
+@SuperBuilder
+@Jacksonized
 @Document
+@NoArgsConstructor
+@AllArgsConstructor(onConstructor_ = { @JsonCreator(mode = JsonCreator.Mode.PROPERTIES) })
 public class BiRelation extends HasIdAndAuditing {
 
-    private final BiRelationBizType bizType;
-    private final String sourceId;
-    private final String targetId;
-    private final String relation;
-    private final String state;
+    private BiRelationBizType bizType;
+    private String sourceId;
+    private String targetId;
+    private String relation;
+    private String state;
 
-    private final String extParam1;
-    private final String extParam2;
-    private final String extParam3;
-
-    @JsonCreator
-    public BiRelation(BiRelationBizType bizType,
-            String sourceId,
-            String targetId,
-            String relation,
-            String state,
-            String extParam1,
-            String extParam2,
-            String extParam3) {
-        this.bizType = bizType;
-        this.sourceId = sourceId;
-        this.targetId = targetId;
-        this.relation = relation;
-        this.state = state;
-        this.extParam1 = extParam1;
-        this.extParam2 = extParam2;
-        this.extParam3 = extParam3;
-    }
+    @Setter
+    private String extParam1;
+    @Setter
+    private String extParam2;
+    @Setter
+    private String extParam3;
 
     public BiRelationBizType getBizType() {
         return bizType;

@@ -1,12 +1,17 @@
 package org.lowcoder.runner.migrations;
 
-import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
-import static org.lowcoder.sdk.util.IDUtils.generate;
-
+import com.github.cloudyrock.mongock.ChangeLog;
+import com.github.cloudyrock.mongock.ChangeSet;
+import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
+import com.github.f4b6a3.uuid.UuidCreator;
+import lombok.extern.slf4j.Slf4j;
+import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
 import org.lowcoder.domain.datasource.model.TokenBasedConnection;
+import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.QGroup;
 import org.lowcoder.domain.material.model.MaterialMeta;
@@ -18,25 +23,31 @@ import org.lowcoder.infra.birelation.BiRelation;
 import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.eventlog.EventLog;
 import org.lowcoder.infra.serverlog.ServerLog;
-import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
+import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 import org.springframework.data.mongodb.core.index.IndexOperations;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 
-import com.github.cloudyrock.mongock.ChangeLog;
-import com.github.cloudyrock.mongock.ChangeSet;
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.decorator.impl.MongockTemplate;
+import java.time.Instant;
+import java.util.Set;
 
-import lombok.extern.slf4j.Slf4j;
+import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
+import static org.lowcoder.sdk.util.IDUtils.generate;
 
 @SuppressWarnings("all")
 @Slf4j
 @ChangeLog(order = "001")
+@Profile("!test")
 public class DatabaseChangelog {
 
     @ChangeSet(order = "001", id = "init-indexes", author = "")
@@ -186,12 +197,134 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "020", id = "add-super-admin-user", author = "")
     public void addSuperAdminUser(AddSuperAdminUser addSuperAdminUser) {
-        addSuperAdminUser.addSuperAdmin();
+        addSuperAdminUser.addOrUpdateSuperAdmin();
     }
 
     @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")
     public void addPtmFieldsToApplicatgions(AddPtmFieldsJob addPtmFieldsJob) {
         addPtmFieldsJob.migrateApplicationsToInitPtmFields();
+    }
+
+    @ChangeSet(order = "022", id = "add-gid", author = "")
+    public void addGidToDBObjects(MongockTemplate mongoTemplate) {
+        // Define an array of collection names
+        String[] collectionNames = {"application", "bundle", "datasource", "libraryQuery", "folder"};
+
+        // Get the list of existing collections
+        Set<String> existingCollections = mongoTemplate.getCollectionNames();
+
+        for (String collectionName : collectionNames) {
+            if (existingCollections.contains(collectionName)) {
+                addGidField(mongoTemplate, collectionName);
+            } else {
+                System.out.println("Collection " + collectionName + " does not exist.");
+            }
+        }
+    }
+
+    @ChangeSet(order = "023", id = "add-email", author = "")
+    public void addEmailField(MongockTemplate mongoTemplate) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, "user", new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                // Generate a random UUID and ensure it is unique within the collection
+                String username = document.getString("name");
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("email", username);
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, "user");
+            }
+        });
+    }
+
+    @ChangeSet(order = "024", id = "fill-create-at", author = "")
+    public void fillCreateAt(MongockTemplate mongoTemplate) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, "folder", new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                Object object = document.get("createdAt");
+                if (object != null) return;
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("createdAt", Instant.now());
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, "folder");
+            }
+        });
+    }
+  
+    @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
+    public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
+        // collections to add gid
+        String[] collectionNames = {"group", "organization"};
+
+        // Get the list of existing collections
+        Set<String> existingCollections = mongoTemplate.getCollectionNames();
+
+        for (String collectionName : collectionNames) {
+            if (existingCollections.contains(collectionName)) {
+                addGidField(mongoTemplate, collectionName);
+            } else {
+                System.out.println("Collection " + collectionName + " does not exist.");
+            }
+        }
+
+        ensureIndexes(mongoTemplate, Application.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Datasource.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Bundle.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Folder.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Group.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Organization.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
+    }
+
+    private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, collectionName, new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                // Generate a random UUID and ensure it is unique within the collection
+                String uniqueGid;
+                do {
+                    uniqueGid = UuidCreator.getTimeOrderedEpoch().toString();
+                } while (isGidPresent(mongoTemplate, collectionName, uniqueGid));
+
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("gid", uniqueGid);
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")).andOperator(Criteria.where("gid").isNull()));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, collectionName);
+            }
+        });
+    }
+
+    private boolean isGidPresent(MongockTemplate mongoTemplate, String collectionName, String gid) {
+        Query query = new Query(Criteria.where("gid").is(gid));
+        return mongoTemplate.exists(query, collectionName);
     }
 
     public static Index makeIndex(String... fields) {

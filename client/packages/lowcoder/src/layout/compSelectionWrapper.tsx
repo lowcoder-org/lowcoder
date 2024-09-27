@@ -89,7 +89,7 @@ function getLineStyle(
 
   return `
       border: ${GRID_ITEM_BORDER_WIDTH}px ${borderStyle} ${borderColor};
-      padding: ${isHidden && !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
+      padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
       padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
       padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
   `;
@@ -231,7 +231,7 @@ const HiddenIcon = styled(CloseEyeIcon)`
   }
 `;
 
-export const CompSelectionWrapper = (props: {
+export const CompSelectionWrapper = React.memo((props: {
   id?: string;
   compType: UICompType;
   className?: string;
@@ -376,4 +376,4 @@ export const CompSelectionWrapper = (props: {
       </SelectableDiv>
     </div>
   );
-};
+});

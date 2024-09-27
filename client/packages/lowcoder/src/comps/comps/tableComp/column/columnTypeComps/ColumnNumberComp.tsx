@@ -6,13 +6,15 @@ import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilde
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { withDefault } from "comps/generators";
 import styled from "styled-components";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 const InputNumberWrapper = styled.div`
   .ant-input-number  {
     width: 100%;
     border-radius: 0;
     background: transparent !important;
-    padding: 0 !important;
+    // padding: 0 !important;
     box-shadow: none;
 
     input {
@@ -28,6 +30,8 @@ const childrenMap = {
   precision: RangeControl.closed(0, 20, 0),
   float: BoolControl,
   prefix: StringControl,
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
   suffix: StringControl,
 };
 
@@ -46,14 +50,22 @@ export const ColumnNumberComp = (function () {
     childrenMap,
     (props, dispatch) => {
       float = props.float;
-      step = props.step;
+      step = props.step; 
       precision = props.precision;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       let formattedValue: string | number = !float ? Math.floor(value) : value;
       if(float) {
-        formattedValue = formattedValue.toPrecision(precision + 1);
+        formattedValue = formattedValue.toFixed(precision + 1);
       }
-      return props.prefix + formattedValue + props.suffix;
+      return (
+          <>{hasIcon(props.prefixIcon) && (
+            <span>{props.prefixIcon}</span>
+          )}
+          <span>{props.prefix + formattedValue + props.suffix}</span>
+          {hasIcon(props.suffixIcon) && (
+            <span>{props.suffixIcon}</span>
+          )} </>
+      );
     },
     (nodeValue) => nodeValue.text.value,
     getBaseValue,
@@ -103,8 +115,14 @@ export const ColumnNumberComp = (function () {
           {children.prefix.propertyView({
             label: trans("table.prefix"),
           })}
+          {children.prefixIcon.propertyView({
+            label: trans("button.prefixIcon"),
+          })}
           {children.suffix.propertyView({
             label: trans("table.suffix"),
+          })}
+          {children.suffixIcon.propertyView({
+            label: trans("button.suffixIcon"),
           })}
           {children.float.propertyView({
             label: trans("table.float"),

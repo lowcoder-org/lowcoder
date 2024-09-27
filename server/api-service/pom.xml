@@ -12,8 +12,10 @@
 
 
 	<properties>
-		<revision>2.4.0</revision>
+		<revision>2.4.7</revision>
 		<java.version>17</java.version>
+		<maven.compiler.source>${java.version}</maven.compiler.source>
+		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<javadoc.disabled>true</javadoc.disabled>
 		<deploy.disabled>true</deploy.disabled>
 		<source.disabled>true</source.disabled>
@@ -85,14 +87,29 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>license-maven-plugin</artifactId>
-				<version>2.0.0</version>
+				<version>2.4.0</version>
 			</plugin>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
+				<version>3.6.1</version>
 			</plugin>
 		</plugins>
 		<pluginManagement>
 			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>3.13.0</version>
+					<configuration>
+						<source>${java.version}</source>
+						<target>${java.version}</target>
+						<compilerArgs>
+							<arg>-parameters</arg>
+						</compilerArgs>
+					</configuration>
+				</plugin>
+
 				<plugin>
 					<artifactId>maven-assembly-plugin</artifactId>
 					<version>3.6.0</version>
@@ -144,7 +161,6 @@
 		<module>lowcoder-domain</module>
 		<module>lowcoder-plugins</module>
 		<module>lowcoder-server</module>
-		<module>distribution</module>
 	</modules>
 
 </project>

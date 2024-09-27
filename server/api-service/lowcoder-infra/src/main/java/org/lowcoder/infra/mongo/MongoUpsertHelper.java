@@ -1,12 +1,12 @@
 package org.lowcoder.infra.mongo;
 
-import java.time.Instant;
-import java.util.Collection;
-import java.util.Map;
-
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.model.DeleteOneModel;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.UpdateOptions;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bson.Document;
-import org.bson.conversions.Bson;
 import org.bson.types.ObjectId;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.constants.GlobalContext;
@@ -20,15 +20,11 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
-
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.model.DeleteOneModel;
-import com.mongodb.client.model.UpdateOneModel;
-import com.mongodb.client.model.UpdateOptions;
-
 import reactor.core.publisher.Mono;
+
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Map;
 
 @Component
 public class MongoUpsertHelper {
@@ -43,7 +39,7 @@ public class MongoUpsertHelper {
     private ApplicationEventPublisher applicationEventPublisher;
 
     public <T extends HasIdAndAuditing> Mono<Boolean> updateById(T partialResource, String id) {
-        return update(partialResource, FieldName.ID, id);
+        return update(partialResource, FieldName.guessFieldNameFromId(id), id);
     }
 
     public <T extends HasIdAndAuditing> Mono<Boolean> update(T partialResource, String uniqueKeyName, String uniqueKeyValue) {
@@ -73,7 +69,7 @@ public class MongoUpsertHelper {
     }
 
     public <T extends HasIdAndAuditing> Mono<Boolean> updatePurely(T partialResource, String id) {
-        Query query = new Query(Criteria.where(FieldName.ID).is(id));
+        Query query = new Query(Criteria.where(FieldName.guessFieldNameFromId(id)).is(id));
         return updatePurely(partialResource, query);
     }
 

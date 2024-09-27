@@ -22,6 +22,7 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import {
+  AnimationStyle,
   InputLikeStyle,
   InputLikeStyleType,
 } from "comps/controls/styleControlConstants";
@@ -95,16 +96,14 @@ let MentionTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
-    style: styleControl(InputLikeStyle),
-    mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
-    }),
+    style: styleControl(InputLikeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
     onEvent: eventHandlerControl(EventOptions),
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props) => {  
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
@@ -218,6 +217,7 @@ let MentionTmpComp = (function () {
         </Wrapper>
       ),
       style: props.style,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -260,9 +260,14 @@ let MentionTmpComp = (function () {
         )}
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.style}>
+          <>
+            <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
-          </Section></>
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
         )}
       </>
     ))

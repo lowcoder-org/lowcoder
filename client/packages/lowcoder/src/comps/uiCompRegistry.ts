@@ -76,6 +76,7 @@ export type UICompType =
   | "switch"
   | "select"
   | "multiSelect"
+  | "step"
   | "cascader"
   | "checkbox"
   | "radio"
@@ -113,6 +114,7 @@ export type UICompType =
   | "custom"
   | "jsonExplorer"
   | "jsonEditor"
+  | "shape"
   | "tree"
   | "treeSelect"
   | "audio"
@@ -124,14 +126,44 @@ export type UICompType =
   | "npmPlugin"
   | "collapsibleContainer"
   | "calendar"
+  | "hillchart"
   | "signature"
+  | "openLayersGeoMap"
+  | "chartsGeoMap"
+  | "bpmnEditor"
+  | "turnstileCaptcha"
+  | "pivotTable"
   | "jsonLottie" //Added By Aqib Mirza
+  | "avatar" //Added By Mousheng
+  | "avatarGroup" //Added By Mousheng
   | "icon" //Added By Mousheng
   | "timeline" //Added By Mousheng
   | "comment" //Added By Mousheng
   | "mention" //Added By Mousheng
   | "autocomplete" //Added By Mousheng
-  | "responsiveLayout";
+  | "colorPicker" //Added By Mousheng
+  | "floatingButton" //Added By Mousheng
+  | "transfer" //Added By Mousheng
+  | "card"  //Added By Mousheng
+  | "timer" //Added by Mousheng
+  | "responsiveLayout"
+  | "tour"
+  | "funnelChart"
+  | "gaugeChart"
+  | "sankeyChart"
+  | "candleStickChart"
+  | "radarChart"
+  | "heatmapChart"
+  | "graphChart"
+  | "treeChart"
+  | "treemapChart"
+  | "sunburstChart"
+  | "themeriverChart" 
+  | "basicChart"
+  | "columnLayout"
+  | "ganttChart"
+  | "kanban"
+  ;
 
 
 export const uiCompRegistry = {} as Record<UICompType | string, UICompManifest>;

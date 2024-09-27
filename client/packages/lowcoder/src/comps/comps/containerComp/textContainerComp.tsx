@@ -18,7 +18,12 @@ import {
 } from "../triContainerComp/triContainerCompBuilder";
 import { TriContainer } from "../triContainerComp/triFloatTextContainer";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { withDefault } from "@lowcoder-ee/index.sdk";
+import { withDefault } from "comps/generators/simpleGenerators";
+import { styleControl } from "comps/controls/styleControl";
+import { AnimationStyle, TextContainerStyle } from "comps/controls/styleControlConstants";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { alignWithJustifyControl } from "comps/controls/alignControl";
 
 const typeOptions = [
   {
@@ -46,16 +51,19 @@ const floatOptions = [
   },
 ] as const;
 
+
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
     text: stringExposingStateControl(
-      "text",
-      trans("textShow.text", { name: "{{currentUser.name}}" })
+      "text", "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi feugiat faucibus eleifend. Pellentesque eleifend, risus vel sagittis mattis, mauris ipsum tempor sapien, eu lobortis lacus libero a dui. Cras erat felis, rhoncus vestibulum consectetur et, ultrices ut purus. Sed a tortor orci. Vestibulum nec eleifend ante."
     ),
     type: dropdownControl(typeOptions, "markdown"),
-    float: dropdownControl(floatOptions, "none"),
-    width: withDefault(StringControl, "60"),
+    float: dropdownControl(floatOptions, "left"),
+    horizontalAlignment: alignWithJustifyControl(),
+    width: withDefault(StringControl, "40"),
+    style: styleControl(TextContainerStyle),
+    animationStyle: styleControl(AnimationStyle),
   };
   return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return <TriContainer {...props} />;
@@ -64,29 +72,53 @@ export const ContainerBaseComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.type.propertyView({
-              label: trans("value"),
-              tooltip: trans("textShow.valueTooltip"),
-              radioButton: true,
-            })}
+            {children.type.propertyView({label: trans("value"), tooltip: trans("textShow.valueTooltip"), radioButton: true,})}
             {children.text.propertyView({})}
-            {children.width.propertyView({
-              label: trans("container.flowWidth"),
-            })}
           </Section>
-          <Section name={sectionNames.layout}>
-            {children.container.getPropertyView()}
-            {children.float.propertyView({
-              label: trans("container.floatType"),
-              tooltip: trans("textShow.valueTooltip"),
-              radioButton: true,
-            })}
 
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>
-            {children.container.stylePropertyView()}
-          </Section>
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+            </Section>
+          )}
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.layout}>
+                {children.container.getPropertyView()}
+                {children.width.propertyView({label: trans("container.flowWidth")})}
+                {children.float.propertyView({ label: trans("container.floatType"), radioButton: true,
+                })}
+                {children.horizontalAlignment.propertyView({
+                  label: trans("textShow.horizontalAlignment"),
+                  radioButton: true,
+                })}
+              </Section>
+              <Section name={"Floating Text Style"}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+              <Section name={"Container Style"}>
+                {children.container.stylePropertyView()}
+              </Section>
+              {children.container.children.showHeader.getView() && (
+                <Section name={"Header Style"}>
+                  { children.container.headerStylePropertyView() }
+                </Section>
+              )}
+              {children.container.children.showBody.getView() && (
+                <Section name={"Body Style"}>
+                  { children.container.bodyStylePropertyView() }
+                </Section>
+              )}
+              {children.container.children.showFooter.getView() && (
+                <Section name={"Footer Style"}>
+                  { children.container.footerStylePropertyView() }
+                </Section>
+              )}
+            </>
+          )}
         </>
       );
     })
@@ -158,7 +190,7 @@ export function defaultContainerData(
             y: 0,
           },
         },
-      ]),
+      ])
     },
   };
 }

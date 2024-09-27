@@ -6,6 +6,7 @@ import { withDefault } from "comps/generators/simpleGenerators";
 import { CompExposingContext } from "comps/generators/withContext";
 import { exposingDataForAutoComplete } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
+import _ from "lodash";
 import { debounce, trimStart } from "lodash";
 import {
   AbstractComp,
@@ -30,11 +31,11 @@ import {
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { lazy, ReactNode } from "react";
+import { CSSProperties, lazy, ReactNode, Suspense } from "react";
 import {
   showTransform,
   toArrayJSONObject,
-  toBoolean,
+  toBoolean, toBooleanOrCss, toBooleanOrJsonObject,
   toJSONArray,
   toJSONObject,
   toJSONObjectArray,
@@ -99,18 +100,18 @@ export function codeControl<
       this._exposingNode = withFunction(this._node, (x) => x.value);
 
       // make sure handleChange's reference only changes when the instance changes, avoid CodeEditor frequent reconfigure
-      this.handleChange = debounce((state: EditorState) => {
+      this.handleChange = (state: EditorState) => {
         this.dispatchChangeValueAction(state.doc.toString());
-      }, 50);
+      };
     }
 
     override changeDispatch(dispatch: DispatchType) {
       // need to re-bind handleChange when dispatch changes, otherwise old instance's dispatch is still in use
       const comp = setFieldsNoTypeCheck(this, {
         dispatch,
-        handleChange: debounce((state: EditorState) => {
+        handleChange: (state: EditorState) => {
           comp.dispatchChangeValueAction(state.doc.toString());
-        }, 50),
+        },
       });
       return comp;
     }
@@ -193,26 +194,28 @@ export function codeControl<
             <CompExposingContext.Consumer>
               {(exposingData) => (
                 <>
-                  <CodeEditor
-                    {...params}
-                    bordered
-                    value={this.unevaledValue}
-                    codeType={codeType}
-                    cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
-                    cardContent={cardContent}
-                    onChange={this.handleChange}
-                    hasError={this.valueAndMsg?.hasError()}
-                    segments={this.valueAndMsg?.extra?.segments}
-                    exposingData={{
-                      ...exposingDataForAutoComplete(
-                        editorState?.nameAndExposingInfo(),
-                        evalWithMethods
-                      ),
-                      ...exposingData,
-                    }}
-                    boostExposingData={exposingData}
-                    enableClickCompName={editorState?.forceShowGrid}
-                  />
+                  <Suspense fallback={null}>
+                    <CodeEditor
+                      {...params}
+                      bordered
+                      value={this.unevaledValue}
+                      codeType={codeType}
+                      cardTitle={toCardTitle(codeControlParams?.expectedType, this.valueAndMsg.value)}
+                      cardContent={cardContent}
+                      onChange={this.handleChange}
+                      hasError={this.valueAndMsg?.hasError()}
+                      segments={this.valueAndMsg?.extra?.segments}
+                      exposingData={{
+                        ...exposingDataForAutoComplete(
+                          editorState?.nameAndExposingInfo(),
+                          evalWithMethods
+                        ),
+                        ...exposingData,
+                      }}
+                      boostExposingData={exposingData}
+                      enableClickCompName={editorState?.forceShowGrid}
+                    />
+                  </Suspense>
                 </>
               )}
             </CompExposingContext.Consumer>
@@ -318,6 +321,8 @@ export type CodeControlJSONType = ReturnType<typeof tmpFuncForJson>;
 export const StringControl = codeControl<string>(toString);
 export const NumberControl = codeControl<number>(toNumber);
 export const StringOrNumberControl = codeControl<string | number>(toStringOrNumber);
+export const MaskControl = codeControl<boolean | { style?: CSSProperties | undefined; color?: string | undefined; } | undefined>(toBooleanOrCss);
+export const ArrowControl = codeControl<boolean | { pointAtCenter: boolean } | undefined>(toBooleanOrJsonObject);
 
 // rangeCheck, don't support Infinity temporarily
 export class RangeControl {
@@ -393,6 +398,12 @@ export const jsonObjectControl = (defaultValue?: JSONObject) =>
   defaultValue === undefined
     ? JSONObjectControl
     : withDefault(JSONObjectControl, JSON.stringify(defaultValue, null, 2));
+
+export const jsonArrayControl = (defaultValue?: JSONObject[]) =>
+  defaultValue === undefined
+    ? JSONObjectControl
+    : withDefault(JSONObjectArrayControl, JSON.stringify(defaultValue, null, 2));
+
 
 export const jsonValueControl = (defaultValue?: JSONValue) =>
   defaultValue === undefined

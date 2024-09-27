@@ -1,15 +1,7 @@
 package org.lowcoder.api.home;
 
-import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
-import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
-import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
-import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
-import static org.lowcoder.sdk.util.JsonUtils.fromJsonQuietly;
-
-import java.time.Duration;
-import java.util.Objects;
-
 import io.jsonwebtoken.Claims;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.usermanagement.UserApiService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -23,9 +15,16 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.core.ReactiveValueOperations;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.util.Objects;
+
+import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
+import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
+import static org.lowcoder.sdk.exception.BizError.UNABLE_TO_FIND_VALID_ORG;
+import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
+import static org.lowcoder.sdk.util.JsonUtils.fromJsonQuietly;
 
 @Slf4j
 @Service
@@ -118,10 +117,7 @@ public class SessionUserServiceImpl implements SessionUserService {
 
     private Duration getTokenExpireTime() {
         long maxAgeInSeconds = commonConfig.getCookie().getMaxAgeInSeconds();
-        if (maxAgeInSeconds >= 0) {
-            return Duration.ofSeconds(maxAgeInSeconds).plus(Duration.ofDays(1));
-        }
-        return Duration.ofDays(7);
+        return Duration.ofSeconds(maxAgeInSeconds);
     }
 
     @Override

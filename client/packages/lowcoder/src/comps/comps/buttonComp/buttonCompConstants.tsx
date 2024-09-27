@@ -8,14 +8,15 @@ import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export function getButtonStyle(buttonStyle: ButtonStyleType) {
-  const hoverColor = genHoverColor(buttonStyle.background);
-  const activeColor = genActiveColor(buttonStyle.background);
+  const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
+  const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
     &&& {
       border-radius: ${buttonStyle.radius};
       border-width:${buttonStyle.borderWidth};
-      margin: ${buttonStyle.margin};	
+      margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
+      rotate: ${buttonStyle.rotation&&buttonStyle.rotation};
       &:not(:disabled) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};
@@ -28,9 +29,9 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         text-decoration:${buttonStyle.textDecoration};
         background-color: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
-        margin: ${buttonStyle.margin};	
+        margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
-  
+
         &:hover,
         &:focus {
           color: ${buttonStyle.text};
@@ -64,6 +65,7 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  line-height:${(props) => props.$buttonStyle?.lineHeight}; 
 `;
 
 export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`
@@ -96,7 +98,7 @@ function fixOldData(oldData: any) {
   }
   return oldData;
 }
-const ButtonTmpStyleControl = styleControl(ButtonStyle);
+const ButtonTmpStyleControl = styleControl(ButtonStyle, 'style');
 export const ButtonStyleControl = migrateOldData(ButtonTmpStyleControl, fixOldData);
 
 export const buttonRefMethods = refMethods<HTMLElement>([

@@ -13,7 +13,7 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle } from "comps/controls/styleControlConstants";
+import { TableColumnStyle, TableRowStyle, TableStyle, TableToolbarStyle, TableHeaderStyle, TableSummaryRowStyle } from "comps/controls/styleControlConstants";
 import {
   MultiCompBuilder,
   stateComp,
@@ -31,11 +31,37 @@ import {
   RecordConstructorToView,
 } from "lowcoder-core";
 import { controlItem } from "lowcoder-design";
-import { JSONObject } from "util/jsonTypes";
+import { JSONArray, JSONObject } from "util/jsonTypes";
 import { ExpansionControl } from "./expansionControl";
 import { PaginationControl } from "./paginationControl";
 import { SelectionControl } from "./selectionControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
+
+const editModeClickOptions = [
+  {
+    label: trans("table.singleClick"),
+    value: "single",
+  },
+  {
+    label: trans("table.doubleClick"),
+    value: "double",
+  },
+] as const;
+
+const summarRowsOptions = [
+  {
+    label: "1",
+    value: "1",
+  },
+  {
+    label: "2",
+    value: "2",
+  },
+  {
+    label: "3",
+    value: "3",
+  },
+] as const;
 
 const sizeOptions = [
   {
@@ -192,12 +218,15 @@ export type RowHeightViewType = (param: {
 const tableChildrenMap = {
   // hideBordered: BoolControl,
   showHeaderGridBorder: BoolControl,
-  showRowGridBorder: BoolControl,
-  showHRowGridBorder: BoolControl,
+  showRowGridBorder: withDefault(BoolControl,true),
+  showHRowGridBorder: withDefault(BoolControl,true),
   hideHeader: BoolControl,
   fixedHeader: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "auto"),
+  showVerticalScrollbar: BoolControl,
+  showHorizontalScrollbar: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
+  newData: stateComp<JSONArray>([]),
   showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
   size: dropdownControl(sizeOptions, "middle"),
@@ -205,12 +234,15 @@ const tableChildrenMap = {
   pagination: PaginationControl,
   sort: valueComp<Array<SortValue>>([]),
   toolbar: TableToolbarComp,
-  style: styleControl(TableStyle),
-  rowStyle: styleControl(TableRowStyle),
-  toolbarStyle: styleControl(TableToolbarStyle),
-  headerStyle: styleControl(TableHeaderStyle),
+  showSummary: BoolControl,
+  summaryRows: dropdownControl(summarRowsOptions, "1"),
+  style: styleControl(TableStyle, 'style'),
+  rowStyle: styleControl(TableRowStyle, 'rowStyle'),
+  summaryRowStyle: styleControl(TableSummaryRowStyle, 'summaryRowStyle'),
+  toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),
+  headerStyle: styleControl(TableHeaderStyle, 'headerStyle'),
   searchText: StringControl,
-  columnsStyle: withDefault(styleControl(TableColumnStyle), {borderWidth: '1px', radius: '0px',fontStyle:'italic'}),
+  columnsStyle: styleControl(TableColumnStyle, 'columnsStyle'),
   viewModeResizable: BoolControl,
   visibleResizables: BoolControl,
   // sample data for regenerating columns
@@ -225,6 +257,9 @@ const tableChildrenMap = {
   // todo: support object config
   dynamicColumnConfig: ArrayStringControl,
   expansion: ExpansionControl,
+  selectedCell: stateComp<JSONObject>({}),
+  inlineAddNewRow: BoolControl,
+  editModeClicks: dropdownControl(editModeClickOptions, "single"),
 };
 
 export const TableInitComp = (function () {

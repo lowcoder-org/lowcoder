@@ -124,7 +124,7 @@ export default function ModulePanel() {
     if (i.applicationId === applicationId || i.applicationType !== AppTypeEnum.Module) {
       return false;
     }
-    return i.name.includes(searchValue.trim().toLowerCase()) || !searchValue.trim();
+    return i.name?.toLowerCase()?.includes(searchValue.trim()?.toLowerCase()) || !searchValue?.trim();
   });
 
   const items = filteredModules.map((i) => (

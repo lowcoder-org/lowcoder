@@ -1,6 +1,7 @@
 package org.lowcoder.api.util;
 
 import com.google.common.hash.Hashing;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -24,14 +25,13 @@ import java.nio.charset.StandardCharsets;
 import static org.springframework.http.HttpHeaders.writableHttpHeaders;
 
 @Slf4j
-@Aspect
-@Component
+//@Aspect
+@RequiredArgsConstructor
+//@Component
 public class ApiCallEventPublisher {
 
-    @Autowired
-    private ApplicationEventPublisher applicationEventPublisher;
-    @Autowired
-    private SessionUserService sessionUserService;
+    private final ApplicationEventPublisher applicationEventPublisher;
+    private final SessionUserService sessionUserService;
 
     @Pointcut("@annotation(org.springframework.web.bind.annotation.GetMapping)")
     public void getMapping(){}

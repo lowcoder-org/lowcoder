@@ -63,10 +63,14 @@ redis:
 # Find out more about configuration options at: https://github.com/bitnami/charts/tree/main/bitnami/mongodb/#parameters
 #
 mongodb:
-  #externalUrl:
   enabled: true
   service:
     nameOverride: lowcoder-mongodb
+    #externalUrl:
+  # if set to true, will use mongodb+srv:// as a prefix in mongo connection string
+  useSrv: false
+  # if set to true, will use SSL in mongo connection string; Only considered if using external mongodb
+  useSSL: false
   auth:
     rootUser: root
     rootPassword: secret
@@ -136,9 +140,9 @@ frontend:
     #tag: "latest"
 
   service:
-    type: NodePort
+    type: ClusterIP
     port: 80
-    nodePort: 30099
+    #nodePort: 30099
 
   replicaCount: 1
   autoscaling:

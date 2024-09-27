@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Builder;
 import lombok.Getter;
+import org.lowcoder.sdk.constants.UiConstants;
 
 @Builder
 @Getter
@@ -30,6 +31,9 @@ public class UserProfileView {
 
     @JsonProperty(value = "isEnabled")
     private boolean isEnabled;
+
+    @Builder.Default
+    private String uiLanguage = UiConstants.DEFAULT_UI_LANGUAGE;
 
     private String avatar;
 

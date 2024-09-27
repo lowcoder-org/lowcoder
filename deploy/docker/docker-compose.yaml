@@ -12,6 +12,8 @@ services:
       - "3443:3443"
     #  - "27017:27017"
     environment:
+      # Public base url
+      LOWCODER_PUBLIC_URL: "http://localhost:3000/"
       # enable services
       LOWCODER_REDIS_ENABLED: "true"
       LOWCODER_MONGODB_ENABLED: "true"
@@ -24,6 +26,7 @@ services:
       LOWCODER_NODE_SERVICE_ENABLED: "true"
       LOWCODER_FRONTEND_ENABLED: "true"
       # generic parameters
+      # Effective user and group IDs
       LOWCODER_PUID: "1000"
       LOWCODER_PGID: "1000"
       # api-service parameters
@@ -53,12 +56,30 @@ services:
       #
       LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
       # api and node service parameters
+      LOWCODER_PLUGINS_DIR: "../plugins"
+      LOWCODER_API_RATE_LIMIT: 50
       LOWCODER_API_SERVICE_URL: "http://localhost:8080"
       LOWCODER_NODE_SERVICE_URL: "http://localhost:6060"
       # frontend parameters
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_WORKSPACE_MODE: SAAS
+      LOWCODER_MARKETPLACE_PRIVATE_MODE: "true"
+      # Lowcoder notification emails setup
+      LOWCODER_ADMIN_SMTP_HOST: localhost
+      LOWCODER_ADMIN_SMTP_PORT: 587
+      LOWCODER_ADMIN_SMTP_USERNAME: 
+      LOWCODER_ADMIN_SMTP_PASSWORD: 
+      LOWCODER_ADMIN_SMTP_AUTH: "true"
+      LOWCODER_ADMIN_SMTP_SSL_ENABLED: "false"
+      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: "true"
+      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: "true"
+      # Email used as sender in lost password email
+      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
+      # Lowcoder superuser details
+      LOWCODER_SUPERUSER_USERNAME: admin@localhost
+      # If left blank, a password will be generated and written into log (lowcoder-stacks/logs/api-service/api-service.log)
+      LOWCODER_SUPERUSER_PASSWORD: 
     volumes:
       - ./lowcoder-stacks:/lowcoder-stacks
       - ./lowcoder-stacks/assets:/lowcoder/assets

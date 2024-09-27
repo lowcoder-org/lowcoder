@@ -1,14 +1,8 @@
 package org.lowcoder.sdk.config;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,9 +11,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Duration;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -48,7 +43,7 @@ public class CommonConfig {
     private SuperAdmin superAdmin = new SuperAdmin();
     private Marketplace marketplace = new Marketplace();
     private String lowcoderPublicUrl;
-    private String lostPasswordEmailSender;
+    private String notificationsEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -141,8 +136,8 @@ public class CommonConfig {
 
     @Data
     public static class Cookie {
-
-        private long maxAgeInSeconds = Duration.ofDays(30).toSeconds();
+        //Set cookie max age to 1 day
+        private long maxAgeInSeconds = Duration.ofDays(1).toSeconds();
     }
 
     @Data

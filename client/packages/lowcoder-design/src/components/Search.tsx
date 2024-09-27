@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { default as Input, InputProps } from "antd/es/input";
-import { ReactComponent as Icon } from "icons/icon-Search.svg";
+import { ReactComponent as Icon } from "icons/v1/icon-Search.svg";
 import React, { CSSProperties } from "react";
 
 const SearchInput = styled(Input)`
@@ -13,10 +13,20 @@ const SearchInput = styled(Input)`
   font-size: 13px;
   user-select: none;
   overflow: hidden;
+  background-color: #fdfdfd;
+  color: #000;
 
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px #daecfc;
+  }
+  &:hover {
+    background-color: #fdfdfd;
+    color: #000;
+  }
+  &:focus-within {
+    background-color: #fdfdfd;
+    color: #000;
   }
 `;
 const SearchDiv = styled.div<{ error?: boolean }>`

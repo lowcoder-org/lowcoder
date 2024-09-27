@@ -14,9 +14,11 @@ import {
   UserShieldIcon,
   LeftSettingIcon,
   ThemeIcon,
-  WorkspacesIcon
+  WorkspacesIcon,
+  SubscriptionIcon,
  } from "lowcoder-design";
 import { useSelector } from "react-redux";
+import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
@@ -25,10 +27,14 @@ import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
+import { Helmet } from "react-helmet";
+import { Card } from "antd";
+import { Subscription } from "./subscriptions";
 
 enum SettingPageEnum {
   UserGroups = "permission",
   Organization = "organization",
+  Subscription = "subscription",
   Audit = "audit",
   Theme = "theme",
   Branding = "branding",
@@ -123,31 +129,44 @@ export function SettingHome() {
         !currentOrgAdmin(user) ||
         !enableCustomBrand(config) ||
         (!isSelfDomain(config) && !isEnterpriseMode(config)),
-    },
+    }
   ];
 
   return (
-    <TwoColumnSettingPageContent>
-      <SubSideBar title={trans("settings.title")}>
-        <Menu 
-          style={{ border: "none" }}
-          mode="inline"
-          selectedKeys={[selectKey]}
-          onClick={(value) => {
-            history.push("/setting/" + value.key);
-          }}
-          items={items}
-        />
-      </SubSideBar>
-      {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
-      {selectKey === SettingPageEnum.Organization && <Organization />}
-      {selectKey === SettingPageEnum.Theme && <ThemeHome />}
-      {selectKey === SettingPageEnum.OAuthProvider && <IdSourceHome />}
-      {selectKey === SettingPageEnum.Audit && <AuditSetting />}
-      {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
-      {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-    </TwoColumnSettingPageContent>
+    <>
+      <Helmet>{<title>{trans("productName")} {trans("settings.title")}</title>}</Helmet>
+      <TwoColumnSettingPageContent>
+        <SubSideBar title={trans("settings.title")}>
+          <Menu
+            style={{ border: "none" }}
+            mode="inline"
+            selectedKeys={[selectKey]}
+            onClick={(value) => {
+              history.push("/setting/" + value.key);
+            } }
+            items={items} />
+
+          <Card style={{marginTop: "40px", color:"#aaa"}}>
+            <div>If you are interested in early access to the upcoming Enterprise Edition, please contact us: <a href="mailto:service@lowcoder.cloud">service@lowcoder.cloud</a></div>
+          </Card>
+        </SubSideBar>
+        {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
+        {selectKey === SettingPageEnum.Organization && <Organization />}
+        {selectKey === SettingPageEnum.Theme && <ThemeHome />}
+        {selectKey === SettingPageEnum.OAuthProvider && <IdSourceHome />}
+        {selectKey === SettingPageEnum.Audit && <AuditSetting />}
+        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
+        {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
+        {selectKey === SettingPageEnum.Subscription && <Subscription />}
+      </TwoColumnSettingPageContent>
+    </>
   );
 }
+
+// { 
+//  key: SettingPageEnum.Subscription,
+//  label: trans("settings.subscription"),
+//  icon: <SubscriptionIcon width={"20px"}/>, 
+// }
 
 export default SettingHome;

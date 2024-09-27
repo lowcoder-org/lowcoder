@@ -7,7 +7,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { TabsOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ContainerBodyStyle, ContainerBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, TabBodyStyleType, ContainerHeaderStyle, ContainerHeaderStyleType, TabBodyStyle, TabContainerStyle, TabContainerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
@@ -15,7 +15,7 @@ import { NameGenerator } from "comps/utils";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useEffect } from "react";
 import styled, { css } from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -28,14 +28,14 @@ import {
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { EditorContext } from "comps/editorState";
 import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { NumberControl, StringControl } from "@lowcoder-ee/index.sdk";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const EVENT_OPTIONS = [
   {
@@ -53,14 +53,17 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   placement: withDefault(PositionControl, "top"),
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
-  style: styleControl(TabContainerStyle),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  bodyStyle: styleControl(ContainerBodyStyle),
+  style: styleControl(TabContainerStyle , 'style'),
+  headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
+  bodyStyle: styleControl(TabBodyStyle , 'bodyStyle'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   tabsGutter: withDefault(NumberControl, 32),
   tabsCentered: withDefault(BoolControl, false),
 };
@@ -71,16 +74,16 @@ type TabbedContainerProps = ViewProps & { dispatch: DispatchType };
 const getStyle = (
   style: TabContainerStyleType,
   headerStyle: ContainerHeaderStyleType,
-  bodyStyle: ContainerBodyStyleType,
+  bodyStyle: TabBodyStyleType,
 ) => {
   return css`
     &.ant-tabs {
       overflow: hidden;
-      border: ${style.borderWidth} solid ${style.border};
+      border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       padding: ${style.padding};
       background-color: ${style.background};
-      background-image: ${style.backgroundImage};
+      background-image: url(${style.backgroundImage});
       background-repeat: ${style.backgroundImageRepeat};
       background-size: ${style.backgroundImageSize};
       background-position: ${style.backgroundImagePosition};
@@ -91,26 +94,17 @@ const getStyle = (
         .react-grid-layout {
           border-radius: 0;
           background-color: ${bodyStyle.background || 'transparent'};
-          background-image: ${bodyStyle.backgroundImage};
-          background-repeat: ${bodyStyle.backgroundImageRepeat};
-          background-size: ${bodyStyle.backgroundImageSize};
-          background-position: ${bodyStyle.backgroundImagePosition};
-          background-origin: ${bodyStyle.backgroundImageOrigin};
-
+          padding: ${bodyStyle.containerBodyPadding};
         }
       }
 
       > .ant-tabs-nav {
         background-color: ${headerStyle.headerBackground || 'transparent'};
-        background-image: ${headerStyle.headerBackgroundImage};
-        background-repeat: ${headerStyle.headerBackgroundImageRepeat};
-        background-size: ${headerStyle.headerBackgroundImageSize};
-        background-position: ${headerStyle.headerBackgroundImagePosition};
-        background-origin: ${headerStyle.headerBackgroundImageOrigin};
+        padding: ${headerStyle.containerHeaderPadding};
 
         .ant-tabs-tab {
           div {
-            color: ${style.tabText};
+            color: #8b8fa3;
           }
 
           &.ant-tabs-tab-active div {
@@ -119,6 +113,7 @@ const getStyle = (
         }
 
         .ant-tabs-tab-btn {
+          color: ${style.tabText} !important;
           font-size: ${style.textSize};
           font-family:${style.fontFamily};
           font-weight:${style.textWeight};
@@ -142,12 +137,14 @@ const getStyle = (
 const StyledTabs = styled(Tabs)<{ 
   $style: TabContainerStyleType;
   $headerStyle: ContainerHeaderStyleType;
-  $bodyStyle: ContainerBodyStyleType;
+  $bodyStyle: TabBodyStyleType;
   $isMobile?: boolean; 
   $showHeader?: boolean;
+  $animationStyle:AnimationStyleType
 }>`
   &.ant-tabs {
     height: 100%;
+    ${props=>props.$animationStyle}
   }
 
   .ant-tabs-content-animated {
@@ -195,6 +192,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     style,
     headerStyle,
     bodyStyle,
+    horizontalGridCells,
   } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
@@ -240,14 +238,15 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     );
     return {
       label,
-      key: tab.key,
+      key: tab.key,                                                                            
       forceRender: true,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+          <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
             <ContainerInTab
               layout={containerProps.layout.getView()}
               items={gridItemCompToGridItems(containerProps.items.getView())}
+              horizontalGridCells={horizontalGridCells}
               positionParams={containerProps.positionParams.getView()}
               dispatch={childDispatch}
               autoHeight={props.autoHeight}
@@ -260,10 +259,10 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
-      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "auto" : "100%"}}>
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
-            <StyledTabs
+          <StyledTabs
+            $animationStyle={props.animationStyle}
               tabPosition={props.placement}
               activeKey={activeKey}
               $style={style}
@@ -282,11 +281,10 @@ const TabbedContainer = (props: TabbedContainerProps) => {
               items={tabItems}
               tabBarGutter={props.tabsGutter}
               centered={props.tabsCentered}
-            >
+          >
           </StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
-    </ScrollBar>
   );
 };
 
@@ -325,10 +323,13 @@ export const TabbedContainerBaseComp = (function () {
                 {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
                 {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
                 { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
+                {children.horizontalGridCells.propertyView({
+                  label: trans('prop.horizontalGridCells'),
+                })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
-                  children.scrollbars.propertyView({
-                    label: trans("prop.scrollbar"),
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
                   })
                 )}
               </Section>
@@ -342,6 +343,9 @@ export const TabbedContainerBaseComp = (function () {
               )}
               <Section name={"Body Style"}>
                 { children.bodyStyle.getPropertyView() }
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                { children.animationStyle.getPropertyView() }
               </Section>
             </>
           )}
@@ -460,3 +464,4 @@ export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, 
   new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
   NameConfigHidden,
 ]);
+

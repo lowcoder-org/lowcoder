@@ -6,10 +6,10 @@ import {
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { LottieStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy } from "react";  
+import { useContext, lazy, useEffect } from "react";  
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -93,23 +93,31 @@ let JsonLottieTmpComp = (function () {
     speed: dropdownControl(speedOptions, "1"),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
-    container: styleControl(LottieStyle),
+    container: styleControl(LottieStyle , 'container'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     animationStart: dropdownControl(animationStartOptions, "auto"),
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
-      <div style={{
-        padding: `${props.container.margin}`,
-      }}>
+      <div
+        style={{
+          padding: `${props.container.margin}`,
+          animation: props.animationStyle.animation,
+          animationDelay: props.animationStyle.animationDelay,
+          animationDuration: props.animationStyle.animationDuration,
+          animationIterationCount: props.animationStyle.animationIterationCount,
+        }}
+      >
         <div
           style={{
             height: "100%",
             display: "flex",
             justifyContent: "center",
             backgroundColor: `${props.container.background}`,
-            padding: `${props.container.padding}`
+            padding: `${props.container.padding}`,
+            rotate: props.container.rotation,
           }}
         >
           <Player
@@ -147,7 +155,7 @@ let JsonLottieTmpComp = (function () {
                 {children.speed.propertyView({ label: trans("jsonLottie.speed")})}
                 {children.loop.propertyView({ label: trans("jsonLottie.loop")})}
                 {children.animationStart.propertyView({ label: trans("jsonLottie.animationStart")})}
-                {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
+                 {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
                 {hiddenPropertyView(children)}
               </Section>
             </>
@@ -158,9 +166,11 @@ let JsonLottieTmpComp = (function () {
               <Section name={sectionNames.style}>
                 {children.container.getPropertyView()}
               </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
             </>
           )}
-
         </>
       );
     })

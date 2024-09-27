@@ -14,6 +14,7 @@ import { CodeEditorPanel } from "../../pages/editor/codeEditorPanel";
 import type { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";
 import { Layers } from "../../constants/Layers";
+import { debounce } from "lodash";
 
 type StyleConfig = {
   minHeight: string;
@@ -51,8 +52,10 @@ const textStyle = css`
 export const CodeEditorTooltipContainer = styled.div`
   // tooltip common
   .cm-tooltip {
-    z-index: ${Layers.codeEditorTooltip};
     border: 1px solid #d7d9e0;
+    padding: 5px !important;
+    margin-top: 5px !important;
+    height: 120px;
   }
   // make sure antd popover in the code editor available
   .ant-popover {
@@ -217,12 +220,12 @@ function useCodeMirror(
   const showLineNum = props.showLineNum ?? getStyle(props.styleName).showLineNum;
 
   const handleChange = useCallback(
-    (state: EditorState) => {
+    debounce((state: EditorState) => {
       window.clearTimeout(isTypingRef.current);
       isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
       onChange?.(state);
-    },
-    [onChange]
+    }, 1000)
+    , [onChange]
   );
 
   const { extensions, reconfigure, isFocus } = useExtensions({

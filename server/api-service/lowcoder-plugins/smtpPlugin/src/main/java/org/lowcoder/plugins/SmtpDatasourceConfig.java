@@ -1,19 +1,16 @@
 package org.lowcoder.plugins;
 
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+import lombok.Getter;
+import org.lowcoder.sdk.config.JsonViews;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 
 import java.util.function.Function;
 
-import javax.annotation.Nullable;
-
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-
-import com.fasterxml.jackson.annotation.JsonView;
-
-import lombok.Builder;
-import lombok.Getter;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 @Getter
 @Builder

@@ -7,7 +7,6 @@ public class ReactiveRequestContextHolder {
     public static final Class<ServerHttpRequest> SERVER_HTTP_REQUEST = ServerHttpRequest.class;
 
     public static Mono<ServerHttpRequest> getRequest() {
-        return Mono.subscriberContext()
-                .map(ctx -> ctx.get(SERVER_HTTP_REQUEST));
+        return Mono.deferContextual(contextView -> Mono.just(contextView.get(SERVER_HTTP_REQUEST)));
     }
 }

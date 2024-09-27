@@ -1,18 +1,18 @@
 package org.lowcoder.domain.query.model;
 
-import java.util.Map;
-
-import org.apache.commons.collections4.MapUtils;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-
 import lombok.Getter;
+import org.apache.commons.collections4.MapUtils;
+
+import java.util.Map;
 
 @Getter
 public class ApplicationQuery {
 
     private final String id;
+
+    private final String gid;
 
     private final String name;
 
@@ -24,6 +24,7 @@ public class ApplicationQuery {
 
     @JsonCreator
     public ApplicationQuery(@JsonProperty("id") String id,
+            @JsonProperty("gid") String gid,
             @JsonProperty("name") String name,
             @JsonProperty("datasourceId") String datasourceId,
             @JsonProperty("comp") Map<String, Object> queryConfig,
@@ -31,6 +32,7 @@ public class ApplicationQuery {
             @JsonProperty("timeout") String timeoutStr,
             @JsonProperty("compType") String compType) {
         this.id = id;
+        this.gid = gid;
         this.name = name;
         this.triggerType = triggerType;
         this.timeoutStr = timeoutStr;

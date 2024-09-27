@@ -6,7 +6,7 @@ import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
-import { PositionControl, LeftRightControl } from "comps/controls/dropdownControl";
+import { PositionControl, LeftRightControl, HorizontalAlignmentControl } from "comps/controls/dropdownControl";
 import { closeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
 import { DrawerStyle } from "comps/controls/styleControlConstants";
@@ -24,6 +24,8 @@ import styled from "styled-components";
 import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { title } from "process";
+import SliderControl from "../controls/sliderControl";
 
 const EventOptions = [closeEvent] as const;
 
@@ -33,12 +35,26 @@ const DEFAULT_PADDING = 16;
 const DrawerWrapper = styled.div`
   // Shield the mouse events of the lower layer, the mask can be closed in the edit mode to prevent the lower layer from sliding
   pointer-events: auto;
+  .ant-drawer-header-title {
+    margin: 0px 20px !important;
+    font-size: 16px;
+  }
 `;
 
-const ButtonStyle = styled(Button)<{$closePosition?: string}>`
+const StyledDrawer = styled(Drawer)<{$titleAlign?: string, $drawerScrollbar: boolean}>`
+  .ant-drawer-header-title {
+    margin: 0px 20px !important;
+    text-align: ${(props) => props.$titleAlign || "center"};
+  }
+  div.ant-drawer-body div.react-grid-layout::-webkit-scrollbar {
+    display: ${(props) => props.$drawerScrollbar ? "block" : "none"};
+  }
+`;
+
+const ButtonStyle = styled(Button)<{$closePosition?: string, $title? :string}>`
   position: absolute;
   ${(props) => props.$closePosition === "right" ? "right: 0;" : "left: 0;"}
-  top: 0;
+  top: ${(props) => props.$title !== "" ? "2px" : "0px"};
   z-index: 10;
   font-weight: 700;
   box-shadow: none;
@@ -69,37 +85,6 @@ function transToPxSize(size: string | number) {
   return isNumeric(size) ? size + "px" : (size as string);
 }
 
-const ClosePlacementOptions = [
-  {
-    label: trans("drawer.left"),
-    value: "left",
-  },
-  {
-    label: trans("drawer.right"),
-    value: "right",
-  },
-] as const;
-
-const PlacementOptions = [
-  {
-    label: trans("drawer.top"),
-    value: "top",
-  },
-  {
-    label: trans("drawer.right"),
-    value: "right",
-  },
-  {
-    label: trans("drawer.bottom"),
-    value: "bottom",
-  },
-  {
-    label: trans("drawer.left"),
-    value: "left",
-  },
-] as const;
-
-
 let TmpDrawerComp = (function () {
   return new ContainerCompBuilder(
     {
@@ -107,12 +92,17 @@ let TmpDrawerComp = (function () {
       onEvent: eventHandlerControl(EventOptions),
       width: StringControl,
       height: StringControl,
+      title: StringControl,
+      titleAlign: HorizontalAlignmentControl,
+      horizontalGridCells: SliderControl,
       autoHeight: AutoHeightControl,
+      drawerScrollbar: withDefault(BoolControl, true),
       style: styleControl(DrawerStyle),
       placement: PositionControl,
       closePosition: withDefault(LeftRightControl, "left"),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
+      toggleClose:withDefault(BoolControl,true)
     },
     (props, dispatch) => {
       const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -135,7 +125,7 @@ let TmpDrawerComp = (function () {
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
           <DrawerWrapper>
-            <Drawer
+            <StyledDrawer
               resizable={resizable}
               onResizeStop={onResizeStop}
               rootStyle={props.visible.value ? { overflow: "auto", pointerEvents: "auto" } : {}}
@@ -149,6 +139,9 @@ let TmpDrawerComp = (function () {
                   backgroundColor: props.style.background
                 }
               }}
+              title={props.title}
+              $titleAlign={props.titleAlign}
+              $drawerScrollbar={props.drawerScrollbar}
               closable={false}
               placement={props.placement}
               open={props.visible.value}
@@ -167,7 +160,10 @@ let TmpDrawerComp = (function () {
               zIndex={Layers.drawer}
               maskClosable={props.maskClosable}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
+            {props.toggleClose && (
               <ButtonStyle
                 $closePosition={props.closePosition}
                 onClick={() => {
@@ -176,9 +172,11 @@ let TmpDrawerComp = (function () {
               >
                 <CloseOutlined />
               </ButtonStyle>
+              )}
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
+                horizontalGridCells={props.horizontalGridCells}
                 autoHeight={props.autoHeight}
                 minHeight={isTopBom ? DEFAULT_SIZE + "px" : "100%"}
                 style={{ height: "100%" }}
@@ -186,7 +184,7 @@ let TmpDrawerComp = (function () {
                 hintPlaceholder={HintPlaceHolder}
                 bgColor={props.style.background}
               />
-            </Drawer>
+            </StyledDrawer>
           </DrawerWrapper>
         </BackgroundColorContext.Provider>
       );
@@ -195,6 +193,8 @@ let TmpDrawerComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
+          {children.title.propertyView({ label: trans("drawer.title") })}
+          {children.title.getView() && children.titleAlign.propertyView({ label: trans("drawer.titleAlign"), radioButton: true })}
           {children.closePosition.propertyView({ label: trans("drawer.closePosition"), radioButton: true })}
           {children.placement.propertyView({ label: trans("drawer.placement"), radioButton: true })}
           {["top", "bottom"].includes(children.placement.getView())
@@ -211,11 +211,18 @@ let TmpDrawerComp = (function () {
               tooltip: trans("drawer.heightTooltip"),
               placeholder: DEFAULT_SIZE + "",
             })}
+          {children.horizontalGridCells.propertyView({
+            label: trans('prop.horizontalGridCells'),
+          })}
+          {children.drawerScrollbar.propertyView({ label: trans("prop.drawerScrollbar") })}
           {children.maskClosable.propertyView({
             label: trans("prop.maskClosable"),
           })}
           {children.showMask.propertyView({
             label: trans("prop.showMask"),
+          })}
+          {children.toggleClose.propertyView({
+            label: trans("prop.toggleClose"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

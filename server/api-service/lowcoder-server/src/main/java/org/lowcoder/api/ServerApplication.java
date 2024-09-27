@@ -1,7 +1,8 @@
 package org.lowcoder.api;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import jakarta.annotation.PostConstruct;
-
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
@@ -10,9 +11,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import lombok.extern.slf4j.Slf4j;
 import reactor.blockhound.BlockHound;
 import reactor.core.publisher.Hooks;
 import reactor.core.scheduler.Schedulers;

@@ -1,5 +1,7 @@
 package org.lowcoder.api.authentication.service;
 
+import jakarta.annotation.Nullable;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -33,14 +35,12 @@ import org.lowcoder.sdk.config.AuthProperties;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.CookieHelper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -51,43 +51,24 @@ import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class AuthenticationApiServiceImpl implements AuthenticationApiService {
 
-    @Autowired
-    private OrgApiService orgApiService;
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @Autowired
-    private AuthRequestFactory<AuthRequestContext> authRequestFactory;
-
-    @Autowired
-    private AuthenticationService authenticationService;
-
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private InvitationApiService invitationApiService;
-    @Autowired
-    private BusinessEventPublisher businessEventPublisher;
-    @Autowired
-    private SessionUserService sessionUserService;
-    @Autowired
-    private CookieHelper cookieHelper;
-    @Autowired
-    private AuthConfigFactory authConfigFactory;
-    @Autowired
-    private UserApiService userApiService;
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private JWTUtils jwtUtils;
-
-    @Autowired
-    private AuthProperties authProperties;
+    private final OrgApiService orgApiService;
+    private final OrganizationService organizationService;
+    private final AuthRequestFactory<AuthRequestContext> authRequestFactory;
+    private final AuthenticationService authenticationService;
+    private final UserService userService;
+    private final InvitationApiService invitationApiService;
+    private final BusinessEventPublisher businessEventPublisher;
+    private final SessionUserService sessionUserService;
+    private final CookieHelper cookieHelper;
+    private final AuthConfigFactory authConfigFactory;
+    private final UserApiService userApiService;
+    private final OrgMemberService orgMemberService;
+    private final JWTUtils jwtUtils;
+    private final AuthProperties authProperties;
 
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
@@ -135,7 +116,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
                                       String invitationId, boolean linKExistingUser) {
-        return updateOrCreateUser(authUser, linKExistingUser)
+        return updateOrCreateUser(authUser, linKExistingUser, false)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -166,11 +147,11 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
     }
 
-    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser) {
+    public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser, boolean isSuperAdmin) {
 
         if(linkExistingUser) {
             return sessionUserService.getVisitor()
-                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection()));
+                    .flatMap(user -> userService.addNewConnectionAndReturnUser(user.getId(), authUser));
         }
 
         return findByAuthUserSourceAndRawId(authUser).zipWith(findByAuthUserRawId(authUser))
@@ -190,24 +171,11 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     // found for the same id in some different connection, then just add a new connection to the user
                     if(findByAuthUserSecond.userExist()) {
                         User user = findByAuthUserSecond.user();
-                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser.toAuthConnection());
+                        return userService.addNewConnectionAndReturnUser(user.getId(), authUser);
                     }
 
-                    // if the user is logging/registering via OAuth provider for the first time,
-                    // but is not anonymous, then just add a new connection
-
-                     userService.findById(authUser.getUid())
-                             .switchIfEmpty(Mono.empty())
-                             .filter(user -> {
-                                 // not logged in yet
-                                 return !user.isAnonymous();
-                             }).doOnNext(user -> {
-                                 userService.addNewConnection(user.getId(), authUser.toAuthConnection());
-                             }).subscribe();
-
-
                     if (authUser.getAuthContext().getAuthConfig().isEnableRegister()) {
-                        return userService.createNewUserByAuthUser(authUser);
+                        return userService.createNewUserByAuthUser(authUser, isSuperAdmin);
                     }
                     return Mono.error(new BizException(USER_NOT_EXIST, "USER_NOT_EXIST"));
                 });
@@ -237,6 +205,11 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         }
         // clean old data
         oldConnection.setAuthId(authUser.getAuthContext().getAuthConfig().getId());
+
+        //if auth by google, set refresh token
+        if (authUser.getAuthToken()!=null && oldConnection.getAuthConnectionAuthToken()!=null && StringUtils.isEmpty(authUser.getAuthToken().getRefreshToken()) && StringUtils.isNotEmpty(oldConnection.getAuthConnectionAuthToken().getRefreshToken())) {
+            authUser.getAuthToken().setRefreshToken(oldConnection.getAuthConnectionAuthToken().getRefreshToken());
+        }
 
         // Save the auth token which may be used in the future datasource or query.
         oldConnection.setAuthConnectionAuthToken(
@@ -349,7 +322,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 );
     }
 
-
     private Mono<Void> removeTokensByAuthId(String authId) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> orgMemberService.getOrganizationMembers(orgMember.getOrgId()))
@@ -434,12 +406,6 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         Map<String, AbstractAuthConfig> authConfigMap = organizationDomain.getConfigs()
                 .stream()
                 .collect(Collectors.toMap(AbstractAuthConfig::getId, Function.identity()));
-
-        boolean authTypeAlreadyExists = authConfigMap.values().stream()
-                .anyMatch(config -> !config.getId().equals(newAuthConfig.getId()) && config.getAuthType().equals(newAuthConfig.getAuthType()));
-        if(authTypeAlreadyExists) {
-            return false;
-        }
 
         // Under the organization, the source can uniquely identify the whole auth config.
         AbstractAuthConfig old = authConfigMap.get(newAuthConfig.getId());

@@ -5,11 +5,13 @@ import { GreyTextColor } from "constants/style";
 import log from "loglevel";
 import { Comp, CompAction, CompConstructor, CompParams, customAction, isCustomAction } from "lowcoder-core";
 import { WhiteLoading } from "lowcoder-design";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo } from "types/remoteComp";
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import React from "react";
 
 const ViewError = styled.div`
   display: flex;
@@ -38,20 +40,22 @@ function ViewLoading(props: { padding?: number }) {
   );
 }
 
-interface RemoteCompReadyAction {
-  type: "RemoteCompReady";
+export interface LazyCompReadyAction {
+  type: "LazyCompReady";
   comp: Comp;
 }
 
-interface RemoteCompViewProps {
+interface LazyCompViewProps {
   loadComp: () => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
 }
 
-function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
+const LazyCompView = React.memo((props: React.PropsWithChildren<LazyCompViewProps>) => {
   const { loadComp, loadingElement, errorElement } = props;
   const [error, setError] = useState<any>("");
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showComponentLoadingIndicators = currentTheme?.showComponentLoadingIndicators;
 
   useMount(() => {
     setError("");
@@ -71,16 +75,16 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
     );
   }
 
+  if (!showComponentLoadingIndicators) return<></>;
+
   if (loadingElement) {
     return <ViewLoadingWrapper>{loadingElement()}</ViewLoadingWrapper>;
   }
 
   return (
-    <ViewLoadingWrapper>
-      <WhiteLoading />
-    </ViewLoadingWrapper>
+    <WhiteLoading />
   );
-}
+});
 
 export type LazyloadCompLoader<T = RemoteCompInfo> = () => Promise<CompConstructor | null>;
 
@@ -103,14 +107,14 @@ export function lazyLoadComp(
       if (!compPath) {
         return;
       }
-      let RemoteExportedComp;
+      let LazyExportedComp;
       if (!loader) {
         const module = await import(`../../${compPath}.tsx`);
-        RemoteExportedComp = module[compName!];
+        LazyExportedComp = module[compName!];
       } else {
-        RemoteExportedComp = await loader();
+        LazyExportedComp = await loader();
       }
-      if (!RemoteExportedComp) {
+      if (!LazyExportedComp) {
         log.error("loader not found, lazy load info:", compPath);
         return;
       }
@@ -122,12 +126,12 @@ export function lazyLoadComp(
       if (this.compValue) {
         params.value = this.compValue;
       }
-      const RemoteCompWithErrorBound = withErrorBoundary(RemoteExportedComp);
+      const LazyCompWithErrorBound = withErrorBoundary(LazyExportedComp);
       this.dispatch(
-        customAction<RemoteCompReadyAction>(
+        customAction<LazyCompReadyAction>(
           {
-            type: "RemoteCompReady",
-            comp: new RemoteCompWithErrorBound(params),
+            type: "LazyCompReady",
+            comp: new LazyCompWithErrorBound(params),
           },
           false
         )
@@ -138,7 +142,7 @@ export function lazyLoadComp(
       // const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
       const key = `${compName}`;
       return (
-        <RemoteCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
+        <LazyCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
       );
     }
 
@@ -147,7 +151,7 @@ export function lazyLoadComp(
     }
 
     reduce(action: CompAction<any>): this {
-      if (isCustomAction<RemoteCompReadyAction>(action, "RemoteCompReady")) {
+      if (isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")) {
         // use real remote comp instance to replace RemoteCompLoader
         return action.value.comp as this;
       }

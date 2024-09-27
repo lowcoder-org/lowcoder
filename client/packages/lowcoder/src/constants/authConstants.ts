@@ -1,10 +1,14 @@
 import {
   AUTH_BIND_URL,
+  AUTH_FORGOT_PASSWORD_URL,
   AUTH_LOGIN_URL,
   AUTH_REGISTER_URL,
+  AUTH_RESET_PASSWORD_URL,
   OAUTH_REDIRECT,
+  ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_LOGIN_URL,
   ORG_AUTH_REGISTER_URL,
+  ORG_AUTH_RESET_PASSWORD_URL,
 } from "constants/routesURL";
 import { InviteInfo } from "api/inviteApi";
 import Login, { ThirdPartyBindCard } from "pages/userAuth/login";
@@ -18,6 +22,8 @@ import {
   KeyCloakLoginIcon,
   EmailLoginIcon
 } from "assets/icons";
+import ForgotPassword from "pages/userAuth/forgotPassword";
+import ResetPassword from "pages/userAuth/resetPassword";
 
 export type AuthInviteInfo = InviteInfo & { invitationId: string };
 export type AuthLocationState = { inviteInfo?: AuthInviteInfo; thirdPartyAuthError?: boolean };
@@ -51,6 +57,7 @@ export type ThirdPartyConfigType = {
   url: string;
   name: string;
   logo: string;
+  icon: string;
   // login source
   sourceType: string;
   // url is react router
@@ -85,14 +92,18 @@ export const AuthRoutes: Array<{ path: string; component: React.ComponentType<an
   { path: AUTH_LOGIN_URL, component: Login },
   { path: AUTH_BIND_URL, component: ThirdPartyBindCard },
   { path: AUTH_REGISTER_URL, component: UserRegister },
+  { path: AUTH_FORGOT_PASSWORD_URL, component: ForgotPassword },
+  { path: AUTH_RESET_PASSWORD_URL, component: ResetPassword },
   { path: OAUTH_REDIRECT, component: AuthRedirect },
   { path: ORG_AUTH_LOGIN_URL, component: Login },
   { path: ORG_AUTH_REGISTER_URL, component: UserRegister },
+  { path: ORG_AUTH_FORGOT_PASSWORD_URL, component: ForgotPassword },
+  { path: ORG_AUTH_RESET_PASSWORD_URL, component: ResetPassword },
 ];
 
-export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY";
+export type ServerAuthType = "GOOGLE" | "GITHUB" | "FORM" | "KEYCLOAK" | "ORY" | "GENERIC";
 
-export type ServerAuthTypeInfoValueType = { logo: string; isOAuth2?: boolean };
+export type ServerAuthTypeInfoValueType = { logo?: string; sourceIcon?: string; isOAuth2?: boolean };
 export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoValueType } = {
   GOOGLE: {
     logo: GoogleLoginIcon,
@@ -108,6 +119,10 @@ export const ServerAuthTypeInfo: { [key in ServerAuthType]?: ServerAuthTypeInfoV
   },
   ORY: {
     logo: OryLoginIcon,
+    isOAuth2: true
+  },
+  GENERIC: {
+    logo: undefined,
     isOAuth2: true
   },
   FORM: { logo: EmailLoginIcon },

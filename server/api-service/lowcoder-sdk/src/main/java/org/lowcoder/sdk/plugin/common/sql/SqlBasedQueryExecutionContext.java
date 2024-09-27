@@ -1,14 +1,13 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
-import static org.apache.commons.collections4.MapUtils.emptyIfNull;
-
-import java.util.Map;
-
+import lombok.Builder;
+import lombok.Getter;
 import org.lowcoder.sdk.plugin.sqlcommand.GuiSqlCommand;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 
-import lombok.Builder;
-import lombok.Getter;
+import java.util.Map;
+
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
 @Getter
 public class SqlBasedQueryExecutionContext extends QueryExecutionContext {

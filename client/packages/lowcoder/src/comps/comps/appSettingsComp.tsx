@@ -4,7 +4,7 @@ import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleCo
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { AddIcon, Dropdown } from "lowcoder-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSelectors";
 import styled, { css } from "styled-components";
@@ -18,6 +18,10 @@ import { StringControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { BoolControl } from "../controls/boolControl";
+import { getNpmPackageMeta } from "../utils/remote";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
+import type { AppState } from "@lowcoder-ee/redux/reducers";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -108,10 +112,6 @@ const DivStyled = styled.div`
     > div:first-child {
       margin-bottom: 6px;
     }
-    
-    .tooltipLabel {
-      white-space: nowrap;
-    }
 
   }
   // custom styles for icon selector
@@ -182,10 +182,13 @@ const childrenMap = {
   description: withDefault(StringControl, ''),
   icon: IconControl,
   category: dropdownControl(AppCategories, ApplicationCategoriesEnum.BUSINESS),
+  showHeaderInPublic: withDefault(BoolControl, true),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
+  preventAppStylesOverwriting: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
+  lowcoderCompVersion: withDefault(StringControl, 'latest'),
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
@@ -193,6 +196,8 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
 };
 
 function AppSettingsModal(props: ChildrenInstance) {
+  const lowcoderCompsMeta = useSelector((state: AppState) => state.npmPlugin.packageMeta['lowcoder-comps']);
+  const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
   const {
     themeList,
     defaultTheme,
@@ -202,11 +207,16 @@ function AppSettingsModal(props: ChildrenInstance) {
     description,
     icon,
     category,
+    showHeaderInPublic,
+    preventAppStylesOverwriting,
+    lowcoderCompVersion,
   } = props;
+
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
     value: theme.id + "",
   }));
+
   const themeWithDefault = (
     themeId.getView() === DEFAULT_THEMEID ||
     (!!themeId.getView() &&
@@ -220,6 +230,14 @@ function AppSettingsModal(props: ChildrenInstance) {
       themeId.dispatchChangeValueAction(themeWithDefault);
     }
   }, [themeWithDefault]);
+  
+  useEffect(() => {
+    setLowcoderCompVersions([
+      'latest',
+      ...Object.keys(lowcoderCompsMeta?.versions || []).reverse()
+    ])
+  }, [lowcoderCompsMeta])
+
 
   const DropdownItem = (params: { value: string }) => {
     const themeItem = themeList.find((theme) => theme.id === params.value);
@@ -253,6 +271,11 @@ function AppSettingsModal(props: ChildrenInstance) {
           {icon.propertyView({
             label: trans("icon"),
             tooltip: trans("aggregation.iconTooltip"),
+          })}
+        </div>
+        <div style={{ margin: '20px 0'}}>
+          {showHeaderInPublic.propertyView({
+            label: trans("appSetting.showPublicHeader"),
           })}
         </div>
         {maxWidth.propertyView({
@@ -292,7 +315,36 @@ function AppSettingsModal(props: ChildrenInstance) {
             );
           }}
         />
+        <div style={{ margin: '20px 0'}}>
+          {preventAppStylesOverwriting.propertyView({
+            label: trans("prop.preventOverwriting"),
+          })}
+        </div>
       </DivStyled>
+      <DividerStyled />
+      <DivStyled>
+        <Dropdown
+          defaultValue={lowcoderCompVersion.getView()}
+          placeholder={'Select version'}
+          options={
+            lowcoderCompVersions.map(version => ({label: version, value: version}))
+          }
+          label={'Lowcoder Comps Version'}
+          placement="bottom"
+          onChange={async (value) => {
+            await getPromiseAfterDispatch(
+              lowcoderCompVersion.dispatch,
+              lowcoderCompVersion.changeValueAction(value), {
+                autoHandleAfterReduce: true,
+              }
+            )
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }}
+        />
+      </DivStyled>
+      <DividerStyled />
       {props.customShortcuts.getPropertyView()}
     </SettingsStyled>
   );

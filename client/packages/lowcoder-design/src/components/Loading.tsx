@@ -1,5 +1,6 @@
 import styled, { css } from "styled-components";
 import { CSSProperties } from "react";
+import { default as Skeleton } from "antd/es/skeleton";
 
 type LoadingContainerProps = {
   $backgroundColor: string;
@@ -12,6 +13,8 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 // Loading
@@ -61,6 +64,10 @@ const Load2 = styled.div<LoadingContainerProps>`
     linear-gradient(to right, ${(props) => props.$color}a3, ${(props) => props.$color}1a);
 `;
 
+const StyledSkeleton = styled(Skeleton)`
+  height: 100%;
+`;
+
 type LoadingProps = {
   backgroundColor?: string;
   color?: string;
@@ -77,14 +84,15 @@ export const Loading = (props: LoadingProps) => {
   };
   return (
     <LoadingWrapper className={props.className} style={props.style}>
-      <ContainerX {...loadingProps}>
+      {/* <ContainerX {...loadingProps}>
         <Container {...loadingProps}>
           <Load1 {...loadingProps} />
         </Container>
         <Container {...loadingProps}>
           <Load2 {...loadingProps} />
         </Container>
-      </ContainerX>
+      </ContainerX> */}
+      <StyledSkeleton active style={{height: '100%', animationDuration: '2s'}} />
     </LoadingWrapper>
   );
 };

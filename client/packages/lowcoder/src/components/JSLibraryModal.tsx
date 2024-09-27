@@ -341,6 +341,9 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
             </JSLibraryRecommends>
           </>
         )}
+
+        <HelpText>{trans("preLoad.externalLibsHelperText")}</HelpText>
+
       </CustomModal>
     </div>
   );

@@ -1,27 +1,19 @@
 package org.lowcoder.sdk.models;
 
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
 import org.springframework.data.annotation.Transient;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.function.Function;
+
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Getter

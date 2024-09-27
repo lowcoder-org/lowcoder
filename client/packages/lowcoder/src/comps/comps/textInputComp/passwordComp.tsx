@@ -26,7 +26,7 @@ import {
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import {
   hiddenPropertyView,
   minLengthPropertyView,
@@ -39,13 +39,15 @@ import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext } from "react";
+import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 
-const PasswordStyle = styled(InputPassword) <{
+const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
@@ -57,11 +59,14 @@ let PasswordTmpComp = (function () {
     validationType: dropdownControl(TextInputValidationOptions, "Regex"),
     visibilityToggle: BoolControl.DEFAULT_TRUE,
     prefixIcon: IconControl,
-    style: styleControl(InputLikeStyle),
-    labelStyle: styleControl(LabelStyle)
+    style: styleControl(InputFieldStyle ,'style' ) , 
+    labelStyle: styleControl(LabelStyle,'labelStyle'),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
+
     return props.label({
       required: props.required,
       children: (
@@ -70,11 +75,13 @@ let PasswordTmpComp = (function () {
           {...inputProps}
           ref={props.viewRef}
           visibilityToggle={props.visibilityToggle}
-          $style={props.style}
+          $style={props.inputFieldStyle}
         />
       ),
       style: props.style,
-      labelStyle:props.labelStyle,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       ...validateState,
     });
   })
@@ -110,6 +117,8 @@ let PasswordTmpComp = (function () {
             <>
               <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
               <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
             </>
           )}
         </>

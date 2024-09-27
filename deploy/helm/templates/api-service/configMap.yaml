@@ -1,6 +1,9 @@
 {{- $nameSpace := include "lowcoder.namespace" . -}}
 {{- $name := include "lowcoder.fullname" . -}}
 {{- $lowcoderDatabase := first .Values.mongodb.auth.databases -}}
+{{- $redisSecret := lookup "v1" "Secret" $nameSpace .Values.redis.auth.existingSecret | default dict -}}
+{{- $redisPassword := (index ($redisSecret.data|default dict) .Values.redis.auth.existingSecretPasswordKey | default "" | b64dec) -}}
+
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -13,9 +16,17 @@ metadata:
   {{- end }}
 data:
   {{- if .Values.redis.enabled }}
-  LOWCODER_REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
+  {{- if .Values.redis.auth.enabled }}
+  LOWCODER_REDIS_URL: "redis://{{ $redisPassword }}@{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
   {{- else }}
-  LOWCODER_REDIS_URL: {{ .Values.redis.externalUrl | quote }}
+  LOWCODER_REDIS_URL: "redis://{{ $name }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379"
+  {{- end }}
+  {{- else }}
+  {{- if .Values.redis.auth.enabled }}
+  LOWCODER_REDIS_URL: "redis://{{ $redisPassword }}@{{ .Values.redis.externalUrl }}"
+  {{- else }}
+  LOWCODER_REDIS_URL: "redis://{{ .Values.redis.externalUrl }}"
+  {{- end }}
   {{- end }}
   {{- if .Values.global.config.nodeServiceUrl }}
   LOWCODER_NODE_SERVICE_URL: {{ .Values.global.config.nodeServiceUrl | quote }}

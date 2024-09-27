@@ -5,6 +5,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
+import { HorizontalAlignmentControl } from "comps/controls/dropdownControl";
 import { ModalStyle, ModalStyleType } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
@@ -21,19 +22,21 @@ import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "comps/generators";
+import SliderControl from "../controls/sliderControl";
 
 const EventOptions = [
+  { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
 ] as const;
 
-const getStyle = (style: ModalStyleType) => {
+const getStyle = (style: ModalStyleType, modalScrollbar: boolean) => {
   return css`
     .ant-modal-content {
       border-radius: ${style.radius};
       border: ${style.borderWidth} solid ${style.border};
       overflow: hidden;
       background-color: ${style.background};
-      ${style.backgroundImage ? `background-image: ${style.backgroundImage} !important; ` : ';'}
+      ${style.backgroundImage ? `background-image: url(${style.backgroundImage}) !important; ` : ';'}
       ${style.backgroundImageRepeat ? `background-repeat: ${style.backgroundImageRepeat};` : 'no-repeat;'}
       ${style.backgroundImageSize ? `background-size: ${style.backgroundImageSize};` : 'cover'}
       ${style.backgroundImagePosition ? `background-position: ${style.backgroundImagePosition};` : 'center;'}
@@ -46,11 +49,22 @@ const getStyle = (style: ModalStyleType) => {
         background-color: ${style.background};
       }
     }
+    div.ant-modal-body div.react-grid-layout::-webkit-scrollbar {
+      display: ${modalScrollbar ? "block" : "none"};
+    }
     .ant-modal-close {
-      inset-inline-end: 7px !important;
+      inset-inline-end: 10px !important;
+      top: 10px;
     }
   `;
 };
+
+const StyledModal = styled(Modal)<{$titleAlign?: string}>`
+  .ant-modal-title {
+    margin: 0px 20px !important;
+    text-align: ${(props) => props.$titleAlign || "center"};
+  }
+`;
 
 const DEFAULT_WIDTH = "60%";
 const DEFAULT_HEIGHT = 222;
@@ -69,8 +83,8 @@ function extractMarginValues(style: ModalStyleType) {
   return valuesarray;
 }
 
-const ModalStyled = styled.div<{ $style: ModalStyleType }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+const ModalStyled = styled.div<{ $style: ModalStyleType, $modalScrollbar: boolean }>`
+  ${(props) => props.$style && getStyle(props.$style, props.$modalScrollbar)}
 `;
 
 const ModalWrapper = styled.div`
@@ -90,10 +104,15 @@ let TmpModalComp = (function () {
       onEvent: eventHandlerControl(EventOptions),
       width: StringControl,
       height: StringControl,
+      horizontalGridCells: SliderControl,
       autoHeight: AutoHeightControl,
+      title: StringControl,
+      titleAlign: HorizontalAlignmentControl,
+      modalScrollbar: withDefault(BoolControl, false),
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
+      toggleClose:withDefault(BoolControl,true)
     },
     (props, dispatch) => {
       const userViewMode = useUserViewMode();
@@ -135,7 +154,8 @@ let TmpModalComp = (function () {
       return (
         <BackgroundColorContext.Provider value={props.style.background}>
           <ModalWrapper>
-            <Modal
+            <StyledModal
+              closable={props.toggleClose}
               height={height}
               resizeHandles={resizeHandles}
               onResizeStop={onResizeStop}
@@ -145,26 +165,34 @@ let TmpModalComp = (function () {
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
               footer={null}
               styles={{body: bodyStyle}}
+              title={props.title}
+              $titleAlign={props.titleAlign}
               width={width}
               onCancel={(e) => {
-                props.visible.onChange(false);
+                props.toggleClose&&props.visible.onChange(false);
               }}
               afterClose={() => {
-                props.onEvent("close");
+                props.toggleClose&&props.onEvent("close");
+              }}
+              afterOpenChange={(open: boolean) => {
+                if (open) props.onEvent("open");
               }}
               zIndex={Layers.modal}
-              modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
+              modalRender={(node) => <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>{node}</ModalStyled>}
               mask={props.showMask}
+              className={props.className as string}
+              data-testid={props.dataTestId as string}
             >
               <InnerGrid
                 {...otherContainerProps}
                 items={gridItemCompToGridItems(items)}
+                horizontalGridCells={props.horizontalGridCells}
                 autoHeight={props.autoHeight}
                 minHeight={paddingValues ? DEFAULT_HEIGHT - paddingValues[0] * 2 + "px" : ""}
                 containerPadding={paddingValues ? [paddingValues[0] ?? 0, paddingValues[1] ?? 0] : [24,24]}
                 hintPlaceholder={HintPlaceHolder}
               />
-            </Modal>
+            </StyledModal>
           </ModalWrapper>
         </BackgroundColorContext.Provider>
       );
@@ -173,7 +201,16 @@ let TmpModalComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
+          {children.title.propertyView({ label: trans("modalComp.title") })}
+          {children.title.getView() && children.titleAlign.propertyView({ label: trans("modalComp.titleAlign"), radioButton: true })}
+          {children.horizontalGridCells.propertyView({
+            label: trans('prop.horizontalGridCells'),
+          })}
           {children.autoHeight.getPropertyView()}
+          {!children.autoHeight.getView() && 
+            children.modalScrollbar.propertyView({
+              label: trans("prop.modalScrollbar")
+            })}
           {!children.autoHeight.getView() &&
             children.height.propertyView({
               label: trans("modalComp.modalHeight"),
@@ -190,6 +227,9 @@ let TmpModalComp = (function () {
           })}
           {children.showMask.propertyView({
             label: trans("prop.showMask"),
+          })}
+          {children.toggleClose.propertyView({
+            label: trans("prop.toggleClose"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

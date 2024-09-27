@@ -10,7 +10,7 @@ import {
   ContainerFooterStyle,
 } from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, valueComp } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
 import { fromRecord, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
@@ -27,7 +27,8 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
-import { StringControl } from "@lowcoder-ee/index.sdk"; 
+import { StringControl } from "comps/controls/codeControl";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -48,14 +49,17 @@ const childrenMap = {
   siderWidth: withDefault(StringControl, "20%"),
   siderCollapsedWidth: withDefault(StringControl, "0"),
   showFooter: BoolControl,
+  horizontalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
-  style: styleControl(ContainerStyle),
-  headerStyle: styleControl(ContainerHeaderStyle),
-  siderStyle: styleControl(ContainerSiderStyle),
-  bodyStyle: styleControl(ContainerBodyStyle),
-  footerStyle: styleControl(ContainerFooterStyle),
+  mainScrollbars: withDefault(BoolControl, false),
+  style: styleControl(ContainerStyle , 'style'),
+  headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
+  siderStyle: styleControl(ContainerSiderStyle , 'siderStyle'),
+  bodyStyle: styleControl(ContainerBodyStyle , 'bodyStyle'),
+  footerStyle: styleControl(ContainerFooterStyle , 'footerStyle'),
+  appliedThemeId: valueComp<string>(''),
 };
 
 // Compatible with old style data 2022-8-15
@@ -130,7 +134,11 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
   }
 
   getPropertyView(): ControlNode {    
-    return [this.areaPropertyView(), this.heightPropertyView()];
+    return [
+      this.areaPropertyView(),
+      this.gridPropertyView(),
+      this.heightPropertyView(),
+    ];
   }
 
   areaPropertyView() {
@@ -150,9 +158,22 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
-      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.contentScrollbar") }),
+      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar") }),
+      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.showVerticalScrollbar") }),
+      (!this.children.autoHeight.getView()) && (
+        !this.children.siderScrollbars.getView() ||
+        !this.children.contentScrollbars.getView()
+       ) &&
+         this.children.mainScrollbars.propertyView({ label: trans("prop.mainScrollbar") }),
     ];
+  }
+
+  gridPropertyView() {
+    return [
+      this.children.horizontalGridCells.propertyView({
+        label: trans('prop.horizontalGridCells'),
+      }),
+    ]
   }
 
   appSelectorPropertyView() {

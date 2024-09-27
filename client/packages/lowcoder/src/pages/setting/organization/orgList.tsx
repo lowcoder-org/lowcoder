@@ -1,4 +1,4 @@
-import { ADMIN_ROLE } from "constants/orgConstants";
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "constants/orgConstants";
 import { AddIcon, CustomModal, DangerIcon, EditPopover } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
@@ -128,7 +128,10 @@ type DataItemInfo = {
 function OrganizationSetting() {
   const user = useSelector(getUser);
   const orgs = user.orgs;
-  const adminOrgs = orgs.filter((org) => user.orgRoleMap.get(org.id) === ADMIN_ROLE);
+  const adminOrgs = orgs.filter((org) => {
+    const role = user.orgRoleMap.get(org.id);
+    return role === ADMIN_ROLE || role === SUPER_ADMIN_ROLE;
+  });
   const orgCreateStatus = useSelector(getOrgCreateStatus);
   const dispatch = useDispatch();
   const sysConfig = useSelector(selectSystemConfig);

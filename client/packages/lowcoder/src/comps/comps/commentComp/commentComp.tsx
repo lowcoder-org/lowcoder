@@ -31,6 +31,7 @@ import { EditorContext } from "comps/editorState";
 
 // Introducing styles
 import {
+  AnimationStyle,
   CommentStyle,
   heightCalculator,
   widthCalculator,
@@ -65,6 +66,7 @@ import dayjs from "dayjs";
 // import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
 
@@ -94,12 +96,10 @@ const childrenMap = {
     name: "{{currentUser.name}}",
     email: "{{currentUser.email}}",
   }),
-  mentionList: jsonControl(checkMentionListData, {
-    "@": ["Li Lei", "Han Meimei"],
-    "#": ["123", "456", "789"],
-  }),
+  mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(CommentStyle),
+  style: styleControl(CommentStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   commentList: jsonValueExposingStateControl("commentList", []),
   deletedItem: jsonValueExposingStateControl("deletedItem", []),
   submitedItem: jsonValueExposingStateControl("submitedItem", []),
@@ -125,6 +125,7 @@ const CommentCompBase = (
     userInfo,
     placeholder,
     deleteAble,
+    animationStyle,
   } = props;
   type PrefixType = "@" | keyof typeof mentionList;
   // Used to save the consolidated list of mentions
@@ -233,7 +234,11 @@ const CommentCompBase = (
         width: widthCalculator(style.margin ?? "3px"),
         height: heightCalculator(style.margin ?? "3px"),
         background: style.background,
-        borderRadius: style.radius,
+      borderRadius: style.radius,
+      animation: animationStyle.animation,
+      animationDelay: animationStyle.animationDelay,
+      animationDuration: animationStyle.animationDuration,
+        animationIterationCount:animationStyle.animationIterationCount
       }}>
       <div
         style={{
@@ -363,9 +368,10 @@ const CommentCompBase = (
 };
 
 let CommentBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return (
     <CommentCompBase {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
@@ -413,8 +419,12 @@ let CommentBasicComp = (function () {
             {children.placeholder.propertyView({
               label: trans("comment.placeholderDec"),
             })}
-          </Section><Section name={sectionNames.style}>
+          </Section>
+            <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
             </Section></>
         )}
 

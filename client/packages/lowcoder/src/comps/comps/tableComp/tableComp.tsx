@@ -1,6 +1,6 @@
 import { tableDataRowExample } from "comps/comps/tableComp/column/tableColumnListComp";
 import { getPageSize } from "comps/comps/tableComp/paginationControl";
-import { TableCompView } from "comps/comps/tableComp/tableCompView";
+import { EMPTY_ROW_KEY, TableCompView } from "comps/comps/tableComp/tableCompView";
 import { TableFilter } from "comps/comps/tableComp/tableToolbarComp";
 import {
   columnHide,
@@ -40,7 +40,11 @@ import {
   deferAction,
   executeQueryAction,
   fromRecord,
+  FunctionNode,
+  Node,
   onlyEvalAction,
+  RecordNode,
+  RecordNodeToValue,
   routeByNameAction,
   withFunction,
   wrapChildAction,
@@ -53,7 +57,7 @@ import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
 import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
 
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { EditorContext } from "comps/editorState";
 
 export class TableImplComp extends TableInitComp implements IContainer {
@@ -97,6 +101,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
       data: (this as any).exposingValues["displayData"],
       filename: fileName,
       fileType: "csv",
+      delimiter: this.children.toolbar.children.columnSeparator.getView(),
     });
   }
 
@@ -385,12 +390,11 @@ export class TableImplComp extends TableInitComp implements IContainer {
     )[0];
   }
 
-  changeSetNode() {
-    const nodes = {
-      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
-      renders: this.children.columns.getColumnsNode("render"),
-    };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
+  private getUpsertSetResNode(
+    nodes: Record<string, RecordNode<Record<string, Node<any>>>>,
+    filterNewRows?: boolean,
+  ) {
+    return withFunction(fromRecord(nodes), (input) => {
       // merge input.dataIndexes and input.withParams into one structure
       const dataIndexRenderDict = _(input.dataIndexes)
         .mapValues((dataIndex, idx) => input.renders[idx])
@@ -400,7 +404,8 @@ export class TableImplComp extends TableInitComp implements IContainer {
       _.forEach(dataIndexRenderDict, (render, dataIndex) => {
         _.forEach(render[MAP_KEY], (value, key) => {
           const changeValue = (value.comp as any).comp.changeValue;
-          if (!_.isNil(changeValue)) {
+          const includeRecord = (filterNewRows && key.startsWith(EMPTY_ROW_KEY)) || (!filterNewRows && !key.startsWith(EMPTY_ROW_KEY));
+          if (!_.isNil(changeValue) && includeRecord) {
             if (!record[key]) record[key] = {};
             record[key][dataIndex] = changeValue;
           }
@@ -408,18 +413,36 @@ export class TableImplComp extends TableInitComp implements IContainer {
       });
       return record;
     });
+  }
+
+  changeSetNode() {
+    const nodes = {
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      renders: this.children.columns.getColumnsNode("render"),
+    };
+
+    const resNode = this.getUpsertSetResNode(nodes);
     return lastValueIfEqual(this, "changeSetNode", [resNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
 
-  toUpdateRowsNode() {
+  insertSetNode() {
     const nodes = {
-      oriDisplayData: this.oriDisplayDataNode(),
-      indexes: this.displayDataIndexesNode(),
-      changeSet: this.changeSetNode(),
+      dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
+      renders: this.children.columns.getColumnsNode("render"),
     };
-    const resNode = withFunction(fromRecord(nodes), (input) => {
+
+    const resNode = this.getUpsertSetResNode(nodes, true);
+    return lastValueIfEqual(this, "insertSetNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  private getToUpsertRowsResNodes(
+    nodes: Record<string, FunctionNode<any, any>>
+  ) {
+    return withFunction(fromRecord(nodes), (input) => {
       const res = _(input.changeSet)
         .map((changeValues, oriIndex) => {
           const idx = input.indexes[oriIndex];
@@ -430,7 +453,30 @@ export class TableImplComp extends TableInitComp implements IContainer {
       // console.info("toUpdateRowsNode. input: ", input, " res: ", res);
       return res;
     });
+  }
+
+  toUpdateRowsNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+      indexes: this.displayDataIndexesNode(),
+      changeSet: this.changeSetNode(),
+    };
+
+    const resNode = this.getToUpsertRowsResNodes(nodes);
     return lastValueIfEqual(this, "toUpdateRowsNode", [resNode, nodes] as const, (a, b) =>
+      shallowEqual(a[1], b[1])
+    )[0];
+  }
+
+  toInsertRowsNode() {
+    const nodes = {
+      oriDisplayData: this.oriDisplayDataNode(),
+      indexes: this.displayDataIndexesNode(),
+      changeSet: this.insertSetNode(),
+    };
+
+    const resNode = this.getToUpsertRowsResNodes(nodes);
+    return lastValueIfEqual(this, "toInsertRowsNode", [resNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
     )[0];
   }
@@ -457,6 +503,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
 }
 
 let TableTmpComp = withViewFn(TableImplComp, (comp) => {
+  const [emptyRows, setEmptyRows] = useState([]);
   return (
     <HidableView hidden={comp.children.hidden.getView()}>
       <TableCompView
@@ -595,6 +642,26 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
       comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction([]);
     },
   },
+  {
+    method: {
+      name: "cancelChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearChangeSet();
+    },
+  },
+  {
+    method: {
+      name: "cancelInsertChanges",
+      description: "",
+      params: [],
+    },
+    execute: (comp, values) => {
+      comp.children.columns.dispatchClearInsertSet();
+    },
+  },
 ]);
 
 // exposing data
@@ -672,12 +739,30 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
     trans("table.changeSetDesc")
   ),
   new CompDepsConfig(
+    "insertSet",
+    (comp) => ({
+      insertSet: comp.insertSetNode(),
+    }),
+    (input) => input.insertSet,
+    trans("table.changeSetDesc")
+  ),
+  new CompDepsConfig(
     "toUpdateRows",
     (comp) => ({
       toUpdateRows: comp.toUpdateRowsNode(),
     }),
     (input) => {
       return input.toUpdateRows;
+    },
+    trans("table.toUpdateRowsDesc")
+  ),
+  new CompDepsConfig(
+    "toInsertRows",
+    (comp) => ({
+      toInsertRows: comp.toInsertRowsNode(),
+    }),
+    (input) => {
+      return input.toInsertRows;
     },
     trans("table.toUpdateRowsDesc")
   ),
@@ -806,6 +891,18 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       return input.filter;
     },
     trans("table.filterDesc")
+  ),
+  new DepsConfig(
+    "selectedCell",
+    (children) => {
+      return {
+        selectedCell: children.selectedCell.node(),
+      };
+    },
+    (input) => {
+      return input.selectedCell;
+    },
+    trans("table.selectedCellDesc")
   ),
   new NameConfig("data", trans("table.dataDesc")),
 ]);

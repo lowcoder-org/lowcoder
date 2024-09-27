@@ -1,13 +1,8 @@
 package org.lowcoder.plugin.sql;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
-
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import jakarta.annotation.Nonnull;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -15,12 +10,15 @@ import org.lowcoder.sdk.plugin.common.BlockingDatasourceConnector;
 import org.lowcoder.sdk.plugin.common.sql.HikariPerfWrapper;
 import org.lowcoder.sdk.plugin.common.sql.SqlBasedDatasourceConnectionConfig;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
 
 public abstract class SqlBasedConnector<T extends SqlBasedDatasourceConnectionConfig> extends BlockingDatasourceConnector<HikariPerfWrapper, T> {
 
-    private static final long LEAK_DETECTION_THRESHOLD_MS = TimeUnit.SECONDS.toMillis(30);
+    private static final long LEAK_DETECTION_THRESHOLD_MS = TimeUnit.SECONDS.toMillis(600);
     private static final long MAX_LIFETIME_MS = TimeUnit.MINUTES.toMillis(30);
     private static final long KEEPALIVE_TIME_MS = TimeUnit.MINUTES.toMillis(3);
     private static final long CONNECTION_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(5);

@@ -1,1 +1,1 @@
-export { TabbedContainerComp } from "./tabbedContainerComp";
+    export { TabbedContainerComp } from "./tabbedContainerComp";

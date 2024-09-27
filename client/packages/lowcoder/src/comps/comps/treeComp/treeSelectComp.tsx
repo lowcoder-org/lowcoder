@@ -6,7 +6,7 @@ import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
@@ -65,8 +65,9 @@ const childrenMap = {
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style: styleControl(TreeSelectStyle),
-  labelStyle:styleControl(LabelStyle),
+  style:styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle  , 'labelStyle'),
+  inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -102,11 +103,12 @@ const TreeCompView = (
     ...validateState,
     style,
     labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}
         key={selectType}
-        $style={style}
+        $style={props.inputFieldStyle}
         popupMatchSelectWidth={false}
         disabled={props.disabled}
         placeholder={props.placeholder}
@@ -143,9 +145,10 @@ const TreeCompView = (
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return(
     <TreeCompView {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
@@ -185,6 +188,7 @@ let TreeBasicComp = (function () {
           <>
           <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
           <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
           </>
         )}
       </>

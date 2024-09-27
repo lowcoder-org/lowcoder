@@ -1,13 +1,11 @@
 package org.lowcoder.sdk.plugin.common;
 
-import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceTestResult;
-
 import reactor.core.publisher.Mono;
+
+import static org.lowcoder.sdk.plugin.common.QueryExecutionUtils.querySharedScheduler;
 
 public abstract class BlockingDatasourceConnector<Connection, ConnectionConfig extends DatasourceConnectionConfig>
         implements DatasourceConnector<Connection, ConnectionConfig> {
