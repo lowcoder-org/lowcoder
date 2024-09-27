@@ -234,7 +234,7 @@ function AppSettingsModal(props: ChildrenInstance) {
   useEffect(() => {
     setLowcoderCompVersions([
       'latest',
-      ...Object.keys(lowcoderCompsMeta.versions).reverse()
+      ...Object.keys(lowcoderCompsMeta?.versions || []).reverse()
     ])
   }, [lowcoderCompsMeta])
 

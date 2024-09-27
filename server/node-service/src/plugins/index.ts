@@ -32,6 +32,7 @@ import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
+import ossPlugin from "./aliyunOss";
 import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
@@ -87,6 +88,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  ossPlugin,
   
   // Project Management
   asanaPlugin,
