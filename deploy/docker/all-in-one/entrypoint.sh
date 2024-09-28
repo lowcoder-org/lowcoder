@@ -25,6 +25,11 @@ else
     export MONGO_LISTEN_HOST="127.0.0.1"
 fi;
 
+# Set the default mongodb connection string if not set explicitly
+if [ -z "${LOWCODER_MONGODB_URL}" ]; then
+    export LOWCODER_MONGODB_URL="mongodb://localhost:27017/lowcoder?authSource=admin"
+fi;
+
 LOGS="/lowcoder-stacks/logs"
 DATA="/lowcoder-stacks/data"
 CERT="/lowcoder-stacks/ssl"
