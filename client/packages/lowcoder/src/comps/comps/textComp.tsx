@@ -1,7 +1,7 @@
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
@@ -24,6 +24,7 @@ import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
+import { BoolControl } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [clickEvent] as const;
 
@@ -142,6 +143,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   type: dropdownControl(typeOptions, "markdown"),
   horizontalAlignment: alignWithJustifyControl(),
+  contentScrollBar: withDefault(BoolControl, true),
   verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
   style: styleControl(TextStyle, 'style'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
@@ -176,6 +178,10 @@ const TextPropertyView = React.memo((props: {
         <>
           <Section name={sectionNames.layout}>
             {props.children.autoHeight.getPropertyView()}
+            {!props.children.autoHeight.getView() &&
+              props.children.contentScrollBar.propertyView({
+                label: trans("prop.contentScrollbar"),
+              })}
             {!props.children.autoHeight.getView() &&
               props.children.verticalAlignment.propertyView({
                 label: trans("textShow.verticalAlignment"),
@@ -214,7 +220,9 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
       }}
       onClick={() => props.onEvent("click")}
     >
-      {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+      <ScrollBar hideScrollbar={!props.contentScrollBar}>
+        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+      </ScrollBar>
     </TextContainer>
   );
 }, (prev, next) => JSON.stringify(prev) === JSON.stringify(next));

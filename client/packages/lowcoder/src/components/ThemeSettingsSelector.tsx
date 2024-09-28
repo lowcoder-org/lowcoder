@@ -428,7 +428,6 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             size="small"
             checked={showComponentLoaders}
             onChange={(value) => {
-              debugger;
               setComponentLoaders(value)
               configChange({ themeSettingKey, showComponentLoadingIndicators: value});
             }}

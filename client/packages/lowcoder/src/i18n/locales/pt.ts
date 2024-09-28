@@ -2270,6 +2270,7 @@ export const pt = {
     ...en.memberSettings,
 
   "admin": "Administrador",
+  "superAdmin": "Superadministrador",
   "adminGroupRoleInfo": "O administrador pode gerenciar membros do grupo e recursos",
   "adminOrgRoleInfo": "Os administradores possuem todos os recursos e podem gerenciar grupos.",
   "member": "Membro",

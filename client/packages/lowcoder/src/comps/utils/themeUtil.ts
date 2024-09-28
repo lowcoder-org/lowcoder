@@ -41,7 +41,7 @@ export function setInitialCompStyles({
   styleKeys.forEach(styleKey => {
     actions[styleKey] = changeValueAction({
       ...(compTheme?.[styleKey] as object || {}),
-      ...styleProps[styleKey],
+      // ...styleProps[styleKey],
     }, true);
   })
 

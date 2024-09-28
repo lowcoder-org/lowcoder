@@ -47,6 +47,7 @@ import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
   $animationStyle: AnimationStyleType;
+  $showScrollbar:boolean
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -56,8 +57,12 @@ const RowWrapper = styled(Row)<{
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
   background-color: ${(props) => props.$style.background};
-  overflow-x: auto;
   rotate: ${props=> props.$style.rotation}
+  overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
+   ::-webkit-scrollbar {
+    display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
+  }
+
 `;
 
 const ColWrapper = styled(Col)<{
@@ -95,6 +100,7 @@ const childrenMap = {
   matchColumnsHeight: withDefault(BoolControl, true),
   style: styleControl(ResponsiveLayoutRowStyle , 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
+  mainScrollbar: withDefault(BoolControl, false),
   animationStyle:styleControl(AnimationStyle , 'animationStyle'),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
@@ -138,6 +144,8 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     horizontalSpacing,
     animationStyle,
     horizontalGridCells,
+    mainScrollbar,
+    autoHeight
   } = props;
 
   return (
@@ -147,6 +155,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
           <RowWrapper
             $style={style}
             $animationStyle={animationStyle}
+            $showScrollbar={mainScrollbar}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
           >
@@ -214,6 +223,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
+                label: trans("prop.mainScrollbar")
+              })}
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}
