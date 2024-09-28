@@ -87,10 +87,6 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
         || isCustomAction<ModuleReadyAction>(action, "moduleReady")
       ) && action.path[1] === SELECTED_KEY) {
-        if (action.path[0] === MAP_KEY && action.path[1] === SELECTED_KEY) {
-          action.path[1] = this.selection;
-          comp = super.reduce(action);
-        }
         // broadcast
         const newAction = {
           ...action,

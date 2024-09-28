@@ -39,6 +39,7 @@ Image can be configured by setting environment variables.
 | `LOWCODER_PUBLIC_URL`               | The URL of the public User Interface                                    | `localhost:3000`                                      |
 | `LOWCODER_MAX_REQUEST_SIZE`         | Lowcoder max request size                                               | `20m`                                                 |
 | `LOWCODER_MAX_QUERY_TIMEOUT`        | Lowcoder max query timeout (in seconds)                                 | `120`                                                 |
+| `LOWCODER_DEFAULT_QUERY_TIMEOUT`    | Lowcoder default query timeout (in seconds)                             | `10`                                                  |
 | `LOWCODER_API_RATE_LIMIT`           | Number of max Request per Second                                        | `100`                                                 |
 | `LOWCODER_API_SERVICE_URL`          | Lowcoder API service URL                                                | `http://localhost:8080`                               |
 | `LOWCODER_NODE_SERVICE_URL`         | Lowcoder Node service (js executor) URL                                 | `http://localhost:6060`                               |
@@ -109,8 +110,9 @@ Image can be configured by setting environment variables.
 | `LOWCODER_MAX_GROUPS_PER_ORG`   | Default maximum groups per organization                             | `100`                                                 |
 | `LOWCODER_MAX_APPS_PER_ORG`     | Default maximum applications per organization                       | `1000`                                                |
 | `LOWCODER_MAX_DEVELOPERS`       | Default maximum developers                                          | `100`                                                 |
-| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
 | `LOWCODER_MAX_REQUEST_SIZE`     | Lowcoder max request size                                           | `20m`                                                 |
+| `LOWCODER_MAX_QUERY_TIMEOUT`    | Lowcoder max query timeout (in seconds)                             | `120`                                                 |
+| `LOWCODER_DEFAULT_QUERY_TIMEOUT`| Lowcoder default query timeout (in seconds)                         | `10`                                                  |
 | `LOWCODER_WORKSPACE_MODE`       | SAAS to activate, ENTERPRISE to switch off - Workspaces             | `SAAS`                                                |
 | `LOWCODER_EMAIL_SIGNUP_ENABLED` | Control is users can create their own Workspace when Sign Up        | `true`                                                |
 | `LOWCODER_CREATE_WORKSPACE_ON_SIGNUP` | IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up   | `true`               |

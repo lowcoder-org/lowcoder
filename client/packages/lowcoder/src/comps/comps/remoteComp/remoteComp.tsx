@@ -8,12 +8,14 @@ import { WhiteLoading } from "lowcoder-design";
 import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo, RemoteCompLoader, RemoteCompSource } from "types/remoteComp";
 import { loaders } from "./loaders"; 
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 import React from "react";
+import type { AppState } from "@lowcoder-ee/redux/reducers";
+import { useSelector } from "react-redux";
 
 const ViewError = styled.div`
   display: flex;
@@ -52,19 +54,23 @@ interface RemoteCompViewProps {
   loadComp: (packageVersion?: string) => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
+  source?: RemoteCompSource;
 }
 
 const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompViewProps>) => {
-  const { loadComp, loadingElement, errorElement, isLowcoderComp } = props;
+  const { loadComp, loadingElement, errorElement, isLowcoderComp, source } = props;
   const [error, setError] = useState<any>("");
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
+  const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 
   let packageVersion = 'latest';
   // lowcoder-comps's package version
-  if (isLowcoderComp) {
-    packageVersion = lowcoderCompPackageVersion;
+  if (isLowcoderComp && source !== 'bundle') {
+    packageVersion = lowcoderCompPackageVersion === 'latest' && Boolean(latestLowcoderCompsVersion)
+      ? latestLowcoderCompsVersion
+      : lowcoderCompPackageVersion;
   }
   // component plugin's package version
   else if (compState.comp?.comp?.version) {
@@ -155,6 +161,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
           isLowcoderComp={remoteInfo?.packageName === 'lowcoder-comps'}
           loadComp={(packageVersion?: string) => this.load(packageVersion)}
           loadingElement={loadingElement}
+          source={remoteInfo?.source}
         />
       );
     }

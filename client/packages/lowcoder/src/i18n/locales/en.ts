@@ -203,6 +203,10 @@ export const en = {
     "showVerticalScrollbar" : "Show Vertical Scrollbar",
     "showHorizontalScrollbar" : "Show Horizontal Scrollbar",
     "siderScrollbar" : "Show Scrollbars in Sider",
+    "mainScrollbar": "Show Scrollbars in main content",
+    "modalScrollbar": "Show Scrollbars in Modal",
+    "drawerScrollbar": "Show Scrollbars in Drawer",
+    "textAreaScrollBar": "Show Scrollbars in Text Area",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
     "siderWidthTooltip" : "Sider width supports percentages (%) and pixels (px).",
@@ -2259,6 +2263,7 @@ export const en = {
 
   "memberSettings": {
     "admin": "Admin",
+    "superAdmin": "Super Admin",
     "adminGroupRoleInfo": "Admin Can Manage Group Members and Resources",
     "adminOrgRoleInfo": "Admins Own All Resources and Can Manage Groups.",
     "member": "Member",

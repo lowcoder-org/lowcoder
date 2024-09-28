@@ -35,6 +35,7 @@ import React from "react";
 import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import { notificationInstance } from "components/GlobalInstances";
+import { AppState } from "@lowcoder-ee/redux/reducers";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -55,6 +56,7 @@ const AppEditor = React.memo(() => {
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
   const application = useSelector(currentApplication);
+  const isLowcoderCompLoading = useSelector((state: AppState) => state.npmPlugin.loading.lowcoderComps);
 
   const isUserViewMode = useMemo(
     () => params.viewMode ? isUserViewModeCheck : true,
@@ -184,8 +186,10 @@ const AppEditor = React.memo(() => {
   }, [viewMode, applicationId, dispatch, fetchJSDataSourceByApp]);
 
   useEffect(() => {
-    fetchApplication();
-  }, [fetchApplication]);
+    if(!isLowcoderCompLoading) {
+      fetchApplication();
+    }
+  }, [isLowcoderCompLoading, fetchApplication]);
 
   const fallbackUI = useMemo(() => (
     <Flex align="center" justify="center" vertical style={{

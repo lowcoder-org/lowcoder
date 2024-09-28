@@ -172,10 +172,14 @@ export function useMergeCompStyles(
   props: Record<string, any>,
   dispatch: (action: CompAction) => void
 ) {
+  const editorState = useContext(EditorContext);
   const theme = useContext(ThemeContext);
   const compType = useContext(CompTypeContext);
   const compTheme = theme?.theme?.components?.[compType];
   const themeId = theme?.themeId;
+  const appSettingsComp = editorState?.getAppSettingsComp();
+  const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
+  const { preventStyleOverwriting } = props;
 
   const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
   const styleProps: Record<string, any> = {};
@@ -184,6 +188,7 @@ export function useMergeCompStyles(
   });
 
   useEffect(() => {
+    if (preventAppStylesOverwriting || preventStyleOverwriting) return;
     setInitialCompStyles({
       dispatch,
       compTheme,
@@ -194,6 +199,8 @@ export function useMergeCompStyles(
     themeId,
     JSON.stringify(styleProps),
     JSON.stringify(compTheme),
-    setInitialCompStyles
+    setInitialCompStyles,
+    preventAppStylesOverwriting,
+    preventStyleOverwriting,
   ]);
 }
