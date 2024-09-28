@@ -2300,6 +2300,8 @@ export const en = {
     "billingReason.subscription_update": "Subscription Update",
     "backToSubscriptions": "Back to Subscriptions",
     "manageSubscription" : "Manage Your Subscription",
+    "subscriptionHelp" : "Subscription Help",
+    "subscriptionHelpDescription" : "If you have any questions, please contact us. We are happy to help you. service@lowcoder.cloud",
   },
   "subscriptionError": {
     "fetchProductDetails": "Error fetching product details.",

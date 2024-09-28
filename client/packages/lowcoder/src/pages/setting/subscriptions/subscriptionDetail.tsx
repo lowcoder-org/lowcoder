@@ -216,11 +216,18 @@ export function SubscriptionDetail() {
       </CardWrapper>
 
       {/* Manage Subscription Button */}
-      <CardWrapper title={trans("subscription.manageSubscription")} style={{marginBottom : "60px"}}>
+      <CardWrapper title={trans("subscription.manageSubscription")}>
         <ManageSubscriptionButton type="primary" onClick={handleCustomerPortalRedirect}>
           {trans("subscription.manageSubscription")}
         </ManageSubscriptionButton>
       </CardWrapper>
+
+      {/* Manage Subscription Button */}
+      <CardWrapper title={trans("subscription.subscriptionHelp")}>
+        <span>{trans("subscription.subscriptionHelpDescription")}</span>
+      </CardWrapper>
+
+      <br/><br/>
     </Wrapper>
   );
 }
