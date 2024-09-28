@@ -95,6 +95,17 @@ const toolbarOptions = [
   [{ 'align': [] }] // Text alignment
 ];
 
+const getStatusColor = (statusName: string) => {
+  if (statusName.toLowerCase() === "to do") {
+    return "red";
+  } else if (statusName.toLowerCase().includes("in progress")) {
+    return "orange";
+  } else if (statusName.toLowerCase() === "done") {
+    return "green";
+  }
+  return "#8b8fa3"; // Default color if no match
+};
+
 
 function formatDateToMinute(dateString: string): string {
   // Create a Date object from the string
@@ -336,7 +347,11 @@ export function SupportOverview() {
                   ellipsis: true,
                   width: "220px",
                   sorter: (a: any, b: any) => a.status.name.localeCompare(b.status.name),
-                  render: (status: any) => <SubColumnCell>{status.name}</SubColumnCell>,
+                  render: (status: any) => (
+                    <SubColumnCell style={{ color: getStatusColor(status.name) }}>
+                      {status.name}
+                    </SubColumnCell>
+                  ),
                 },
                 {
                   title: trans("support.updatedTime"),

@@ -291,6 +291,57 @@ export const createCheckoutLink = async (customer: StripeCustomer, priceId: stri
   }
 };
 
+// Function to get subscription details from Stripe
+export const getSubscriptionDetails = async (subscriptionId: string) => {
+  const apiBody = {
+    path: "webhook/secure/get-subscription-details",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching subscription details:", error);
+    throw error;
+  }
+};
+
+// Function to get invoice documents from Stripe
+export const getInvoices = async (subscriptionId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/get-subscription-invoices",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data?.data ?? [];
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
+};
+
+// Function to get a customer Portal Session from Stripe
+export const getCustomerPortalSession = async (customerId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/create-customer-portal-session",
+    method: "post",
+    data: { "customerId": customerId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
+};
+
 // Hooks
 
 export const InitializeSubscription = () => {
