@@ -163,7 +163,6 @@ export function Dropdown<T extends OptionsType>(props: DropdownProps<T>) {
     const dropdownElems = document.querySelectorAll<HTMLElement>("div.ant-dropdown ul.ant-dropdown-menu");
     for (let index = 0; index < dropdownElems.length; index++) {
       const element = dropdownElems[index];
-      console.log(element);
       element.style.maxHeight = "300px";
       element.style.overflowY = "scroll";
       element.style.minWidth = "150px";
