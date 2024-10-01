@@ -140,6 +140,6 @@ window.cowsay.say(...) - does the job.
 
 ### Import/bind at the workspace level
 
-Go to [OpenFlower's homepage](https://www.lowcoder.cloud/), select **Settings** > **Advanced**, and click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to add any recommended JS library quickly. The installed libraries are accessible from any app within your workspace.
+Go to [OpenFlower's homepage](https://prod-us1.openflower.org/), select **Settings** > **Advanced**, and click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to add any recommended JS library quickly. The installed libraries are accessible from any app within your workspace.
 
 <figure><img src="../../.gitbook/assets/Admin  external Libraries.png" alt=""><figcaption><p>Bind an external JS Library to all Apps of a Workspace</p></figcaption></figure>

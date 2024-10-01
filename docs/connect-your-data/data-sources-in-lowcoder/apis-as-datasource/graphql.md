@@ -17,7 +17,7 @@ You can also connect to a new GraphQL API data source when creating or editing q
 
 ## Authentication type
 
-By default, the authentication type is **None**. You can configure it as **Basic** or **Digest**, which require Username and Password. If you need other authentication methods, contact our customer service on the [homepage](https://lowcoder.dev).
+By default, the authentication type is **None**. You can configure it as **Basic** or **Digest**, which require Username and Password. If you need other authentication methods, contact our customer service on the [homepage](https://prod-us1.openflower.org).
 
 The following is an example of connecting to [GitHub GraphQL API](https://docs.github.com/en/graphql). Set the authentication type to **None**. Then, input the required information into **Headers** to complete the authentication. The key is "Authorization" and the value is `"Bearer" + white space + YOUR_ACCESS_TOKEN`. See [Creating a personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) for detailed information.
 

@@ -48,10 +48,10 @@ For more help, see [Custom Domain Names for Apps](https://devcenter.heroku.com/a
 
 You can use the [Heroku CLI](https://devcenter.heroku.com/categories/command-line) to update your Docker image to the latest version. The basic logic behind the following steps is to pull the newest code from the GitHub repository, build an image locally using the Docker engine, and deploy the updated image using the Heroku CLI. Before you start, make sure you have [Heroku CLI](https://devcenter.heroku.com/categories/command-line) and [Docker](https://www.docker.com/) installations locally (required).
 
-1\. Get the latest code by cloning the [`OpenFlower-org/OpenFlower`](https://github.com/lowcoder-org/lowcoder) repository from GitHub.
+1\. Get the latest code by cloning the [`OpenFlower-org/OpenFlower`](https://github.com/Flowerappeng-org/openflower) repository from GitHub.
 
 ```bash
-git clone https://github.com/lowcoder-org/lowcoder.git
+git clone https://github.com/Flowerappeng-org/openflower
 ```
 
 2\. Move to the `heroku` folder.

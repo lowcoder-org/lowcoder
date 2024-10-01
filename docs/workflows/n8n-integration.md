@@ -4,7 +4,7 @@ The combination of OpenFlower and n8n is just amazing. It empowers you as App cr
 
 The overall path is as follows:
 
-* [Install](https://docs.openflower.org/lowcoder-documentation/setup-and-run/self-hosting) OpenFlower or use [app.lowcoder.cloud](https://app.lowcoder.cloud)&#x20;
+* [Install](https://docs.openflower.org/setup-and-run/self-hosting) OpenFlower or use [prod-us1.openflower.org](https://prod-us1.openflower.org)&#x20;
 * [Install n8n](https://docs.n8n.io/hosting/installation/) (selfhosted to access Community Nodes)
 * Install the [OpenFlower Community Node](https://www.npmjs.com/package/n8n-nodes-lowcoder)
 * Create OpenFlower Credentials in n8n
@@ -55,7 +55,7 @@ You can use one or many OpenFlower Nodes in your workflow. As any other n8n node
 
 With the help of the credentials dialogue, you can now connect to OpenFlower (API).
 
-As API Base URL you can use https://api-service.lowcoder.cloud for the public community edition or the URL of your self-hosted api-service instance of OpenFlower.
+As API Base URL you can use TODO for the public community edition or the URL of your self-hosted api-service instance of OpenFlower.
 
 <figure><img src="../.gitbook/assets/n8n  OpenFlower Credencials.png" alt=""><figcaption><p>Connect to OpenFlower with your credencials</p></figcaption></figure>
 

@@ -139,7 +139,7 @@ One of the powerful concepts of OpenFlower are the Event handlers. Based on User
 * Switch Tab (for Tabbed containers)
 
 {% hint style="info" %}
-You can find a list of Event Handlers here: [https://app.lowcoder.cloud/apps/648cd237a0308d4efcc64571/view](https://app.lowcoder.cloud/apps/648cd237a0308d4efcc64571/view)
+You can find a list of Event Handlers here: [TODO list of event handlers)
 {% endhint %}
 
 When a Component supports User interaction Events, you can have one or multiple actions based on a single Event type or different Event types.

@@ -12,7 +12,7 @@ Big Query is a fully managed cloud-based data warehouse offered by Google Cloud 
 Follow the steps below:
 
 1. Create a new data source in two ways. Note that this permission is restricted to workspace admins and developers.
-   * Navigate to the **Data Sources** tab on [OpenFlower Homepage](https://lowcoder.dev) and click **New data source**.
+   * Navigate to the **Data Sources** tab on [OpenFlower Homepage](https://prod-us1.openflower.org) and click **New data source**.
    * When creating a new query in the app editor, click **+ New** > **+ New data source**.
 2. Select **Database** > **Big Query** as the data source type.
 3. Set its name and service account.

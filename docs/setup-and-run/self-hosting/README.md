@@ -4,18 +4,16 @@ In this article, you will be guided through how to host OpenFlower on your own s
 
 There are multiple ways of installation. We directly support:
 
-* [Single Docker Image](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker) to run with a single line of command.
-* Multi-Docker Image deployment for scaling scenarios with [Docker Compose](https://github.com/lowcoder-org/lowcoder/blob/main/deploy/docker/docker-compose-multi.yaml)
-* Kubernetes-based deployment with [HELM Charts](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/helm).
+* [Single Docker Image](https://github.com/Flowerappeng-org/openflower/deploy/docker) to run with a single line of command.
+* Multi-Docker Image deployment for scaling scenarios with [Docker Compose](https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml)
+* Kubernetes-based deployment with [HELM Charts](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/helm).
 * [Heroku based deployment](heroku.md)
 * [Google Cloud Platform](google-cloud-platform.md)
 * [Raspberry Pi](raspberry-pi.md)
 
 ## 1) Start easy:
 
-For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/lowcoderorg/lowcoder-ce) that bundles frontend, backend, and data persistence services altogether in one single container.
-
-{% embed url="https://lowcoder.cloud/images/Screenshot-2023-08-27-at-21.50.36.png" %}
+For easy setup and deployment, we provide an [all-in-one image](https://hub.docker.com/r/flowerappengorg/openflower) that bundles frontend, backend, and data persistence services altogether in one single container.
 
 ### All-in-one image <a href="#all-in-one" id="all-in-one"></a>
 
@@ -43,12 +41,13 @@ cd lowcoder
 {% tab title="Docker-Compose (Recommended)" %}
 Follow the steps below:
 
-1. Download the configuration file by clicking [docker-compose.yml](https://github.com/lowcoder-org/lowcoder/blob/main/deploy/docker/docker-compose.yaml) or running the curl command:
+1. Download the configuration file by clicking [docker-compose.yml](https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/docker/docker-compose.yaml) or running the curl command:
 
 {% code overflow="wrap" %}
 ```
-curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose.yml
+curl https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose.yml
 ```
+
 {% endcode %}
 
 2.  Start the Docker container by running this command:
@@ -110,9 +109,8 @@ docker run -d --name OpenFlower -p 3000:3000 -v "$PWD/stacks:/OpenFlower-stacks"
 
 ## 2) Scale
 
-For bigger expected loads that need scaling in a cluster environment, we provide [separate images of backend and frontend services](https://hub.docker.com/u/lowcoderorg) with a customizable Dockerfile.
+For bigger expected loads that need scaling in a cluster environment: [separate images of backend and frontend services](https://hub.docker.com/u/flowerappengorg) with a customizable Dockerfile.
 
-{% embed url="https://lowcoder.cloud/images/Screenshot-2023-08-27-at-21.56.51.png" %}
 Multi-Image Installation to scale. API-Service & Node-Service can get scaled independently.
 {% endembed %}
 
@@ -138,9 +136,9 @@ For bigger expected loads that need scaling in a cluster environment, we offer s
     mkdir lowcoder
     cd lowcoder
     ```
-2.  Download the configuration file by clicking [docker-compose-multi.yml](https://github.com/lowcoder-org/lowcoder/blob/main/deploy/docker/docker-compose-multi.yaml) or running the curl command:
+2.  Download the configuration file by clicking [docker-compose-multi.yml](https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml) or running the curl command:
 
-    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/docker-compose-multi.yaml -o $PWD/docker-compose-multi.yml
+    <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml -o $PWD/docker-compose-multi.yml
     </strong></code></pre>
 3. Modify service configurations in the downloaded Dockerfile according to your needs:
    * **mongodb**: Start a new MongoDB instance on your host. You can delete this part and modify the environment variable `MONGODB_URI` of the **api-service** to use your own MongoDB.
@@ -200,7 +198,7 @@ docker rm lowcoder
 Below are examples of configuring the all-in-one image by setting environment variables in `docker-compose.yml`. If you are self-hosting with separate images, modify the `lowcoder-api-service` part of the `docker-compose-multi.yml` file instead.
 
 {% hint style="info" %}
-For more information about configurations and environment variables, see [Configuration](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker).
+For more information about configurations and environment variables, see [Configuration](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/docker).
 {% endhint %}
 
 ### Use your own MongoDB and Redis

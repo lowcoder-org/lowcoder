@@ -12,7 +12,7 @@ You can also write JavaScript in the text box to conditionally control the style
 
 ## Themes
 
-The [theme feature](https://cloud.lowcoder.dev/setting/theme) helps you quickly set the styles of all your apps within a workspace, such as the primary color of the apps and the default background color of containers. Created Themes are available and in each app you would need to apply a Theme.
+The [theme feature](https://prod-us1.openflower.org/setting/theme) helps you quickly set the styles of all your apps within a workspace, such as the primary color of the apps and the default background color of containers. Created Themes are available and in each app you would need to apply a Theme.
 
 ### Create a theme
 
@@ -39,7 +39,7 @@ You can access the global variable `theme` and call the method `theme.switchTo()
 
 #### Demo
 
-Combining Option lists and Events, end users can switch the theme within the app. For details, see [Change theme by code demo](https://cloud.lowcoder.dev/apps/63f84ca9f5f6f66102fedf3b/view).
+Combining Option lists and Events, end users can switch the theme within the app. For details, see [Change theme by code demo](todo).
 
 Follow the steps below to include this function in your app.
 

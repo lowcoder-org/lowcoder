@@ -1,6 +1,6 @@
 # Query library
 
-The **Query Library** lets you store, reuse and share Data Queries for all Data Sources in a workspace. You can create and run queries in the Query Library, and call them from any OpenFlowerer app. This helps you to organize and pre-define important queries for colleagues that work with you on Apps for example.
+The **Query Library** lets you store, reuse and share Data Queries for all Data Sources in a workspace. You can create and run queries in the Query Library, and call them from any OpenFlower app. This helps you to organize and pre-define important queries for colleagues that work with you on Apps for example.
 
 The main function of the Query Library is to create and manage reusable Queries with Versioning.
 
@@ -18,7 +18,7 @@ If available based on the Datasource, helping Metadata will get displayed on the
 
 ### Input parameters
 
-There are cases where you want to pass dynamic parameters to a query. OpenFlowerer supports that by introducing input configuration of a query.
+There are cases where you want to pass dynamic parameters to a query. OpenFlower supports that by introducing input configuration of a query.
 
 Click **Add** in the **Inputs** tab in the right upper pane to add input parameters.&#x20;
 
@@ -70,11 +70,11 @@ You can export a Query as a JSON Definition file. This helps to use a Query acro
 Be aware, that the connected Datasource of a Query may have different security credentials at different installation locations.
 {% endhint %}
 
-<figure><img src="../.gitbook/assets/Query Library  Export Query.png" alt=""><figcaption><p>With "Export to JSON" you can backup a query or store it externally to use it in other OpenFlowerer Installations.</p></figcaption></figure>
+<figure><img src="../.gitbook/assets/Query Library  Export Query.png" alt=""><figcaption><p>With "Export to JSON" you can backup a query or store it externally to use it in other OpenFlower Installations.</p></figcaption></figure>
 
 ### Import Queries
 
-Based on the JSON Definition file, you can import Queries into OpenFlowerer. On the Query Library Overview Screen, you can use the Button "Import from File"
+Based on the JSON Definition file, you can import Queries into OpenFlower. On the Query Library Overview Screen, you can use the Button "Import from File"
 
 <figure><img src="../.gitbook/assets/Query Library  Import Query.png" alt=""><figcaption><p>Import Data Queries from a JSON Definition File.</p></figcaption></figure>
 

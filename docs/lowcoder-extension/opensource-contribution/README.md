@@ -118,7 +118,7 @@ yarn build --publish
 
 ## OpenFlower Marketplace
 
-Next to this direct code development contribution, we also encourage you to contribute smart solutions and reusable Apps and Modules on the [OpenFlower Marketplace](https://app.lowcoder.cloud/marketplace) so other users can see solution patterns and Application Building Blocks.&#x20;
+Next to this direct code development contribution, we also encourage you to contribute smart solutions and reusable Apps and Modules on the [OpenFlower Marketplace](https://prod-us1.openflower.org/marketplace) so other users can see solution patterns and Application Building Blocks.&#x20;
 
 You can follow the [Guide for Apps & Modules to publish on the Marketplace](../../workspaces-and-teamwork/lowcoder-marketplace.md)
 
@@ -126,15 +126,15 @@ You can follow the [Guide for Apps & Modules to publish on the Marketplace](../.
 
 We feel honored to work with you together on OpenFlower as a Platform! A good start and procedure that allows a smooth development process is like this:
 
-1. [Fork the Repository](https://github.com/lowcoder-org/lowcoder/fork)
+1. [Fork the Repository](https://github.com/Flowerappeng-org/openflower/fork)
 2. Clone it into your local environment / IDE
 3. Create a workable local Development Environment
 4. Create your Feature-Branch from **/main** branch to get the latest stable Environment
 5. **Develop your magic and enjoy the ride!**
-6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/lowcoder-org/lowcoder/tree/dev) of the OpenFlower Main Repository
+6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/Flowerappeng-org/openflower/tree/dev) of the OpenFlower Main Repository
 7. Follow up if / when we have questions at your Merge Request
 
-Please ask us directly for any related questions so we can help you the fastest way. We kindly ask you to use our [Discord Server](https://discord.gg/An6PgWpegg) for these questions. Here, especially the [#contribute channel](https://discord.gg/An6PgWpegg).
+Please ask us directly for any related questions so we can help you the fastest way. 
 
 ### Frontend App
 
@@ -172,7 +172,7 @@ As soon as the development server is ready you can access OpenFlower by [http://
 1. Check out the source code.&#x20;
 
 ```bash
-git@github.com:your-org/lowcoder.git
+git@github.com:your-org/openflower.git
 ```
 
 1. Change to **/client** dir in the source dir.

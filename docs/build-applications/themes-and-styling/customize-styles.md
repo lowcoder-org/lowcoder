@@ -21,7 +21,7 @@ You can use the interactive Demo to see the Steps based on the Component "Divide
 With CSS you can further customize the Design of Components. You can use the same CSS Editor for every app or on the Workspace for all apps.
 
 {% hint style="info" %}
-To set CSS Styles for all apps in a Workspace, use the Editors in the Advanced Settings. <[yourOpenFlowerURL>/setting/advanced](https://app.lowcoder.cloud/setting/advanced)
+To set CSS Styles for all apps in a Workspace, use the Editors in the Advanced Settings.
 {% endhint %}
 
 OpenFlower Allows you to define Styles at "global Level". That means, you also can customize the style of the Admin Area and the Editor.

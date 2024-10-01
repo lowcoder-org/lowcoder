@@ -17,7 +17,7 @@ You can also connect to a new REST API data source when creating or editing quer
 
 The default authentication type is **None**. Other options are **Basic** and **Digest**, which require configuration of **Username** and **Password**.
 
-If you need other customized authentication methods, contact our customer service on the [homepage](https://lowcoder.dev).
+If you need other customized authentication methods, contact our customer service on the [homepage](https://prod-us1.openflower.org).
 
 ## SSL Cert Verification
 
