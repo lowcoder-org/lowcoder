@@ -294,7 +294,9 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .collectMap(FolderElement::elementId, FolderElement::folderId);
 
         Flux<Folder> folderFlux = orgMemberMono.flatMapMany(orgMember -> folderService.findByOrganizationId(orgMember.getOrgId()))
-                .filter(folder -> name == null || folder.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(folder -> name == null || folder.getName().toLowerCase().contains(name.toLowerCase())
+                        || folder.getType().toLowerCase().contains(name.toLowerCase())
+                        || folder.getDescription().toLowerCase().contains(name.toLowerCase()))
                 .cache();
 
         Mono<Map<String, Instant>> folderId2LastViewTimeMapMono = orgMemberMono
