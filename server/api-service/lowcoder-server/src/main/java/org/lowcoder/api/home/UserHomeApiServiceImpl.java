@@ -157,7 +157,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     return organizationService.getById(currentOrgId)
-                            .zipWith(folderApiService.getElements(null, applicationType).collectList())
+                            .zipWith(folderApiService.getElements(null, applicationType, null).collectList())
                             .map(tuple2 -> {
                                 Organization organization = tuple2.getT1();
                                 List<?> list = tuple2.getT2();

@@ -233,8 +233,8 @@ public class FolderApiServiceImpl implements FolderApiService {
      * @return flux of {@link ApplicationInfoView} or {@link FolderInfoView}
      */
     @Override
-    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType) {
-        return buildApplicationInfoViewTree(applicationType)
+    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name) {
+        return buildApplicationInfoViewTree(applicationType, name)
                 .flatMap(tree -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> folderNode = tree.get(folderId);
                     if (folderNode == null) {
@@ -278,7 +278,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(folders -> new Tree<>(folders, Folder::getId, Folder::getParentFolderId, Collections.emptyList(), null, null));
     }
 
-    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType) {
+    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name) {
 
         Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
                 .cache();
@@ -294,6 +294,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .collectMap(FolderElement::elementId, FolderElement::folderId);
 
         Flux<Folder> folderFlux = orgMemberMono.flatMapMany(orgMember -> folderService.findByOrganizationId(orgMember.getOrgId()))
+                .filter(folder -> name == null || folder.getName().toLowerCase().contains(name.toLowerCase()))
                 .cache();
 
         Mono<Map<String, Instant>> folderId2LastViewTimeMapMono = orgMemberMono
