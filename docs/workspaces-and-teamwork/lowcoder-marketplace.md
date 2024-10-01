@@ -8,7 +8,7 @@ For us It's all about harnessing the power of collaboration to bring the best ou
 
 ## Global and Local App Marketplace
 
-The place where Apps are built and shared on the Marketplace of [app.lowcoder.cloud](https://app.lowcoder.cloud), we call the "global Marketplace".&#x20;
+The place where Apps are built and shared on the Marketplace of [prod-us1.openflower.org](https://prod-us1.openflower.org), we call the "global Marketplace".&#x20;
 
 If you operate a self-hosted installation you will be able to see and use the Apps from the global Marketplace always. However, you can share apps in a local Marketplace too, which is only available across all workspaces of your self-hosted installation.
 
@@ -23,7 +23,7 @@ In self-hosted installations, both Marketplaces are available and show the apps 
 {% embed url="https://app.supademo.com/demo/me6zeg4Oe9GCKtAiMWTCu" %}
 
 {% hint style="info" %}
-If you publish your App in the OpenFlower Editor on [app.lowcoder.cloud](https://app.lowcoder.cloud), your App will be listed on the "global Marketplace" and every OpenFlower User can see and use the App.
+If you publish your App in the OpenFlower Editor on [prod-us1.openflower.org](https://prod-us1.openflower.org), your App will be listed on the "global Marketplace" and every OpenFlower User can see and use the App.
 {% endhint %}
 
 {% hint style="warning" %}

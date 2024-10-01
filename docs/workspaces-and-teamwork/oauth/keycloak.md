@@ -23,7 +23,7 @@ Make sure the "Standard Flow" is activated, as also "Client authentication" and 
 Configure the OpenFlower redirect URLs.
 
 {% hint style="info" %}
-For the cloud, the "Valid redirect URI" is https://app.lowcoder.cloud
+For the cloud, the "Valid redirect URI" is https://prod-us1.openflower.org
 {% endhint %}
 
 <figure><img src="../../.gitbook/assets/KeyCloak Client Setup 3.png" alt=""><figcaption></figcaption></figure>

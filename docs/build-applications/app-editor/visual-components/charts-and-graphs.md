@@ -71,6 +71,6 @@ In most types of charts, the **Chart series** (Y-axis) presents numeric values f
 
 Apart from the built-in charts and graphs, you can also plot your data with [Apache ECharts](https://echarts.apache.org/en/index.html), an open-source JS visualization library. You only need to complete the **Configuration** > **Option** field in JSON format. For detailed information, see [ECharts docs](https://echarts.apache.org/en/option.html#title) and [ECharts examples](https://echarts.apache.org/examples/en/index.html).
 
-For an instance of using Echarts, see [Stacked Area Chart](https://cloud.lowcoder.dev/apps/63779dd6c54c5224c70ea537/view).
+For an instance of using Echarts, see [Stacked Area Chart](todo).
 
 To style your charts, the [Theme Editor of ECharts](https://echarts.apache.org/en/theme-builder.html) is a good tool. It can export a JSON, which you also can use in the Workspace Themes section to style both Chart types. The native ones and the ECharts.&#x20;

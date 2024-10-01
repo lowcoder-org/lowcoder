@@ -40,7 +40,7 @@ Apps can also be published to OpenFlower marketplaces:
 
 1. **Public to Marketplace**:
    * After _sharing_ the app as "public to all", it can be further published to the marketplace.
-   * This makes the app available in the marketplace listings, either globally at app.lowcoder.cloud or within individual OpenFlower installations.
+   * This makes the app available in the marketplace listings, either globally at https://prod-us1.openflower.org/ or within individual OpenFlower installations.
 
 ## Workflow for Publishing an App
 
@@ -57,7 +57,7 @@ Apps can also be published to OpenFlower marketplaces:
    * The app will be listed in the _global_ or local OpenFlower marketplace.&#x20;
 
 {% hint style="info" %}
-Global Marketplace means, if you published the app for the Marketplace on app.lowcoder.cloud
+Global Marketplace means, if you published the app for the Marketplace on https://prod-us1.openflower.org/
 {% endhint %}
 
 ## Adding Title, Description, Category and Icon

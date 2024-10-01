@@ -24,11 +24,11 @@ Also, the Text Styles can be individualized for every column.
 
 ### Component Playground
 
-{% embed url="https://app.lowcoder.cloud/playground/table/1" %}
+todo
 
 ### Component Auto-Docs
 
-{% embed url="https://app.lowcoder.cloud/components/table" %}
+{% embed url="https://prod-us1.openflower.org/components/input" %}
 
 ### Properties of the Table
 

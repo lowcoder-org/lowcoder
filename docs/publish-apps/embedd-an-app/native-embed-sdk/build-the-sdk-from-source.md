@@ -1,6 +1,6 @@
 # Build the SDK from Source
 
-1. Clone the Repository [https://github.com/lowcoder-org/lowcoder](https://github.com/lowcoder-org/lowcoder)
+1. Clone the Repository [https://github.com/Flowerappeng-org/openflower](https://github.com/Flowerappeng-org/openflower)
 2. Make sure the repo is synced with the latest updates of the actual OpenFlower repo. If not sync the repo and take the newest pull.
 3. Move to “client/packages/lowcoder-sdk“ directory&#x20;
 4. run `yarn install` and `yarn build` command.

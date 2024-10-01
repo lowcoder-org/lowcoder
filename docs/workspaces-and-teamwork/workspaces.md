@@ -11,11 +11,11 @@ OpenFlower supports Workspaces. These are isolated rooms to organize:
 * Global includes (Javascript / CSS)
 
 {% hint style="info" %}
-To activate this function, please add the [ENV Variable](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration): **COMMON\_WORKSPACE\_MODE**=SAAS
+To activate this function, please add the [ENV Variable](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/docker#configuration): **COMMON\_WORKSPACE\_MODE**=SAAS
 {% endhint %}
 
 {% hint style="info" %}
-From Version 2.3.3, you can add the [ENV Variable](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration) **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP** to control the behavior of your users (Member role) on self-hosted installation.\
+From Version 2.3.3, you can add the [ENV Variable](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/docker#configuration) **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP** to control the behavior of your users (Member role) on self-hosted installation.\
 \
 true - members can use their own workspace when they sign up. \
 false - members will not have their own workspace when they sign up.
@@ -59,7 +59,7 @@ It is possible to include global CSS styles to fine-tune the visuals of Apps. Al
 
 ### Further administrative Settings
 
-On self-hosted installations, you can set up thresholds for workspaces with the help of [ENV Variables](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration)&#x20;
+On self-hosted installations, you can set up thresholds for workspaces with the help of [ENV Variables](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/docker#configuration)&#x20;
 
 * **LOWCODER\_MAX\_ORGS\_PER\_USER**
   * Sets the default maximum number of Workspaces that a single user (as Admin) can create. This limit ensures that users can manage a reasonable number of organizations without overwhelming your installation.

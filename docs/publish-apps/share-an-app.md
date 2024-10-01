@@ -45,7 +45,7 @@ There are three primary methods for sharing an application:
 
 This feature supports two types of marketplaces:
 
-1. **Global Marketplace**: Accessible at app.lowcoder.cloud, where apps are available to everyone.
+1. **Global Marketplace**: Accessible at https://prod-us1.openflower.org/, where apps are available to everyone.
 2. **Local Marketplace**: Individual OpenFlower installations can host their own marketplaces, accessible only to their users.
 
 The `LOWCODER_MARKETPLACE_PRIVATE_MODE` environment variable controls the visibility of apps on local marketplaces:

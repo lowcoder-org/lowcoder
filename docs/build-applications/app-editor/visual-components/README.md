@@ -1,9 +1,5 @@
 # Visual Components
 
-We maintain a list of all components that are available or planned.
-
-{% embed url="https://app.lowcoder.cloud/apps/648cd237a0308d4efcc64571/view" %}
-
 With Version 2.0.0 of OpenFlower there are 56 Components.&#x20;
 
 These components share a number of [common settings and configurations](common-component-settings.md).

@@ -24,30 +24,6 @@ OpenFlower provides secure-by-default service.
 * Self-hosted OpenFlower instances can be configured with unique encryption salt values.
 * OpenFlower Cloud only connects to your databases or APIs through allowed IPs, ensuring that your data won't be exposed to unknown IPs while using our cloud service.
 
-```
-(US) 
-185.122.165.50
-185.122.165.51
-185.122.165.52
-185.122.165.56
-
-(GB)
-185.85.242.35
-185.85.242.36
-185.85.242.37
-
-(DE)
-185.44.64.41
-185.44.64.42
-185.44.64.43
-185.44.64.44
-185.44.64.47
-```
-
-* OpenFlower Cloud service is deployed and hosted on German, UK, and US Data-Centers, which are certified with SOC 1 Type II,PCI-DSS,SOC 2 Type II,ISO 27001,HIPAA and NIST 800-53/FISMA.
-* OpenFlower Cloud ensures data redundancy on all cloud instances, so you do not need to worry about a single point of failure or data loss.
-* Internal access to OpenFlower Cloud is controlled through [two-factor authentication (2FA)](https://en.wikipedia.org/wiki/Help:Two-factor\_authentication) and audit logs.
-
 ## Feedback
 
 Should you have any questions about data security in OpenFlower, please feel free to contact us. We welcome any feedback on our service from security experts and all users.

@@ -169,10 +169,6 @@ select id, name, gender, address from users where id= {{id}}
 
 Then trigger this query in **Run JavaScript** of event handlers in each of the inputs.
 
-**Demo 2**
-
-You can find another demo for using passed-in paramter queries [here](https://cloud.lowcoder.dev/apps/637f38daa899fe1ffcb17f0b/view).
-
 ## Declare a function
 
 You can declare functions inside a JS query for better readability.
@@ -191,7 +187,7 @@ function getCurrentDate() {
 
 ## Add preloaded scripts
 
-OpenFlowerer supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
+OpenFlower supports importing third-party JS libraries and adding predefined JS code, such as adding global methods or variables for reuse either at **app-level** or **workspace-level**. You can find the app-level settings in ⚙️ > **Other** > **Scripts and style**.
 
 For workspace-level, go to ⚙️ **Settings** > **Advanced**.
 
@@ -199,4 +195,4 @@ In **JavaScript** tab, you can add preloaded JavaScript code to define global me
 
 ## Restrictions
 
-For security reasons, several global variables and functions of **window** are disabled in OpenFlowerer. Please report to our [GitHub](https://github.com/lowcoder-org/lowcoder/issues) or [Discord](https://discord.gg/3JKuvhWzTx) if you encounter any issues.
+For security reasons, several global variables and functions of **window** are disabled in OpenFlower. Please report to our [GitHub](https://github.com/Flowerappeng-org/openflower/issues) if you encounter any issues.

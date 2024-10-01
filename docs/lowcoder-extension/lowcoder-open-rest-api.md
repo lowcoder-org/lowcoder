@@ -2,8 +2,6 @@
 
 OpenFlower comes with a feature-rich REST API, so you can use it in OpenFlower Apps or extend OpenFlower with new functionality.
 
-On [api-service.lowcoder.cloud](https://api-service.lowcoder.cloud/api/docs/webjars/swagger-ui/index.html#/) you can access this API as well, just some endpoints are not available.
-
 ## Authentication
 
 ### Session Cookie
@@ -128,14 +126,6 @@ https://<your-api-service-domain>/
 
 When you run Multi-Docker Deployment on Localhost, you will need to look for the [Bridge-Network Settings](https://www.baeldung.com/ops/docker-communicating-with-containers-on-same-machine) that apply to your setup.
 
-### app.lowcoder.cloud
-
-To use the API of the Cloud Version, the API is to reach via the separate API Service.
-
-```
-https://api-service.lowcoder.cloud/
-```
-
 Since OpenFlower v2.1.6 we publish the OpenAPI Specification and the Swagger Documentation automatically.
 
 ```
@@ -143,8 +133,7 @@ Swagger Documentation: <OpenFlower-Location>/api/docs/webjars/swagger-ui/index.h
 OpenAPI Specification: <OpenFlower-Location>/api/docs/api-docs
 ```
 
-You can find the current API Documentation for example here: \
-[https://api-service.lowcoder.cloud/api/docs/webjars/swagger-ui/index.html#/](https://api-service.lowcoder.cloud/api/docs/webjars/swagger-ui/index.html#/)
+You can find the current API Documentation for example here: coming soon.
 
 ## Using OpenFlower API - inside OpenFlower Apps
 
