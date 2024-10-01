@@ -189,7 +189,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -202,8 +202,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 }
                                 return applicationService.findByOrganizationIdWithoutDsl(currentOrgId);
                             })
-                            .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
-                            .filter(application -> isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
+                            .filter(application -> (isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
+                                    && (isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
+                                    && (isNull(name) || application.getName().toLowerCase().contains(name.toLowerCase())))
                             .cache()
                             .collectList()
                             .flatMapIterable(Function.identity());

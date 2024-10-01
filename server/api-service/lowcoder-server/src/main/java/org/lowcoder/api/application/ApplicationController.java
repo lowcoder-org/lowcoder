@@ -77,8 +77,8 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications() {
-        return applicationApiService.getRecycledApplications()
+    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name) {
+        return applicationApiService.getRecycledApplications(name)
                 .collectList()
                 .map(ResponseView::success);
     }
@@ -159,9 +159,10 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
-            @RequestParam(defaultValue = "true") boolean withContainerSize) {
+            @RequestParam(defaultValue = "true") boolean withContainerSize,
+            @RequestParam(required = false) String name) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize)
+        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name)
                 .collectList()
                 .map(ResponseView::success);
     }
