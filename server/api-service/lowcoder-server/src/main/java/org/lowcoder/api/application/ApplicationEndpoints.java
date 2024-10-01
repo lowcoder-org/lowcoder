@@ -71,7 +71,7 @@ public interface ApplicationEndpoints
 		    description = "List all the recycled Lowcoder Applications in the recycle bin where the authenticated or impersonated user has access."
 	)
     @GetMapping("/recycle/list")
-    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications();
+    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -165,7 +165,8 @@ public interface ApplicationEndpoints
     @GetMapping("/list")
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
-            @RequestParam(defaultValue = "true") boolean withContainerSize);
+            @RequestParam(defaultValue = "true") boolean withContainerSize,
+			@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,

@@ -17,7 +17,7 @@ import java.util.Set;
 public interface ApplicationApiService {
     Mono<ApplicationView> create(ApplicationEndpoints.CreateApplicationRequest createApplicationRequest);
 
-    Flux<ApplicationInfoView> getRecycledApplications();
+    Flux<ApplicationInfoView> getRecycledApplications(String name);
 
     Mono<ApplicationView> delete(String applicationId);
 
