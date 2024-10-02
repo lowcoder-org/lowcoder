@@ -76,21 +76,21 @@ jobs:
           driver: cloud
           endpoint: "flowerappengorg/openflower-cloud-builder"
 
-      - name: Build and push the all-in-one image
-        if: ${{ env.BUILD_ALLINONE == 'true' }}
-        uses: docker/build-push-action@v6
-        env:
-          NODE_ENV: production
-        with:
-          file: ./deploy/docker/Dockerfile
-          build-args: |
-            REACT_APP_ENV=production
-            REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
-          platforms: |
-            linux/amd64
-            linux/arm64
-          push: true
-          tags: flowerappengorg/openflower:${{ env.IMAGE_TAG }}
+      # - name: Build and push the all-in-one image
+      #   if: ${{ env.BUILD_ALLINONE == 'true' }}
+      #   uses: docker/build-push-action@v6
+      #   env:
+      #     NODE_ENV: production
+      #   with:
+      #     file: ./deploy/docker/Dockerfile
+      #     build-args: |
+      #       REACT_APP_ENV=production
+      #       REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
+      #     platforms: |
+      #       linux/amd64
+      #       linux/arm64
+      #     push: true
+      #     tags: flowerappengorg/openflower:${{ env.IMAGE_TAG }}
 
       - name: Build and push the frontend image
         if: ${{ env.BUILD_FRONTEND == 'true' }}
