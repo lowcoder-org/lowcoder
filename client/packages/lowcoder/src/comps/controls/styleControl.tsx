@@ -910,10 +910,6 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
             ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
             ...(omit(theme?.theme, 'components', 'chart')),
             ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
-            // ...(
-            //   theme?.theme?.components?.[compType]?.[styleKey]
-            //   // || defaultTheme.components?.[compType]?.[styleKey]
-            // ) as unknown as Record<string, string>
           }
         : defaultTheme.components?.[compType]?.[styleKey];
       const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId

@@ -38,10 +38,11 @@ export function setInitialCompStyles({
   const actions: Record<string, any> = {
     appliedThemeId: changeValueAction(themeId || '', true),
   };
+  
   styleKeys.forEach(styleKey => {
     actions[styleKey] = changeValueAction({
       ...(compTheme?.[styleKey] as object || {}),
-      // ...styleProps[styleKey],
+      ...styleProps[styleKey],
     }, true);
   })
 
