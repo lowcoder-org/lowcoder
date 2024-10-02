@@ -904,14 +904,17 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
         ? theme?.theme
         : defaultTheme;
-      const compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
-        ? {
-            ...(omit(defaultTheme, 'components', 'chart')),
-            ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
-            ...(omit(theme?.theme, 'components', 'chart')),
-            ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
-          }
-        : defaultTheme.components?.[compType]?.[styleKey];
+      let compTheme: JSONValue|undefined = {};
+      if (appliedThemeId !== themeId) {
+        compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
+          ? {
+              ...(omit(defaultTheme, 'components', 'chart')),
+              ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+              ...(omit(theme?.theme, 'components', 'chart')),
+              ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+            }
+          : defaultTheme.components?.[compType]?.[styleKey];
+      }
       const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
         ? props as ColorMap
         : {} as ColorMap;
