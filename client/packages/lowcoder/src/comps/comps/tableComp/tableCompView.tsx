@@ -160,7 +160,7 @@ const BackgroundWrapper = styled.div<{
   border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
   border-color: ${(props) => `${props.$style.border} !important`};
-  height: calc(100% - ${(props) => getVerticalMargin(props.$style.margin.split(' '))});
+  height: calc(100% - ${(props) => props.$style.margin && getVerticalMargin(props.$style.margin.split(' '))});
   overflow: hidden;
 
   > div.table-scrollbar-wrapper {
