@@ -105,7 +105,7 @@ jobs:
             REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
           platforms: |
             linux/amd64
-            linux/arm64
+          #       linux/arm64
           push: true
           tags: flowerappengorg/openflower-frontend:${{ env.IMAGE_TAG }}
 
@@ -117,7 +117,7 @@ jobs:
           target: lowcoder-ce-node-service
           platforms: |
             linux/amd64
-            linux/arm64
+          #        linux/arm64
           push: true
           tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
 
@@ -129,6 +129,6 @@ jobs:
           target: lowcoder-ce-api-service
           platforms: |
             linux/amd64
-            linux/arm64
+          #          linux/arm64
           push: true
           tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}

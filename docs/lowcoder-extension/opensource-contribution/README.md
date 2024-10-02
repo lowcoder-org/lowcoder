@@ -143,7 +143,7 @@ Please ask us directly for any related questions so we can help you the fastest 
 Simply run the below command to start a local backend server. This is the fasted way. The Backend typically changes less frequent, so you can just run the latest version&#x20;
 
 ```bash
-docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
 
 For more information, view our [docs](../../setup-and-run/self-hosting/)
@@ -156,13 +156,13 @@ You also can build the image from the latest Source code or a special branch. Ho
 2. Use the command below to build a Docker image :
 
 ```bash
-docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
+docker build -f ./deploy/docker/Dockerfile -t openflower-dev .
 ```
 
 3. Start the fresh built Docker image
 
 ```bash
-docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoder-dev
+docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" openflower-dev
 ```
 
 #### Start developing
