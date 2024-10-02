@@ -273,7 +273,7 @@ function Option<T extends ConstructorToComp<MultiCompConstructor>>(props: {
                         del={props.onDel ? () => props.onDel!(index) : undefined}
                       >
                         <StyledPointIcon
-                          onClick={(e) => {
+                          onClick={(e: any) => {
                             e.stopPropagation();
                           }}
                         />

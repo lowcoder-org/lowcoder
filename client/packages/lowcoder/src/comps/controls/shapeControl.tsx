@@ -105,7 +105,7 @@ const IconPicker = (props: {
             </ButtonIconWrapper>
 
             <StyledDeleteInputIcon
-              onClick={(e) => {
+              onClick={(e: any) => {
                 props.onChange("");
                 e.stopPropagation();
               }}
