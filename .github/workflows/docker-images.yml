@@ -58,7 +58,7 @@ jobs:
           echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
 
-      - name: Checkout lowcoder source
+      - name: Checkout OpenFlower source
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
@@ -108,26 +108,24 @@ jobs:
           push: true
           tags: flowerappengorg/openflower-frontend:${{ env.IMAGE_TAG }}
 
-      # - name: Build and push the node service image
-      #   if: ${{ env.BUILD_NODESERVICE == 'true' }}
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     file: ./deploy/docker/Dockerfile
-      #     target: lowcoder-ce-node-service
-      #     platforms: |
-      #       linux/amd64
-      #     #        linux/arm64
-      #     push: true
-      #     tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
+      - name: Build and push the node service image
+        if: ${{ env.BUILD_NODESERVICE == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-node-service
+          platforms: linux/amd64
+          #        linux/arm64
+          push: true
+          tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
 
-      # - name: Build and push the API service image
-      #   if: ${{ env.BUILD_APISERVICE == 'true' }}
-      #   uses: docker/build-push-action@v6
-      #   with:
-      #     file: ./deploy/docker/Dockerfile
-      #     target: lowcoder-ce-api-service
-      #     platforms: |
-      #       linux/amd64
-      #     #          linux/arm64
-      #     push: true
-      #     tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}
+      - name: Build and push the API service image
+        if: ${{ env.BUILD_APISERVICE == 'true' }}
+        uses: docker/build-push-action@v6
+        with:
+          file: ./deploy/docker/Dockerfile
+          target: lowcoder-ce-api-service
+          platforms: linux/amd64
+          #          linux/arm64
+          push: true
+          tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}
