@@ -168,7 +168,7 @@ function HideIcon(props: { hide: boolean; setHide: (hide: boolean) => void }) {
   const Eye = hide ? CloseEye : OpenEye;
   return (
     <Eye
-      onClick={(e) => {
+      onClick={(e: any) => {
         setHide(!hide);
       }}
     />
