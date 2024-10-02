@@ -10,7 +10,6 @@
   * [Access local database or API](setup-and-run/self-hosting/access-local-database-or-api.md)
   * [Google Cloud Platform](setup-and-run/self-hosting/google-cloud-platform.md)
   * [Heroku](setup-and-run/self-hosting/heroku.md)
-  * [Raspberry Pi](setup-and-run/self-hosting/raspberry-pi.md)
   * [Migration from Openblocks](setup-and-run/self-hosting/migration-from-openblocks.md)
   * [Update MongoDB Versions](setup-and-run/self-hosting/update-mongodb-versions.md)
   * [OpenFlower Version Update](setup-and-run/self-hosting/lowcoder-version-update.md)
@@ -132,6 +131,3 @@
 * [Custom component](lowcoder-extension/custom-component.md)
 * [OpenFlower Open REST API](lowcoder-extension/lowcoder-open-rest-api.md)
 
-## OpenFlower for Enterprise
-
-* [Custom branding](lowcoder-for-enterprise/custom-branding.md)

@@ -75,7 +75,7 @@ Run the command below:
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
 {% endcode %}
 {% endtab %}
@@ -99,9 +99,9 @@ Run the following commands to update to the latest OpenFlower image:
 
 {% code overflow="wrap" %}
 ```bash
-docker pull lowcoderorg/lowcoder-ce
+docker pull flowerappengorg/openflower
 docker rm -fv OpenFlower
-docker run -d --name OpenFlower -p 3000:3000 -v "$PWD/stacks:/OpenFlower-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name OpenFlower -p 3000:3000 -v "$PWD/stacks:/OpenFlower-stacks" flowerappengorg/openflower
 ```
 {% endcode %}
 {% endtab %}
@@ -216,7 +216,7 @@ Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment comman
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name lowcoder -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks lowcoderorg/lowcoder-ce
+docker run -d --name lowcoder -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks flowerappengorg/openflower
 ```
 {% endcode %}
 {% endtab %}
@@ -237,7 +237,7 @@ Add an environment variable `LOCAL_USER_ID` to the deployment command, as shown 
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name lowcoder -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name lowcoder -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
 {% endcode %}
 {% endtab %}
@@ -262,7 +262,7 @@ With an SSL certificate, you can securely visit self-hosted OpenFlower with HTTP
 
 {% code overflow="wrap" %}
 ```bash
-docker run -d --name lowcoder -p 3443:3443 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name lowcoder -p 3443:3443 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
 {% endcode %}
 {% endtab %}

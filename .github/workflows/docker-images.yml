@@ -69,12 +69,12 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Setup Docker Buildx with cloud driver
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "flowerappengorg/openflower-cloud-builder"
+      # - name: Setup Docker Buildx with cloud driver
+      #   uses: docker/setup-buildx-action@v3
+      #   with:
+      #     version: "lab:latest"
+      #     driver: cloud
+      #     endpoint: "flowerappengorg/openflower-cloud-builder"
 
       # - name: Build and push the all-in-one image
       #   if: ${{ env.BUILD_ALLINONE == 'true' }}
@@ -103,32 +103,31 @@ jobs:
           build-args: |
             REACT_APP_ENV=production
             REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
+          #       linux/arm64
           push: true
           tags: flowerappengorg/openflower-frontend:${{ env.IMAGE_TAG }}
 
-      - name: Build and push the node service image
-        if: ${{ env.BUILD_NODESERVICE == 'true' }}
-        uses: docker/build-push-action@v6
-        with:
-          file: ./deploy/docker/Dockerfile
-          target: lowcoder-ce-node-service
-          platforms: |
-            linux/amd64
-            linux/arm64
-          push: true
-          tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
+      # - name: Build and push the node service image
+      #   if: ${{ env.BUILD_NODESERVICE == 'true' }}
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     file: ./deploy/docker/Dockerfile
+      #     target: lowcoder-ce-node-service
+      #     platforms: |
+      #       linux/amd64
+      #     #        linux/arm64
+      #     push: true
+      #     tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
 
-      - name: Build and push the API service image
-        if: ${{ env.BUILD_APISERVICE == 'true' }}
-        uses: docker/build-push-action@v6
-        with:
-          file: ./deploy/docker/Dockerfile
-          target: lowcoder-ce-api-service
-          platforms: |
-            linux/amd64
-            linux/arm64
-          push: true
-          tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}
+      # - name: Build and push the API service image
+      #   if: ${{ env.BUILD_APISERVICE == 'true' }}
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     file: ./deploy/docker/Dockerfile
+      #     target: lowcoder-ce-api-service
+      #     platforms: |
+      #       linux/amd64
+      #     #          linux/arm64
+      #     push: true
+      #     tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}

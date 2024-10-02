@@ -10,7 +10,7 @@ version: "3"
 services:
   ## Start OpenFlower (all-in-one)
   lowcoder-api-service:
-    image: lowcoderorg/lowcoder-ce:latest
+    image: flowerappengorg/openflower:latest
     container_name: lowcoder
     environment:
       REDIS_ENABLED: "true"

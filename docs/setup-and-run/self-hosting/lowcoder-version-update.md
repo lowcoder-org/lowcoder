@@ -36,7 +36,7 @@ Also external Component Plugins follow the Sematic Versioning Scheme with Major,
 
 The provided Docker Images from OpenFlower-Org follow the Sematic Versioning of OpenFlower. For every Release of the Codebase with a new Version, we also offer the pre-built Docker Containers for the All-in-one and Multi-Docker installation.
 
-{% embed url="https://hub.docker.com/r/lowcoderorg/lowcoder-ce/tags" %}
+{% embed url="https://hub.docker.com/r/flowerappengorg/openflower/tags" %}
 OpenFlower pre-built Docker Images on Docker Hub
 {% endembed %}
 
@@ -50,7 +50,7 @@ Do not use a /dev tag image in production. These images are only to use in test 
 {% endhint %}
 
 {% hint style="info" %}
-We suggest only a Multi-Docker Image installation for Production use. The all-in-one image "lowcoderorg/lowcoder-ce" is suitable to test and introduce OpenFlower in an easy way.
+We suggest only a Multi-Docker Image installation for Production use. The all-in-one image "flowerappengorg/openflower" is suitable to test and introduce OpenFlower in an easy way.
 {% endhint %}
 
 ## Version Update
