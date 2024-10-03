@@ -1,7 +1,6 @@
 import { withTheme } from '@rjsf/core';
 import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-// import Ajv from "@rjsf/validator-ajv8";
 import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
@@ -25,6 +24,9 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import ObjectFieldTemplate from './ObjectFieldTemplate';
+import ArrayFieldTemplate from './ArrayFieldTemplate';
+import { Select } from 'antd';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -177,6 +179,30 @@ function ErrorList(props: ErrorListProps) {
   );
 }
 
+const SearchableSelectWidget = (props : any) => {
+  const { options, value, required, disabled, readonly, autofocus, onChange } = props;
+  const { enumOptions } = options;
+
+  return (
+    <Select
+      showSearch
+      optionFilterProp="children"
+      value={value || undefined}
+      disabled={disabled || readonly}
+      autoFocus={autofocus}
+      onChange={(val) => onChange(val)}
+      style={{ width: '100%' }}
+      placeholder={props.placeholder}
+    >
+      {enumOptions.map((option : any) => (
+        <Select.Option key={option.value} value={option.value}>
+          {option.label}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
+
 function onSubmit(props: {
   resetAfterSubmit: boolean;
   data: { reset: () => void };
@@ -227,6 +253,11 @@ let FormBasicComp = (function () {
             onSubmit={() => onSubmit(props)}
             onChange={(e) => props.data.onChange(e.formData)}
             transformErrors={(errors) => transformErrors(errors)}
+            templates={{
+              ObjectFieldTemplate: ObjectFieldTemplate,
+              ArrayFieldTemplate: ArrayFieldTemplate,
+            }}
+            widgets={{ searchableSelect: SearchableSelectWidget }}
             // ErrorList={ErrorList}
             children={
               <Button
