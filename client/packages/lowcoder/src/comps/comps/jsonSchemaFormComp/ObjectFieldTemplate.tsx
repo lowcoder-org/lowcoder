@@ -38,7 +38,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     xl: 8,  // Extra large devices
   };
 
-  const { rowGutter = 24, colSpan = defaultResponsiveColSpan } = uiSchema?.['ui:props'] || {};
+  const { rowGutter = 4, colSpan = defaultResponsiveColSpan } = uiSchema?.['ui:props'] || {};
 
   // Generate responsive colSpan props for each element
   const calculateResponsiveColSpan = (element: any) => {
@@ -54,12 +54,12 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
   return (
     <ConfigConsumer>
       {(configProps) => (
-        <fieldset id={idSchema.$id}>
+        <fieldset id={idSchema.$id} className="form-section">
           <Row gutter={rowGutter}>
-            {title && (
-              <Col span={24}>
+            {schema.type === 'object' && title && (
+              <legend>
                 <TitleFieldTemplate id={titleId(idSchema)} title={title} required={props.required} schema={schema} uiSchema={uiSchema} registry={registry} />
-              </Col>
+              </legend>
             )}
             {description && (
               <Col span={24} style={DESCRIPTION_COL_STYLE}>

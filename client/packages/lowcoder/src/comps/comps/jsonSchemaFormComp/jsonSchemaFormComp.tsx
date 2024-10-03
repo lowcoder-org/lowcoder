@@ -27,6 +27,7 @@ import { EditorContext } from "comps/editorState";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
+import Title from 'antd/es/typography/Title';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -233,6 +234,8 @@ let FormBasicComp = (function () {
       "ui:submitButtonOptions"
     ] as UISchemaSubmitButtonOptions;
 
+    const schema = props.schema;
+
     return (
       <Container $style={props.style} $animationStyle={props.animationStyle}>
         <ScrollBar
@@ -245,6 +248,9 @@ let FormBasicComp = (function () {
             hideScrollbar={!props.showVerticalScrollbar}
           >
         <ErrorBoundary>
+          <Title level={2} style={{ marginBottom: '24px' }}>
+            {schema.title as string | number}
+          </Title>
           <Form
             validator={validator}
             schema={props.schema}
@@ -314,7 +320,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      JSON schema
+                      JSON Schema
                     </a>
                   </>
                 ),
@@ -352,7 +358,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      UI schema
+                      UI Schema
                     </a>
                   </>
                 ),

@@ -18,7 +18,7 @@ const ArrayFieldTemplate = (props: ArrayFieldTemplateProps) => {
             </div>
 
             {/* Container for the control buttons with vertical alignment */}
-            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', paddingTop: "38px" }}>
+            <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'flex-end', paddingTop: "58px" }}>
               {/* Move down button */}
               {element.hasMoveDown && (
                 <Button
