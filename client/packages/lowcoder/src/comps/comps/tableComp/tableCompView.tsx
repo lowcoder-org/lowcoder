@@ -33,7 +33,7 @@ import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
-import { useUserViewMode } from "util/hooks";
+import { useMergeCompStyles, useUserViewMode } from "util/hooks";
 import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
@@ -903,7 +903,6 @@ export function TableCompView(props: {
     updateEmptyRows();
   }, [updateEmptyRows]);
 
-
   const pageDataInfo = useMemo(() => {
     // Data pagination
     let pagedData = data;
@@ -927,6 +926,11 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
+
+  useMergeCompStyles(
+    childrenProps as Record<string, any>,
+    comp.dispatch
+  );
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
