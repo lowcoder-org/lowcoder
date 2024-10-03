@@ -673,10 +673,10 @@ function calcColors<ColorMap extends Record<string, string>>(
           themeWithDefault.textDark,
           themeWithDefault.textLight
         );
-      } else if (config?.depType === DEP_TYPE.SELF && config.depTheme === "canvas" && bgColor) {
-        res[name] = bgColor;
       } else if ((config?.depType || config?.depName) && compTheme?.[name]) {
         res[name] = compTheme[name];
+      } else if (config?.depType === DEP_TYPE.SELF && config.depTheme === "canvas" && bgColor) {
+        res[name] = bgColor;
       } else {
         const rest = [];
         config.depName && rest.push(res[config.depName]);
@@ -900,7 +900,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
 
       const appSettingsComp = editorState?.getAppSettingsComp();
       const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
-      const { appliedThemeId, preventStyleOverwriting } = comp?.comp?.container || comp?.comp || {};
+      const { appliedThemeId, preventStyleOverwriting } = (comp?.comp || {});
       const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
         ? theme?.theme
         : defaultTheme;
