@@ -69,7 +69,8 @@ public interface FolderEndpoints
 	)
     @GetMapping("/elements")
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
-            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType);
+            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
+			@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_FOLDER_MANAGEMENT,

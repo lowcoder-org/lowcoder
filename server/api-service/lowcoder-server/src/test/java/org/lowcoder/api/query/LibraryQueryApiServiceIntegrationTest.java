@@ -47,7 +47,7 @@ public class LibraryQueryApiServiceIntegrationTest {
     public void testListLibraryQueries() {
         Mono<List<LibraryQueryView>> listMono = datasourceApiService.create(DatasourceApiServiceIntegrationTest.buildMysqlDatasource("mysql06"))
                 .flatMap(datasource -> libraryQueryApiService.create(buildLibraryQuery("query01", datasource.getId())))
-                .then(libraryQueryApiService.listLibraryQueries());
+                .then(libraryQueryApiService.listLibraryQueries(null));
 
         StepVerifier.create(listMono)
                 .assertNext(libraryQueryViews -> {
