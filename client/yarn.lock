@@ -3450,9 +3450,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@rjsf/antd@npm:^5.18.6":
-  version: 5.18.6
-  resolution: "@rjsf/antd@npm:5.18.6"
+"@rjsf/antd@npm:^5.21.2":
+  version: 5.21.2
+  resolution: "@rjsf/antd@npm:5.21.2"
   dependencies:
     classnames: ^2.5.1
     lodash: ^4.17.21
@@ -3460,18 +3460,18 @@ __metadata:
     rc-picker: 2.7.6
   peerDependencies:
     "@ant-design/icons": ^4.0.0 || ^5.0.0
-    "@rjsf/core": ^5.18.x
-    "@rjsf/utils": ^5.18.x
+    "@rjsf/core": ^5.20.x
+    "@rjsf/utils": ^5.20.x
     antd: ^4.24.0 || ^5.8.5
     dayjs: ^1.8.0
     react: ^16.14.0 || >=17
-  checksum: f33ce6a7807f6dd1adf52d4b25040317dc054c76cdb8f96a270f6211c84c1dc196eadd973c8bedadaac4345f3ff6b47e17fe008b6a8f792a6e79040436e545fe
+  checksum: d6e2e26a966574d080941276eee0b860f27c08f5e7e775fc74e17141869ade3a57f33377dbb40a2ef8b6e3305c1ec420cb655bbdc36caac5b7e4705527be9573
   languageName: node
   linkType: hard
 
-"@rjsf/core@npm:^5.18.6":
-  version: 5.18.6
-  resolution: "@rjsf/core@npm:5.18.6"
+"@rjsf/core@npm:^5.21.2":
+  version: 5.21.2
+  resolution: "@rjsf/core@npm:5.21.2"
   dependencies:
     lodash: ^4.17.21
     lodash-es: ^4.17.21
@@ -3479,15 +3479,15 @@ __metadata:
     nanoid: ^3.3.7
     prop-types: ^15.8.1
   peerDependencies:
-    "@rjsf/utils": ^5.18.x
+    "@rjsf/utils": ^5.20.x
     react: ^16.14.0 || >=17
-  checksum: f07b25e34b3f3388fae1fbbf362b191000b3012d223e562699f9b11932d3378c422fc4abe5485c256b5023f8ecb43f071412b7e273af94272a1ee4067c308d44
+  checksum: ac5c4ff0e0cf74ba8cf6d58df314f8f17de6be5b00bb0ca14f79861347bbaa59f37b8f572d80f30388c5007de1d2dedfc3ff70e419eb874331d58f0ba9eeeb42
   languageName: node
   linkType: hard
 
-"@rjsf/utils@npm:^5.18.6":
-  version: 5.18.6
-  resolution: "@rjsf/utils@npm:5.18.6"
+"@rjsf/utils@npm:^5.21.2":
+  version: 5.21.2
+  resolution: "@rjsf/utils@npm:5.21.2"
   dependencies:
     json-schema-merge-allof: ^0.8.1
     jsonpointer: ^5.0.1
@@ -3496,21 +3496,21 @@ __metadata:
     react-is: ^18.2.0
   peerDependencies:
     react: ^16.14.0 || >=17
-  checksum: 02d4590abc9d1ae313d222db48fcb0f6e5bf9558ef5a2e1a2c552e8ec21e44a4f32c9fbbc7539c1158216d6627068fd7b81957b78958b69f49de4b81a03a8cce
+  checksum: 05460f3c95e1a407001accaf2e9b90c0731433936cfea6a129ac01b49575f56ba336f1ae46e3930f0226580d06c6300c8622d1c3a56354c3e723caf3654f02e1
   languageName: node
   linkType: hard
 
-"@rjsf/validator-ajv8@npm:^5.18.6":
-  version: 5.18.6
-  resolution: "@rjsf/validator-ajv8@npm:5.18.6"
+"@rjsf/validator-ajv8@npm:^5.21.2":
+  version: 5.21.2
+  resolution: "@rjsf/validator-ajv8@npm:5.21.2"
   dependencies:
     ajv: ^8.12.0
     ajv-formats: ^2.1.1
     lodash: ^4.17.21
     lodash-es: ^4.17.21
   peerDependencies:
-    "@rjsf/utils": ^5.18.x
-  checksum: 04856ae0ae6f40748545130b1fb8628f5f4cc0fca60a30aa7b977a01a52150c42a003ea77c6f4d603b346d7fd3cba223f8ffb9c60f4b84063a9c29999ef436fb
+    "@rjsf/utils": ^5.20.x
+  checksum: 06d34e70e6595c5a0e999a3a2a651fccc7a36dbb2395f5805ce1ac6b47201111e6d84c9e122f3d336bbdbaca61875a90efd65e1839d9da3c9aafe282dcc03086
   languageName: node
   linkType: hard
 
@@ -13950,10 +13950,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fortawesome/free-solid-svg-icons": ^6.5.1
     "@fortawesome/react-fontawesome": latest
     "@manaflair/redux-batch": ^1.0.0
-    "@rjsf/antd": ^5.18.6
-    "@rjsf/core": ^5.18.6
-    "@rjsf/utils": ^5.18.6
-    "@rjsf/validator-ajv8": ^5.18.6
+    "@rjsf/antd": ^5.21.2
+    "@rjsf/core": ^5.21.2
+    "@rjsf/utils": ^5.21.2
+    "@rjsf/validator-ajv8": ^5.21.2
     "@types/core-js": ^2.5.5
     "@types/intl": ^1.2.1
     "@types/lodash": ^4.14.194
