@@ -254,7 +254,9 @@ let CalendarBasicComp = (function () {
         animation:item?.animation,
         animationDelay:item?.animationDelay,
         animationDuration:item?.animationDuration,
-        animationIterationCount:item?.animationIterationCount
+        animationIterationCount:item?.animationIterationCount,
+        userTimeZone:item?.userTimeZone,
+        timeRange:item?.timeRange,
       }}
     }) : [currentEvents];
 

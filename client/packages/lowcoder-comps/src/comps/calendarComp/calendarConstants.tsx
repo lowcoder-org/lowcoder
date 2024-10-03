@@ -823,6 +823,9 @@ export type EventType = {
   detail?:string;
   titleColor?:string;
   detailColor?:string;
+  userTimeZone?:string;
+  timeRange?:string;
+
 };
 
 export enum ViewType {
