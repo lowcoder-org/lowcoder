@@ -90,7 +90,7 @@ export const IconPicker = (props: {
             <ButtonIconWrapper>{icon.getView()}</ButtonIconWrapper>
             <ButtonText title={icon.title}>{icon.title}</ButtonText>
             <StyledDeleteInputIcon
-              onClick={(e) => {
+              onClick={(e: any) => {
                 props.onChange("");
                 e.stopPropagation();
               }}

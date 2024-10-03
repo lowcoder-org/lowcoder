@@ -1,7 +1,6 @@
 import { withTheme } from '@rjsf/core';
 import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-// import Ajv from "@rjsf/validator-ajv8";
 import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
@@ -25,6 +24,10 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
+import ObjectFieldTemplate from './ObjectFieldTemplate';
+import ArrayFieldTemplate from './ArrayFieldTemplate';
+import { Select } from 'antd';
+import Title from 'antd/es/typography/Title';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -177,6 +180,30 @@ function ErrorList(props: ErrorListProps) {
   );
 }
 
+const SearchableSelectWidget = (props : any) => {
+  const { options, value, required, disabled, readonly, autofocus, onChange } = props;
+  const { enumOptions } = options;
+
+  return (
+    <Select
+      showSearch
+      optionFilterProp="children"
+      value={value || undefined}
+      disabled={disabled || readonly}
+      autoFocus={autofocus}
+      onChange={(val) => onChange(val)}
+      style={{ width: '100%' }}
+      placeholder={props.placeholder}
+    >
+      {enumOptions.map((option : any) => (
+        <Select.Option key={option.value} value={option.value}>
+          {option.label}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
+
 function onSubmit(props: {
   resetAfterSubmit: boolean;
   data: { reset: () => void };
@@ -207,6 +234,8 @@ let FormBasicComp = (function () {
       "ui:submitButtonOptions"
     ] as UISchemaSubmitButtonOptions;
 
+    const schema = props.schema;
+
     return (
       <Container $style={props.style} $animationStyle={props.animationStyle}>
         <ScrollBar
@@ -219,6 +248,9 @@ let FormBasicComp = (function () {
             hideScrollbar={!props.showVerticalScrollbar}
           >
         <ErrorBoundary>
+          <Title level={2} style={{ marginBottom: '24px' }}>
+            {schema.title as string | number}
+          </Title>
           <Form
             validator={validator}
             schema={props.schema}
@@ -227,6 +259,11 @@ let FormBasicComp = (function () {
             onSubmit={() => onSubmit(props)}
             onChange={(e) => props.data.onChange(e.formData)}
             transformErrors={(errors) => transformErrors(errors)}
+            templates={{
+              ObjectFieldTemplate: ObjectFieldTemplate,
+              ArrayFieldTemplate: ArrayFieldTemplate,
+            }}
+            widgets={{ searchableSelect: SearchableSelectWidget }}
             // ErrorList={ErrorList}
             children={
               <Button
@@ -283,7 +320,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      JSON schema
+                      JSON Schema
                     </a>
                   </>
                 ),
@@ -321,7 +358,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      UI schema
+                      UI Schema
                     </a>
                   </>
                 ),

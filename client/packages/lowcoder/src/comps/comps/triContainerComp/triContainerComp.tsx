@@ -28,6 +28,7 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -53,6 +54,7 @@ const childrenMap = {
 // Compatible with old style data 2022-8-15
 const TriContainerBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props, dispatch);
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData

@@ -2,6 +2,7 @@ import { AppPathParams } from "constants/applicationConstants";
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -179,7 +180,7 @@ export function useMergeCompStyles(
   const themeId = theme?.themeId;
   const appSettingsComp = editorState?.getAppSettingsComp();
   const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
-  const { preventStyleOverwriting } = props;
+  const { preventStyleOverwriting, appliedThemeId } = props;
 
   const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
   const styleProps: Record<string, any> = {};
@@ -187,19 +188,40 @@ export function useMergeCompStyles(
     styleProps[key] = (props as any)[key];
   });
 
+  const mergeStyles = useCallback(
+    ({
+      dispatch,
+      compTheme,
+      styleProps,
+      themeId
+    }: any) => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+        themeId,
+      })
+    },
+    []
+  );
+
   useEffect(() => {
-    if (preventAppStylesOverwriting || preventStyleOverwriting) return;
-    setInitialCompStyles({
+    if (
+      preventAppStylesOverwriting
+      || preventStyleOverwriting
+      || themeId === appliedThemeId
+    ) return;
+    mergeStyles({
       dispatch,
       compTheme,
       styleProps,
       themeId,
-    });
+    })
   }, [
     themeId,
     JSON.stringify(styleProps),
     JSON.stringify(compTheme),
-    setInitialCompStyles,
+    mergeStyles,
     preventAppStylesOverwriting,
     preventStyleOverwriting,
   ]);

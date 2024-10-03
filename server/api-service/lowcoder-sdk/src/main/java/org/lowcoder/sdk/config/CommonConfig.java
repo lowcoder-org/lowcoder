@@ -137,7 +137,11 @@ public class CommonConfig {
     @Data
     public static class Cookie {
         //Set cookie max age to 1 day
-        private long maxAgeInSeconds = Duration.ofDays(1).toSeconds();
+        private long maxAgeInHours = 24;
+
+        public long getMaxAgeInSeconds() {
+            return Duration.ofHours(maxAgeInHours).toSeconds();
+        }
     }
 
     @Data
