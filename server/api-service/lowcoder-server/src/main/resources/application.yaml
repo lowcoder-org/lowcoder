@@ -86,6 +86,8 @@ common:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
   lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
   notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
+  cookie:
+    max-age-in-hours: ${LOWCODER_COOKIE_MAX_AGE:24}
 
 material:
   mongodb-grid-fs:
