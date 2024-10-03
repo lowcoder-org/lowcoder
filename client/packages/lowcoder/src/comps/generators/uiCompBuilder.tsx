@@ -290,7 +290,7 @@ const UIView = React.memo((props: {
   }
 
   useMergeCompStyles(
-    childrenJsonProps as Record<string, any>,
+    childrenProps as Record<string, any>,
     comp.dispatch
   );
 

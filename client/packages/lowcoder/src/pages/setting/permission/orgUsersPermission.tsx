@@ -1,4 +1,4 @@
-import { ADMIN_ROLE, OrgRoleInfo, OrgUser, TacoRoles } from "constants/orgConstants";
+import { ADMIN_ROLE, OrgRoleInfo, OrgUser, SUPER_ADMIN_ROLE, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
 import {
   ArrowIcon,
@@ -65,14 +65,16 @@ type UsersPermissionProp = {
 function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
   const { orgId, orgUsers, orgUsersFetching, currentUser } = props;
-  const adminCount = orgUsers.filter((user) => user.role === ADMIN_ROLE).length;
+  const adminCount = orgUsers.filter(
+    (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
+  ).length;
   const sysConfig = useSelector(selectSystemConfig);
   const dispatch = useDispatch();
   const sortedOrgUsers = useMemo(() => {
     return [...orgUsers].sort((a, b) => {
-      if (a.role === ADMIN_ROLE) {
+      if (a.role === ADMIN_ROLE || a.role === SUPER_ADMIN_ROLE) {
         return -1;
-      } else if (b.role === ADMIN_ROLE) {
+      } else if (b.role === ADMIN_ROLE || a.role === SUPER_ADMIN_ROLE) {
         return 1;
       } else {
         return b.joinTime - a.joinTime;
@@ -178,7 +180,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           className="role-table-cell"
           render={(value, record: OrgUser) => (
             <CustomSelect
-              style={{ width: "96px", height: "32px" }}
+              style={{ width: "140px", height: "32px" }}
               dropdownStyle={{ width: "149px" }}
               defaultValue={record.role}
               key={record.role}

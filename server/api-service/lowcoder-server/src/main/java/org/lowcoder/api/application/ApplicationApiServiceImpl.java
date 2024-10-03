@@ -344,7 +344,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     private Mono<Application> doUpdateApplication(String applicationId, Application application) {
         Application applicationUpdate = Application.builder()
-                .editingApplicationDSL(application.getEditingApplicationDSL())
+                .editingApplicationDSL(application.getEditingApplicationDSLOrNull())
                 .name(application.getName())
                 .build();
         return applicationService.updateById(applicationId, applicationUpdate)

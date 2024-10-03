@@ -2263,6 +2263,7 @@ export const en = {
 
   "memberSettings": {
     "admin": "Admin",
+    "superAdmin": "Super Admin",
     "adminGroupRoleInfo": "Admin Can Manage Group Members and Resources",
     "adminOrgRoleInfo": "Admins Own All Resources and Can Manage Groups.",
     "member": "Member",
