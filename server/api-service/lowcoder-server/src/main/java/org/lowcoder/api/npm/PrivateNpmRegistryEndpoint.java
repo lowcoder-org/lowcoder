@@ -21,7 +21,7 @@ public interface PrivateNpmRegistryEndpoint {
             summary = "Get NPM registry Metadata",
             description = "Retrieve the metadata of private NPM registry package."
     )
-//    @GetMapping("/registry/{name}")
+    @GetMapping("/registry/{name}")
     public Mono<ResponseEntity<Resource>> getNpmPackageMeta(@PathVariable String name);
 
     @Operation(
@@ -30,6 +30,6 @@ public interface PrivateNpmRegistryEndpoint {
             summary = "Get NPM registry asset",
             description = "Retrieve the asset of private NPM registry package."
     )
-//    @GetMapping("/package/{path}")
+    @GetMapping("/package/{*path}")
     public Mono<ResponseEntity<Resource>> getNpmPackageAsset(@PathVariable String path);
 }

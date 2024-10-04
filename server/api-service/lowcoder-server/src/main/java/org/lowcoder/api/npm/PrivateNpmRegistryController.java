@@ -40,20 +40,23 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
 
     @NotNull
     private Mono<ResponseEntity<Resource>> forwardToNodeService(String path, String prefix) {
+        String withoutLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
         return sessionUserService.getVisitorOrgMemberCache().flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId()).flatMap(organizationCommonSettings -> {
             Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getOrgId());
             return WebClientBuildHelper.builder()
                     .systemProxy()
                     .build()
                     .post()
-                    .uri(nodeServerHelper.createUri(prefix + "/" + path))
+                    .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(BodyInserters.fromValue(config))
                     .retrieve().toEntity(Resource.class)
-                    .map(response -> ResponseEntity
-                            .status(response.getStatusCode())
-                            .headers(response.getHeaders())
-                            .body(response.getBody()));
+                    .map(response -> {
+                        return ResponseEntity
+                                .status(response.getStatusCode())
+                                .headers(response.getHeaders())
+                                .body(response.getBody());
+                    });
         }));
     }
 }
