@@ -2,7 +2,7 @@ import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
 import { default as ColorPicker } from "antd/es/color-picker";
 import { trans, getCalendarLocale } from "../../i18n/comps";
-import { createRef, useContext, useRef, useState, useEffect, useCallback } from "react";
+import { createRef, useContext, useRef, useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import dayjs from "dayjs";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
@@ -190,62 +190,86 @@ let CalendarBasicComp = (function () {
     animationStyle?:any;
     modalStyle?:any
     showVerticalScrollbar?:boolean
-
   }, dispatch: any) => {
-  
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
     );
-    const onEventVal = comp?.toJsonValue()?.comp?.onEvent;
-
+    
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
     const [form] = Form.useForm(); 
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
-
+    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
+    
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
 
-    let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
-    let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
-      ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
-      : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
+    const onEventVal = useMemo(() => comp?.toJsonValue()?.comp?.onEvent, [comp]);
+
+    const initialDate = useMemo(() => {
+      let date = undefined;
+      try {
+        date = new Date(props.defaultDate || Date.now()).toISOString();
+      } catch (error) {
+        date = undefined;
+      }
+      return date;
+    }, [props.defaultDate]);
+
+    const currentView = useMemo(() => {
+      return licensed ? props.currentPremiumView : props.currentFreeView;
+    },[
+      licensed,
+      props.currentPremiumView,
+      props.currentFreeView,
+    ]);
+
+    const currentEvents = useMemo(() => {
+      return currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
+        ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
+        : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
+    }, [
+      currentView,
+      props.events,
+    ])
 
     // we use one central stack of events for all views
-    let events = Array.isArray(currentEvents) ? currentEvents.map((item: EventType) => {
-      return {
-        title: item.label,
-        id: item.id,
-        start: dayjs(item.start, DateParser).format(),
-        end: dayjs(item.end, DateParser).format(),
-        allDay: item.allDay,
-        resourceId: item.resourceId ? item.resourceId : null,
-        groupId: item.groupId ? item.groupId : null,
-        backgroundColor: item.backgroundColor,
-        extendedProps: {
-          color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
-        ...(item.groupId ? { groupId: item.groupId } : {}), // Ensure color is in extendedProps
-        detail: item.detail,
-        titleColor:item.titleColor,
-        detailColor:item.detailColor,
-        titleFontWeight:item.titleFontWeight,
-        titleFontStyle:item.titleFontStyle,
-        detailFontWeight:item.detailFontWeight,
-        detailFontStyle:item.detailFontStyle,
-        animation:item?.animation,
-        animationDelay:item?.animationDelay,
-        animationDuration:item?.animationDuration,
-        animationIterationCount:item?.animationIterationCount
-      }}
-    }) : [currentEvents];
+    const events = useMemo(() => {
+      return Array.isArray(currentEvents) ? currentEvents.map((item: EventType) => {
+        return {
+          title: item.label,
+          id: item.id,
+          start: dayjs(item.start, DateParser).format(),
+          end: dayjs(item.end, DateParser).format(),
+          allDay: item.allDay,
+          resourceId: item.resourceId ? item.resourceId : null,
+          groupId: item.groupId ? item.groupId : null,
+          backgroundColor: item.backgroundColor,
+          extendedProps: {
+            color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+          ...(item.groupId ? { groupId: item.groupId } : {}), // Ensure color is in extendedProps
+          detail: item.detail,
+          titleColor:item.titleColor,
+          detailColor:item.detailColor,
+          titleFontWeight:item.titleFontWeight,
+          titleFontStyle:item.titleFontStyle,
+          detailFontWeight:item.detailFontWeight,
+          detailFontStyle:item.detailFontStyle,
+          animation:item?.animation,
+          animationDelay:item?.animationDelay,
+          animationDuration:item?.animationDuration,
+          animationIterationCount:item?.animationIterationCount
+        }}
+      }) : [currentEvents];
+    }, [currentEvents, theme])
 
+    const resources = useMemo(() => props.resources.value, [props.resources.value]);
 
-    const resources = props.resources.value;
     // list all plugins for Fullcalendar
-    const plugins = [
+    const plugins = useMemo(() => [
       dayGridPlugin,
       timeGridPlugin,
       interactionPlugin,
@@ -255,34 +279,35 @@ let CalendarBasicComp = (function () {
       resourceTimeGridPlugin,
       adaptivePlugin,
       multiMonthPlugin,
-    ];
+    ], []);
 
     // filter out premium plugins if not licensed
-    const filteredPlugins = plugins.filter((plugin) => {
-      if (!licensed) {
-        return ![resourceTimelinePlugin, resourceTimeGridPlugin, adaptivePlugin].includes(plugin);
-      }
-      return true;
-    });
+    const filteredPlugins = useMemo(() => {
+      return plugins.filter((plugin) => {
+        if (!licensed) {
+          return ![resourceTimelinePlugin, resourceTimeGridPlugin, adaptivePlugin].includes(plugin);
+        }
+        return true;
+      });
+    }, [plugins, licensed]);
 
-    const toolBar = (defaultView: any) => {
-      switch (defaultView) {
+    const toolBar = useMemo(() => {
+      let toolBarPos: {left: string, right: string};
+      switch (currentView) {
         case "resourceTimelineDay":
-          return resourceTimeLineHeaderToolbar;
+          toolBarPos = resourceTimeLineHeaderToolbar;
           break;
         case "resourceTimeGridDay":
-          return resourceTimeGridHeaderToolbar;
+          toolBarPos = resourceTimeGridHeaderToolbar;
           break;
         default:
-          return headerToolbar;
+          toolBarPos = headerToolbar;
           break;
       }
-    };
+      return toolBarPos;
+    }, [currentView]);
 
-
-    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
-
-    const handleDatesSet = (arg: { view: { type: any; }; }) => {
+    const handleDatesSet = useCallback((arg: { view: { type: any; }; }) => {
       switch (arg.view.type) {
         case "resourceTimelineDay":
           setCurrentSlotLabelFormat(slotLabelFormat);
@@ -297,30 +322,7 @@ let CalendarBasicComp = (function () {
           setCurrentSlotLabelFormat(slotLabelFormat);
           break;
       }
-    };
-
-    let initialDate: string | undefined;
-
-    try {
-      initialDate = new Date(props.defaultDate || Date.now()).toISOString();
-    } catch (error) {
-      initialDate = undefined;
-    }
-
-    let {
-      showEventTime,
-      showWeekends,
-      showAllDay,
-      dayMaxEvents,
-      eventMaxStack,
-      style,
-      firstDay,
-      editable,
-      licenseKey,
-      resourceName,
-      modalStyle,
-      showVerticalScrollbar
-    } = props;
+    }, [slotLabelFormat, slotLabelFormatWeek, slotLabelFormatMonth]);
 
     const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
       comp.children?.comp.children.events.children.manual.children.manual.dispatch(
@@ -334,7 +336,7 @@ let CalendarBasicComp = (function () {
       props.onEvent("change");
     }, [comp, props.onEvent]);
 
-    function renderEventContent(eventInfo: EventContentArg) {
+    const renderEventContent = useCallback((eventInfo: EventContentArg) => {
       const isList = eventInfo.view.type === "listWeek";
       let sizeClass = "";
       if (
@@ -358,118 +360,48 @@ let CalendarBasicComp = (function () {
           ? "past"
           : "";
       return (
-        <Event
-          className={`event ${sizeClass} ${stateClass}`}
-          theme={theme?.theme}
-          $isList={isList}
-          $allDay={Boolean(showAllDay)}
-          $style={props.style}
-          $backgroundColor={eventInfo.backgroundColor}
-          $extendedProps={eventInfo?.event?.extendedProps}
-        >
-          <div className="event-time">{eventInfo?.timeText}</div>
-          <div className="event-title">{eventInfo?.event?.title}</div>
-          <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
-          <Remove
+        <Suspense fallback={null}>
+          <Event
+            className={`event ${sizeClass} ${stateClass}`}
+            theme={theme?.theme}
             $isList={isList}
-            className="event-remove"
-            onClick={(e) => {
-              e.stopPropagation();
-              const events = props.events.filter(
-                (item: EventType) => item.id !== eventInfo.event.id
-              );
-              handleEventDataChange(events);
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
+            $allDay={Boolean(props.showAllDay)}
+            $style={props.style}
+            $backgroundColor={eventInfo.backgroundColor}
+            $extendedProps={eventInfo?.event?.extendedProps}
           >
-            <CalendarDeleteIcon />
-          </Remove>
-        </Event>
+            <div className="event-time">{eventInfo?.timeText}</div>
+            <div className="event-title">{eventInfo?.event?.title}</div>
+            <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
+            <Remove
+              $isList={isList}
+              className="event-remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                const events = props.events.filter(
+                  (item: EventType) => item.id !== eventInfo.event.id
+                );
+                handleEventDataChange(events);
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              <CalendarDeleteIcon />
+            </Remove>
+          </Event>
+        </Suspense>
       );
-    }
-    const handleDbClick = () => {
-      const event = props.events.find(
-        (item: EventType) => item.id === editEvent.current?.id
-      ) as EventType;
-      if (!editable || !editEvent.current) {
-        return;
-      }
-      if (event) {
-        const {
-          id ,
-          label,
-          detail,
-          groupId,
-          resourceId,
-          color,
-          backgroundColor,
-          titleColor,
-          detailColor,
-          titleFontWeight,
-          titleFontStyle,
-          detailFontWeight,
-          detailFontStyle,
-          animation,
-          animationDelay,
-          animationDuration,
-          animationIterationCount,
-        } = event;
-        const eventInfo = {
-          label,
-          groupId,
-          resourceId,
-          color,
-          id,
-          backgroundColor,
-          titleColor,
-          detail,
-          detailColor,
-          titleFontWeight,
-          titleFontStyle,
-          detailFontWeight,
-          detailFontStyle,
-          animation,
-          animationDelay,
-          animationDuration,
-          animationIterationCount,
-        };
-        showModal(eventInfo, true);
-      } else {
-        if (onEventVal && onEventVal.some((e: any) => e.name === 'doubleClick')) {
-          // Check if 'doubleClick' is included in the array
-          props.onEvent('doubleClick');
-        } else {
-          showModal(editEvent.current as EventType, false);
-        }
-      }
-    };
+    }, [
+      theme,
+      props.style,
+      props.events,
+      props.showAllDay,
+      handleEventDataChange,
+    ]);
 
-    const handleCreate = (info: DateSelectArg) => {
-      const event = {
-        allDay: info.allDay,
-        start: info.startStr,
-        end: info.endStr,
-      } as EventType;
-      const view = info.view.type as ViewType;
-      const duration = dayjs(info.end).diff(dayjs(info.start), "minutes");
-      const singleClick =
-        (view === ViewType.MONTH && duration === 1440) ||
-        ([ViewType.WEEK, ViewType.DAY].includes(view) && duration === 30) ||
-        (info.allDay && duration === 1440);
-      if (singleClick) {
-        editEvent.current = event;
-        setTimeout(() => {
-          editEvent.current = undefined;
-        }, 500);
-        return;
-      }
-      showModal(event, false);
-    };
-
-    const showModal = (event: EventType, ifEdit: boolean) => {
+    const showModal = useCallback((event: EventType, ifEdit: boolean) => {
       if (!modalInstance) return;
 
       const modalTitle = ifEdit
@@ -488,7 +420,7 @@ let CalendarBasicComp = (function () {
         content: (
           <Tabs defaultActiveKey="1">
             <Tabs.TabPane tab={trans("calendar.general")} key="1">
-              <FormWrapper form={form} $modalStyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
                 <Form.Item
                   label={
                     <Tooltip title={trans("calendar.eventIdTooltip")}>
@@ -532,7 +464,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
-              <FormWrapper form={form} $modalStyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleColor")}
                   name="titleColor"
@@ -588,7 +520,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
-              <FormWrapper form={form} $modalStyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleFontWeight")}
                   name="titleFontWeight"
@@ -616,7 +548,7 @@ let CalendarBasicComp = (function () {
               </FormWrapper>
             </Tabs.TabPane>
             <Tabs.TabPane tab={trans("calendar.animations")} key="4">
-              <FormWrapper form={form} $modalStyle={modalStyle}>
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
                 <Form.Item
                   label={trans("calendar.animationType")}
                   name="animation"
@@ -735,22 +667,75 @@ let CalendarBasicComp = (function () {
           form.resetFields();
         },
       });
-    }; 
-    
+    }, [
+      form,
+      editEvent,
+      props.events,
+      props?.modalStyle,
+      props?.animationStyle,
+      handleEventDataChange,
+    ]); 
 
-    const handleDrop = () => {
+    const handleDbClick = useCallback(() => {
+      const event = props.events.find(
+        (item: EventType) => item.id === editEvent.current?.id
+      ) as EventType;
+      if (!props.editable || !editEvent.current) {
+        return;
+      }
+      if (event) {
+        showModal(event, true);
+      } else {
+        if (onEventVal && onEventVal.some((e: any) => e.name === 'doubleClick')) {
+          // Check if 'doubleClick' is included in the array
+          props.onEvent('doubleClick');
+        } else {
+          showModal(editEvent.current as EventType, false);
+        }
+      }
+    }, [
+      editEvent,
+      props.events,
+      props.editable,
+      onEventVal,
+      showModal,
+    ]);
+
+    const handleCreate = useCallback((info: DateSelectArg) => {
+      const event = {
+        allDay: info.allDay,
+        start: info.startStr,
+        end: info.endStr,
+      } as EventType;
+      const view = info.view.type as ViewType;
+      const duration = dayjs(info.end).diff(dayjs(info.start), "minutes");
+      const singleClick =
+        (view === ViewType.MONTH && duration === 1440) ||
+        ([ViewType.WEEK, ViewType.DAY].includes(view) && duration === 30) ||
+        (info.allDay && duration === 1440);
+      if (singleClick) {
+        editEvent.current = event;
+        setTimeout(() => {
+          editEvent.current = undefined;
+        }, 500);
+        return;
+      }
+      showModal(event, false);
+    }, [editEvent, showModal]);
+
+    const handleDrop = useCallback(() => {
       if (typeof props.onDropEvent === 'function') {
         props.onDropEvent("dropEvent");
       }
-    };
-
+    }, [props.onDropEvent]);
+    
     return (
       <Wrapper
         ref={ref}
-        $editable={editable}
-        $style={style}
+        $editable={props.editable}
+        $style={props.style}
         $theme={theme?.theme}
-        $showVerticalScrollbar={showVerticalScrollbar}
+        $showVerticalScrollbar={props.showVerticalScrollbar}
         onDoubleClick={handleDbClick}
         $left={left}
         key={initialDate ? currentView + initialDate : currentView}
@@ -767,29 +752,29 @@ let CalendarBasicComp = (function () {
             height={"100%"}
             locale={getCalendarLocale()}
             locales={allLocales}
-            firstDay={Number(firstDay)}
+            firstDay={Number(props.firstDay)}
             plugins={filteredPlugins}
-            headerToolbar={toolBar(currentView)}
-            resourceAreaHeaderContent={resourceName}
+            headerToolbar={toolBar}
+            resourceAreaHeaderContent={props.resourceName}
             buttonText={buttonText}
-            schedulerLicenseKey={licenseKey}
+            schedulerLicenseKey={props.licenseKey}
             views={views}
             resources={ currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? resources : [] }
-            eventClassNames={() => (!showEventTime ? "no-time" : "")}
+            eventClassNames={() => (!props.showEventTime ? "no-time" : "")}
             slotLabelFormat={currentSlotLabelFormat}
             viewClassNames={viewClassNames}
             moreLinkText={trans("calendar.more")}
             initialDate={initialDate}
             initialView={currentView}
-            editable={editable}
-            selectable={editable}
+            editable={props.editable}
+            selectable={props.editable}
             datesSet={handleDatesSet}
             selectMirror={false}
-            displayEventTime={showEventTime}
-            dayMaxEvents={dayMaxEvents}
-            eventMaxStack={eventMaxStack || undefined}
-            weekends={showWeekends}
-            allDaySlot={showAllDay}
+            displayEventTime={props.showEventTime}
+            dayMaxEvents={props.dayMaxEvents}
+            eventMaxStack={props.eventMaxStack || undefined}
+            weekends={props.showWeekends}
+            allDaySlot={props.showAllDay}
             eventContent={renderEventContent}
             select={(info) => handleCreate(info)}
             eventClick={(info) => {
