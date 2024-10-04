@@ -4,6 +4,8 @@ import { default as ColorPicker } from "antd/es/color-picker";
 import { trans, getCalendarLocale } from "../../i18n/comps";
 import { createRef, useContext, useRef, useState, useEffect, useCallback } from "react";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
 import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
@@ -54,6 +56,7 @@ import {
   migrateOldData,
   controlItem,
   depsConfig,
+  stringExposingStateControl
 } from 'lowcoder-sdk';
 
 import {
@@ -79,6 +82,11 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
+import { timeZoneOptions } from "./timeZone";
+import { Select } from 'antd';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -150,7 +158,9 @@ let childrenMap: any = {
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   showVerticalScrollbar: withDefault(BoolControl, false),
+  userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -188,11 +198,11 @@ let CalendarBasicComp = (function () {
     currentFreeView?: string; 
     currentPremiumView?: string; 
     animationStyle?:any;
-    modalStyle?:any
+    modalStyle?:any;
+    timeZone?: string; 
     showVerticalScrollbar?:boolean
-
-  }, dispatch: any) => {
-  
+    userTimeZone?:any
+  }) => {
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
     );
@@ -208,6 +218,12 @@ let CalendarBasicComp = (function () {
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
+
+    useEffect(() => {
+      form.setFieldsValue({
+        userTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
+      });
+    }, []); 
 
     let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
     let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
@@ -238,7 +254,9 @@ let CalendarBasicComp = (function () {
         animation:item?.animation,
         animationDelay:item?.animationDelay,
         animationDuration:item?.animationDuration,
-        animationIterationCount:item?.animationIterationCount
+        animationIterationCount:item?.animationIterationCount,
+        userTimeZone:item?.userTimeZone,
+        timeRange:item?.timeRange,
       }}
     }) : [currentEvents];
 
@@ -319,6 +337,7 @@ let CalendarBasicComp = (function () {
       licenseKey,
       resourceName,
       modalStyle,
+      timeZone,
       showVerticalScrollbar
     } = props;
 
@@ -446,6 +465,12 @@ let CalendarBasicComp = (function () {
         }
       }
     };
+    const handleDateZoneChange = (newTimeZone: any) => {
+      props.userTimeZone.onChange(newTimeZone)
+      form.setFieldsValue({
+        userTimeZone:newTimeZone 
+      });
+    } 
 
     const handleCreate = (info: DateSelectArg) => {
       const event = {
@@ -484,24 +509,11 @@ let CalendarBasicComp = (function () {
           backgroundColor:props?.modalStyle?.background,
           animationStyle:props?.animationStyle,
         },
-        width: "450px",
+        width: "500px",
         content: (
           <Tabs defaultActiveKey="1">
-            <Tabs.TabPane tab={trans("calendar.general")} key="1">
+             <Tabs.TabPane tab={trans("calendar.general")} key="1">
               <FormWrapper form={form} $modalStyle={modalStyle}>
-                <Form.Item
-                  label={
-                    <Tooltip title={trans("calendar.eventIdTooltip")}>
-                      {trans("calendar.eventId")}
-                    </Tooltip>
-                  }
-                  name="id"
-                  rules={[
-                    { required: true, message: trans("calendar.eventIdRequire") },
-                  ]}
-                >
-                  <Input />
-                </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventName")}
                   name="label"
@@ -514,6 +526,42 @@ let CalendarBasicComp = (function () {
                 <Form.Item
                   label={trans("calendar.eventdetail")}
                   name="detail"
+                >
+                  <Input />
+                </Form.Item>     
+                <Form.Item
+                  label={trans("calendar.timeRange")}
+                  name="timeRange"
+                >
+                  <Input />
+                </Form.Item>
+                {props.timeZone === "UserChoice" &&  
+                <Form.Item
+                  label={trans("calendar.timeZone")}
+                  name="userTimeZone"
+                >
+                 <Select
+                  // defaultValue={form.getFieldValue('userTimeZone')}
+                  value={form.getFieldValue('userTimeZone')}
+                  style={{ width: 340 , borderRadius:2 }}
+                  onChange={(value)=>{handleDateZoneChange(value)}}
+                  options={timeZoneOptions.filter(option => option.value !== 'UserChoice')}
+                  />
+                </Form.Item>}
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.advanced")} key="2">
+              <FormWrapper form={form} $modalStyle={modalStyle}>
+                <Form.Item
+                  label={
+                    <Tooltip title={trans("calendar.eventIdTooltip")}>
+                      {trans("calendar.eventId")}
+                    </Tooltip>
+                  }
+                  name="id"
+                  rules={[
+                    { required: true, message: trans("calendar.eventIdRequire") },
+                  ]}
                 >
                   <Input />
                 </Form.Item>
@@ -531,7 +579,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
+            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="3">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleColor")}
@@ -587,7 +635,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
+            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="4">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.eventTitleFontWeight")}
@@ -615,7 +663,7 @@ let CalendarBasicComp = (function () {
                 </Form.Item>
               </FormWrapper>
             </Tabs.TabPane>
-            <Tabs.TabPane tab={trans("calendar.animations")} key="4">
+            <Tabs.TabPane tab={trans("calendar.animations")} key="5">
               <FormWrapper form={form} $modalStyle={modalStyle}>
                 <Form.Item
                   label={trans("calendar.animationType")}
@@ -654,6 +702,8 @@ let CalendarBasicComp = (function () {
               detail,
               groupId,
               resourceId,
+              userTimeZone,
+              timeRange,
               color,
               backgroundColor,
               titleColor,
@@ -680,11 +730,13 @@ let CalendarBasicComp = (function () {
                 if (item.id === eventId) {
                   return {
                     ...item,
-                    label,
-                    detail,
-                    id,
+                    ...(label !== undefined ? { label } : null),
+                    ...(detail !== undefined ? { detail } : null),
+                    ...(id !== undefined ? { id } : null),
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(resourceId !== undefined ? { resourceId } : null),
+                    ...(userTimeZone !== undefined ? { userTimeZone } : null),
+                    ...(timeRange !== undefined ? { timeRange } : null),
                     ...(color !== undefined ? { color } : null),
                     ...(backgroundColor !== undefined ? { backgroundColor } : null),
                     ...(titleColor !== undefined ? { titleColor } : null),
@@ -719,6 +771,8 @@ let CalendarBasicComp = (function () {
                 animationDelay,
                 animationDuration,
                 animationIterationCount,
+                ...(userTimeZone !== undefined ? { userTimeZone } : null),
+                ...(timeRange !== undefined ? { timeRange } : null),
                 ...(groupId !== undefined ? { groupId } : null),
                 ...(resourceId !== undefined ? { resourceId } : null),
                 ...(color !== undefined ? { color } : null),
@@ -880,6 +934,7 @@ let CalendarBasicComp = (function () {
       animationStyle:  { getPropertyView: () => any; };
       modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
+      timeZone: { propertyView: (arg0: { label: string; }) => any; }; 
       showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
     }) => {
       const license = children.licenseKey.getView();
@@ -895,6 +950,9 @@ let CalendarBasicComp = (function () {
               title: "Events",
               newOptionLabel: "Event",
             })}
+            {children.timeZone.propertyView({
+            label: trans("calendar.timeZone")
+             })}
           </Section>
           { license != "" && 
             <Section name={trans("calendar.resources")}>
@@ -942,6 +1000,17 @@ let CalendarBasicComp = (function () {
     .build();
 })();
 
+const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
+  const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
+  
+  const dateInTz = dayjs().tz(tz);
+  const offset = dateInTz.format('Z');
+  const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
+    .formatToParts().find(part => part.type === 'timeZoneName')?.value;
+
+  return { TimeZone: tz, Offset: offset, Name: timeZoneName };
+};
+
 CalendarBasicComp = class extends CalendarBasicComp {
   override autoHeight(): boolean {
     return false;
@@ -976,6 +1045,12 @@ const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
     func: (input: { events: any[]; }) => {
       return input.events.filter(event => Boolean(event.resourceId));
     },
+  }),
+  depsConfig({
+    name: "timeZone",
+    desc: trans("calendar.timeZone"), 
+    depKeys: ["timeZone",],
+    func: (input: { timeZone: any; userTimeZone: any; }) => getTimeZoneInfo(input.timeZone, input.userTimeZone)
   }),
 ]);
 
