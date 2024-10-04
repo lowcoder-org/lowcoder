@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2017",
+    "target": "es5",
     "experimentalDecorators": true,
     "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
