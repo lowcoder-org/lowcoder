@@ -193,7 +193,7 @@ function addQuery(editorState: EditorState, datasourceInfos: DatasourceInfo[]) {
         name: queryName,
         compType: "restApi",
         comp: {
-          path: i18nObjs.editorTutorials.mockDataUrl || enObj.editorTutorials.mockDataUrl,
+          path: i18nObjs.editorTutorials.mockDataUrl,
           bodyType: "application/json",
         },
         datasourceId: QUICK_REST_API_ID,

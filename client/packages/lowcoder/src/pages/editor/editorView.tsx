@@ -17,7 +17,7 @@ import {
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
-import Header, {
+import {
   type PanelStatus,
   type TogglePanel,
   type EditorModeStatus,
@@ -55,7 +55,17 @@ import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
-import { BottomSkeleton } from "./bottom/BottomContent";
+// import { BottomSkeleton } from "./bottom/BottomContent";
+
+const Header = lazy(
+    () => import("pages/common/header")
+        .then(module => ({default: module.default}))
+);
+
+const BottomSkeleton = lazy(
+    () => import("pages/editor/bottom/BottomContent")
+        .then(module => ({default: module.BottomSkeleton}))
+);
 
 const LeftContent = lazy(
   () => import('./LeftContent')
