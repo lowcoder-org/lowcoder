@@ -1,728 +1,727 @@
-import React from "react";
-export const AppSnapshotIcon = React.lazy(() => import("./v1/app-snapshot.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HookCompDropIcon = React.lazy(() => import("./v1/hook-comp-drop.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HookCompIcon = React.lazy(() => import("./v1/hook-comp.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as AppSnapshotIcon } from "./v1/app-snapshot.svg";
+export { ReactComponent as HookCompDropIcon } from "./v1/hook-comp-drop.svg";
+export { ReactComponent as HookCompIcon } from "./v1/hook-comp.svg";
 
-export const JsGrayIcon = React.lazy(() => import("./v1/icon-Js-Gray.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsColorsIcon = React.lazy(() => import("./v1/icon-Js-colors.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AdminIcon = React.lazy(() => import("./v1/icon-admin.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignVerticalCent = React.lazy(() => import("./v1/icon-align-vertical-center.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AppEditIcon = React.lazy(() => import("./v1/icon-app-edit.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AuditAppIcon = React.lazy(() => import("./v1/icon-audit-app.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AuditDbIcon = React.lazy(() => import("./v1/icon-audit-db.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreeFoldIcon = React.lazy(() => import("./v1/icon-audit-fold.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AuditQueryIcon = React.lazy(() => import("./v1/icon-audit-query.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AuditUserIcon = React.lazy(() => import("./v1/icon-audit-user.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AuditFolderIcon = React.lazy(() => import("./v1/icon-audit-folder.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as JsGrayIcon } from "./v1/icon-Js-Gray.svg";
+export { ReactComponent as JsColorsIcon } from "./v1/icon-Js-colors.svg";
+export { ReactComponent as AdminIcon } from "./v1/icon-admin.svg";
+export { ReactComponent as AlignVerticalCent } from "./v1/icon-align-vertical-center.svg";
+export { ReactComponent as AppEditIcon } from "./v1/icon-app-edit.svg";
+export { ReactComponent as AuditAppIcon } from "./v1/icon-audit-app.svg";
+export { ReactComponent as AuditDbIcon } from "./v1/icon-audit-db.svg";
+export { ReactComponent as TreeFoldIcon } from "./v1/icon-audit-fold.svg";
+export { ReactComponent as AuditQueryIcon } from "./v1/icon-audit-query.svg";
+export { ReactComponent as AuditUserIcon } from "./v1/icon-audit-user.svg";
+export { ReactComponent as AuditFolderIcon } from "./v1/icon-audit-folder.svg";
 
-export const CaptchaIcon = React.lazy(() => import("./v1/icon-captcha.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CheckboxIcon = React.lazy(() => import("./v1/icon-checkbox.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CheckoutIcon = React.lazy(() => import("./v1/icon-checkout.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ClickLinkIcon = React.lazy(() => import("./v1/icon-clickLink.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CloseEyeIcon = React.lazy(() => import("./v1/icon-closeEye.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CodeEditorCloseIcon = React.lazy(() => import("./v1/icon-code-editor-close.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CodeEditorOpenIcon = React.lazy(() => import("./v1/icon-code-editor-open.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CodeEditorPinnedIcon = React.lazy(() => import("./remix/pushpin-2-fill.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CodeEditorUnPinnedIcon = React.lazy(() => import("./remix/pushpin-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ColorHexIcon = React.lazy(() => import("./v1/icon-colorHex.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ContainerDragIcon = React.lazy(() => import("./v1/icon-container-drag.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CopyIcon = React.lazy(() => import("./v1/icon-copy.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CreateModuleIcon = React.lazy(() => import("./v1/icon-create-module.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PrevIcon = React.lazy(() => import("./v1/icon-date-prev.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SuperPrevIcon = React.lazy(() => import("./v1/icon-date-super-prev.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DragWhiteIcon = React.lazy(() => import("./v1/icon-drag-white.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const EmptyDataIcon = React.lazy(() => import("./v1/icon-empty-data.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FlokcloseIcon = React.lazy(() => import("./v1/icon-flokclose.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FoldedIcon = React.lazy(() => import("./v1/icon-folded.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GroupIcon = React.lazy(() => import("./v1/icon-group.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HelpIcon = React.lazy(() => import("./v1/icon-help.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LockIcon = React.lazy(() => import("./v1/icon-lock.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MembersIcon = React.lazy(() => import("./v1/icon-members.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MoreActionIcon = React.lazy(() => import("./v1/icon-more-action.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MultiselectTagIcon = React.lazy(() => import("./v1/icon-multiselect-tag.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MustFillStarIcon = React.lazy(() => import("./v1/icon-must-fill-star.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NofileIcon = React.lazy(() => import("./v1/icon-nofile.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const OmitIcon = React.lazy(() => import("./v1/icon-omit.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const OpenEyeIcon = React.lazy(() => import("./v1/icon-openEye.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PasswordIcon = React.lazy(() => import("./v1/icon-password.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RadioCheckedIcon = React.lazy(() => import("./v1/icon-radio-checked.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RequiredIcon = React.lazy(() => import("./v1/icon-required.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AttributeIcon = React.lazy(() => import("./v1/icon-right-attribute.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const InsertIcon = React.lazy(() => import("./v1/icon-right-insert.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ShowBorderIcon = React.lazy(() => import("./v1/icon-show-border.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SpaceIcon = React.lazy(() => import("./v1/icon-space.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const StarIcon = React.lazy(() => import("./v1/icon-star.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SuperUserIcon = React.lazy(() => import("./v1/icon-super-user.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SwitchCheckedIcon = React.lazy(() => import("./v1/icon-switch-checked.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextEditIcon = React.lazy(() => import("./v1/icon-text-edit.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TriangleIcon = React.lazy(() => import("./v1/icon-triangle.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TypographyIcon = React.lazy(() => import("./v1/icon-typography.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UnfoldWhiteIcon = React.lazy(() => import("./v1/icon-unfold-white.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UnfoldIcon = React.lazy(() => import("./v1/icon-unfold.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const WarningWhiteIcon = React.lazy(() => import("./v1/icon-warning-white.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const WarningIcon = React.lazy(() => import("./v1/icon-warning.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const WidthDragIcon = React.lazy(() => import("./v1/icon-widthDrag.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ManyCheckboxIcon = React.lazy(() => import("./v1/icon-many-checkbox.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Layout = React.lazy(() => import("./v1/icon-ShowLayout.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Left = React.lazy(() => import("./v1/icon-ShowLeft.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Middle = React.lazy(() => import("./v1/icon-ShowMiddle.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Right = React.lazy(() => import("./v1/icon-ShowRight.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DeployIcon = React.lazy(() => import("./v1/icon-rocket.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ExportIcon = React.lazy(() => import("./v1/icon-export.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const BluePlusIcon = React.lazy(() => import("./v1/icon-blue-add.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PencilIcon = React.lazy(() => import("./v1/icon-pencil.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DragIcon = React.lazy(() => import("./v1/icon-drag.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PointIcon = React.lazy(() => import("./v1/icon-three-point.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignJustify = React.lazy(() => import("./v1/icon-align-justify.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignRight = React.lazy(() => import("./v1/icon-align-right.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignCenter = React.lazy(() => import("./v1/icon-align-center.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignLeft = React.lazy(() => import("./v1/icon-align-left.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignClose = React.lazy(() => import("./v1/icon-align-close.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignTop = React.lazy(() => import("./v1/icon-align-top.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AlignBottom = React.lazy(() => import("./v1/icon-align-bottom.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AddIcon = React.lazy(() => import("./v1/icon-add.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImportAppIcon = React.lazy(() => import("./v1/icon-app-import.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImportIcon = React.lazy(() => import("./v1/icon-import.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImportIconV2 = React.lazy(() => import("./v1/icon-import-v2.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DatasourceIcon = React.lazy(() => import("./v1/icon-datasource.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const QueryLibraryIcon = React.lazy(() => import("./v1/icon-query-library.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TransformerIcon = React.lazy(() => import("./v1/icon-transformer.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TempStateIcon = React.lazy(() => import("./v1/icon-temp-state.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconDep = React.lazy(() => import("./v1/icon-style-dep.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconRadius = React.lazy(() => import("./v1/icon-style-border-radius.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconReset = React.lazy(() => import("./v1/icon-style-reset.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PackUpIcon = React.lazy(() => import("./v1/icon-Pack-up.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SearchIcon = React.lazy(() => import("./v1/icon-Search.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SearchOutlinedIcon = React.lazy(() => import("./v1/icon-SearchOutlined.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FilterIcon = React.lazy(() => import("./v1/icon-filter.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DownloadIcon = React.lazy(() => import("./v1/icon-download.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DownloadBoldIcon = React.lazy(() => import("./v1/icon-download-bold.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DownloadedIcon = React.lazy(() => import("./v1/icon-downloaded.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SettingIcon = React.lazy(() => import("./v1/icon-setting.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RefreshIcon = React.lazy(() => import("./v1/icon-refresh.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DeleteIcon = React.lazy(() => import("./v1/icon-recycle-bin.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DeleteInputIcon = React.lazy(() => import("./v1/icon-deleteinput.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UpgradeIcon = React.lazy(() => import("./v1/icon-upgrade.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const QuestionIcon = React.lazy(() => import("./v1/icon-question.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CloseIcon = React.lazy(() => import("./v1/icon-close.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SuccessIcon = React.lazy(() => import("./v1/icon-success.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ErrorIcon = React.lazy(() => import("./v1/icon-err-warning.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DocIcon = React.lazy(() => import("./v1/icon-tutorial.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DocBoldIcon = React.lazy(() => import("./v1/icon-tutorial-bold.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LabIcon = React.lazy(() => import("./v1/icon-laboratory.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ArrowIcon = React.lazy(() => import("./v1/icon-arrow.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ArrowSolidIcon = React.lazy(() => import("./v1/icon-arrow-solid.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as CaptchaIcon } from "./v1/icon-captcha.svg";
+export { ReactComponent as CheckboxIcon } from "./v1/icon-checkbox.svg";
+export { ReactComponent as CheckoutIcon } from "./v1/icon-checkout.svg";
+export { ReactComponent as ClickLinkIcon } from "./v1/icon-clickLink.svg";
+export { ReactComponent as CloseEyeIcon } from "./v1/icon-closeEye.svg";
+export { ReactComponent as CodeEditorCloseIcon } from "./v1/icon-code-editor-close.svg";
+export { ReactComponent as CodeEditorOpenIcon } from "./v1/icon-code-editor-open.svg";
+export { ReactComponent as CodeEditorPinnedIcon} from "./remix/pushpin-2-fill.svg"
+export { ReactComponent as CodeEditorUnPinnedIcon} from "./remix/pushpin-line.svg"
+export { ReactComponent as ColorHexIcon } from "./v1/icon-colorHex.svg";
+export { ReactComponent as ContainerDragIcon } from "./v1/icon-container-drag.svg";
+export { ReactComponent as CopyIcon } from "./v1/icon-copy.svg";
+export { ReactComponent as CreateModuleIcon } from "./v1/icon-create-module.svg";
+export { ReactComponent as PrevIcon } from "./v1/icon-date-prev.svg";
+export { ReactComponent as SuperPrevIcon } from "./v1/icon-date-super-prev.svg";
+export { ReactComponent as DragWhiteIcon } from "./v1/icon-drag-white.svg";
+export { ReactComponent as EmptyDataIcon } from "./v1/icon-empty-data.svg";
+export { ReactComponent as FlokcloseIcon } from "./v1/icon-flokclose.svg";
+export { ReactComponent as FoldedIcon } from "./v1/icon-folded.svg";
+export { ReactComponent as GroupIcon } from "./v1/icon-group.svg";
+export { ReactComponent as HelpIcon } from "./v1/icon-help.svg";
+export { ReactComponent as LockIcon } from "./v1/icon-lock.svg";
+export { ReactComponent as MembersIcon } from "./v1/icon-members.svg";
+export { ReactComponent as MoreActionIcon } from "./v1/icon-more-action.svg";
+export { ReactComponent as MultiselectTagIcon } from "./v1/icon-multiselect-tag.svg";
+export { ReactComponent as MustFillStarIcon } from "./v1/icon-must-fill-star.svg";
+export { ReactComponent as NofileIcon } from "./v1/icon-nofile.svg";
+export { ReactComponent as OmitIcon } from "./v1/icon-omit.svg";
+export { ReactComponent as OpenEyeIcon } from "./v1/icon-openEye.svg";
+export { ReactComponent as PasswordIcon } from "./v1/icon-password.svg";
+export { ReactComponent as RadioCheckedIcon } from "./v1/icon-radio-checked.svg";
+export { ReactComponent as RequiredIcon } from "./v1/icon-required.svg";
+export { ReactComponent as AttributeIcon } from "./v1/icon-right-attribute.svg";
+export { ReactComponent as InsertIcon } from "./v1/icon-right-insert.svg";
+export { ReactComponent as ShowBorderIcon } from "./v1/icon-show-border.svg";
+export { ReactComponent as SpaceIcon } from "./v1/icon-space.svg";
+export { ReactComponent as StarIcon } from "./v1/icon-star.svg";
+export { ReactComponent as SuperUserIcon } from "./v1/icon-super-user.svg";
+export { ReactComponent as SwitchCheckedIcon } from "./v1/icon-switch-checked.svg";
+export { ReactComponent as TextEditIcon } from "./v1/icon-text-edit.svg";
+export { ReactComponent as TriangleIcon } from "./v1/icon-triangle.svg";
+export { ReactComponent as TypographyIcon } from "./v1/icon-typography.svg";
+export { ReactComponent as UnfoldWhiteIcon } from "./v1/icon-unfold-white.svg";
+export { ReactComponent as UnfoldIcon } from "./v1/icon-unfold.svg";
+export { ReactComponent as WarningWhiteIcon } from "./v1/icon-warning-white.svg";
+export { ReactComponent as WarningIcon } from "./v1/icon-warning.svg";
+export { ReactComponent as WidthDragIcon } from "./v1/icon-widthDrag.svg";
+export { ReactComponent as ManyCheckboxIcon } from "./v1/icon-many-checkbox.svg";
+export { ReactComponent as Layout } from "./v1/icon-ShowLayout.svg";
+export { ReactComponent as Left } from "./v1/icon-ShowLeft.svg";
+export { ReactComponent as Middle } from "./v1/icon-ShowMiddle.svg";
+export { ReactComponent as Right } from "./v1/icon-ShowRight.svg";
+export { ReactComponent as DeployIcon } from "./v1/icon-rocket.svg";
+export { ReactComponent as ExportIcon } from "./v1/icon-export.svg";
+export { ReactComponent as BluePlusIcon } from "./v1/icon-blue-add.svg";
+export { ReactComponent as PencilIcon } from "./v1/icon-pencil.svg";
+export { ReactComponent as DragIcon } from "./v1/icon-drag.svg";
+export { ReactComponent as PointIcon } from "./v1/icon-three-point.svg";
+export { ReactComponent as AlignJustify } from "./v1/icon-align-justify.svg";
+export { ReactComponent as AlignRight } from "./v1/icon-align-right.svg";
+export { ReactComponent as AlignCenter } from "./v1/icon-align-center.svg";
+export { ReactComponent as AlignLeft } from "./v1/icon-align-left.svg";
+export { ReactComponent as AlignClose } from "./v1/icon-align-close.svg";
+export { ReactComponent as AlignTop } from "./v1/icon-align-top.svg";
+export { ReactComponent as AlignBottom } from "./v1/icon-align-bottom.svg";
+export { ReactComponent as AddIcon } from "./v1/icon-add.svg";
+export { ReactComponent as ImportAppIcon } from "./v1/icon-app-import.svg";
+export { ReactComponent as ImportIcon } from "./v1/icon-import.svg";
+export { ReactComponent as ImportIconV2 } from "./v1/icon-import-v2.svg";
+export { ReactComponent as DatasourceIcon } from "./v1/icon-datasource.svg";
+export { ReactComponent as QueryLibraryIcon } from "./v1/icon-query-library.svg";
+export { ReactComponent as TransformerIcon } from "./v1/icon-transformer.svg";
+export { ReactComponent as TempStateIcon } from "./v1/icon-temp-state.svg";
+export { ReactComponent as IconDep } from "./v1/icon-style-dep.svg";
+export { ReactComponent as IconRadius } from "./v1/icon-style-border-radius.svg";
+export { ReactComponent as IconReset } from "./v1/icon-style-reset.svg";
+export { ReactComponent as PackUpIcon } from "./v1/icon-Pack-up.svg";
+export { ReactComponent as SearchIcon } from "./v1/icon-Search.svg";
+export { ReactComponent as SearchOutlinedIcon } from "./v1/icon-SearchOutlined.svg";
+export { ReactComponent as FilterIcon } from "./v1/icon-filter.svg";
+export { ReactComponent as DownloadIcon } from "./v1/icon-download.svg";
+export { ReactComponent as DownloadBoldIcon } from "./v1/icon-download-bold.svg";
+export { ReactComponent as DownloadedIcon } from "./v1/icon-downloaded.svg";
+export { ReactComponent as SettingIcon } from "./v1/icon-setting.svg";
+export { ReactComponent as RefreshIcon } from "./v1/icon-refresh.svg";
+export { ReactComponent as DeleteIcon } from "./v1/icon-recycle-bin.svg";
+export { ReactComponent as DeleteInputIcon } from "./v1/icon-deleteinput.svg";
+export { ReactComponent as UpgradeIcon } from "./v1/icon-upgrade.svg";
+export { ReactComponent as QuestionIcon } from "./v1/icon-question.svg";
+export { ReactComponent as CloseIcon } from "./v1/icon-close.svg";
+export { ReactComponent as SuccessIcon } from "./v1/icon-success.svg";
+export { ReactComponent as ErrorIcon } from "./v1/icon-err-warning.svg";
+export { ReactComponent as DocIcon } from "./v1/icon-tutorial.svg";
+export { ReactComponent as DocBoldIcon } from "./v1/icon-tutorial-bold.svg";
+export { ReactComponent as LabIcon } from "./v1/icon-laboratory.svg";
+export { ReactComponent as ArrowIcon } from "./v1/icon-arrow.svg";
+export { ReactComponent as ArrowSolidIcon } from "./v1/icon-arrow-solid.svg";
 
 // Home Section
-export const PlusIcon = React.lazy(() => import("./v1/icon-plus.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ApplicationDocIcon = React.lazy(() => import("./v2/app-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ModuleMenuIcon = React.lazy(() => import("./v2/module-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ModuleIcon = React.lazy(() => import("./v2/module-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ModuleDocIcon = React.lazy(() => import("./v2/module-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NavDocIcon = React.lazy(() => import("./v2/entry-page-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FolderIcon = React.lazy(() => import("./remix/folder-6-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AllTypesIcon = React.lazy(() => import("./v1/icon-application-all.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const InviteUserIcon = React.lazy(() => import("./v1/icon-application-invite-user.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeEmptyIcon = React.lazy(() => import("./v1/icon-application-empty.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeListIcon = React.lazy(() => import("./v1/icon-application-list.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeCardIcon = React.lazy(() => import("./v1/icon-application-card.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const APIDocsIcon = React.lazy(() => import("./remix/instance-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SubscriptionIcon = React.lazy(() => import("./remix/award-fill.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SupportIcon = React.lazy(() => import("./remix/user-heart-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-// export const AllAppIcon = React.lazy(() => import("./v1/icon-all-app.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as PlusIcon } from "./v1/icon-plus.svg";
+export { ReactComponent as ApplicationDocIcon } from "./v2/app-m.svg";
+export { ReactComponent as ModuleMenuIcon } from "./v2/module-m.svg";
+export { ReactComponent as ModuleIcon } from "./v2/module-m.svg";
+export { ReactComponent as ModuleDocIcon } from "./v2/module-m.svg";
+export { ReactComponent as NavDocIcon } from "./v2/entry-page-m.svg";
+export { ReactComponent as FolderIcon } from "./remix/folder-6-line.svg";
+export { ReactComponent as AllTypesIcon } from "./v1/icon-application-all.svg";
+export { ReactComponent as InviteUserIcon } from "./v1/icon-application-invite-user.svg";
+export { ReactComponent as HomeEmptyIcon } from "./v1/icon-application-empty.svg";
+export { ReactComponent as HomeListIcon } from "./v1/icon-application-list.svg";
+export { ReactComponent as HomeCardIcon } from "./v1/icon-application-card.svg";
+export { ReactComponent as APIDocsIcon } from "./remix/instance-line.svg";
+export { ReactComponent as SubscriptionIcon } from "./remix/award-fill.svg";
+export { ReactComponent as SupportIcon } from "./remix/user-heart-line.svg";
+// export { ReactComponent as AllAppIcon } from "./v1/icon-all-app.svg";
 
 
 // Data Sources
-export const MysqlIcon = React.lazy(() => import("./v1/icon-query-MySQL.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MongoIcon = React.lazy(() => import("./v1/icon-query-MongoDB.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PostgresIcon = React.lazy(() => import("./v1/icon-query-postgres.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RedisIcon = React.lazy(() => import("./v1/icon-query-Redis.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MSSQLIcon = React.lazy(() => import("./v1/icon-query-mssql.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SMTPIcon = React.lazy(() => import("./v1/icon-query-SMTP.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const OracleIcon = React.lazy(() => import("./v1/icon-query-OracleDB.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ClickHouseIcon = React.lazy(() => import("./v1/icon-query-ClickHouse.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GoogleSheetsIcon = React.lazy(() => import("./v1/icon-query-GoogleSheets.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GraphqlIcon = React.lazy(() => import("./v1/icon-query-Graphql.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SnowflakeIcon = React.lazy(() => import("./v1/icon-query-snowflake.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MariaDBIcon = React.lazy(() => import("./v1/icon-query-MariaDB.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as MysqlIcon } from "./v1/icon-query-MySQL.svg";
+export { ReactComponent as MongoIcon } from "./v1/icon-query-MongoDB.svg";
+export { ReactComponent as PostgresIcon } from "./v1/icon-query-postgres.svg";
+export { ReactComponent as RedisIcon } from "./v1/icon-query-Redis.svg";
+export { ReactComponent as MSSQLIcon } from "./v1/icon-query-mssql.svg";
+export { ReactComponent as SMTPIcon } from "./v1/icon-query-SMTP.svg";
+export { ReactComponent as OracleIcon } from "./v1/icon-query-OracleDB.svg";
+export { ReactComponent as ClickHouseIcon } from "./v1/icon-query-ClickHouse.svg";
+export { ReactComponent as GoogleSheetsIcon } from "./v1/icon-query-GoogleSheets.svg";
+export { ReactComponent as GraphqlIcon } from "./v1/icon-query-Graphql.svg";
+export { ReactComponent as SnowflakeIcon } from "./v1/icon-query-snowflake.svg";
+export { ReactComponent as MariaDBIcon } from "./v1/icon-query-MariaDB.svg";
 
 // Data Queries
-export const DataResponderIcon = React.lazy(() => import("./v1/icon-query-data-responder.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RestApiIcon = React.lazy(() => import("./v1/icon-query-API.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DeleteApiIcon = React.lazy(() => import("./v1/icon-query-delete.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GetApiIcon = React.lazy(() => import("./v1/icon-query-get.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PatchApiIcon = React.lazy(() => import("./v1/icon-query-patch.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PostApiIcon = React.lazy(() => import("./v1/icon-query-post.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PutApiIcon = React.lazy(() => import("./v1/icon-query-put.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const OptionsApiIcon = React.lazy(() => import("./v1/icon-query-options.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HeadApiIcon = React.lazy(() => import("./v1/icon-query-head.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TraceApiIcon = React.lazy(() => import("./v1/icon-query-trace.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JSIcon = React.lazy(() => import("./v1/icon-query-JS.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LowcoderQueryIcon = React.lazy(() => import("./v1/icon-query-lowcoder.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const EsIcon = React.lazy(() => import("./v1/icon-query-ElasticSearch.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as DataResponderIcon } from "./v1/icon-query-data-responder.svg";
+export { ReactComponent as RestApiIcon } from "./v1/icon-query-API.svg";
+export { ReactComponent as DeleteApiIcon } from "./v1/icon-query-delete.svg";
+export { ReactComponent as GetApiIcon } from "./v1/icon-query-get.svg";
+export { ReactComponent as PatchApiIcon } from "./v1/icon-query-patch.svg";
+export { ReactComponent as PostApiIcon } from "./v1/icon-query-post.svg";
+export { ReactComponent as PutApiIcon } from "./v1/icon-query-put.svg";
+export { ReactComponent as OptionsApiIcon } from "./v1/icon-query-options.svg";
+export { ReactComponent as HeadApiIcon } from "./v1/icon-query-head.svg";
+export { ReactComponent as TraceApiIcon } from "./v1/icon-query-trace.svg";
+export { ReactComponent as JSIcon } from "./v1/icon-query-JS.svg";
+export { ReactComponent as LowcoderQueryIcon } from "./v1/icon-query-lowcoder.svg";
+export { ReactComponent as EsIcon } from "./v1/icon-query-ElasticSearch.svg";
 
-export const ResetIcon = React.lazy(() => import("./v1/icon-style-reset.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const EditIcon = React.lazy(() => import("./v1/icon-edit.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const EditableIcon = React.lazy(() => import("./v1/icon-editable.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftStateIcon = React.lazy(() => import("./remix/node-tree.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const StarSmileIcon = React.lazy(() => import("./remix/star-smile-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Timer2Icon = React.lazy(() => import("./remix/timer-2-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimerFlashIcon = React.lazy(() => import("./remix/timer-flash-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RefreshLineIcon = React.lazy(() => import("./remix/refresh-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftSettingIcon = React.lazy(() => import("./remix/tools-fill.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftLayersIcon = React.lazy(() => import("./remix/stack-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftHelpIcon = React.lazy(() => import("./v1/icon-left-help.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftPreloadIcon = React.lazy(() => import("./v1/icon-left-preload.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as ResetIcon } from "./v1/icon-style-reset.svg";
+export { ReactComponent as EditIcon } from "./v1/icon-edit.svg";
+export { ReactComponent as EditableIcon } from "./v1/icon-editable.svg";
+export { ReactComponent as LeftStateIcon } from "./remix/node-tree.svg";
+export {ReactComponent as StarSmileIcon} from "./remix/star-smile-line.svg";
+export {ReactComponent as Timer2Icon} from "./remix/timer-2-line.svg";
+export {ReactComponent as TimerFlashIcon} from "./remix/timer-flash-line.svg";
+export {ReactComponent as RefreshLineIcon} from "./remix/refresh-line.svg";
+export { ReactComponent as LeftSettingIcon } from "./remix/tools-fill.svg";
+export { ReactComponent as LeftLayersIcon } from "./remix/stack-line.svg";
+export { ReactComponent as LeftHelpIcon } from "./v1/icon-left-help.svg";
+export { ReactComponent as LeftPreloadIcon } from "./v1/icon-left-preload.svg";
 
 
-export const HomeSettingsIcon = React.lazy(() => import("./v1/icon-home-settings.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeSettingsActiveIcon = React.lazy(() => import("./v1/icon-home-settings-active.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HelpGithubIcon = React.lazy(() => import("./v1/icon-help-github.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HelpDiscordIcon = React.lazy(() => import("./v1/icon-help-discord.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftOpen = React.lazy(() => import("./v1/icon-left-comp-open.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftClose = React.lazy(() => import("./v1/icon-left-comp-close.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MaterialUploadIcon = React.lazy(() => import("./v1/icon-material-upload.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UndoIcon = React.lazy(() => import("./v1/icon-undo.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as HomeSettingsIcon } from "./v1/icon-home-settings.svg";
+export { ReactComponent as HomeSettingsActiveIcon } from "./v1/icon-home-settings-active.svg";
+export { ReactComponent as HelpGithubIcon } from "./v1/icon-help-github.svg";
+export { ReactComponent as HelpDiscordIcon } from "./v1/icon-help-discord.svg";
+export { ReactComponent as LeftOpen } from "./v1/icon-left-comp-open.svg";
+export { ReactComponent as LeftClose } from "./v1/icon-left-comp-close.svg";
+export { ReactComponent as MaterialUploadIcon } from "./v1/icon-material-upload.svg";
+export { ReactComponent as UndoIcon } from "./v1/icon-undo.svg";
 
-export const ManualIcon = React.lazy(() => import("./v1/icon-manual.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const WarnIcon = React.lazy(() => import("./v1/icon-warn.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SyncManualIcon = React.lazy(() => import("./v1/icon-sync-manual.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DangerIcon = React.lazy(() => import("./v1/icon-danger.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableMinusIcon = React.lazy(() => import("./v1/icon-table-minus.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TablePlusIcon = React.lazy(() => import("./v1/icon-table-plus.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MobileAppIcon = React.lazy(() => import("./v1/icon-mobile-app.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MobileNavIcon = React.lazy(() => import("./v1/icon-navigation-mobile.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PcNavIcon = React.lazy(() => import("./v1/icon-navigation-pc.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UnLockIcon = React.lazy(() => import("./v1/icon-unlock.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CalendarDeleteIcon = React.lazy(() => import("./v1/icon-calendar-delete.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableCheckedIcon = React.lazy(() => import("./v1/icon-table-checked.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableUnCheckedIcon = React.lazy(() => import("./v1/icon-table-boolean-false.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FileFolderIcon = React.lazy(() => import("./v1/icon-editor-folder.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ExpandIcon = React.lazy(() => import("./v1/icon-expand.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CompressIcon = React.lazy(() => import("./v1/icon-compress.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableCellsIcon = React.lazy(() => import("./v1/icon-table-cells.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableColumnVisibilityIcon = React.lazy(() => import("./remix/layout-column-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as ManualIcon } from "./v1/icon-manual.svg";
+export { ReactComponent as WarnIcon } from "./v1/icon-warn.svg";
+export { ReactComponent as SyncManualIcon } from "./v1/icon-sync-manual.svg";
+export { ReactComponent as DangerIcon } from "./v1/icon-danger.svg";
+export { ReactComponent as TableMinusIcon } from "./v1/icon-table-minus.svg";
+export { ReactComponent as TablePlusIcon } from "./v1/icon-table-plus.svg";
+export { ReactComponent as MobileAppIcon } from "./v1/icon-mobile-app.svg";
+export { ReactComponent as MobileNavIcon } from "./v1/icon-navigation-mobile.svg";
+export { ReactComponent as PcNavIcon } from "./v1/icon-navigation-pc.svg";
+export { ReactComponent as UnLockIcon } from "./v1/icon-unlock.svg";
+export { ReactComponent as CalendarDeleteIcon } from "./v1/icon-calendar-delete.svg";
+export { ReactComponent as TableCheckedIcon } from "./v1/icon-table-checked.svg";
+export { ReactComponent as TableUnCheckedIcon } from "./v1/icon-table-boolean-false.svg";
+export { ReactComponent as FileFolderIcon } from "./v1/icon-editor-folder.svg";
+export { ReactComponent as ExpandIcon } from "./v1/icon-expand.svg";
+export { ReactComponent as CompressIcon } from "./v1/icon-compress.svg";
+export { ReactComponent as TableCellsIcon } from "./v1/icon-table-cells.svg";
+export { ReactComponent as TableColumnVisibilityIcon } from "./remix/layout-column-line.svg";
 
 // Style Props
-export const WidthIcon = React.lazy(() => import("./v1/icon-width.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextSizeIcon = React.lazy(() => import("./remix/font-size.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextTransformationIcon = React.lazy(() => import("./remix/font-size-2.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FontFamilyIcon = React.lazy(() => import("./remix/font-sans-serif.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextWeightIcon = React.lazy(() => import("./remix/bold.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextDecorationIcon = React.lazy(() => import("./remix/underline.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextStyleIcon = React.lazy(() => import("./remix/italic.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const BorderWidthIcon = React.lazy(() => import("./remix/space.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const BorderStyleIcon = React.lazy(() => import("./remix/separator.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RotationIcon = React.lazy(() => import("./remix/clockwise-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const BorderRadiusIcon = React.lazy(() => import("./remix/rounded-corner.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as WidthIcon } from "./v1/icon-width.svg";
+export { ReactComponent as TextSizeIcon } from "./remix/font-size.svg";
+export { ReactComponent as TextTransformationIcon } from "./remix/font-size-2.svg";
+export { ReactComponent as FontFamilyIcon } from "./remix/font-sans-serif.svg";
+export { ReactComponent as TextWeightIcon } from "./remix/bold.svg";
+export { ReactComponent as TextDecorationIcon } from "./remix/underline.svg";
+export { ReactComponent as TextStyleIcon } from "./remix/italic.svg";
+export { ReactComponent as BorderWidthIcon } from "./remix/space.svg";
+export { ReactComponent as BorderStyleIcon } from "./remix/separator.svg";
+export { ReactComponent as RotationIcon } from "./remix/clockwise-line.svg";
+export { ReactComponent as BorderRadiusIcon } from "./remix/rounded-corner.svg";
 
 // Falk: TODO
-export const ShadowIcon = React.lazy(() => import("./remix/shadow-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const OpacityIcon = React.lazy(() => import("./remix/contrast-drop-2-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AnimationIcon = React.lazy(() => import("./remix/loader-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LineHeightIcon = React.lazy(() => import("./remix/line-height.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as ShadowIcon } from "./remix/shadow-line.svg";
+export { ReactComponent as OpacityIcon } from "./remix/contrast-drop-2-line.svg";
+export { ReactComponent as AnimationIcon } from "./remix/loader-line.svg";
+export { ReactComponent as LineHeightIcon } from "./remix/line-height.svg";
 
 
-export const LeftInfoLine = React.lazy(() => import("./remix/information-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftInfoFill = React.lazy(() => import("./remix/information-fill.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftShow = React.lazy(() => import("./remix/eye-off-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftHide = React.lazy(() => import("./remix/eye-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftLock = React.lazy(() => import("./remix/lock-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LeftUnlock = React.lazy(() => import("./remix/lock-unlock-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UserGroupIcon = React.lazy(() => import("./remix/group-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UserIcon = React.lazy(() => import("./remix/user-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UserAddIcon = React.lazy(() => import("./remix/user-add-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UserDeleteIcon = React.lazy(() => import("./remix/user-unfollow-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UserShieldIcon = React.lazy(() => import("./remix/shield-user-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ThemeIcon = React.lazy(() => import("./remix/palette-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AppsIcon = React.lazy(() => import("./remix/apps-2-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const WorkspacesIcon = React.lazy(() => import("./remix/hotel-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as LeftInfoLine } from "./remix/information-line.svg";
+export { ReactComponent as LeftInfoFill } from "./remix/information-fill.svg";
+export { ReactComponent as LeftShow } from "./remix/eye-off-line.svg";
+export { ReactComponent as LeftHide } from "./remix/eye-line.svg";
+export { ReactComponent as LeftLock } from "./remix/lock-line.svg";
+export { ReactComponent as LeftUnlock } from "./remix/lock-unlock-line.svg";
+export { ReactComponent as UserGroupIcon } from "./remix/group-line.svg";
+export { ReactComponent as UserIcon } from "./remix/user-line.svg";
+export { ReactComponent as UserAddIcon } from "./remix/user-add-line.svg";
+export { ReactComponent as UserDeleteIcon } from "./remix/user-unfollow-line.svg";
+export { ReactComponent as UserShieldIcon } from "./remix/shield-user-line.svg";
+export { ReactComponent as ThemeIcon } from "./remix/palette-line.svg";
+export { ReactComponent as AppsIcon } from "./remix/apps-2-line.svg";
+export { ReactComponent as WorkspacesIcon } from "./remix/hotel-line.svg";
 
-export const HomeIcon = React.lazy(() => import("./remix/home-3-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NewsIcon = React.lazy(() => import("./remix/megaphone-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeModuleIcon = React.lazy(() => import("./remix/focus-mode.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeQueryLibraryIcon = React.lazy(() => import("./remix/braces-line.svg").then(module => ({ default : (props: any) => <module.ReactComponent {...props} /> })));
-export const HomeDataSourceIcon = React.lazy(() => import("./remix/database-2-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RecyclerIcon = React.lazy(() => import("./remix/delete-bin-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MarketplaceIcon = React.lazy(() => import("./v1/icon-application-marketplace.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FavoritesIcon = React.lazy(() => import("./v1/icon-application-favorites.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HomeSettingIcon = React.lazy(() => import("./remix/settings-4-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const EnterpriseIcon = React.lazy(() => import("./remix/earth-line.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as HomeIcon } from "./remix/home-3-line.svg";
+export { ReactComponent as NewsIcon } from "./remix/megaphone-line.svg";
+export { ReactComponent as HomeModuleIcon } from "./remix/focus-mode.svg";
+export { ReactComponent as HomeQueryLibraryIcon } from "./remix/braces-line.svg";
+export { ReactComponent as HomeDataSourceIcon } from "./remix/database-2-line.svg";
+export { ReactComponent as RecyclerIcon } from "./remix/delete-bin-line.svg";
+export { ReactComponent as MarketplaceIcon } from "./v1/icon-application-marketplace.svg";
+export { ReactComponent as FavoritesIcon } from "./v1/icon-application-favorites.svg";
+export { ReactComponent as HomeSettingIcon } from "./remix/settings-4-line.svg";
+export { ReactComponent as EnterpriseIcon } from "./remix/earth-line.svg";
 
 
 // components
 
 // small
-export const LeftCommon = React.lazy(() => import("./v1/icon-left-comp-common.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // generic
+export { ReactComponent as LeftCommon } from "./v1/icon-left-comp-common.svg"; // generic
 
-export const AvatarCompIconSmall = React.lazy(() => import("./v2/avatar-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AvatarGroupCompIconSmall = React.lazy(() => import("./v2/avatargroup-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AudioCompIconSmall = React.lazy(() => import("./v2/audio-player-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AutoCompleteCompIconSmall = React.lazy(() => import("./v2/auto-complete-input-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ButtonCompIconSmall = React.lazy(() => import("./v2/button-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconButtonCompIconSmall = React.lazy(() => import("./v2/icon-button-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const CardCompIconSmall = React.lazy(() => import("./v2/card-layout-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CalendarCompIconSmall = React.lazy(() => import("./v2/calendar-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CascaderCompIconSmall = React.lazy(() => import("./v2/cascader-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CarouselCompIconSmall = React.lazy(() => import("./v2/image-carousel-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ChartCompIconSmall = React.lazy(() => import("./v2/pie-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CheckboxCompIconSmall = React.lazy(() => import("./v2/checkbox-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ColorPickerCompIconSmall = React.lazy(() => import("./v2/colorpicker-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const CollapsibleContainerCompIconSmall = React.lazy(() => import("./v2/collapsible-container-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ColumnLayoutCompIconSmall = React.lazy(() => import("./v2/column-layout-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const CommentCompIconSmall = React.lazy(() => import("./v2/comment-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ContainerCompIconSmall = React.lazy(() => import("./v2/container-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CustomCompIconSmall = React.lazy(() => import("./v2/custom-code-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const DateCompIconSmall = React.lazy(() => import("./v2/date-select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DateRangeCompIconSmall = React.lazy(() => import("./v2/date-range-select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const DividerCompIconSmall = React.lazy(() => import("./v2/divider-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DrawerCompIconSmall = React.lazy(() => import("./v2/drawer-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DropdownCompIconSmall = React.lazy(() => import("./v2/dropdown-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const UploadCompIconSmall = React.lazy(() => import("./v2/file-upload-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FileViewerCompIconSmall = React.lazy(() => import("./v2/file-viewer-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FloatingButtonCompIconSmall = React.lazy(() => import("./v2/floating-button-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const FloatingTextCompIconSmall = React.lazy(() => import("./v2/floating-text-layout-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const FormCompIconSmall = React.lazy(() => import("./v2/form-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GridCompIconSmall = React.lazy(() => import("./v2/grid-view-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const IconCompIconSmall = React.lazy(() => import("./v2/icon-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const IFrameCompIconSmall = React.lazy(() => import("./v2/iframe-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImageEditorCompIconSmall = React.lazy(() => import("./v2/image-editor-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ImageCompIconSmall = React.lazy(() => import("./v2/image-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const InputCompIconSmall = React.lazy(() => import("./v2/input-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsonEditorCompIconSmall = React.lazy(() => import("./v2/json-editor-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsonExplorerCompIconSmall = React.lazy(() => import("./v2/json-viewer-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const JsonFormCompIconSmall = React.lazy(() => import("./v2/json-schema-form-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const PageLayoutCompIconSmall = React.lazy(() => import("./v2/page-layout-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const LinkCompIconSmall = React.lazy(() => import("./v2/link-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ListViewCompIconSmall = React.lazy(() => import("./v2/list-view-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LottieAnimationCompIconSmall = React.lazy(() => import("./v2/lottie-animation-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const MentionCompIconSmall = React.lazy(() => import("./v2/mention-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const MermaidCompIconSmall = React.lazy(() => import("./v2/mermaid-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ModalCompIconSmall = React.lazy(() => import("./v2/modal-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ModuleIconSmall = React.lazy(() => import("./v2/module-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MultiSelectCompIconSmall = React.lazy(() => import("./v2/multiselect-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const NavComIconSmall = React.lazy(() => import("./v2/navigation-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NumberInputCompIconSmall = React.lazy(() => import("./v2/number-input-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PasswordCompIconSmall = React.lazy(() => import("./v2/password-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ProgressCompIconSmall = React.lazy(() => import("./v2/progress-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ProcessCircleCompIconSmall = React.lazy(() => import("./v2/progress-circle-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const QRCodeCompIconSmall = React.lazy(() => import("./v2/qr-code-display-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RadioCompIconSmall = React.lazy(() => import("./v2/radio-button-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RangeSliderCompIconSmall = React.lazy(() => import("./v2/range-slider-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const RatingCompIconSmall = React.lazy(() => import("./v2/rating-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ResponsiveLayoutCompIconSmall = React.lazy(() => import("./v2/resposive-layout-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const RichTextEditorCompIconSmall = React.lazy(() => import("./v2/rich-text-editor-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ScannerCompIconSmall = React.lazy(() => import("./v2/scanner-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));    // new
-export const ShapesCompIconSmall = React.lazy(() => import("./v2/shapes-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const SegmentedCompIconSmall = React.lazy(() => import("./v2/segmented-control-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SelectCompIconSmall = React.lazy(() => import("./v2/select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SliderCompIconSmall = React.lazy(() => import("./v2/slider-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-// export const StepsTextIconSmall = React.lazy(() => import("./v1/icon-steps-comp.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const SwitchCompIconSmall = React.lazy(() => import("./v2/switch-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TabbedContainerCompIconSmall = React.lazy(() => import("./v2/tabbed-container-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TableCompIconSmall = React.lazy(() => import("./v2/table-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextAreaCompIconSmall = React.lazy(() => import("./v2/text-area-input-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TextCompIconSmall = React.lazy(() => import("./v2/text-display-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimeCompIconSmall = React.lazy(() => import("./v2/time-select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimeLineCompIconSmall = React.lazy(() => import("./v2/timeline-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TimeRangeCompIconSmall = React.lazy(() => import("./v2/time-range-select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ToggleButtonCompIconSmall = React.lazy(() => import("./v2/toggle-button-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TourCompIconSmall = React.lazy(() => import("./v2/modal-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TransferCompIconSmall = React.lazy(() => import("./v2/transfer-list-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TreeDisplayCompIconSmall = React.lazy(() => import("./v2/tree-display-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreeSelectCompIconSmall = React.lazy(() => import("./v2/tree-select-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const VideoCompIconSmall = React.lazy(() => import("./v2/video-player-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoMeetingRoomCompIconSmall = React.lazy(() => import("./v2/meeting-room-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoCameraStreamCompIconSmall = React.lazy(() => import("./v2/camera-stream-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));    // new
-export const VideoScreenshareCompIconSmall = React.lazy(() => import("./v2/screen-share-stream-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const SignatureCompIconSmall = React.lazy(() => import("./v2/signature-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const StepCompIconSmall = React.lazy(() => import("./v2/steps-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const KanbanCompIconSmall = React.lazy(() => import("./v2/kanban-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
+export { ReactComponent as AvatarCompIconSmall } from "./v2/avatar-s.svg";
+export { ReactComponent as AvatarGroupCompIconSmall } from "./v2/avatargroup-s.svg";
+export { ReactComponent as AudioCompIconSmall } from "./v2/audio-player-s.svg";
+export { ReactComponent as AutoCompleteCompIconSmall } from "./v2/auto-complete-input-s.svg"; // new
+export { ReactComponent as ButtonCompIconSmall } from "./v2/button-s.svg";
+export { ReactComponent as IconButtonCompIconSmall } from "./v2/icon-button-s.svg"; // new
+export { ReactComponent as CardCompIconSmall } from "./v2/card-layout-s.svg";
+export { ReactComponent as CalendarCompIconSmall } from "./v2/calendar-s.svg";
+export { ReactComponent as CascaderCompIconSmall } from "./v2/cascader-s.svg";
+export { ReactComponent as CarouselCompIconSmall } from "./v2/image-carousel-s.svg"; // new
+export { ReactComponent as ChartCompIconSmall } from "./v2/pie-chart-s.svg";
+export { ReactComponent as CheckboxCompIconSmall } from "./v2/checkbox-s.svg";
+export { ReactComponent as ColorPickerCompIconSmall } from "./v2/colorpicker-s.svg"; // new
+export { ReactComponent as CollapsibleContainerCompIconSmall } from "./v2/collapsible-container-s.svg"; // new
+export { ReactComponent as ColumnLayoutCompIconSmall } from "./v2/column-layout-s.svg"; // new
+export { ReactComponent as CommentCompIconSmall } from "./v2/comment-s.svg";
+export { ReactComponent as ContainerCompIconSmall } from "./v2/container-s.svg";
+export { ReactComponent as CustomCompIconSmall } from "./v2/custom-code-s.svg"; // new
+export { ReactComponent as DateCompIconSmall } from "./v2/date-select-s.svg";
+export { ReactComponent as DateRangeCompIconSmall } from "./v2/date-range-select-s.svg"; // new
+export { ReactComponent as DividerCompIconSmall } from "./v2/divider-s.svg";
+export { ReactComponent as DrawerCompIconSmall } from "./v2/drawer-s.svg";
+export { ReactComponent as DropdownCompIconSmall } from "./v2/dropdown-s.svg"; // new
+export { ReactComponent as UploadCompIconSmall } from "./v2/file-upload-s.svg";
+export { ReactComponent as FileViewerCompIconSmall } from "./v2/file-viewer-s.svg";
+export { ReactComponent as FloatingButtonCompIconSmall } from "./v2/floating-button-s.svg"; // new
+export { ReactComponent as FloatingTextCompIconSmall } from "./v2/floating-text-layout-s.svg"; // new
+export { ReactComponent as FormCompIconSmall } from "./v2/form-s.svg";
+export { ReactComponent as GridCompIconSmall } from "./v2/grid-view-s.svg"; // new
+export { ReactComponent as IconCompIconSmall } from "./v2/icon-s.svg"; // new
+export { ReactComponent as IFrameCompIconSmall } from "./v2/iframe-s.svg";
+export { ReactComponent as ImageEditorCompIconSmall } from "./v2/image-editor-s.svg"; // new
+export { ReactComponent as ImageCompIconSmall } from "./v2/image-s.svg";
+export { ReactComponent as InputCompIconSmall } from "./v2/input-s.svg";
+export { ReactComponent as JsonEditorCompIconSmall } from "./v2/json-editor-s.svg";
+export { ReactComponent as JsonExplorerCompIconSmall } from "./v2/json-viewer-s.svg"; // new
+export { ReactComponent as JsonFormCompIconSmall } from "./v2/json-schema-form-s.svg"; // new
+export { ReactComponent as PageLayoutCompIconSmall } from "./v2/page-layout-s.svg"; // new
+export { ReactComponent as LinkCompIconSmall } from "./v2/link-s.svg";
+export { ReactComponent as ListViewCompIconSmall } from "./v2/list-view-s.svg";
+export { ReactComponent as LottieAnimationCompIconSmall } from "./v2/lottie-animation-s.svg"; // new
+export { ReactComponent as MentionCompIconSmall } from "./v2/mention-s.svg"; // new
+export { ReactComponent as MermaidCompIconSmall } from "./v2/mermaid-chart-s.svg"; // new
+export { ReactComponent as ModalCompIconSmall } from "./v2/modal-s.svg";
+export { ReactComponent as ModuleIconSmall } from "./v2/module-s.svg";
+export { ReactComponent as MultiSelectCompIconSmall } from "./v2/multiselect-s.svg"; // new
+export { ReactComponent as NavComIconSmall } from "./v2/navigation-s.svg";
+export { ReactComponent as NumberInputCompIconSmall } from "./v2/number-input-s.svg";
+export { ReactComponent as PasswordCompIconSmall } from "./v2/password-s.svg";
+export { ReactComponent as ProgressCompIconSmall } from "./v2/progress-s.svg";
+export { ReactComponent as ProcessCircleCompIconSmall } from "./v2/progress-circle-s.svg"; // new
+export { ReactComponent as QRCodeCompIconSmall } from "./v2/qr-code-display-s.svg";
+export { ReactComponent as RadioCompIconSmall } from "./v2/radio-button-s.svg";
+export { ReactComponent as RangeSliderCompIconSmall } from "./v2/range-slider-s.svg"; // new
+export { ReactComponent as RatingCompIconSmall } from "./v2/rating-s.svg";
+export { ReactComponent as ResponsiveLayoutCompIconSmall } from "./v2/resposive-layout-s.svg"; // new
+export { ReactComponent as RichTextEditorCompIconSmall } from "./v2/rich-text-editor-s.svg"; // new
+export { ReactComponent as ScannerCompIconSmall } from "./v2/scanner-s.svg";    // new
+export { ReactComponent as ShapesCompIconSmall } from "./v2/shapes-s.svg"; // new
+export { ReactComponent as SegmentedCompIconSmall } from "./v2/segmented-control-s.svg";
+export { ReactComponent as SelectCompIconSmall } from "./v2/select-s.svg";
+export { ReactComponent as SliderCompIconSmall } from "./v2/slider-s.svg";
+// export { ReactComponent as StepsTextIconSmall } from "./v1/icon-steps-comp.svg"; // new
+export { ReactComponent as SwitchCompIconSmall } from "./v2/switch-s.svg";
+export { ReactComponent as TabbedContainerCompIconSmall } from "./v2/tabbed-container-s.svg"; // new
+export { ReactComponent as TableCompIconSmall } from "./v2/table-s.svg";
+export { ReactComponent as TextAreaCompIconSmall } from "./v2/text-area-input-s.svg"; // new
+export { ReactComponent as TextCompIconSmall } from "./v2/text-display-s.svg";
+export { ReactComponent as TimeCompIconSmall } from "./v2/time-select-s.svg";
+export { ReactComponent as TimeLineCompIconSmall } from "./v2/timeline-s.svg"; // new
+export { ReactComponent as TimeRangeCompIconSmall } from "./v2/time-range-select-s.svg"; // new
+export { ReactComponent as ToggleButtonCompIconSmall } from "./v2/toggle-button-s.svg"; // new
+export { ReactComponent as TourCompIconSmall } from "./v2/modal-s.svg"; // new
+export { ReactComponent as TransferCompIconSmall } from "./v2/transfer-list-s.svg"; // new
+export { ReactComponent as TreeDisplayCompIconSmall } from "./v2/tree-display-s.svg";
+export { ReactComponent as TreeSelectCompIconSmall } from "./v2/tree-select-s.svg"; // new
+export { ReactComponent as VideoCompIconSmall } from "./v2/video-player-s.svg";
+export { ReactComponent as VideoMeetingRoomCompIconSmall } from "./v2/meeting-room-s.svg";
+export { ReactComponent as VideoCameraStreamCompIconSmall } from "./v2/camera-stream-s.svg";    // new
+export { ReactComponent as VideoScreenshareCompIconSmall } from "./v2/screen-share-stream-s.svg"; // new
+export { ReactComponent as SignatureCompIconSmall } from "./v2/signature-s.svg";
+export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg";
 
-export const CandlestickChartCompIconSmall = React.lazy(() => import("./v2/candlestick-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const FunnelChartCompIconSmall = React.lazy(() => import("./v2/funnel-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const GaugeChartCompIconSmall = React.lazy(() => import("./v2/gauge-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const GraphChartCompIconSmall = React.lazy(() => import("./v2/graph-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const HeatmapChartCompIconSmall = React.lazy(() => import("./v2/heatmap-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const RadarChartCompIconSmall = React.lazy(() => import("./v2/radar-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const SankeyChartCompIconSmall = React.lazy(() => import("./v2/sankey-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const SunburstChartCompIconSmall = React.lazy(() => import("./v2/sunburst-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const ThemeriverChartCompIconSmall = React.lazy(() => import("./v2/themeriver-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TreeChartCompIconSmall = React.lazy(() => import("./v2/tree-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TreemapChartCompIconSmall = React.lazy(() => import("./v2/treemap-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const BPMNEditorCompIconSmall = React.lazy(() => import("./v2/bpmn-editor-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const GeoMapChartsCompIconSmall = React.lazy(() => import("./v2/geomap-charts-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const GeoMapLayersCompIconSmall = React.lazy(() => import("./v2/geomap-layers-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const HillchartCompIconSmall = React.lazy(() => import("./v2/hillchart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const PivotTableCompIconSmall = React.lazy(() => import("./v2/pivot-table-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const TurnstileCaptchaCompIconSmall = React.lazy(() => import("./v2/turnstile-captcha-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
-export const GanttCompIconSmall = React.lazy(() => import("./v2/gantt-chart-s.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // new
+export { ReactComponent as CandlestickChartCompIconSmall } from "./v2/candlestick-chart-s.svg"; // new
+export { ReactComponent as FunnelChartCompIconSmall } from "./v2/funnel-chart-s.svg"; // new
+export { ReactComponent as GaugeChartCompIconSmall } from "./v2/gauge-chart-s.svg"; // new
+export { ReactComponent as GraphChartCompIconSmall } from "./v2/graph-chart-s.svg"; // new
+export { ReactComponent as HeatmapChartCompIconSmall } from "./v2/heatmap-chart-s.svg"; // new
+export { ReactComponent as RadarChartCompIconSmall } from "./v2/radar-chart-s.svg"; // new
+export { ReactComponent as SankeyChartCompIconSmall } from "./v2/sankey-chart-s.svg"; // new
+export { ReactComponent as SunburstChartCompIconSmall } from "./v2/sunburst-chart-s.svg"; // new
+export { ReactComponent as ThemeriverChartCompIconSmall } from "./v2/themeriver-chart-s.svg"; // new
+export { ReactComponent as TreeChartCompIconSmall } from "./v2/tree-chart-s.svg"; // new
+export { ReactComponent as TreemapChartCompIconSmall } from "./v2/treemap-chart-s.svg"; // new
+export { ReactComponent as BPMNEditorCompIconSmall } from "./v2/bpmn-editor-s.svg"; // new
+export { ReactComponent as GeoMapChartsCompIconSmall } from "./v2/geomap-charts-s.svg"; // new
+export { ReactComponent as GeoMapLayersCompIconSmall } from "./v2/geomap-layers-s.svg"; // new
+export { ReactComponent as HillchartCompIconSmall } from "./v2/hillchart-s.svg"; // new
+export { ReactComponent as PivotTableCompIconSmall } from "./v2/pivot-table-s.svg"; // new
+export { ReactComponent as TurnstileCaptchaCompIconSmall } from "./v2/turnstile-captcha-s.svg"; // new
+export { ReactComponent as GanttCompIconSmall } from "./v2/gantt-chart-s.svg"; // new
 
 
 // medium
-export const AudioCompIcon = React.lazy(() => import("./v2/audio-player-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AutoCompleteCompIcon = React.lazy(() => import("./v2/auto-complete-input-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AvatarCompIcon = React.lazy(() => import("./v2/avatar-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ButtonCompIcon = React.lazy(() => import("./v2/button-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const AvatarGroupCompIcon = React.lazy(() => import("./v2/avatargroup-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconButtonCompIcon = React.lazy(() => import("./v2/icon-button-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CalendarCompIcon = React.lazy(() => import("./v2/calendar-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CardCompIcon = React.lazy(() => import("./v2/card-layout-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CarouselCompIcon = React.lazy(() => import("./v2/image-carousel-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CascaderCompIcon = React.lazy(() => import("./v2/cascader-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ChartCompIcon = React.lazy(() => import("./v2/pie-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CheckboxCompIcon = React.lazy(() => import("./v2/checkbox-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CollapsibleContainerCompIcon = React.lazy(() => import("./v2/collapsible-container-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ColumnLayoutCompIcon = React.lazy(() => import("./v2/column-layout-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CommentCompIcon = React.lazy(() => import("./v2/comment-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ColorPickerCompIcon = React.lazy(() => import("./v2/colorpicker-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ContainerCompIcon = React.lazy(() => import("./v2/container-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const CustomCompIcon = React.lazy(() => import("./v2/custom-code-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DateCompIcon = React.lazy(() => import("./v2/date-select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DateRangeCompIcon = React.lazy(() => import("./v2/date-range-select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DividerCompIcon = React.lazy(() => import("./v2/divider-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DrawerCompIcon = React.lazy(() => import("./v2/drawer-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const DropdownCompIcon = React.lazy(() => import("./v2/dropdown-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FileViewerCompIcon = React.lazy(() => import("./v2/file-viewer-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FloatingButtonCompIcon = React.lazy(() => import("./v2/floating-button-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FloatingTextCompIcon = React.lazy(() => import("./v2/floating-text-layout-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FormCompIcon = React.lazy(() => import("./v2/form-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GridCompIcon = React.lazy(() => import("./v2/grid-view-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IconCompIcon = React.lazy(() => import("./v2/icon-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const IFrameCompIcon = React.lazy(() => import("./v2/iframe-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImageEditorCompIcon = React.lazy(() => import("./v2/image-editor-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ImageCompIcon = React.lazy(() => import("./v2/image-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const InputCompIcon = React.lazy(() => import("./v2/input-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsonEditorCompIcon = React.lazy(() => import("./v2/json-editor-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsonExplorerCompIcon = React.lazy(() => import("./v2/json-viewer-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const JsonFormCompIcon = React.lazy(() => import("./v2/json-schema-form-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PageLayoutCompIcon = React.lazy(() => import("./v2/page-layout-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LinkCompIcon = React.lazy(() => import("./v2/link-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ListViewCompIcon = React.lazy(() => import("./v2/list-view-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const LottieAnimationCompIcon = React.lazy(() => import("./v2/lottie-animation-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MentionCompIcon = React.lazy(() => import("./v2/mention-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MermaidCompIcon = React.lazy(() => import("./v2/mermaid-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ModalCompIcon = React.lazy(() => import("./v2/modal-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const MultiSelectCompIcon = React.lazy(() => import("./v2/multiselect-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NavComIcon = React.lazy(() => import("./v2/navigation-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const NumberInputCompIcon = React.lazy(() => import("./v2/number-input-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PasswordCompIcon = React.lazy(() => import("./v2/password-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ProcessCircleCompIcon = React.lazy(() => import("./v2/progress-circle-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ProgressCompIcon = React.lazy(() => import("./v2/progress-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const QRCodeCompIcon = React.lazy(() => import("./v2/qr-code-display-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RadioCompIcon = React.lazy(() => import("./v2/radio-button-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RangeSliderCompIcon = React.lazy(() => import("./v2/range-slider-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RatingCompIcon = React.lazy(() => import("./v2/rating-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ResponsiveLayoutCompIcon = React.lazy(() => import("./v2/resposive-layout-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RichTextEditorCompIcon = React.lazy(() => import("./v2/rich-text-editor-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ScannerCompIcon = React.lazy(() => import("./v2/scanner-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ShapesCompIcon = React.lazy(() => import("./v2/shapes-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SegmentedCompIcon = React.lazy(() => import("./v2/segmented-control-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SelectCompIcon = React.lazy(() => import("./v2/select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SliderCompIcon = React.lazy(() => import("./v2/slider-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-// export const StepsTextIcon = React.lazy(() => import("./v1/icon-steps-comp.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))); // to check
-export const SwitchCompIcon = React.lazy(() => import("./v2/switch-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TabbedContainerCompIcon = React.lazy(() => import("./v2/tabbed-container-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TableCompIcon = React.lazy(() => import("./v2/mighty-table-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextAreaCompIcon = React.lazy(() => import("./v2/text-area-input-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TextCompIcon = React.lazy(() => import("./v2/text-display-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimeCompIcon = React.lazy(() => import("./v2/time-select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimerCompIcon = React.lazy(() => import("./v2/timer-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimeLineCompIcon = React.lazy(() => import("./v2/timeline-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TimeRangeCompIcon = React.lazy(() => import("./v2/time-range-select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ToggleButtonCompIcon = React.lazy(() => import("./v2/toggle-button-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TourCompIcon = React.lazy(() => import("./v2/modal-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TransferCompIcon = React.lazy(() => import("./v2/transfer-list-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreeDisplayCompIcon = React.lazy(() => import("./v2/tree-display-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreeSelectCompIcon = React.lazy(() => import("./v2/tree-select-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const UploadCompIcon = React.lazy(() => import("./v2/file-upload-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoCompIcon = React.lazy(() => import("./v2/video-player-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoMeetingRoomCompIcon = React.lazy(() => import("./v2/meeting-room-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoCameraStreamCompIcon = React.lazy(() => import("./v2/camera-stream-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const VideoScreenshareCompIcon = React.lazy(() => import("./v2/screen-share-stream-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const StepCompIcon = React.lazy(() => import("./v2/steps-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SignatureCompIcon = React.lazy(() => import("./v2/signature-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GanttCompIcon = React.lazy(() => import("./v2/gantt-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const KanbanCompIcon = React.lazy(() => import("./v2/kanban-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as AudioCompIcon } from "./v2/audio-player-m.svg";
+export { ReactComponent as AutoCompleteCompIcon } from "./v2/auto-complete-input-m.svg";
+export { ReactComponent as AvatarCompIcon } from "./v2/avatar-m.svg";
+export { ReactComponent as ButtonCompIcon } from "./v2/button-m.svg";
+export { ReactComponent as AvatarGroupCompIcon } from "./v2/avatargroup-m.svg";
+export { ReactComponent as IconButtonCompIcon } from "./v2/icon-button-m.svg";
+export { ReactComponent as CalendarCompIcon } from "./v2/calendar-m.svg";
+export { ReactComponent as CardCompIcon } from "./v2/card-layout-m.svg";
+export { ReactComponent as CarouselCompIcon } from "./v2/image-carousel-m.svg";
+export { ReactComponent as CascaderCompIcon } from "./v2/cascader-m.svg";
+export { ReactComponent as ChartCompIcon } from "./v2/pie-chart-m.svg";
+export { ReactComponent as CheckboxCompIcon } from "./v2/checkbox-m.svg";
+export { ReactComponent as CollapsibleContainerCompIcon } from "./v2/collapsible-container-m.svg";
+export { ReactComponent as ColumnLayoutCompIcon } from "./v2/column-layout-m.svg";
+export { ReactComponent as CommentCompIcon } from "./v2/comment-m.svg";
+export { ReactComponent as ColorPickerCompIcon } from "./v2/colorpicker-m.svg";
+export { ReactComponent as ContainerCompIcon } from "./v2/container-m.svg";
+export { ReactComponent as CustomCompIcon } from "./v2/custom-code-m.svg";
+export { ReactComponent as DateCompIcon } from "./v2/date-select-m.svg";
+export { ReactComponent as DateRangeCompIcon } from "./v2/date-range-select-m.svg";
+export { ReactComponent as DividerCompIcon } from "./v2/divider-m.svg";
+export { ReactComponent as DrawerCompIcon } from "./v2/drawer-m.svg";
+export { ReactComponent as DropdownCompIcon } from "./v2/dropdown-m.svg";
+export { ReactComponent as FileViewerCompIcon } from "./v2/file-viewer-m.svg";
+export { ReactComponent as FloatingButtonCompIcon } from "./v2/floating-button-m.svg";
+export { ReactComponent as FloatingTextCompIcon } from "./v2/floating-text-layout-m.svg";
+export { ReactComponent as FormCompIcon } from "./v2/form-m.svg";
+export { ReactComponent as GridCompIcon } from "./v2/grid-view-m.svg";
+export { ReactComponent as IconCompIcon } from "./v2/icon-m.svg";
+export { ReactComponent as IFrameCompIcon } from "./v2/iframe-m.svg";
+export { ReactComponent as ImageEditorCompIcon } from "./v2/image-editor-m.svg";
+export { ReactComponent as ImageCompIcon } from "./v2/image-m.svg";
+export { ReactComponent as InputCompIcon } from "./v2/input-m.svg";
+export { ReactComponent as JsonEditorCompIcon } from "./v2/json-editor-m.svg";
+export { ReactComponent as JsonExplorerCompIcon } from "./v2/json-viewer-m.svg";
+export { ReactComponent as JsonFormCompIcon } from "./v2/json-schema-form-m.svg";
+export { ReactComponent as PageLayoutCompIcon } from "./v2/page-layout-m.svg";
+export { ReactComponent as LinkCompIcon } from "./v2/link-m.svg";
+export { ReactComponent as ListViewCompIcon } from "./v2/list-view-m.svg";
+export { ReactComponent as LottieAnimationCompIcon } from "./v2/lottie-animation-m.svg";
+export { ReactComponent as MentionCompIcon } from "./v2/mention-m.svg";
+export { ReactComponent as MermaidCompIcon } from "./v2/mermaid-chart-m.svg";
+export { ReactComponent as ModalCompIcon } from "./v2/modal-m.svg";
+export { ReactComponent as MultiSelectCompIcon } from "./v2/multiselect-m.svg";
+export { ReactComponent as NavComIcon } from "./v2/navigation-m.svg";
+export { ReactComponent as NumberInputCompIcon } from "./v2/number-input-m.svg";
+export { ReactComponent as PasswordCompIcon } from "./v2/password-m.svg";
+export { ReactComponent as ProcessCircleCompIcon } from "./v2/progress-circle-m.svg";
+export { ReactComponent as ProgressCompIcon } from "./v2/progress-m.svg";
+export { ReactComponent as QRCodeCompIcon } from "./v2/qr-code-display-m.svg";
+export { ReactComponent as RadioCompIcon } from "./v2/radio-button-m.svg";
+export { ReactComponent as RangeSliderCompIcon } from "./v2/range-slider-m.svg";
+export { ReactComponent as RatingCompIcon } from "./v2/rating-m.svg";
+export { ReactComponent as ResponsiveLayoutCompIcon } from "./v2/resposive-layout-m.svg";
+export { ReactComponent as RichTextEditorCompIcon } from "./v2/rich-text-editor-m.svg";
+export { ReactComponent as ScannerCompIcon } from "./v2/scanner-m.svg";
+export { ReactComponent as ShapesCompIcon } from "./v2/shapes-m.svg";
+export { ReactComponent as SegmentedCompIcon } from "./v2/segmented-control-m.svg";
+export { ReactComponent as SelectCompIcon } from "./v2/select-m.svg";
+export { ReactComponent as SliderCompIcon } from "./v2/slider-m.svg";
+// export { ReactComponent as StepsTextIcon } from "./v1/icon-steps-comp.svg"; // to check
+export { ReactComponent as SwitchCompIcon } from "./v2/switch-m.svg";
+export { ReactComponent as TabbedContainerCompIcon } from "./v2/tabbed-container-m.svg";
+export { ReactComponent as TableCompIcon } from "./v2/mighty-table-m.svg";
+export { ReactComponent as TextAreaCompIcon } from "./v2/text-area-input-m.svg";
+export { ReactComponent as TextCompIcon } from "./v2/text-display-m.svg";
+export { ReactComponent as TimeCompIcon } from "./v2/time-select-m.svg";
+export { ReactComponent as TimerCompIcon } from "./v2/timer-m.svg";
+export { ReactComponent as TimeLineCompIcon } from "./v2/timeline-m.svg";
+export { ReactComponent as TimeRangeCompIcon } from "./v2/time-range-select-m.svg";
+export { ReactComponent as ToggleButtonCompIcon } from "./v2/toggle-button-m.svg";
+export { ReactComponent as TourCompIcon } from "./v2/modal-m.svg";
+export { ReactComponent as TransferCompIcon } from "./v2/transfer-list-m.svg";
+export { ReactComponent as TreeDisplayCompIcon } from "./v2/tree-display-m.svg";
+export { ReactComponent as TreeSelectCompIcon } from "./v2/tree-select-m.svg";
+export { ReactComponent as UploadCompIcon } from "./v2/file-upload-m.svg";
+export { ReactComponent as VideoCompIcon } from "./v2/video-player-m.svg";
+export { ReactComponent as VideoMeetingRoomCompIcon } from "./v2/meeting-room-m.svg";
+export { ReactComponent as VideoCameraStreamCompIcon } from "./v2/camera-stream-m.svg";
+export { ReactComponent as VideoScreenshareCompIcon } from "./v2/screen-share-stream-m.svg";
+export { ReactComponent as StepCompIcon } from "./v2/steps-m.svg";
+export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
+export { ReactComponent as GanttCompIcon } from "./v2/gantt-chart-m.svg";
+export { ReactComponent as KanbanCompIconSmall } from "./v2/kanban-s.svg";
+export { ReactComponent as KanbanCompIcon } from "./v2/kanban-m.svg";
 
-export const CandlestickChartCompIcon = React.lazy(() => import("./v2/candlestick-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const FunnelChartCompIcon = React.lazy(() => import("./v2/funnel-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GaugeChartCompIcon = React.lazy(() => import("./v2/gauge-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GraphChartCompIcon = React.lazy(() => import("./v2/graph-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HeatmapChartCompIcon = React.lazy(() => import("./v2/heatmap-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const RadarChartCompIcon = React.lazy(() => import("./v2/radar-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SankeyChartCompIcon = React.lazy(() => import("./v2/sankey-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const SunburstChartCompIcon = React.lazy(() => import("./v2/sunburst-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const ThemeriverChartCompIcon = React.lazy(() => import("./v2/themeriver-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreeChartCompIcon = React.lazy(() => import("./v2/tree-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TreemapChartCompIcon = React.lazy(() => import("./v2/treemap-chart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as CandlestickChartCompIcon } from "./v2/candlestick-chart-m.svg";
+export { ReactComponent as FunnelChartCompIcon } from "./v2/funnel-chart-m.svg";
+export { ReactComponent as GaugeChartCompIcon } from "./v2/gauge-chart-m.svg";
+export { ReactComponent as GraphChartCompIcon } from "./v2/graph-chart-m.svg";
+export { ReactComponent as HeatmapChartCompIcon } from "./v2/heatmap-chart-m.svg";
+export { ReactComponent as RadarChartCompIcon } from "./v2/radar-chart-m.svg";
+export { ReactComponent as SankeyChartCompIcon } from "./v2/sankey-chart-m.svg";
+export { ReactComponent as SunburstChartCompIcon } from "./v2/sunburst-chart-m.svg";
+export { ReactComponent as ThemeriverChartCompIcon } from "./v2/themeriver-chart-m.svg";
+export { ReactComponent as TreeChartCompIcon } from "./v2/tree-chart-m.svg";
+export { ReactComponent as TreemapChartCompIcon } from "./v2/treemap-chart-m.svg";
 
-export const BPMNEditorCompIcon = React.lazy(() => import("./v2/bpmn-editor-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GeoMapChartsCompIcon = React.lazy(() => import("./v2/geomap-charts-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const GeoMapLayersCompIcon = React.lazy(() => import("./v2/geomap-layers-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const HillchartCompIcon = React.lazy(() => import("./v2/hillchart-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const TurnstileCaptchaCompIcon = React.lazy(() => import("./v2/turnstile-captcha-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const PivotTableCompIcon = React.lazy(() => import("./v2/pivot-table-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as BPMNEditorCompIcon } from "./v2/bpmn-editor-m.svg";
+export { ReactComponent as GeoMapChartsCompIcon } from "./v2/geomap-charts-m.svg";
+export { ReactComponent as GeoMapLayersCompIcon } from "./v2/geomap-layers-m.svg";
+export { ReactComponent as HillchartCompIcon } from "./v2/hillchart-m.svg";
+export { ReactComponent as TurnstileCaptchaCompIcon } from "./v2/turnstile-captcha-m.svg";
+export { ReactComponent as PivotTableCompIcon } from "./v2/pivot-table-m.svg";
 
 // flags
 
-export const Flag_af = React.lazy(() => import('./flags/4x3/af.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ax = React.lazy(() => import('./flags/4x3/ax.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_al = React.lazy(() => import('./flags/4x3/al.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_dz = React.lazy(() => import('./flags/4x3/dz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_as = React.lazy(() => import('./flags/4x3/as.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ad = React.lazy(() => import('./flags/4x3/ad.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ao = React.lazy(() => import('./flags/4x3/ao.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ai = React.lazy(() => import('./flags/4x3/ai.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_aq = React.lazy(() => import('./flags/4x3/aq.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ag = React.lazy(() => import('./flags/4x3/ag.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ar = React.lazy(() => import('./flags/4x3/ar.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_am = React.lazy(() => import('./flags/4x3/am.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_aw = React.lazy(() => import('./flags/4x3/aw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sh_ac = React.lazy(() => import('./flags/4x3/sh-ac.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_au = React.lazy(() => import('./flags/4x3/au.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_at = React.lazy(() => import('./flags/4x3/at.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_az = React.lazy(() => import('./flags/4x3/az.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bs = React.lazy(() => import('./flags/4x3/bs.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bh = React.lazy(() => import('./flags/4x3/bh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bd = React.lazy(() => import('./flags/4x3/bd.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bb = React.lazy(() => import('./flags/4x3/bb.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_by = React.lazy(() => import('./flags/4x3/by.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_be = React.lazy(() => import('./flags/4x3/be.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bz = React.lazy(() => import('./flags/4x3/bz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bj = React.lazy(() => import('./flags/4x3/bj.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bm = React.lazy(() => import('./flags/4x3/bm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bt = React.lazy(() => import('./flags/4x3/bt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bo = React.lazy(() => import('./flags/4x3/bo.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bq = React.lazy(() => import('./flags/4x3/bq.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ba = React.lazy(() => import('./flags/4x3/ba.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bw = React.lazy(() => import('./flags/4x3/bw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bv = React.lazy(() => import('./flags/4x3/bv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_br = React.lazy(() => import('./flags/4x3/br.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_io = React.lazy(() => import('./flags/4x3/io.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bn = React.lazy(() => import('./flags/4x3/bn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bg = React.lazy(() => import('./flags/4x3/bg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bf = React.lazy(() => import('./flags/4x3/bf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bi = React.lazy(() => import('./flags/4x3/bi.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cv = React.lazy(() => import('./flags/4x3/cv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kh = React.lazy(() => import('./flags/4x3/kh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cm = React.lazy(() => import('./flags/4x3/cm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ca = React.lazy(() => import('./flags/4x3/ca.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ic = React.lazy(() => import('./flags/4x3/ic.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_es_ct = React.lazy(() => import('./flags/4x3/es-ct.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ky = React.lazy(() => import('./flags/4x3/ky.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cf = React.lazy(() => import('./flags/4x3/cf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_td = React.lazy(() => import('./flags/4x3/td.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cl = React.lazy(() => import('./flags/4x3/cl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cn = React.lazy(() => import('./flags/4x3/cn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cx = React.lazy(() => import('./flags/4x3/cx.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cc = React.lazy(() => import('./flags/4x3/cc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_co = React.lazy(() => import('./flags/4x3/co.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_km = React.lazy(() => import('./flags/4x3/km.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ck = React.lazy(() => import('./flags/4x3/ck.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cr = React.lazy(() => import('./flags/4x3/cr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_hr = React.lazy(() => import('./flags/4x3/hr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cu = React.lazy(() => import('./flags/4x3/cu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cw = React.lazy(() => import('./flags/4x3/cw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cy = React.lazy(() => import('./flags/4x3/cy.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cz = React.lazy(() => import('./flags/4x3/cz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ci = React.lazy(() => import('./flags/4x3/ci.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cd = React.lazy(() => import('./flags/4x3/cd.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_dk = React.lazy(() => import('./flags/4x3/dk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_dj = React.lazy(() => import('./flags/4x3/dj.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_dm = React.lazy(() => import('./flags/4x3/dm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_do = React.lazy(() => import('./flags/4x3/do.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ec = React.lazy(() => import('./flags/4x3/ec.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_eg = React.lazy(() => import('./flags/4x3/eg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sv = React.lazy(() => import('./flags/4x3/sv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gq = React.lazy(() => import('./flags/4x3/gq.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_er = React.lazy(() => import('./flags/4x3/er.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ee = React.lazy(() => import('./flags/4x3/ee.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sz = React.lazy(() => import('./flags/4x3/sz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_et = React.lazy(() => import('./flags/4x3/et.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_eu = React.lazy(() => import('./flags/4x3/eu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fk = React.lazy(() => import('./flags/4x3/fk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fo = React.lazy(() => import('./flags/4x3/fo.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fm = React.lazy(() => import('./flags/4x3/fm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fj = React.lazy(() => import('./flags/4x3/fj.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fi = React.lazy(() => import('./flags/4x3/fi.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_fr = React.lazy(() => import('./flags/4x3/fr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gf = React.lazy(() => import('./flags/4x3/gf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pf = React.lazy(() => import('./flags/4x3/pf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tf = React.lazy(() => import('./flags/4x3/tf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ga = React.lazy(() => import('./flags/4x3/ga.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gm = React.lazy(() => import('./flags/4x3/gm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ge = React.lazy(() => import('./flags/4x3/ge.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_de = React.lazy(() => import('./flags/4x3/de.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gh = React.lazy(() => import('./flags/4x3/gh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gi = React.lazy(() => import('./flags/4x3/gi.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gr = React.lazy(() => import('./flags/4x3/gr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gl = React.lazy(() => import('./flags/4x3/gl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gd = React.lazy(() => import('./flags/4x3/gd.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gp = React.lazy(() => import('./flags/4x3/gp.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gu = React.lazy(() => import('./flags/4x3/gu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gt = React.lazy(() => import('./flags/4x3/gt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gg = React.lazy(() => import('./flags/4x3/gg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gn = React.lazy(() => import('./flags/4x3/gn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gw = React.lazy(() => import('./flags/4x3/gw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gy = React.lazy(() => import('./flags/4x3/gy.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ht = React.lazy(() => import('./flags/4x3/ht.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_hm = React.lazy(() => import('./flags/4x3/hm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_va = React.lazy(() => import('./flags/4x3/va.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_hn = React.lazy(() => import('./flags/4x3/hn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_hk = React.lazy(() => import('./flags/4x3/hk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_hu = React.lazy(() => import('./flags/4x3/hu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_is = React.lazy(() => import('./flags/4x3/is.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_in = React.lazy(() => import('./flags/4x3/in.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_id = React.lazy(() => import('./flags/4x3/id.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ir = React.lazy(() => import('./flags/4x3/ir.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_iq = React.lazy(() => import('./flags/4x3/iq.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ie = React.lazy(() => import('./flags/4x3/ie.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_im = React.lazy(() => import('./flags/4x3/im.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_il = React.lazy(() => import('./flags/4x3/il.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_it = React.lazy(() => import('./flags/4x3/it.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_jm = React.lazy(() => import('./flags/4x3/jm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_jp = React.lazy(() => import('./flags/4x3/jp.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_je = React.lazy(() => import('./flags/4x3/je.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_jo = React.lazy(() => import('./flags/4x3/jo.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kz = React.lazy(() => import('./flags/4x3/kz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ke = React.lazy(() => import('./flags/4x3/ke.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ki = React.lazy(() => import('./flags/4x3/ki.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_xk = React.lazy(() => import('./flags/4x3/xk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kw = React.lazy(() => import('./flags/4x3/kw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kg = React.lazy(() => import('./flags/4x3/kg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_la = React.lazy(() => import('./flags/4x3/la.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lv = React.lazy(() => import('./flags/4x3/lv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lb = React.lazy(() => import('./flags/4x3/lb.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ls = React.lazy(() => import('./flags/4x3/ls.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lr = React.lazy(() => import('./flags/4x3/lr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ly = React.lazy(() => import('./flags/4x3/ly.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_li = React.lazy(() => import('./flags/4x3/li.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lt = React.lazy(() => import('./flags/4x3/lt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lu = React.lazy(() => import('./flags/4x3/lu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mo = React.lazy(() => import('./flags/4x3/mo.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mg = React.lazy(() => import('./flags/4x3/mg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mw = React.lazy(() => import('./flags/4x3/mw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_my = React.lazy(() => import('./flags/4x3/my.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mv = React.lazy(() => import('./flags/4x3/mv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ml = React.lazy(() => import('./flags/4x3/ml.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mt = React.lazy(() => import('./flags/4x3/mt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mh = React.lazy(() => import('./flags/4x3/mh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mq = React.lazy(() => import('./flags/4x3/mq.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mr = React.lazy(() => import('./flags/4x3/mr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mu = React.lazy(() => import('./flags/4x3/mu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_yt = React.lazy(() => import('./flags/4x3/yt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mx = React.lazy(() => import('./flags/4x3/mx.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_md = React.lazy(() => import('./flags/4x3/md.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mc = React.lazy(() => import('./flags/4x3/mc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mn = React.lazy(() => import('./flags/4x3/mn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_me = React.lazy(() => import('./flags/4x3/me.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ms = React.lazy(() => import('./flags/4x3/ms.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ma = React.lazy(() => import('./flags/4x3/ma.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mz = React.lazy(() => import('./flags/4x3/mz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mm = React.lazy(() => import('./flags/4x3/mm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_na = React.lazy(() => import('./flags/4x3/na.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nr = React.lazy(() => import('./flags/4x3/nr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_np = React.lazy(() => import('./flags/4x3/np.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nl = React.lazy(() => import('./flags/4x3/nl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nc = React.lazy(() => import('./flags/4x3/nc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nz = React.lazy(() => import('./flags/4x3/nz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ni = React.lazy(() => import('./flags/4x3/ni.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ne = React.lazy(() => import('./flags/4x3/ne.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ng = React.lazy(() => import('./flags/4x3/ng.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nu = React.lazy(() => import('./flags/4x3/nu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_nf = React.lazy(() => import('./flags/4x3/nf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kp = React.lazy(() => import('./flags/4x3/kp.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mk = React.lazy(() => import('./flags/4x3/mk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gb_nir = React.lazy(() => import('./flags/4x3/gb-nir.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mp = React.lazy(() => import('./flags/4x3/mp.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_no = React.lazy(() => import('./flags/4x3/no.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_om = React.lazy(() => import('./flags/4x3/om.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pk = React.lazy(() => import('./flags/4x3/pk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pw = React.lazy(() => import('./flags/4x3/pw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pa = React.lazy(() => import('./flags/4x3/pa.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pg = React.lazy(() => import('./flags/4x3/pg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_py = React.lazy(() => import('./flags/4x3/py.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pe = React.lazy(() => import('./flags/4x3/pe.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ph = React.lazy(() => import('./flags/4x3/ph.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pn = React.lazy(() => import('./flags/4x3/pn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pl = React.lazy(() => import('./flags/4x3/pl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pt = React.lazy(() => import('./flags/4x3/pt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pr = React.lazy(() => import('./flags/4x3/pr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_qa = React.lazy(() => import('./flags/4x3/qa.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_cg = React.lazy(() => import('./flags/4x3/cg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ro = React.lazy(() => import('./flags/4x3/ro.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ru = React.lazy(() => import('./flags/4x3/ru.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_rw = React.lazy(() => import('./flags/4x3/rw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_re = React.lazy(() => import('./flags/4x3/re.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_bl = React.lazy(() => import('./flags/4x3/bl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sh_hl = React.lazy(() => import('./flags/4x3/sh-hl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sh = React.lazy(() => import('./flags/4x3/sh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kn = React.lazy(() => import('./flags/4x3/kn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lc = React.lazy(() => import('./flags/4x3/lc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_mf = React.lazy(() => import('./flags/4x3/mf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_pm = React.lazy(() => import('./flags/4x3/pm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_vc = React.lazy(() => import('./flags/4x3/vc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ws = React.lazy(() => import('./flags/4x3/ws.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sm = React.lazy(() => import('./flags/4x3/sm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_st = React.lazy(() => import('./flags/4x3/st.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sa = React.lazy(() => import('./flags/4x3/sa.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gb_sct = React.lazy(() => import('./flags/4x3/gb-sct.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sn = React.lazy(() => import('./flags/4x3/sn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_rs = React.lazy(() => import('./flags/4x3/rs.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sc = React.lazy(() => import('./flags/4x3/sc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sl = React.lazy(() => import('./flags/4x3/sl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sg = React.lazy(() => import('./flags/4x3/sg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sx = React.lazy(() => import('./flags/4x3/sx.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sk = React.lazy(() => import('./flags/4x3/sk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_si = React.lazy(() => import('./flags/4x3/si.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sb = React.lazy(() => import('./flags/4x3/sb.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_so = React.lazy(() => import('./flags/4x3/so.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_za = React.lazy(() => import('./flags/4x3/za.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gs = React.lazy(() => import('./flags/4x3/gs.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_kr = React.lazy(() => import('./flags/4x3/kr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ss = React.lazy(() => import('./flags/4x3/ss.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_es = React.lazy(() => import('./flags/4x3/es.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_lk = React.lazy(() => import('./flags/4x3/lk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ps = React.lazy(() => import('./flags/4x3/ps.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sd = React.lazy(() => import('./flags/4x3/sd.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sr = React.lazy(() => import('./flags/4x3/sr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sj = React.lazy(() => import('./flags/4x3/sj.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_se = React.lazy(() => import('./flags/4x3/se.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ch = React.lazy(() => import('./flags/4x3/ch.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sy = React.lazy(() => import('./flags/4x3/sy.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tw = React.lazy(() => import('./flags/4x3/tw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tj = React.lazy(() => import('./flags/4x3/tj.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tz = React.lazy(() => import('./flags/4x3/tz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_th = React.lazy(() => import('./flags/4x3/th.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tl = React.lazy(() => import('./flags/4x3/tl.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tg = React.lazy(() => import('./flags/4x3/tg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tk = React.lazy(() => import('./flags/4x3/tk.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_to = React.lazy(() => import('./flags/4x3/to.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tt = React.lazy(() => import('./flags/4x3/tt.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_sh_ta = React.lazy(() => import('./flags/4x3/sh-ta.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tn = React.lazy(() => import('./flags/4x3/tn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tm = React.lazy(() => import('./flags/4x3/tm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tc = React.lazy(() => import('./flags/4x3/tc.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tv = React.lazy(() => import('./flags/4x3/tv.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_tr = React.lazy(() => import('./flags/4x3/tr.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ug = React.lazy(() => import('./flags/4x3/ug.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ua = React.lazy(() => import('./flags/4x3/ua.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ae = React.lazy(() => import('./flags/4x3/ae.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gb = React.lazy(() => import('./flags/4x3/gb.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_un = React.lazy(() => import('./flags/4x3/un.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_um = React.lazy(() => import('./flags/4x3/um.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_us = React.lazy(() => import('./flags/4x3/us.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_uy = React.lazy(() => import('./flags/4x3/uy.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_uz = React.lazy(() => import('./flags/4x3/uz.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_vu = React.lazy(() => import('./flags/4x3/vu.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ve = React.lazy(() => import('./flags/4x3/ve.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_vn = React.lazy(() => import('./flags/4x3/vn.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_vg = React.lazy(() => import('./flags/4x3/vg.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_vi = React.lazy(() => import('./flags/4x3/vi.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_gb_wls = React.lazy(() => import('./flags/4x3/gb-wls.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_wf = React.lazy(() => import('./flags/4x3/wf.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_eh = React.lazy(() => import('./flags/4x3/eh.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_ye = React.lazy(() => import('./flags/4x3/ye.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_zm = React.lazy(() => import('./flags/4x3/zm.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
-export const Flag_zw = React.lazy(() => import('./flags/4x3/zw.svg').then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+export { ReactComponent as Flag_af } from './flags/4x3/af.svg';
+export { ReactComponent as Flag_ax } from './flags/4x3/ax.svg';
+export { ReactComponent as Flag_al } from './flags/4x3/al.svg';
+export { ReactComponent as Flag_dz } from './flags/4x3/dz.svg';
+export { ReactComponent as Flag_as } from './flags/4x3/as.svg';
+export { ReactComponent as Flag_ad } from './flags/4x3/ad.svg';
+export { ReactComponent as Flag_ao } from './flags/4x3/ao.svg';
+export { ReactComponent as Flag_ai } from './flags/4x3/ai.svg';
+export { ReactComponent as Flag_aq } from './flags/4x3/aq.svg';
+export { ReactComponent as Flag_ag } from './flags/4x3/ag.svg';
+export { ReactComponent as Flag_ar } from './flags/4x3/ar.svg';
+export { ReactComponent as Flag_am } from './flags/4x3/am.svg';
+export { ReactComponent as Flag_aw } from './flags/4x3/aw.svg';
+export { ReactComponent as Flag_sh_ac } from './flags/4x3/sh-ac.svg';
+export { ReactComponent as Flag_au } from './flags/4x3/au.svg';
+export { ReactComponent as Flag_at } from './flags/4x3/at.svg';
+export { ReactComponent as Flag_az } from './flags/4x3/az.svg';
+export { ReactComponent as Flag_bs } from './flags/4x3/bs.svg';
+export { ReactComponent as Flag_bh } from './flags/4x3/bh.svg';
+export { ReactComponent as Flag_bd } from './flags/4x3/bd.svg';
+export { ReactComponent as Flag_bb } from './flags/4x3/bb.svg';
+export { ReactComponent as Flag_by } from './flags/4x3/by.svg';
+export { ReactComponent as Flag_be } from './flags/4x3/be.svg';
+export { ReactComponent as Flag_bz } from './flags/4x3/bz.svg';
+export { ReactComponent as Flag_bj } from './flags/4x3/bj.svg';
+export { ReactComponent as Flag_bm } from './flags/4x3/bm.svg';
+export { ReactComponent as Flag_bt } from './flags/4x3/bt.svg';
+export { ReactComponent as Flag_bo } from './flags/4x3/bo.svg';
+export { ReactComponent as Flag_bq } from './flags/4x3/bq.svg';
+export { ReactComponent as Flag_ba } from './flags/4x3/ba.svg';
+export { ReactComponent as Flag_bw } from './flags/4x3/bw.svg';
+export { ReactComponent as Flag_bv } from './flags/4x3/bv.svg';
+export { ReactComponent as Flag_br } from './flags/4x3/br.svg';
+export { ReactComponent as Flag_io } from './flags/4x3/io.svg';
+export { ReactComponent as Flag_bn } from './flags/4x3/bn.svg';
+export { ReactComponent as Flag_bg } from './flags/4x3/bg.svg';
+export { ReactComponent as Flag_bf } from './flags/4x3/bf.svg';
+export { ReactComponent as Flag_bi } from './flags/4x3/bi.svg';
+export { ReactComponent as Flag_cv } from './flags/4x3/cv.svg';
+export { ReactComponent as Flag_kh } from './flags/4x3/kh.svg';
+export { ReactComponent as Flag_cm } from './flags/4x3/cm.svg';
+export { ReactComponent as Flag_ca } from './flags/4x3/ca.svg';
+export { ReactComponent as Flag_ic } from './flags/4x3/ic.svg';
+export { ReactComponent as Flag_es_ct } from './flags/4x3/es-ct.svg';
+export { ReactComponent as Flag_ky } from './flags/4x3/ky.svg';
+export { ReactComponent as Flag_cf } from './flags/4x3/cf.svg';
+export { ReactComponent as Flag_td } from './flags/4x3/td.svg';
+export { ReactComponent as Flag_cl } from './flags/4x3/cl.svg';
+export { ReactComponent as Flag_cn } from './flags/4x3/cn.svg';
+export { ReactComponent as Flag_cx } from './flags/4x3/cx.svg';
+export { ReactComponent as Flag_cc } from './flags/4x3/cc.svg';
+export { ReactComponent as Flag_co } from './flags/4x3/co.svg';
+export { ReactComponent as Flag_km } from './flags/4x3/km.svg';
+export { ReactComponent as Flag_ck } from './flags/4x3/ck.svg';
+export { ReactComponent as Flag_cr } from './flags/4x3/cr.svg';
+export { ReactComponent as Flag_hr } from './flags/4x3/hr.svg';
+export { ReactComponent as Flag_cu } from './flags/4x3/cu.svg';
+export { ReactComponent as Flag_cw } from './flags/4x3/cw.svg';
+export { ReactComponent as Flag_cy } from './flags/4x3/cy.svg';
+export { ReactComponent as Flag_cz } from './flags/4x3/cz.svg';
+export { ReactComponent as Flag_ci } from './flags/4x3/ci.svg';
+export { ReactComponent as Flag_cd } from './flags/4x3/cd.svg';
+export { ReactComponent as Flag_dk } from './flags/4x3/dk.svg';
+export { ReactComponent as Flag_dj } from './flags/4x3/dj.svg';
+export { ReactComponent as Flag_dm } from './flags/4x3/dm.svg';
+export { ReactComponent as Flag_do } from './flags/4x3/do.svg';
+export { ReactComponent as Flag_ec } from './flags/4x3/ec.svg';
+export { ReactComponent as Flag_eg } from './flags/4x3/eg.svg';
+export { ReactComponent as Flag_sv } from './flags/4x3/sv.svg';
+export { ReactComponent as Flag_gq } from './flags/4x3/gq.svg';
+export { ReactComponent as Flag_er } from './flags/4x3/er.svg';
+export { ReactComponent as Flag_ee } from './flags/4x3/ee.svg';
+export { ReactComponent as Flag_sz } from './flags/4x3/sz.svg';
+export { ReactComponent as Flag_et } from './flags/4x3/et.svg';
+export { ReactComponent as Flag_eu } from './flags/4x3/eu.svg';
+export { ReactComponent as Flag_fk } from './flags/4x3/fk.svg';
+export { ReactComponent as Flag_fo } from './flags/4x3/fo.svg';
+export { ReactComponent as Flag_fm } from './flags/4x3/fm.svg';
+export { ReactComponent as Flag_fj } from './flags/4x3/fj.svg';
+export { ReactComponent as Flag_fi } from './flags/4x3/fi.svg';
+export { ReactComponent as Flag_fr } from './flags/4x3/fr.svg';
+export { ReactComponent as Flag_gf } from './flags/4x3/gf.svg';
+export { ReactComponent as Flag_pf } from './flags/4x3/pf.svg';
+export { ReactComponent as Flag_tf } from './flags/4x3/tf.svg';
+export { ReactComponent as Flag_ga } from './flags/4x3/ga.svg';
+export { ReactComponent as Flag_gm } from './flags/4x3/gm.svg';
+export { ReactComponent as Flag_ge } from './flags/4x3/ge.svg';
+export { ReactComponent as Flag_de } from './flags/4x3/de.svg';
+export { ReactComponent as Flag_gh } from './flags/4x3/gh.svg';
+export { ReactComponent as Flag_gi } from './flags/4x3/gi.svg';
+export { ReactComponent as Flag_gr } from './flags/4x3/gr.svg';
+export { ReactComponent as Flag_gl } from './flags/4x3/gl.svg';
+export { ReactComponent as Flag_gd } from './flags/4x3/gd.svg';
+export { ReactComponent as Flag_gp } from './flags/4x3/gp.svg';
+export { ReactComponent as Flag_gu } from './flags/4x3/gu.svg';
+export { ReactComponent as Flag_gt } from './flags/4x3/gt.svg';
+export { ReactComponent as Flag_gg } from './flags/4x3/gg.svg';
+export { ReactComponent as Flag_gn } from './flags/4x3/gn.svg';
+export { ReactComponent as Flag_gw } from './flags/4x3/gw.svg';
+export { ReactComponent as Flag_gy } from './flags/4x3/gy.svg';
+export { ReactComponent as Flag_ht } from './flags/4x3/ht.svg';
+export { ReactComponent as Flag_hm } from './flags/4x3/hm.svg';
+export { ReactComponent as Flag_va } from './flags/4x3/va.svg';
+export { ReactComponent as Flag_hn } from './flags/4x3/hn.svg';
+export { ReactComponent as Flag_hk } from './flags/4x3/hk.svg';
+export { ReactComponent as Flag_hu } from './flags/4x3/hu.svg';
+export { ReactComponent as Flag_is } from './flags/4x3/is.svg';
+export { ReactComponent as Flag_in } from './flags/4x3/in.svg';
+export { ReactComponent as Flag_id } from './flags/4x3/id.svg';
+export { ReactComponent as Flag_ir } from './flags/4x3/ir.svg';
+export { ReactComponent as Flag_iq } from './flags/4x3/iq.svg';
+export { ReactComponent as Flag_ie } from './flags/4x3/ie.svg';
+export { ReactComponent as Flag_im } from './flags/4x3/im.svg';
+export { ReactComponent as Flag_il } from './flags/4x3/il.svg';
+export { ReactComponent as Flag_it } from './flags/4x3/it.svg';
+export { ReactComponent as Flag_jm } from './flags/4x3/jm.svg';
+export { ReactComponent as Flag_jp } from './flags/4x3/jp.svg';
+export { ReactComponent as Flag_je } from './flags/4x3/je.svg';
+export { ReactComponent as Flag_jo } from './flags/4x3/jo.svg';
+export { ReactComponent as Flag_kz } from './flags/4x3/kz.svg';
+export { ReactComponent as Flag_ke } from './flags/4x3/ke.svg';
+export { ReactComponent as Flag_ki } from './flags/4x3/ki.svg';
+export { ReactComponent as Flag_xk } from './flags/4x3/xk.svg';
+export { ReactComponent as Flag_kw } from './flags/4x3/kw.svg';
+export { ReactComponent as Flag_kg } from './flags/4x3/kg.svg';
+export { ReactComponent as Flag_la } from './flags/4x3/la.svg';
+export { ReactComponent as Flag_lv } from './flags/4x3/lv.svg';
+export { ReactComponent as Flag_lb } from './flags/4x3/lb.svg';
+export { ReactComponent as Flag_ls } from './flags/4x3/ls.svg';
+export { ReactComponent as Flag_lr } from './flags/4x3/lr.svg';
+export { ReactComponent as Flag_ly } from './flags/4x3/ly.svg';
+export { ReactComponent as Flag_li } from './flags/4x3/li.svg';
+export { ReactComponent as Flag_lt } from './flags/4x3/lt.svg';
+export { ReactComponent as Flag_lu } from './flags/4x3/lu.svg';
+export { ReactComponent as Flag_mo } from './flags/4x3/mo.svg';
+export { ReactComponent as Flag_mg } from './flags/4x3/mg.svg';
+export { ReactComponent as Flag_mw } from './flags/4x3/mw.svg';
+export { ReactComponent as Flag_my } from './flags/4x3/my.svg';
+export { ReactComponent as Flag_mv } from './flags/4x3/mv.svg';
+export { ReactComponent as Flag_ml } from './flags/4x3/ml.svg';
+export { ReactComponent as Flag_mt } from './flags/4x3/mt.svg';
+export { ReactComponent as Flag_mh } from './flags/4x3/mh.svg';
+export { ReactComponent as Flag_mq } from './flags/4x3/mq.svg';
+export { ReactComponent as Flag_mr } from './flags/4x3/mr.svg';
+export { ReactComponent as Flag_mu } from './flags/4x3/mu.svg';
+export { ReactComponent as Flag_yt } from './flags/4x3/yt.svg';
+export { ReactComponent as Flag_mx } from './flags/4x3/mx.svg';
+export { ReactComponent as Flag_md } from './flags/4x3/md.svg';
+export { ReactComponent as Flag_mc } from './flags/4x3/mc.svg';
+export { ReactComponent as Flag_mn } from './flags/4x3/mn.svg';
+export { ReactComponent as Flag_me } from './flags/4x3/me.svg';
+export { ReactComponent as Flag_ms } from './flags/4x3/ms.svg';
+export { ReactComponent as Flag_ma } from './flags/4x3/ma.svg';
+export { ReactComponent as Flag_mz } from './flags/4x3/mz.svg';
+export { ReactComponent as Flag_mm } from './flags/4x3/mm.svg';
+export { ReactComponent as Flag_na } from './flags/4x3/na.svg';
+export { ReactComponent as Flag_nr } from './flags/4x3/nr.svg';
+export { ReactComponent as Flag_np } from './flags/4x3/np.svg';
+export { ReactComponent as Flag_nl } from './flags/4x3/nl.svg';
+export { ReactComponent as Flag_nc } from './flags/4x3/nc.svg';
+export { ReactComponent as Flag_nz } from './flags/4x3/nz.svg';
+export { ReactComponent as Flag_ni } from './flags/4x3/ni.svg';
+export { ReactComponent as Flag_ne } from './flags/4x3/ne.svg';
+export { ReactComponent as Flag_ng } from './flags/4x3/ng.svg';
+export { ReactComponent as Flag_nu } from './flags/4x3/nu.svg';
+export { ReactComponent as Flag_nf } from './flags/4x3/nf.svg';
+export { ReactComponent as Flag_kp } from './flags/4x3/kp.svg';
+export { ReactComponent as Flag_mk } from './flags/4x3/mk.svg';
+export { ReactComponent as Flag_gb_nir } from './flags/4x3/gb-nir.svg';
+export { ReactComponent as Flag_mp } from './flags/4x3/mp.svg';
+export { ReactComponent as Flag_no } from './flags/4x3/no.svg';
+export { ReactComponent as Flag_om } from './flags/4x3/om.svg';
+export { ReactComponent as Flag_pk } from './flags/4x3/pk.svg';
+export { ReactComponent as Flag_pw } from './flags/4x3/pw.svg';
+export { ReactComponent as Flag_pa } from './flags/4x3/pa.svg';
+export { ReactComponent as Flag_pg } from './flags/4x3/pg.svg';
+export { ReactComponent as Flag_py } from './flags/4x3/py.svg';
+export { ReactComponent as Flag_pe } from './flags/4x3/pe.svg';
+export { ReactComponent as Flag_ph } from './flags/4x3/ph.svg';
+export { ReactComponent as Flag_pn } from './flags/4x3/pn.svg';
+export { ReactComponent as Flag_pl } from './flags/4x3/pl.svg';
+export { ReactComponent as Flag_pt } from './flags/4x3/pt.svg';
+export { ReactComponent as Flag_pr } from './flags/4x3/pr.svg';
+export { ReactComponent as Flag_qa } from './flags/4x3/qa.svg';
+export { ReactComponent as Flag_cg } from './flags/4x3/cg.svg';
+export { ReactComponent as Flag_ro } from './flags/4x3/ro.svg';
+export { ReactComponent as Flag_ru } from './flags/4x3/ru.svg';
+export { ReactComponent as Flag_rw } from './flags/4x3/rw.svg';
+export { ReactComponent as Flag_re } from './flags/4x3/re.svg';
+export { ReactComponent as Flag_bl } from './flags/4x3/bl.svg';
+export { ReactComponent as Flag_sh_hl } from './flags/4x3/sh-hl.svg';
+export { ReactComponent as Flag_sh } from './flags/4x3/sh.svg';
+export { ReactComponent as Flag_kn } from './flags/4x3/kn.svg';
+export { ReactComponent as Flag_lc } from './flags/4x3/lc.svg';
+export { ReactComponent as Flag_mf } from './flags/4x3/mf.svg';
+export { ReactComponent as Flag_pm } from './flags/4x3/pm.svg';
+export { ReactComponent as Flag_vc } from './flags/4x3/vc.svg';
+export { ReactComponent as Flag_ws } from './flags/4x3/ws.svg';
+export { ReactComponent as Flag_sm } from './flags/4x3/sm.svg';
+export { ReactComponent as Flag_st } from './flags/4x3/st.svg';
+export { ReactComponent as Flag_sa } from './flags/4x3/sa.svg';
+export { ReactComponent as Flag_gb_sct } from './flags/4x3/gb-sct.svg';
+export { ReactComponent as Flag_sn } from './flags/4x3/sn.svg';
+export { ReactComponent as Flag_rs } from './flags/4x3/rs.svg';
+export { ReactComponent as Flag_sc } from './flags/4x3/sc.svg';
+export { ReactComponent as Flag_sl } from './flags/4x3/sl.svg';
+export { ReactComponent as Flag_sg } from './flags/4x3/sg.svg';
+export { ReactComponent as Flag_sx } from './flags/4x3/sx.svg';
+export { ReactComponent as Flag_sk } from './flags/4x3/sk.svg';
+export { ReactComponent as Flag_si } from './flags/4x3/si.svg';
+export { ReactComponent as Flag_sb } from './flags/4x3/sb.svg';
+export { ReactComponent as Flag_so } from './flags/4x3/so.svg';
+export { ReactComponent as Flag_za } from './flags/4x3/za.svg';
+export { ReactComponent as Flag_gs } from './flags/4x3/gs.svg';
+export { ReactComponent as Flag_kr } from './flags/4x3/kr.svg';
+export { ReactComponent as Flag_ss } from './flags/4x3/ss.svg';
+export { ReactComponent as Flag_es } from './flags/4x3/es.svg';
+export { ReactComponent as Flag_lk } from './flags/4x3/lk.svg';
+export { ReactComponent as Flag_ps } from './flags/4x3/ps.svg';
+export { ReactComponent as Flag_sd } from './flags/4x3/sd.svg';
+export { ReactComponent as Flag_sr } from './flags/4x3/sr.svg';
+export { ReactComponent as Flag_sj } from './flags/4x3/sj.svg';
+export { ReactComponent as Flag_se } from './flags/4x3/se.svg';
+export { ReactComponent as Flag_ch } from './flags/4x3/ch.svg';
+export { ReactComponent as Flag_sy } from './flags/4x3/sy.svg';
+export { ReactComponent as Flag_tw } from './flags/4x3/tw.svg';
+export { ReactComponent as Flag_tj } from './flags/4x3/tj.svg';
+export { ReactComponent as Flag_tz } from './flags/4x3/tz.svg';
+export { ReactComponent as Flag_th } from './flags/4x3/th.svg';
+export { ReactComponent as Flag_tl } from './flags/4x3/tl.svg';
+export { ReactComponent as Flag_tg } from './flags/4x3/tg.svg';
+export { ReactComponent as Flag_tk } from './flags/4x3/tk.svg';
+export { ReactComponent as Flag_to } from './flags/4x3/to.svg';
+export { ReactComponent as Flag_tt } from './flags/4x3/tt.svg';
+export { ReactComponent as Flag_sh_ta } from './flags/4x3/sh-ta.svg';
+export { ReactComponent as Flag_tn } from './flags/4x3/tn.svg';
+export { ReactComponent as Flag_tm } from './flags/4x3/tm.svg';
+export { ReactComponent as Flag_tc } from './flags/4x3/tc.svg';
+export { ReactComponent as Flag_tv } from './flags/4x3/tv.svg';
+export { ReactComponent as Flag_tr } from './flags/4x3/tr.svg';
+export { ReactComponent as Flag_ug } from './flags/4x3/ug.svg';
+export { ReactComponent as Flag_ua } from './flags/4x3/ua.svg';
+export { ReactComponent as Flag_ae } from './flags/4x3/ae.svg';
+export { ReactComponent as Flag_gb } from './flags/4x3/gb.svg';
+export { ReactComponent as Flag_un } from './flags/4x3/un.svg';
+export { ReactComponent as Flag_um } from './flags/4x3/um.svg';
+export { ReactComponent as Flag_us } from './flags/4x3/us.svg';
+export { ReactComponent as Flag_uy } from './flags/4x3/uy.svg';
+export { ReactComponent as Flag_uz } from './flags/4x3/uz.svg';
+export { ReactComponent as Flag_vu } from './flags/4x3/vu.svg';
+export { ReactComponent as Flag_ve } from './flags/4x3/ve.svg';
+export { ReactComponent as Flag_vn } from './flags/4x3/vn.svg';
+export { ReactComponent as Flag_vg } from './flags/4x3/vg.svg';
+export { ReactComponent as Flag_vi } from './flags/4x3/vi.svg';
+export { ReactComponent as Flag_gb_wls } from './flags/4x3/gb-wls.svg';
+export { ReactComponent as Flag_wf } from './flags/4x3/wf.svg';
+export { ReactComponent as Flag_eh } from './flags/4x3/eh.svg';
+export { ReactComponent as Flag_ye } from './flags/4x3/ye.svg';
+export { ReactComponent as Flag_zm } from './flags/4x3/zm.svg';
+export { ReactComponent as Flag_zw } from './flags/4x3/zw.svg';
