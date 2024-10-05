@@ -169,8 +169,10 @@ export default function ApplicationHome() {
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
-    dispatch(fetchHomeData({}));
-    dispatch(fetchSubscriptionsAction());
+    if (user.currentOrgId) {
+      dispatch(fetchHomeData({}));
+      dispatch(fetchSubscriptionsAction());
+    }
   }, [user.currentOrgId]);
 
   const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
