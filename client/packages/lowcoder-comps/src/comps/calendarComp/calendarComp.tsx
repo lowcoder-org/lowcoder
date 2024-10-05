@@ -84,34 +84,67 @@ function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
   let {events, resourcesEvents, ...data } = oldData;
   let allEvents: any[] = [];
+  let isDynamicEventData = false;
 
   if (events && typeof events === 'string') {
-    let eventsList = JSON.parse(events);
-    if (eventsList && eventsList.length) {
-      eventsList = eventsList?.map(event => {
-        const {title, ...eventData} = event;
-        return {
-          ...eventData,
-          label: title, // replace title field with label
-        }
-      });
-      allEvents = allEvents.concat(eventsList);
+    try {
+      let eventsList = JSON.parse(events);
+      if (eventsList && eventsList.length) {
+        eventsList = eventsList?.map(event => {
+          const {title, ...eventData} = event;
+          return {
+            ...eventData,
+            label: title, // replace title field with label
+          }
+        });
+        allEvents = allEvents.concat(eventsList);
+      }
+    } catch (_) {
+      isDynamicEventData = true;
     }
   }
   if (resourcesEvents && typeof resourcesEvents === 'string') {
-    let resourceEventsList = JSON.parse(resourcesEvents);
-    if (resourceEventsList && resourceEventsList.length) {
-      resourceEventsList = resourceEventsList?.map(event => {
-        const {title, ...eventData} = event;
-        return {
-          ...eventData,
-          label: title, // replace title field with label
-        }
-      });
-      allEvents = allEvents.concat(resourceEventsList);
-    }
+    try {
+      let resourceEventsList = JSON.parse(resourcesEvents);
+      if (resourceEventsList && resourceEventsList.length) {
+        resourceEventsList = resourceEventsList?.map(event => {
+          const {title, ...eventData} = event;
+          return {
+            ...eventData,
+            label: title, // replace title field with label
+          }
+        });
+        allEvents = allEvents.concat(resourceEventsList);
+      }
+    } catch (_) {}
   }
   
+  if (isDynamicEventData) {
+    return {
+      ...data,
+      events: {
+        manual: {
+          manual: allEvents,
+        },
+        mapData: {
+          data: events,
+          mapData: {
+            id: "{{item.id}}",
+            label: "{{item.title}}",
+            detail: "{{item.detail}}",
+            start: "{{item.start}}",
+            end: "{{item.end}}",
+            color: "{{item.color}}",
+            allDay: "{{item.allDay}}",
+            groupId: "{{item.groupId}}",
+            resourceId: "{{item.resourceId}}",
+          }
+        },
+        optionType: "map",
+      },
+    };
+  }
+
   if (allEvents.length) {
     return {
       ...data,
@@ -121,11 +154,23 @@ function fixOldData(oldData: any) {
         },
         mapData: {
           data: JSON.stringify(allEvents, null, 2),
+          mapData: {
+            id: "{{item.id}}",
+            label: "{{item.title}}",
+            detail: "{{item.detail}}",
+            start: "{{item.start}}",
+            end: "{{item.end}}",
+            color: "{{item.color}}",
+            allDay: "{{item.allDay}}",
+            groupId: "{{item.groupId}}",
+            resourceId: "{{item.resourceId}}",
+          }
         },
         optionType: "manual",
       },
     };
   }
+
   return {
     ...data,
     events,
