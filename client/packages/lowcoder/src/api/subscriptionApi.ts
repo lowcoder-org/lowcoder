@@ -216,6 +216,12 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
       return [];
     }
+    else if (result.data.success == "false" && result.data.reason == "userSubscriptionNotFound") {
+      return [];
+    }
+    else if (result.data.success == "false" && result.data.reason == "orgSubscriptionNotFound") {
+      return [];
+    }
   } catch (error) {
     console.error("Error searching customer:", error);
     throw error;
