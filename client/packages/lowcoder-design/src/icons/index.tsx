@@ -182,7 +182,7 @@ export { ReactComponent as LeftOpen } from "./v1/icon-left-comp-open.svg";
 export { ReactComponent as LeftClose } from "./v1/icon-left-comp-close.svg";
 export { ReactComponent as MaterialUploadIcon } from "./v1/icon-material-upload.svg";
 export { ReactComponent as UndoIcon } from "./v1/icon-undo.svg";
- 
+
 export { ReactComponent as ManualIcon } from "./v1/icon-manual.svg";
 export { ReactComponent as WarnIcon } from "./v1/icon-warn.svg";
 export { ReactComponent as SyncManualIcon } from "./v1/icon-sync-manual.svg";
@@ -335,8 +335,7 @@ export { ReactComponent as VideoMeetingRoomCompIconSmall } from "./v2/meeting-ro
 export { ReactComponent as VideoCameraStreamCompIconSmall } from "./v2/camera-stream-s.svg";    // new
 export { ReactComponent as VideoScreenshareCompIconSmall } from "./v2/screen-share-stream-s.svg"; // new
 export { ReactComponent as SignatureCompIconSmall } from "./v2/signature-s.svg";
-export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg"; 
-export { ReactComponent as KanbanCompIconSmall } from "./v2/kanban-s.svg"; // new
+export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg";
 
 export { ReactComponent as CandlestickChartCompIconSmall } from "./v2/candlestick-chart-s.svg"; // new
 export { ReactComponent as FunnelChartCompIconSmall } from "./v2/funnel-chart-s.svg"; // new
@@ -442,6 +441,7 @@ export { ReactComponent as VideoScreenshareCompIcon } from "./v2/screen-share-st
 export { ReactComponent as StepCompIcon } from "./v2/steps-m.svg";
 export { ReactComponent as SignatureCompIcon } from "./v2/signature-m.svg";
 export { ReactComponent as GanttCompIcon } from "./v2/gantt-chart-m.svg";
+export { ReactComponent as KanbanCompIconSmall } from "./v2/kanban-s.svg";
 export { ReactComponent as KanbanCompIcon } from "./v2/kanban-m.svg";
 
 export { ReactComponent as CandlestickChartCompIcon } from "./v2/candlestick-chart-m.svg";

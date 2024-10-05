@@ -13,9 +13,9 @@ let language = 'en';
 
 export const initTranslator = (lang?: string) => {
   const translator =  new Translator<typeof localeData.en>(
-    localeData,
-    REACT_APP_LANGUAGES,
-    [lang || 'en']
+      localeData,
+      REACT_APP_LANGUAGES,
+      [lang || 'en']
   );
 
   language = translator.language;

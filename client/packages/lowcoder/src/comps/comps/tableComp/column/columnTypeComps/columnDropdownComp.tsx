@@ -37,7 +37,7 @@ export const ColumnDropdownComp = (function () {
           key: option.label + " - " + index,
           disabled: option.disabled,
           icon: hasOptionIcon && <span>{option.prefixIcon}</span>,
-          onEvent: option.onEvent,
+          index,
         }));
       
       const hasPrefixIcon = (props.prefixIcon as ReactElement)?.props.value;
@@ -48,7 +48,13 @@ export const ColumnDropdownComp = (function () {
         <Menu
           items={items}
           onClick={({ key }) => {
-            items.find((o) => o.key === key)?.onEvent?.("click")
+            const item = items.find((o) => o.key === key);
+            const itemIndex = props.options.findIndex(option => option.label === item?.label);
+            item && props.options[itemIndex]?.onEvent("click");
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
           }}
         />
       );
@@ -57,7 +63,6 @@ export const ColumnDropdownComp = (function () {
         <Dropdown
           trigger={["click"]}
           placement="bottomRight"
-          menu={{items}}
           dropdownRender={() => menu}
         >
           <Button100

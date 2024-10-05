@@ -179,6 +179,8 @@ public class Application extends HasIdAndAuditing {
         return dsl;
     }
 
+    public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
+
     public Object getLiveContainerSize() {
         return liveContainerSize.get();
     }

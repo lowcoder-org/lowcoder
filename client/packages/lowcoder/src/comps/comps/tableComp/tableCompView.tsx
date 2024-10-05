@@ -33,7 +33,7 @@ import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
-import { useUserViewMode } from "util/hooks";
+import { useMergeCompStyles, useUserViewMode } from "util/hooks";
 import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
@@ -160,7 +160,7 @@ const BackgroundWrapper = styled.div<{
   border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
   border-color: ${(props) => `${props.$style.border} !important`};
-  height: calc(100% - ${(props) => getVerticalMargin(props.$style.margin.split(' '))});
+  height: calc(100% - ${(props) => props.$style.margin && getVerticalMargin(props.$style.margin.split(' '))});
   overflow: hidden;
 
   > div.table-scrollbar-wrapper {
@@ -903,7 +903,6 @@ export function TableCompView(props: {
     updateEmptyRows();
   }, [updateEmptyRows]);
 
-
   const pageDataInfo = useMemo(() => {
     // Data pagination
     let pagedData = data;
@@ -927,6 +926,11 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
+
+  useMergeCompStyles(
+    childrenProps as Record<string, any>,
+    comp.dispatch
+  );
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
