@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
 import { useEffect, useState } from "react";
 import { calculateFlowCode }  from "./apiUtils";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 
 // Interfaces
 export interface CustomerAddress {
@@ -213,10 +214,7 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     if (result?.data?.data?.length > 0) {
       return result?.data?.data;
     }
-    else if (result.data.success == "false" && (
-      result.data.reason == "customerNotFound"
-      || result.data.reason === "userSubscriptionNotFound"
-    )) {
+    else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
       return [];
     }
     else if (result.data.success == "false" && result.data.reason == "userSubscriptionNotFound") {
@@ -225,6 +223,7 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     else if (result.data.success == "false" && result.data.reason == "orgSubscriptionNotFound") {
       return [];
     }
+    return [];
   } catch (error) {
     console.error("Error searching customer:", error);
     throw error;
@@ -404,15 +403,16 @@ export const InitializeSubscription = () => {
 
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
+  const deploymentId = useSelector(getDeploymentId);
   const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  const hostIdenticator = "lowcoder-test";
+  // const hostIdenticator = "lowcoder-test";
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
-    hostId: hostIdenticator,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -420,7 +420,7 @@ export const InitializeSubscription = () => {
 
   const subscriptionNewCustomer: LowcoderNewCustomer = {
     hostname: domain,
-    hostId: hostIdenticator,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -447,8 +447,10 @@ export const InitializeSubscription = () => {
       }
     };
 
-    initializeCustomer();
-  }, []);
+    if (Boolean(deploymentId)) {
+      initializeCustomer();
+    }
+  }, [deploymentId]);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -547,13 +549,14 @@ export const CheckSubscriptions = () => {
 
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
+  const deploymentId = useSelector(getDeploymentId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  const hostIdenticator = "lowcoder-test";
+  // const hostIdenticator = "lowcoder-test";
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
-    hostId: hostIdenticator,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -571,6 +574,12 @@ export const CheckSubscriptions = () => {
         setLoading(false);
       }
     };
+    if (
+      Boolean(currentUser.email)
+      && Boolean(orgID)
+      && Boolean(user.id)
+      && Boolean(deploymentId)
+    )
     fetchCustomerAndSubscriptions();
   }, [subscriptionSearchCustomer]);
 

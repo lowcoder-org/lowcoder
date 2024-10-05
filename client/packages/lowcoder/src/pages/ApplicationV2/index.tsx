@@ -72,6 +72,7 @@ import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
+import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -172,6 +173,7 @@ export default function ApplicationHome() {
     if (user.currentOrgId) {
       dispatch(fetchHomeData({}));
       dispatch(fetchSubscriptionsAction());
+      dispatch(fetchDeploymentIdAction());
     }
   }, [user.currentOrgId]);
 

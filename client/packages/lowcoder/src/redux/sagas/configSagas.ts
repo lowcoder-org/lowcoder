@@ -37,8 +37,7 @@ export function* fetchDeploymentIdSaga(action: ReduxAction<undefined>) {
     const response: AxiosResponse<ConfigResponse> = yield call(
       ConfigApi.fetchDeploymentId,
     );
-    const isValidResponse: boolean = validateResponse(response);
-    if (isValidResponse) {
+    if (Boolean(response.data)) {
       yield put({
         type: ReduxActionTypes.FETCH_DEPLOYMENT_ID_SUCCESS,
         payload: response.data,

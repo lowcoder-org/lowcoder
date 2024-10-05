@@ -16,3 +16,7 @@ export const getBrandingConfig = (state: AppState) => {
 export const getExternalEditorState = (state: AppState) => {
   return state.ui.config.editorExternalState;
 };
+
+export const getDeploymentId = (state: AppState) => {
+  return state.ui.config.deploymentId;
+};
