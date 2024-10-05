@@ -17,6 +17,7 @@ export interface CustomerAddress {
 
 export interface LowcoderNewCustomer {
   hostname: string;
+  hostId: string;
   email: string;
   orgId: string;
   userId: string;
@@ -28,6 +29,7 @@ export interface LowcoderNewCustomer {
 
 export interface LowcoderSearchCustomer {
   hostname: string;
+  hostId: string;
   email: string;
   orgId: string;
   userId: string;
@@ -35,6 +37,7 @@ export interface LowcoderSearchCustomer {
 
 interface LowcoderMetadata {
   lowcoder_host: string;
+  lowcoder_hostId: string;
   lowcoder_orgId: string;
   lowcoder_type: string;
   lowcoder_userId: string;
@@ -395,10 +398,12 @@ export const InitializeSubscription = () => {
   const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+  const hostIdenticator = "lowcoder-test";
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
+    hostId: hostIdenticator,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -406,6 +411,7 @@ export const InitializeSubscription = () => {
 
   const subscriptionNewCustomer: LowcoderNewCustomer = {
     hostname: domain,
+    hostId: hostIdenticator,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -534,9 +540,11 @@ export const CheckSubscriptions = () => {
   const currentUser = useSelector(getCurrentUser);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
+  const hostIdenticator = "lowcoder-test";
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
+    hostId: hostIdenticator,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,

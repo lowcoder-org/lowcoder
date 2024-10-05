@@ -14,9 +14,11 @@ function* fetchSubscriptionsSaga(action: ReturnType<typeof fetchSubscriptionsAct
     const currentUser: CurrentUser = yield select(getCurrentUser); 
     const orgID = user.currentOrgId;
     const domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
+    const hostIdenticator = "lowcoder-test";
 
     const subscriptionSearchCustomer: LowcoderSearchCustomer = {
       hostname: domain,
+      hostId: hostIdenticator,
       email: currentUser.email,
       orgId: orgID,
       userId: user.id,
