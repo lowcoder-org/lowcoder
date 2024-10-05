@@ -12,7 +12,7 @@ const SubscriptionSuccessContent = styled.div`
   max-width: 840px;
 
   .section-title {
-    font-size: 14px;  
+    font-size: 14px;
     font-weight: 500;
     margin-bottom: 8px;
   }
@@ -38,7 +38,7 @@ const useQuery = () => {
   return new URLSearchParams(useLocation().search);
 };
 
-export function SubscriptionSuccess() {
+export function SubscriptionCancel() {
   const query = useQuery();
   const session_id = query.get("session_id");
   
@@ -50,10 +50,10 @@ export function SubscriptionSuccess() {
         </span>
       </HeaderBack>
       <div>
-        <h1>{`SUCCESS | Session ID: ${session_id}`}</h1>
+        <h1>{`Canceled | Session ID: ${session_id}`}</h1>
       </div>
     </Wrapper>
   );
 }
 
-export default SubscriptionSuccess;
+export default SubscriptionCancel;
