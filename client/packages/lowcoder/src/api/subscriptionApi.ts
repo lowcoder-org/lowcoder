@@ -1,10 +1,13 @@
 import Api from "api/api";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import { calculateFlowCode }  from "./apiUtils";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { fetchOrgUsersAction } from "redux/reduxActions/orgActions";
+import { getOrgUsers } from "redux/selectors/orgSelectors";
+import { AppState } from "@lowcoder-ee/redux/reducers";
 
 // Interfaces
 export interface CustomerAddress {
@@ -355,6 +358,28 @@ export const getCustomerPortalSession = async (customerId: string) => {
 
 // Hooks
 
+export const useOrgUserCount = (orgId: string) => {
+  const dispatch = useDispatch();
+  const orgUsers = useSelector((state: AppState) => getOrgUsers(state)); // Use selector to get orgUsers from state
+  const [userCount, setUserCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Dispatch action to fetch organization users
+    if (orgId) {
+      dispatch(fetchOrgUsersAction(orgId));
+    }
+  }, [dispatch, orgId]);
+
+  useEffect(() => {
+    // Update user count when orgUsers state changes
+    if (orgUsers && orgUsers.length > 0) {
+      setUserCount(orgUsers.length);
+    }
+  }, [orgUsers]);
+
+  return userCount;
+};
+
 export const InitializeSubscription = () => {
   const [customer, setCustomer] = useState<StripeCustomer | null>(null);
   const [isCreatingCustomer, setIsCreatingCustomer] = useState<boolean>(false);  // Track customer creation
@@ -364,7 +389,6 @@ export const InitializeSubscription = () => {
   const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
   const [checkoutLinkDataLoaded, setCheckoutLinkDataLoaded] = useState<boolean>(false);
   const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
-  
   const [products, setProducts] = useState<Product[]>([
     {
       pricingType: "Monthly, per User",
@@ -401,14 +425,17 @@ export const InitializeSubscription = () => {
     },
   ]);
 
+
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
   const deploymentId = useSelector(getDeploymentId);
   const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  // const hostIdenticator = "lowcoder-test";
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
+  const dispatch = useDispatch();
+
+  const userCount = useOrgUserCount(orgID);
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
@@ -470,8 +497,10 @@ export const InitializeSubscription = () => {
 
   useEffect(() => {
     const prepareCheckout = async () => {
-      if (subscriptionDataLoaded) {
+      if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
         try {
+          console.log("Total Users in Organization:", userCount);
+
           const updatedProducts = await Promise.all(
             products.map(async (product) => {
               const matchingSubscription = subscriptions.find(
@@ -486,7 +515,8 @@ export const InitializeSubscription = () => {
                   subscriptionId: matchingSubscription.id.substring(4),
                 };
               } else {
-                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, 1);
+                // Use the user count to set the quantity for checkout link
+                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, userCount);
                 return {
                   ...product,
                   activeSubscription: false,
@@ -505,7 +535,7 @@ export const InitializeSubscription = () => {
     };
 
     prepareCheckout();
-  }, [subscriptionDataLoaded]);
+  }, [subscriptionDataLoaded, userCount]);
 
   return {
     customer,
@@ -552,8 +582,7 @@ export const CheckSubscriptions = () => {
   const deploymentId = useSelector(getDeploymentId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  // const hostIdenticator = "lowcoder-test";
-
+  
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
     hostId: deploymentId,
