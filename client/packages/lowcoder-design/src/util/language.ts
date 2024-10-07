@@ -1,0 +1,2 @@
+export const isEditor = () => window.location.href.includes("edit") ? "edit" : window.location.href.includes("view") ? "view" : "admin"
+export const getLanguage = () => localStorage.getItem('lowcoder_uiLanguage')
