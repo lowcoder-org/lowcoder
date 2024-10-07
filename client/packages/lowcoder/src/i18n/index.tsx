@@ -3,27 +3,33 @@ import * as localeData from "./locales";
 import { I18nObjects } from "./locales/types";
 import { languagesMetadata } from "./languagesMeta";
 import { ReactNode } from "react";
+import { getLanguage } from "util/editor"
+import {string} from "sql-formatter/lib/src/lexer/regexFactory";
 
 type transType = (key: any, variables?: any) => string;
 type transToNodeType = (key: any, variables?: any) => ReactNode;
 
 let trans: transType;
 let transToNode: transToNodeType;
-let language = 'en';
+let language: string = localStorage.getItem('lowcoder_uiLanguage') || 'en' ;
 
-export const initTranslator = (lang?: string) => {
-  const translator =  new Translator<typeof localeData.en>(
-      localeData,
+export const initTranslator = async () => {
+  const lang = getLanguage();
+  let langJson = await (localeData as any)[lang || language]();
+  langJson = {[lang || language]: langJson}
+  const translator =  new Translator<typeof langJson>(
+      langJson,
       REACT_APP_LANGUAGES,
-      [lang || 'en']
+      [lang || language]
   );
 
   language = translator.language;
-  transToNode = translator.transToNode;
-  trans = translator.trans;
+  transToNode = (key: any, variables?: any) => translator.transToNode?.(key, variables);
+  trans = (key: any, variables?: any) => translator.trans?.(key, variables);
 }
 
-export const i18nObjs = getI18nObjects<I18nObjects>(localeData, REACT_APP_LANGUAGES);
+const langJson = await (localeData as any)[REACT_APP_LANGUAGES || language]();
+export const i18nObjs = getI18nObjects<I18nObjects>(langJson, REACT_APP_LANGUAGES || language);
 
 export const languageList = Object.keys(languagesMetadata).map(code => ({
   languageCode: code,
@@ -31,6 +37,6 @@ export const languageList = Object.keys(languagesMetadata).map(code => ({
   flag: languagesMetadata[code].flag
 }));
 
-initTranslator();
+await initTranslator();
 
 export { language, trans, transToNode };
