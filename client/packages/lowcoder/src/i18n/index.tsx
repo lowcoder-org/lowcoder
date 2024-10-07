@@ -4,17 +4,16 @@ import { I18nObjects } from "./locales/types";
 import { languagesMetadata } from "./languagesMeta";
 import { ReactNode } from "react";
 import { getLanguage } from "util/editor"
-import {string} from "sql-formatter/lib/src/lexer/regexFactory";
 
 type transType = (key: any, variables?: any) => string;
 type transToNodeType = (key: any, variables?: any) => ReactNode;
 
 let trans: transType;
 let transToNode: transToNodeType;
-let language: string = getLanguage() || 'en' ;
+let language: string = getLanguage();
 
-export const initTranslator = async () => {
-  const lang = getLanguage();
+export const initTranslator = async (langs : string) => {
+  const lang = langs;
   let langJson = await (localeData as any)[lang || language]();
   langJson = {[lang || language]: langJson}
   const translator =  new Translator<typeof langJson>(
@@ -37,6 +36,6 @@ export const languageList = Object.keys(languagesMetadata).map(code => ({
   flag: languagesMetadata[code].flag
 }));
 
-await initTranslator();
+await initTranslator(getLanguage());
 
 export { language, trans, transToNode };
