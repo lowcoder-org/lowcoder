@@ -3116,5 +3116,6 @@ export const zh: typeof en = {
         widthTooltip: "数字或百分比,例如 520,60%",
         navStyle: "菜单风格",
         navItemStyle: "菜单项样式",
-    }
+    },
+
 };
