@@ -25,6 +25,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { initTranslator } from "i18n";
+import {getLanguage} from "lowcoder/src/util/editor";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -92,7 +93,8 @@ export function* getCurrentUserSaga() {
         payload: response.data.data,
       });
 
-      initTranslator();
+      initTranslator(getLanguage());
+
     }
   } catch (error: any) {
     yield put({
