@@ -67,7 +67,7 @@ export const viteConfig: UserConfig = {
   base,
   build: {
     manifest: true,
-    target: "es2020",
+    target: "esnext",
     cssTarget: "chrome87",
     outDir: "build",
     assetsDir: "static",
