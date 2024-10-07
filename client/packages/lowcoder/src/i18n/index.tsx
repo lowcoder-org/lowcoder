@@ -11,7 +11,7 @@ type transToNodeType = (key: any, variables?: any) => ReactNode;
 
 let trans: transType;
 let transToNode: transToNodeType;
-let language: string = localStorage.getItem('lowcoder_uiLanguage') || 'en' ;
+let language: string = getLanguage() || 'en' ;
 
 export const initTranslator = async () => {
   const lang = getLanguage();
