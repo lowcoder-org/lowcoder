@@ -91,8 +91,8 @@ export function* getCurrentUserSaga() {
         type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
         payload: response.data.data,
       });
-      const { uiLanguage } = response.data.data;
-      initTranslator(uiLanguage);
+
+      initTranslator();
     }
   } catch (error: any) {
     yield put({
