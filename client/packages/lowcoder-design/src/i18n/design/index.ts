@@ -1,21 +1,19 @@
-import { getI18nObjects, Translator } from "lowcoder-core";
+
+import {  Translator } from "lowcoder-core";
 import * as localeData from "./locales";
-// import { I18nObjects } from "./locales/types";
-// import { languagesMetadata } from "./languagesMeta";
 import { ReactNode } from "react";
-// import { getLanguage } from "util/editor"
-// import {string} from "sql-formatter/lib/src/lexer/regexFactory";
+import {getLanguage} from "lowcoder/src/util/editor";
 
 type transType = (key: any, variables?: any) => string;
 type transToNodeType = (key: any, variables?: any) => ReactNode;
 
 let trans: transType;
 let transToNode: transToNodeType;
-let language: string = localStorage.getItem('lowcoder_uiLanguage') || 'en' ;
+const availableLanguages = ['en', 'zh', 'de', 'pt'];
+let language: string = getLanguage() || 'en' ;
 
-export const initTranslator = async () => {
-    const lang = localStorage.getItem('lowcoder_uiLanguage');
-    let langJson = await (localeData as any)[lang || language]();
+export const initTranslator = async (lang?: string) => {
+    let langJson = await (localeData as any)[lang || availableLanguages.includes(language) ? language : 'en']();
     langJson = {[lang || language]: langJson}
     const translator =  new Translator<typeof langJson>(
         langJson,
@@ -27,9 +25,6 @@ export const initTranslator = async () => {
     transToNode = (key: any, variables?: any) => translator.transToNode?.(key, variables);
     trans = (key: any, variables?: any) => translator.trans?.(key, variables);
 }
-
-const langJson = await (localeData as any)[REACT_APP_LANGUAGES || language]();
-
 
 
 await initTranslator();
