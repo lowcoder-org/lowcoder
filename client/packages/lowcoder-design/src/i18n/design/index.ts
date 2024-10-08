@@ -24,8 +24,6 @@ export const initTranslator = async (lang?: string) => {
     language = translator.language;
     transToNode = (key: any, variables?: any) => translator.transToNode?.(key, variables);
     trans = (key: any, variables?: any) => translator.trans?.(key, variables);
-
 }
-
 
 export { language, trans, transToNode };

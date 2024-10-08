@@ -11,6 +11,7 @@ type transToNodeType = (key: any, variables?: any) => ReactNode;
 let trans: transType;
 let transToNode: transToNodeType;
 let language: string = getLanguage();
+export let languageList: any[];
 
 export let i18nObjs : I18nObjects;
 export const initTranslator = async (langs? : string) => {
@@ -21,6 +22,11 @@ export const initTranslator = async (langs? : string) => {
   langJson = {[lang]: langJson, [(REACT_APP_LANGUAGES || language) + "Obj"]: langObjJson}
   await initlanguageMeta();
   i18nObjs = getI18nObjects<I18nObjects>(langJson, REACT_APP_LANGUAGES || language);
+  languageList = Object.keys(languagesMetadata).map(code => ({
+    languageCode: code,
+    languageName: languagesMetadata[code].languageName,
+    flag: languagesMetadata[code].flag
+  }));
   const translator =  new Translator<typeof langJson>(
       langJson,
       REACT_APP_LANGUAGES,
@@ -31,13 +37,5 @@ export const initTranslator = async (langs? : string) => {
   transToNode = (key: any, variables?: any) => translator.transToNode?.(key, variables);
   trans = (key: any, variables?: any) => translator.trans?.(key, variables);
 }
-
-
-export const languageList = Object.keys(languagesMetadata).map(code => ({
-  languageCode: code,
-  languageName: languagesMetadata[code].languageName,
-  flag: languagesMetadata[code].flag
-}));
-
 
 export { language, trans, transToNode };
