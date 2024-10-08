@@ -1,7 +1,7 @@
 import { getI18nObjects, Translator } from "lowcoder-core";
 import * as localeData from "./locales";
 import { I18nObjects } from "./locales/types";
-import { languagesMetadata } from "./languagesMeta";
+import {initlanguageMeta, languagesMetadata} from "./languagesMeta";
 import { ReactNode } from "react";
 import { getLanguage } from "util/editor"
 
@@ -12,10 +12,15 @@ let trans: transType;
 let transToNode: transToNodeType;
 let language: string = getLanguage();
 
-export const initTranslator = async (langs : string) => {
-  const lang = langs;
-  let langJson = await (localeData as any)[lang || language]();
-  langJson = {[lang || language]: langJson}
+export let i18nObjs : I18nObjects;
+export const initTranslator = async (langs? : string) => {
+  const lang = langs || language;
+  const objFileName = (REACT_APP_LANGUAGES || language) + "Obj";
+  let langJson = await (localeData as any)[lang]()
+  let langObjJson = await (localeData as any)[objFileName]()
+  langJson = {[lang]: langJson, [(REACT_APP_LANGUAGES || language) + "Obj"]: langObjJson}
+  await initlanguageMeta();
+  i18nObjs = getI18nObjects<I18nObjects>(langJson, REACT_APP_LANGUAGES || language);
   const translator =  new Translator<typeof langJson>(
       langJson,
       REACT_APP_LANGUAGES,
@@ -27,8 +32,6 @@ export const initTranslator = async (langs : string) => {
   trans = (key: any, variables?: any) => translator.trans?.(key, variables);
 }
 
-const langJson = await (localeData as any)[REACT_APP_LANGUAGES || language]();
-export const i18nObjs = getI18nObjects<I18nObjects>(langJson, REACT_APP_LANGUAGES || language);
 
 export const languageList = Object.keys(languagesMetadata).map(code => ({
   languageCode: code,
@@ -36,6 +39,5 @@ export const languageList = Object.keys(languagesMetadata).map(code => ({
   flag: languagesMetadata[code].flag
 }));
 
-await initTranslator(getLanguage());
 
 export { language, trans, transToNode };

@@ -6,13 +6,17 @@ import * as supabase from "@supabase/supabase-js";
 
 import * as uuid from "uuid";
 import "regenerator-runtime/runtime";
-import "virtual:globals";
+// import "virtual:globals";
 import { debug } from "loglevel";
-import { bootstrap } from "./app";
+// import { bootstrap } from "./app";
 import "./index.less";
 import log from "loglevel";
 import "antd-mobile/es/global";
 import 'animate.css';
+import {initTranslator as tran1} from "i18n/design";
+import {initTranslator as tran2} from "i18n";
+import {isEditor} from "@lowcoder-ee/util/editor";
+
 
 window.numbro = numbro;
 window.Papa = Papa;
@@ -39,10 +43,14 @@ debug(`REACT_APP_API_SERVICE_URL:, ${REACT_APP_API_SERVICE_URL}`);
 debug(`REACT_APP_NODE_SERVICE_URL:, ${REACT_APP_NODE_SERVICE_URL}`);
 debug(`REACT_APP_ENV:, ${REACT_APP_ENV}`);
 debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
- 
-try {
-  bootstrap();
-  hideLoading();
-} catch (e) {
-  log.error(e);
-}
+tran1().then(() => {
+  tran2().then(async () => {
+    try {
+      const bootstrap = await import("./app").then(module => module.bootstrap);
+      bootstrap();
+      hideLoading();
+    } catch (e) {
+      log.error(e);
+    }
+  })
+})
