@@ -6,16 +6,13 @@ import * as supabase from "@supabase/supabase-js";
 
 import * as uuid from "uuid";
 import "regenerator-runtime/runtime";
-// import "virtual:globals";
 import { debug } from "loglevel";
-// import { bootstrap } from "./app";
 import "./index.less";
 import log from "loglevel";
 import "antd-mobile/es/global";
 import 'animate.css';
 import {initTranslator as tran1} from "i18n/design";
 import {initTranslator as tran2} from "i18n";
-import {isEditor} from "@lowcoder-ee/util/editor";
 
 
 window.numbro = numbro;
