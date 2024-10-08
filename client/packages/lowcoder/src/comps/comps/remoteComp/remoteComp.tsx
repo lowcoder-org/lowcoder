@@ -16,6 +16,7 @@ import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 import React from "react";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { useSelector } from "react-redux";
+import { useApplicationId } from "@lowcoder-ee/util/hooks";
 
 const ViewError = styled.div`
   display: flex;
@@ -51,7 +52,7 @@ interface RemoteCompReadyAction {
 
 interface RemoteCompViewProps {
   isLowcoderComp?: boolean;
-  loadComp: (packageVersion?: string) => Promise<void>;
+  loadComp: (packageVersion?: string, appId?: string) => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
   source?: RemoteCompSource;
@@ -62,6 +63,7 @@ const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompView
   const [error, setError] = useState<any>("");
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
+  const appId = useApplicationId();
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
   const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 
@@ -79,7 +81,7 @@ const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompView
 
   useMount(() => {
     setError("");
-    loadComp(packageVersion).catch((e) => {
+    loadComp(packageVersion, appId).catch((e) => {
       setError(String(e));
     });
   });
@@ -117,7 +119,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
       this.compValue = params.value;
     }
 
-    private async load(packageVersion = 'latest') {
+    private async load(packageVersion = 'latest', appId = 'none') {
       if (!remoteInfo) {
         return;
       }
@@ -129,7 +131,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
         log.error("loader not found, remote info:", remoteInfo);
         return;
       }
-      const RemoteExportedComp = await finalLoader({...remoteInfo, packageVersion});
+      const RemoteExportedComp = await finalLoader({...remoteInfo, packageVersion, appId});
       if (!RemoteExportedComp) {
         return;
       }
@@ -159,7 +161,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
         <RemoteCompView
           key={key}
           isLowcoderComp={remoteInfo?.packageName === 'lowcoder-comps'}
-          loadComp={(packageVersion?: string) => this.load(packageVersion)}
+          loadComp={(packageVersion?: string, appId?: string) => this.load(packageVersion, appId)}
           loadingElement={loadingElement}
           source={remoteInfo?.source}
         />
