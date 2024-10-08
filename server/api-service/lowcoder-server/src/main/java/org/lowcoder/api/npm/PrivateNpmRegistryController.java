@@ -44,23 +44,44 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
 
     @NotNull
     private Mono<ResponseEntity<Resource>> forwardToNodeService(String applicationId, String path, String prefix) {
+
         String withoutLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
-        return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
-            Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getId());
-            return WebClientBuildHelper.builder()
-                    .systemProxy()
-                    .build()
-                    .post()
-                    .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(BodyInserters.fromValue(config))
-                    .retrieve().toEntity(Resource.class)
-                    .map(response -> {
-                        return ResponseEntity
-                                .status(response.getStatusCode())
-                                .headers(response.getHeaders())
-                                .body(response.getBody());
-                    });
-        }));
+        if(applicationId.equals("none")) {
+            return sessionUserService.getVisitorOrgMemberCache().flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId()).flatMap(organizationCommonSettings -> {
+                Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getOrgId());
+                return WebClientBuildHelper.builder()
+                        .systemProxy()
+                        .build()
+                        .post()
+                        .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(BodyInserters.fromValue(config))
+                        .retrieve().toEntity(Resource.class)
+                        .map(response -> {
+                            return ResponseEntity
+                                    .status(response.getStatusCode())
+                                    .headers(response.getHeaders())
+                                    .body(response.getBody());
+                        });
+            }));
+        } else{
+            return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
+                Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getId());
+                return WebClientBuildHelper.builder()
+                        .systemProxy()
+                        .build()
+                        .post()
+                        .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .body(BodyInserters.fromValue(config))
+                        .retrieve().toEntity(Resource.class)
+                        .map(response -> {
+                            return ResponseEntity
+                                    .status(response.getStatusCode())
+                                    .headers(response.getHeaders())
+                                    .body(response.getBody());
+                        });
+            }));
+        }
     }
 }
