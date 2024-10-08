@@ -3,6 +3,8 @@ package org.lowcoder.api.npm;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.lowcoder.api.home.SessionUserService;
+import org.lowcoder.domain.application.service.ApplicationServiceImpl;
+import org.lowcoder.domain.organization.service.OrgMemberServiceImpl;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.js.NodeServerHelper;
@@ -27,22 +29,24 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
 
     private static final String NPM_REGISTRY_METADATA = "npm/registry";
     private static final String NPM_REGISTRY_ASSET = "npm/package";
+    private final OrgMemberServiceImpl orgMemberServiceImpl;
+    private final ApplicationServiceImpl applicationServiceImpl;
 
     @Override
-    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String name) {
-        return forwardToNodeService(name, NPM_REGISTRY_METADATA);
+    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String name) {
+        return forwardToNodeService(applicationId, name, NPM_REGISTRY_METADATA);
     }
 
     @Override
-    public Mono<ResponseEntity<Resource>> getNpmPackageAsset(String path) {
-        return forwardToNodeService(path, NPM_REGISTRY_ASSET);
+    public Mono<ResponseEntity<Resource>> getNpmPackageAsset(String applicationId, String path) {
+        return forwardToNodeService(applicationId, path, NPM_REGISTRY_ASSET);
     }
 
     @NotNull
-    private Mono<ResponseEntity<Resource>> forwardToNodeService(String path, String prefix) {
+    private Mono<ResponseEntity<Resource>> forwardToNodeService(String applicationId, String path, String prefix) {
         String withoutLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
-        return sessionUserService.getVisitorOrgMemberCache().flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId()).flatMap(organizationCommonSettings -> {
-            Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getOrgId());
+        return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
+            Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getId());
             return WebClientBuildHelper.builder()
                     .systemProxy()
                     .build()
