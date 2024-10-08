@@ -565,7 +565,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                               <ThemeSettingsSelector
                                 themeSettingKey={canvasSettingItem.settingsKey}
                                 name={canvasSettingItem.name}
-                                radius={canvasSettingItem.value as string}
+                                canvasItemValue={canvasSettingItem.value as string}
                                 configChange={(params) => {
                                   this.configChange(params);
                                 }}
