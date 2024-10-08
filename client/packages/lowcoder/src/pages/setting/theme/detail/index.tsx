@@ -302,13 +302,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             type: "padding",
             value: this.state.theme?.padding,
           },
-          {
-            settingsKey: 'gridColumns',
-            name: trans('themeDetail.gridColumns'),
-            desc: trans('themeDetail.gridColumnsDesc'),
-            type: "gridColumns",
-            value: this.state.theme?.gridColumns,
-          }
+          // {
+          //   settingsKey: 'gridColumns',
+          //   name: trans('themeDetail.gridColumns'),
+          //   desc: trans('themeDetail.gridColumnsDesc'),
+          //   type: "gridColumns",
+          //   value: this.state.theme?.gridColumns,
+          // }
         ]
       },
       {
@@ -328,6 +328,80 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             type: "showDataLoadingIndicators",
             value: this.state.theme?.showDataLoadingIndicators,
           },
+        ]
+      },
+    ];
+
+    const canvasSettings = [
+      {
+        title: trans('themeDetail.gridSettings'),
+        items: [
+          {
+            settingsKey: 'gridColumns',
+            name: trans('themeDetail.gridColumns'),
+            desc: trans('themeDetail.gridColumnsDesc'),
+            type: "gridColumns",
+            value: this.state.theme?.gridColumns,
+          },
+          {
+            settingsKey: 'gridRowHeight',
+            name: trans('themeDetail.gridRowHeight'),
+            desc: trans('themeDetail.gridRowHeightDesc'),
+            type: "gridRowHeight",
+            value: this.state.theme?.gridRowHeight,
+          },
+        ]
+      },
+      {
+        title: trans('themeDetail.spacing'),
+        items: [
+          {
+            settingsKey: 'gridPadding',
+            name: trans('themeDetail.gridPadding'),
+            desc: trans('themeDetail.gridPaddingDesc'),
+            type: "gridPadding",
+            value: this.state.theme?.gridPadding,
+          }
+        ]
+      },
+      {
+        title: trans('themeDetail.background'),
+        items: [
+          {
+            settingsKey: 'gridBgImage',
+            name: trans('themeDetail.gridBgImage'),
+            desc: trans('themeDetail.gridBgImageDesc'),
+            type: "gridBgImage",
+            value: this.state.theme?.gridBgImage,
+          },
+          {
+            settingsKey: 'gridBgImageRepeat',
+            name: trans('themeDetail.gridBgImageRepeat'),
+            desc: trans('themeDetail.gridBgImageRepeatDesc'),
+            type: "gridBgImageRepeat",
+            value: this.state.theme?.gridBgImageRepeat,
+          },
+          {
+            settingsKey: 'gridBgImageSize',
+            name: trans('themeDetail.gridBgImageSize'),
+            desc: trans('themeDetail.gridBgImageSizeDesc'),
+            type: "gridBgImageSize",
+            value: this.state.theme?.gridBgImageSize,
+          },
+          {
+            settingsKey: 'gridBgImagePosition',
+            name: trans('themeDetail.gridBgImagePosition'),
+            desc: trans('themeDetail.gridBgImagePositionDesc'),
+            type: "gridBgImagePosition",
+            value: this.state.theme?.gridBgImagePosition,
+          },
+          {
+            settingsKey: 'gridBgImageOrigin',
+            name: trans('themeDetail.gridBgImageOrigin'),
+            desc: trans('themeDetail.gridBgImageOriginDesc'),
+            type: "gridBgImageOrigin",
+            value: this.state.theme?.gridBgImageOrigin,
+          }
         ]
       },
     ];
@@ -458,6 +532,45 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                               <div style={{ width: "200px", color: "#aaa"}}>Currently, the preview of Font-Family here in the Theme Settings may now show the right font. However, the Font Family Attribute comes into effect in all your apps, which uses this Theme.
                               <br/><br/><a href="https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/themes-and-styling#demo-2-custom-font-family" target="_blank">Remember, you neded to set the CSS inclue at App- or Workspace Level</a></div>
                             </List.Item>
+                          </Tooltip>
+                        ))}
+                      </>
+                    )}
+                  />
+                  <Divider type="vertical" style={{height: "610px"}}/>
+                  <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme!} dsl={dsl} />
+                </Flex>
+              </Card>
+            </ThemeSettingsView>
+            
+            <ThemeSettingsView>
+              <StyleThemeSettingsCover>
+                <PageLayoutCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.canvas")}</h2>
+              </StyleThemeSettingsCover>
+              <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
+                <Flex gap={"middle"}>
+                  <List
+                    bordered
+                    dataSource={canvasSettings}
+                    renderItem={(item) => (
+                      <>
+                        {item.title && (
+                          <List.Item>
+                            <DetailTitle>{item.title}</DetailTitle>
+                          </List.Item>
+                        )}
+                        {item.items.map((canvasSettingItem) => (
+                          <Tooltip key={canvasSettingItem.settingsKey} title={canvasSettingItem.desc} placement="right">
+                            <List.Item key={canvasSettingItem.settingsKey}>
+                              <ThemeSettingsSelector
+                                themeSettingKey={canvasSettingItem.settingsKey}
+                                name={canvasSettingItem.name}
+                                radius={canvasSettingItem.value as string}
+                                configChange={(params) => {
+                                  this.configChange(params);
+                                }}
+                              />
+                          </List.Item>
                           </Tooltip>
                         ))}
                       </>
