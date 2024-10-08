@@ -215,6 +215,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const { margin, rowHeight } = this.props as Required<GridLayoutProps>;
     const { extraHeight, emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
+    console.log(positionParams);
     const { containerPadding } = positionParams;
     const layout = this.getUILayout(undefined, true);
     let nbRow = bottom(layout);
