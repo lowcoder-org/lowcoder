@@ -50,6 +50,7 @@ type ColorConfigProps = {
   gridColumns?: string; // Added By Aqib Mirza
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  canvasItemValue?: string;
 };
 
 export default function ThemeSettingsSelector(props: ColorConfigProps) {
@@ -70,6 +71,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     fontFamily: defaultFontFamily,
     showComponentLoadingIndicators: defaultShowComponentLoaders,
     showDataLoadingIndicators: defaultShowDataLoaders,
+    canvasItemValue: defaultCanvasItemValue,
   } = props;
   
   const configChangeWithDebounce = _.debounce(configChange, 0);
@@ -84,6 +86,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [fontFamily, setFontFamily] = useState(defaultFontFamily);
   const [showComponentLoaders, setComponentLoaders] = useState(defaultShowComponentLoaders);
   const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
+  const [canvasValue, setCanvasValue] = useState(defaultCanvasItemValue);
 
   const varName = `(${themeSettingKey})`;
 
@@ -244,6 +247,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   useEffect(() => {
     setDataLoaders(defaultShowDataLoaders);
   }, [defaultShowDataLoaders]);
+
+  useEffect(() => {
+    setCanvasValue(defaultCanvasItemValue);
+  }, [defaultCanvasItemValue]);
 
   return (
     <ConfigItem className={props.className}>
