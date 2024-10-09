@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import { spawn } from "child_process";
 import { Request as ServerRequest, Response as ServerResponse } from "express";
 import { NpmRegistryService, NpmRegistryConfigEntry, NpmRegistryConfig } from "../services/npmRegistry";
-
+import {default as pathlib} from 'path';
 
 type RequestConfig = {
     workspaceId: string;
@@ -217,7 +217,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
                 logger.info(`Fetching tarball: ${tarball}`);
                 await fetchAndUnpackTarball(tarball, packageId, packageVersion, registry, baseDir);
             } catch (error) {
-                logger.error(`Error fetching package: ${error} ${(error as {stack: string}).stack}`);
+                logger.error(`Error fetching package: ${error} ${(error as any)?.stack}`);
                 return response.status(500).send("Internal server error");
             } finally {
                 PackageProcessingQueue.resolve(packageId);
@@ -232,7 +232,7 @@ async function fetchPackageFileInner(request: ServerRequest, response: ServerRes
             return response.sendFile(`${packageBaseDir}/index.mjs`);
         }
     
-        return response.sendFile(`${packageBaseDir}/${file}`);
+        return response.sendFile(pathlib.resolve(`${packageBaseDir}/${file}`));
     } catch (error) {
         logger.error(`Error fetching package file: ${error} ${(error as {stack: string})?.stack?.toString()}`);
         response.status(500).send("Internal server error");
