@@ -88,12 +88,14 @@ export function* getCurrentUserSaga() {
   try {
     const response: AxiosResponse<GetCurrentUserResponse> = yield call(UserApi.getCurrentUser);
     if (validateResponse(response)) {
+      localStorage.setItem('lowcoder_uiLanguage', response.data.data.uiLanguage);
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
         payload: response.data.data,
       });
 
-      initTranslator(getLanguage());
+      // persisting the language in local storage
+      initTranslator(response.data.data.uiLanguage);
 
     }
   } catch (error: any) {

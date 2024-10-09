@@ -149,9 +149,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       }
     }
 
-    // persisting the language in local storage
-    localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
-
     return (
       <Wrapper language={this.props.uiLanguage}>
         <Helmet>
