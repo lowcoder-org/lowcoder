@@ -2,6 +2,7 @@ package org.lowcoder.api.application;
 
 import java.util.Map;
 
+import jakarta.annotation.Nullable;
 import org.lowcoder.api.application.view.HistorySnapshotDslView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.infra.constant.NewUrl;
@@ -39,7 +40,8 @@ public interface ApplicationHistorySnapshotEndpoints
 	)
     @GetMapping("/{applicationId}")
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size);
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+			@RequestParam(required = false ) @Nullable String compName, @RequestParam(required = false ) @Nullable String theme);
 
 	@Operation(
 			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
