@@ -78,3 +78,4 @@ const boomiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
 };
 
 export default boomiPlugin;
+  
