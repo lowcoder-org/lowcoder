@@ -44,7 +44,7 @@ public class ApplicationHistorySnapshotServiceTest {
                 .verifyComplete();
 
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(0, 5)))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, PageRequest.of(0, 5)))
                 .assertNext(list -> {
                     assertEquals(2, list.size());
 
@@ -64,7 +64,7 @@ public class ApplicationHistorySnapshotServiceTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(1, 1)))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, PageRequest.of(1, 1)))
                 .assertNext(list -> {
                     assertEquals(1, list.size());
                     ApplicationHistorySnapshot one = list.get(0);
@@ -75,7 +75,7 @@ public class ApplicationHistorySnapshotServiceTest {
                 .verifyComplete();
 
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(0, 5))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, PageRequest.of(0, 5))
                         .map(it -> it.get(0))
                         .map(HasIdAndAuditing::getId)
                         .flatMap(id -> service.getHistorySnapshotDetail(id)))

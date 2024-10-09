@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.bind.annotation.RequestParam;
 import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
@@ -39,8 +40,8 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     }
 
     @Override
-    public Mono<List<ApplicationHistorySnapshot>> listAllHistorySnapshotBriefInfo(String applicationId, PageRequest pageRequest) {
-        return repository.findAllByApplicationId(applicationId, pageRequest.withSort(Direction.DESC, "id"))
+    public Mono<List<ApplicationHistorySnapshot>> listAllHistorySnapshotBriefInfo(String applicationId, String compName, String theme, PageRequest pageRequest) {
+        return repository.findAllByApplicationId(applicationId, compName, theme, pageRequest.withSort(Direction.DESC, "id"))
                 .collectList()
                 .onErrorMap(Exception.class, e -> ofException(BizError.FETCH_HISTORY_SNAPSHOT_FAILURE, "FETCH_HISTORY_SNAPSHOT_FAILURE"));
     }
@@ -57,14 +58,5 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     public Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId) {
         return repository.findById(historySnapshotId)
                 .switchIfEmpty(deferredError(INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", historySnapshotId));
-    }
-
-    @Override
-    public Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId) {
-        ApplicationHistorySnapshot _default = new ApplicationHistorySnapshot();
-        _default.setCreatedAt(Instant.ofEpochMilli(0));
-        _default.setCreatedBy("");
-        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt"))
-                .switchIfEmpty(Mono.just(_default)).next();
     }
 }
