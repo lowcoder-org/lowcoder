@@ -1,9 +1,13 @@
 import Api from "api/api";
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
-import { useEffect, useState } from "react";
+import { useEffect, useState} from "react";
 import { calculateFlowCode }  from "./apiUtils";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { fetchOrgUsersAction } from "redux/reduxActions/orgActions";
+import { getOrgUsers } from "redux/selectors/orgSelectors";
+import { AppState } from "@lowcoder-ee/redux/reducers";
 
 // Interfaces
 export interface CustomerAddress {
@@ -17,6 +21,7 @@ export interface CustomerAddress {
 
 export interface LowcoderNewCustomer {
   hostname: string;
+  hostId: string;
   email: string;
   orgId: string;
   userId: string;
@@ -28,6 +33,7 @@ export interface LowcoderNewCustomer {
 
 export interface LowcoderSearchCustomer {
   hostname: string;
+  hostId: string;
   email: string;
   orgId: string;
   userId: string;
@@ -35,6 +41,7 @@ export interface LowcoderSearchCustomer {
 
 interface LowcoderMetadata {
   lowcoder_host: string;
+  lowcoder_hostId: string;
   lowcoder_orgId: string;
   lowcoder_type: string;
   lowcoder_userId: string;
@@ -213,6 +220,13 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
       return [];
     }
+    else if (result.data.success == "false" && result.data.reason == "userSubscriptionNotFound") {
+      return [];
+    }
+    else if (result.data.success == "false" && result.data.reason == "orgSubscriptionNotFound") {
+      return [];
+    }
+    return [];
   } catch (error) {
     console.error("Error searching customer:", error);
     throw error;
@@ -291,7 +305,80 @@ export const createCheckoutLink = async (customer: StripeCustomer, priceId: stri
   }
 };
 
+// Function to get subscription details from Stripe
+export const getSubscriptionDetails = async (subscriptionId: string) => {
+  const apiBody = {
+    path: "webhook/secure/get-subscription-details",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching subscription details:", error);
+    throw error;
+  }
+};
+
+// Function to get invoice documents from Stripe
+export const getInvoices = async (subscriptionId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/get-subscription-invoices",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data?.data ?? [];
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
+};
+
+// Function to get a customer Portal Session from Stripe
+export const getCustomerPortalSession = async (customerId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/create-customer-portal-session",
+    method: "post",
+    data: { "customerId": customerId },
+    headers: lcHeaders,
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
+};
+
 // Hooks
+
+export const useOrgUserCount = (orgId: string) => {
+  const dispatch = useDispatch();
+  const orgUsers = useSelector((state: AppState) => getOrgUsers(state)); // Use selector to get orgUsers from state
+  const [userCount, setUserCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Dispatch action to fetch organization users
+    if (orgId) {
+      dispatch(fetchOrgUsersAction(orgId));
+    }
+  }, [dispatch, orgId]);
+
+  useEffect(() => {
+    // Update user count when orgUsers state changes
+    if (orgUsers && orgUsers.length > 0) {
+      setUserCount(orgUsers.length);
+    }
+  }, [orgUsers]);
+
+  return userCount;
+};
 
 export const InitializeSubscription = () => {
   const [customer, setCustomer] = useState<StripeCustomer | null>(null);
@@ -338,15 +425,21 @@ export const InitializeSubscription = () => {
     },
   ]);
 
+
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
+  const deploymentId = useSelector(getDeploymentId);
   const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
+  const dispatch = useDispatch();
+
+  const userCount = useOrgUserCount(orgID);
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -354,6 +447,7 @@ export const InitializeSubscription = () => {
 
   const subscriptionNewCustomer: LowcoderNewCustomer = {
     hostname: domain,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -380,8 +474,10 @@ export const InitializeSubscription = () => {
       }
     };
 
-    initializeCustomer();
-  }, []);
+    if (Boolean(deploymentId)) {
+      initializeCustomer();
+    }
+  }, [deploymentId]);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
@@ -401,8 +497,10 @@ export const InitializeSubscription = () => {
 
   useEffect(() => {
     const prepareCheckout = async () => {
-      if (subscriptionDataLoaded) {
+      if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
         try {
+          console.log("Total Users in Organization:", userCount);
+
           const updatedProducts = await Promise.all(
             products.map(async (product) => {
               const matchingSubscription = subscriptions.find(
@@ -417,7 +515,8 @@ export const InitializeSubscription = () => {
                   subscriptionId: matchingSubscription.id.substring(4),
                 };
               } else {
-                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, 1);
+                // Use the user count to set the quantity for checkout link
+                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, userCount);
                 return {
                   ...product,
                   activeSubscription: false,
@@ -436,7 +535,7 @@ export const InitializeSubscription = () => {
     };
 
     prepareCheckout();
-  }, [subscriptionDataLoaded]);
+  }, [subscriptionDataLoaded, userCount]);
 
   return {
     customer,
@@ -480,11 +579,13 @@ export const CheckSubscriptions = () => {
 
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
+  const deploymentId = useSelector(getDeploymentId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-
+  
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
     hostname: domain,
+    hostId: deploymentId,
     email: currentUser.email,
     orgId: orgID,
     userId: user.id,
@@ -502,6 +603,12 @@ export const CheckSubscriptions = () => {
         setLoading(false);
       }
     };
+    if (
+      Boolean(currentUser.email)
+      && Boolean(orgID)
+      && Boolean(user.id)
+      && Boolean(deploymentId)
+    )
     fetchCustomerAndSubscriptions();
   }, [subscriptionSearchCustomer]);
 

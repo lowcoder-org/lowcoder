@@ -32,6 +32,26 @@ export function* fetchConfigSaga(action: ReduxAction<FetchConfigActionPayload>) 
   }
 }
 
+export function* fetchDeploymentIdSaga(action: ReduxAction<undefined>) {
+  try {
+    const response: AxiosResponse<ConfigResponse> = yield call(
+      ConfigApi.fetchDeploymentId,
+    );
+    if (Boolean(response.data)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_DEPLOYMENT_ID_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error) {
+    log.error("fail to fetch deployment_id:", error);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_SYS_CONFIG_ERROR,
+    });
+  }
+}
+
 export default function* configSagas() {
   yield all([takeLatest(ReduxActionTypes.FETCH_SYS_CONFIG_INIT, fetchConfigSaga)]);
+  yield all([takeLatest(ReduxActionTypes.FETCH_DEPLOYMENT_ID_INIT, fetchDeploymentIdSaga)]);
 }

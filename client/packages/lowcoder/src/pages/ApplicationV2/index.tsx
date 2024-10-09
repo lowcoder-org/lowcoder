@@ -6,7 +6,6 @@ import {
   FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
-  // MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
   SUPPORT_URL,
@@ -73,6 +72,7 @@ import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
+import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -170,8 +170,11 @@ export default function ApplicationHome() {
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
-    dispatch(fetchHomeData({}));
-    dispatch(fetchSubscriptionsAction());
+    if (user.currentOrgId) {
+      dispatch(fetchHomeData({}));
+      dispatch(fetchSubscriptionsAction());
+      dispatch(fetchDeploymentIdAction());
+    }
   }, [user.currentOrgId]);
 
   const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
@@ -296,7 +299,7 @@ export default function ApplicationHome() {
             ],
           } : { items: [] },
 
-          /* supportSubscription ? {
+          supportSubscription ? {
             items: [
               {
                 text: <TabLabel>{trans("home.support")}</TabLabel>,
@@ -306,7 +309,7 @@ export default function ApplicationHome() {
                 icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
               },
             ],
-          } : { items: [] }, */
+          } : { items: [] },
 
           {
             items: [
