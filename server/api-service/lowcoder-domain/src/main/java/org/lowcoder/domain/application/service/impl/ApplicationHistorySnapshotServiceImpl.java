@@ -40,8 +40,8 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     }
 
     @Override
-    public Mono<List<ApplicationHistorySnapshot>> listAllHistorySnapshotBriefInfo(String applicationId, String compName, String theme, PageRequest pageRequest) {
-        return repository.findAllByApplicationId(applicationId, compName, theme, pageRequest.withSort(Direction.DESC, "id"))
+    public Mono<List<ApplicationHistorySnapshot>> listAllHistorySnapshotBriefInfo(String applicationId, String compName, String theme, Instant from, Instant to, PageRequest pageRequest) {
+        return repository.findAllByApplicationId(applicationId, compName, theme, from, to, pageRequest.withSort(Direction.DESC, "id"))
                 .collectList()
                 .onErrorMap(Exception.class, e -> ofException(BizError.FETCH_HISTORY_SNAPSHOT_FAILURE, "FETCH_HISTORY_SNAPSHOT_FAILURE"));
     }

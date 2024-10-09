@@ -55,14 +55,19 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
 
     @Override
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam String compName, @RequestParam String theme) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam String compName,
+            @RequestParam String theme,
+            @RequestParam Instant from,
+            @RequestParam Instant to) {
 
         Pagination pagination = Pagination.of(page, size).check();
 
         return sessionUserService.getVisitorId()
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
                         ResourceAction.EDIT_APPLICATIONS))
-                .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfo(applicationId, compName, theme, pagination.toPageRequest()))
+                .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfo(applicationId, compName, theme, from, to, pagination.toPageRequest()))
                 .flatMap(snapshotList -> {
                     Mono<List<ApplicationHistorySnapshotBriefInfo>> snapshotBriefInfoList = multiBuild(snapshotList,
                             ApplicationHistorySnapshot::getCreatedBy,

@@ -1,5 +1,6 @@
 package org.lowcoder.api.application;
 
+import java.time.Instant;
 import java.util.Map;
 
 import jakarta.annotation.Nullable;
@@ -41,7 +42,9 @@ public interface ApplicationHistorySnapshotEndpoints
     @GetMapping("/{applicationId}")
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
             @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
-			@RequestParam(required = false ) @Nullable String compName, @RequestParam(required = false ) @Nullable String theme);
+			@RequestParam(required = false ) @Nullable String compName, @RequestParam(required = false ) @Nullable String theme,
+			@RequestParam(required = false ) @Nullable Instant from,
+			@RequestParam(required = false ) @Nullable Instant to);
 
 	@Operation(
 			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
