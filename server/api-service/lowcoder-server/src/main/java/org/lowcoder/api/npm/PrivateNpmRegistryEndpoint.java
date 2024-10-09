@@ -21,8 +21,8 @@ public interface PrivateNpmRegistryEndpoint {
             summary = "Get NPM registry Metadata",
             description = "Retrieve the metadata of private NPM registry package."
     )
-//    @GetMapping("/registry/{name}")
-    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(@PathVariable String name);
+    @GetMapping("/registry/{applicationId}/{name}")
+    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(@PathVariable String applicationId, @PathVariable String name);
 
     @Operation(
             tags = TAG_NPM_REGISTRY_MANAGEMENT,
@@ -30,6 +30,6 @@ public interface PrivateNpmRegistryEndpoint {
             summary = "Get NPM registry asset",
             description = "Retrieve the asset of private NPM registry package."
     )
-//    @GetMapping("/package/{path}")
-    public Mono<ResponseEntity<Resource>> getNpmPackageAsset(@PathVariable String path);
+    @GetMapping("/package/{applicationId}/{*path}")
+    public Mono<ResponseEntity<Resource>> getNpmPackageAsset(@PathVariable String applicationId, @PathVariable String path);
 }
