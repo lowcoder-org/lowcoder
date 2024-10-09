@@ -2302,6 +2302,10 @@ export const en = {
     "manageSubscription" : "Manage Your Subscription",
     "subscriptionHelp" : "Subscription Help",
     "subscriptionHelpDescription" : "If you have any questions, please contact us. We are happy to help you. service@lowcoder.cloud",
+    "success" : "Payment & Subscription Success",
+    "successTitle" : "Thank you for your trust in Lowcoder!",
+    "successThankYou" : "Your trust and decision to partner with us mean the world to our entire team. We want you to know that we are fully committed to delivering exceptional service, unparalleled support, and continuous value every step of the way. At Lowcoder, our customers are at the heart of everything we do. We are passionate about helping you achieve your goals, and we take pride in being more than just a platform. Whether it's providing quick solutions, building innovative features, or simply being there when you need us, we are dedicated to making your experience outstanding. Thank you for inspiring us to strive for excellence every day. We love what we do, and we couldn’t do it without incredible customers like you. Welcome aboard, and let’s create something extraordinary together!",
+    "successLowcoderTeam" : "The Lowcoder Team",
   },
   "subscriptionError": {
     "fetchProductDetails": "Error fetching product details.",
