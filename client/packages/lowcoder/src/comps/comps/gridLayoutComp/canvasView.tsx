@@ -21,7 +21,7 @@ import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { isEqual } from "lodash";
-import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
+import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_COUNT, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
 
 const UICompContainer = styled.div<{
   $maxWidth?: number;
@@ -33,7 +33,7 @@ const UICompContainer = styled.div<{
   $bgImageOrigin?: string;
   $bgImagePosition?: string;
 }>`
-  height: 100%;
+  height: auto;
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
   background-color: ${(props) => props.$bgColor};
@@ -98,58 +98,115 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
     () => appSettings.maxWidth ?? maxWidthFromHook,
     [appSettings, maxWidthFromHook]
   );
+
+  const preventStylesOverwriting = useMemo(
+    () => appSettings.preventAppStylesOverwriting,
+    [appSettings]
+  );
+
   const isMobile = checkIsMobile(maxWidth);
-  const defaultContainerPadding = isMobile ? DEFAULT_MOBILE_PADDING : DEFAULT_CONTAINER_PADDING;
+  // const defaultContainerPadding = isMobile ? DEFAULT_MOBILE_PADDING : DEFAULT_CONTAINER_PADDING;
 
   const externalState = useContext(ExternalEditorContext);
   const {
     readOnly,
     appType,
     rootContainerExtraHeight = DEFAULT_EXTRA_HEIGHT,
-    rootContainerPadding = defaultContainerPadding,
+    rootContainerPadding,
     rootContainerOverflow,
   } = externalState;
 
   const isModule = appType === AppTypeEnum.Module;
+
   const bgColor = useMemo(
     () => (currentTheme || defaultTheme).canvas,
     [currentTheme, defaultTheme]
   );
-  const bgImage = useMemo(() => currentTheme?.gridBgImage, [currentTheme]);
+
+  const bgImage = useMemo(
+    () => {
+      const themeGridBgImage = preventStylesOverwriting ? undefined : currentTheme?.gridBgImage;
+      return themeGridBgImage || appSettings.gridBgImage;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme],
+  );
+
   const bgImageRepeat = useMemo(
-    () => currentTheme?.gridBgImageRepeat || defaultTheme?.gridBgImageRepeat,
-    [currentTheme, defaultTheme],
+    () => {
+      const themeGridBgImageRepeat = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageRepeat;
+      return themeGridBgImageRepeat || appSettings.gridBgImageRepeat || defaultTheme?.gridBgImageRepeat;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme, defaultTheme],
   );
   const bgImageSize = useMemo(
-    () => currentTheme?.gridBgImageSize || defaultTheme?.gridBgImageSize,
-    [currentTheme, defaultTheme],
+    () => {
+      const themeGridBgImageSize = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageSize;
+      return themeGridBgImageSize || appSettings.gridBgImageSize || defaultTheme?.gridBgImageSize;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme, defaultTheme],
   );
   const bgImagePosition = useMemo(
-    () => currentTheme?.gridBgImagePosition || defaultTheme?.gridBgImagePosition,
-    [currentTheme, defaultTheme],
+    () => {
+      const themeGridBgImagePosition = preventStylesOverwriting ? undefined : currentTheme?.gridBgImagePosition;
+      return themeGridBgImagePosition || appSettings.gridBgImagePosition || defaultTheme?.gridBgImagePosition;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme, defaultTheme],
   );
   const bgImageOrigin = useMemo(
-    () => currentTheme?.gridBgImageOrigin || defaultTheme?.gridBgImageOrigin,
-    [currentTheme, defaultTheme],
+    () => {
+      const themeGridBgImageOrigin = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageOrigin;
+      return themeGridBgImageOrigin || appSettings.gridBgImageOrigin || defaultTheme?.gridBgImageOrigin;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme, defaultTheme],
   );
 
   const defaultGrid = useMemo(() => {
-    return currentTheme?.gridColumns ||
-    defaultTheme?.gridColumns ||
-    String(DEFAULT_GRID_COLUMNS)
-  }, [currentTheme, defaultTheme]);
+    const themeGridColumns = preventStylesOverwriting ? undefined : currentTheme?.gridColumns;
+    return themeGridColumns
+      || String(appSettings?.gridColumns)
+      || defaultTheme?.gridColumns
+      || String(DEFAULT_GRID_COLUMNS);
+  }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
 
   const defaultRowHeight = useMemo(() => {
-    return currentTheme?.gridRowHeight ||
-    defaultTheme?.gridRowHeight ||
-    String(DEFAULT_ROW_HEIGHT)
-  }, [currentTheme, defaultTheme]);
+    const themeGridRowHeight = preventStylesOverwriting ? undefined : currentTheme?.gridRowHeight;
+    return themeGridRowHeight
+      || String(appSettings?.gridRowHeight)
+      || defaultTheme?.gridRowHeight
+      || String(DEFAULT_ROW_HEIGHT);
+  }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
 
-  const positionParams = {
+  const defaultRowCount = useMemo(() => {
+    const themeGridRowCount = preventStylesOverwriting ? undefined : currentTheme?.gridRowCount;
+    return themeGridRowCount
+      || appSettings?.gridRowCount
+      || defaultTheme?.gridRowCount
+      || DEFAULT_ROW_COUNT;
+  }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
+
+  const defaultContainerPadding: [number, number] = useMemo(() => {
+    if (isMobile) return DEFAULT_MOBILE_PADDING;
+
+    const themeGridPaddingX = preventStylesOverwriting ? undefined : currentTheme?.gridPaddingX;
+    const themeGridPaddingY = preventStylesOverwriting ? undefined : currentTheme?.gridPaddingY;
+
+    let paddingX = themeGridPaddingX || appSettings?.gridPaddingX || defaultTheme?.gridPaddingX || DEFAULT_CONTAINER_PADDING[0];
+    let paddingY = themeGridPaddingY || appSettings?.gridPaddingY || defaultTheme?.gridPaddingY || DEFAULT_CONTAINER_PADDING[1];
+    
+    return [paddingX, paddingY];
+  }, [preventStylesOverwriting, appSettings, isMobile, currentTheme, defaultTheme]);
+
+  const defaultMinHeight = useMemo(() => {
+    return defaultRowCount === DEFAULT_ROW_COUNT
+      ? `calc(100vh - ${TopHeaderHeight} - ${EditorContainerPadding} * 2)`
+      : undefined;
+  }, [defaultRowCount]);
+
+  const positionParams = useMemo(() => ({
     ...props.positionParams,
     cols: parseInt(defaultGrid),
     rowHeight: parseInt(defaultRowHeight),
-  };
+  }), [props.positionParams, defaultGrid, defaultRowHeight]);
 
   if (readOnly) {
     return (
@@ -166,7 +223,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
       >
         <Profiler id="Panel" onRender={profilerCallback}>
           <InnerGrid
-            containerPadding={rootContainerPadding}
+            containerPadding={defaultContainerPadding}
             overflow={rootContainerOverflow}
             {...props}
             positionParams={positionParams}
@@ -207,19 +264,20 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
           >
             <Profiler id="Panel" onRender={profilerCallback}>
               <InnerGrid
-                containerPadding={rootContainerPadding}
-                extraHeight={rootContainerExtraHeight}
+                containerPadding={defaultContainerPadding}
                 overflow={rootContainerOverflow}
                 {...props}
                 {...gridLayoutCanvasProps}
                 dragSelectedComps={dragSelectedComps}
-                minHeight={`calc(100vh - ${TopHeaderHeight} - ${EditorContainerPadding} * 2)`}
                 scrollContainerRef={scrollContainerRef}
                 isDroppable={!isModule}
                 isDraggable={!isModule}
                 enableGridLines
                 bgColor={bgColor}
                 positionParams={positionParams}
+                emptyRows={defaultRowCount}
+                minHeight={defaultMinHeight}
+                extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined }
               />
             </Profiler>
           </DragSelector>

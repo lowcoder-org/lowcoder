@@ -174,7 +174,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.gridColumns || params.gridRowHeight || params.gridPadding || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.gridColumns || params.gridRowHeight || params.gridRowCount || params.gridPaddingX || params.gridPaddingY || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
       },
     });
   }
@@ -302,13 +302,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             type: "padding",
             value: this.state.theme?.padding,
           },
-          // {
-          //   settingsKey: 'gridColumns',
-          //   name: trans('themeDetail.gridColumns'),
-          //   desc: trans('themeDetail.gridColumnsDesc'),
-          //   type: "gridColumns",
-          //   value: this.state.theme?.gridColumns,
-          // }
         ]
       },
       {
@@ -350,17 +343,31 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             type: "gridRowHeight",
             value: this.state.theme?.gridRowHeight,
           },
+          {
+            settingsKey: 'gridRowCount',
+            name: trans('themeDetail.gridRowCount'),
+            desc: trans('themeDetail.gridRowCountDesc'),
+            type: "gridRowCount",
+            value: this.state.theme?.gridRowCount,
+          },
         ]
       },
       {
         title: trans('themeDetail.spacing'),
         items: [
           {
-            settingsKey: 'gridPadding',
-            name: trans('themeDetail.gridPadding'),
-            desc: trans('themeDetail.gridPaddingDesc'),
-            type: "gridPadding",
-            value: this.state.theme?.gridPadding,
+            settingsKey: 'gridPaddingX',
+            name: trans('themeDetail.gridPaddingX'),
+            desc: trans('themeDetail.gridPaddingXDesc'),
+            type: "gridPaddingX",
+            value: this.state.theme?.gridPaddingX,
+          },
+          {
+            settingsKey: 'gridPaddingY',
+            name: trans('themeDetail.gridPaddingY'),
+            desc: trans('themeDetail.gridPaddingYDesc'),
+            type: "gridPaddingY",
+            value: this.state.theme?.gridPaddingY,
           }
         ]
       },
@@ -459,7 +466,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           </Header>
 
           <DetailContent>
-            <ThemeSettingsView>
+            {/* <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <ColorPickerCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
               </StyleThemeSettingsCover>
@@ -541,7 +548,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{marginTop: '3px', height: "620px", width: "100%"}} theme={this.state.theme!} dsl={dsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView>
+            </ThemeSettingsView> */}
             
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
@@ -582,11 +589,31 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   }}
                                 />
                               }
-                              {canvasSettingItem.type == "gridPadding" && 
+                              {canvasSettingItem.type == "gridRowCount" && 
                                 <ThemeSettingsSelector
                                   themeSettingKey={canvasSettingItem.settingsKey}
                                   name={canvasSettingItem.name}
-                                  gridPadding={canvasSettingItem.value as string}
+                                  gridRowCount={canvasSettingItem.value as number}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridPaddingX" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridPaddingX={canvasSettingItem.value as number}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridPaddingY" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridPaddingY={canvasSettingItem.value as number}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
@@ -654,7 +681,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
               </Card>
             </ThemeSettingsView>
 
-            <ThemeSettingsView>
+            {/* <ThemeSettingsView>
               <StyleThemeSettingsCover>
                 <PageLayoutCompIcon width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
               </StyleThemeSettingsCover>
@@ -723,16 +750,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   }}
                                 />
                               }
-                              {/* {layoutSettingsItem.type == "gridColumns" && 
-                                <ThemeSettingsSelector
-                                  themeSettingKey={layoutSettingsItem.settingsKey}
-                                  name={layoutSettingsItem.name}
-                                  gridColumns={layoutSettingsItem.value as string}
-                                  configChange={(params) => {
-                                    this.configChange(params);
-                                  }}
-                                />
-                              } */}
                               {layoutSettingsItem.type == "showComponentLoadingIndicators" && 
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
@@ -835,7 +852,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                   <PreviewApp style={{ height: "380px", width: "100%", margin: "0" }} theme={this.state.theme!} dsl={chartDsl} />
                 </Flex>
               </Card>
-            </ThemeSettingsView>
+            </ThemeSettingsView> */}
 
           </DetailContent>
 

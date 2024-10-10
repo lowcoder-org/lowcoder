@@ -14,6 +14,7 @@ import {
   calcRowCount,
   calcWH,
   calcXY,
+  DEFAULT_ROW_COUNT,
   genPositionParams,
   PositionParams,
 } from "./calculateUtils";
@@ -212,15 +213,15 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
    * @return {String} Container height in pixels.
    */
   containerHeight(): string {
-    const { margin, rowHeight } = this.props as Required<GridLayoutProps>;
+    const { margin, rowHeight, fixedRowCount } = this.props as Required<GridLayoutProps>;
     const { extraHeight, emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
 
     const { containerPadding } = positionParams;
     const layout = this.getUILayout(undefined, true);
     let nbRow = bottom(layout);
-    if (!_.isNil(emptyRows) && _.size(layout) === 0) {
-      nbRow = emptyRows;
+    if (!_.isNil(emptyRows) && (_.size(layout) === 0 || fixedRowCount)) {
+      nbRow = emptyRows;// === Infinity ? 0 : emptyRows;
     }
     const containerHeight = Math.max(
       nbRow * rowHeight + (nbRow - 1) * margin[1] + containerPadding[1] * 2
@@ -402,7 +403,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // log.debug("onHeightChange. i: ", i, " h: ", h, " ops: ", this.state.ops);
     // const ops = layoutOpUtils.push(this.state.ops, stickyItemOp(i, { h }));
     // this.setState({ ops });
-    console.log('onheightChange', this.state.changedHs?.[i]);
     if (this.state.changedHs?.[i] !== h) {
       this.setState((prevState) => {
         return {
@@ -1048,6 +1048,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         $radius={this.props.radius}
         $autoHeight={this.props.autoHeight}
         $overflow={this.props.overflow}
+        $maxRows={this.props.emptyRows}
         tabIndex={-1}
         onDrop={isDroppable ? this.onDrop : _.noop}
         onDragLeave={isDroppable ? this.onDragLeave : _.noop}
@@ -1083,6 +1084,7 @@ const LayoutContainer = styled.div<{
   $bgColor?: string;
   $autoHeight?: boolean;
   $overflow?: string;
+  $maxRows?: number;
   $radius?: string;
 }>`
   border-radius: ${(props) => props.$radius ?? "4px"};
@@ -1090,8 +1092,11 @@ const LayoutContainer = styled.div<{
   /* height: 100%; */
   height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
 
-  overflow: auto;
-  overflow: ${(props) => props.$overflow ?? "overlay"};
+  overflow: ${(props) =>
+    props.$maxRows !== DEFAULT_ROW_COUNT
+    ? 'hidden'
+    : props.$overflow ?? "overlay"
+  };
   ${(props) =>
     props.$autoHeight &&
     `::-webkit-scrollbar {

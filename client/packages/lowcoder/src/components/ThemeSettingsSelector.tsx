@@ -30,7 +30,9 @@ export type configChangeParams = {
   showDataLoadingIndicators?: boolean;
   gridColumns?: string;
   gridRowHeight?: string;
-  gridPadding?: string;
+  gridRowCount?: number;
+  gridPaddingX?: number;
+  gridPaddingY?: number;
   gridBgImage?: string;
   gridBgImageRepeat?: string;
   gridBgImageSize?: string;
@@ -58,7 +60,9 @@ type ColorConfigProps = {
   showDataLoadingIndicators?: boolean;
   gridColumns?: string;
   gridRowHeight?: string;
-  gridPadding?: string;
+  gridRowCount?: number;
+  gridPaddingX?: number;
+  gridPaddingY?: number;
   gridBgImage?: string;
   gridBgImageRepeat?: string;
   gridBgImageSize?: string;
@@ -85,7 +89,9 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     showDataLoadingIndicators: defaultShowDataLoaders,
     gridColumns: defaultGridColumns,
     gridRowHeight: defaultGridRowHeight,
-    gridPadding: defaultGridPadding,
+    gridRowCount: defaultGridRowCount,
+    gridPaddingX: defaultGridPaddingX,
+    gridPaddingY: defaultGridPaddingY,
     gridBgImage: defaultGridBgImage,
     gridBgImageRepeat: defaultGridBgImageRepeat,
     gridBgImageSize: defaultGridBgImageSize,
@@ -106,7 +112,9 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
   const [gridColumns, setGridColumns] = useState(defaultGridColumns); 
   const [gridRowHeight, setGridRowHeight] = useState(defaultGridRowHeight); 
-  const [gridPadding, setGridPadding] = useState(defaultGridPadding); 
+  const [gridRowCount, setGridRowCount] = useState(defaultGridRowCount); 
+  const [gridPaddingX, setGridPaddingX] = useState(defaultGridPaddingX); 
+  const [gridPaddingY, setGridPaddingY] = useState(defaultGridPaddingY); 
   const [gridBgImage, setGridBgImage] = useState(defaultGridBgImage); 
   const [gridBgImageRepeat, setGridBgImageRepeat] = useState(defaultGridBgImageRepeat); 
   const [gridBgImageSize, setGridBgImageSize] = useState(defaultGridBgImageSize); 
@@ -166,11 +174,6 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       result = "3px";  
     }
 
-    if (themeSettingKey === 'gridPadding') {
-      setGridPadding(result);  
-      configChange({ themeSettingKey, gridPadding: result });
-      return;
-    }
     setPadding(result);  
     configChange({ themeSettingKey, padding: result });
   };
@@ -233,6 +236,34 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     configChange({ themeSettingKey, gridColumns: result });
   };
 
+  const gridRowCountInputBlur = (value: number) => {  
+    let result = Infinity;
+    if (value > 0) {
+      result = value;
+    }
+
+    setGridRowCount(result);  
+    configChange({ themeSettingKey, gridRowCount: result });
+  };
+
+  const gridPaddingInputBlur = (padding: number) => {  
+    let result = 20;  
+    if (padding > 0) {  
+      result = padding;  
+    }
+
+    if (themeSettingKey === 'gridPaddingX') {
+      setGridPaddingX(result);  
+      configChange({ themeSettingKey, gridPaddingX: result });
+      return;
+    }
+    if (themeSettingKey === 'gridPaddingY') {
+      setGridPaddingY(result);  
+      configChange({ themeSettingKey, gridPaddingY: result });
+      return;
+    }
+  };
+
   const gridBackgroundInputBlur = (value: string) => {
     switch (themeSettingKey) {
       case 'gridBgImage':
@@ -285,6 +316,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   }, [defaultGridColumns]);
 
   useEffect(() => {
+    setGridRowCount(defaultGridRowCount);
+  }, [defaultGridRowCount]);
+
+  useEffect(() => {
     setBorderStyle(defaultBorderStyle);
   }, [defaultBorderStyle]);
 
@@ -331,7 +366,9 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         themeSettingKey !== "showDataLoadingIndicators" &&
         themeSettingKey !== "gridColumns" &&
         themeSettingKey !== "gridRowHeight" &&
-        themeSettingKey !== "gridPadding" &&
+        themeSettingKey !== "gridRowCount" &&
+        themeSettingKey !== "gridPaddingX" &&
+        themeSettingKey !== "gridPaddingY" &&
         themeSettingKey !== "gridBgImage" &&
         themeSettingKey !== "gridBgImageRepeat" &&
         themeSettingKey !== "gridBgImageSize" &&
@@ -508,9 +545,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridColumns" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div>
-              <TableCellsIcon title="" />
-            </div>
+            <div><TableCellsIcon title="" /></div>
           </GridColumns>
 
           <Slider 
@@ -527,15 +562,13 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridRowHeight" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div>
-              <TableCellsIcon title="" />
-            </div>
+            <div><TableCellsIcon title="" /></div>
           </GridColumns>
 
           <Slider 
             style={{ width: "90%", margin: "8px 5% 0 5%"}}
             min={6}  // Define the minimum value for the slider
-            max={16} // Define the maximum value for the slider
+            max={20} // Define the maximum value for the slider
             value={parseInt(gridRowHeight || "8")}
             onChange={(value) => setGridRowHeight(value.toString())}
             onChangeComplete={(value) => gridSizeInputBlur(value.toString())}
@@ -543,20 +576,61 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         </div>
       )}
 
-      {themeSettingKey === "gridPadding" && (  
-        <div className="config-input">  
-          <Padding $padding={defaultGridPadding || "0px"}>  
-            <div><CompressIcon title="" /></div>  
-          </Padding>  
-          <TacoInput  
-            value={gridPadding}  
-            onChange={(e) => setGridPadding(e.target.value)}  
-            onBlur={(e) => paddingInputBlur(e.target.value)}  
-            onKeyUp={(e) =>  
-              e.nativeEvent.key === "Enter" &&  
-              paddingInputBlur(e.currentTarget.value)  
-            }  
-          />  
+      {themeSettingKey === "gridRowCount" && (
+        <div className="config-input">
+          <GridColumns $gridColumns={defaultGridColumns || "24"}>
+            <div><TableCellsIcon title="" /></div>
+          </GridColumns>
+
+          <TacoInput
+            type="number"
+            min={0}
+            value={gridRowCount}
+            onChange={(e) => setGridRowCount(Number(e.target.value))}
+            onBlur={(e) => gridRowCountInputBlur(Number(e.target.value))}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              gridRowCountInputBlur(Number(e.currentTarget.value))
+            }
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridPaddingX" && (
+        <div className="config-input">
+          <Padding $padding={"3px"}>
+            <div><CompressIcon title="" /></div>
+          </Padding>
+          <TacoInput
+            type="number"
+            min={0}
+            value={gridPaddingX}
+            onChange={(e) => setGridPaddingX(Number(e.target.value))}
+            onBlur={(e) => gridPaddingInputBlur(Number(e.target.value))}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              gridPaddingInputBlur(Number(e.currentTarget.value))
+            }
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridPaddingY" && (
+        <div className="config-input">
+          <Padding $padding={"3px"}>
+            <div><CompressIcon title="" /></div>
+          </Padding>
+          <TacoInput
+            type="number"
+            min={0}
+            value={gridPaddingY}
+            onChange={(e) => setGridPaddingY(Number(e.target.value))}
+            onBlur={(e) => gridPaddingInputBlur(Number(e.target.value))}
+            onKeyUp={(e) =>
+              e.nativeEvent.key === "Enter" &&
+              gridPaddingInputBlur(Number(e.currentTarget.value))
+            }
+          />
         </div>
       )}
 
