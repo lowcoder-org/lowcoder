@@ -12,7 +12,7 @@ import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.util.Pagination;
 import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceAction;
@@ -70,15 +70,15 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                 .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfo(applicationId, compName, theme, from, to, pagination.toPageRequest()))
                 .flatMap(snapshotList -> {
                     Mono<List<ApplicationHistorySnapshotBriefInfo>> snapshotBriefInfoList = multiBuild(snapshotList,
-                            ApplicationHistorySnapshot::getCreatedBy,
+                            ApplicationHistorySnapshotTS::getCreatedBy,
                             userService::getByIds,
-                            (applicationHistorySnapshot, user) -> new ApplicationHistorySnapshotBriefInfo(
-                                    applicationHistorySnapshot.getId(),
-                                    applicationHistorySnapshot.getContext(),
-                                    applicationHistorySnapshot.getCreatedBy(),
+                            (applicationHistorySnapshotTS, user) -> new ApplicationHistorySnapshotBriefInfo(
+                                    applicationHistorySnapshotTS.getId(),
+                                    applicationHistorySnapshotTS.getContext(),
+                                    applicationHistorySnapshotTS.getCreatedBy(),
                                     user.getName(),
                                     user.getAvatarUrl(),
-                                    applicationHistorySnapshot.getCreatedAt().toEpochMilli()
+                                    applicationHistorySnapshotTS.getCreatedAt().toEpochMilli()
                             )
                     );
 
@@ -97,7 +97,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
                         ResourceAction.EDIT_APPLICATIONS))
                 .flatMap(__ -> applicationHistorySnapshotService.getHistorySnapshotDetail(snapshotId))
-                .map(ApplicationHistorySnapshot::getDsl)
+                .map(ApplicationHistorySnapshotTS::getDsl)
                 .zipWhen(dsl -> applicationService.getAllDependentModulesFromDsl(dsl))
                 .map(tuple -> {
                     Map<String, Object> applicationDsl = tuple.getT1();
