@@ -17,7 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @RestController
@@ -48,7 +50,7 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
         String withoutLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
         if(applicationId.equals("none")) {
             return sessionUserService.getVisitorOrgMemberCache().flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId()).flatMap(organizationCommonSettings -> {
-                Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getOrgId());
+                Map<String, Object> config = Map.of("npmRegistries", Objects.requireNonNullElse(organizationCommonSettings.get("npmRegistries"), new ArrayList<>(0)), "workspaceId", orgMember.getOrgId());
                 return WebClientBuildHelper.builder()
                         .systemProxy()
                         .build()
@@ -66,7 +68,7 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
             }));
         } else{
             return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
-                Map<String, Object> config = Map.of("npmRegistries", organizationCommonSettings.get("npmRegistries"), "workspaceId", orgMember.getId());
+                Map<String, Object> config = Map.of("npmRegistries", Objects.requireNonNullElse(organizationCommonSettings.get("npmRegistries"), new ArrayList<>(0)), "workspaceId", orgMember.getId());
                 return WebClientBuildHelper.builder()
                         .systemProxy()
                         .build()
