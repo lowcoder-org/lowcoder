@@ -7,16 +7,7 @@ export type PositionParams = Pick<
   "margin" | "containerPadding" | "containerWidth" | "cols" | "rowHeight" | "maxRows"
 >;
 
-// Added By Aqib Mirza
-let gridColumns: number;
-
-const getDefaultGridColumns = () => {
-  return gridColumns;
-};
-
-export { getDefaultGridColumns };
-export const DEFAULT_GRID_COLUMNS = getDefaultGridColumns() || 24;
-//////////////////////
+export const DEFAULT_GRID_COLUMNS = 24;
 
 export const DEFAULT_ROW_HEIGHT = 8;
 
@@ -102,6 +93,7 @@ export function calcGridItemSizePx(
   const width = calcGridItemWHPx(w, colWidth, margin[0], false);
 
   const isTouchSBound = top ? isTouchBound(maxRows, rowHeight, h, top) : false;
+  // console.log('positionParams',positionParams);
   const height = calcGridItemWHPx(h, rowHeight, margin[1], isTouchSBound);
   return { width, height };
 }

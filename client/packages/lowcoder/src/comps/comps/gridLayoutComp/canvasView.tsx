@@ -1,6 +1,6 @@
 import { EditorContext } from "comps/editorState";
 import { EditorContainer } from "pages/common/styledComponent";
-import React, { Profiler, useContext, useRef, useState } from "react";
+import React, { Profiler, useContext, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { profilerCallback } from "util/cacheUtils";
 import {
@@ -21,14 +21,27 @@ import { CNRootContainer } from "constants/styleSelectors";
 import { ScrollBar } from "lowcoder-design";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { isEqual } from "lodash";
+import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
 
-// min-height: 100vh;
-
-const UICompContainer = styled.div<{ $maxWidth?: number; readOnly?: boolean; $bgColor: string }>`
+const UICompContainer = styled.div<{
+  $maxWidth?: number;
+  readOnly?: boolean;
+  $bgColor: string;
+  $bgImage?: string;
+  $bgImageSize?: string;
+  $bgImageRepeat?: string;
+  $bgImageOrigin?: string;
+  $bgImagePosition?: string;
+}>`
   height: 100%;
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
   background-color: ${(props) => props.$bgColor};
+  ${(props) => props.$bgImage && `background-image: url(${props.$bgImage});`}; 
+  ${(props) => props.$bgImageRepeat && `background-repeat: ${props.$bgImageRepeat};`}; 
+  ${(props) => props.$bgImageSize && `background-size: ${props.$bgImageSize};`}; 
+  ${(props) => props.$bgImageOrigin && `background-origin: ${props.$bgImageOrigin};`}; 
+  ${(props) => props.$bgImagePosition && `background-position: ${props.$bgImagePosition};`}; 
 `;
 
 // modal/drawer container
@@ -74,12 +87,17 @@ function getDragSelectedNames(
 const EmptySet = new Set<string>();
 
 export const CanvasView = React.memo((props: ContainerBaseProps) => {
+  const currentTheme = useContext(ThemeContext)?.theme;
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
   const scrollContainerRef = useRef(null);
-
+  const appSettings = editorState.getAppSettings();
   const maxWidthFromHook = useMaxWidth();
-  const maxWidth = editorState.getAppSettings().maxWidth ?? maxWidthFromHook;
+
+  const maxWidth = useMemo(
+    () => appSettings.maxWidth ?? maxWidthFromHook,
+    [appSettings, maxWidthFromHook]
+  );
   const isMobile = checkIsMobile(maxWidth);
   const defaultContainerPadding = isMobile ? DEFAULT_MOBILE_PADDING : DEFAULT_CONTAINER_PADDING;
 
@@ -93,19 +111,46 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   } = externalState;
 
   const isModule = appType === AppTypeEnum.Module;
-  const bgColor = (useContext(ThemeContext)?.theme || defaultTheme).canvas;
+  const bgColor = useMemo(
+    () => (currentTheme || defaultTheme).canvas,
+    [currentTheme, defaultTheme]
+  );
+  const bgImage = useMemo(() => currentTheme?.gridBgImage, [currentTheme]);
+  const bgImageRepeat = useMemo(
+    () => currentTheme?.gridBgImageRepeat || defaultTheme?.gridBgImageRepeat,
+    [currentTheme, defaultTheme],
+  );
+  const bgImageSize = useMemo(
+    () => currentTheme?.gridBgImageSize || defaultTheme?.gridBgImageSize,
+    [currentTheme, defaultTheme],
+  );
+  const bgImagePosition = useMemo(
+    () => currentTheme?.gridBgImagePosition || defaultTheme?.gridBgImagePosition,
+    [currentTheme, defaultTheme],
+  );
+  const bgImageOrigin = useMemo(
+    () => currentTheme?.gridBgImageOrigin || defaultTheme?.gridBgImageOrigin,
+    [currentTheme, defaultTheme],
+  );
 
-  // Added By Aqib Mirza
-  const defaultGrid =
-    useContext(ThemeContext)?.theme?.gridColumns ||
+  const defaultGrid = useMemo(() => {
+    return currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "24";
+    String(DEFAULT_GRID_COLUMNS)
+  }, [currentTheme, defaultTheme]);
+
+  const defaultRowHeight = useMemo(() => {
+    return currentTheme?.gridRowHeight ||
+    defaultTheme?.gridRowHeight ||
+    String(DEFAULT_ROW_HEIGHT)
+  }, [currentTheme, defaultTheme]);
 
   const positionParams = {
     ...props.positionParams,
     cols: parseInt(defaultGrid),
+    rowHeight: parseInt(defaultRowHeight),
   };
-  //////////////////////
+
   if (readOnly) {
     return (
       <UICompContainer
@@ -113,13 +158,18 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
         readOnly={true}
         className={CNRootContainer}
         $bgColor={bgColor}
+        $bgImage={bgImage}
+        $bgImageSize={bgImageSize}
+        $bgImageRepeat={bgImageRepeat}
+        $bgImageOrigin={bgImageOrigin}
+        $bgImagePosition={bgImagePosition}
       >
         <Profiler id="Panel" onRender={profilerCallback}>
           <InnerGrid
             containerPadding={rootContainerPadding}
             overflow={rootContainerOverflow}
             {...props}
-            positionParams={positionParams} // Added By Aqib Mirza
+            positionParams={positionParams}
             {...gridLayoutCanvasProps}
             bgColor={bgColor}
             radius="0px"
@@ -132,7 +182,16 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   return (
     <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
       <EditorContainer ref={scrollContainerRef}>
-        <UICompContainer $maxWidth={maxWidth} className={CNRootContainer} $bgColor={bgColor}>
+        <UICompContainer
+          $maxWidth={maxWidth}
+          className={CNRootContainer}
+          $bgColor={bgColor}
+          $bgImage={bgImage}
+          $bgImageSize={bgImageSize}
+          $bgImageRepeat={bgImageRepeat}
+          $bgImageOrigin={bgImageOrigin}
+          $bgImagePosition={bgImagePosition}
+        >
           <DragSelector
             onMouseDown={() => {
               setDragSelectedComp(EmptySet);
@@ -160,6 +219,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
                 isDraggable={!isModule}
                 enableGridLines
                 bgColor={bgColor}
+                positionParams={positionParams}
               />
             </Profiler>
           </DragSelector>
