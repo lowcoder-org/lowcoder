@@ -215,7 +215,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const { margin, rowHeight } = this.props as Required<GridLayoutProps>;
     const { extraHeight, emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
-    console.log(positionParams);
+
     const { containerPadding } = positionParams;
     const layout = this.getUILayout(undefined, true);
     let nbRow = bottom(layout);
@@ -342,7 +342,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   onLayoutMaybeChanged(newLayout: Layout, oldLayout?: Layout) {
     // log.debug("layout: layoutMayBeChanged. oldLayout: ", oldLayout, " newLayout: ", newLayout);
     if (!oldLayout) oldLayout = this.state.layout;
-
+    
     if (!_.isEqual(oldLayout, newLayout)) {
       this.props.onLayoutChange?.(newLayout);
     }
@@ -402,6 +402,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // log.debug("onHeightChange. i: ", i, " h: ", h, " ops: ", this.state.ops);
     // const ops = layoutOpUtils.push(this.state.ops, stickyItemOp(i, { h }));
     // this.setState({ ops });
+    console.log('onheightChange', this.state.changedHs?.[i]);
     if (this.state.changedHs?.[i] !== h) {
       this.setState((prevState) => {
         return {
@@ -1085,7 +1086,7 @@ const LayoutContainer = styled.div<{
   $radius?: string;
 }>`
   border-radius: ${(props) => props.$radius ?? "4px"};
-  background-color: ${(props) => props.$bgColor ?? "#f5f5f6"};
+  // background-color: ${(props) => props.$bgColor ?? "#f5f5f6"};
   /* height: 100%; */
   height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
 

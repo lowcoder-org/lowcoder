@@ -103,15 +103,16 @@ const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boole
  * An individual item within a ReactGridLayout.
  */
 export const GridItem = React.memo((props: GridItemProps) => {
-  const position = useMemo(() =>
-    calcGridItemPosition({
+  const position = useMemo(() =>{
+    console.log(props.x, props.y, props.w, props.h)
+    return calcGridItemPosition({
       margin: props.margin,
       containerPadding: props.containerPadding,
       containerWidth: props.containerWidth,
       cols: props.cols,
       rowHeight: props.rowHeight,
       maxRows: props.maxRows,
-    }, props.x, props.y, props.w, props.h),
+    }, props.x, props.y, props.w, props.h)},
     [
       props.margin,
       props.containerPadding,
@@ -126,6 +127,10 @@ export const GridItem = React.memo((props: GridItemProps) => {
       calcGridItemPosition,
     ]
   );
+  useEffect(() => {
+    console.log(position);
+  }, [position]);
+
   const [resizing, setResizing] = useState<{ width: number; height: number } | undefined>();
   const [dragging, setDragging] = useState<{ top: number; left: number } | undefined>();
   const elementRef = useRef<HTMLDivElement>(null);
@@ -345,6 +350,7 @@ export const GridItem = React.memo((props: GridItemProps) => {
       Math.min(maxes.width, Infinity),
       Math.min(maxes.height, Infinity),
     ];
+
     return (
       <ResizableStyled // These are opts for the resize handle itself
         draggableOpts={{
