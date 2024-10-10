@@ -3801,7 +3801,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=13.7.0, @types/node@npm:^20.1.1":
+"@types/node@npm:*, @types/node@npm:>=13.7.0":
   version: 20.16.11
   resolution: "@types/node@npm:20.16.11"
   dependencies:
@@ -3810,7 +3810,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.0.1":
+"@types/node@npm:^22.0.1, @types/node@npm:^22.7.5":
   version: 22.7.5
   resolution: "@types/node@npm:22.7.5"
   dependencies:
@@ -7732,7 +7732,7 @@ __metadata:
     "@types/jsonpath": ^0.2.0
     "@types/lodash": ^4.14.190
     "@types/morgan": ^1.9.3
-    "@types/node": ^20.1.1
+    "@types/node": ^22.7.5
     "@types/node-fetch": ^2.6.2
     ali-oss: ^6.20.0
     axios: ^1.7.7
