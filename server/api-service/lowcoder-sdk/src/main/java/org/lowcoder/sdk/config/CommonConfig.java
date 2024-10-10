@@ -160,6 +160,7 @@ public class CommonConfig {
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+        private long appSnapshotKeepDuration = 30;
     }
 
     @Data
