@@ -8,8 +8,8 @@ export type PositionParams = Pick<
 >;
 
 export const DEFAULT_GRID_COLUMNS = 24;
-
 export const DEFAULT_ROW_HEIGHT = 8;
+export const DEFAULT_ROW_COUNT = Infinity;
 
 export const DEFAULT_POSITION_PARAMS: PositionParams = {
   margin: [0, 0],
@@ -17,7 +17,7 @@ export const DEFAULT_POSITION_PARAMS: PositionParams = {
   containerWidth: 0,
   cols: DEFAULT_GRID_COLUMNS,
   rowHeight: DEFAULT_ROW_HEIGHT,
-  maxRows: Infinity,
+  maxRows: DEFAULT_ROW_COUNT,
 };
 
 // Helper for generating column width
