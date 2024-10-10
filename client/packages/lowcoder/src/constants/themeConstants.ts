@@ -14,6 +14,7 @@ const theme = {
   padding: "3px",
   lineHeight: "18px",
   gridColumns: "24",
+  gridRowHeight: "8",
   textSize: "14px",
   // text: "#222222",
   animation: "",
@@ -25,6 +26,10 @@ const theme = {
   animationIterationCount: "",
   showComponentLoadingIndicators: true,
   showDataLoadingIndicators: true,
+  gridBgImageSize: "cover",
+  gridBgImagePosition: "center",
+  gridBgImageRepeat: "no-repeat",
+  gridBgImageOrigin: "padding-box",
 };
 
 const text = {

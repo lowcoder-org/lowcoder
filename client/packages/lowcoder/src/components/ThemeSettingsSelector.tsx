@@ -21,7 +21,6 @@ export type configChangeParams = {
   chart?: string;
   margin?: string;  
   padding?: string;
-  gridColumns?: string; // Added By Aqib Mirza
   borderStyle?: string;
   borderColor?: string;
   borderWidth?: string;
@@ -29,6 +28,14 @@ export type configChangeParams = {
   components?: Record<string, object>,
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  gridColumns?: string;
+  gridRowHeight?: string;
+  gridPadding?: string;
+  gridBgImage?: string;
+  gridBgImageRepeat?: string;
+  gridBgImageSize?: string;
+  gridBgImagePosition?: string;
+  gridBgImageOrigin?: string;
 };
 
 type ColorConfigProps = {
@@ -47,10 +54,16 @@ type ColorConfigProps = {
   fontFamily?: string;
   margin?: string;  
   padding?: string;
-  gridColumns?: string; // Added By Aqib Mirza
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
-  canvasItemValue?: string;
+  gridColumns?: string;
+  gridRowHeight?: string;
+  gridPadding?: string;
+  gridBgImage?: string;
+  gridBgImageRepeat?: string;
+  gridBgImageSize?: string;
+  gridBgImagePosition?: string;
+  gridBgImageOrigin?: string;
 };
 
 export default function ThemeSettingsSelector(props: ColorConfigProps) {
@@ -64,14 +77,20 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     showVarName = true,
     margin: defaultMargin,  
     padding: defaultPadding,
-    gridColumns: defaultGridColumns,
     borderStyle: defaultBorderStyle,
     borderWidth: defaultBorderWidth,
     borderColor: defaultBorderColor,
     fontFamily: defaultFontFamily,
     showComponentLoadingIndicators: defaultShowComponentLoaders,
     showDataLoadingIndicators: defaultShowDataLoaders,
-    canvasItemValue: defaultCanvasItemValue,
+    gridColumns: defaultGridColumns,
+    gridRowHeight: defaultGridRowHeight,
+    gridPadding: defaultGridPadding,
+    gridBgImage: defaultGridBgImage,
+    gridBgImageRepeat: defaultGridBgImageRepeat,
+    gridBgImageSize: defaultGridBgImageSize,
+    gridBgImagePosition: defaultGridBgImagePosition,
+    gridBgImageOrigin: defaultGridBgImageOrigin,
   } = props;
   
   const configChangeWithDebounce = _.debounce(configChange, 0);
@@ -79,14 +98,20 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [radius, setRadius] = useState(defaultRadius);
   const [margin, setMargin] = useState(defaultMargin);  
   const [padding, setPadding] = useState(defaultPadding);
-  const [gridColumns, setGridColumns] = useState(defaultGridColumns); 
   const [borderStyle, setBorderStyle] = useState(defaultBorderStyle);
   const [borderWidth, setBorderWidth] = useState(defaultBorderWidth);
   const [borderColor, setBorderColor] = useState(defaultBorderColor);
   const [fontFamily, setFontFamily] = useState(defaultFontFamily);
   const [showComponentLoaders, setComponentLoaders] = useState(defaultShowComponentLoaders);
   const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
-  const [canvasValue, setCanvasValue] = useState(defaultCanvasItemValue);
+  const [gridColumns, setGridColumns] = useState(defaultGridColumns); 
+  const [gridRowHeight, setGridRowHeight] = useState(defaultGridRowHeight); 
+  const [gridPadding, setGridPadding] = useState(defaultGridPadding); 
+  const [gridBgImage, setGridBgImage] = useState(defaultGridBgImage); 
+  const [gridBgImageRepeat, setGridBgImageRepeat] = useState(defaultGridBgImageRepeat); 
+  const [gridBgImageSize, setGridBgImageSize] = useState(defaultGridBgImageSize); 
+  const [gridBgImagePosition, setGridBgImagePosition] = useState(defaultGridBgImagePosition); 
+  const [gridBgImageOrigin, setGridBgImageOrigin] = useState(defaultGridBgImageOrigin); 
 
   const varName = `(${themeSettingKey})`;
 
@@ -139,20 +164,15 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       result = padding;  
     } else {  
       result = "3px";  
-    }  
-    setPadding(result);  
-    configChange({ themeSettingKey, padding: result });  
-  };
-
-  const gridColumnsInputBlur = (gridColumns: string) => {
-    let result = "";
-    if (!gridColumns) {
-      result = "24";
-    } else {
-      result = gridColumns;
     }
-    setGridColumns(result);
-    configChange({ themeSettingKey, gridColumns: result });
+
+    if (themeSettingKey === 'gridPadding') {
+      setGridPadding(result);  
+      configChange({ themeSettingKey, gridPadding: result });
+      return;
+    }
+    setPadding(result);  
+    configChange({ themeSettingKey, padding: result });
   };
 
   const borderStyleInputBlur = (borderStyle: string) => {
@@ -197,6 +217,46 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     configChange({ themeSettingKey, fontFamily: result });
   };
 
+  const gridSizeInputBlur = (value: string) => {
+    let result = "";
+    if (!value) {
+      result = themeSettingKey === 'gridRowHeight' ? '8' : '24';
+    } else {
+      result = value;
+    }
+    if (themeSettingKey === 'gridRowHeight') {
+      setGridRowHeight(result);
+      configChange({ themeSettingKey, gridRowHeight: result });
+      return;
+    }
+    setGridColumns(result);
+    configChange({ themeSettingKey, gridColumns: result });
+  };
+
+  const gridBackgroundInputBlur = (value: string) => {
+    switch (themeSettingKey) {
+      case 'gridBgImage':
+        setGridBgImage(value);
+        configChange({ themeSettingKey, gridBgImage: value });
+        break;
+      case 'gridBgImageRepeat':
+        setGridBgImageRepeat(value || 'no-repeat');
+        configChange({ themeSettingKey, gridBgImageRepeat: value });
+        break;
+      case 'gridBgImageSize':
+        setGridBgImageSize(value || "cover");
+        configChange({ themeSettingKey, gridBgImageSize: value });
+        break;
+      case 'gridBgImagePosition':
+        setGridBgImagePosition(value || "center");
+        configChange({ themeSettingKey, gridBgImagePosition: value });
+        break;
+      case 'gridBgImageOrigin':
+        setGridBgImageOrigin(value || 'padding-box');
+        configChange({ themeSettingKey, gridBgImageOrigin: value });
+        break;
+    }
+  }
 
   useEffect(() => {
     if (color && isValidColor(color)) {
@@ -248,10 +308,6 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     setDataLoaders(defaultShowDataLoaders);
   }, [defaultShowDataLoaders]);
 
-  useEffect(() => {
-    setCanvasValue(defaultCanvasItemValue);
-  }, [defaultCanvasItemValue]);
-
   return (
     <ConfigItem className={props.className}>
       {themeSettingKey !== "showDataLoadingIndicators"
@@ -268,12 +324,19 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey !== "radius" &&  
         themeSettingKey !== "margin" &&  
         themeSettingKey !== "padding" && 
-        themeSettingKey !== "gridColumns" &&
         themeSettingKey !== "borderStyle" &&
         themeSettingKey !== "borderWidth" &&
         themeSettingKey !== "fontFamily" && 
         themeSettingKey !== "showComponentLoadingIndicators" && 
-        themeSettingKey !== "showDataLoadingIndicators" && (
+        themeSettingKey !== "showDataLoadingIndicators" &&
+        themeSettingKey !== "gridColumns" &&
+        themeSettingKey !== "gridRowHeight" &&
+        themeSettingKey !== "gridPadding" &&
+        themeSettingKey !== "gridBgImage" &&
+        themeSettingKey !== "gridBgImageRepeat" &&
+        themeSettingKey !== "gridBgImageSize" &&
+        themeSettingKey !== "gridBgImagePosition" &&
+        themeSettingKey !== "gridBgImageOrigin" && (
         <div className="config-input">
           <ColorSelect
             changeColor={_.debounce(setColor, 500, {
@@ -396,25 +459,6 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         </div>
       )}
 
-      {themeSettingKey === "gridColumns" && (
-        <div className="config-input">
-          <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div>
-              <TableCellsIcon title="" />
-            </div>
-          </GridColumns>
-
-          <Slider 
-            style={{ width: "90%", margin: "8px 5% 0 5%"}}
-            min={8}  // Define the minimum value for the slider
-            max={48} // Define the maximum value for the slider
-            value={parseInt(gridColumns || "24")}
-            onChange={(value) => setGridColumns(value.toString())}
-            onChangeComplete={(value) => gridColumnsInputBlur(value.toString())}
-          />
-        </div>
-      )}
-
       {themeSettingKey === "fontFamily" && (
         <div className="config-input">
           <TacoInput
@@ -458,6 +502,116 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             }}
           />
           <span>{name}</span>
+        </div>
+      )}
+
+      {themeSettingKey === "gridColumns" && (
+        <div className="config-input">
+          <GridColumns $gridColumns={defaultGridColumns || "24"}>
+            <div>
+              <TableCellsIcon title="" />
+            </div>
+          </GridColumns>
+
+          <Slider 
+            style={{ width: "90%", margin: "8px 5% 0 5%"}}
+            min={8}  // Define the minimum value for the slider
+            max={48} // Define the maximum value for the slider
+            value={parseInt(gridColumns || "24")}
+            onChange={(value) => setGridColumns(value.toString())}
+            onChangeComplete={(value) => gridSizeInputBlur(value.toString())}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridRowHeight" && (
+        <div className="config-input">
+          <GridColumns $gridColumns={defaultGridColumns || "24"}>
+            <div>
+              <TableCellsIcon title="" />
+            </div>
+          </GridColumns>
+
+          <Slider 
+            style={{ width: "90%", margin: "8px 5% 0 5%"}}
+            min={6}  // Define the minimum value for the slider
+            max={16} // Define the maximum value for the slider
+            value={parseInt(gridRowHeight || "8")}
+            onChange={(value) => setGridRowHeight(value.toString())}
+            onChangeComplete={(value) => gridSizeInputBlur(value.toString())}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridPadding" && (  
+        <div className="config-input">  
+          <Padding $padding={defaultGridPadding || "0px"}>  
+            <div><CompressIcon title="" /></div>  
+          </Padding>  
+          <TacoInput  
+            value={gridPadding}  
+            onChange={(e) => setGridPadding(e.target.value)}  
+            onBlur={(e) => paddingInputBlur(e.target.value)}  
+            onKeyUp={(e) =>  
+              e.nativeEvent.key === "Enter" &&  
+              paddingInputBlur(e.currentTarget.value)  
+            }  
+          />  
+        </div>
+      )}
+
+      {themeSettingKey === "gridBgImage" && (
+        <div className="config-input">
+          <TacoInput
+            value={gridBgImage}
+            onChange={(e) => setGridBgImage(e.target.value)}
+            onBlur={(e) => gridBackgroundInputBlur(e.target.value)}
+            onKeyUp={(e) => e.nativeEvent.key === "Enter" && gridBackgroundInputBlur(e.currentTarget.value)}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridBgImageRepeat" && (
+        <div className="config-input">
+          <TacoInput
+            value={gridBgImageRepeat}
+            onChange={(e) => setGridBgImageRepeat(e.target.value)}
+            onBlur={(e) => gridBackgroundInputBlur(e.target.value)}
+            onKeyUp={(e) => e.nativeEvent.key === "Enter" && gridBackgroundInputBlur(e.currentTarget.value)}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridBgImageSize" && (
+        <div className="config-input">
+          <TacoInput
+            value={gridBgImageSize}
+            onChange={(e) => setGridBgImageSize(e.target.value)}
+            onBlur={(e) => gridBackgroundInputBlur(e.target.value)}
+            onKeyUp={(e) => e.nativeEvent.key === "Enter" && gridBackgroundInputBlur(e.currentTarget.value)}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridBgImagePosition" && (
+        <div className="config-input">
+          <TacoInput
+            value={gridBgImagePosition}
+            onChange={(e) => setGridBgImagePosition(e.target.value)}
+            onBlur={(e) => gridBackgroundInputBlur(e.target.value)}
+            onKeyUp={(e) => e.nativeEvent.key === "Enter" && gridBackgroundInputBlur(e.currentTarget.value)}
+          />
+        </div>
+      )}
+
+      {themeSettingKey === "gridBgImageOrigin" && (
+        <div className="config-input">
+          <TacoInput
+            value={gridBgImageOrigin}
+            onChange={(e) => setGridBgImageOrigin(e.target.value)}
+            onBlur={(e) => gridBackgroundInputBlur(e.target.value)}
+            onKeyUp={(e) => e.nativeEvent.key === "Enter" && gridBackgroundInputBlur(e.currentTarget.value)}
+          />
         </div>
       )}
     </ConfigItem>

@@ -174,7 +174,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.gridColumns || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.gridColumns || params.gridRowHeight || params.gridPadding || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
       },
     });
   }
@@ -562,14 +562,86 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                         {item.items.map((canvasSettingItem) => (
                           <Tooltip key={canvasSettingItem.settingsKey} title={canvasSettingItem.desc} placement="right">
                             <List.Item key={canvasSettingItem.settingsKey}>
-                              <ThemeSettingsSelector
-                                themeSettingKey={canvasSettingItem.settingsKey}
-                                name={canvasSettingItem.name}
-                                canvasItemValue={canvasSettingItem.value as string}
-                                configChange={(params) => {
-                                  this.configChange(params);
-                                }}
-                              />
+                              {canvasSettingItem.type == "gridColumns" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridColumns={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridRowHeight" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridRowHeight={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridPadding" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridPadding={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridBgImage" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridBgImage={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridBgImageRepeat" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridBgImageRepeat={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridBgImageSize" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridBgImageSize={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridBgImagePosition" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridBgImagePosition={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "gridBgImageOrigin" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  gridBgImageOrigin={canvasSettingItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
                           </List.Item>
                           </Tooltip>
                         ))}
@@ -651,7 +723,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   }}
                                 />
                               }
-                              {layoutSettingsItem.type == "gridColumns" && 
+                              {/* {layoutSettingsItem.type == "gridColumns" && 
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
                                   name={layoutSettingsItem.name}
@@ -660,7 +732,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                     this.configChange(params);
                                   }}
                                 />
-                              }
+                              } */}
                               {layoutSettingsItem.type == "showComponentLoadingIndicators" && 
                                 <ThemeSettingsSelector
                                   themeSettingKey={layoutSettingsItem.settingsKey}
