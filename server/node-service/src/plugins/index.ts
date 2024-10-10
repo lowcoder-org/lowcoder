@@ -39,7 +39,7 @@ import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
-import boomiPlugin from "./boomi";
+// import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -78,7 +78,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
-  boomiPlugin,
+  // boomiPlugin,
 
   // Messaging
   twilioPlugin,
