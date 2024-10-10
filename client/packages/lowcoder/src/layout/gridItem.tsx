@@ -104,7 +104,6 @@ const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boole
  */
 export const GridItem = React.memo((props: GridItemProps) => {
   const position = useMemo(() =>{
-    console.log(props.x, props.y, props.w, props.h)
     return calcGridItemPosition({
       margin: props.margin,
       containerPadding: props.containerPadding,
@@ -127,9 +126,6 @@ export const GridItem = React.memo((props: GridItemProps) => {
       calcGridItemPosition,
     ]
   );
-  useEffect(() => {
-    console.log(position);
-  }, [position]);
 
   const [resizing, setResizing] = useState<{ width: number; height: number } | undefined>();
   const [dragging, setDragging] = useState<{ top: number; left: number } | undefined>();

@@ -22,6 +22,7 @@ import {
   calcRowCount,
   calcRowHeight,
   DEFAULT_GRID_COLUMNS,
+  DEFAULT_ROW_COUNT,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
 import _, { isEqual } from "lodash";
@@ -351,11 +352,10 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   // Falk: TODO: Here we can define the inner grid columns dynamically
   const defaultGrid = useMemo(() => {
-    return horizontalGridCells ||
-    currentTheme?.gridColumns ||
-    defaultTheme?.gridColumns ||
-    String(DEFAULT_GRID_COLUMNS);
-  }, [horizontalGridCells, currentTheme?.gridColumns, defaultTheme?.gridColumns]);
+    return horizontalGridCells
+      || String(positionParams.cols)
+      || String(DEFAULT_GRID_COLUMNS);
+  }, [horizontalGridCells, positionParams.cols]);
 
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
@@ -542,6 +542,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       onResizeStop={() => editorState.setDragging(false)}
       margin={[0, 0]}
       containerPadding={props.containerPadding}
+      fixedRowCount={props.emptyRows !== DEFAULT_ROW_COUNT}
       emptyRows={props.emptyRows}
       maxRows={currentRowCount}
       rowHeight={currentRowHeight}
