@@ -342,20 +342,21 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
   const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
-  const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
+  const [currentRowHeight, setRowHeight] = useState(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
+  const appSettingsComp = editorState.getAppSettingsComp().getView();
+
+  const maxWidth = useMemo(() => appSettingsComp.maxWidth, [appSettingsComp.maxWidth]);
 
   // Falk: TODO: Here we can define the inner grid columns dynamically
-  //Added By Aqib Mirza
   const defaultGrid = useMemo(() => {
     return horizontalGridCells ||
     currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "12";
+    String(DEFAULT_GRID_COLUMNS);
   }, [horizontalGridCells, currentTheme?.gridColumns, defaultTheme?.gridColumns]);
 
-  /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
   const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
@@ -479,13 +480,11 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   useEffect(() => {
     if (!isRowCountLocked) {
-      setRowHeight(DEFAULT_ROW_HEIGHT);
+      setRowHeight(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
       setRowCount(Infinity);
       onRowCountChange?.(0);
     }
   }, [isRowCountLocked, onRowCountChange]);
-
-  const maxWidth = editorState.getAppSettings().maxWidth;
 
   // log.info("rowCount:", currentRowCount, "rowHeight:", currentRowHeight);
 
