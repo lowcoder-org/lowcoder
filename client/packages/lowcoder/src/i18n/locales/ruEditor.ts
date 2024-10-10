@@ -1,16 +1,8 @@
-
 export const ru = {
     "orgSettings": {
-        "createOrg": "Создать рабочее пространство (организация)",
-        "orgName": "Имя рабочей области",
         "newOrg": "Новое рабочее пространство (Организация)"
     },
     "memberSettings": {
-        "nameColumn": "Имя пользователя",
-        "joinTimeColumn": "Время присоединения",
-        "roleColumn": "Роль",
-        "actionColumn": "Операция",
-        "addMember": "Добавить участников",
         "superAdmin": "Суперадминистратор",
         "adminGroupRoleInfo": "Администратор может управлять членами группы и ресурсами",
         "admin": "Администратор",
@@ -19,28 +11,50 @@ export const ru = {
         "adminOrgRoleInfo": "Администраторы владеют всеми ресурсами и могут управлять группами.",
         "memberOrgRoleInfo": "Участники могут использовать или посещать только те ресурсы, к которым у них есть доступ.",
         "devGroupTip": "Члены группы разработчиков имеют привилегии на создание приложений и источников данных.",
-        "lastAdminQuit": "Последний администратор не может выйти.",
-        "newGroupPrefix": "Новая группа",
-        "allMembers": "Все члены",
-        "createGroup": "Создать группу",
-        "inviteUser": "Пригласить участников",
-        "groupName": "Название группы",
-        "createTime": "Создать время",
-        "manageBtn": "Управление"
+        "lastAdminQuit": "Последний администратор не может выйти."
     },
     "share": {
-        "title": "Поделиться"
+        "title": "Поделиться",
+        "viewer": "Просмотрщик",
+        "editor": "Редактор",
+        "owner": "Владелец"
     },
     "export": {
-        "sliderValueDesc": "Текущее выбранное значение",
-        "sliderMaxValueDesc": "Максимальное значение ползунка",
-        "sliderMinValueDesc": "Минимальное значение ползунка",
         "hiddenDesc": "Если true, компонент будет скрыт",
         "disabledDesc": "Если true, компонент отключен и неинтерактивен.",
         "placeholderDesc": "Текст-заглушка, когда значение не задано",
         "requiredDesc": "Если true, необходимо ввести действительное значение",
         "visibleDesc": "Если true, то компонент виден",
-        "invalidDesc": "Указывает, является ли значение недействительным"
+        "richTextEditorValueDesc": "Текущее значение редактора",
+        "richTextEditorReadOnlyDesc": "Если true, редактор доступен только для чтения",
+        "richTextEditorHideToolBarDesc": "Если true, панель инструментов будет скрыта",
+        "invalidDesc": "Указывает, является ли значение недействительным",
+        "inputValueDesc": "Текущее значение входа",
+        "jsonEditorDesc": "Текущие данные в формате JSON",
+        "ratingValueDesc": "Текущий выбранный рейтинг",
+        "ratingMaxDesc": "Максимальное номинальное значение",
+        "datePickerValueDesc": "Текущая выбранная дата",
+        "datePickerFormattedValueDesc": "Форматирование выбранной даты",
+        "datePickerTimestampDesc": "Временная метка выбранной даты",
+        "timeZoneDesc": "Часовой пояс выбранной даты",
+        "dateRangeStartDesc": "Дата начала диапазона",
+        "dateRangeEndDesc": "Дата окончания диапазона",
+        "dateRangeStartTimestampDesc": "Временная метка даты начала",
+        "dateRangeEndTimestampDesc": "Временная метка даты окончания",
+        "dateRangeFormattedValueDesc": "Форматированный диапазон дат",
+        "dateRangeFormattedStartValueDesc": "Отформатированная дата начала",
+        "dateRangeFormattedEndValueDesc": "Форматированная дата окончания",
+        "timePickerValueDesc": "Текущее выбранное время",
+        "timePickerFormattedValueDesc": "Форматированное выбранное время",
+        "timeRangeStartDesc": "Время начала диапазона",
+        "timeRangeEndDesc": "Время окончания диапазона",
+        "timeRangeFormattedValueDesc": "Форматированный диапазон времени",
+        "timeRangeFormattedStartValueDesc": "Форматированное время начала",
+        "timeRangeFormattedEndValueDesc": "Форматированное время окончания",
+        "submitDesc": "Отправить форму",
+        "sliderValueDesc": "Текущее выбранное значение",
+        "sliderMaxValueDesc": "Максимальное значение ползунка",
+        "sliderMinValueDesc": "Минимальное значение ползунка"
     },
     "uiCompCategory": {
         "dashboards": "Приборные панели и отчетность",
@@ -401,44 +415,17 @@ export const ru = {
         "deleteData": "Удалить строку",
         "clearData": "Чистый ряд"
     },
-    "query": {
-        "noQueries": "Запросы данных недоступны.",
-        "encryptedServer": "-------- Зашифровано на стороне сервера --------",
-        "httpRequiredMessage": "Пожалуйста, введите http:// или https://",
-        "urlRequiredMessage": "Пожалуйста, введите URL",
-        "urlErrorMessage": "Пожалуйста, введите правильный URL-адрес",
-        "lowcoderAPI": "Lowcoder API",
-        "database": "База данных",
-        "categoryBigdata": "Большие данные",
-        "categoryAi": "AI",
-        "categoryDevops": "DevOps",
-        "categoryAppdevelopment": "Разработка приложений",
-        "categoryWorkflow": "Рабочий процесс",
-        "categoryMessaging": "Передача сообщений",
-        "categoryAssets": "Активы и хранение",
-        "categoryProjectManagement": "Управление проектами",
-        "categoryCrm": "CRM",
-        "categoryEcommerce": "Электронная коммерция",
-        "categoryApis": "Другие",
-        "triggerTypeAuto": "Изменение входов или загрузка страницы",
-        "triggerTypeManual": "Только когда вы запускаете его вручную",
-        "success": "Успех",
-        "successDesc": "Срабатывает при успешном выполнении",
-        "fail": "Отказ",
-        "failDesc": "Срабатывает при неудачном выполнении",
-        "dataExportDesc": "Данные, полученные в текущем запросе",
-        "codeExportDesc": "Код состояния текущего запроса",
-        "successExportDesc": "Успешно ли был выполнен текущий запрос",
-        "messageExportDesc": "Информация, полученная по текущему запросу",
-        "extraExportDesc": "Другие данные в текущем запросе",
-        "isFetchingExportDesc": "Является ли текущий запрос запросом",
-        "runTimeExportDesc": "Текущее время выполнения запроса (мс)",
-        "latestEndTimeExportDesc": "Последнее время работы",
-        "triggerTypeExportDesc": "Тип триггера"
+    "autoHeightProp": {
+        "auto": "Автомобиль",
+        "fixed": "Исправлено"
     },
-    "bottomPanel": {
-        "run": "Запускайте",
-        "noSelectedQuery": "Запрос не выбран"
+    "module": {
+        "data": "Данные",
+        "string": "Строка",
+        "number": "Номер",
+        "array": "Массив",
+        "boolean": "Булево",
+        "query": "Запрос"
     },
     "eventHandler": {
         "exportNoFileType": "Без выбора (необязательно)",
@@ -457,14 +444,6 @@ export const ru = {
         "goToURL": "Открыть URL-адрес",
         "copyToClipboard": "Копирование значения в буфер обмена",
         "export": "Экспортные данные"
-    },
-    "module": {
-        "data": "Данные",
-        "string": "Строка",
-        "number": "Номер",
-        "array": "Массив",
-        "boolean": "Булево",
-        "query": "Запрос"
     },
     "information": "Информация",
     "success": "Успех",
@@ -584,172 +563,19 @@ export const ru = {
         "search": "Поиск",
         "searchDesc": "Триггеры в поиске",
         "clickExtra": "Нажмите на Действие",
-        "clickExtraDesc": "Триггеры при щелчке на дополнительном элементе"
+        "clickExtraDesc": "Триггеры при щелчке на дополнительном элементе",
+        "parse": "Разбор",
+        "parseDesc": "Триггеры при разборе"
+    },
+    "navigation": {
+        "itemsDesc": "Элементы иерархического навигационного меню",
+        "logoURLDesc": "Вы можете отобразить логотип в левой части, введя значение URI или строку Base64, например data:image/png;base64,AAA... CCC"
     },
     "customShortcut": {
         "space": "Космос"
     },
-    "home": {
-        "home": "Главная",
-        "localMarketplaceTitle": "Местный рынок",
-        "globalMarketplaceTitle": "Общественный рынок",
-        "app": "Приложение",
-        "module": "Модуль",
-        "navLayout": "Навигация по ПК",
-        "mobileTabLayout": "Мобильная навигация",
-        "all": "Все",
-        "navigation": "Навигация",
-        "navLayoutDesc": "Левостороннее меню для удобной навигации по рабочему столу.",
-        "folder": "Папка",
-        "mobileTabLayoutDesc": "Нижняя навигационная панель для плавного просмотра страниц на мобильных устройствах.",
-        "profile": "Ваш профиль",
-        "news": "Новости",
-        "orgHome": "Домашняя страница (Org)",
-        "marketplace": "Рынок",
-        "allFolders": "Ваши папки",
-        "allApplications": "Ваши приложения",
-        "queryLibrary": "Библиотека запросов",
-        "datasource": "Источники данных",
-        "trash": "Мусор",
-        "show": "Показать",
-        "howToUseAPI": "Как использовать открытый Rest API",
-        "newsLoading": "Он будет загружаться несколько секунд.",
-        "allCategories": "Все категории",
-        "appMarketplace": "Рынок приложений",
-        "noMarketplaceApps": "Пока нет приложений на рынке",
-        "marketplaceURL": "https://api-service.lowcoder.cloud",
-        "projectEmptyCanAdd": "У вас еще нет приложений. Нажмите \"Новое\", чтобы начать.",
-        "createNavigation": "Создать навигацию",
-        "chooseNavType": "Пожалуйста, выберите тип навигации",
-        "errorMarketplaceApps": "Ошибка при загрузке приложений Marketplace",
-        "resCardSubTitle": "{time} от {creator}",
-        "export": "Экспорт в JSON",
-        "moveToFolder": "Переместить в папку",
-        "moveToTrash": "Переместить в мусор",
-        "copyModalTitle": "Клонировать \"{name}\"",
-        "copyNameLabel": "Имя {type}",
-        "copyNamePlaceholder": "Пожалуйста, укажите имя {type}",
-        "moveToFolderSubTitle": "Переместите \"{name}\" в:",
-        "trashEmpty": "Корзина пуста.",
-        "newDatasource": "Новый источник данных",
-        "datasourceName": "Имя источника данных",
-        "type": "Тип",
-        "databaseName": "Имя базы данных",
-        "creator": "Создано",
-        "createTime": "Создать время",
-        "selectDatasourceType": "Выберите тип источника данных"
-    },
-    "shortcut": {
-        "global": "Глобальная",
-        "toggleShortcutList": "Переключение сочетаний клавиш",
-        "editor": "Редактор",
-        "toggleLeftPanel": "Переключение левой панели",
-        "toggleBottomPanel": "Переключение нижней панели",
-        "toggleRightPanel": "Переключение правой панели",
-        "toggleAllPanels": "Переключить все панели",
-        "preview": "Предварительный просмотр",
-        "undo": "Отменить",
-        "redo": "Redo",
-        "showGrid": "Показать сетку",
-        "component": "Компонент",
-        "multiSelect": "Выберите несколько",
-        "selectAll": "Выбрать все",
-        "copy": "Копировать",
-        "cut": "Разрез",
-        "paste": "Паста",
-        "move": "Переместить",
-        "zoom": "Изменить размер",
-        "delete": "Удалить",
-        "deSelect": "Отмените выбор",
-        "queryEditor": "Редактор запросов",
-        "excuteQuery": "Выполнить текущий запрос",
-        "editBox": "Текстовый редактор",
-        "formatting": "Формат",
-        "openInLeftPanel": "Открыть в левой панели"
-    },
-    "docUrls": {
-        "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
-        "thirdLibUrlText": "Используйте библиотеки сторонних разработчиков",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
-        "introVideo": "",
-        "optionList": "",
-        "apiDocHome": "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api"
-    },
-    "lowcoderUrl": {
-        "createIssue": "https://github.com/lowcoder-org/lowcoder/issues",
-        "discord": "https://discord.com/invite/qMG9uTmAx2"
-    },
-    "theme": {
-        "defaultTheme": "По умолчанию",
-        "yellow": "Желтый",
-        "green": "Зеленый",
-        "previewTitle": "Предварительный просмотр темы\nПримеры компонентов, использующих цвета вашей темы",
-        "previewDate": "16/10/2022",
-        "previewEmail1": "ted.com",
-        "previewPhone1": "+63-317-333-0093",
-        "previewEmail2": "skype.com",
-        "previewPhone2": "+30-668-580-6521",
-        "previewEmail3": "imgur.com",
-        "previewPhone3": "+86-369-925-2071",
-        "previewEmail4": "balloon.com",
-        "previewPhone4": "+7-883-227-8093",
-        "dateColumn": "Дата",
-        "emailColumn": "Электронная почта",
-        "phoneColumn": "Телефон",
-        "subTitle": "Название",
-        "option": "Option{index}",
-        "linkLabel": "Ссылка на",
-        "sliderLabel": "Слайдер",
-        "radioLabel": "Радио",
-        "checkboxLabel": "Флажок",
-        "linkUrl": "app.lowcoder.cloud",
-        "buttonLabel": "Кнопка формы",
-        "switch": "Переключатель",
-        "chartFunnel": "Диаграмма воронки",
-        "chartShow": "Показать",
-        "chartClick": "Нажмите",
-        "chartVisit": "Посетите",
-        "chartQuery": "Запрос",
-        "chartBuy": "Купить",
-        "chartAdmin": "Администрация",
-        "chartFinance": "Финансы",
-        "chartSales": "Продажи",
-        "chartSpending": "Расходы",
-        "chartBudget": "Бюджет",
-        "chartPreviewTitle": "Предварительный просмотр стиля диаграммы",
-        "title": "Темы",
-        "createTheme": "Создать тему",
-        "emptyTheme": "Темы не доступны",
-        "click": "",
-        "toCreate": "",
-        "nameColumn": "Имя",
-        "updateTimeColumn": "Время обновления",
-        "themeName": "Название темы:",
-        "themeNamePlaceholder": "Пожалуйста, введите название темы",
-        "defaultThemeTip": "Тема по умолчанию:",
-        "edit": "Редактировать",
-        "createdThemeTip": "Тема, которую вы создали:",
-        "mainColor": "Основные цвета",
-        "text": "Цвета текста",
-        "fonts": "Настройки шрифта",
-        "layout": "Настройки макета",
-        "components": "Шаблоны компонентов",
-        "charts": "Определение eCharts",
-        "saveBtn": "Сохранить"
-    },
-    "autoHeightProp": {
-        "auto": "Автомобиль",
-        "fixed": "Исправлено"
-    },
-    "navigation": {
-        "itemsDesc": "Элементы иерархического навигационного меню"
-    },
     "text": "Текст",
     "style": {
-        "text": "Текст",
-        "rotation": "Вращение",
-        "label": "Цвет этикетки",
         "staticText": "Статический текст",
         "accent": "Акцент",
         "validate": "Сообщение о проверке",
@@ -815,21 +641,51 @@ export const ru = {
     },
     "label": "Этикетка",
     "avatarComp": {
-        "avatarBackground": "Фон"
+        "avatarBackground": "Фон",
+        "square": "квадрат",
+        "circle": "круг"
     },
     "floatButton": {
-        "badgeColor": "Цвет значка"
+        "badgeColor": "Цвет значка",
+        "square": "Квадрат",
+        "circle": "Круг",
+        "primary": "Главная",
+        "default": "По умолчанию"
     },
     "card": {
         "IconColor": "Цвет значка",
-        "hoverColor": "hover Цвет"
+        "hoverColor": "hover Цвет",
+        "common": "общий",
+        "custom": "на заказ",
+        "default": "по умолчанию",
+        "small": "маленький",
+        "title": "Название",
+        "more": "Подробнее",
+        "metaTitle": "Содержание Заголовок",
+        "metaDesc": "Описание содержания"
     },
     "title": "Название",
     "color": "Цвет",
     "timeLine": {
         "titleColor": "Цвет названия",
         "labelColor": "Цвет этикетки",
-        "subTitleColor": "Цвет субтитров"
+        "subTitleColor": "Цвет субтитров",
+        "Introduction": "Ключи для введения",
+        "helpTitle": "Название временной шкалы (обязательно)",
+        "helpsubTitle": "Подзаголовок временной шкалы",
+        "helpLabel": "Метка временной шкалы, используемая для отображения дат",
+        "helpColor": "Указывает цвет узла временной шкалы",
+        "helpDot": "Отображение узлов временной шкалы в виде значков Ant Design",
+        "helpTitleColor": "Индивидуальное управление цветом заголовка узла",
+        "helpSubTitleColor": "Индивидуальное управление цветом субтитров узла",
+        "helpLabelColor": "Индивидуальный контроль цвета значка узла",
+        "left": "Право на содержание",
+        "right": "Содержание Слева",
+        "alternate": "Альтернативный порядок содержания",
+        "defaultPending": "Непрерывное совершенствование",
+        "valueDesc": "Данные временной шкалы",
+        "clickedObjectDesc": "Данные о нажатом элементе",
+        "clickedIndexDesc": "Указатель нажатых элементов"
     },
     "calendar": {
         "headerBtnBackground": "Фон для кнопок",
@@ -847,9 +703,18 @@ export const ru = {
         "json": "JSON",
         "style": "Стиль",
         "map": "Карта",
-        "hide": "Скрыть"
+        "disabled": "Инвалид",
+        "hide": "Скрыть",
+        "required": "Обязательное поле"
     },
     "menuItem": "Пункт меню",
+    "docUrls": {
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
     "optionsControl": {
         "viewDocs": "Просмотр документов",
         "tip": "Переменные 'item' и 'i' представляют значение и индекс каждого элемента в массиве данных",
@@ -904,6 +769,45 @@ export const ru = {
         "downloadFile": "Скачать файл",
         "logoutUser": "Logout User"
     },
+    "query": {
+        "lowcoderAPI": "Lowcoder API",
+        "encryptedServer": "-------- Зашифровано на стороне сервера --------",
+        "database": "База данных",
+        "categoryBigdata": "Большие данные",
+        "categoryAi": "AI",
+        "categoryDevops": "DevOps",
+        "categoryAppdevelopment": "Разработка приложений",
+        "categoryWorkflow": "Рабочий процесс",
+        "categoryMessaging": "Передача сообщений",
+        "categoryAssets": "Активы и хранение",
+        "categoryProjectManagement": "Управление проектами",
+        "categoryCrm": "CRM",
+        "categoryEcommerce": "Электронная коммерция",
+        "categoryApis": "Другие",
+        "httpRequiredMessage": "Пожалуйста, введите http:// или https://",
+        "urlRequiredMessage": "Пожалуйста, введите URL",
+        "urlErrorMessage": "Пожалуйста, введите правильный URL-адрес",
+        "triggerTypeAuto": "Изменение входов или загрузка страницы",
+        "triggerTypeManual": "Только когда вы запускаете его вручную",
+        "success": "Успех",
+        "successDesc": "Срабатывает при успешном выполнении",
+        "fail": "Отказ",
+        "failDesc": "Срабатывает при неудачном выполнении",
+        "dataExportDesc": "Данные, полученные в текущем запросе",
+        "codeExportDesc": "Код состояния текущего запроса",
+        "successExportDesc": "Успешно ли был выполнен текущий запрос",
+        "messageExportDesc": "Информация, полученная по текущему запросу",
+        "extraExportDesc": "Другие данные в текущем запросе",
+        "isFetchingExportDesc": "Является ли текущий запрос запросом",
+        "runTimeExportDesc": "Текущее время выполнения запроса (мс)",
+        "latestEndTimeExportDesc": "Последнее время работы",
+        "triggerTypeExportDesc": "Тип триггера"
+    },
+    "bottomPanel": {
+        "run": "Запускайте",
+        "noSelectedQuery": "Запрос не выбран",
+        "title": "Запросы данных"
+    },
     "appSetting": {
         "450": "450px (Телефон)",
         "800": "800px (планшет)",
@@ -922,66 +826,84 @@ export const ru = {
     "dataResponder": {
         "dataDesc": "Данные текущего респондента"
     },
-    "idSource": {
-        "title": "Поставщик аутентификации пользователей",
-        "loginType": "Тип входа в систему",
-        "status": "Статус",
-        "formSelectPlaceholder": "Пожалуйста, выберите {label}",
-        "enable": "Включить",
-        "form": "Электронная почта",
-        "source": "Источник",
-        "sourceName": "Имя провайдера авторизации",
-        "sourceDescription": "Описание поставщика авторизации",
-        "sourceIcon": "Значок провайдера авторизации",
-        "sourceCategory": "Категория поставщика прав доступа",
-        "souceIssuerURI": "URI эмитента провайдера аутентификации",
-        "souceAuthorizationEndpoint": "Конечная точка авторизации Auth Provider",
-        "souceTokenEndpoint": "Конечная точка токена поставщика аутентификации",
-        "souceUserInfoEndpoint": "Конечная точка информации о пользователе",
-        "userInfoIntrospection": "Использование интроспекции пользователей OpenID",
-        "userCanSelectAccounts": "Пользователь может выбирать из учетных записей",
-        "formPlaceholder": "Пожалуйста, введите {label}"
+    "home": {
+        "all": "Все",
+        "app": "Приложение",
+        "module": "Модуль",
+        "navigation": "Навигация",
+        "navLayout": "Навигация по ПК",
+        "navLayoutDesc": "Левостороннее меню для удобной навигации по рабочему столу.",
+        "folder": "Папка",
+        "mobileTabLayout": "Мобильная навигация",
+        "mobileTabLayoutDesc": "Нижняя навигационная панель для плавного просмотра страниц на мобильных устройствах.",
+        "moveToTrash": "Переместить в мусор",
+        "copyModalTitle": "Клонировать \"{name}\"",
+        "copyNameLabel": "Имя {type}",
+        "copyNamePlaceholder": "Пожалуйста, укажите имя {type}",
+        "allPermissions": "Владелец",
+        "addMember": "Добавить участников",
+        "orgName": "{orgName} admins"
     },
-    "settings": {
-        "title": "Настройки",
-        "organization": "Рабочие места",
-        "oauthProviders": "Аутентификация пользователей",
-        "userGroups": "Группы пользователей",
-        "theme": "Темы",
-        "advanced": "Расширенный",
-        "environments": "Окружающая среда",
-        "premium": "Премиум",
-        "appUsage": "Журналы использования приложений",
-        "audit": "Журналы аудита",
-        "branding": "Брендинг"
+    "rightPanel": {
+        "uiComponentTab": "Компоненты",
+        "extensionTab": "Удлинители",
+        "propertyTab": "Свойства",
+        "createTab": "Вставка",
+        "searchPlaceHolder": "Поиск компонентов или модулей"
     },
+    "millisecondsControl": {
+        "timeoutLessThanMinError": "Вход должен быть больше, чем {left}, текущий вход составляет: {value}"
+    },
+    "shortcut": {
+        "global": "Глобальная",
+        "toggleShortcutList": "Переключение сочетаний клавиш",
+        "editor": "Редактор",
+        "toggleLeftPanel": "Переключение левой панели",
+        "toggleBottomPanel": "Переключение нижней панели",
+        "toggleRightPanel": "Переключение правой панели",
+        "toggleAllPanels": "Переключить все панели",
+        "preview": "Предварительный просмотр",
+        "undo": "Отменить",
+        "redo": "Redo",
+        "showGrid": "Показать сетку",
+        "component": "Компонент",
+        "multiSelect": "Выберите несколько",
+        "selectAll": "Выбрать все",
+        "copy": "Копировать",
+        "cut": "Разрез",
+        "paste": "Паста",
+        "move": "Переместить",
+        "zoom": "Изменить размер",
+        "delete": "Удалить",
+        "deSelect": "Отмените выбор",
+        "queryEditor": "Редактор запросов",
+        "excuteQuery": "Выполнить текущий запрос",
+        "editBox": "Текстовый редактор",
+        "formatting": "Формат",
+        "openInLeftPanel": "Открыть в левой панели",
+        "shortcutList": "Ярлыки клавиатуры"
+    },
+    "header": {
+        "editorMode_layout": "Макет",
+        "editorMode_layout_tooltip": "Настройте внешний вид и расположение компонента в правом окне. Настройте его внешний вид, стили и анимацию.",
+        "editorMode_logic": "Логика",
+        "editorMode_logic_tooltip": "Настройте работу и взаимодействие вашего компонента в нужном окне. Управляйте его содержимым и интерактивным поведением.",
+        "editorMode_both": "Оба",
+        "preview": "Предварительный просмотр",
+        "export": "Экспорт в JSON",
+        "duplicate": "Дубликат {type}",
+        "editName": "Редактировать имя"
+    },
+    "finish": "Отделка",
     "profile": {
         "logout": "Выйти из системы",
         "createOrg": "Создать рабочее пространство",
         "switchOrg": "Переключение рабочего пространства",
-        "joinedOrg": "Мои рабочие места",
-        "changeAvatarTooltip": "Вы можете загружать файлы PNG или JPG",
-        "changeAvatar": "Изменить аватар",
-        "saveUserNameTooltip": "Нажмите Enter, чтобы сохранить новое имя пользователя. Если вы видите свой Email, это означает, что мы просто захватили его в качестве имени пользователя, и вы можете изменить его на более подходящий. Ваш Email в качестве технического имени пользователя останется нетронутым.",
-        "nameCheck": "Имя не может быть пустым",
-        "namePlaceholder": "Пожалуйста, введите ваше имя",
-        "about": "О сайте",
-        "userId": "Идентификатор пользователя",
-        "createdAt": "Создано в",
-        "currentOrg": "Действующая организация",
-        "settings": "Настройки",
-        "uiLanguage": "Язык пользовательского интерфейса",
-        "info": "Информация",
-        "createdApps": "Созданные вами приложения",
-        "createdModules": "Созданные вами модули",
-        "sharedApps": "Приложения, которыми вы поделились с друзьями",
-        "sharedModules": "Модули, переданные вам",
-        "memberOfOrgs": "Членство в клубе Workspaces",
-        "apiKeys": "Ключи API",
-        "createApiKey": "Создайте ключ API",
-        "apiKeyName": "Имя",
-        "apiKeyDescription": "Описание",
-        "apiKey": "Ключ API"
+        "joinedOrg": "Мои рабочие места"
+    },
+    "lowcoderUrl": {
+        "createIssue": "https://github.com/lowcoder-org/lowcoder/issues",
+        "discord": "https://discord.com/invite/qMG9uTmAx2"
     },
     "help": {
         "docs": "Посмотреть документацию",
@@ -989,52 +911,31 @@ export const ru = {
         "chat": "Пообщайтесь с нами",
         "editorTutorial": "Учебный редактор",
         "update": "Что нового?",
-        "version": "Версия",
         "versionWithColon": "Версия:"
     },
-    "themeDetail": {
-        "primary": "Фирменный цвет",
-        "primaryDesc": "Основной цвет по умолчанию, используемый большинством компонентов",
-        "canvas": "Цвет холста",
-        "canvasDesc": "Цвет фона приложения по умолчанию",
-        "primarySurface": "Цвет контейнера",
-        "primarySurfaceDesc": "Цвет фона по умолчанию для таких компонентов, как таблицы",
-        "borderColor": "Цвет границы",
-        "borderColorDesc": "Цвет границы по умолчанию, используемый большинством компонентов",
-        "textLight": "Светлый цвет текста",
-        "textLightDesc": "Используется, когда цвет фона темный",
-        "textDark": "Темный цвет текста",
-        "textDarkDesc": "Используется, когда цвет фона светлый",
-        "fonts": "Шрифты",
-        "fontFamily": "Семейство шрифтов",
-        "fontFamilyDesc": "Семейство шрифтов по умолчанию, используемое большинством компонентов",
-        "borders": "Пограничные стили",
-        "borderRadius": "Радиус границы",
-        "borderRadiusDesc": "Радиус границы по умолчанию, используемый большинством компонентов",
-        "borderWidth": "Ширина границы",
-        "borderWidthDesc": "Ширина границы по умолчанию, используемая большинством компонентов",
-        "borderStyle": "Пограничный стиль",
-        "borderStyleDesc": "Стиль границы по умолчанию, используемый большинством компонентов",
-        "spacing": "Стили интервалов",
-        "margin": "Маржа",
-        "marginDesc": "Маржа по умолчанию, обычно используемая для большинства компонентов",
-        "padding": "Набивка",
-        "paddingDesc": "Подкладка по умолчанию, обычно используемая для большинства компонентов",
-        "gridColumns": "Колонки сетки холста",
-        "gridColumnsDesc": "Количество столбцов по умолчанию, обычно используемое для большинства контейнеров",
-        "loadingIndicators": "Индикаторы загрузки",
-        "showComponentLoadingIndicators": "Показывайте индикаторы загрузки при загрузке компонента",
-        "showDataLoadingIndicators": "Показывайте индикаторы загрузки при загрузке данных",
-        "chartDesc": "Здесь вы можете разместить eCharts Theme JSON, чтобы определить стиль ваших диаграмм во всех деталях.",
-        "echartsJson": "Вы можете воспользоваться Генератором JSON темы. Скопируйте JSON из генератора и вставьте его сюда."
+    "leftPanel": {
+        "components": "Активные компоненты",
+        "modals": "модалы в приложении",
+        "queries": "Запросы данных в вашем приложении",
+        "globals": "Глобальные переменные данных",
+        "expandTip": "Нажмите, чтобы показать данные {component}",
+        "propTips": "{num} Ключи",
+        "propTip": "{num} Ключ"
     },
-    "reset": "Сброс",
+    "newItem": "Новый",
     "npm": {
         "compNotFound": "Компонент {compName} не найден."
     },
     "labelProp": {
         "left": "Слева",
-        "top": "Топ"
+        "top": "Топ",
+        "right": "Справа"
+    },
+    "signature": {
+        "signHere": "Подпишитесь здесь"
+    },
+    "QRCode": {
+        "valueDesc": "Значение содержимого QR-кода"
     },
     "method": {
         "focus": "Установите фокус",
@@ -1050,18 +951,225 @@ export const ru = {
         "replaceStart": "Индекс первого заменяемого символа, основанный на 0",
         "replaceEnd": "0-базированный индекс символа после последнего символа для замены"
     },
-    "switchComp": {
-        "open": "На сайте",
-        "openDesc": "Срабатывает при включении выключателя",
-        "close": "С сайта",
-        "closeDesc": "Срабатывает при выключении выключателя",
-        "valueDesc": "Текущее состояние переключателя"
+    "button": {
+        "button": "Кнопка формы",
+        "default": "По умолчанию",
+        "submit": "Отправить",
+        "textDesc": "Текст, отображаемый в данный момент на кнопке",
+        "loadingDesc": "Находится ли кнопка в состоянии загрузки? Если True, то текущая кнопка загружается"
     },
-    "search": "Поиск",
-    "newItem": "Новый",
+    "toggleButton": {
+        "trueDefaultText": "Скрыть",
+        "falseDefaultText": "Показать"
+    },
+    "dropdown": {
+        "textDesc": "Текст, отображаемый в данный момент на кнопке"
+    },
+    "image": {
+        "srcDesc": "Источник изображения. Может быть URL, путь или строка Base64. например: data:image/png;base64, AAA... CCC"
+    },
+    "customComp": {
+        "text": "Это хороший день.",
+        "triggerQuery": "Запрос триггера",
+        "updateText": "Я также в хорошем настроении, чтобы разработать теперь свой собственный пользовательский компонент с Lowcoder!",
+        "updateData": "Обновление данных",
+        "sdkGlobalVarName": "Lowcoder"
+    },
+    "jsonLottie": {
+        "auto": "Автомобиль",
+        "onHover": "При наведении",
+        "singlePlay": "Одиночная игра",
+        "endlessLoop": "Бесконечная петля",
+        "valueDesc": "Текущие данные в формате JSON"
+    },
+    "comment": {
+        "Introduction": "Ключи для введения",
+        "helpUser": "Информация о пользователе (Обязательно)",
+        "helpname": "Имя пользователя (Обязательно)",
+        "helpavatar": "URL-адрес аватара (высокий приоритет)",
+        "helpdisplayName": "Отображаемое имя (низкий приоритет)",
+        "helpvalue": "Как содержание",
+        "helpcreatedAt": "Дата создания",
+        "titledDefaultValue": "%d Комментарий всего",
+        "placeholder": "Shift + Enter для комментария; введите @ или # для быстрого ввода",
+        "buttonText": "Как",
+        "commentList": "Как составить список",
+        "deletedItem": "Удаленный элемент",
+        "submitedItem": "Представленный предмет"
+    },
+    "video": {
+        "play": "Играть",
+        "playDesc": "Срабатывает при воспроизведении видео",
+        "pause": "Пауза",
+        "pauseDesc": "Срабатывает, когда видео приостанавливается",
+        "load": "Загрузить",
+        "loadDesc": "Срабатывает после завершения загрузки видеоресурса",
+        "ended": "Окончание",
+        "endedDesc": "Срабатывает по окончании воспроизведения видео",
+        "defaultSrcUrl": "https://www.youtube.com/watch?v=pRpeEdMmmQ0",
+        "defaultPosterUrl": "",
+        "srcDesc": "Текущий URI аудиофайла или строка Base64, например data:video/mp4;base64, AAA... CCC",
+        "currentTimeStamp": "Текущая позиция воспроизведения видео в секундах",
+        "duration": "Общая продолжительность видео в секундах"
+    },
+    "media": {
+        "seekTo": "Ищите до заданного количества секунд или долей, если количество от 0 до 1",
+        "seekToAmount": "Количество секунд или дробь, если она от 0 до 1",
+        "showPreview": "Предварительный просмотр",
+        "playDesc": "Начинает воспроизведение носителя.",
+        "pauseDesc": "Приостанавливает воспроизведение мультимедиа.",
+        "loadDesc": "Сброс носителя на начало и перезапуск Выбор медиаресурса."
+    },
+    "richTextEditor": {
+        "content": "Содержание",
+        "title": "Название",
+        "save": "Сохранить",
+        "link": "Ссылка:",
+        "edit": "Редактировать",
+        "remove": "Удалить",
+        "placeholder": "Пожалуйста, введите..."
+    },
+    "iframe": {
+        "URLDesc": "URL-адрес источника содержимого IFrame. Убедитесь, что URL-адрес является HTTPS или localhost. Также убедитесь, что URL не заблокирован политикой безопасности содержимого (CSP) браузера. Заголовок 'X-Frame-Options' не должен быть установлен на 'DENY' или 'SAMEORIGIN'."
+    },
+    "transfer": {
+        "content": "Содержание {i}",
+        "sourceTitle": "Исходные данные",
+        "targetTitle": "Целевые данные",
+        "items": "Товары",
+        "targetKeys": "Выбранные ключи",
+        "targerObject": "Объект Таргера",
+        "selectedKeys": "Выбранные ключи",
+        "searchInfo": "Информация для поиска"
+    },
+    "avatarGroup": {
+        "currentAvatar": "Текущий аватар"
+    },
+    "badge": {
+        "SizeDefault": "по умолчанию",
+        "SizeSmall": "Маленький",
+        "number": "Номер",
+        "dot": "Точка"
+    },
+    "validationDesc": {
+        "email": "Пожалуйста, введите действительный адрес электронной почты",
+        "url": "Пожалуйста, введите действительный URL-адрес",
+        "regex": "Пожалуйста, сопоставьте указанный образец"
+    },
+    "colorPicker": {
+        "recommended": "Рекомендуем",
+        "click": "Нажмите",
+        "hover": "наведение"
+    },
+    "progress": {
+        "valueDesc": "Текущее значение прогресса, в диапазоне от 0 до 100",
+        "showInfoDesc": "Отображать ли текущее значение прогресса"
+    },
+    "customComponent": {
+        "entryUrl": "https://sdk.lowcoder.cloud/custom_component.html"
+    },
+    "tour": {
+        "indicatorsRender": {
+            "tooltip": "Предоставляет пользовательский индикатор того, на каком этапе вы находитесь",
+            "tooltipValidTypes": "Format - это функция, которая принимает два аргумента, `current` и `total`, и возвращает ReactNode",
+            "tooltipFunctionSignature": "(текущий: число, общий: число) => ReactNode"
+        },
+        "options": {
+            "mask": {
+                "tooltip": "Включать ли маскирование, изменять ли стиль маски и цвет заливки, передавая пользовательский реквизит, по умолчанию используется свойство `mask` в Tour.",
+                "tooltipValidTypes": "Допустимые типы ввода: `true`, `false`, empty, или JSON-объект, соответствующий схеме CSSProperties из Antd."
+            },
+            "arrow": {
+                "tooltip": "Включает и выключает стрелку или перемещает ее в центр компонента, если это необходимо, в противном случае стрелка всегда будет указывать на верхнюю часть компонента."
+            }
+        },
+        "mask": {
+            "tooltip": "Включать ли маскирование, изменять ли стиль маски и цвет заливки при передаче пользовательского реквизита, по умолчанию используется свойство `mask` в Tour. Может быть переопределено на уровне шага.",
+            "tooltipValidTypes": "Допустимые типы ввода: `true`, `false`, empty, или JSON-объект, соответствующий схеме CSSProperties из Antd."
+        },
+        "placement": {
+            "tooltip": "Положение направляющей карты относительно целевого элемента. Может быть переопределено на уровне шага.",
+            "tooltipValidOptions": "Валидные опции",
+            "tooltipValidOptionsAbove": "Над компонентом:",
+            "tooltipValidOptionsLeft": "Слева от компонента:",
+            "tooltipValidOptionsRight": "Справа от компонента:",
+            "tooltipValidOptionsBelow": "Ниже компонента:",
+            "tooltipValidOptionsOnTop": "На верхней части компонента:"
+        },
+        "arrow": {
+            "tooltip": "Включает и выключает стрелку или перемещает ее так, чтобы она указывала на центр компонента, если это необходимо, в противном случае стрелка всегда будет указывать на верхнюю часть компонента. Может быть переопределено на уровне шага."
+        },
+        "tooltip": "Включает и выключает стрелку или перемещает ее так, чтобы она указывала на центр компонента, если это необходимо, в противном случае стрелка всегда будет указывать на верхнюю часть компонента. Может быть переопределено на уровне шага.",
+        "tooltipValidTypes": "Допустимые типы ввода: `true`, `false`, empty, или JSON-объект, соответствующий схеме CSSProperties из Antd.",
+        "tooltipSignatureHeader": "Подпись:",
+        "tooltipFunctionSignature": "(текущий: число, общий: число) => ReactNode",
+        "tooltipExampleHeader": "Пример:",
+        "tooltipValidOptions": "Валидные опции",
+        "tooltipValidOptionsAbove": "Над компонентом:",
+        "tooltipValidOptionsLeft": "Слева от компонента:",
+        "tooltipValidOptionsRight": "Справа от компонента:",
+        "tooltipValidOptionsBelow": "Ниже компонента:",
+        "tooltipValidOptionsOnTop": "На верхней части компонента:"
+    },
+    "tabbedContainer": {
+        "switchTab": "Вкладка \"Переключение",
+        "switchTabDesc": "Срабатывает при переключении вкладок",
+        "selectedTabKeyDesc": "Выбранная вкладка"
+    },
+    "listView": {
+        "itemsDesc": "Раскрытие данных компонентов в списке",
+        "dataDesc": "Данные JSON, используемые в текущем списке"
+    },
     "textShow": {
         "text": "### 👋 Здравствуйте, {name}.",
         "textDesc": "Текст, отображаемый в текущем текстовом поле"
+    },
+    "jsonExplorer": {
+        "default": "По умолчанию",
+        "defaultDark": "По умолчанию Темный",
+        "neutralLight": "Нейтральный свет",
+        "neutralDark": "Нейтральный темный",
+        "azure": "Лазурь",
+        "darkBlue": "Темно-синий",
+        "valueDesc": "Текущие данные в формате JSON"
+    },
+    "selectInput": {
+        "selectedIndexDesc": "Индекс текущего выбранного значения или -1, если значение не выбрано",
+        "selectedLabelDesc": "Метка текущего выбранного значения",
+        "valueDesc": "Текущее выбранное значение"
+    },
+    "tree": {
+        "helpLabel": "Ярлык узла",
+        "helpValue": "Уникальное значение узла в дереве",
+        "helpChildren": "Дети Узлы",
+        "helpDisabled": "Отключение узла",
+        "helpSelectable": "Является ли узел выбираемым (тип одиночного/множественного выбора)",
+        "helpCheckable": "Отображать ли флажок (тип флажка)",
+        "helpDisableCheckbox": "Отключение флажка (тип флажка)",
+        "treeDataAsia": "Азия",
+        "treeDataChina": "Китай",
+        "treeDataBeijing": "Пекин",
+        "treeDataShanghai": "Шанхай",
+        "treeDataJapan": "Япония",
+        "treeDataEurope": "Европа",
+        "treeDataEngland": "Англия",
+        "treeDataFrance": "Франция",
+        "treeDataGermany": "Германия",
+        "treeDataNorthAmerica": "Северная Америка",
+        "valueDesc": "Текущие значения",
+        "treeDataDesc": "Текущие данные о деревьях",
+        "expandedDesc": "Текущие расширенные значения",
+        "noSelect": "Нет выбора",
+        "singleSelect": "Одиночный выбор",
+        "multiSelect": "Мультивыбор",
+        "checkbox": "Флажок",
+        "showAll": "Все узлы",
+        "showParent": "Только родительские узлы",
+        "showChild": "Только дочерние узлы",
+        "placeholder": "Пожалуйста, выберите"
+    },
+    "fileViewer": {
+        "srcDesc": "URI файла"
     },
     "table": {
         "columnValueTooltip": "'{{currentCell}}': Данные текущей ячейки\n '{{currentRow}}': Данные текущей строки\n '{{currentIndex}}': Индекс текущих данных (начиная с 0)\n Пример: '{{currentCell * 5}}' Показать данные, в 5 раз превышающие исходное значение.",
@@ -1144,24 +1252,17 @@ export const ru = {
         "selectedCellDesc": "Выбранная ячейка",
         "dataDesc": "Данные JSON для таблицы"
     },
-    "selectInput": {
-        "selectedIndexDesc": "Индекс текущего выбранного значения или -1, если значение не выбрано",
-        "selectedLabelDesc": "Метка текущего выбранного значения",
-        "valueDesc": "Текущее выбранное значение"
-    },
     "radio": {
         "horizontal": "Горизонтальный",
         "vertical": "Вертикальный",
         "autoColumns": "Автоколонка"
     },
-    "validationDesc": {
-        "email": "Пожалуйста, введите действительный адрес электронной почты",
-        "url": "Пожалуйста, введите действительный URL-адрес",
-        "regex": "Пожалуйста, сопоставьте указанный образец"
-    },
-    "progress": {
-        "valueDesc": "Текущее значение прогресса, в диапазоне от 0 до 100",
-        "showInfoDesc": "Отображать ли текущее значение прогресса"
+    "switchComp": {
+        "open": "На сайте",
+        "openDesc": "Срабатывает при включении выключателя",
+        "close": "С сайта",
+        "closeDesc": "Срабатывает при выключении выключателя",
+        "valueDesc": "Текущее состояние переключателя"
     },
     "textOverflowProp": {
         "ellipsis": "Наведение мыши",
@@ -1172,136 +1273,102 @@ export const ru = {
         "multiple": "Множество",
         "close": "Закрыть"
     },
-    "view": "Посмотреть",
-    "rename": "Переименовать",
-    "header": {
-        "duplicate": "Дубликат {type}"
-    },
-    "cancel": "Отмена",
-    "move": "Переместить",
-    "queryLibrary": {
-        "unnamed": "Безымянный",
-        "searchPlaceholder": "Поисковый запрос",
-        "allQuery": "Все запросы",
-        "publishNewVersion": "Опубликовать новую версию",
-        "publish": "Опубликовать",
-        "version": "Версия",
-        "desc": "Описание"
-    },
-    "millisecondsControl": {
-        "timeoutLessThanMinError": "Вход должен быть больше, чем {left}, текущий вход составляет: {value}"
-    },
-    "scanner": {
-        "text": "Нажмите кнопку Сканировать"
-    },
-    "QRCode": {
-        "L": "L (Низкий)",
-        "M": "M (средний)",
-        "Q": "Q (квартиль)",
-        "H": "H (высокий)",
-        "valueDesc": "Значение содержимого QR-кода"
-    },
-    "tree": {
-        "helpLabel": "Ярлык узла",
-        "helpValue": "Уникальное значение узла в дереве",
-        "helpChildren": "Дети Узлы",
-        "helpDisabled": "Отключение узла",
-        "helpSelectable": "Является ли узел выбираемым (тип одиночного/множественного выбора)",
-        "helpCheckable": "Отображать ли флажок (тип флажка)",
-        "helpDisableCheckbox": "Отключение флажка (тип флажка)",
-        "treeDataAsia": "Азия",
-        "treeDataChina": "Китай",
-        "treeDataBeijing": "Пекин",
-        "treeDataShanghai": "Шанхай",
-        "treeDataJapan": "Япония",
-        "treeDataEurope": "Европа",
-        "treeDataEngland": "Англия",
-        "treeDataFrance": "Франция",
-        "treeDataGermany": "Германия",
-        "treeDataNorthAmerica": "Северная Америка",
-        "valueDesc": "Текущие значения",
-        "treeDataDesc": "Текущие данные о деревьях",
-        "expandedDesc": "Текущие расширенные значения",
-        "singleSelect": "Одиночный выбор",
-        "multiSelect": "Мультивыбор",
-        "checkbox": "Флажок",
-        "showAll": "Все узлы",
-        "showParent": "Только родительские узлы",
-        "showChild": "Только дочерние узлы",
-        "placeholder": "Пожалуйста, выберите",
-        "noSelect": "Нет выбора"
-    },
-    "transfer": {
-        "content": "Содержание {i}",
-        "sourceTitle": "Исходные данные",
-        "targetTitle": "Целевые данные",
-        "items": "Товары",
-        "targetKeys": "Выбранные ключи",
-        "targerObject": "Объект Таргера",
-        "selectedKeys": "Выбранные ключи",
-        "searchInfo": "Информация для поиска"
+    "errorBoundary": {
+        "encounterError": "Не удалось загрузить компонент. Пожалуйста, проверьте конфигурацию.",
+        "clickToReload": "Нажмите, чтобы перезагрузить",
+        "errorMsg": "Ошибка:"
     },
     "link": {
         "link": "Ссылка на",
         "textDesc": "Текст, отображаемый в настоящее время на ссылке",
         "loadingDesc": "Находится ли ссылка в состоянии загрузки? Если True, то текущая ссылка загружается"
     },
-    "button": {
-        "default": "По умолчанию",
-        "submit": "Отправить",
-        "button": "Кнопка формы",
-        "textDesc": "Текст, отображаемый в данный момент на кнопке",
-        "loadingDesc": "Находится ли кнопка в состоянии загрузки? Если True, то текущая кнопка загружается"
+    "timeZone": {
+        "UserChoice": "Выбор пользователя",
+        "UTC-12:00": "(UTC-12:00) Международная линия перемены даты W",
+        "UTC-11:00": "(UTC-11:00) UTC-11",
+        "UTC-10:00": "(UTC-10:00) Гавайи",
+        "UTC-09:00": "(UTC-09:00) Аляска",
+        "UTC-08:00": "(UTC-08:00) Баха Калифорния",
+        "UTC-07:00": "(UTC-07:00) Тихоокеанское время (США)",
+        "UTC-06:00": "(UTC-06:00) Центральное время (США)",
+        "UTC-05:00": "(UTC-05:00) Восточное время (США)",
+        "UTC-04:00": "(UTC-04:00) Атлантическое время",
+        "UTC-03:00": "(UTC-03:00) Буэнос-Айрес",
+        "UTC-02:00": "(UTC-02:00) UTC-02",
+        "UTC-01:00": "(UTC-01:00) Кабо-Верде",
+        "UTC+00:00": "(UTC 00:00) UTC",
+        "UTC+01:00": "(UTC+01:00) Берлин, Рим",
+        "UTC+02:00": "(UTC+02:00) Афины, Бухарест",
+        "UTC+03:00": "(UTC+03:00) Москва",
+        "UTC+04:00": "(UTC+04:00) Дубай, Маскат",
+        "UTC+05:00": "(UTC+05:00) Карачи",
+        "UTC+05:30": "(UTC+05:30) Нью-Дели",
+        "UTC+05:45": "(UTC+05:45) Катманду",
+        "UTC+06:00": "(UTC+06:00) Дакка",
+        "UTC+06:30": "(UTC+06:30) Янгон",
+        "UTC+07:00": "(UTC+07:00) Бангкок",
+        "UTC+08:00": "(UTC+08:00) Пекин, Гонконг",
+        "UTC+09:00": "(UTC+09:00) Токио, Сеул",
+        "UTC+09:30": "(UTC+09:30) Аделаида, Дарвин",
+        "UTC+10:00": "(UTC+10:00) Сидней",
+        "UTC+11:00": "(UTC+11:00) Соломоновы острова, Новая Каледония",
+        "UTC+12:00": "(UTC+12:00) Окленд, Фиджи",
+        "UTC+13:00": "(UTC+13:00) Нукуалофа, Самоа"
+    },
+    "date": {
+        "placeholder": "Выберите дату",
+        "clearAllDesc": "Очистить все",
+        "resetAllDesc": "Сбросить все"
+    },
+    "time": {
+        "placeholder": "Выберите время"
+    },
+    "audio": {
+        "play": "Играть",
+        "playDesc": "Срабатывает при воспроизведении звука",
+        "pause": "Пауза",
+        "pauseDesc": "Срабатывает при приостановке звука",
+        "ended": "Окончание",
+        "endedDesc": "Срабатывает при завершении воспроизведения аудиозаписи",
+        "defaultSrcUrl": "https://cdn.pixabay.com/audio/2023/07/06/audio_e12e5bea9d.mp3",
+        "srcDesc": "Текущий URI аудио или строка Base64, например data:audio/mpeg;base64,AAA... CCC"
     },
     "select": {
         "inputValueDesc": "Входное значение поиска"
     },
-    "finish": "Отделка",
-    "advanced": {
-        "AuthOrgTitle": "Экран приветствия рабочей области",
-        "AuthOrgDescrition": "URL-адрес для входа ваших пользователей в текущее рабочее пространство.",
-        "title": "Расширенный",
-        "defaultHomeTitle": "Домашняя страница по умолчанию",
-        "defaultHomeHelp": "Домашняя страница - это приложение, которое все пользователи, не являющиеся разработчиками, будут видеть по умолчанию при входе в систему. Примечание: Убедитесь, что выбранное приложение доступно для пользователей, не являющихся разработчиками.",
-        "defaultHomePlaceholder": "Выберите домашнюю страницу по умолчанию",
-        "saveBtn": "Сохранить",
-        "showHeaderInPublicApps": "Показать заголовок в публичном представлении",
-        "showHeaderInPublicAppsHelp": "Настройка видимости заголовка в публичном представлении для всех приложений",
-        "preloadJSTitle": "Предварительная загрузка JavaScript",
-        "preloadJSHelp": "Установите предварительно загруженный код JavaScript для всех приложений в текущей рабочей области.",
-        "preloadCSSTitle": "Предварительная загрузка CSS",
-        "preloadCSSHelp": "Установите предварительно загруженный код CSS для всех приложений в текущей рабочей области.",
-        "preloadLibsTitle": "Библиотека JavaScript",
-        "preloadLibsHelp": "Установите предварительно загруженные библиотеки JavaScript для всех приложений в текущем рабочем пространстве, и система имеет встроенные lodash, day.js, uuid, numbro для прямого использования. Библиотеки JavaScript загружаются до инициализации приложения, поэтому это оказывает определенное влияние на производительность приложения.",
-        "preloadLibsEmpty": "Библиотеки JavaScript не были добавлены",
-        "npmRegistryTitle": "Пользовательский реестр NPM",
-        "npmRegistryHelp": "Настройте пользовательский реестр NPM, чтобы обеспечить получение плагинов из частного реестра NPM.",
-        "APIConsumption": "Потребление API",
-        "APIConsumptionDescription": "Здесь вы можете увидеть потребление API для всех приложений в текущем рабочем пространстве.",
-        "overallAPIConsumption": "Общее потребление API в этой рабочей области до настоящего времени",
-        "lastMonthAPIConsumption": "Потребление API за последний месяц в данной рабочей области"
+    "scanner": {
+        "text": "Нажмите кнопку Сканировать"
     },
-    "edit": "Редактировать",
-    "addItem": "Добавить",
-    "preLoad": {
-        "jsLibrary": "Библиотека JavaScript",
-        "urlTooltip": "URL-адрес библиотеки JavaScript, рекомендуется [unpkg.com](https://unpkg.com/) или [jsdelivr.net](https://www.jsdelivr.com/)",
-        "add": "Добавить новый",
-        "externalLibsHelperText": "Поддерживаются только библиотеки, использующие подход UMD (Universal Module Definition). Подробнее здесь: https://github.com/umdjs/umd",
-        "recommended": "Рекомендуем"
+    "formComp": {
+        "resetDesc": "Сброс данных формы на значение по умолчанию",
+        "clearDesc": "Очистить данные формы",
+        "setDataDesc": "Установить данные формы",
+        "loadingDesc": "Загружается ли форма?",
+        "dataDesc": "Данные текущей формы"
     },
-    "npmRegistry": {
-        "npmRegistryEnable": "Включите пользовательский реестр NPM",
-        "npmRegistryUrl": "Урл реестра NPM",
-        "npmRegistryUrlRequired": "Пожалуйста, введите URL-адрес реестра",
-        "npmRegistryUrlInvalid": "Пожалуйста, введите действительный URL-адрес",
-        "npmRegistryScope": "Объем пакета",
-        "npmRegistryPattern": "Узор",
-        "npmRegistryPatternInvalid": "Пожалуйста, введите правильный шаблон (начиная с @ для организаций).",
-        "npmRegistryAuth": "Аутентификация",
-        "npmRegistryAuthCredentialsHelp": "Для базового аутентификатора укажите имя пользователя и пароль в формате base64(username:password), для токен-аута - токен.",
-        "npmRegistryAuthType": "Тип аутентификации",
-        "npmRegistryAuthCredentials": "Учетные данные для аутентификации",
-        "npmRegistryAuthCredentialsRequired": "Введите учетные данные реестра"
+    "timer": {
+        "timer": "Таймер",
+        "countdown": "Обратный отсчет",
+        "startPause": "Старт/Пауза",
+        "reset": "Сброс",
+        "defaultValue": "Значение по умолчанию",
+        "elapsedTime": "Прошедшее время",
+        "timerState": "Состояние таймера",
+        "start": "Начало"
+    },
+    "file": {
+        "parsedValueTooltip1": "Если параметр parseFiles равен True, файлы загрузки будут разобраны до объекта, массива или строки. Доступ к разобранным данным можно получить через массив parsedValue.",
+        "parsedValueTooltip2": "Поддерживаются файлы Excel, JSON, CSV и текстовые файлы. Другие форматы возвращают Null.",
+        "single": "Одиночка",
+        "multiple": "Множество",
+        "directory": "Каталог",
+        "upload": "Просмотреть",
+        "clearValueDesc": "Очистить все файлы",
+        "filesValueDesc": "Содержимое загружаемого в данный момент файла закодировано в Base64",
+        "filesDesc": "Список текущих загруженных файлов. Для получения подробной информации см."
+    },
+    "jsonSchemaForm": {
+        "dataDesc": "Данные текущей формы"
     }
 }
