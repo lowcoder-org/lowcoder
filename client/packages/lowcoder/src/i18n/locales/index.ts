@@ -8,7 +8,10 @@ export const zh = async ():Promise<object> => await import(viewMode() === "edit"
 export const ru = async ():Promise<object> => await import(viewMode() === "edit" ? "./ruEditor" : viewMode() === "view" ? "./ruViewer" : "./ru").then(module => module.ru);
 
 
-export const enObj = async ():Promise<object> => await import("./enObj").then(module => (module.enObj));
+export const enObj = async ():Promise<object | undefined> => await import("./enObj").then(module => (module.enObj));
 export const deObj = async ():Promise<object | undefined> => await import("./deObj").then(module => (module.deObj));
-export const itObj = async ():Promise<object> => await import("./itObj").then(module => (module.itObj));
+export const itObj = async ():Promise<object | undefined> => await import("./itObj").then(module => (module.itObj));
+export const ptObj = async ():Promise<object | undefined> => await import("./ptObj").then(module => (module.ptObj));
+export const esObj = async ():Promise<object | undefined> => await import("./esObj").then(module => (module.esObj));
 export const zhObj = async ():Promise<object | undefined> => await import("./zhObj").then(module => (module.zhObj));
+export const ruObj = async ():Promise<object | undefined> => await import("./ruObj").then(module => (module.ruObj));
