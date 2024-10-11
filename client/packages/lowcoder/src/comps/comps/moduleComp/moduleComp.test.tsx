@@ -1,4 +1,4 @@
-import "comps";
+import "bootstrap/admin";
 import { loadComps } from "comps/index-test";
 import { ExecuteAction } from "comps/controls/actionSelector/executeCompTypes";
 import { getCompContainer } from "comps/utils/useCompInstance";
