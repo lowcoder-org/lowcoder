@@ -48,6 +48,19 @@ public interface ApplicationHistorySnapshotEndpoints
 
 	@Operation(
 			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
+			operationId = "listApplicationSnapshotsArchived",
+			summary = "List Archived Application Snapshots",
+			description = "Retrieve a list of Archived Snapshots associated with a specific Application within Lowcoder."
+	)
+	@GetMapping("/archive/{applicationId}")
+	public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfoArchived(@PathVariable String applicationId,
+																				   @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size,
+																				   @RequestParam(required = false ) @Nullable String compName, @RequestParam(required = false ) @Nullable String theme,
+																				   @RequestParam(required = false ) @Nullable Instant from,
+																				   @RequestParam(required = false ) @Nullable Instant to);
+
+	@Operation(
+			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
 		    operationId = "getApplicationSnapshot",
 		    summary = "Retrieve Application Snapshot",
 		    description = "Retrieve a specific Application Snapshot within Lowcoder using the Application and Snapshot IDs."
@@ -55,6 +68,16 @@ public interface ApplicationHistorySnapshotEndpoints
     @GetMapping("/{applicationId}/{snapshotId}")
     public Mono<ResponseView<HistorySnapshotDslView>> getHistorySnapshotDsl(@PathVariable String applicationId,
             @PathVariable String snapshotId);
+
+	@Operation(
+			tags = TAG_APPLICATION_HISTORY_MANAGEMENT,
+			operationId = "getApplicationSnapshotArchived",
+			summary = "Retrieve Archived Application Snapshot",
+			description = "Retrieve a specific Archived Application Snapshot within Lowcoder using the Application and Snapshot IDs."
+	)
+	@GetMapping("/archive/{applicationId}/{snapshotId}")
+	public Mono<ResponseView<HistorySnapshotDslView>> getHistorySnapshotDslArchived(@PathVariable String applicationId,
+																			@PathVariable String snapshotId);
 
     public record ApplicationHistorySnapshotBriefInfo(String snapshotId, Map<String, Object> context,
                                                        String userId, String userName,
