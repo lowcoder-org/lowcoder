@@ -43,8 +43,14 @@ debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
 initTranslatorDesign().then(() => {
   initTranslator().then(async () => {
     try {
-      const bootstrap = await import("./app").then(module => module.bootstrap);
-      bootstrap();
+      if (!window.location.href.includes("view")) {
+        const bootstrap = await import("./bootstrap/admin/app").then(module => module.bootstrap);
+        bootstrap();
+      } else {
+        const bootstrap = await import("./bootstrap/view/app").then(module => module.bootstrap);
+        console.log("view")
+        bootstrap();
+      }
       hideLoading();
     } catch (e) {
       log.error(e);

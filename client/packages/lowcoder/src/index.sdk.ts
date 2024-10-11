@@ -59,7 +59,7 @@ export * from "util/context/ExternalEditorContext";
 export { CanvasContainerID } from "constants/domLocators";
 
 // comps
-export * from "comps/index";
+export * from "bootstrap/admin";
 export * from "comps/comps/rootComp";
 
 // comp utils

@@ -45,7 +45,7 @@ import LazyRoute from "components/LazyRoute";
 import { getAntdLocale } from "i18n/antdLocale";
 import { ProductLoading } from "components/ProductLoading";
 import { trans } from "i18n"; // language
-import { loadComps } from "comps";
+import { loadComps } from "bootstrap/admin";
 import { initApp } from "util/commonUtils";
 import { favicon } from "assets/images";
 import { hasQueryParam } from "util/urlUtils";

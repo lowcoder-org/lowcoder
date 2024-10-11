@@ -44,7 +44,7 @@ export default function PageInfo(props: IProps) {
     <Wrapper>
       <div className="title">
         <IconWrapper>
-          <Icon />
+          {!Icon ? <></> : <Icon/>}
         </IconWrapper>
         {compInfo.name}
       </div>
