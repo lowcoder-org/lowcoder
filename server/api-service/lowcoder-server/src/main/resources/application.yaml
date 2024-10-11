@@ -89,7 +89,7 @@ common:
   cookie:
     max-age-in-hours: ${LOWCODER_COOKIE_MAX_AGE:24}
   query:
-    app-snapshot-keep-duration: ${LOWCODER_QUERY_SNAPSHOT_ACTIVE_DURATION:30}
+    app-snapshot-keep-duration: ${LOWCODER_APP_SNAPSHOT_RETENTIONTIME:30}
 
 material:
   mongodb-grid-fs:
