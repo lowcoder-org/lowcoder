@@ -273,7 +273,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
     public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
         // collections to add gid
-        String[] collectionNames = {"group", "organization"};
+        String[] collectionNames = {"group", "organization", "application", "bundle", "datasource", "libraryQuery", "folder"};
 
         // Get the list of existing collections
         Set<String> existingCollections = mongoTemplate.getCollectionNames();
