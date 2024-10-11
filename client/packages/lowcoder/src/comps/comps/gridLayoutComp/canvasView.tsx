@@ -230,6 +230,9 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
             {...gridLayoutCanvasProps}
             bgColor={bgColor}
             radius="0px"
+            emptyRows={defaultRowCount}
+            minHeight={defaultMinHeight}
+            extraHeight={defaultRowCount === DEFAULT_ROW_COUNT ? rootContainerExtraHeight : undefined }
           />
         </Profiler>
       </UICompContainer>
