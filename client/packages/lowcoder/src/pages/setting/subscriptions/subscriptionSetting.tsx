@@ -48,10 +48,10 @@ export function SubscriptionSetting() {
       try {
         const productData = await getProducts();
         setSubscriptionProducts(productData);
-        console.log("productData", productData);
+        // console.log("productData", productData);
       } catch (err) {
         setError("Failed to fetch product.");
-        console.error(err);
+        // console.error(err);
       } finally {
         setLoading(false);
       }

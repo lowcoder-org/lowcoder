@@ -129,6 +129,11 @@ export function SettingHome() {
         !currentOrgAdmin(user) ||
         !enableCustomBrand(config) ||
         (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    },
+    { 
+      key: SettingPageEnum.Subscription,
+      label: trans("settings.subscription"),
+      icon: <SubscriptionIcon width={"20px"}/>, 
     }
   ];
 
