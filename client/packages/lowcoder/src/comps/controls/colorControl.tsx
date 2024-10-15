@@ -112,6 +112,7 @@ function ColorItem(props: {
   }, [focus]);
 
   const color = controlThis.getView();
+
   useEffect(() => {
     setShowDep(param.isDep && !focus && !color);
   }, [color, focus, param.isDep]);
