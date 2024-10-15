@@ -40,6 +40,13 @@ const alphaOfRgba = (rgba: string) => {
   return colord(rgba).alpha().toString();
 };
 
+const isValidGradient = (color: string) => {
+  const linearGradientRegex = /^linear-gradient\((\d+deg|to\s+(top|right|bottom|left)(\s+(top|right|bottom|left))?)\s*,\s*((#[0-9a-fA-F]{3,6}|rgba?\(\d+,\s*\d+,\s*\d+(,\s*\d+(\.\d+)?)?\)|[a-zA-Z]+)(\s+\d+%?)?,?\s*)+\)$/i;
+  const radialGradientRegex = /^radial-gradient\(\s*(circle|ellipse)?\s*,\s*((#[0-9a-fA-F]{3,6}|rgba?\(\d+,\s*\d+,\s*\d+(,\s*\d+(\.\d+)?)?\)|[a-zA-Z]+)(\s+\d+%?)?,?\s*)+\)$/i;
+  
+  return linearGradientRegex.test(color) || radialGradientRegex.test(color);
+}
+
 const isValidColor = (str: string) => {
   return colord(str).isValid();
 };
@@ -91,4 +98,4 @@ export const darkenColor = (colorStr: string, intensity: number) => {
   return color.darken(intensity).toHex().toUpperCase();
 };
 
-export { toRGBA, toHex, alphaOfRgba, isValidColor };
+export { toRGBA, toHex, alphaOfRgba, isValidColor, isValidGradient };
