@@ -44,7 +44,12 @@ export const de = {
         "loadingDesc": "Befindet sich der Button im Ladezustand? Wenn wahr, wird die aktuelle Schaltfläche geladen"
     },
     "jsonSchemaForm": {
-        "dataDesc": "Aktuelle Formulardaten"
+        "dataDesc": "Aktuelle Formulardaten",
+        "jsonSchema": "JSON-Schema",
+        "schemaTooltip": "Siehe",
+        "uiSchema": "UI Schema",
+        "defaultData": "Vorausgefüllte Formulardaten",
+        "resetAfterSubmit": "Zurücksetzen nach erfolgreichem Absenden des Formulars"
     },
     "tour": {
         "indicatorsRender": {
@@ -131,6 +136,7 @@ export const de = {
         "minLength": "Mindestlänge",
         "maxLength": "Maximale Länge",
         "horizontal": "Horizontal",
+        "textAreaScrollBar": "Show Scrollbars in Text Area",
         "manual": "Handbuch",
         "json": "JSON",
         "style": "Stil",
@@ -269,6 +275,7 @@ export const de = {
         "eventHandlers": "Ereignishandler",
         "emptyEventHandlers": "Keine Ereignishandler",
         "action": "Aktion",
+        "notHandledError": "Nicht behandelter Fehler",
         "exportNoFileType": "Keine Auswahl (optional)",
         "component": "Komponente",
         "state": "Zustand",
@@ -523,6 +530,7 @@ export const de = {
         "itemIndexNameDesc": "Der Variablenname, der sich auf den Index des Elements bezieht, Standard: {default}",
         "itemDataName": "Datenelement Objektname",
         "itemDataNameDesc": "Der Variablenname, der sich auf das Datenobjekt des Items bezieht, Standard als {default}",
+        "noOfColumns": "Anzahl der Kolonnen",
         "itemsDesc": "Daten der Komponenten in der Liste offenlegen",
         "dataDesc": "Die in der aktuellen Liste verwendeten JSON-Daten"
     },
@@ -537,6 +545,151 @@ export const de = {
         "azure": "Azurblau",
         "darkBlue": "Dunkelblau",
         "valueDesc": "Aktuelle JSON-Daten"
+    },
+    "home": {
+        "copyModalfolderLabel": "Zum Ordner hinzufügen",
+        "rootFolder": "Wurzel",
+        "all": "Alle",
+        "app": "App",
+        "module": "Modul",
+        "navigation": "Navigation",
+        "navLayout": "PC-Navigation",
+        "navLayoutDesc": "Menü auf der linken Seite für eine einfache Desktop-Navigation.",
+        "folder": "Mappe",
+        "mobileTabLayout": "Mobile Navigation",
+        "mobileTabLayoutDesc": "Untere Navigationsleiste für reibungsloses mobiles Surfen.",
+        "moveToTrash": "In den Papierkorb verschieben",
+        "copyModalTitle": "Klonen",
+        "copyNameLabel": "{type} Name",
+        "copyNamePlaceholder": "Bitte gib einen {type} Namen ein",
+        "allPermissions": "Besitzer",
+        "addMember": "Mitglieder hinzufügen",
+        "orgName": "{orgName} admins"
+    },
+    "leftPanel": {
+        "toolbarTitle": "Individualisierung",
+        "toolbarPreload": "Skripte und Stile",
+        "components": "Aktive Komponenten",
+        "modals": "Modale Fenster",
+        "queries": "Datenabfragen",
+        "globals": "Globale Datenvariablen",
+        "expandTip": "Klicken, um die aktuellen Daten (State) der Komponente zu sehen.",
+        "propTips": "{num} Tasten",
+        "propTip": "{num} Schlüssel"
+    },
+    "preLoad": {
+        "jsLibrary": "JavaScript-Bibliothek",
+        "scriptsAndStyles": "Skripte und Stile",
+        "urlTooltip": "URL-Adresse der JavaScript-Bibliothek, [unpkg.com](https://unpkg.com/) oder [jsdelivr.net](https://www.jsdelivr.com/) wird empfohlen",
+        "add": "Neu hinzufügen",
+        "externalLibsHelperText": "Es werden nur Bibliotheken unterstützt, die den UMD-Ansatz (Universal Module Definition) verwenden. Lesen Sie hier mehr: https://github.com/umdjs/umd",
+        "jsLibraryEmptyContent": "Keine JavaScript-Bibliotheken hinzugefügt",
+        "recommended": "Empfohlen"
+    },
+    "appSetting": {
+        "450": "450px (Mobile)",
+        "800": "800px (Tablet)",
+        "1440": "1440px (Laptop)",
+        "1920": "1920px (Breitbild)",
+        "3200": "3200px (Super Large Screen)",
+        "appTitle": "Titel",
+        "appDescription": "Beschreibung",
+        "appCategory": "Kategorie",
+        "showPublicHeader": "Kopfzeile in der öffentlichen Ansicht anzeigen",
+        "canvasMaxWidth": "Maximale Bildschirmbreite für diese App",
+        "userDefinedMaxWidth": "Benutzerdefinierte maximale Breite",
+        "inputUserDefinedPxValue": "Bitte gib einen benutzerdefinierten Pixelwert ein",
+        "maxWidthTip": "Die maximale Breite sollte größer als oder gleich 350 sein",
+        "themeSettingDefault": "Standard",
+        "themeSetting": "Angewandter Stil Thema",
+        "themeCreate": "Thema erstellen",
+        "title": "Allgemeine App-Einstellungen",
+        "autofill": "Autofill",
+        "userDefined": "Benutzerdefiniert"
+    },
+    "icon": "Icon",
+    "aggregation": {
+        "iconTooltip": "Unterstützt Image src Link oder Base64 String wie data:image/png;base64,AAA... CCC"
+    },
+    "customShortcut": {
+        "title": "Benutzerdefinierte Abkürzungen",
+        "shortcut": "Abkürzung",
+        "action": "Aktion",
+        "empty": "Keine Abkürzungen",
+        "space": "Raum"
+    },
+    "docUrls": {
+        "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+        "thirdLibUrlText": "Bibliotheken von Drittanbietern verwenden",
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
+    "avatarComp": {
+        "src": "src",
+        "avatarCompTooltip": "Die Anzeigepriorität ist: Bild -> Zeichen -> Symbol. Je nachdem, was zuerst verfügbar ist.",
+        "title": "Titel",
+        "icon": "Symbol",
+        "shape": "Form",
+        "iconSize": "Icon Größe",
+        "enableDropDown": "Enable DropDown",
+        "label": "Etikett",
+        "caption": "Bildunterschrift",
+        "labelPosition": "Position",
+        "alignmentPosition": "Ausrichtung",
+        "avatarBackground": "Hintergrund",
+        "square": "Platz",
+        "circle": "Kreis"
+    },
+    "badge": {
+        "Type": "Abzeichen Typ",
+        "Count": "Abzeichen zählen",
+        "overflowCount": "Überlaufzahl",
+        "Size": "Größe des Abzeichens",
+        "Title": "Titel des Abzeichens",
+        "SizeDefault": "Standard",
+        "SizeSmall": "Klein",
+        "number": "Nummer",
+        "dot": "Punkt"
+    },
+    "colorPicker": {
+        "trigger": "Auslöser Ereignis",
+        "disabledAlpha": "Alpha-Auswahl deaktivieren",
+        "showPresets": "Farbvoreinstellungen anzeigen",
+        "recommended": "Empfohlen",
+        "click": "Klicken Sie auf",
+        "hover": "schweben"
+    },
+    "signature": {
+        "tips": "Hinweistext",
+        "showUndo": "Rückgängig machen anzeigen",
+        "showClear": "Löschen anzeigen",
+        "signHere": "Hier unterschreiben"
+    },
+    "richTextEditor": {
+        "defaultValue": "Basis Inhalt",
+        "toolbar": "Symbolleiste anpassen",
+        "toolbarDescription": "Du kannst die Symbolleiste individuell anpassen. Weitere Informationen findest du unter: https://quilljs.com/docs/modules/toolbar/.",
+        "hideToolbar": "Symbolleiste ausblenden",
+        "content": "Inhalt",
+        "title": "Titel",
+        "save": "Speichern",
+        "link": "Link:",
+        "edit": "bearbeiten",
+        "remove": "entfernen",
+        "placeholder": "Bitte eingeben..."
+    },
+    "navigation": {
+        "horizontalAlignment": "Horizontale Ausrichtung",
+        "logoURL": "Navigation Logo URL",
+        "addText": "Untermenüpunkt hinzufügen",
+        "itemsDesc": "Hierarchische Navigationsmenüpunkte",
+        "logoURLDesc": "Du kannst ein Logo auf der linken Seite anzeigen, indem du einen URI-Wert oder einen Base64-String eingibst, z.B. data:image/png;base64,AAA... CCC"
+    },
+    "navItemComp": {
+        "active": "Aktiv"
     },
     "orgSettings": {
         "newOrg": "Neuer Arbeitsbereich (Organisation)"
@@ -1088,20 +1241,8 @@ export const de = {
         "parse": "Parsen",
         "parseDesc": "Auslöser beim Parsen."
     },
-    "navigation": {
-        "itemsDesc": "Hierarchische Navigationsmenüpunkte",
-        "logoURLDesc": "Du kannst ein Logo auf der linken Seite anzeigen, indem du einen URI-Wert oder einen Base64-String eingibst, z.B. data:image/png;base64,AAA... CCC"
-    },
-    "customShortcut": {
-        "space": "Raum"
-    },
     "text": "Text",
     "label": "Etikett",
-    "avatarComp": {
-        "avatarBackground": "Hintergrund",
-        "square": "Platz",
-        "circle": "Kreis"
-    },
     "floatButton": {
         "badgeColor": "Farbe des Abzeichens",
         "square": "Platz",
@@ -1123,13 +1264,6 @@ export const de = {
         "modeHorizontal": "Horizontal"
     },
     "menuItem": "Menüpunkt",
-    "docUrls": {
-        "optionList": "",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
-        "introVideo": "",
-        "components": "https://app.lowcoder.cloud/components/{compType}"
-    },
     "data": "Daten",
     "exportMethod": {
         "setDesc": "Eigenschaft einstellen: {property}",
@@ -1184,16 +1318,6 @@ export const de = {
         "noSelectedQuery": "Keine Datenabfrage ausgewählt",
         "title": "Datenabfragen"
     },
-    "appSetting": {
-        "450": "450px (Mobile)",
-        "800": "800px (Tablet)",
-        "1440": "1440px (Laptop)",
-        "1920": "1920px (Breitbild)",
-        "3200": "3200px (Super Large Screen)",
-        "title": "Allgemeine App-Einstellungen",
-        "autofill": "Autofill",
-        "userDefined": "Benutzerdefiniert"
-    },
     "temporaryState": {
         "valueDesc": "Vorläufiger Zustandswert"
     },
@@ -1201,24 +1325,6 @@ export const de = {
     "code": "Code",
     "dataResponder": {
         "dataDesc": "Daten des aktuellen Data Responders"
-    },
-    "home": {
-        "all": "Alle",
-        "app": "App",
-        "module": "Modul",
-        "navigation": "Navigation",
-        "navLayout": "PC-Navigation",
-        "navLayoutDesc": "Menü auf der linken Seite für eine einfache Desktop-Navigation.",
-        "folder": "Mappe",
-        "mobileTabLayout": "Mobile Navigation",
-        "mobileTabLayoutDesc": "Untere Navigationsleiste für reibungsloses mobiles Surfen.",
-        "moveToTrash": "In den Papierkorb verschieben",
-        "copyModalTitle": "Klonen",
-        "copyNameLabel": "{type} Name",
-        "copyNamePlaceholder": "Bitte gib einen {type} Namen ein",
-        "allPermissions": "Besitzer",
-        "addMember": "Mitglieder hinzufügen",
-        "orgName": "{orgName} admins"
     },
     "millisecondsControl": {
         "timeoutLessThanMinError": "Die Eingabe muss größer sein als {left}, die aktuelle Eingabe ist: {value}"
@@ -1282,21 +1388,9 @@ export const de = {
         "update": "Was gibt's Neues?",
         "versionWithColon": "Version:"
     },
-    "leftPanel": {
-        "components": "Aktive Komponenten",
-        "modals": "Modale Fenster",
-        "queries": "Datenabfragen",
-        "globals": "Globale Datenvariablen",
-        "expandTip": "Klicken, um die aktuellen Daten (State) der Komponente zu sehen.",
-        "propTips": "{num} Tasten",
-        "propTip": "{num} Schlüssel"
-    },
     "newItem": "Neu",
     "npm": {
         "compNotFound": "Komponente {compName} nicht gefunden."
-    },
-    "signature": {
-        "signHere": "Hier unterschreiben"
     },
     "QRCode": {
         "valueDesc": "Der QR-Code-Inhaltswert"
@@ -1359,15 +1453,6 @@ export const de = {
         "pauseDesc": "Pausiert die Medienwiedergabe.",
         "loadDesc": "Setzt die Medien auf den Anfang zurück und startet die Auswahl der Medienressource neu."
     },
-    "richTextEditor": {
-        "content": "Inhalt",
-        "title": "Titel",
-        "save": "Speichern",
-        "link": "Link:",
-        "edit": "bearbeiten",
-        "remove": "entfernen",
-        "placeholder": "Bitte eingeben..."
-    },
     "iframe": {
         "URLDesc": "Die Quell-URL für den IFrame-Inhalt. Achte darauf, dass die URL HTTPS oder localhost ist. Vergewissere dich auch, dass die URL nicht durch die Content Security Policy (CSP) des Browsers blockiert wird. Der Header \\'X-Frame-Options\\' sollte nicht auf \\'DENY\\' oder \\'SAMEORIGIN\\' gesetzt sein."
     },
@@ -1384,21 +1469,10 @@ export const de = {
     "avatarGroup": {
         "currentAvatar": "Aktueller Avatar"
     },
-    "badge": {
-        "SizeDefault": "Standard",
-        "SizeSmall": "Klein",
-        "number": "Nummer",
-        "dot": "Punkt"
-    },
     "validationDesc": {
         "email": "Bitte gib eine gültige E-Mail Adresse ein",
         "url": "Bitte gib eine gültige URL ein",
         "regex": "Die Eingabe muss zum regulären Ausdruck passen."
-    },
-    "colorPicker": {
-        "recommended": "Empfohlen",
-        "click": "Klicken Sie auf",
-        "hover": "schweben"
     },
     "progress": {
         "valueDesc": "Aktueller Fortschrittswert, der von 0 bis 100 reicht",

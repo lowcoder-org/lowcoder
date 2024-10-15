@@ -14,6 +14,8 @@ export const ru = {
         "createFolder": "Создать папку",
         "createFolderSubTitle": "Имя папки:",
         "folderAlreadyExists": "Папка уже существует",
+        "copyModalfolderLabel": "Добавить в папку",
+        "rootFolder": "Корень",
         "app": "Приложение",
         "module": "Модуль",
         "navLayout": "Навигация по ПК",
@@ -256,6 +258,10 @@ export const ru = {
         "roleColumn": "Роль",
         "actionColumn": "Операция",
         "addMember": "Добавить участников",
+        "inviteText": "{userName} приглашает вас присоединиться к рабочему пространству \"{organization}\", нажмите на ссылку, чтобы присоединиться: {inviteLink}",
+        "inviteUserHelp": "Вы можете скопировать ссылку на приглашение, чтобы отправить его пользователю",
+        "inviteUserLabel": "Ссылка на приглашение:",
+        "inviteCopyLink": "Копировать ссылку",
         "superAdmin": "Суперадминистратор",
         "adminGroupRoleInfo": "Администратор может управлять членами группы и ресурсами",
         "admin": "Администратор",
@@ -280,6 +286,7 @@ export const ru = {
         "status": "Статус",
         "formSelectPlaceholder": "Пожалуйста, выберите {label}",
         "enable": "Включить",
+        "encryptedServer": "-------- Зашифровано на стороне сервера --------",
         "form": "Электронная почта",
         "source": "Источник",
         "sourceName": "Имя провайдера авторизации",
@@ -321,6 +328,8 @@ export const ru = {
     "orgSettings": {
         "createOrg": "Создать рабочее пространство (организация)",
         "orgName": "Имя рабочей области",
+        "orgNameLabel": "Имя рабочего пространства:",
+        "orgNameCheckMsg": "Имя рабочей области не может быть пустым",
         "newOrg": "Новое рабочее пространство (Организация)"
     },
     "edit": "Редактировать",
@@ -335,6 +344,8 @@ export const ru = {
     "docUrls": {
         "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
         "thirdLibUrlText": "Используйте библиотеки сторонних разработчиков",
+        "terms": "https://lowcoder.cloud/terms",
+        "privacy": "https://lowcoder.cloud/privacy",
         "docHome": "https://docs.lowcoder.cloud/",
         "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
         "introVideo": "",
@@ -359,6 +370,27 @@ export const ru = {
     "deletePermanently": "Удалить навсегда",
     "delete": "Удалить",
     "create": "Создать",
+    "userAuth": {
+        "chooseAccount": "Выберите свой аккаунт",
+        "userLogin": "Войти",
+        "poweredByLowcoder": "Работает от: Lowcoder.cloud",
+        "email": "Электронная почта:",
+        "inputEmail": "Пожалуйста, введите свой адрес электронной почты",
+        "inputValidEmail": "Пожалуйста, введите действительный адрес электронной почты",
+        "forgotPassword": "Забыли пароль",
+        "login": "Войти",
+        "register": "Зарегистрироваться",
+        "forgotPasswordInfo": "Введите свой e-mail, и мы вышлем вам ссылку для сброса пароля.",
+        "registerHint": "Я прочитал и согласен с",
+        "terms": "Условия",
+        "privacy": "Политика конфиденциальности"
+    },
+    "password": {
+        "label": "Пароль",
+        "placeholder": "Пожалуйста, введите пароль",
+        "conformLabel": "Подтвердите пароль",
+        "conformPlaceholder": "Пожалуйста, подтвердите пароль"
+    },
     "share": {
         "title": "Поделиться"
     },

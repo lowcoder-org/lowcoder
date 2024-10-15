@@ -14,6 +14,8 @@ export const zh = {
         "createFolder": "创建文件夹",
         "createFolderSubTitle": "文件夹名称:",
         "folderAlreadyExists": "文件夹已存在",
+        "copyModalfolderLabel": "添加到文件夹",
+        "rootFolder": "根目录",
         "app": "应用",
         "module": "模块",
         "navLayout": "桌面端导航",
@@ -256,6 +258,10 @@ export const zh = {
         "roleColumn": "角色",
         "actionColumn": "操作",
         "addMember": "添加成员",
+        "inviteText": "{userName} 邀请您加入工作空间 \"{organization}\",点击链接加入:{inviteLink}",
+        "inviteUserHelp": "您可以复制邀请链接发送给所想邀请的用户",
+        "inviteUserLabel": "邀请链接:",
+        "inviteCopyLink": "复制链接",
         "superAdmin": "超级管理员",
         "adminGroupRoleInfo": "管理员可以管理群组成员和资源",
         "admin": "管理员",
@@ -280,6 +286,7 @@ export const zh = {
         "status": "状态",
         "formSelectPlaceholder": "请选择{label}",
         "enable": "启用",
+        "encryptedServer": "-------- 服务器端加密 --------",
         "form": "电子邮件",
         "source": "Source",
         "sourceName": "Auth Provider Name",
@@ -321,6 +328,8 @@ export const zh = {
     "orgSettings": {
         "createOrg": "创建工作空间",
         "orgName": "工作空间名称",
+        "orgNameLabel": "工作空间名称:",
+        "orgNameCheckMsg": "工作空间名称不能为空",
         "newOrg": "新工作空间"
     },
     "edit": "编辑",
@@ -335,6 +344,8 @@ export const zh = {
     "docUrls": {
         "thirdLib": "https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries",
         "thirdLibUrlText": "使用第三方插件库",
+        "terms": "",
+        "privacy": "",
         "docHome": "https://docs.lowcoder.cloud/",
         "changeLog": "",
         "introVideo": "",
@@ -359,6 +370,27 @@ export const zh = {
     "deletePermanently": "删除",
     "delete": "删除",
     "create": "创建",
+    "userAuth": {
+        "chooseAccount": "选择您的帐户",
+        "userLogin": "用户登录",
+        "poweredByLowcoder": "供电 Lowcoder.cloud",
+        "email": "电子邮件:",
+        "inputEmail": "请输入您的电子邮件",
+        "inputValidEmail": "请输入有效的电子邮件",
+        "forgotPassword": "Forgot Password",
+        "login": "登录",
+        "register": "注册",
+        "forgotPasswordInfo": "Enter your email and we'll send you a link to reset your password.",
+        "registerHint": "我已阅读并同意",
+        "terms": "条款",
+        "privacy": "隐私政策"
+    },
+    "password": {
+        "label": "密码",
+        "placeholder": "Please Enter Password",
+        "conformLabel": "Confirm Password",
+        "conformPlaceholder": "Please Confirm Password"
+    },
     "share": {
         "title": "分享"
     },
