@@ -18,7 +18,7 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
-import { ScrollBar } from "lowcoder-design";
+import { isValidColor, isValidGradient, ScrollBar } from "lowcoder-design";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { isEqual } from "lodash";
 import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_COUNT, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
@@ -36,8 +36,11 @@ const UICompContainer = styled.div<{
   height: auto;
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
-  background-color: ${(props) => props.$bgColor};
-  ${(props) => props.$bgImage && `background-image: url(${props.$bgImage});`}; 
+  ${(props) => isValidColor(props.$bgColor) && `background-color: ${props.$bgColor};`};
+  ${(props) => isValidGradient(props.$bgColor) && !Boolean(props.$bgImage) && `background-image: ${props.$bgColor}`};
+  ${(props) => isValidGradient(props.$bgColor) && Boolean(props.$bgImage) && `background-image: url(${props.$bgImage}), ${props.$bgColor}`};
+  ${(props) => !isValidGradient(props.$bgColor) && Boolean(props.$bgImage) && `background-image: ${props.$bgColor}`};
+  // ${(props) => props.$bgImage && `background-image: url(${props.$bgImage});`}; 
   ${(props) => props.$bgImageRepeat && `background-repeat: ${props.$bgImageRepeat};`}; 
   ${(props) => props.$bgImageSize && `background-size: ${props.$bgImageSize};`}; 
   ${(props) => props.$bgImageOrigin && `background-origin: ${props.$bgImageOrigin};`}; 
@@ -192,7 +195,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
     let paddingX = themeGridPaddingX || appSettings?.gridPaddingX || defaultTheme?.gridPaddingX || DEFAULT_CONTAINER_PADDING[0];
     let paddingY = themeGridPaddingY || appSettings?.gridPaddingY || defaultTheme?.gridPaddingY || DEFAULT_CONTAINER_PADDING[1];
-    
+
     return [paddingX, paddingY];
   }, [preventStylesOverwriting, appSettings, isMobile, currentTheme, defaultTheme]);
 
