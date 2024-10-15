@@ -44,7 +44,12 @@ export const ru = {
         "loadingDesc": "Находится ли кнопка в состоянии загрузки? Если True, то текущая кнопка загружается"
     },
     "jsonSchemaForm": {
-        "dataDesc": "Данные текущей формы"
+        "dataDesc": "Данные текущей формы",
+        "jsonSchema": "JSON-схема",
+        "schemaTooltip": "См.",
+        "uiSchema": "Схема пользовательского интерфейса",
+        "defaultData": "Предварительно заполненные данные формы",
+        "resetAfterSubmit": "Сброс после успешной отправки формы"
     },
     "tour": {
         "indicatorsRender": {
@@ -131,6 +136,7 @@ export const ru = {
         "minLength": "Минимальная длина",
         "maxLength": "Максимальная длина",
         "horizontal": "Горизонтальный",
+        "textAreaScrollBar": "Show Scrollbars in Text Area",
         "manual": "Руководство",
         "json": "JSON",
         "style": "Стиль",
@@ -269,6 +275,7 @@ export const ru = {
         "eventHandlers": "Обработчики событий",
         "emptyEventHandlers": "Нет обработчиков событий",
         "action": "Действие",
+        "notHandledError": "Не обрабатывается",
         "exportNoFileType": "Без выбора (необязательно)",
         "component": "Компонент",
         "state": "Государство",
@@ -523,6 +530,7 @@ export const ru = {
         "itemIndexNameDesc": "Имя переменной, относящееся к индексу элемента, по умолчанию {default}",
         "itemDataName": "Имя объекта элемента данных",
         "itemDataNameDesc": "Имя переменной, относящееся к объекту данных элемента, по умолчанию {default}",
+        "noOfColumns": "Счетчик колонок",
         "itemsDesc": "Раскрытие данных компонентов в списке",
         "dataDesc": "Данные JSON, используемые в текущем списке"
     },
@@ -537,6 +545,151 @@ export const ru = {
         "azure": "Лазурь",
         "darkBlue": "Темно-синий",
         "valueDesc": "Текущие данные в формате JSON"
+    },
+    "home": {
+        "copyModalfolderLabel": "Добавить в папку",
+        "rootFolder": "Корень",
+        "all": "Все",
+        "app": "Приложение",
+        "module": "Модуль",
+        "navigation": "Навигация",
+        "navLayout": "Навигация по ПК",
+        "navLayoutDesc": "Левостороннее меню для удобной навигации по рабочему столу.",
+        "folder": "Папка",
+        "mobileTabLayout": "Мобильная навигация",
+        "mobileTabLayoutDesc": "Нижняя навигационная панель для плавного просмотра страниц на мобильных устройствах.",
+        "moveToTrash": "Переместить в мусор",
+        "copyModalTitle": "Клонировать \"{name}\"",
+        "copyNameLabel": "Имя {type}",
+        "copyNamePlaceholder": "Пожалуйста, укажите имя {type}",
+        "allPermissions": "Владелец",
+        "addMember": "Добавить участников",
+        "orgName": "{orgName} admins"
+    },
+    "leftPanel": {
+        "toolbarTitle": "Индивидуализация",
+        "toolbarPreload": "Сценарии и стили",
+        "components": "Активные компоненты",
+        "modals": "модалы в приложении",
+        "queries": "Запросы данных в вашем приложении",
+        "globals": "Глобальные переменные данных",
+        "expandTip": "Нажмите, чтобы показать данные {component}",
+        "propTips": "{num} Ключи",
+        "propTip": "{num} Ключ"
+    },
+    "preLoad": {
+        "jsLibrary": "Библиотека JavaScript",
+        "scriptsAndStyles": "Сценарии и стили",
+        "urlTooltip": "URL-адрес библиотеки JavaScript, рекомендуется [unpkg.com](https://unpkg.com/) или [jsdelivr.net](https://www.jsdelivr.com/)",
+        "add": "Добавить новый",
+        "externalLibsHelperText": "Поддерживаются только библиотеки, использующие подход UMD (Universal Module Definition). Подробнее здесь: https://github.com/umdjs/umd",
+        "jsLibraryEmptyContent": "Библиотеки JavaScript не добавлены",
+        "recommended": "Рекомендуем"
+    },
+    "appSetting": {
+        "450": "450px (Телефон)",
+        "800": "800px (планшет)",
+        "1440": "1440px (ноутбук)",
+        "1920": "1920px (широкий экран)",
+        "3200": "3200px (сверхбольшой экран)",
+        "appTitle": "Название",
+        "appDescription": "Описание",
+        "appCategory": "Категория",
+        "showPublicHeader": "Показать заголовок в открытом виде",
+        "canvasMaxWidth": "Максимальная ширина холста для этого приложения",
+        "userDefinedMaxWidth": "Пользовательская максимальная ширина",
+        "inputUserDefinedPxValue": "Введите пользовательское значение пикселя",
+        "maxWidthTip": "Максимальная ширина должна быть больше или равна 350",
+        "themeSettingDefault": "По умолчанию",
+        "themeSetting": "Прикладной стиль Тема",
+        "themeCreate": "Создать тему",
+        "title": "Общие настройки приложения",
+        "autofill": "Автозаполнение",
+        "userDefined": "Пользовательское"
+    },
+    "icon": "Икона",
+    "aggregation": {
+        "iconTooltip": "Поддержка ссылки на src изображения или строки Base64, например data:image/png;base64, AAA... CCC"
+    },
+    "customShortcut": {
+        "title": "Пользовательские ярлыки",
+        "shortcut": "Ярлык",
+        "action": "Действие",
+        "empty": "Никаких недомолвок",
+        "space": "Космос"
+    },
+    "docUrls": {
+        "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+        "thirdLibUrlText": "Используйте библиотеки сторонних разработчиков",
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
+    "avatarComp": {
+        "src": "src",
+        "avatarCompTooltip": "Приоритет отображения следующий: изображение -> символы -> значок. В зависимости от того, что доступно первым.",
+        "title": "название",
+        "icon": "икона",
+        "shape": "форма",
+        "iconSize": "Размер значка",
+        "enableDropDown": "Включить выпадающий список",
+        "label": "Этикетка",
+        "caption": "Надпись",
+        "labelPosition": "Позиция",
+        "alignmentPosition": "выравнивание",
+        "avatarBackground": "Фон",
+        "square": "квадрат",
+        "circle": "круг"
+    },
+    "badge": {
+        "Type": "Тип значка",
+        "Count": "Количество значков",
+        "overflowCount": "Счетчик переполнения",
+        "Size": "Размер значка",
+        "Title": "Название значка",
+        "SizeDefault": "по умолчанию",
+        "SizeSmall": "Маленький",
+        "number": "Номер",
+        "dot": "Точка"
+    },
+    "colorPicker": {
+        "trigger": "Триггеры Событие",
+        "disabledAlpha": "Отключить выбор альфы",
+        "showPresets": "Показать предустановки цвета",
+        "recommended": "Рекомендуем",
+        "click": "Нажмите",
+        "hover": "наведение"
+    },
+    "signature": {
+        "tips": "Текст подсказки",
+        "showUndo": "Показать отмену",
+        "showClear": "Показать чистоту",
+        "signHere": "Подпишитесь здесь"
+    },
+    "richTextEditor": {
+        "defaultValue": "Базовое содержание",
+        "toolbar": "Настройка панели инструментов",
+        "toolbarDescription": "Вы можете настроить панель инструментов. Более подробную информацию см. на сайте: https://quilljs.com/docs/modules/toolbar/.",
+        "hideToolbar": "Скрыть панель инструментов",
+        "content": "Содержание",
+        "title": "Название",
+        "save": "Сохранить",
+        "link": "Ссылка:",
+        "edit": "Редактировать",
+        "remove": "Удалить",
+        "placeholder": "Пожалуйста, введите..."
+    },
+    "navigation": {
+        "horizontalAlignment": "Горизонтальное выравнивание",
+        "logoURL": "Навигация Логотип URL",
+        "addText": "Добавить элемент подменю",
+        "itemsDesc": "Элементы иерархического навигационного меню",
+        "logoURLDesc": "Вы можете отобразить логотип в левой части, введя значение URI или строку Base64, например data:image/png;base64,AAA... CCC"
+    },
+    "navItemComp": {
+        "active": "Активный"
     },
     "orgSettings": {
         "newOrg": "Новое рабочее пространство (Организация)"
@@ -1088,20 +1241,8 @@ export const ru = {
         "parse": "Разбор",
         "parseDesc": "Триггеры при разборе"
     },
-    "navigation": {
-        "itemsDesc": "Элементы иерархического навигационного меню",
-        "logoURLDesc": "Вы можете отобразить логотип в левой части, введя значение URI или строку Base64, например data:image/png;base64,AAA... CCC"
-    },
-    "customShortcut": {
-        "space": "Космос"
-    },
     "text": "Текст",
     "label": "Этикетка",
-    "avatarComp": {
-        "avatarBackground": "Фон",
-        "square": "квадрат",
-        "circle": "круг"
-    },
     "floatButton": {
         "badgeColor": "Цвет значка",
         "square": "Квадрат",
@@ -1123,13 +1264,6 @@ export const ru = {
         "modeHorizontal": "Горизонтальный"
     },
     "menuItem": "Пункт меню",
-    "docUrls": {
-        "optionList": "",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
-        "introVideo": "",
-        "components": "https://app.lowcoder.cloud/components/{compType}"
-    },
     "data": "Данные",
     "exportMethod": {
         "setDesc": "Установить свойство: {property}",
@@ -1184,16 +1318,6 @@ export const ru = {
         "noSelectedQuery": "Запрос не выбран",
         "title": "Запросы данных"
     },
-    "appSetting": {
-        "450": "450px (Телефон)",
-        "800": "800px (планшет)",
-        "1440": "1440px (ноутбук)",
-        "1920": "1920px (широкий экран)",
-        "3200": "3200px (сверхбольшой экран)",
-        "title": "Общие настройки приложения",
-        "autofill": "Автозаполнение",
-        "userDefined": "Пользовательское"
-    },
     "temporaryState": {
         "valueDesc": "Временное государственное значение"
     },
@@ -1201,24 +1325,6 @@ export const ru = {
     "code": "Код",
     "dataResponder": {
         "dataDesc": "Данные текущего респондента"
-    },
-    "home": {
-        "all": "Все",
-        "app": "Приложение",
-        "module": "Модуль",
-        "navigation": "Навигация",
-        "navLayout": "Навигация по ПК",
-        "navLayoutDesc": "Левостороннее меню для удобной навигации по рабочему столу.",
-        "folder": "Папка",
-        "mobileTabLayout": "Мобильная навигация",
-        "mobileTabLayoutDesc": "Нижняя навигационная панель для плавного просмотра страниц на мобильных устройствах.",
-        "moveToTrash": "Переместить в мусор",
-        "copyModalTitle": "Клонировать \"{name}\"",
-        "copyNameLabel": "Имя {type}",
-        "copyNamePlaceholder": "Пожалуйста, укажите имя {type}",
-        "allPermissions": "Владелец",
-        "addMember": "Добавить участников",
-        "orgName": "{orgName} admins"
     },
     "millisecondsControl": {
         "timeoutLessThanMinError": "Вход должен быть больше, чем {left}, текущий вход составляет: {value}"
@@ -1282,21 +1388,9 @@ export const ru = {
         "update": "Что нового?",
         "versionWithColon": "Версия:"
     },
-    "leftPanel": {
-        "components": "Активные компоненты",
-        "modals": "модалы в приложении",
-        "queries": "Запросы данных в вашем приложении",
-        "globals": "Глобальные переменные данных",
-        "expandTip": "Нажмите, чтобы показать данные {component}",
-        "propTips": "{num} Ключи",
-        "propTip": "{num} Ключ"
-    },
     "newItem": "Новый",
     "npm": {
         "compNotFound": "Компонент {compName} не найден."
-    },
-    "signature": {
-        "signHere": "Подпишитесь здесь"
     },
     "QRCode": {
         "valueDesc": "Значение содержимого QR-кода"
@@ -1359,15 +1453,6 @@ export const ru = {
         "pauseDesc": "Приостанавливает воспроизведение мультимедиа.",
         "loadDesc": "Сброс носителя на начало и перезапуск Выбор медиаресурса."
     },
-    "richTextEditor": {
-        "content": "Содержание",
-        "title": "Название",
-        "save": "Сохранить",
-        "link": "Ссылка:",
-        "edit": "Редактировать",
-        "remove": "Удалить",
-        "placeholder": "Пожалуйста, введите..."
-    },
     "iframe": {
         "URLDesc": "URL-адрес источника содержимого IFrame. Убедитесь, что URL-адрес является HTTPS или localhost. Также убедитесь, что URL не заблокирован политикой безопасности содержимого (CSP) браузера. Заголовок 'X-Frame-Options' не должен быть установлен на 'DENY' или 'SAMEORIGIN'."
     },
@@ -1384,21 +1469,10 @@ export const ru = {
     "avatarGroup": {
         "currentAvatar": "Текущий аватар"
     },
-    "badge": {
-        "SizeDefault": "по умолчанию",
-        "SizeSmall": "Маленький",
-        "number": "Номер",
-        "dot": "Точка"
-    },
     "validationDesc": {
         "email": "Пожалуйста, введите действительный адрес электронной почты",
         "url": "Пожалуйста, введите действительный URL-адрес",
         "regex": "Пожалуйста, сопоставьте указанный образец"
-    },
-    "colorPicker": {
-        "recommended": "Рекомендуем",
-        "click": "Нажмите",
-        "hover": "наведение"
     },
     "progress": {
         "valueDesc": "Текущее значение прогресса, в диапазоне от 0 до 100",

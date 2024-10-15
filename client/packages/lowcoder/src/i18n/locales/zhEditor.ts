@@ -44,7 +44,12 @@ export const zh = {
         "loadingDesc": "按钮是否处于加载状态?如果为true,则当前按钮正在加载"
     },
     "jsonSchemaForm": {
-        "dataDesc": "当前表单数据"
+        "dataDesc": "当前表单数据",
+        "jsonSchema": "JSON数据",
+        "schemaTooltip": "查看",
+        "uiSchema": "UI数据",
+        "defaultData": "默认数据",
+        "resetAfterSubmit": "成功提交后重置"
     },
     "tour": {
         "indicatorsRender": {
@@ -131,6 +136,7 @@ export const zh = {
         "minLength": "最小长度",
         "maxLength": "最大长度",
         "horizontal": "水平",
+        "textAreaScrollBar": "Show Scrollbars in Text Area",
         "manual": "手动",
         "json": "JSON",
         "style": "样式",
@@ -269,6 +275,7 @@ export const zh = {
         "eventHandlers": "事件处理器",
         "emptyEventHandlers": "无事件处理器",
         "action": "操作",
+        "notHandledError": "未处理",
         "exportNoFileType": "未选择(可选)",
         "component": "组件",
         "state": "状态",
@@ -523,6 +530,7 @@ export const zh = {
         "itemIndexNameDesc": "指向项目索引的变量名称,默认为{default}",
         "itemDataName": "项目数据名称",
         "itemDataNameDesc": "指向项目数据对象的变量名称,默认为{default}",
+        "noOfColumns": "列数",
         "itemsDesc": "在列表中公开组件的数据",
         "dataDesc": "当前列表中使用的原始数据"
     },
@@ -537,6 +545,151 @@ export const zh = {
         "azure": "Azure",
         "darkBlue": "深蓝色",
         "valueDesc": "当前的 JSON 数据"
+    },
+    "home": {
+        "copyModalfolderLabel": "添加到文件夹",
+        "rootFolder": "根目录",
+        "all": "全部",
+        "app": "应用",
+        "module": "模块",
+        "navigation": "导航",
+        "navLayout": "桌面端导航",
+        "navLayoutDesc": "便于桌面端设备导航的左侧菜单.",
+        "folder": "文件夹",
+        "mobileTabLayout": "移动端导航",
+        "mobileTabLayoutDesc": "流畅的移动端设备浏览底部导航栏.",
+        "moveToTrash": "移动到回收站",
+        "copyModalTitle": "克隆\"{name}\"",
+        "copyNameLabel": "{type}名称",
+        "copyNamePlaceholder": "请输入{type}名称",
+        "allPermissions": "所有者",
+        "addMember": "添加成员",
+        "orgName": "{orgName}管理员"
+    },
+    "leftPanel": {
+        "toolbarTitle": "其他",
+        "toolbarPreload": "脚本和样式",
+        "components": "组件",
+        "modals": "对话框",
+        "queries": "查询",
+        "globals": "全局变量",
+        "expandTip": "点击展开 {component} 的数据",
+        "propTips": "{num} 个键",
+        "propTip": "{num} 个键"
+    },
+    "preLoad": {
+        "jsLibrary": "JavaScript库",
+        "scriptsAndStyles": "脚本和样式",
+        "urlTooltip": "JavaScript库的URL链接,建议使用[unpkg.com](https://unpkg.com/)或[jsdelivr.net](https://www.jsdelivr.com/).",
+        "add": "新增",
+        "externalLibsHelperText": "Only libraries using the UMD (Universal Module Definition) approach are supported. Read more here: https://github.com/umdjs/umd",
+        "jsLibraryEmptyContent": "未添加JavaScript库",
+        "recommended": "推荐"
+    },
+    "appSetting": {
+        "450": "450px(手机)",
+        "800": "800px(平板)",
+        "1440": "1440px(笔记本电脑)",
+        "1920": "1920px(宽屏)",
+        "3200": "3200px(超大屏幕)",
+        "appTitle": "标题",
+        "appDescription": "描述",
+        "appCategory": "类别",
+        "showPublicHeader": "Show header in public view",
+        "canvasMaxWidth": "最大画布宽度",
+        "userDefinedMaxWidth": "自定义最大宽度",
+        "inputUserDefinedPxValue": "请输入自定义像素值",
+        "maxWidthTip": "最大宽度应大于或等于350",
+        "themeSettingDefault": "默认",
+        "themeSetting": "主题设置",
+        "themeCreate": "创建主题",
+        "title": "应用设置",
+        "autofill": "自动填充",
+        "userDefined": "自定义"
+    },
+    "icon": "图标",
+    "aggregation": {
+        "iconTooltip": "支持图片链接或Base64"
+    },
+    "customShortcut": {
+        "title": "自定义快捷键",
+        "shortcut": "快捷键",
+        "action": "操作",
+        "empty": "无快捷键",
+        "space": "空格"
+    },
+    "docUrls": {
+        "thirdLib": "https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries",
+        "thirdLibUrlText": "使用第三方插件库",
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
+    "avatarComp": {
+        "src": "src",
+        "avatarCompTooltip": "The display priority is: image -> characters -> icon. Depending on what is first available.",
+        "title": "title",
+        "icon": "icon",
+        "shape": "shape",
+        "iconSize": "Icon Size",
+        "enableDropDown": "Enable DropDown",
+        "label": "Label",
+        "caption": "Caption",
+        "labelPosition": "Position",
+        "alignmentPosition": "alignment",
+        "avatarBackground": "Background",
+        "square": "square",
+        "circle": "circle"
+    },
+    "badge": {
+        "Type": "Badge type",
+        "Count": "Badge count",
+        "overflowCount": "Overflow count",
+        "Size": "Badge size",
+        "Title": "Badge title",
+        "SizeDefault": "default",
+        "SizeSmall": "Small",
+        "number": "Number",
+        "dot": "Dot"
+    },
+    "colorPicker": {
+        "trigger": "Triggers Event",
+        "disabledAlpha": "Disable Alpha Selection",
+        "showPresets": "Show Color Presets",
+        "recommended": "Recommended",
+        "click": "Click",
+        "hover": "Hover"
+    },
+    "signature": {
+        "tips": "提示",
+        "showUndo": "显示撤消",
+        "showClear": "显示清除",
+        "signHere": "在此处签名"
+    },
+    "richTextEditor": {
+        "defaultValue": "Base Content",
+        "toolbar": "Customize Toolbar",
+        "toolbarDescription": "You can customize the toolbar. Please refer to: https://quilljs.com/docs/modules/toolbar/ for more details.",
+        "hideToolbar": "隐藏工具栏",
+        "content": "内容",
+        "title": "标题",
+        "save": "保存",
+        "link": "链接:",
+        "edit": "编辑",
+        "remove": "移除",
+        "placeholder": "请输入..."
+    },
+    "navigation": {
+        "horizontalAlignment": "水平对齐",
+        "logoURL": "Logo链接",
+        "addText": "添加子菜单项",
+        "itemsDesc": "导航菜单项",
+        "logoURLDesc": "Logo链接"
+    },
+    "navItemComp": {
+        "active": "活动的"
     },
     "orgSettings": {
         "newOrg": "新工作空间"
@@ -1088,20 +1241,8 @@ export const zh = {
         "parse": "解析",
         "parseDesc": "在解析时触发"
     },
-    "navigation": {
-        "itemsDesc": "导航菜单项",
-        "logoURLDesc": "Logo链接"
-    },
-    "customShortcut": {
-        "space": "空格"
-    },
     "text": "文本",
     "label": "标题",
-    "avatarComp": {
-        "avatarBackground": "Background",
-        "square": "square",
-        "circle": "circle"
-    },
     "floatButton": {
         "badgeColor": "Badge Color",
         "square": "Square",
@@ -1123,13 +1264,6 @@ export const zh = {
         "modeHorizontal": "Horizontal"
     },
     "menuItem": "菜单项",
-    "docUrls": {
-        "optionList": "",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "",
-        "introVideo": "",
-        "components": "https://app.lowcoder.cloud/components/{compType}"
-    },
     "data": "数据",
     "exportMethod": {
         "setDesc": "设置属性:{property}",
@@ -1184,16 +1318,6 @@ export const zh = {
         "noSelectedQuery": "未选择查询",
         "title": "查询"
     },
-    "appSetting": {
-        "450": "450px(手机)",
-        "800": "800px(平板)",
-        "1440": "1440px(笔记本电脑)",
-        "1920": "1920px(宽屏)",
-        "3200": "3200px(超大屏幕)",
-        "title": "应用设置",
-        "autofill": "自动填充",
-        "userDefined": "自定义"
-    },
     "temporaryState": {
         "valueDesc": "临时状态值"
     },
@@ -1201,24 +1325,6 @@ export const zh = {
     "code": "代码",
     "dataResponder": {
         "dataDesc": "当前数据响应器的数据"
-    },
-    "home": {
-        "all": "全部",
-        "app": "应用",
-        "module": "模块",
-        "navigation": "导航",
-        "navLayout": "桌面端导航",
-        "navLayoutDesc": "便于桌面端设备导航的左侧菜单.",
-        "folder": "文件夹",
-        "mobileTabLayout": "移动端导航",
-        "mobileTabLayoutDesc": "流畅的移动端设备浏览底部导航栏.",
-        "moveToTrash": "移动到回收站",
-        "copyModalTitle": "克隆\"{name}\"",
-        "copyNameLabel": "{type}名称",
-        "copyNamePlaceholder": "请输入{type}名称",
-        "allPermissions": "所有者",
-        "addMember": "添加成员",
-        "orgName": "{orgName}管理员"
     },
     "millisecondsControl": {
         "timeoutLessThanMinError": "输入必须大于 {left},当前输入为:{value}"
@@ -1282,21 +1388,9 @@ export const zh = {
         "update": "有什么新功能?",
         "versionWithColon": "版本:"
     },
-    "leftPanel": {
-        "components": "组件",
-        "modals": "对话框",
-        "queries": "查询",
-        "globals": "全局变量",
-        "expandTip": "点击展开 {component} 的数据",
-        "propTips": "{num} 个键",
-        "propTip": "{num} 个键"
-    },
     "newItem": "新建",
     "npm": {
         "compNotFound": "未找到组件 {compName}."
-    },
-    "signature": {
-        "signHere": "在此处签名"
     },
     "QRCode": {
         "valueDesc": "二维码的内容"
@@ -1359,15 +1453,6 @@ export const zh = {
         "pauseDesc": "暂停媒体播放.",
         "loadDesc": "将媒体重置到开头并重新选择媒体资源."
     },
-    "richTextEditor": {
-        "content": "内容",
-        "title": "标题",
-        "save": "保存",
-        "link": "链接:",
-        "edit": "编辑",
-        "remove": "移除",
-        "placeholder": "请输入..."
-    },
     "iframe": {
         "URLDesc": "iframe源链接"
     },
@@ -1384,21 +1469,10 @@ export const zh = {
     "avatarGroup": {
         "currentAvatar": "Current Avatar"
     },
-    "badge": {
-        "SizeDefault": "default",
-        "SizeSmall": "Small",
-        "number": "Number",
-        "dot": "Dot"
-    },
     "validationDesc": {
         "email": "请输入有效的电子邮件地址",
         "url": "请输入有效的URL链接",
         "regex": "请输入与正则表达式匹配的内容"
-    },
-    "colorPicker": {
-        "recommended": "Recommended",
-        "click": "Click",
-        "hover": "Hover"
     },
     "progress": {
         "valueDesc": "当前的进度值,取值范围为0到100",

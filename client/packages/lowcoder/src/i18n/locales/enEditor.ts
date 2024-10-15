@@ -44,7 +44,12 @@ export const en = {
         "loadingDesc": "Is the Button in Loading State? If True the Current Button Is Loading"
     },
     "jsonSchemaForm": {
-        "dataDesc": "Current Form Data"
+        "dataDesc": "Current Form Data",
+        "jsonSchema": "JSON Schema",
+        "schemaTooltip": "See",
+        "uiSchema": "UI Schema",
+        "defaultData": "Pre-filled Form Data",
+        "resetAfterSubmit": "Reset After Successful Form Submit"
     },
     "tour": {
         "indicatorsRender": {
@@ -131,6 +136,7 @@ export const en = {
         "minLength": "Minimum Length",
         "maxLength": "Maximum Length",
         "horizontal": "Horizontal",
+        "textAreaScrollBar": "Show Scrollbars in Text Area",
         "manual": "Manual",
         "json": "JSON",
         "style": "Style",
@@ -269,6 +275,7 @@ export const en = {
         "eventHandlers": "Event Handlers",
         "emptyEventHandlers": "No Event Handlers",
         "action": "Action",
+        "notHandledError": "Not Handled",
         "exportNoFileType": "No Selection (Optional)",
         "component": "Component",
         "state": "State",
@@ -523,6 +530,7 @@ export const en = {
         "itemIndexNameDesc": "The Variable Name Referring to the Item's Index, Default as {default}",
         "itemDataName": "Data Item Object Name",
         "itemDataNameDesc": "The Variable Name Referring to the Item's Data Object, Default as {default}",
+        "noOfColumns": "Column Count",
         "itemsDesc": "Exposing Data of Components in List",
         "dataDesc": "The JSON Data Used in the Current List"
     },
@@ -537,6 +545,151 @@ export const en = {
         "azure": "Azure",
         "darkBlue": "Dark Blue",
         "valueDesc": "Current JSON Data"
+    },
+    "home": {
+        "copyModalfolderLabel": "Add to folder",
+        "rootFolder": "Root",
+        "all": "All",
+        "app": "App",
+        "module": "Module",
+        "navigation": "Navigation",
+        "navLayout": "PC Navigation",
+        "navLayoutDesc": "Left-side menu for easy desktop navigation.",
+        "folder": "Folder",
+        "mobileTabLayout": "Mobile Navigation",
+        "mobileTabLayoutDesc": "Bottom navigation bar for smooth mobile browsing.",
+        "moveToTrash": "Move to trash",
+        "copyModalTitle": "Clone \"{name}\"",
+        "copyNameLabel": "{type} name",
+        "copyNamePlaceholder": "Please enter a {type} name",
+        "allPermissions": "Owner",
+        "addMember": "Add members",
+        "orgName": "{orgName} admins"
+    },
+    "leftPanel": {
+        "toolbarTitle": "Individualization",
+        "toolbarPreload": "Scripts and Styles",
+        "components": "Active Components",
+        "modals": "in-App Modals",
+        "queries": "Data Queries in your App",
+        "globals": "Global Data Variables",
+        "expandTip": "Click to Show {component}'s Data",
+        "propTips": "{num} Keys",
+        "propTip": "{num} Key"
+    },
+    "preLoad": {
+        "jsLibrary": "JavaScript Library",
+        "scriptsAndStyles": "Scripts and Styles",
+        "urlTooltip": "URL Address of the JavaScript Library, [unpkg.com](https://unpkg.com/) or [jsdelivr.net](https://www.jsdelivr.com/) is Recommended",
+        "add": "Add New",
+        "externalLibsHelperText": "Only libraries using the UMD (Universal Module Definition) approach are supported. Read more here: https://github.com/umdjs/umd",
+        "jsLibraryEmptyContent": "No JavaScript Libraries Added",
+        "recommended": "Recommended"
+    },
+    "appSetting": {
+        "450": "450px (Phone)",
+        "800": "800px (Tablet)",
+        "1440": "1440px (Laptop)",
+        "1920": "1920px (Wide Screen)",
+        "3200": "3200px (Super Large Screen)",
+        "appTitle": "Title",
+        "appDescription": "Description",
+        "appCategory": "Category",
+        "showPublicHeader": "Show header in public view",
+        "canvasMaxWidth": "Maximum Canvas Width for this App",
+        "userDefinedMaxWidth": "Custom Maximum Width",
+        "inputUserDefinedPxValue": "Please Enter a Custom Pixel Value",
+        "maxWidthTip": "Max Width Should Be Greater Than or Equal to 350",
+        "themeSettingDefault": "Default",
+        "themeSetting": "Applied Style Theme",
+        "themeCreate": "Create Theme",
+        "title": "General App Settings",
+        "autofill": "Autofill",
+        "userDefined": "Custom"
+    },
+    "icon": "Icon",
+    "aggregation": {
+        "iconTooltip": "Support Image src Link or Base64 String like data:image/png;base64,AAA... CCC"
+    },
+    "customShortcut": {
+        "title": "Custom Shortcuts",
+        "shortcut": "Shortcut",
+        "action": "Action",
+        "empty": "No Shortcuts",
+        "space": "Space"
+    },
+    "docUrls": {
+        "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+        "thirdLibUrlText": "Use third-party libraries",
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
+    "avatarComp": {
+        "src": "src",
+        "avatarCompTooltip": "The display priority is: image -> characters -> icon. Depending on what is first available.",
+        "title": "title",
+        "icon": "icon",
+        "shape": "shape",
+        "iconSize": "Icon Size",
+        "enableDropDown": "Enable DropDown",
+        "label": "Label",
+        "caption": "Caption",
+        "labelPosition": "Position",
+        "alignmentPosition": "alignment",
+        "avatarBackground": "Background",
+        "square": "square",
+        "circle": "circle"
+    },
+    "badge": {
+        "Type": "Badge type",
+        "Count": "Badge count",
+        "overflowCount": "Overflow count",
+        "Size": "Badge size",
+        "Title": "Badge title",
+        "SizeDefault": "default",
+        "SizeSmall": "Small",
+        "number": "Number",
+        "dot": "Dot"
+    },
+    "colorPicker": {
+        "trigger": "Triggers Event",
+        "disabledAlpha": "Disable Alpha Selection",
+        "showPresets": "Show Color Presets",
+        "recommended": "Recommended",
+        "click": "Click",
+        "hover": "Hover"
+    },
+    "signature": {
+        "tips": "Hint Text",
+        "showUndo": "Show Undo",
+        "showClear": "Show Clear",
+        "signHere": "Sign Here"
+    },
+    "richTextEditor": {
+        "defaultValue": "Base Content",
+        "toolbar": "Customize Toolbar",
+        "toolbarDescription": "You can customize the toolbar. Please refer to: https://quilljs.com/docs/modules/toolbar/ for more details.",
+        "hideToolbar": "Hide Toolbar",
+        "content": "Content",
+        "title": "Title",
+        "save": "Save",
+        "link": "Link: ",
+        "edit": "Edit",
+        "remove": "Remove",
+        "placeholder": "Please Input..."
+    },
+    "navigation": {
+        "horizontalAlignment": "Horizontal Alignment",
+        "logoURL": "Navigation Logo URL",
+        "addText": "Add Submenu Item",
+        "itemsDesc": "Hierarchical Navigation Menu Items",
+        "logoURLDesc": "You can display a Logo on the left side by entering URI Value or Base64 String like data:image/png;base64,AAA... CCC"
+    },
+    "navItemComp": {
+        "active": "Active"
     },
     "orgSettings": {
         "newOrg": "New Workspace (Organization)"
@@ -1088,20 +1241,8 @@ export const en = {
         "parse": "Parse",
         "parseDesc": "Triggers on Parse"
     },
-    "navigation": {
-        "itemsDesc": "Hierarchical Navigation Menu Items",
-        "logoURLDesc": "You can display a Logo on the left side by entering URI Value or Base64 String like data:image/png;base64,AAA... CCC"
-    },
-    "customShortcut": {
-        "space": "Space"
-    },
     "text": "Text",
     "label": "Label",
-    "avatarComp": {
-        "avatarBackground": "Background",
-        "square": "square",
-        "circle": "circle"
-    },
     "floatButton": {
         "badgeColor": "Badge Color",
         "square": "Square",
@@ -1123,13 +1264,6 @@ export const en = {
         "modeHorizontal": "Horizontal"
     },
     "menuItem": "Menu Item",
-    "docUrls": {
-        "optionList": "",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
-        "introVideo": "",
-        "components": "https://app.lowcoder.cloud/components/{compType}"
-    },
     "data": "Data",
     "exportMethod": {
         "setDesc": "Set Property: {property}",
@@ -1184,16 +1318,6 @@ export const en = {
         "noSelectedQuery": "No Query Selected",
         "title": "Data Queries"
     },
-    "appSetting": {
-        "450": "450px (Phone)",
-        "800": "800px (Tablet)",
-        "1440": "1440px (Laptop)",
-        "1920": "1920px (Wide Screen)",
-        "3200": "3200px (Super Large Screen)",
-        "title": "General App Settings",
-        "autofill": "Autofill",
-        "userDefined": "Custom"
-    },
     "temporaryState": {
         "valueDesc": "Temporary State Value"
     },
@@ -1201,24 +1325,6 @@ export const en = {
     "code": "Code",
     "dataResponder": {
         "dataDesc": "Data of Current Data Responder"
-    },
-    "home": {
-        "all": "All",
-        "app": "App",
-        "module": "Module",
-        "navigation": "Navigation",
-        "navLayout": "PC Navigation",
-        "navLayoutDesc": "Left-side menu for easy desktop navigation.",
-        "folder": "Folder",
-        "mobileTabLayout": "Mobile Navigation",
-        "mobileTabLayoutDesc": "Bottom navigation bar for smooth mobile browsing.",
-        "moveToTrash": "Move to trash",
-        "copyModalTitle": "Clone \"{name}\"",
-        "copyNameLabel": "{type} name",
-        "copyNamePlaceholder": "Please enter a {type} name",
-        "allPermissions": "Owner",
-        "addMember": "Add members",
-        "orgName": "{orgName} admins"
     },
     "millisecondsControl": {
         "timeoutLessThanMinError": "Input Must Be Greater Than {left}, the Current Input is: {value}"
@@ -1282,21 +1388,9 @@ export const en = {
         "update": "What's New?",
         "versionWithColon": "Version: "
     },
-    "leftPanel": {
-        "components": "Active Components",
-        "modals": "in-App Modals",
-        "queries": "Data Queries in your App",
-        "globals": "Global Data Variables",
-        "expandTip": "Click to Show {component}'s Data",
-        "propTips": "{num} Keys",
-        "propTip": "{num} Key"
-    },
     "newItem": "New",
     "npm": {
         "compNotFound": "Component {compName} Not Found."
-    },
-    "signature": {
-        "signHere": "Sign Here"
     },
     "QRCode": {
         "valueDesc": "The QR Code Content Value"
@@ -1359,15 +1453,6 @@ export const en = {
         "pauseDesc": "Pauses the Media Playback.",
         "loadDesc": "Resets the Media to the Beginning and Restart Selecting the Media Resource."
     },
-    "richTextEditor": {
-        "content": "Content",
-        "title": "Title",
-        "save": "Save",
-        "link": "Link: ",
-        "edit": "Edit",
-        "remove": "Remove",
-        "placeholder": "Please Input..."
-    },
     "iframe": {
         "URLDesc": "The Source URL for the IFrame Content. Make sure the URL is HTTPS or localhost. Also make sure the URL is not blocked by the browser's Content Security Policy (CSP). The header 'X-Frame-Options' should not be set to 'DENY' or 'SAMEORIGIN'."
     },
@@ -1384,21 +1469,10 @@ export const en = {
     "avatarGroup": {
         "currentAvatar": "Current Avatar"
     },
-    "badge": {
-        "SizeDefault": "default",
-        "SizeSmall": "Small",
-        "number": "Number",
-        "dot": "Dot"
-    },
     "validationDesc": {
         "email": "Please enter a valid email address",
         "url": "Please enter a valid URL",
         "regex": "Please match the specified pattern"
-    },
-    "colorPicker": {
-        "recommended": "Recommended",
-        "click": "Click",
-        "hover": "Hover"
     },
     "progress": {
         "valueDesc": "Current Progress Value, Ranging from 0 to 100",

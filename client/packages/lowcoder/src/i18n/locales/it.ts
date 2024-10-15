@@ -14,6 +14,8 @@ export const it = {
     "createFolder": "Crea cartella",
     "createFolderSubTitle": "Nome della cartella:",
     "folderAlreadyExists": "La cartella esiste già",
+    "copyModalfolderLabel": "Aggiungi alla cartella",
+    "rootFolder": "Radice",
     "app": "App",
     "module": "Modulo",
     "navLayout": "Navigazione su PC",
@@ -256,6 +258,10 @@ export const it = {
     "roleColumn": "Ruolo",
     "actionColumn": "Funzionamento",
     "addMember": "Aggiungi membri",
+    "inviteText": "{userName} vi invita a unirvi allo spazio di lavoro \"{organization}\", cliccate sul link per unirvi: {inviteLink}",
+    "inviteUserHelp": "È possibile copiare il link di invito da inviare all'utente",
+    "inviteUserLabel": "Link per l'invito:",
+    "inviteCopyLink": "Copiare il link",
     "superAdmin": "Super amministratore",
     "adminGroupRoleInfo": "L'amministratore può gestire i membri e le risorse del gruppo",
     "admin": "Admin",
@@ -280,6 +286,7 @@ export const it = {
     "status": "Stato",
     "formSelectPlaceholder": "Selezionare il {label}.",
     "enable": "Abilitazione",
+    "encryptedServer": "-------- Crittografato sul lato server --------",
     "form": "Email",
     "source": "Fonte",
     "sourceName": "Nome del fornitore di autorizzazione",
@@ -321,6 +328,8 @@ export const it = {
   "orgSettings": {
     "createOrg": "Crea spazio di lavoro (organizzazione)",
     "orgName": "Nome dell'area di lavoro",
+    "orgNameLabel": "Nome dell'area di lavoro:",
+    "orgNameCheckMsg": "Il nome dell'area di lavoro non può essere vuoto",
     "newOrg": "Nuovo spazio di lavoro (organizzazione)"
   },
   "edit": "Modifica",
@@ -335,6 +344,8 @@ export const it = {
   "docUrls": {
     "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
     "thirdLibUrlText": "Utilizzare librerie di terze parti",
+    "terms": "https://lowcoder.cloud/terms",
+    "privacy": "https://lowcoder.cloud/privacy",
     "docHome": "https://docs.lowcoder.cloud/",
     "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
     "introVideo": "",
@@ -359,6 +370,27 @@ export const it = {
   "deletePermanently": "Cancellare definitivamente",
   "delete": "Cancellare",
   "create": "Creare",
+  "userAuth": {
+    "chooseAccount": "Scegliere il proprio account",
+    "userLogin": "Accedi",
+    "poweredByLowcoder": "Alimentato da: Lowcoder.cloud",
+    "email": "E-mail:",
+    "inputEmail": "Inserisci il tuo indirizzo e-mail",
+    "inputValidEmail": "Inserire un'e-mail valida",
+    "forgotPassword": "Password dimenticata",
+    "login": "Accedi",
+    "register": "Iscriviti",
+    "forgotPasswordInfo": "Inserisci la tua e-mail e ti invieremo un link per reimpostare la tua password.",
+    "registerHint": "Ho letto e accetto il",
+    "terms": "Termini",
+    "privacy": "Informativa sulla privacy"
+  },
+  "password": {
+    "label": "Password",
+    "placeholder": "Inserire la password",
+    "conformLabel": "Conferma la password",
+    "conformPlaceholder": "Confermare la password"
+  },
   "share": {
     "title": "Condividi"
   },

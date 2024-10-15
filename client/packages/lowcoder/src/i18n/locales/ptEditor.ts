@@ -44,7 +44,12 @@ export const pt = {
         "loadingDesc": "O Botão Está no Estado de Carregamento? Se Verdadeiro, o Botão Atual Está Carregando"
     },
     "jsonSchemaForm": {
-        "dataDesc": "Dados Atuais do Formulário"
+        "dataDesc": "Dados Atuais do Formulário",
+        "jsonSchema": "Esquema JSON",
+        "schemaTooltip": "Ver",
+        "uiSchema": "Esquema UI",
+        "defaultData": "Dados do Formulário Pré-preenchidos",
+        "resetAfterSubmit": "Redefinir Após Envio Bem-sucedido do Formulário"
     },
     "tour": {
         "indicatorsRender": {
@@ -131,6 +136,7 @@ export const pt = {
         "minLength": "Comprimento Mínimo",
         "maxLength": "Comprimento Máximo",
         "horizontal": "Horizontal",
+        "textAreaScrollBar": "Show Scrollbars in Text Area",
         "manual": "Manual",
         "json": "JSON",
         "style": "Estilo",
@@ -269,6 +275,7 @@ export const pt = {
         "eventHandlers": "Manipuladores de Eventos",
         "emptyEventHandlers": "Nenhum Manipulador de Eventos",
         "action": "Ação",
+        "notHandledError": "Não Manipulado",
         "exportNoFileType": "Nenhuma Seleção (Opcional)",
         "component": "Componente",
         "state": "Estado",
@@ -523,6 +530,7 @@ export const pt = {
         "itemIndexNameDesc": "O Nome da Variável Referente ao Índice do Item, Padrão como {default}",
         "itemDataName": "Nome do Objeto de Dados do Item",
         "itemDataNameDesc": "O Nome da Variável Referente ao Objeto de Dados do Item, Padrão como {default}",
+        "noOfColumns": "Contagem de Colunas",
         "itemsDesc": "Expondo Dados dos Componentes na Lista",
         "dataDesc": "Os Dados JSON Usados na Lista Atual"
     },
@@ -537,6 +545,151 @@ export const pt = {
         "azure": "Azul Claro",
         "darkBlue": "Azul Escuro",
         "valueDesc": "Dados JSON atuais"
+    },
+    "home": {
+        "copyModalfolderLabel": "Adicionar à pasta",
+        "rootFolder": "Raiz",
+        "all": "Todos",
+        "app": "Aplicativo",
+        "module": "Módulo",
+        "navigation": "Navegação",
+        "navLayout": "Navegação PC",
+        "navLayoutDesc": "Menu lateral para navegação fácil em desktop.",
+        "folder": "Pasta",
+        "mobileTabLayout": "Navegação Móvel",
+        "mobileTabLayoutDesc": "Barra de navegação inferior para navegação móvel suave.",
+        "moveToTrash": "Mover para lixeira",
+        "copyModalTitle": "Clonar \"{name}\"",
+        "copyNameLabel": "Nome do {type}",
+        "copyNamePlaceholder": "Por favor, insira um nome de {type}",
+        "allPermissions": "Proprietário",
+        "addMember": "Adicionar membros",
+        "orgName": "{orgName} administradores"
+    },
+    "leftPanel": {
+        "toolbarTitle": "Individualização",
+        "toolbarPreload": "Scripts e Estilos",
+        "components": "Componentes ativos",
+        "modals": "Modais Dentro do App",
+        "queries": "Queries de Dados em seu Aplicativo",
+        "globals": "Variavies de Dados Globais",
+        "expandTip": "Clique para expandir os dados do componente {component}",
+        "propTips": "{num} Teclas",
+        "propTip": "{num} Tecla"
+    },
+    "preLoad": {
+        "jsLibrary": "Biblioteca JavaScript",
+        "scriptsAndStyles": "Scripts e Estilos",
+        "urlTooltip": "Endereço URL da biblioteca JavaScript, [unpkg.com](https://unpkg.com/) ou [jsdelivr.net](https://www.jsdelivr.com/) são recomendados",
+        "add": "Adicionar Novo",
+        "externalLibsHelperText": "Apenas são suportadas as bibliotecas que utilizam a abordagem UMD (Universal Module Definition). Leia mais aqui: https://github.com/umdjs/umd",
+        "jsLibraryEmptyContent": "Nenhuma biblioteca JavaScript adicionada",
+        "recommended": "Recomendado"
+    },
+    "appSetting": {
+        "450": "450px (Celular)",
+        "800": "800px (Tablet)",
+        "1440": "1440px (Notebook)",
+        "1920": "1920px (Tela Larga)",
+        "3200": "3200px (Tela Super Grande)",
+        "appTitle": "Título",
+        "appDescription": "Descrição",
+        "appCategory": "Categoria",
+        "showPublicHeader": "Mostrar cabeçalho na visualização pública",
+        "canvasMaxWidth": "Largura Máxima do Canvas para Este Aplicativo",
+        "userDefinedMaxWidth": "Largura Máxima Personalizada",
+        "inputUserDefinedPxValue": "Por Favor, Insira um Valor Personalizado em Pixels",
+        "maxWidthTip": "A Largura Máxima Deve Ser Maior ou Igual a 350",
+        "themeSettingDefault": "Padrão",
+        "themeSetting": "Tema de Estilo Aplicado",
+        "themeCreate": "Criar Tema",
+        "title": "Configurações Gerais do Aplicativo",
+        "autofill": "Preenchimento Automático",
+        "userDefined": "Personalizado"
+    },
+    "icon": "Ícone",
+    "aggregation": {
+        "iconTooltip": "Suporta Link de Imagem src ou String Base64 como data:image/png;base64,AAA... CCC"
+    },
+    "customShortcut": {
+        "title": "Atalhos Personalizados",
+        "shortcut": "Atalho",
+        "action": "Ação",
+        "empty": "Nenhum Atalho",
+        "space": "Espaço"
+    },
+    "docUrls": {
+        "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+        "thirdLibUrlText": "Utilizar bibliotecas de terceiros",
+        "optionList": "",
+        "docHome": "https://docs.lowcoder.cloud/",
+        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
+        "introVideo": "",
+        "components": "https://app.lowcoder.cloud/components/{compType}"
+    },
+    "avatarComp": {
+        "src": "src",
+        "avatarCompTooltip": "A prioridade de exibição é: imagem -> caracteres -> ícone. Dependendo do que estiver disponível primeiro.",
+        "title": "título",
+        "icon": "ícone",
+        "shape": "forma",
+        "iconSize": "Tamanho do Ícone",
+        "enableDropDown": "Ativar menu suspenso",
+        "label": "Rótulo",
+        "caption": "Legenda",
+        "labelPosition": "Posição do Rótulo",
+        "alignmentPosition": "alinhamento",
+        "avatarBackground": "Fundo",
+        "square": "quadrado",
+        "circle": "círculo"
+    },
+    "badge": {
+        "Type": "Tipo de insígnia",
+        "Count": "Contagem da insígnia",
+        "overflowCount": "Contagem de overflow",
+        "Size": "Tamanho da insígnia",
+        "Title": "Título da insígnia",
+        "SizeDefault": "padrão",
+        "SizeSmall": "Pequeno",
+        "number": "Número",
+        "dot": "Ponto"
+    },
+    "colorPicker": {
+        "trigger": "Disparadores de Eventos",
+        "disabledAlpha": "Desativar Seleção de Alfa",
+        "showPresets": "Mostrar Predefinições de Cor",
+        "recommended": "Recomendado",
+        "click": "Clique",
+        "hover": "Passar o Mouse"
+    },
+    "signature": {
+        "tips": "Texto de Dica",
+        "showUndo": "Mostrar Desfazer",
+        "showClear": "Mostrar Limpar",
+        "signHere": "Assine Aqui"
+    },
+    "richTextEditor": {
+        "defaultValue": "Conteúdo Base",
+        "toolbar": "Personalizar Barra de Ferramentas",
+        "toolbarDescription": "Você pode personalizar a barra de ferramentas. Consulte: https://quilljs.com/docs/modules/toolbar/ para obter mais detalhes.",
+        "hideToolbar": "Ocultar Barra de Ferramentas",
+        "content": "Conteúdo",
+        "title": "Título",
+        "save": "Salvar",
+        "link": "Ligação:",
+        "edit": "Editar",
+        "remove": "Remover",
+        "placeholder": "Por favor, insira..."
+    },
+    "navigation": {
+        "horizontalAlignment": "Alinhamento Horizontal",
+        "logoURL": "URL do Logotipo da Navegação",
+        "addText": "Adicionar Item de Submenu",
+        "itemsDesc": "Itens do Menu de Navegação Hierárquica",
+        "logoURLDesc": "Você pode exibir um Logotipo no lado esquerdo inserindo um Valor de URI ou String Base64 como data:image/png;base64,AAA... CCC"
+    },
+    "navItemComp": {
+        "active": "Ativo"
     },
     "orgSettings": {
         "newOrg": "Novo Espaço de Trabalho (Organização)"
@@ -1088,20 +1241,8 @@ export const pt = {
         "parse": "Analisar",
         "parseDesc": "Dispara na Análise"
     },
-    "navigation": {
-        "itemsDesc": "Itens do Menu de Navegação Hierárquica",
-        "logoURLDesc": "Você pode exibir um Logotipo no lado esquerdo inserindo um Valor de URI ou String Base64 como data:image/png;base64,AAA... CCC"
-    },
-    "customShortcut": {
-        "space": "Espaço"
-    },
     "text": "Texto",
     "label": "Rótulo",
-    "avatarComp": {
-        "avatarBackground": "Fundo",
-        "square": "quadrado",
-        "circle": "círculo"
-    },
     "floatButton": {
         "badgeColor": "Cor do Distintivo",
         "square": "Quadrado",
@@ -1123,13 +1264,6 @@ export const pt = {
         "modeHorizontal": "Horizontal"
     },
     "menuItem": "Item do Menu",
-    "docUrls": {
-        "optionList": "",
-        "docHome": "https://docs.lowcoder.cloud/",
-        "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
-        "introVideo": "",
-        "components": "https://app.lowcoder.cloud/components/{compType}"
-    },
     "data": "Dados",
     "exportMethod": {
         "setDesc": "Definir Propriedade: {property}",
@@ -1184,16 +1318,6 @@ export const pt = {
         "noSelectedQuery": "Nenhuma Consulta Selecionada",
         "title": "Consultas de Dados"
     },
-    "appSetting": {
-        "450": "450px (Celular)",
-        "800": "800px (Tablet)",
-        "1440": "1440px (Notebook)",
-        "1920": "1920px (Tela Larga)",
-        "3200": "3200px (Tela Super Grande)",
-        "title": "Configurações Gerais do Aplicativo",
-        "autofill": "Preenchimento Automático",
-        "userDefined": "Personalizado"
-    },
     "temporaryState": {
         "valueDesc": "Valor do Estado Temporário"
     },
@@ -1201,24 +1325,6 @@ export const pt = {
     "code": "Código",
     "dataResponder": {
         "dataDesc": "Dados do Data Responder Atual"
-    },
-    "home": {
-        "all": "Todos",
-        "app": "Aplicativo",
-        "module": "Módulo",
-        "navigation": "Navegação",
-        "navLayout": "Navegação PC",
-        "navLayoutDesc": "Menu lateral para navegação fácil em desktop.",
-        "folder": "Pasta",
-        "mobileTabLayout": "Navegação Móvel",
-        "mobileTabLayoutDesc": "Barra de navegação inferior para navegação móvel suave.",
-        "moveToTrash": "Mover para lixeira",
-        "copyModalTitle": "Clonar \"{name}\"",
-        "copyNameLabel": "Nome do {type}",
-        "copyNamePlaceholder": "Por favor, insira um nome de {type}",
-        "allPermissions": "Proprietário",
-        "addMember": "Adicionar membros",
-        "orgName": "{orgName} administradores"
     },
     "millisecondsControl": {
         "timeoutLessThanMinError": "A entrada deve ser maior que {left}, o valor atual é: {value}"
@@ -1282,21 +1388,9 @@ export const pt = {
         "update": "O que há de novo?",
         "versionWithColon": "Versão: "
     },
-    "leftPanel": {
-        "components": "Componentes ativos",
-        "modals": "Modais Dentro do App",
-        "queries": "Queries de Dados em seu Aplicativo",
-        "globals": "Variavies de Dados Globais",
-        "expandTip": "Clique para expandir os dados do componente {component}",
-        "propTips": "{num} Teclas",
-        "propTip": "{num} Tecla"
-    },
     "newItem": "Novo",
     "npm": {
         "compNotFound": "Componente {compName} não encontrado."
-    },
-    "signature": {
-        "signHere": "Assine Aqui"
     },
     "QRCode": {
         "valueDesc": "O valor do conteúdo do código QR"
@@ -1359,15 +1453,6 @@ export const pt = {
         "pauseDesc": "Pausa a reprodução da mídia.",
         "loadDesc": "Redefine a mídia para o início e reinicia a seleção do recurso de mídia."
     },
-    "richTextEditor": {
-        "content": "Conteúdo",
-        "title": "Título",
-        "save": "Salvar",
-        "link": "Ligação:",
-        "edit": "Editar",
-        "remove": "Remover",
-        "placeholder": "Por favor, insira..."
-    },
     "iframe": {
         "URLDesc": "O URL de Origem para o Conteúdo do IFrame. Certifique-se de que o URL é HTTPS ou localhost. Além disso, certifique-se de que o URL não está bloqueado pela Política de Segurança de Conteúdo (CSP) do navegador. O cabeçalho 'X-Frame-Options' não deve ser definido como 'DENY' ou 'SAMEORIGIN'."
     },
@@ -1384,21 +1469,10 @@ export const pt = {
     "avatarGroup": {
         "currentAvatar": "Avatar Atual"
     },
-    "badge": {
-        "SizeDefault": "padrão",
-        "SizeSmall": "Pequeno",
-        "number": "Número",
-        "dot": "Ponto"
-    },
     "validationDesc": {
         "email": "Por favor, insira um endereço de e-mail válido",
         "url": "Por favor, insira uma URL válida",
         "regex": "Por favor, corresponda ao padrão especificado"
-    },
-    "colorPicker": {
-        "recommended": "Recomendado",
-        "click": "Clique",
-        "hover": "Passar o Mouse"
     },
     "progress": {
         "valueDesc": "Valor de progresso atual, variando de 0 a 100",
