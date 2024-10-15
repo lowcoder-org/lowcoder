@@ -14,6 +14,8 @@
           "createFolder": "Create Folder",
           "createFolderSubTitle": "Folder name:",
           "folderAlreadyExists": "The folder already exists",
+          "copyModalfolderLabel": "Add to folder",
+          "rootFolder": "Root",
           "app": "App",
           "module": "Module",
           "navLayout": "PC Navigation",
@@ -256,6 +258,10 @@
           "roleColumn": "Role",
           "actionColumn": "Operation",
           "addMember": "Add Members",
+          "inviteText": "{userName} Invites You to Join the Workspace \"{organization}\", Click on the Link to Join: {inviteLink}",
+          "inviteUserHelp": "You Can Copy the Invitation Link to Send to the User",
+          "inviteUserLabel": "Invitation Link:",
+          "inviteCopyLink": "Copy Link",
           "superAdmin": "Super Admin",
           "adminGroupRoleInfo": "Admin Can Manage Group Members and Resources",
           "admin": "Admin",
@@ -280,6 +286,7 @@
           "status": "Status",
           "formSelectPlaceholder": "Please Select the {label}",
           "enable": "Enable",
+          "encryptedServer": "-------- Encrypted on the Server Side --------",
           "form": "Email",
           "source": "Source",
           "sourceName": "Auth Provider Name",
@@ -321,6 +328,8 @@
       "orgSettings": {
           "createOrg": "Create Workspace (Organization)",
           "orgName": "Workspace Name",
+          "orgNameLabel": "Workspace Name:",
+          "orgNameCheckMsg": "Workspace Name Cannot Be Empty",
           "newOrg": "New Workspace (Organization)"
       },
       "edit": "Edit",
@@ -335,6 +344,8 @@
       "docUrls": {
           "thirdLib": "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
           "thirdLibUrlText": "Use third-party libraries",
+          "terms": "https://lowcoder.cloud/terms",
+          "privacy": "https://lowcoder.cloud/privacy",
           "docHome": "https://docs.lowcoder.cloud/",
           "changeLog": "https://github.com/lowcoder-org/lowcoder/releases",
           "introVideo": "",
@@ -359,6 +370,27 @@
       "deletePermanently": "Delete Permanently",
       "delete": "Delete",
       "create": "Create",
+      "userAuth": {
+          "chooseAccount": "Choose Your Account",
+          "userLogin": "Sign In",
+          "poweredByLowcoder": "Powered by: Lowcoder.cloud",
+          "email": "Email:",
+          "inputEmail": "Please enter your email",
+          "inputValidEmail": "Please enter a valid email",
+          "forgotPassword": "Forgot Password",
+          "login": "Sign In",
+          "register": "Sign Up",
+          "forgotPasswordInfo": "Enter your email and we'll send you a link to reset your password.",
+          "registerHint": "I Have Read and Agree to the",
+          "terms": "Terms",
+          "privacy": "Privacy Policy"
+      },
+      "password": {
+          "label": "Password",
+          "placeholder": "Please Enter Password",
+          "conformLabel": "Confirm Password",
+          "conformPlaceholder": "Please Confirm Password"
+      },
       "share": {
           "title": "Share"
       },
