@@ -5,6 +5,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.springframework.boot.test.context.TestConfiguration;
 import redis.embedded.RedisServer;
+import redis.embedded.RedisServerBuilder;
 
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,7 +19,8 @@ public class TestRedisConfiguration {
     private static final RedisServer redisServer;
 
     static {
-        redisServer = new RedisServer(RedisConfiguration.REDIS_PORT);
+//        redisServer = new RedisServer(RedisConfiguration.REDIS_PORT);
+        redisServer = new RedisServerBuilder().port(RedisConfiguration.REDIS_PORT).setting("maxheap 512mb").build();
     }
 
     @PostConstruct
