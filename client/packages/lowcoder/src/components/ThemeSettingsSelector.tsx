@@ -1,7 +1,7 @@
 import _ from "lodash";
 import { useEffect, useState } from "react";
 import { ConfigItem, Radius, Margin, Padding, GridColumns, BorderWidth, BorderStyle } from "../pages/setting/theme/styledComponents";
-import { isValidColor, toHex } from "components/colorSelect/colorUtils";
+import { isValidColor, isValidGradient, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
 import { Slider, Switch } from "antd";
@@ -124,8 +124,11 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const varName = `(${themeSettingKey})`;
 
   const colorInputBlur = () => {
-    if (!color || !isValidColor(color)) {
+    if (!color || !isValidColor(color) || !isValidGradient(color)) {
       setColor(defaultColor);
+    } else if (isValidGradient(color)) {
+      setColor(color);
+      configChange({ themeSettingKey, color: color });
     } else {
       setColor(toHex(color));
       configChange({ themeSettingKey, color: toHex(color) });
@@ -290,7 +293,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   }
 
   useEffect(() => {
-    if (color && isValidColor(color)) {
+    if (color && (isValidColor(color) || isValidGradient(color))) {
       configChangeWithDebounce({ themeSettingKey, color });
     }
   }, [color]);
