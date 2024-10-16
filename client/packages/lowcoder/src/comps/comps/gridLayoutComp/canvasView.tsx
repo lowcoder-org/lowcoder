@@ -22,6 +22,7 @@ import { isValidColor, isValidGradient, ScrollBar } from "lowcoder-design";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { isEqual } from "lodash";
 import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_COUNT, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const UICompContainer = styled.div<{
   $maxWidth?: number;
@@ -36,15 +37,15 @@ const UICompContainer = styled.div<{
   height: auto;
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
-  ${(props) => isValidColor(props.$bgColor) && `background-color: ${props.$bgColor};`};
-  ${(props) => isValidGradient(props.$bgColor) && !Boolean(props.$bgImage) && `background-image: ${props.$bgColor}`};
-  ${(props) => isValidGradient(props.$bgColor) && Boolean(props.$bgImage) && `background-image: url(${props.$bgImage}), ${props.$bgColor}`};
-  ${(props) => !isValidGradient(props.$bgColor) && Boolean(props.$bgImage) && `background-image: ${props.$bgColor}`};
-  // ${(props) => props.$bgImage && `background-image: url(${props.$bgImage});`}; 
-  ${(props) => props.$bgImageRepeat && `background-repeat: ${props.$bgImageRepeat};`}; 
-  ${(props) => props.$bgImageSize && `background-size: ${props.$bgImageSize};`}; 
-  ${(props) => props.$bgImageOrigin && `background-origin: ${props.$bgImageOrigin};`}; 
-  ${(props) => props.$bgImagePosition && `background-position: ${props.$bgImagePosition};`}; 
+  
+  ${props => getBackgroundStyle({
+    background: props.$bgColor,
+    backgroundImage: props.$bgImage,
+    backgroundImageSize: props.$bgImageSize,
+    backgroundImageRepeat: props.$bgImageRepeat,
+    backgroundImageOrigin: props.$bgImageOrigin,
+    backgroundImagePosition: props.$bgImagePosition,
+  })}
 `;
 
 // modal/drawer container
@@ -122,8 +123,11 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const isModule = appType === AppTypeEnum.Module;
 
   const bgColor = useMemo(
-    () => (currentTheme || defaultTheme).canvas,
-    [currentTheme, defaultTheme]
+    () => {
+      const themeGridBgColor = preventStylesOverwriting ? undefined : currentTheme?.canvas;
+      return themeGridBgColor || appSettings.gridBg || defaultTheme.canvas;
+    },
+    [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]
   );
 
   const bgImage = useMemo(
