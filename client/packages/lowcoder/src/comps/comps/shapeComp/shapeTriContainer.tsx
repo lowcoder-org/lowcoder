@@ -11,6 +11,7 @@ import {
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 import { Coolshape } from "coolshapes-react";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const getStyle = (style: ContainerStyleType) => {
   return css`
@@ -19,16 +20,8 @@ const getStyle = (style: ContainerStyleType) => {
     border-radius: ${style.radius};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
-    ${style.backgroundImageRepeat &&
-    `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize &&
-    `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition &&
-    `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin &&
-    `background-origin: ${style.backgroundImageOrigin};`}
+    
+    ${getBackgroundStyle(style)}
   `;
 };
 
