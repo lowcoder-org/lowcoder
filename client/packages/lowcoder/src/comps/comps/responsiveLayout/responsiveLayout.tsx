@@ -43,6 +43,7 @@ import { EditorContext } from "comps/editorState";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -56,13 +57,12 @@ const RowWrapper = styled(Row)<{
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
-  background-color: ${(props) => props.$style.background};
   rotate: ${props=> props.$style.rotation}
   overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
    ::-webkit-scrollbar {
     display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
-  }
-
+    }
+  ${props => getBackgroundStyle(props.$style)}
 `;
 
 const ColWrapper = styled(Col)<{
@@ -77,13 +77,13 @@ const ColWrapper = styled(Col)<{
 
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
-    background-color: ${(props) => props.$style?.background} !important;
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth}px;
     border-color: ${(props) => props.$style?.border};
     border-style: ${(props) => props.$style?.borderStyle};
     margin: ${(props) => props.$style?.margin};
     padding: ${(props) => props.$style?.padding};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
 `;
 
