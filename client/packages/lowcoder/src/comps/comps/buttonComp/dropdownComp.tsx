@@ -52,7 +52,7 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
       ${(props) => `text-transform: ${props.$buttonStyle.textTransform};`}
       ${(props) => `font-weight: ${props.$buttonStyle.textWeight};`}
     }
-    ${(props) => `background-color: ${props.$buttonStyle.background};`}
+    ${(props) => `background: ${props.$buttonStyle.background};`}
     ${(props) => `color: ${props.$buttonStyle.text};`}
     ${(props) => `padding: ${props.$buttonStyle.padding};`}
     ${(props) => `font-size: ${props.$buttonStyle.textSize};`}

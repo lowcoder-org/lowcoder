@@ -41,7 +41,7 @@ ${props=>props.$animationStyle}
   border-radius: ${(props) =>props.$borderRadius ? props.$borderRadius : '2px'};
   box-sizing: border-box;
   border: ${(props) => props.$borderWidth ? `${props.$borderWidth}` : '1px'} ${props=>props.$borderStyle} ${(props) => props.$borderColor};
-  background-color: ${(props) => props.$bgColor};
+  background: ${(props) => props.$bgColor};
 `;
 
 const NavInner = styled("div") <Pick<IProps, "$justify">>`

@@ -1353,7 +1353,6 @@ export const RadioStyle = [
 ] as const;
 
 export const SegmentStyle = [
-  LABEL,
   ...STYLING_FIELDS_SEQUENCE.filter(
     (style) => ["border", "borderWidth"].includes(style.name) === false
   ),

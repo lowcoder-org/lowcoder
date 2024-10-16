@@ -156,7 +156,7 @@ const getStyle = (style: FileStyleType) => {
 
     .ant-btn:not(:disabled) {
       border-color: ${style.border};
-      background-color: ${style.background};
+      background: ${style.background};
       color: ${style.text};
 
       &:hover,
