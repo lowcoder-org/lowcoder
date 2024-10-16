@@ -136,7 +136,7 @@ let TmpDrawerComp = (function () {
                 },
                 body: {
                   padding: 0,
-                  backgroundColor: props.style.background
+                  background: props.style.background
                 }
               }}
               title={props.title}
