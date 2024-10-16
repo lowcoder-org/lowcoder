@@ -37,7 +37,7 @@ const Container = styled.div<{
   display: flex;
   align-items: center;
   justify-content: center;
-${props=>props.$animationStyle}
+  ${props=>props.$animationStyle}
   ${(props) =>
     props.$style &&
     css`

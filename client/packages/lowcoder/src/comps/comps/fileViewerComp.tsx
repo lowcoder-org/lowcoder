@@ -22,7 +22,7 @@ const getStyle = (style: FileViewerStyleType) => {
     padding: ${style.padding};
 
     overflow: hidden;
-    background-color: ${style.background};
+    background: ${style.background};
     border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
     border-radius: calc(min(${style.radius}, 20px));
   `;
