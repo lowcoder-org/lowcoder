@@ -1986,6 +1986,7 @@ export const RichTextEditorStyle = [
 ] as const;
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
+export type TimeLineStyleType = StyleConfigType<typeof TimeLineStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
 export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
 export type AvatarContainerStyleType = StyleConfigType<
