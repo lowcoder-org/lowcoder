@@ -22,6 +22,7 @@ import { BoolControl } from "../controls/boolControl";
 import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
+import { ColorControl } from "../controls/colorControl";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -106,11 +107,31 @@ const DivStyled = styled.div`
     
     > div {
       width: 100%;
+      flex: 0 0 100%;
       display: block;
+
+      .tooltipLabel {
+        width: 100%;
+      }
     }
 
     > div:first-child {
       margin-bottom: 6px;
+    }
+    
+    > div:nth-child(2) {
+      > div {
+        width: 100%;
+        justify-content: flex-start;
+        > div:first-child {
+          flex: 0 0 24px;
+        }
+        > div:nth-child(2) {
+          > div:nth-child(2) {
+            width: 100%;
+          }
+        }
+      }
     }
 
   }
@@ -194,6 +215,7 @@ const childrenMap = {
   gridRowCount: NumberControl,
   gridPaddingX: NumberControl,
   gridPaddingY: NumberControl,
+  gridBg: ColorControl,
   gridBgImage: StringControl,
   gridBgImageRepeat: StringControl,
   gridBgImageSize: StringControl,
@@ -225,6 +247,7 @@ function AppSettingsModal(props: ChildrenInstance) {
     gridRowCount,
     gridPaddingX,
     gridPaddingY,
+    gridBg,
     gridBgImage,
     gridBgImageRepeat,
     gridBgImageSize,
@@ -364,6 +387,9 @@ function AppSettingsModal(props: ChildrenInstance) {
         {gridPaddingY.propertyView({
           label: trans("appSetting.gridPaddingY"),
           placeholder: '20',
+        })}
+        {gridBg.propertyView({
+          label: trans("style.background"),
         })}
         {gridBgImage.propertyView({
           label: trans("appSetting.gridBgImage"),

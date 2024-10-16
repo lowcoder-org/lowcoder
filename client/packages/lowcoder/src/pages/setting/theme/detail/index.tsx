@@ -204,12 +204,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             color: this.state.theme?.primary,
           },
           {
-            settingsKey: 'canvas',
-            name: trans('themeDetail.canvas'),
-            desc: trans('themeDetail.canvasDesc'),
-            color: this.state.theme?.canvas,
-          },
-          {
             settingsKey: 'primarySurface',
             name: trans('themeDetail.primarySurface'),
             desc: trans('themeDetail.primarySurfaceDesc'),
@@ -374,6 +368,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
       {
         title: trans('themeDetail.background'),
         items: [
+          {
+            settingsKey: 'canvas',
+            type: "canvas",
+            name: trans('themeDetail.canvas'),
+            desc: trans('themeDetail.canvasDesc'),
+            color: this.state.theme?.canvas,
+          },
           {
             settingsKey: 'gridBgImage',
             name: trans('themeDetail.gridBgImage'),
@@ -614,6 +615,17 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   themeSettingKey={canvasSettingItem.settingsKey}
                                   name={canvasSettingItem.name}
                                   gridPaddingY={canvasSettingItem.value as number}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                />
+                              }
+                              {canvasSettingItem.type == "canvas" &&
+                                <ThemeSettingsSelector
+                                  themeSettingKey={canvasSettingItem.settingsKey}
+                                  name={canvasSettingItem.name}
+                                  // desc={colorItem.desc}
+                                  color={(canvasSettingItem as any).color}
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
