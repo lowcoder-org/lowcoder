@@ -115,7 +115,7 @@ let JsonLottieTmpComp = (function () {
             height: "100%",
             display: "flex",
             justifyContent: "center",
-            backgroundColor: `${props.container.background}`,
+            background: `${props.container.background}`,
             padding: `${props.container.padding}`,
             rotate: props.container.rotation,
           }}
