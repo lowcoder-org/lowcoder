@@ -4,13 +4,14 @@ import { findIconDefinition, library } from '@fortawesome/fontawesome-svg-core';
 import { fas } from '@fortawesome/free-solid-svg-icons';
 import { far } from '@fortawesome/free-regular-svg-icons';
 import * as AntdIcons from '@ant-design/icons';
-
+import React, {FunctionComponent, ReactNode, Suspense} from "react";
+import * as SVGICONS from "icons";
 library.add(far,fas);
 
 function parseIconIdentifier(identifier: string) {
   if (identifier.startsWith('/icon:antd/')) {
     let name = identifier.split('/')[2];
-    return { type: 'antd', name };
+    return { type: 'antd', name};
   } 
   else if (identifier.startsWith('/icon:solid/') || identifier.startsWith('/icon:regular/')) {
     const [style, name] = identifier.substring(6).split('/');
@@ -21,7 +22,11 @@ function parseIconIdentifier(identifier: string) {
   } 
   else if (identifier.startsWith('http')) {
     return { type: 'url', url: identifier, name: "" };
-  } 
+  }
+  else if (identifier.startsWith('/icon:svg/')) {
+    const [style, name] = identifier.substring(6).split('/');
+    return {type: 'customize', style, name}
+  }
   else {
     return { type: 'unknown', name: "" };
   }
@@ -67,7 +72,7 @@ const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px',
     return <FontAwesomeIcon icon={iconLookup} style={{ width, height, ...style }} />;
   } 
   else if (iconData.type === 'antd') {
-    let iconName = convertToCamelCase(iconData.name);
+    let iconName = convertToCamelCase(iconData.name || "");
     iconName = appendStyleSuffix(iconName);
     iconName = iconName.charAt(0).toUpperCase() + iconName.slice(1); 
     const AntdIcon = (AntdIcons as any)[iconName];
@@ -79,10 +84,15 @@ const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px',
   } 
   else if (iconData.type === 'url' || iconData.type === 'base64') {
     return <img src={iconData.type === 'url' ? iconData.url : iconData.data} alt="icon" style={{ width, height, ...style }} />;
-  } 
+  }
+  else if (iconData.type === 'customize') {
+    const Icon = SVGICONS[iconData.name as keyof typeof SVGICONS]; //TreeSelectCompIcon
+    return <Suspense fallback={null}><Icon/></Suspense>;
+  }
   else {
     return null; // Unknown type
   }
 };
 
 export const MultiIconDisplay = baseMultiIconDisplay;
+export const MultiIcon = (props: IconProps) => () =>MultiIconDisplay(props)

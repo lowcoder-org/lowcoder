@@ -1,7 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { CloseIcon } from "lowcoder-design";
-import { AppSnapshotIcon } from "lowcoder-design";
 import {
   fetchSnapshotDslAction,
   fetchSnapshotsAction,
@@ -37,6 +36,7 @@ import { SnapshotItemProps, SnapshotList } from "../../components/SnapshotList";
 import { trans } from "i18n";
 import EditorSkeletonView from "./editorSkeletonView";
 import React from "react";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const AppEditorInternalView = lazy(
   () => import("pages/editor/appEditorInternal")
@@ -83,8 +83,7 @@ const SnapshotFooter = styled.div`
   bottom: 0;
   width: 100%;
 `;
-
-const StyledSnapshotIcon = styled(AppSnapshotIcon)`
+const StyledSnapshotIcon = styled(() => <MultiIconDisplay identifier="/icono:svg/AppSnapshotIcon"/>)`
   margin-right: 4px;
 `;
 

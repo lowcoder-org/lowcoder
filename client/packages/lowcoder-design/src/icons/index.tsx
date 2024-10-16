@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 
 type svgElement = React.FC<any>;
-// const checkViewMode = () => window.location.href.includes('view');
 
 export const AppSnapshotIcon : svgElement = (props) => (<Suspense fallback = {<div></div>}>{React.createElement(React.lazy(() => import("./v1/app-snapshot.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))),props)}</Suspense>);
 export const HookCompDropIcon : svgElement = (props) => (<Suspense fallback = {<div></div>}>{React.createElement(React.lazy(() => import("./v1/hook-comp-drop.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)}))),props)}</Suspense>);
