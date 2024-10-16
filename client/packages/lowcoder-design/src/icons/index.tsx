@@ -1,7 +1,6 @@
-import React, { Suspense } from 'react';
+import React from 'react';
 
 type svgElement = React.FC<any>;
-// const checkViewMode = () => window.location.href.includes('view');
 
 export const AppSnapshotIcon : svgElement = React.lazy(() => import("./v1/app-snapshot.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
 export const HookCompDropIcon : svgElement = React.lazy(() => import("./v1/hook-comp-drop.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
@@ -394,6 +393,7 @@ export const SelectCompIcon : svgElement = React.lazy(() => import("./v2/select-
 export const SliderCompIcon : svgElement = React.lazy(() => import("./v2/slider-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
 export const SwitchCompIcon : svgElement = React.lazy(() => import("./v2/switch-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
 export const TabbedContainerCompIcon : svgElement = React.lazy(() => import("./v2/tabbed-container-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
+// export const TableCompIcon  = "./v2/mighty-table-m.svg";
 export const TableCompIcon : svgElement = React.lazy(() => import("./v2/mighty-table-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
 export const TextAreaCompIcon : svgElement = React.lazy(() => import("./v2/text-area-input-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));
 export const TextCompIcon : svgElement = React.lazy(() => import("./v2/text-display-m.svg").then(module => ({default: (props: any) => React.createElement(module.ReactComponent, props)})));

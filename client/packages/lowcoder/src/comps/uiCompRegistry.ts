@@ -1,9 +1,10 @@
-import { FunctionComponent, ReactNode } from "react";
+import {FC, FunctionComponent, ReactNode} from "react";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "./utils/nameGenerator";
 import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type ExposingMultiCompConstructor = ReturnType<
   typeof withExposingConfigs
