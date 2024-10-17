@@ -204,7 +204,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                             })
                             .filter(application -> (isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
                                     && (isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
-                                    && (isNull(name) || application.getName().toLowerCase().contains(name.toLowerCase())))
+                                    && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name)))
                             .cache()
                             .collectList()
                             .flatMapIterable(Function.identity());
