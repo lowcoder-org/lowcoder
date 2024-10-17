@@ -141,6 +141,7 @@ const TreeCompView = (
         onBlur={() => props.onEvent("blur")}
       />
     ),
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
   });
 };
 

@@ -130,6 +130,7 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
         </ScrollBar>
       </Container>
     ),
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
   });
 };
 

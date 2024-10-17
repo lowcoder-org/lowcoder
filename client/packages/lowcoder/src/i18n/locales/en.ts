@@ -163,6 +163,7 @@ export const en = {
     "showSearch": "Searchable",
     "defaultValue": "Default Value",
     "required": "Required Field",
+    "showEmptyValidation": "Show Validation On Empty/Reset",
     "readOnly": "Read Only",
     "readOnlyTooltip": "Read-only components appear normal but cannot be modified.",
     "minimum": "Minimum",

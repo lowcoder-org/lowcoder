@@ -78,6 +78,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validateState,
   });
 })

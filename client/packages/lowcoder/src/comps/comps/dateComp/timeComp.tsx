@@ -59,6 +59,7 @@ import { timeZoneOptions } from "./timeZone";
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
 const validationChildren = {
+  showValidationWhenEmpty: BoolControl,
   required: BoolControl,
   minTime: StringControl,
   maxTime: StringControl,
@@ -116,7 +117,7 @@ function validate(
   }
 
   const current = dayjs(props.value.value, TimeParser);
-  if (props.required && !current.isValid()) {
+  if (props.required && (!Boolean(props.value.value) || !current.isValid())) {
     return { validateStatus: "error", help: trans("prop.required") };
   }
   return { validateStatus: "success" };
@@ -197,6 +198,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         onBlur={() => props.onEvent("blur")}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
     ),
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validate(props),
   });
 })
@@ -217,6 +219,9 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
       {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
         <><Section name={sectionNames.validation}>
           {requiredPropertyView(children)}
+          {children.showValidationWhenEmpty.propertyView({
+            label: trans("prop.showEmptyValidation")
+          })}
           {minTimePropertyView(children)}
           {maxTimePropertyView(children)}
           {children.customRule.propertyView({})}
@@ -338,6 +343,7 @@ export const timeRangeControl = (function () {
       animationStyle:props.animationStyle,
       children: children,
       onMouseDown: (e) => e.stopPropagation(),
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
@@ -366,6 +372,9 @@ export const timeRangeControl = (function () {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
+            {children.showValidationWhenEmpty.propertyView({
+              label: trans("prop.showEmptyValidation")
+            })}
             {minTimePropertyView(children)}
             {maxTimePropertyView(children)}
             {children.customRule.propertyView({})}

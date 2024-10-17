@@ -60,11 +60,11 @@ const getStyle = (style: SliderStyleType, vertical: boolean) => {
   `;
 };
 
-export const SliderStyled = styled(Slider)<{ $style: SliderStyleType, vertical: boolean }>`
-  ${(props) => props.$style && getStyle(props.$style, props.vertical)}
+export const SliderStyled = styled(Slider)<{ $style: SliderStyleType, $vertical: boolean }>`
+  ${(props) => props.$style && getStyle(props.$style, props.$vertical)}
 `;
 
-export const SliderWrapper = styled.div<{ vertical: boolean }>`
+export const SliderWrapper = styled.div<{ $vertical: boolean }>`
   width: 100%;
   display: inline-flex;
   align-items: center;
