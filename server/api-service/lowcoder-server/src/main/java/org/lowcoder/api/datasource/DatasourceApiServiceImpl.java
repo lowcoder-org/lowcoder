@@ -90,7 +90,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
                 .flatMapMany(application -> datasourceService.getByOrgId(application.getOrganizationId()))
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL)
                 .filter(datasource -> datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType()) &&
-                        (name == null || datasource.getName().toLowerCase().contains(name.toLowerCase())) &&
+                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
                         (type == null || datasource.getType().equals(type))
                 )
                 .delayUntil(jsDatasourceHelper::processDynamicQueryConfig)
@@ -108,7 +108,7 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
         // get datasource
         Flux<Datasource> datasourceFlux = datasourceService.getByOrgId(orgId)
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL &&
-                        (name == null || datasource.getName().toLowerCase().contains(name.toLowerCase())) &&
+                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
                         (type == null || datasource.getType().equals(type))
                 )
                 .cache();

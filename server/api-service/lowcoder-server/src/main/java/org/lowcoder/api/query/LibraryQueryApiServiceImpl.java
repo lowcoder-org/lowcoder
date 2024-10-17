@@ -75,7 +75,7 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
-                .filter(libraryQuery -> libraryQuery.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .flatMap(libraryQueries -> ViewBuilder.multiBuild(libraryQueries,
                         LibraryQuery::getCreatedBy,
@@ -156,7 +156,7 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     public Mono<List<LibraryQueryAggregateView>> dropDownList(String name) {
         Mono<List<LibraryQuery>> libraryQueryListMono = sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
-                .filter(libraryQuery -> libraryQuery.getName().toLowerCase().contains(name.toLowerCase()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .cache();
 
