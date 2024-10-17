@@ -116,7 +116,7 @@ public class DatasourceController implements DatasourceEndpoints
      * name, type... and the plugin definition of it, excluding the detail configs such as the connection uri, password...
      */
     @Override
-    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam String name, @RequestParam String type) {
+    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
         return datasourceApiService.listJsDatasourcePlugins(objectId, name, type)
                 .collectList()
@@ -139,7 +139,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @SneakyThrows
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam String name, @RequestParam String type) {
+    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
@@ -150,7 +150,7 @@ public class DatasourceController implements DatasourceEndpoints
     }
 
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam String name, @RequestParam String type) {
+    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
