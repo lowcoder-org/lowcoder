@@ -29,7 +29,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
-import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
+import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
@@ -52,7 +52,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
-  return `linear-gradient(${color}, ${color})`;
+  return isValidColor(color) ? `linear-gradient(${color}, ${color})` : color;
 }
 
 const getStyle = (
@@ -72,18 +72,18 @@ const getStyle = (
     }
     .ant-table-tbody {
       > tr:nth-of-type(2n + 1) {
+        background: ${genLinerGradient(rowStyle.background)};
         &,
         > td {
-          background: ${genLinerGradient(rowStyle.background)};
           // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
           // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
       }
 
       > tr:nth-of-type(2n) {
+        background: ${alternateBackground};
         &,
         > td {
-          background: ${alternateBackground};
           // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
           // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
         }
@@ -91,44 +91,57 @@ const getStyle = (
 
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
+        background: ${selectedRowBackground}, ${rowStyle.background} !important;
         > td {
-          background: ${selectedRowBackground}, ${rowStyle.background} !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
+        }
+        
+        > td {
         }
       }
 
       > tr:nth-of-type(2n).ant-table-row-selected {
+        background: ${selectedRowBackground}, ${alternateBackground} !important;
         > td {
-          background: ${selectedRowBackground}, ${alternateBackground} !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
+        }
+        > td {
         }
       }
 
       // hover row
+      > tr:nth-of-type(2n + 1).row-hover {
+        background: ${hoverRowBackground}, ${rowStyle.background} !important;
+      }
+      > tr:nth-of-type(2n).row-hover {
+        background: ${hoverRowBackground}, ${alternateBackground} !important;
+      }
       > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
         &,
         > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${rowStyle.background} !important;
+          // background: ${hoverRowBackground}, ${rowStyle.background} !important;
         }
       }
 
       > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
+        // background: ${hoverRowBackground}, ${alternateBackground} !important;
         &,
         > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${alternateBackground} !important;
         }
       }
 
-      > tr.ant-table-expanded-row > td {
+      > tr.ant-table-expanded-row {
         background: ${background};
+      }
+      > td {
       }
     }
   `;
@@ -255,9 +268,11 @@ const TableWrapper = styled.div<{
               z-index: 99;
             `
           }
+          > tr {
+            background: ${(props) => props.$headerStyle.headerBackground}; 
+          }
           > tr > th {
-            background-color: ${(props) => props.$headerStyle.headerBackground};
-           
+            background: transparent;
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
@@ -606,6 +621,7 @@ function TableCellView(props: {
     if (rowContext.hover) {
       background = genLinerGradient(handleToHoverRow(background)) + "," + background;
     }
+
     tdView = (
       <TableTd
         {...restProps}
@@ -639,6 +655,7 @@ function TableRowView(props: any) {
     <TableRowContext.Provider value={{ hover: hover, selected: selected }}>
       <tr
         {...props}
+        className={hover ? 'row-hover': ''}
         tabIndex={-1}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
