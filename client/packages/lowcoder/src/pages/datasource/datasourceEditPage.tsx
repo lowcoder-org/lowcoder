@@ -2,7 +2,7 @@ import styled from "styled-components";
 import history from "../../util/history";
 import { default as Button } from "antd/es/button";
 import { useCallback, useMemo, useState } from "react";
-import { CopyTextButton, TacoButton } from "lowcoder-design";
+import {CopyTextButton, DocIcon, PackUpIcon, TacoButton} from "lowcoder-design";
 import { useDatasourceForm } from "./form/useDatasourceForm";
 import { useParams } from "react-router-dom";
 import { DATASOURCE_URL } from "../../constants/routesURL";
@@ -143,7 +143,7 @@ const TutorialButton = styled(Button)`
   }
 `;
 
-const TutorialIcon = styled(MultiIcon("/icon:svg/DocIcon"))`
+const TutorialIcon = styled(MultiIcon(DocIcon))`
   height: 12px;
   margin-right: 4px;
 `;
@@ -196,7 +196,7 @@ export const DatasourceEditPage = () => {
       <ContentWrapper>
         <Header>
           <BackBtn onClick={() => history.push(DATASOURCE_URL)}>
-            <MultiIconDisplay identifier="/icon:svg/PackUpIcon" />
+            <MultiIconDisplay identifier={PackUpIcon} />
             {trans("query.returnList")}
           </BackBtn>
         </Header>

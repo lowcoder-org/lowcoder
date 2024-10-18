@@ -6,7 +6,7 @@ import { trans } from "i18n";
 import {
   ControlPropertyViewWrapper,
   EditPopover,
-  Input,
+  Input, PointIcon,
   SimplePopover,
   TacoButton,
 } from "lowcoder-design";
@@ -89,7 +89,7 @@ const Wrapper = styled.div`
   padding: 0 16px;
 `;
 
-const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const PopoverIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
   position: absolute;

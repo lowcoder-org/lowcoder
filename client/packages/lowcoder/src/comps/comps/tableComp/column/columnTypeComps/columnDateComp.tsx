@@ -15,13 +15,14 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CalendarCompIconSmall, PrevIcon, SuperPrevIcon} from "icons";
 
 dayjs.extend(utc)
 
-const IconNext = styled(MultiIcon("/icon:svg/PrevIcon"))`
+const IconNext = styled(MultiIcon(PrevIcon))`
   transform: rotate(180deg);
 `;
-const IconSuperNext = styled(MultiIcon("/icon:svg/SuperPrevIcon"))`
+const IconSuperNext = styled(MultiIcon(SuperPrevIcon))`
   transform: rotate(180deg);
 `;
 
@@ -178,11 +179,11 @@ export const DateEdit = (props: DateEditProps) => {
       <DatePickerStyled
         ref={pickerRef}
         $open={panelOpen}
-        suffixIcon={<MultiIconDisplay identifier="/icon:svg/CalendarCompIconSmall" />}
-        prevIcon={<MultiIconDisplay identifier="/icon:svg/PrevIcon" />}
-        nextIcon={<MultiIconDisplay identifier="/icon:svg/IconNext" />}
+        suffixIcon={<MultiIconDisplay identifier={CalendarCompIconSmall} />}
+        prevIcon={<MultiIconDisplay identifier={PrevIcon} />}
+        nextIcon={<MultiIconDisplay identifier={IconNext} />}
         superNextIcon={<IconSuperNext />}
-        superPrevIcon={<MultiIconDisplay identifier="/icon:svg/SuperPrevIcon" />}
+        superPrevIcon={<MultiIconDisplay identifier={SuperPrevIcon} />}
         allowClear={true}
         variant="borderless"
         autoFocus

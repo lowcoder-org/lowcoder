@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { messageInstance, CustomSelect } from "lowcoder-design";
+import {messageInstance, CustomSelect, CloseEyeIcon} from "lowcoder-design";
 import { i18nObjs, trans } from "i18n";
 import {
   FormStyled,
@@ -244,7 +244,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
                   isPassword ? (
                     <PasswordLabel>
                       <span>{label}:</span>
-                      <MultiIconDisplay identifier="/icon:svg/CloseEyeIcon" />
+                      <MultiIconDisplay identifier={CloseEyeIcon} />
                     </PasswordLabel>
                   ) : (
                     <Tooltip title={tip}>

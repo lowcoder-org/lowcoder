@@ -1,6 +1,6 @@
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import React, { CSSProperties, useRef } from "react";
-import { CheckBox, TacoButton } from "lowcoder-design";
+import {CheckBox, PackUpIcon, TacoButton} from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
@@ -373,7 +373,7 @@ const BackNavLink = styled.a`
   }
 `;
 
-const StyledPackUpIcon = styled(MultiIcon("/icon:svg/PackUpIcon"))`
+const StyledPackUpIcon = styled(MultiIcon(PackUpIcon))`
   transform: rotate(-90deg);
   width: 24px;
   height: 24px;

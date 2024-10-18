@@ -26,7 +26,7 @@ import {
   SwitchWrapper,
   TacoButton,
   wrapperToControlItem,
-  useShape,
+  useShape, SwitchJsIcon, DeleteInputIcon,
 } from "lowcoder-design";
 import { ReactNode, useCallback, useState } from "react";
 import styled from "styled-components";
@@ -53,7 +53,7 @@ const ButtonText = styled.div`
   text-overflow: ellipsis;
   text-align: left;
 `;
-const StyledDeleteInputIcon = styled(MultiIcon("/icon:svg/DeleteInputIcon"))`
+const StyledDeleteInputIcon = styled(MultiIcon(DeleteInputIcon))`
   margin-left: auto;
   cursor: pointer;
 
@@ -213,7 +213,7 @@ export class ShapeControl extends AbstractComp<
 
   propertyView(params: ControlParams) {
     const jsContent = (
-      <MultiIconDisplay identifier="/icon:svg/SwitchJsIcon"
+      <MultiIconDisplay identifier={SwitchJsIcon}
         checked={this.useCodeEditor}
         onChange={() => this.dispatch(this.changeModeAction())}
       />

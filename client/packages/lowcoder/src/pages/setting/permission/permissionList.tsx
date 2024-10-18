@@ -1,7 +1,7 @@
 import { default as Typography } from "antd/es/typography";
 import OrgApi from "api/orgApi";
 import { buildGroupId } from "constants/routesURL";
-import {  CustomModal, EditPopover } from "lowcoder-design";
+import {AddIcon, CustomModal, EditPopover, MembersIcon} from "lowcoder-design";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchGroupsAction, updateGroupAction } from "redux/reduxActions/orgActions";
@@ -33,7 +33,7 @@ import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDis
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 
-const StyledMembersIcon = styled(MultiIcon("/icon:svg/MembersIcon"))`
+const StyledMembersIcon = styled(MultiIcon(MembersIcon))`
   g g {
     stroke: #ffffff;
   }
@@ -135,7 +135,7 @@ export default function PermissionSetting() {
             <CreateButton
             loading={groupCreating}
             buttonType={"primary"}
-            icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
+            icon={<MultiIconDisplay identifier={AddIcon} />}
             onClick={() => handleGroupCreate()}
           >
             {trans("memberSettings.createGroup")}

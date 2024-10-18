@@ -14,6 +14,7 @@ import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {NofileIcon} from "icons";
 
 const Container = styled.div`
   width: 100%;
@@ -239,7 +240,7 @@ export const EmptyQuery = (
     {EmptyTab}
     <EmptyDiv>
       <PicDiv>
-        <MultiIconDisplay identifier="/icon:svg/NofileIcon" />
+        <MultiIconDisplay identifier={NofileIcon} />
         <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
       </PicDiv>
     </EmptyDiv>
@@ -249,7 +250,7 @@ export const EmptyQuery = (
 export const EmptyQueryWithoutTab = (
   <EmptyDiv>
     <PicDiv>
-      <MultiIconDisplay identifier="/icon:svg/NofileIcon" />
+      <MultiIconDisplay identifier={NofileIcon} />
       <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
     </PicDiv>
   </EmptyDiv>

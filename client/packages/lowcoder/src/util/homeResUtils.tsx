@@ -4,6 +4,7 @@ import history from "./history";
 import { trans } from "../i18n";
 import { FunctionComponent } from "react";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AllTypesIcon, ApplicationDocIcon, FolderIcon, ModuleDocIcon, NavDocIcon} from "icons";
 
 export const HomeResInfo: Record<
   HomeResTypeEnum,
@@ -11,32 +12,32 @@ export const HomeResInfo: Record<
 > = {
   [HomeResTypeEnum.All]: {
     name: trans("home.all"),
-    icon: MultiIcon("/icon:svg/AllTypesIcon"),
+    icon: MultiIcon(AllTypesIcon),
   },
   [HomeResTypeEnum.Application]: {
     name: trans("home.app"),
-    icon: MultiIcon("/icon:svg/ApplicationDocIcon"),
+    icon: MultiIcon(ApplicationDocIcon),
   },
   [HomeResTypeEnum.Module]: {
     name: trans("home.module"),
-    icon: MultiIcon("/icon:svg/ModuleDocIcon"),
+    icon: MultiIcon(ModuleDocIcon),
   },
   [HomeResTypeEnum.Navigation]: {
     name: trans("home.navigation"),
-    icon: MultiIcon("/icon:svg/NavDocIcon"),
+    icon: MultiIcon(NavDocIcon),
   },
   [HomeResTypeEnum.NavLayout]: {
     name: trans("home.navLayout"),
-    icon: MultiIcon("/icon:svg/NavDocIcon"),
+    icon: MultiIcon(NavDocIcon),
     desc: trans("home.navLayoutDesc"),
   },
   [HomeResTypeEnum.Folder]: {
     name: trans("home.folder"),
-    icon: MultiIcon("/icon:svg/FolderIcon"),
+    icon: MultiIcon(FolderIcon),
   },
   [HomeResTypeEnum.MobileTabLayout]: {
     name: trans("home.mobileTabLayout"),
-    icon: MultiIcon("/icon:svg/NavDocIcon"),
+    icon: MultiIcon(NavDocIcon),
     desc: trans("home.mobileTabLayoutDesc"),
   },
 };

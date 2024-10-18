@@ -4,7 +4,7 @@ import { default as Select } from "antd/es/select";
 import {
   CheckBox,
   CustomModal,
-  CustomSelect,
+  CustomSelect, DragIcon,
   EditText,
   labelCss,
   ModalFooterWrapper,
@@ -162,7 +162,7 @@ const CellRequired = styled.div<{ $head?: boolean }>`
   /* width: 52px; */
   padding-left: 16px;
 `;
-const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
+const StyledDragIcon = styled(MultiIcon(DragIcon))`
   cursor: grab;
   width: 16px;
   height: 16px;

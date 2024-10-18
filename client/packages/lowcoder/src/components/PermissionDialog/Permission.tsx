@@ -1,6 +1,8 @@
 import {
   CommonTextLabel,
   CustomSelect,
+    CheckoutIcon,
+    CloseIcon,
   TacoButton,
 } from "lowcoder-design";
 import { useEffect, useRef, useState } from "react";
@@ -284,7 +286,7 @@ function PermissionTagRender(props: CustomTagProps) {
   const { label, value, closable, onClose } = props;
   return (
     <StyledTag
-      closeIcon={<MultiIconDisplay identifier="/icon:svg/CloseIcon" style={{ width: "12px", height: "12px" }} />}
+      closeIcon={<MultiIconDisplay identifier={CloseIcon} style={{ width: "12px", height: "12px" }} />}
       color={value}
       closable={closable}
       onClose={onClose}
@@ -335,7 +337,7 @@ const PermissionSelector = (props: {
           optionLabelProp="label"
           tagRender={PermissionTagRender}
           listHeight={240}
-          menuItemSelectedIcon={<MultiIconDisplay identifier="/icon:svg/CheckoutIcon" />}
+          menuItemSelectedIcon={<MultiIconDisplay identifier={CheckoutIcon} />}
           notFoundContent={<EmptyContent style={{ paddingRight: "8px" }} />}
           onSelect={(value: any, option: any) => {
             setSelectedItems(

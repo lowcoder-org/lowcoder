@@ -4,7 +4,7 @@ import {
   PopupCard,
   QueryAlert,
   ScrollBar,
-  TacoButton,
+  TacoButton, UnfoldWhiteIcon,
 } from "lowcoder-design";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -172,7 +172,7 @@ const ButtonLabel = styled.span`
   text-align: center;
   line-height: 24px;
 `;
-const RunIcon = styled(MultiIcon("/icon:svg/UnfoldWhiteIcon"))`
+const RunIcon = styled(MultiIcon(UnfoldWhiteIcon))`
   transform: rotate(-90deg);
   display: inline-block;
   padding-right: 2px;

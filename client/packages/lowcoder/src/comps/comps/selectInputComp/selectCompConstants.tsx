@@ -12,7 +12,7 @@ import { MarginControl } from "../../controls/marginControl";
 import {
   ControlNode,
   isDarkColor,
-  lightenColor,
+  lightenColor, MultiselectTagIcon,
   Section,
   sectionNames,
 } from "lowcoder-design";
@@ -278,7 +278,7 @@ export const SelectUIView = (
     dropdownStyle={{
       padding: 0,
     }}
-    menuItemSelectedIcon={props.mode ? <MultiIconDisplay identifier="/icon:svg/MultiselectTagIcon" title="" /> : ""}
+    menuItemSelectedIcon={props.mode ? <MultiIconDisplay identifier={MultiselectTagIcon} title="" /> : ""}
     onChange={props.onChange}
     onFocus={() => props.onEvent("focus")}
     onBlur={() => props.onEvent("blur")}

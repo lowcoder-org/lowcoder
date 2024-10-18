@@ -20,9 +20,11 @@ import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } fr
 import { fullAvatarUrl } from "util/urlUtils";
 
 import {
-  BlurFinishInput,
-  OtpFormInput, // maybe to use
-  PasswordInput, // maybe to use
+    ApplicationDocIcon,
+    ArrowIcon, AvatarGroupCompIcon,
+    BlurFinishInput, ModuleDocIcon,
+    OtpFormInput, // maybe to use
+    PasswordInput, // maybe to use
 } from "lowcoder-design";
 
 
@@ -221,7 +223,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
     <Wrapper>
       <HeaderWrapper>
         <Breadcrumb
-          separator={<MultiIconDisplay identifier="/icon:svg/ArrowIcon" />}
+          separator={<MultiIconDisplay identifier={ArrowIcon} />}
           items={breadcrumbItems}
           itemRender={(item) => (
             <BreadcrumbItem
@@ -357,7 +359,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <MultiIconDisplay identifier="/icon:svg/ApplicationDocIcon" width={"42px"}/>
+                              <MultiIconDisplay identifier={ApplicationDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -379,7 +381,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <MultiIconDisplay identifier="/icon:svg/ModuleDocIcon" width={"42px"}/>
+                                <MultiIconDisplay identifier={ModuleDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -402,7 +404,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <MultiIconDisplay identifier="/icon:svg/ApplicationDocIcon" width={"42px"}/>
+                              <MultiIconDisplay identifier={ApplicationDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -424,7 +426,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <MultiIconDisplay identifier="/icon:svg/ModuleDocIcon" width={"42px"}/>
+                                <MultiIconDisplay identifier={ModuleDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -444,7 +446,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </h4>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <MultiIconDisplay identifier="/icon:svg/AvatarGroupCompIcon" width={"42px"}/>
+                              <MultiIconDisplay identifier={AvatarGroupCompIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
