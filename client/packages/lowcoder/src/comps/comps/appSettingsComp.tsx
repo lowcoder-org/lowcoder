@@ -23,6 +23,7 @@ import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { ColorControl } from "../controls/colorControl";
+import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -127,6 +128,7 @@ const DivStyled = styled.div`
           flex: 0 0 24px;
         }
         > div:nth-child(2) {
+          flex: 1;
           > div:nth-child(2) {
             width: 100%;
           }
@@ -212,9 +214,9 @@ const childrenMap = {
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   gridColumns: RangeControl.closed(8, 48, 24),
   gridRowHeight: RangeControl.closed(6, 20, 8),
-  gridRowCount: NumberControl,
-  gridPaddingX: NumberControl,
-  gridPaddingY: NumberControl,
+  gridRowCount: withDefault(NumberControl, DEFAULT_ROW_COUNT),
+  gridPaddingX: withDefault(NumberControl, 20),
+  gridPaddingY: withDefault(NumberControl, 20),
   gridBg: ColorControl,
   gridBgImage: StringControl,
   gridBgImageRepeat: StringControl,
