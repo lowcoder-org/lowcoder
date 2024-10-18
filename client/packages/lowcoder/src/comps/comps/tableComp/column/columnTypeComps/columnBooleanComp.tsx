@@ -8,9 +8,10 @@ import styled from "styled-components";
 import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
 import { useStyle } from "comps/controls/styleControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { TableCheckedIcon, TableUnCheckedIcon } from "lowcoder-design";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {TableCheckedIcon, TableUnCheckedIcon} from "icons";
 
 const CheckboxStyled = styled(Checkbox)<{ $style: CheckboxStyleType }>`
   ${(props) => props.$style && getStyle(props.$style)}
@@ -44,7 +45,7 @@ const falseValuesOptions = [
     value: "-",
   },
   {
-    label: <TableUnCheckedIcon width={10} height={10} />,
+    label: <MultiIconDisplay identifier={TableUnCheckedIcon} width={"10"} height={"10"} />,
     value: "x",
   },
 ] as const;
@@ -95,8 +96,8 @@ export const BooleanComp = (function () {
         const style = useStyle(CheckboxStyle);
         return (
           <IconWrapper $style={style} $ifChecked={value}>
-            {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <TableCheckedIcon /> ) 
-            : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <TableUnCheckedIcon /> : props.falseValues )
+            {value === true ? ( hasIcon(props.iconTrue) ? props.iconTrue : <MultiIconDisplay identifier={TableCheckedIcon} /> )
+            : value === false ? ( hasIcon(props.iconFalse) ? props.iconFalse  : ( props.falseValues === "x" ? <MultiIconDisplay identifier={TableUnCheckedIcon} /> : props.falseValues )
             ) : ( hasIcon(props.iconNull) ? props.iconNull : "No Value"
             )}
           </IconWrapper>

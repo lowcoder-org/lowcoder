@@ -11,7 +11,7 @@ import {
   EmptyCompContent,
   RightPanelContentWrapper,
 } from "pages/editor/right/styledComponent";
-import React, { Fragment, useEffect, useMemo, useState } from "react";
+import React, {Fragment, FunctionComponent, useEffect, useMemo, useState} from "react";
 import styled from "styled-components";
 import {
   BaseSection,
@@ -30,6 +30,7 @@ import { JSONObject } from "util/jsonTypes";
 import PreviewApp from "components/PreviewApp";
 import { parseCompType } from "comps/utils/remote";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const CompDiv = styled.div`
   display: flex;
@@ -75,13 +76,13 @@ const HovDiv = styled.div`
 `;
 
 const IconContain = (props: {
-  Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>>,
+  Icon: FunctionComponent<React.SVGProps<SVGSVGElement>> | null;
   isSelected: boolean,
 }) => {
   const { Icon, isSelected } = props;
   return (
     <CompIconDiv $w={64} $h={64} $isSelected={isSelected}>
-      <Icon />
+      {Icon ? <Icon/> : <></>}
     </CompIconDiv>
   );
 };

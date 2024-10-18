@@ -3,10 +3,11 @@ import { PermissionItemsType, PermissionList } from "./PermissionList";
 import StepModal from "../StepModal";
 import { trans } from "../../i18n";
 import { TacoButton } from "components/button";
-import { AddIcon } from "icons";
 import { GreyTextColor } from "constants/style";
 import { Permission, PermissionRole } from "./Permission";
 import styled from "styled-components";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AddIcon} from "icons";
 
 const BottomWrapper = styled.div`
   margin: 12px 16px 0 16px;
@@ -89,7 +90,7 @@ export const PermissionDialog = (props: {
             <BottomWrapper>
               <AddPermissionButton
                 style={{ height: 28 }}
-                icon={<AddIcon style={{ color: GreyTextColor }} />}
+                icon={<MultiIconDisplay identifier={AddIcon} style={{ color: GreyTextColor }} />}
                 onClick={() => {
                   props.next();
                 }}

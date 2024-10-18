@@ -7,8 +7,9 @@ import { ProgressStyle } from "comps/controls/styleControlConstants";
 import { useStyle } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { ProgressStyled as Progress } from "comps/comps/progressComp";
-import { TableMinusIcon, TablePlusIcon } from "lowcoder-design";
 import styled from "styled-components";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {TableMinusIcon, TablePlusIcon} from "icons";
 
 const ProgressStyled = styled(Progress)`
   display: flex;
@@ -95,7 +96,7 @@ export const ProgressComp = (function () {
           defaultValue={props.value}
           autoFocus
           variant="borderless"
-          controls={{ upIcon: <TablePlusIcon />, downIcon: <TableMinusIcon /> }}
+          controls={{ upIcon: <MultiIconDisplay identifier={TablePlusIcon} />, downIcon: <MultiIconDisplay identifier={TableMinusIcon} /> }}
           onChange={(value) => {
             props.onChange(Number(value));
           }}

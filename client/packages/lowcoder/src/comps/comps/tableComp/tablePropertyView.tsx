@@ -8,18 +8,15 @@ import { trans } from "i18n";
 import { changeValueAction, deferAction, MultiBaseComp, wrapChildAction } from "lowcoder-core";
 import {
   BluePlusIcon,
-  CheckBox,
-  CloseEyeIcon,
+  CheckBox, CloseEyeIcon,
   controlItem,
   CustomModal,
   Dropdown,
   labelCss,
-  LinkButton,
-  OpenEyeIcon,
+  LinkButton, OpenEyeIcon,
   Option,
   OptionItem,
-  RedButton,
-  RefreshIcon,
+  RedButton, RefreshIcon,
   Section,
   sectionNames,
   TextLabel,
@@ -34,6 +31,7 @@ import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
 import Segmented from "antd/es/segmented";
+import {MultiIcon, MultiIconDisplay} from "../multiIconDisplay";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -47,7 +45,7 @@ const Graylabel = styled.span`
   color: #8b8fa3;
 `;
 
-const StyledRefreshIcon = styled(RefreshIcon)`
+const StyledRefreshIcon = styled(MultiIcon(RefreshIcon))`
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -73,10 +71,10 @@ const eyeIconCss = css`
   }
 `;
 
-const CloseEye = styled(CloseEyeIcon)`
+const CloseEye = styled(MultiIcon(CloseEyeIcon))`
   ${eyeIconCss}
 `;
-const OpenEye = styled(OpenEyeIcon)`
+const OpenEye = styled(MultiIcon(OpenEyeIcon))`
   ${eyeIconCss}
 `;
 
@@ -322,7 +320,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         </ToolTipLabel>
       )}
       <LinkButton
-        icon={<BluePlusIcon />}
+        icon={<MultiIconDisplay identifier={BluePlusIcon} />}
         text={trans("addItem")}
         onClick={() => {
           comp.children.columns.dispatch(comp.children.columns.pushAction(newCustomColumn()));

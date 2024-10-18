@@ -1,10 +1,6 @@
 import { ThemeType } from "api/commonSettingApi";
 import { useState } from "react";
 import { themeTemplateList } from "./themeConstant";
-import { RadioCheckedIcon } from "lowcoder-design";
-import { SwitchCheckedIcon } from "lowcoder-design";
-import { RequiredIcon } from "lowcoder-design";
-import { SuccessIcon } from "lowcoder-design";
 import {
   CustomModalStyled,
   ModalNameDiv,
@@ -17,6 +13,8 @@ import {
 } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {RadioCheckedIcon, RequiredIcon, SuccessIcon, SwitchCheckedIcon} from "icons";
 
 type CreateModalProp = {
   themeList: ThemeType[] | undefined | null;
@@ -58,18 +56,18 @@ function CreateModal(props: CreateModalProp) {
         onClick={() => setSelectId(theme.id)}
         className={selectId === theme.id ? "selected" : ""}
       >
-        <SuccessIcon />
+        <MultiIconDisplay identifier={SuccessIcon} />
         <div>
           <div>
             <span className="name">{theme.name}</span>
             <span>
-              <SwitchCheckedIcon />
+              <MultiIconDisplay identifier={SwitchCheckedIcon} />
             </span>
           </div>
           <div>
             <div>
               <span className="radio">
-                <RadioCheckedIcon /> {trans("theme.option", { index: 1 })}
+                <MultiIconDisplay identifier={RadioCheckedIcon} /> {trans("theme.option", { index: 1 })}
               </span>
               <span className="radio">
                 <span></span> {trans("theme.option", { index: 2 })}
@@ -100,7 +98,7 @@ function CreateModal(props: CreateModalProp) {
       draggable={true}
     >
       <ModalNameDiv>
-        <RequiredIcon />
+        <MultiIconDisplay identifier={RequiredIcon} />
         <span>{trans("theme.themeName")}</span>
       </ModalNameDiv>
       <TacoInputStyled

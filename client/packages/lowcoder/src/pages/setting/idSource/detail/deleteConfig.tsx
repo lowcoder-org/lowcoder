@@ -4,10 +4,11 @@ import { trans } from "i18n";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import IdSourceApi from "api/idSourceApi";
-import { DangerIcon, CustomModal } from "lowcoder-design";
+import {CustomModal, DangerIcon} from "lowcoder-design";
 import history from "util/history";
 import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const DeleteConfig = (props: { id: string }) => {
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -34,7 +35,7 @@ export const DeleteConfig = (props: { id: string }) => {
     <DeleteWrapper>
       <div>{trans("idSource.dangerLabel")}</div>
       <div className="danger-tip">
-        <DangerIcon />
+        <MultiIconDisplay identifier={DangerIcon} />
         {trans("idSource.dangerTip")}
       </div>
       <Button loading={deleteLoading} onClick={() => handleDelete()}>
