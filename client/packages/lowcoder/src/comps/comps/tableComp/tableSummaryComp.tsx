@@ -9,7 +9,10 @@ import Tooltip from "antd/es/tooltip";
 
 const TableSummaryRow = styled(Table.Summary.Row)<{
   $istoolbarPositionBelow: boolean;
+  $background: string;
 }>`
+  ${props => `background: ${props.$background}`};
+
   td:last-child {
     border-right: unset !important;
   }
@@ -143,7 +146,7 @@ function TableSummaryCellView(props: {
   } = props;
 
   const style = {
-    background: cellColor || columnStyle.background || rowStyle.background,
+    background: cellColor || columnStyle.background,
     margin: columnStyle.margin || rowStyle.margin,
     text: columnStyle.text || rowStyle.text,
     border: columnStyle.border || rowStyle.border,
@@ -174,6 +177,7 @@ function TableSummaryCellView(props: {
 export function TableSummary(props: {
   tableSize: string;
   expandableRows: boolean;
+  multiSelectEnabled: boolean;
   summaryRows: number;
   columns: ColumnComp[];
   summaryRowStyle: TableSummaryRowStyleType;
@@ -185,10 +189,14 @@ export function TableSummary(props: {
     summaryRowStyle,
     tableSize,
     expandableRows,
+    multiSelectEnabled,
     istoolbarPositionBelow,
   } = props;
   let visibleColumns = columns.filter(col => !col.getView().hide);
   if (expandableRows) {
+    visibleColumns.unshift(new ColumnComp({}));
+  }
+  if (multiSelectEnabled) {
     visibleColumns.unshift(new ColumnComp({}));
   }
   
@@ -197,7 +205,11 @@ export function TableSummary(props: {
   return (
     <Table.Summary>
       {Array.from(Array(summaryRows)).map((_, rowIndex) => (
-        <TableSummaryRow key={rowIndex} $istoolbarPositionBelow={istoolbarPositionBelow}>
+        <TableSummaryRow
+          key={rowIndex}
+          $istoolbarPositionBelow={istoolbarPositionBelow}
+          $background={summaryRowStyle.background}
+        >
           {visibleColumns.map((column, index) => {
             const summaryColumn = column.children.summaryColumns.getView()[rowIndex].getView();
             return (

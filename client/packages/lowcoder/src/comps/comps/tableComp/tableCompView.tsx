@@ -73,75 +73,53 @@ const getStyle = (
     .ant-table-tbody {
       > tr:nth-of-type(2n + 1) {
         background: ${genLinerGradient(rowStyle.background)};
-        &,
-        > td {
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
       }
 
       > tr:nth-of-type(2n) {
         background: ${alternateBackground};
-        &,
-        > td {
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
       }
 
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
         background: ${selectedRowBackground}, ${rowStyle.background} !important;
-        > td {
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
         }
-        
-        > td {
-        }
       }
 
       > tr:nth-of-type(2n).ant-table-row-selected {
         background: ${selectedRowBackground}, ${alternateBackground} !important;
-        > td {
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
         // > td.ant-table-cell-row-hover,
         &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
         }
-        > td {
-        }
       }
 
       // hover row
-      > tr:nth-of-type(2n + 1).row-hover {
+      > tr:nth-of-type(2n + 1):hover {
         background: ${hoverRowBackground}, ${rowStyle.background} !important;
-      }
-      > tr:nth-of-type(2n).row-hover {
-        background: ${hoverRowBackground}, ${alternateBackground} !important;
-      }
-      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          // background: ${hoverRowBackground}, ${rowStyle.background} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
         }
       }
-
-      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-        // background: ${hoverRowBackground}, ${alternateBackground} !important;
-        &,
-        > div:nth-of-type(2) {
+      > tr:nth-of-type(2n):hover {
+        background: ${hoverRowBackground}, ${alternateBackground} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
         }
       }
 
       > tr.ant-table-expanded-row {
         background: ${background};
-      }
-      > td {
       }
     }
   `;
@@ -615,11 +593,8 @@ function TableCellView(props: {
       rowHeight: rowHeight,
     }
     let { background } = style;
-    if (rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(background)) + "," + background;
-    }
     if (rowContext.hover) {
-      background = genLinerGradient(handleToHoverRow(background)) + "," + background;
+      background = 'transparent';
     }
 
     tdView = (
@@ -655,7 +630,6 @@ function TableRowView(props: any) {
     <TableRowContext.Provider value={{ hover: hover, selected: selected }}>
       <tr
         {...props}
-        className={hover ? 'row-hover': ''}
         tabIndex={-1}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
@@ -999,6 +973,7 @@ export function TableCompView(props: {
       <TableSummary
         tableSize={size}
         istoolbarPositionBelow={toolbar.position === "below"}
+        multiSelectEnabled={compChildren.selection.children.mode.value === 'multiple'}
         expandableRows={Boolean(expansion.expandModalView)}
         summaryRows={parseInt(summaryRows)}
         columns={columns}
