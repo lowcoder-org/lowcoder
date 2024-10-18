@@ -3,9 +3,6 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
-import { AlignCenter } from "lowcoder-design";
-import { AlignLeft } from "lowcoder-design";
-import { AlignRight } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
@@ -25,6 +22,7 @@ import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const EventOptions = [clickEvent] as const;
 
@@ -108,13 +106,13 @@ const TextContainer = styled.div<{
     overflow-wrap: anywhere;
   }
 `;
-const AlignTop = styled(AlignLeft)`
+const AlignTop = styled(MultiIcon("/icon:svg/AlignLeft"))`
   transform: rotate(90deg);
 `;
-const AlignBottom = styled(AlignRight)`
+const AlignBottom = styled(MultiIcon("/icon:svg/AlignRight"))`
   transform: rotate(90deg);
 `;
-const AlignVerticalCenter = styled(AlignCenter)`
+const AlignVerticalCenter = styled(MultiIcon("/icon:svg/AlignCenter"))`
   transform: rotate(90deg);
 `;
 

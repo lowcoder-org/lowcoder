@@ -1,4 +1,3 @@
-import { AddIcon, CloseIcon, ImportIconV2 } from "lowcoder-design/src/icons";
 import type { CustomModalProps } from "lowcoder-design/src/components/CustomModal";
 import { ScrollBar } from "lowcoder-design/src/components/ScrollBar";
 import { BottomShadow, GreyTextColor, TabActiveColor } from "constants/style";
@@ -26,6 +25,7 @@ import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -251,7 +251,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
           {trans("query.newQuery")}
         </div>
         <div className="title-close-btn">
-          <CloseIcon onClick={onClose} />
+          <MultiIconDisplay identifier="/icon:svg/CloseIcon" onClick={onClose} />
         </div>
       </Title>
       <Content>
@@ -314,7 +314,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                       multiple={false}
                     >
                       <DataSourceButton size={buttonSize}>
-                        <ImportIconV2 width="20px" height="20px" style={{ marginRight: "8px" }} />
+                        <MultiIconDisplay identifier="/icon:svg/ImportIconV2" width="20px" height="20px" style={{ marginRight: "8px" }} />
                         {trans("query.importFromFile")}
                       </DataSourceButton>
                     </Upload>
@@ -340,7 +340,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 {user.orgDev && (
                   <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
                     <LargeBottomResIconWrapper>
-                      <AddIcon />
+                      <MultiIconDisplay identifier="/icon:svg/AddIcon" />
                     </LargeBottomResIconWrapper>
                     {trans("query.newDatasource")}
                   </DataSourceButton>

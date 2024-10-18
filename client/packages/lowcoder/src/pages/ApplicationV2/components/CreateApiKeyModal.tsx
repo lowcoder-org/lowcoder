@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import {
   messageInstance,
   CustomSelect,
-  CloseEyeIcon,
   CustomModal,
   UnderlineCss,
 } from "lowcoder-design";

@@ -9,19 +9,14 @@ import { normalAppListSelector } from "../../redux/selectors/applicationSelector
 import history from "util/history";
 import { ALL_APPLICATIONS_URL, ORG_HOME_URL } from "constants/routesURL";
 import { default as AntdBreadcrumb } from "antd/es/breadcrumb";
-import { ArrowIcon } from "lowcoder-design";
 import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } from "antd";
 import { useRef } from "react";
 import { LowcoderAppView } from "appView/LowcoderAppView";
 import CountUp from 'react-countup';
-import {
-  ApplicationDocIcon,
-  ModuleDocIcon,
-  AvatarGroupCompIcon,
-} from "lowcoder-design";
 
 import { SERVER_HOST } from "constants/apiConstants";
 import { sdkConfig } from "constants/sdkConfig";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const { Text, Title, Link } = Typography;
 
@@ -162,7 +157,7 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
     <Wrapper>
       <HeaderWrapper>
         <Breadcrumb
-          separator={<ArrowIcon />}
+          separator={<MultiIconDisplay identifier="/icon:svg/ArrowIcon" />}
           items={breadcrumbItems}
           itemRender={(item) => (
             <BreadcrumbItem
@@ -216,7 +211,7 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
                                   </div>
                               </div>
                               <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <ApplicationDocIcon width={"42px"}/>
+                                <MultiIconDisplay identifier="/icon:svg/ApplicationDocIcon" width={"42px"}/>
                               </BgSuccess>
                           </div>
                       </Card>

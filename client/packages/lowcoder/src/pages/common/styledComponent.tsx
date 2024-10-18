@@ -1,13 +1,14 @@
 import React, { CSSProperties } from "react";
 import styled from "styled-components";
 
-import { CommonGrayLabel, EmptyDataIcon } from "lowcoder-design";
+import { CommonGrayLabel } from "lowcoder-design";
 import { Layers } from "constants/Layers";
 import _ from "lodash";
 import { useResizeDetector } from "react-resize-detector";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const Height100Div = styled.div`
   height: 100%;
@@ -141,7 +142,7 @@ export const EmptyContent = (props: {
   const { text = trans("emptyContent") } = props;
   return (
     <EmptyContentWrapper style={props.style} className={props.className}>
-      <EmptyDataIcon />
+      <MultiIconDisplay identifier="/icon:svg/EmptyDataIcon" />
       <CommonGrayLabel style={{ marginTop: "12px" }}>{text}</CommonGrayLabel>
     </EmptyContentWrapper>
   );

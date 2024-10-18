@@ -13,7 +13,6 @@ import {
   ControlNode,
   isDarkColor,
   lightenColor,
-  MultiselectTagIcon,
   Section,
   sectionNames,
 } from "lowcoder-design";
@@ -60,6 +59,7 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { styleControl } from "comps/controls/styleControl";
 import SupaDemoDisplay from "comps/utils/supademoDisplay";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const getStyle = (
   style:
@@ -278,7 +278,7 @@ export const SelectUIView = (
     dropdownStyle={{
       padding: 0,
     }}
-    menuItemSelectedIcon={props.mode ? <MultiselectTagIcon title="" /> : ""}
+    menuItemSelectedIcon={props.mode ? <MultiIconDisplay identifier="/icon:svg/MultiselectTagIcon" title="" /> : ""}
     onChange={props.onChange}
     onFocus={() => props.onEvent("focus")}
     onBlur={() => props.onEvent("blur")}

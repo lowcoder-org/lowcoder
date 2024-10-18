@@ -15,7 +15,6 @@ import {
   BlockGrayLabel,
   controlItem,
   ControlPropertyViewWrapper,
-  DeleteInputIcon,
   iconPrefix,
   IconSelect,
   IconSelectBase,
@@ -31,6 +30,7 @@ import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import { IconDictionary } from "@lowcoder-ee/constants/iconConstants";
 
 const ButtonWrapper = styled.div`
@@ -51,7 +51,7 @@ const ButtonText = styled.div`
   text-overflow: ellipsis;
   text-align: left;
 `;
-const StyledDeleteInputIcon = styled(DeleteInputIcon)`
+const StyledDeleteInputIcon = styled(MultiIcon("/icon:svg/DeleteInputIcon"))`
   margin-left: auto;
   cursor: pointer;
 

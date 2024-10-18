@@ -3,7 +3,7 @@ import { default as Card } from "antd/es/card";
 import { CopyTextButton } from "./copyTextButton";
 import { CSSProperties, ReactNode, useState } from "react";
 import styled from "styled-components";
-import { ErrorIcon, SuccessIcon } from "icons";
+import {MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 const StyledCard = styled(Card)<{ $backcolor: string }>`
   z-index: 3;
@@ -126,7 +126,7 @@ export function PopupCard(props: PopupCardProps) {
                 message={props.title}
                 type={props.hasError ? "error" : "success"}
                 showIcon
-                icon={props.hasError ? <ErrorIcon /> : <SuccessIcon />}
+                icon={props.hasError ? <MultiIconDisplay identifier="/icon:svg/ErrorIcon" /> : <MultiIconDisplay identifier="/icon:svg/SuccessIcon" />}
               />
             }
             extra={<CopyTextButton text={props.content ?? ""} />}

@@ -2,8 +2,8 @@ import styled from "styled-components";
 import { ReactComponent as Bin } from "icons/v1/icon-recycle-bin.svg";
 import { TacoButton } from "./button";
 import { ReactNode } from "react";
-import { BluePlusIcon } from "icons";
 import { trans } from "i18n/design";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 const KeyValueListItem = styled.div`
   display: flex;
@@ -33,7 +33,7 @@ const DelIcon = styled(Bin)<{
   }
 `;
 
-const AddIcon = styled(BluePlusIcon)`
+const AddIcon = styled(MultiIcon("/icon:svg/BluePlusIcon"))`
   height: 8px;
   width: 8px;
   margin-right: 4px;

@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
-import { AddIcon, DocIcon, ModalFooterWrapper, TacoButton } from "lowcoder-design";
+import { ModalFooterWrapper, TacoButton } from "lowcoder-design";
 import styled from "styled-components";
 import { default as Button } from "antd/es/button";
 import { useDatasourceForm } from "./form/useDatasourceForm";
@@ -16,6 +16,7 @@ import { getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors
 import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { getDataSourceFormManifest } from "./getDataSourceFormManifest";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const EditButton = styled(Button)`
   font-size: 13px;
@@ -41,7 +42,7 @@ const EditButton = styled(Button)`
   }
 `;
 
-const StyledAddIcon = styled(AddIcon)`
+const StyledAddIcon = styled(MultiIcon("/icon:svg/AddIcon"))`
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -104,7 +105,7 @@ const TutorialButton = styled(Button)`
   }
 `;
 
-const StyleTutorialIcon = styled(DocIcon)`
+const StyleTutorialIcon = styled(MultiIcon("/icon:svg/DocIcon"))`
   height: 12px;
   margin-right: 4px;
 `;

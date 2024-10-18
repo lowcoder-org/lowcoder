@@ -7,10 +7,8 @@ import {
   ItemHoverBackgroundColor,
 } from "constants/style";
 import {
-  BluePlusIcon,
   EditPopover,
   EditPopoverProps,
-  PointIcon,
   SimplePopover,
 } from "lowcoder-design";
 import { trans } from "i18n";
@@ -18,6 +16,7 @@ import { Children, PropsWithChildren, ReactNode, useState } from "react";
 import styled from "styled-components";
 import EmptyItem from "./EmptyItem";
 import LinkPlusButton from "./LinkPlusButton";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const col1Width = "108px";
 
@@ -108,7 +107,7 @@ const ItemWrapper = styled.div<{ $popover: boolean; $active: boolean; $hasValue:
   }
 `;
 
-const StyledPointIcon = styled(PointIcon)`
+const StyledPointIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
   color: ${GreyTextColor};
 
   &:hover {
@@ -225,7 +224,7 @@ export function KeyValueItemListWithNewCreateState(
       {...props}
       onEmptyClick={handleAdd}
       extra={
-        <LinkPlusButton icon={<BluePlusIcon />} onClick={handleAdd}>
+        <LinkPlusButton icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />} onClick={handleAdd}>
           {trans("addItem")}
         </LinkPlusButton>
       }

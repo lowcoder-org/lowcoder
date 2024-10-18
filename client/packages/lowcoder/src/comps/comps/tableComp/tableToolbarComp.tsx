@@ -15,20 +15,11 @@ import { trans } from "i18n";
 import _, { isNil } from "lodash";
 import { changeChildAction, ConstructorToView } from "lowcoder-core";
 import {
-  AlignBottom,
-  AlignClose,
-  AlignTop,
-  BluePlusIcon,
   CheckBox,
   CommonTextLabel,
   CustomSelect,
-  DeleteIcon,
-  DownloadIcon,
-  FilterIcon,
   LinkButton,
   pageItemRender,
-  RefreshIcon,
-  TableColumnVisibilityIcon,
   SuspensionBox,
   TacoButton,
   TacoInput,
@@ -39,6 +30,7 @@ import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -185,7 +177,7 @@ const ToolbarIcons = styled.div`
   gap: 8px;
 `;
 
-const StyledDeleteIcon = styled(DeleteIcon)<{ disabled: boolean }>`
+const StyledDeleteIcon = styled(MultiIcon("/icon:svg/DeleteIcon"))<{ disabled: boolean }>`
   height: 16px;
   width: 16px;
 
@@ -252,15 +244,15 @@ const filterStackOptions = [
 
 const positionOptions = [
   {
-    label: <AlignBottom />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignBottom" />,
     value: "below",
   },
   {
-    label: <AlignTop />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignTop" />,
     value: "above",
   },
   {
-    label: <AlignClose />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignClose" />,
     value: "close",
   },
 ] as const;
@@ -520,7 +512,7 @@ function TableFilterView(props: {
       <LinkButton
         style={{ marginRight: "auto" }}
         text={trans("addItem")}
-        icon={<BluePlusIcon />}
+        icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />}
         onClick={() => {
           setFilters(filters.concat(genFilterViewItem()));
         }}
@@ -764,7 +756,7 @@ export function TableToolbar(props: {
       <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">
           {toolbar.showRefresh && (
-            <RefreshIcon
+            <MultiIconDisplay identifier="/icon:svg/RefreshIcon"
               className="refresh"
               onClick={() => {
                 onRefresh();
@@ -792,17 +784,17 @@ export function TableToolbar(props: {
                   setVisible={(v) => setFilterVisible(v)}
                 />
               }
-              Icon={FilterIcon}
+              Icon={MultiIcon("/icon:svg/FilterIcon")}
               iconClassName="filter"
             />
           )}
-          {toolbar.showDownload && <DownloadIcon className="download" onClick={onDownload} />}
+          {toolbar.showDownload && <MultiIconDisplay identifier="/icon:svg/DownloadIcon" className="download" onClick={onDownload} />}
           {toolbar.columnSetting && (
             <ToolbarPopover
               visible={settingVisible}
               setVisible={setSettingVisible}
               content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={TableColumnVisibilityIcon}
+              Icon={MultiIcon("/icon:svg/TableColumnVisibilityIcon")}
               iconClassName="column-setting"
             />
           )}

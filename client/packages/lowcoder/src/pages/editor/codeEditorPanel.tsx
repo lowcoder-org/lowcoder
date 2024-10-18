@@ -1,9 +1,6 @@
 import styled from "styled-components";
 import { ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { Layers } from "../../constants/Layers";
-import { CodeEditorOpenIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon } from "lowcoder-design";
-import { CodeEditorCloseIcon } from "lowcoder-design";
-import { DragIcon } from "lowcoder-design";
 import Trigger from "rc-trigger";
 import { Resizable } from "react-resizable";
 import Handle from "../../layout/handler";
@@ -12,6 +9,7 @@ import { getPanelStyle, savePanelStyle } from "../../util/localStorageUtil";
 import { CompNameContext } from "../../comps/editorState";
 import { isEmpty } from "lodash";
 import { trans } from "i18n";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div`
   max-width: 60vw;
@@ -42,7 +40,7 @@ const TitleWrapper = styled.div`
   color: #222222;
   //margin-bottom: 16px;
 `;
-const StyledDragIcon = styled(DragIcon)`
+const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
   margin-right: 8px;
 `;
 const BodyWrapper = styled.div`
@@ -203,10 +201,10 @@ export const CodeEditorPanel = (props: {
                 </TitleWrapper>
                 <Buttons>
                   <PinButton onClick={() => setPinned(!pinned) }> 
-                    {pinned ? <CodeEditorPinnedIcon/> : <CodeEditorUnPinnedIcon/>}
+                    {pinned ? <MultiIconDisplay identifier="/icon:svg/CodeEditorPinnedIcon"/> : <MultiIconDisplay identifier="/icon:svg/CodeEditorUnPinnedIcon"/>}
                   </PinButton>
                   <CloseButton onClick={() => setVisible(false)}>
-                    <CodeEditorCloseIcon />
+                    <MultiIconDisplay identifier="/icon:svg/CodeEditorCloseIcon" />
                     {trans("codeEditor.fold")}
                   </CloseButton>
                 </Buttons>
@@ -219,7 +217,7 @@ export const CodeEditorPanel = (props: {
       )}
     >
       <OpenButton className={"code-editor-panel-open-button"} onClick={() => setVisible(true)}>
-        <CodeEditorOpenIcon />
+        <MultiIconDisplay identifier={"/icon:svg/CodeEditorOpenIcon"} />
       </OpenButton>
     </Trigger>
   );

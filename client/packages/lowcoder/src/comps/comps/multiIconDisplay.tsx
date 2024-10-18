@@ -34,8 +34,14 @@ function parseIconIdentifier(identifier: string) {
 
 interface IconProps {
   identifier: string;
+  onClick?: any;
   width?: string;
   height?: string;
+  size?: string;
+  margin: string;
+  title?: string;
+  className?: string;
+  checked?: boolean
   style?: React.CSSProperties;
 }
 
@@ -56,7 +62,7 @@ const appendStyleSuffix = (name: string) => {
 
 // Multi icon Display Component
 
-const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px', height = '24px', style }) => {
+const baseMultiIconDisplay: React.FC<any> = ({ identifier, width = '24px', height = '24px', style }) => {
   
   const iconData = parseIconIdentifier(identifier);
 
@@ -83,11 +89,11 @@ const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px',
     return <AntdIcon style={{ fontSize: width, ...style }} />;
   } 
   else if (iconData.type === 'url' || iconData.type === 'base64') {
-    return <img src={iconData.type === 'url' ? iconData.url : iconData.data} alt="icon" style={{ width, height, ...style }} />;
+    return <img src={iconData.type === 'url' ? iconData.url : iconData.data} alt="icon" style={{ width, height,  ...style, }} />;
   }
   else if (iconData.type === 'customize') {
     const Icon = SVGICONS[iconData.name as keyof typeof SVGICONS]; //TreeSelectCompIcon
-    return <Suspense fallback={null}><Icon/></Suspense>;
+    return <Suspense fallback={null}><Icon style={{ width: width, height: height, ...style }} /></Suspense>;
   }
   else {
     return null; // Unknown type
@@ -95,4 +101,4 @@ const baseMultiIconDisplay: React.FC<IconProps> = ({ identifier, width = '24px',
 };
 
 export const MultiIconDisplay = baseMultiIconDisplay;
-export const MultiIcon = (props: IconProps) => () =>MultiIconDisplay(props)
+export const MultiIcon = (identifier: string) => (props?: any) => <MultiIconDisplay identifier={identifier} {...props} />

@@ -22,13 +22,8 @@ import {
 } from "lowcoder-core";
 import {
   AutoArea,
-  CompressIcon,
   controlItem,
-  ExpandIcon,
-  IconRadius,
   Option,
-  WidthIcon,
-  ImageCompIcon,
 } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
@@ -39,6 +34,7 @@ import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
 import { StringStateControl } from "./codeStateControl";
 import { reduceInContext } from "../utils/reduceContext";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const OptionTypes = [
   {
@@ -594,7 +590,7 @@ const ColumnOption = new MultiCompBuilder(
   <StyledContent>
     {children.minWidth.propertyView({
       label: trans('responsiveLayout.minWidth'),
-      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/WidthIcon")} title="" />,
       placeholder: '3px',
     })}
     {children.background.propertyView({
@@ -602,7 +598,7 @@ const ColumnOption = new MultiCompBuilder(
     })}
     {children.backgroundImage.propertyView({
       label: `Background Image`,
-      // preInputNode: <StyledIcon as={ImageCompIcon} title="" />,
+      // preInputNode: <StyledIcon as={IMultiIcon("/icon:svg/mageCompIcon")} title="" />,
       placeholder: 'https://temp.im/350x400',
     })}
     {children.border.propertyView({
@@ -610,17 +606,17 @@ const ColumnOption = new MultiCompBuilder(
     })}
     {children.radius.propertyView({
       label: trans('style.borderRadius'),
-      preInputNode: <StyledIcon as={IconRadius} title="" />,	
+      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/IconRadius")} title="" />,
       placeholder: '3px',
     })}
     {children.margin.propertyView({
       label: trans('style.margin'),
-      preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/ExpandIcon")} title="" />,
       placeholder: '3px',
     })}
     {children.padding.propertyView({
       label: trans('style.padding'),
-      preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/CompressIcon")} title="" />,
       placeholder: '3px',
     })}
   </StyledContent>

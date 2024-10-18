@@ -3,9 +3,6 @@ import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
 import { fadeColor } from "lowcoder-design";
-import { CloseEyeIcon } from "lowcoder-design";
-import { DragWhiteIcon } from "lowcoder-design";
-import { WidthDragIcon } from "lowcoder-design";
 import React, {
   MouseEvent,
   MouseEventHandler,
@@ -19,6 +16,7 @@ import styled, { css } from "styled-components";
 import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
 import { ResizeHandleAxis } from "./gridLayoutPropTypes";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type DragHandleName = "w" | "e" | "nw" | "ne" | "sw" | "se";
 type NamePos = "top" | "bottom" | "bottomInside";
@@ -157,13 +155,13 @@ const dragIconCss = (props: DragHandleProps, handle: ResizeHandleAxis) => css`
   display: ${dragDisplay(handle, props)};
 `;
 
-const DragLeftIcon = styled(WidthDragIcon)<DragHandleProps>`
+const DragLeftIcon = styled(MultiIcon("/icon:svg/WidthDragIcon"))<DragHandleProps>`
   ${(props) => dragIconCss(props, "w")};
   left: -3.5px;
   transform: translate(0px, -50%);
 `;
 
-const DragRightIcon = styled(WidthDragIcon)<DragHandleProps>`
+const DragRightIcon = styled(MultiIcon("/icon:svg/WidthDragIcon"))<DragHandleProps>`
   ${(props) => dragIconCss(props, "e")};
   right: -3.5px;
   transform: translate(0px, -50%);
@@ -227,7 +225,7 @@ const DragSE = styled.div<DragHandleProps>`
   bottom: -2.5px;
 `;
 
-const HiddenIcon = styled(CloseEyeIcon)`
+const HiddenIcon = styled(MultiIcon("/icon:svg/CloseEyeIcon"))`
   g g {
     fill: #f5f5f6;
   }
@@ -339,7 +337,7 @@ export const CompSelectionWrapper = React.memo((props: {
             $isDraggable={props.isDraggable}
             ref={nameDivRef}
           >
-            {props.isDraggable && <DragWhiteIcon />}
+            {props.isDraggable && <MultiIconDisplay identifier="/icon:svg/DragWhiteIcon" />}
             <NameLabel>{nameConfig.name}</NameLabel>
             {props.hidden && <HiddenIcon />}
           </NameDiv>

@@ -74,7 +74,7 @@ import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 import { ControlButton } from "./comps/meetingComp/controlButton";
-import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import { MultiIcon } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -93,7 +93,7 @@ var uiCompMap: Registry = {
     enName: "Chart",
     description: trans("uiComp.chartCompDesc"),
     categories: ["dashboards"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ChartCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ChartCompIcon"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
     keywords: trans("uiComp.chartCompKeywords"),
     layoutInfo: {
@@ -106,7 +106,7 @@ var uiCompMap: Registry = {
     enName: "Sharing",
     description: trans("meeting.sharingCompName"),
     categories: ["collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/VideoCompIcon"/>,
+    icon: MultiIcon("/icon:svg/VideoCompIcon"),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoSharingStreamComp,
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
@@ -121,7 +121,7 @@ var uiCompMap: Registry = {
     enName: "Video",
     description: trans("meeting.videoCompName"),
     categories: ["collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/VideoCompIcon"/>,
+    icon: MultiIcon("/icon:svg/VideoCompIcon"),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoMeetingStreamComp,
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
@@ -137,7 +137,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
     description: trans("meeting.meetingCompDesc"),
     categories: ["collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DrawerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DrawerCompIcon"),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoMeetingControllerComp,
     withoutLoading: true,
@@ -148,7 +148,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
     description: trans("uiComp.mermaidCompDesc"),
     categories: ["dashboards"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/MermaidCompIcon"/>,
+    icon: MultiIcon("/icon:svg/MermaidCompIcon"),
     keywords: trans("uiComp.mermaidCompKeywords"),
     layoutInfo: {
       w: 12,
@@ -160,7 +160,7 @@ var uiCompMap: Registry = {
     enName: "timeline",
     description: trans("uiComp.timelineCompDesc"),
     categories: ["dashboards"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TimeLineCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TimeLineCompIcon"),
     keywords: trans("uiComp.timelineCompKeywords"),
     comp: TimeLineComp,
     layoutInfo: {
@@ -173,7 +173,7 @@ var uiCompMap: Registry = {
     enName: "Table",
     description: trans("uiComp.tableCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon:() => <MultiIconDisplay identifier="/icon:svg/TableCompIcon" />,
+    icon:MultiIcon("/icon:svg/TableCompIcon" ),
     keywords: trans("uiComp.tableCompKeywords"),
     comp: TableComp,
     layoutInfo: {
@@ -188,7 +188,7 @@ var uiCompMap: Registry = {
     enName: "Slider",
     description: trans("uiComp.sliderCompDesc"),
     categories: ["dashboards"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/SliderCompIcon"/>,
+    icon: MultiIcon("/icon:svg/SliderCompIcon"),
     keywords: trans("uiComp.sliderCompKeywords"),
     comp: SliderComp,
     layoutInfo: {
@@ -201,7 +201,7 @@ var uiCompMap: Registry = {
     enName: "Range Slider",
     description: trans("uiComp.rangeSliderCompDesc"),
     categories: ["dashboards"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/RangeSliderCompIcon"/>,
+    icon: MultiIcon("/icon:svg/RangeSliderCompIcon"),
     keywords: trans("uiComp.rangeSliderCompKeywords"),
     comp: RangeSliderComp,
     layoutInfo: {
@@ -217,7 +217,7 @@ var uiCompMap: Registry = {
     enName: "Responsive Layout",
     description: trans("uiComp.responsiveLayoutCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ResponsiveLayoutCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ResponsiveLayoutCompIcon"),
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
     comp: ResponsiveLayoutComp,
     withoutLoading: true,
@@ -232,7 +232,7 @@ var uiCompMap: Registry = {
     enName: "Container",
     description: trans("uiComp.containerCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ContainerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ContainerCompIcon"),
     keywords: trans("uiComp.containerCompKeywords"),
     comp: ContainerComp,
     withoutLoading: true,
@@ -249,7 +249,7 @@ var uiCompMap: Registry = {
     enName: "Tabbed Container",
     description: trans("uiComp.tabbedContainerCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TabbedContainerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TabbedContainerCompIcon"),
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
     comp: TabbedContainerComp,
     withoutLoading: true,
@@ -265,7 +265,7 @@ var uiCompMap: Registry = {
     enName: "Collapsible Container",
     description: trans("uiComp.collapsibleContainerCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CollapsibleContainerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CollapsibleContainerCompIcon"),
     keywords: trans("uiComp.collapsibleContainerCompKeywords"),
     comp: ContainerComp,
     withoutLoading: true,
@@ -280,7 +280,7 @@ var uiCompMap: Registry = {
   listView: {
     name: trans("uiComp.listViewCompName"),
     enName: "List View",
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ListViewCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ListViewCompIcon"),
     description: trans("uiComp.listViewCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.listViewCompKeywords"),
@@ -295,7 +295,7 @@ var uiCompMap: Registry = {
   grid: {
     name: trans("uiComp.gridCompName"),
     enName: "Grid",
-    icon: () => <MultiIconDisplay identifier="/icono:svg/GridCompIcon"/>,
+    icon: MultiIcon("/icon:svg/GridCompIcon"),
     description: trans("uiComp.gridCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.gridCompKeywords"),
@@ -310,7 +310,7 @@ var uiCompMap: Registry = {
   modal: {
     name: trans("uiComp.modalCompName"),
     enName: "Modal",
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ModalCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ModalCompIcon"),
     description: trans("uiComp.modalCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.modalCompKeywords"),
@@ -322,7 +322,7 @@ var uiCompMap: Registry = {
     enName: "Drawer",
     description: trans("uiComp.drawerCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DrawerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DrawerCompIcon"),
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: DrawerComp,
     withoutLoading: true,
@@ -331,7 +331,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.navigationCompName"),
     enName: "Navigation",
     description: trans("uiComp.navigationCompDesc"),
-    icon: () => <MultiIconDisplay identifier="/icono:svg/NavComIcon"/>,
+    icon: MultiIcon("/icon:svg/NavComIcon"),
     categories: ["layout"],
     keywords: trans("uiComp.navigationCompKeywords"),
     comp: NavComp,
@@ -345,7 +345,7 @@ var uiCompMap: Registry = {
     enName: "Cascader",
     description: trans("uiComp.cascaderCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CascaderCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CascaderCompIcon"),
     keywords: trans("uiComp.cascaderCompKeywords"),
     comp: CascaderWithDefault,
     layoutInfo: {
@@ -358,7 +358,7 @@ var uiCompMap: Registry = {
     enName: "Link",
     description: trans("uiComp.linkCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/LinkCompIcon"/>,
+    icon: MultiIcon("/icon:svg/LinkCompIcon"),
     keywords: trans("uiComp.linkCompKeywords"),
     comp: LinkComp,
     layoutInfo: {
@@ -371,7 +371,7 @@ var uiCompMap: Registry = {
     enName: "Divider",
     description: trans("uiComp.dividerCompDesc"),
     categories: ["layout"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DividerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DividerCompIcon"),
     keywords: trans("uiComp.dividerCompKeywords"),
     comp: DividerComp,
     layoutInfo: {
@@ -387,7 +387,7 @@ var uiCompMap: Registry = {
     enName: "Calendar",
     description: trans("uiComp.calendarCompDesc"),
     categories: ["scheduling", "projectmanagement"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CalendarCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CalendarCompIcon"),
     keywords: trans("uiComp.calendarCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
     layoutInfo: {
@@ -403,7 +403,7 @@ var uiCompMap: Registry = {
   //   enName: "Sharing",
   //   description: trans("meeting.sharingCompName"),
   //   categories: ["collaboration"],
-  //   icon: () => <MultiIconDisplay identifier="/icono:svg/VideoCompIcon"/>,
+  //   icon: MultiIcon("/icon:svg/VideoCompIcon"),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoSharingStreamComp,
   //   withoutLoading: true,
@@ -417,7 +417,7 @@ var uiCompMap: Registry = {
   //   enName: "Video",
   //   description: trans("meeting.videoCompName"),
   //   categories: ["collaboration"],
-  //   icon: () => <MultiIconDisplay identifier="/icono:svg/VideoCompIcon"/>,
+  //   icon: MultiIcon("/icon:svg/VideoCompIcon"),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoMeetingStreamComp,
   //   withoutLoading: true,
@@ -431,7 +431,7 @@ var uiCompMap: Registry = {
   //   enName: "Drawer",
   //   description: trans("meeting.meetingCompDesc"),
   //   categories: ["collaboration"],
-  //   icon: () => <MultiIconDisplay identifier="/icono:svg/DrawerCompIcon"/>,
+  //   icon: MultiIcon("/icon:svg/DrawerCompIcon"),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoMeetingControllerComp,
   //   withoutLoading: true,
@@ -441,7 +441,7 @@ var uiCompMap: Registry = {
     enName: "comment",
     description: trans("uiComp.commentCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CommentCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CommentCompIcon"),
     keywords: trans("uiComp.commentCompKeywords"),
     comp: CommentComp,
     layoutInfo: {
@@ -454,7 +454,7 @@ var uiCompMap: Registry = {
     enName: "mention",
     description: trans("uiComp.mentionCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/MentionCompIcon"/>,
+    icon: MultiIcon("/icon:svg/MentionCompIcon"),
     keywords: trans("uiComp.mentionCompKeywords"),
     comp: MentionComp,
   },
@@ -466,7 +466,7 @@ var uiCompMap: Registry = {
     enName: "Form",
     description: trans("uiComp.formCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/FormCompIcon"/>,
+    icon: MultiIcon("/icon:svg/FormCompIcon"),
     keywords: trans("uiComp.formCompKeywords"),
     comp: FormComp,
     withoutLoading: true,
@@ -483,7 +483,7 @@ var uiCompMap: Registry = {
     enName: "JSON Schema Form",
     description: trans("uiComp.jsonSchemaFormCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/JsonFormCompIcon"/>,
+    icon: MultiIcon("/icon:svg/JsonFormCompIcon"),
     keywords: trans("uiComp.jsonSchemaFormCompKeywords"),
     comp: JsonSchemaFormComp,
     layoutInfo: {
@@ -496,7 +496,7 @@ var uiCompMap: Registry = {
     enName: "JSON Editor",
     description: trans("uiComp.jsonEditorCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/JsonEditorCompIcon"/>,
+    icon: MultiIcon("/icon:svg/JsonEditorCompIcon"),
     keywords: trans("uiComp.jsonEditorCompKeywords"),
     comp: JsonEditorComp,
     layoutInfo: {
@@ -509,7 +509,7 @@ var uiCompMap: Registry = {
     enName: "JSON Explorer",
     description: trans("uiComp.jsonExplorerCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/JsonExplorerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/JsonExplorerCompIcon"),
     keywords: trans("uiComp.jsonExplorerCompKeywords"),
     comp: JsonExplorerComp,
     layoutInfo: {
@@ -522,7 +522,7 @@ var uiCompMap: Registry = {
     enName: "Rich Text Editor",
     categories: ["forms"],
     description: trans("uiComp.richTextEditorCompDesc"),
-    icon: () => <MultiIconDisplay identifier="/icono:svg/RichTextEditorCompIcon"/>,
+    icon: MultiIcon("/icon:svg/RichTextEditorCompIcon"),
     keywords: trans("uiComp.richTextEditorCompKeywords"),
     comp: RichTextEditorComp,
     layoutInfo: {
@@ -535,7 +535,7 @@ var uiCompMap: Registry = {
     enName: "Input",
     description: trans("uiComp.inputCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/InputCompIcon"/>,
+    icon: MultiIcon("/icon:svg/InputCompIcon"),
     keywords: trans("uiComp.inputCompKeywords"),
     comp: InputComp,
     layoutInfo: {
@@ -548,7 +548,7 @@ var uiCompMap: Registry = {
     enName: "Password",
     description: trans("uiComp.passwordCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/PasswordCompIcon"/>,
+    icon: MultiIcon("/icon:svg/PasswordCompIcon"),
     keywords: trans("uiComp.passwordCompKeywords"),
     comp: PasswordComp,
     layoutInfo: {
@@ -561,7 +561,7 @@ var uiCompMap: Registry = {
     enName: "Number Input",
     description: trans("uiComp.numberInputCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/NumberInputCompIcon"/>,
+    icon: MultiIcon("/icon:svg/NumberInputCompIcon"),
     keywords: trans("uiComp.numberInputCompKeywords"),
     comp: NumberInputComp,
     layoutInfo: {
@@ -574,7 +574,7 @@ var uiCompMap: Registry = {
     enName: "Text Area",
     description: trans("uiComp.textAreaCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TextAreaCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TextAreaCompIcon"),
     keywords: trans("uiComp.textAreaCompKeywords"),
     comp: TextAreaComp,
     layoutInfo: {
@@ -587,7 +587,7 @@ var uiCompMap: Registry = {
     enName: "Switch",
     description: trans("uiComp.switchCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/SwitchCompIcon"/>,
+    icon: MultiIcon("/icon:svg/SwitchCompIcon"),
     keywords: trans("uiComp.switchCompKeywords"),
     comp: SwitchComp,
     layoutInfo: {
@@ -600,7 +600,7 @@ var uiCompMap: Registry = {
     enName: "Checkbox",
     description: trans("uiComp.checkboxCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CheckboxCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CheckboxCompIcon"),
     keywords: trans("uiComp.checkboxCompKeywords"),
     comp: CheckboxComp,
     layoutInfo: {
@@ -613,7 +613,7 @@ var uiCompMap: Registry = {
     enName: "Radio",
     description: trans("uiComp.radioCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/RadioCompIcon"/>,
+    icon: MultiIcon("/icon:svg/RadioCompIcon"),
     keywords: trans("uiComp.radioCompKeywords"),
     comp: RadioComp,
     layoutInfo: {
@@ -626,7 +626,7 @@ var uiCompMap: Registry = {
     enName: "Date",
     description: trans("uiComp.dateCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DateCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DateCompIcon"),
     keywords: trans("uiComp.dateCompKeywords"),
     comp: DatePickerComp,
     layoutInfo: {
@@ -639,7 +639,7 @@ var uiCompMap: Registry = {
     enName: "Date Range",
     description: trans("uiComp.dateRangeCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DateRangeCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DateRangeCompIcon"),
     keywords: trans("uiComp.dateRangeCompKeywords"),
     comp: DateRangeComp,
     layoutInfo: {
@@ -652,7 +652,7 @@ var uiCompMap: Registry = {
     enName: "Time",
     description: trans("uiComp.timeCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TimeCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TimeCompIcon"),
     keywords: trans("uiComp.timeCompKeywords"),
     comp: TimePickerComp,
     layoutInfo: {
@@ -665,7 +665,7 @@ var uiCompMap: Registry = {
     enName: "Time Range",
     categories: ["forms", "scheduling"],
     description: trans("uiComp.timeRangeCompDesc"),
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TimeRangeCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TimeRangeCompIcon"),
     keywords: trans("uiComp.timeRangeCompKeywords"),
     comp: TimeRangeComp,
     layoutInfo: {
@@ -678,7 +678,7 @@ var uiCompMap: Registry = {
     enName: "Button",
     description: trans("uiComp.buttonCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ButtonCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ButtonCompIcon"),
     keywords: trans("uiComp.buttonCompKeywords"),
     comp: ButtonComp,
     layoutInfo: {
@@ -692,7 +692,7 @@ var uiCompMap: Registry = {
     enName: "Controls",
     description: trans("meeting.meetingCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ButtonCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ButtonCompIcon"),
     keywords: trans("meeting.meetingCompKeywords"),
     comp: ControlButton,
     withoutLoading: true,
@@ -706,7 +706,7 @@ var uiCompMap: Registry = {
     enName: "Dropdown",
     description: trans("uiComp.dropdownCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/DropdownCompIcon"/>,
+    icon: MultiIcon("/icon:svg/DropdownCompIcon"),
     keywords: trans("uiComp.dropdownCompKeywords"),
     comp: DropdownComp,
     layoutInfo: {
@@ -719,7 +719,7 @@ var uiCompMap: Registry = {
     enName: "Toggle Button",
     description: trans("uiComp.toggleButtonCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ToggleButtonCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ToggleButtonCompIcon"),
     keywords: trans("uiComp.toggleButtonCompKeywords"),
     comp: ToggleButtonComp,
     layoutInfo: {
@@ -732,7 +732,7 @@ var uiCompMap: Registry = {
     enName: "Segmented Control",
     description: trans("uiComp.segmentedControlCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/SegmentedCompIcon"/>,
+    icon: MultiIcon("/icon:svg/SegmentedCompIcon"),
     keywords: trans("uiComp.segmentedControlCompKeywords"),
     comp: SegmentedControlComp,
     layoutInfo: {
@@ -745,7 +745,7 @@ var uiCompMap: Registry = {
     enName: "Rating",
     description: trans("uiComp.ratingCompDesc"),
     categories: ["forms"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/RatingCompIcon"/>,
+    icon: MultiIcon("/icon:svg/RatingCompIcon"),
     keywords: trans("uiComp.ratingCompKeywords"),
     comp: RatingComp,
     layoutInfo: {
@@ -758,7 +758,7 @@ var uiCompMap: Registry = {
     enName: "autoComplete",
     description: trans("uiComp.autoCompleteCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/AutoCompleteCompIcon"/>,
+    icon: MultiIcon("/icon:svg/AutoCompleteCompIcon"),
     keywords: cnchar
         .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
         .toString(),
@@ -776,7 +776,7 @@ var uiCompMap: Registry = {
     enName: "Progress",
     description: trans("uiComp.progressCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ProgressCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ProgressCompIcon"),
     keywords: trans("uiComp.progressCompKeywords"),
     comp: ProgressComp,
     layoutInfo: {
@@ -789,7 +789,7 @@ var uiCompMap: Registry = {
     enName: "Process Circle",
     description: trans("uiComp.progressCircleCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ProcessCircleCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ProcessCircleCompIcon"),
     keywords: trans("uiComp.progressCircleCompKeywords"),
     comp: ProgressCircleComp,
     layoutInfo: {
@@ -805,7 +805,7 @@ var uiCompMap: Registry = {
     enName: "File Upload",
     description: trans("uiComp.fileUploadCompDesc"),
     categories: ["documents"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/UploadCompIcon"/>,
+    icon: MultiIcon("/icon:svg/UploadCompIcon"),
     keywords: trans("uiComp.fileUploadCompKeywords"),
     comp: FileComp,
     layoutInfo: {
@@ -818,7 +818,7 @@ var uiCompMap: Registry = {
     enName: "File Viewer",
     description: trans("uiComp.fileViewerCompDesc"),
     categories: ["documents"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/FileViewerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/FileViewerCompIcon"),
     keywords: trans("uiComp.fileViewerCompKeywords"),
     comp: FileViewerComp,
     layoutInfo: {
@@ -834,7 +834,7 @@ var uiCompMap: Registry = {
     enName: "Image",
     description: trans("uiComp.imageCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ImageCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ImageCompIcon"),
     keywords: trans("uiComp.imageCompKeywords"),
     comp: ImageComp,
     layoutInfo: {
@@ -847,7 +847,7 @@ var uiCompMap: Registry = {
     enName: "Carousel",
     description: trans("uiComp.carouselCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CarouselCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CarouselCompIcon"),
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: CarouselComp,
     withoutLoading: true,
@@ -861,7 +861,7 @@ var uiCompMap: Registry = {
     enName: "Audio",
     description: trans("uiComp.audioCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/AudioCompIcon"/>,
+    icon: MultiIcon("/icon:svg/AudioCompIcon"),
     keywords: trans("uiComp.audioCompKeywords"),
     comp: AudioComp,
     layoutInfo: {
@@ -874,7 +874,7 @@ var uiCompMap: Registry = {
     enName: "Video",
     description: trans("uiComp.videoCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/VideoCompIcon"/>,
+    icon: MultiIcon("/icon:svg/VideoCompIcon"),
     keywords: trans("uiComp.videoCompKeywords"),
     comp: VideoComp,
     layoutInfo: {
@@ -887,7 +887,7 @@ var uiCompMap: Registry = {
     enName: "Lottie Animation",
     description: trans("uiComp.jsonLottieCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/LottieAnimationCompIcon"/>,
+    icon: MultiIcon("/icon:svg/LottieAnimationCompIcon"),
     keywords: trans("uiComp.jsonLottieCompKeywords"),
     comp: JsonLottieComp,
     layoutInfo: {
@@ -901,7 +901,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
     description: trans("uiComp.imageEditorCompDesc"),
     categories: ["multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ImageEditorCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ImageEditorCompIcon"),
     keywords: trans("uiComp.imageEditorCompKeywords"),
     layoutInfo: {
       w: 12,
@@ -916,7 +916,7 @@ var uiCompMap: Registry = {
     enName: "QR Code",
     description: trans("uiComp.qrCodeCompDesc"),
     categories: ["itemHandling", "documents"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/QRCodeCompIcon"/>,
+    icon: MultiIcon("/icon:svg/QRCodeCompIcon"),
     keywords: trans("uiComp.qrCodeCompKeywords"),
     comp: QRCodeComp,
     layoutInfo: {
@@ -929,7 +929,7 @@ var uiCompMap: Registry = {
     enName: "Scanner",
     description: trans("uiComp.scannerCompDesc"),
     categories: ["itemHandling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/ScannerCompIcon"/>,
+    icon: MultiIcon("/icon:svg/ScannerCompIcon"),
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
     layoutInfo: {
@@ -942,7 +942,7 @@ var uiCompMap: Registry = {
     enName: "Signature",
     description: trans("uiComp.signatureCompDesc"),
     categories: ["itemHandling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/SignatureCompIcon"/>,
+    icon: MultiIcon("/icon:svg/SignatureCompIcon"),
     keywords: trans("uiComp.signatureCompKeywords"),
     comp: SignatureComp,
     layoutInfo: {
@@ -955,7 +955,7 @@ var uiCompMap: Registry = {
     enName: "Select",
     description: trans("uiComp.selectCompDesc"),
     categories: ["forms", "itemHandling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/SelectCompIcon"/>,
+    icon: MultiIcon("/icon:svg/SelectCompIcon"),
     keywords: trans("uiComp.selectCompKeywords"),
     comp: SelectComp,
     layoutInfo: {
@@ -968,7 +968,7 @@ var uiCompMap: Registry = {
     enName: "Multiselect",
     description: trans("uiComp.multiSelectCompDesc"),
     categories: ["forms", "itemHandling"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/MultiSelectCompIcon"/>,
+    icon: MultiIcon("/icon:svg/MultiSelectCompIcon"),
     keywords: trans("uiComp.multiSelectCompKeywords"),
     comp: MultiSelectComp,
     layoutInfo: {
@@ -981,7 +981,7 @@ var uiCompMap: Registry = {
     enName: "Tree",
     description: trans("uiComp.treeCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TreeDisplayCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TreeDisplayCompIcon"),
     keywords: trans("uiComp.treeCompKeywords"),
     comp: TreeComp,
     layoutInfo: {
@@ -994,7 +994,7 @@ var uiCompMap: Registry = {
     enName: "Tree Select",
     description: trans("uiComp.treeSelectCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TreeSelectCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TreeSelectCompIcon"),
     keywords: trans("uiComp.treeSelectCompKeywords"),
     comp: TreeSelectComp,
     layoutInfo: {
@@ -1009,7 +1009,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.iframeCompName"),
     enName: "IFrame",
     description: trans("uiComp.iframeCompDesc"),
-    icon: () => <MultiIconDisplay identifier="/icono:svg/IFrameCompIcon"/>,
+    icon: MultiIcon("/icon:svg/IFrameCompIcon"),
     categories: ["integration"],
     keywords: trans("uiComp.iframeCompKeywords"),
     comp: IFrameComp,
@@ -1022,7 +1022,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.customCompName"),
     enName: "Custom Component",
     description: trans("uiComp.customCompDesc"),
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CustomCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CustomCompIcon"),
     categories: ["integration"],
     keywords: trans("uiComp.customCompKeywords"),
     comp: CustomComp,
@@ -1034,7 +1034,7 @@ var uiCompMap: Registry = {
   module: {
     name: trans("uiComp.moduleCompName"),
     enName: "Module",
-    icon: () => <MultiIconDisplay identifier="/icono:svg/CustomCompIcon"/>,
+    icon: MultiIcon("/icon:svg/CustomCompIcon"),
     description: trans("uiComp.moduleCompDesc"),
     categories: [],
     keywords: trans("uiComp.moduleCompKeywords"),
@@ -1052,7 +1052,7 @@ var uiCompMap: Registry = {
     enName: "Text",
     description: trans("uiComp.textCompDesc"),
     categories: ["dashboards", "layout", "multimedia"],
-    icon: () => <MultiIconDisplay identifier="/icono:svg/TextCompIcon"/>,
+    icon: MultiIcon("/icon:svg/TextCompIcon"),
     keywords: trans("uiComp.textCompKeywords"),
     comp: TextComp,
     layoutInfo: {

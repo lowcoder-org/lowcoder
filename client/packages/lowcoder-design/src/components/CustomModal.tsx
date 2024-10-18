@@ -6,9 +6,9 @@ import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";
 import Draggable from "react-draggable";
 import { DarkActiveTextColor, GreyTextColor } from "constants/style";
-import { CloseIcon, ErrorIcon, SuccessIcon, WarningIcon, WarningWhiteIcon } from "icons";
 import { trans } from "i18n/design";
 import { modalInstance } from "components/GlobalInstances";
+import {MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 type ModalWrapperProps = {
   $width?: string | number;
@@ -130,7 +130,7 @@ function ModalHeader(props: {
       )}
       <ModalHeaderTitle>{props.title}</ModalHeaderTitle>
       <ModalCloseIcon onClick={props.onCancel}>
-        <CloseIcon />
+        <MultiIconDisplay identifier="/icon:svg/CloseIcon" />
       </ModalCloseIcon>
     </>
   );
@@ -264,10 +264,10 @@ function CustomModal(props: CustomModalProps) {
 }
 
 const TitleIcon = {
-  error: <ErrorIcon />,
-  warn: <WarningIcon />,
-  info: <WarningWhiteIcon />,
-  success: <SuccessIcon />,
+  error: <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />,
+  warn: <MultiIconDisplay identifier="/icon:svg/WarningIcon" />,
+  info: <MultiIconDisplay identifier="/icon:svg/WarningWhiteIcon" />,
+  success: <MultiIconDisplay identifier="/icon:svg/SuccessIcon" />,
 };
 
 CustomModal.confirm = (props: {

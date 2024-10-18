@@ -1,5 +1,4 @@
 import styled, { css } from "styled-components";
-import { DragIcon, PointIcon } from "icons";
 import { EllipsisTextCss, labelCss } from "./Label";
 import { EditPopover, SimplePopover } from "./popover";
 import { ToolTipLabel } from "./toolTip";
@@ -13,6 +12,7 @@ import { DndContext } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 const OptionDiv = styled.div`
   width: 100%;
@@ -103,7 +103,7 @@ const EmptyOptionSpan = styled.span`
   }
 `;
 
-const StyledDragIcon = styled(DragIcon)`
+const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
   ${IconCss};
   margin-top: 8px;
   margin-left: 8px;
@@ -120,7 +120,7 @@ const StyledDragIcon = styled(DragIcon)`
   }
 `;
 
-const StyledPointIcon = styled(PointIcon)`
+const StyledPointIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
   ${IconCss};
   color: ${GreyTextColor};
 

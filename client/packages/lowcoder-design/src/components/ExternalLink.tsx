@@ -1,6 +1,6 @@
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { DocIcon } from "icons";
 import styled from "styled-components";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 export const ExternalLink = styled.a`
   font-size: 13px;
@@ -14,7 +14,7 @@ export const ExternalLink = styled.a`
   }
 `;
 
-const StyledDocIcon = styled(DocIcon)`
+const StyledDocIcon = styled(MultiIcon("/icon:svg/DocIcon"))`
   height: 12px;
   width: 12px;
   margin-right: 4px;

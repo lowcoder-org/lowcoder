@@ -1,7 +1,5 @@
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
-import { HelpIcon, LeftHelpIcon, HelpGithubIcon, HelpDiscordIcon } from "lowcoder-design";
-import { VideoIcon, ChatIcon, DocIcon, TutorialIcon, ShortcutIcon } from "assets/icons";
 import TutorialVideoPic from "assets/images/tutorialVideoThumbnail.png";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Popover } from "antd/es/popover";
@@ -24,9 +22,9 @@ import { CommonTipsOverlay } from "lowcoder-design";
 import { markUserStatus } from "redux/reduxActions/userActions";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { ShortcutListPopup } from "./shortcutListPopup";
-import { QuestionIcon, UpgradeIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { localEnv } from "util/envUtils";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const StyledMenu = styled(DropdownMenu)<{ $edit: boolean | string }>`
   ${(props) =>
@@ -161,7 +159,7 @@ const WatchVideoItem = () => {
   return (
     <WatchVideoItemWrapper>
       <ItemWrapper>
-        <VideoIcon />
+        <MultiIconDisplay identifier="/icon:svg/VideoIcon" />
         <span>{trans("help.videoText")}</span>
       </ItemWrapper>
       <img src={TutorialVideoPic} alt="" />
@@ -292,7 +290,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               label: (
                 <ItemWrapper>
                   {customerService(() => setShowHelp(true))}
-                  <ChatIcon />
+                  <MultiIconDisplay identifier="/icon:svg/ChatIcon" />
                   <span>{trans("help.chat")}</span>
                 </ItemWrapper>
               ),
@@ -302,7 +300,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
           key: "docs",
           label: (
             <ItemWrapper>
-              <DocIcon />
+              <MultiIconDisplay identifier="/icon:svg/DocIcon" />
               <span>{trans("help.docs")}</span>
             </ItemWrapper>
           ),
@@ -312,7 +310,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               key: "issue",
               label: (
                 <ItemWrapper>
-                  <HelpGithubIcon />
+                  <MultiIconDisplay identifier="/icon:svg/HelpGithubIcon" />
                   <span>{trans("help.submitIssue")}</span>
                 </ItemWrapper>
               ),
@@ -323,7 +321,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               key: "discord",
               label: (
                 <ItemWrapper>
-                  <HelpDiscordIcon />
+                  <MultiIconDisplay identifier="/icon:svg/HelpDiscordIcon" />
                   <span>{trans("help.chat")}</span>
                 </ItemWrapper>
               ),
@@ -333,7 +331,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
           key: "editorTutorial",
           label: (
             <ItemWrapper>
-              <TutorialIcon />
+              <MultiIconDisplay identifier="/icon:svg/TutorialIcon" />
               <span>{trans("help.editorTutorial")}</span>
             </ItemWrapper>
           ),
@@ -343,7 +341,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               key: "shortcutList",
               label: (
                 <ItemWrapper>
-                  <ShortcutIcon />
+                  <MultiIconDisplay identifier="/icon:svg/ShortcutIcon" />
                   <span>{trans("shortcut.shortcutList")}</span>
                 </ItemWrapper>
               ),
@@ -354,7 +352,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               key: "changeLog",
               label: (
                 <ItemWrapper>
-                  <UpgradeIcon />
+                  <MultiIconDisplay identifier="/icon:svg/UpgradeIcon" />
                   <span>{trans("help.update")}</span>
                 </ItemWrapper>
               ),
@@ -388,7 +386,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
                 }
                 placement="topLeft"
               >
-                <QuestionIcon style={{ cursor: "pointer" }} />
+                <MultiIconDisplay identifier="/icon:svg/QuestionIcon" style={{ cursor: "pointer" }} />
               </Tooltip>
             </VersionDiv>
           ),
@@ -435,11 +433,11 @@ function HelpDropdownComp(props: HelpDropdownProps) {
       >
         {props.isEdit ? (
           <SpanStyled $selected={showDropdown}>
-            <LeftHelpIcon />
+            <MultiIconDisplay identifier="/icon:svg/LeftHelpIcon" />
           </SpanStyled>
         ) : (
           <HelpDiv>
-            <HelpIcon />
+            <MultiIconDisplay identifier="/icon:svg/HelpIcon" />
           </HelpDiv>
         )}
       </Dropdown>

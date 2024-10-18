@@ -1,6 +1,6 @@
 import { DndContext, DragEndEvent, DragOverlay, DragStartEvent } from "@dnd-kit/core";
 import LinkPlusButton from "components/LinkPlusButton";
-import { BluePlusIcon, controlItem } from "lowcoder-design";
+import { controlItem } from "lowcoder-design";
 import { trans } from "i18n";
 import _ from "lodash";
 import { useState } from "react";
@@ -9,6 +9,7 @@ import DraggableMenuItem from "./DroppableMenuItem";
 import DroppablePlaceholder from "./DroppablePlaceHolder";
 import MenuItem from "./MenuItem";
 import { IDragData, IDropData, NavCompType, NavListCompType } from "./types";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div`
   .menu-title {
@@ -96,7 +97,7 @@ function MenuItemList(props: IMenuItemListProps) {
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="menu-title">
           <div>{menuItemLabel}</div>
-          <LinkPlusButton onClick={() => onAddItem([0])} icon={<BluePlusIcon />}>
+          <LinkPlusButton onClick={() => onAddItem([0])} icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />}>
             {trans("newItem")}
           </LinkPlusButton>
         </div>

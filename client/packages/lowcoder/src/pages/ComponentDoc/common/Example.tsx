@@ -3,7 +3,6 @@ import { evalAndReduceWithExposing } from "comps/utils";
 import _ from "lodash";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { ShowBorderIcon, EditIcon } from "lowcoder-design";
 import propNames from "../propNameText";
 import valueTranslate from "../propValueText";
 import { AppTypeEnum } from "constants/applicationConstants";
@@ -16,6 +15,7 @@ import { ExampleContext } from "../ExampleContext";
 import { trans } from "i18n";
 import { EditorContext, EditorState } from "comps/editorState";
 import { RootComp } from "comps/comps/rootComp";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div`
   border: 1px solid #d7d9e0;
@@ -92,13 +92,13 @@ const Bound = styled.div<IBoundProps>`
   border: ${({ show }) => `1px dashed ${show ? "rgb(51, 119, 255)" : "transparent"}`};
 `;
 
-const StyledBorderIcon = styled(ShowBorderIcon)`
+const StyledBorderIcon = styled(MultiIcon("/icon:svg/ShowBorderIcon"))`
   width: 14px;
   height: 14px;
   margin-right: 5px;
 `;
 
-const StyledEditIcon = styled(EditIcon)`
+const StyledEditIcon = styled(MultiIcon("/icon:svg/EditIcon"))`
   width: 14px;
   height: 14px;
   margin-right: 5px;

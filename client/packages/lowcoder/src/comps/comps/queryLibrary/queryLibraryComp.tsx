@@ -12,10 +12,8 @@ import {
   CustomModal,
   EditPopover,
   EditText,
-  PointIcon,
   ScrollBar,
   TacoButton,
-  UnfoldWhiteIcon,
 } from "lowcoder-design";
 import ReactHotkeys from "../../../util/hotkeys";
 import { executeQueryAction, renameAction } from "lowcoder-core";
@@ -28,6 +26,7 @@ import { QueryLibraryResultPanel } from "components/resultPanel/QueryLibraryResu
 import { DatasourceStructure } from "api/datasourceApi";
 import { MetaDataContext } from "base/codeEditor/codeEditorTypes";
 import { useMetaData } from "util/hooks";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const children = {
   query: withPropertyViewFn(QueryComp, (comp) => (
@@ -201,7 +200,7 @@ const PropertyView = (props: {
   );
 };
 
-const PopoverIcon = styled(PointIcon)`
+const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
   flex-shrink: 0;
 
   g {
@@ -227,7 +226,7 @@ const PopoverButton = styled.div`
     }
   }
 `;
-const RunIcon = styled(UnfoldWhiteIcon)`
+const RunIcon = styled(MultiIcon("/icon:svg/UnfoldWhiteIcon"))`
   transform: rotate(-90deg);
   display: inline-block;
   padding-right: 2px;

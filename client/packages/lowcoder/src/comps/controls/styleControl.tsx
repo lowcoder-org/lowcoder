@@ -7,29 +7,7 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _, { omit, values } from "lodash";
 import {
-  controlItem,
-  IconReset,
-  ExpandIcon,
-  CompressIcon,
-  TextSizeIcon,
-  TextTransformationIcon,
-  FontFamilyIcon,
-  TextWeightIcon,
-  ShowBorderIcon,
-  BorderWidthIcon,
-  ImageCompIconSmall,
-  RotationIcon,
-  TextDecorationIcon,
-  BorderStyleIcon,
-  BorderRadiusIcon,
-  TextStyleIcon,
-  StarSmileIcon,
-  TimerFlashIcon,
-  Timer2Icon,
-  RefreshLineIcon,
-  ShadowIcon,
-  OpacityIcon,
-  LineHeightIcon
+  controlItem
 } from 'lowcoder-design';
 import { useContext } from "react";
 import styled from "styled-components";
@@ -87,6 +65,7 @@ import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { CompContext } from "../utils/compContext";
 import { EditorContext } from "../editorState";
 import { inputFieldComps } from "@lowcoder-ee/constants/compConstants";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 function isSimpleColorConfig(config: SingleColorConfig): config is SimpleColorConfig {
   return config.hasOwnProperty("color");
@@ -760,70 +739,70 @@ const StyleContent = styled.div`
     border-radius: 0 0 6px 6px;
   }
 `;
-const LineHeightPropIcon = styled(LineHeightIcon)`
+const LineHeightPropIcon = styled(MultiIcon("/icon:svg/LineHeightIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
-const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px; color: #888`;
-const RadiusPropIcon = styled(BorderRadiusIcon)` width: 24px; margin: 0 11px 0 0px; color: #888`;
-const BorderPropIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const BorderStylePropIcon = styled(BorderStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const MarginIcon = styled(MultiIcon("/icon:svg/ExpandIcon"))` margin: 0 8px 0 2px; color: #888`;
+const PaddingIcon = styled(MultiIcon("/icon:svg/CompressIcon"))`	margin: 0 8px 0 2px; color: #888`;
+const RadiusPropIcon = styled(MultiIcon("/icon:svg/BorderRadiusIcon"))` width: 24px; margin: 0 11px 0 0px; color: #888`;
+const BorderPropIcon = styled(MultiIcon("/icon:svg/BorderWidthIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const BorderStylePropIcon = styled(MultiIcon("/icon:svg/BorderStyleIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 
-const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 6px 0 0; padding: 2px; color: #888`;
-const AnimationIterationCountPropIcon = styled(RefreshLineIcon)`
+const StyledBackgroundImageIcon = styled(MultiIcon("/icon:svg/ImageCompIconSmall"))` margin: 0 6px 0 0; padding: 2px; color: #888`;
+const AnimationIterationCountPropIcon = styled(MultiIcon("/icon:svg/RefreshLineIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const OpacityPropIcon = styled(OpacityIcon)`
+const OpacityPropIcon = styled(MultiIcon("/icon:svg/OpacityIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const BoxShadowColorPropIcon = styled(BorderWidthIcon)`
+const BoxShadowColorPropIcon = styled(MultiIcon("/icon:svg/BorderWidthIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const BoxShadowPropIcon = styled(ShadowIcon)`
+const BoxShadowPropIcon = styled(MultiIcon("/icon:svg/ShadowIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
-const AnimationPropIcon = styled(StarSmileIcon)`
+const AnimationPropIcon = styled(MultiIcon("/icon:svg/StarSmileIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
-const AnimationDelayPropIcon = styled(TimerFlashIcon)`
-  margin: 0 8px 0 -3px;
-  padding: 3px;
-  color: #888;
-`;
-
-const AnimationDurationPropIcon = styled(Timer2Icon)`
+const AnimationDelayPropIcon = styled(MultiIcon("/icon:svg/TimerFlashIcon"))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const RotationPropIcon = styled(RotationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const AnimationDurationPropIcon = styled(MultiIcon("/icon:svg/Timer2Icon"))`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
 
-const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextTransformIcon = styled(TextTransformationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextStyleIcon = styled(TextStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextDecorationPropIcon = styled(TextDecorationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const RotationPropIcon = styled(MultiIcon("/icon:svg/RotationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+
+const StyledTextSizeIcon = styled(MultiIcon("/icon:svg/TextSizeIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextTransformIcon = styled(MultiIcon("/icon:svg/TextTransformationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledFontFamilyIcon = styled(MultiIcon("/icon:svg/FontFamilyIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextWeightIcon = styled(MultiIcon("/icon:svg/TextWeightIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextStyleIcon = styled(MultiIcon("/icon:svg/TextStyleIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextDecorationPropIcon = styled(MultiIcon("/icon:svg/TextDecorationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 
 
-const ResetIcon = styled(IconReset)`
+const ResetIcon = styled(MultiIcon("/icon:svg/IconReset"))`
   &:hover g g {
     stroke: #315efb;
   }

@@ -5,11 +5,10 @@ import InsertView from "./InsertView";
 import type UIComp from "comps/comps/uiComp";
 import type { UiLayoutType } from "comps/comps/uiComp";
 import { useEffect, useState } from "react";
-import { AttributeIcon } from "lowcoder-design";
-import { InsertIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { isAggregationApp } from "util/appUtils";
 import React from "react";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 type RightPanelProps = {
   onTabChange: (key: string) => void;
@@ -27,7 +26,7 @@ function RightPanel(props: RightPanelProps) {
     {
       key: "property",
       title: trans("rightPanel.propertyTab"),
-      icon: <AttributeIcon />,
+      icon: <MultiIconDisplay identifier="/icon:svg/AttributeIcon" />,
       content: <PropertyView uiComp={uiComp} />,
     },
   ];
@@ -35,7 +34,7 @@ function RightPanel(props: RightPanelProps) {
     tabConfigs.push({
       key: "insert",
       title: trans("rightPanel.createTab"),
-      icon: <InsertIcon />,
+      icon: <MultiIconDisplay identifier="/icon:svg/InsertIcon" />,
       content: <InsertView onCompDrag={props.onCompDrag} />,
     });
   }

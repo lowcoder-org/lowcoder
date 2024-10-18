@@ -21,7 +21,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { AlignClose, AlignLeft, AlignRight, IconRadius, BorderWidthIcon, TextSizeIcon, FontFamilyIcon, TextWeightIcon, ImageCompIcon, controlItem, Dropdown, OptionType } from "lowcoder-design";
+import {  controlItem, Dropdown, OptionType } from "lowcoder-design";
 import { ColumnTypeComp, ColumnTypeCompMap } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import { JSONValue } from "util/jsonTypes";
@@ -32,6 +32,7 @@ import { ColumnValueTooltip } from "./simpleColumnTypeComps";
 import { SummaryColumnComp } from "./tableSummaryColumnComp";
 import { list } from "@lowcoder-ee/comps/generators/list";
 import { EMPTY_ROW_KEY } from "../tableCompView";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 export type Render = ReturnType<ConstructorToComp<typeof RenderComp>["getOriginalComp"]>;
 export const RenderComp = withSelectedMultiContext(ColumnTypeComp);
 
@@ -48,15 +49,15 @@ const columnWidthOptions = [
 
 const columnFixOptions = [
   {
-    label: <AlignLeft />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />,
     value: "left",
   },
   {
-    label: <AlignClose />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignClose" />,
     value: "close",
   },
   {
-    label: <AlignRight />,
+    label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />,
     value: "right",
   },
 ] as const;
@@ -153,12 +154,12 @@ export const columnChildrenMap = {
   ])
 };
 
-const StyledBorderRadiusIcon = styled(IconRadius)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBorderIcon = styled(BorderWidthIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextSizeIcon = styled(TextSizeIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledFontFamilyIcon = styled(FontFamilyIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(TextWeightIcon)` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledBackgroundImageIcon = styled(ImageCompIcon)` width: 24px; margin: 0 0px 0 -12px;`;
+const StyledBorderRadiusIcon = styled(MultiIcon("/icon:svg/IconRadius"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledBorderIcon = styled(MultiIcon("/icon:svg/BorderWidthIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextSizeIcon = styled(MultiIcon("/icon:svg/TextSizeIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledFontFamilyIcon = styled(MultiIcon("/icon:svg/FontFamilyIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(MultiIcon("/icon:svg/TextWeightIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledBackgroundImageIcon = styled(MultiIcon("/icon:svg/ImageCompIcon"))` width: 24px; margin: 0 0px 0 -12px;`;
 
 /**
  * export for test.
@@ -347,32 +348,32 @@ export class ColumnComp extends ColumnInitComp {
             })}
             {this.children.borderWidth.propertyView({
               label: trans('style.borderWidth'),
-              preInputNode: <StyledBorderIcon as={BorderWidthIcon} title="" />,
+              preInputNode: <StyledBorderIcon as={MultiIcon("/icon:svg/BorderWidthIcon")} title="" />,
               placeholder: '1px',
             })}
             {this.children.radius.propertyView({
               label: trans('style.borderRadius'),
-              preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
+              preInputNode: <StyledBorderRadiusIcon as={MultiIcon("/icon:svg/IconRadius")} title="" />,
               placeholder: '3px',
             })}
             {this.children.textSize.propertyView({
               label: trans('style.textSize'),
-              preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
+              preInputNode: <StyledTextSizeIcon as={MultiIcon("/icon:svg/TextSizeIcon")} title="" />,
               placeholder: '14px',
             })}
             {this.children.textWeight.propertyView({
               label: trans('style.textWeight'),
-              preInputNode: <StyledTextWeightIcon as={TextWeightIcon} title="" />,
+              preInputNode: <StyledTextWeightIcon as={MultiIcon("/icon:svg/TextWeightIcon")} title="" />,
               placeholder: 'normal',
             })}
             {this.children.fontFamily.propertyView({
               label: trans('style.fontFamily'),
-              preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+              preInputNode: <StyledFontFamilyIcon as={MultiIcon("/icon:svg/FontFamilyIcon")} title="" />,
               placeholder: 'sans-serif',
             })}
             {this.children.fontStyle.propertyView({
               label: trans('style.fontStyle'),
-              preInputNode: <StyledFontFamilyIcon as={FontFamilyIcon} title="" />,
+              preInputNode: <StyledFontFamilyIcon as={MultiIcon("/icon:svg/FontFamilyIcon")} title="" />,
               placeholder: 'normal'
             })}
             {this.children.textOverflow.getPropertyView()}

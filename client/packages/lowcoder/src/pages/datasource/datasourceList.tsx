@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
+import { EditPopover, Search, TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
@@ -16,6 +16,7 @@ import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -70,7 +71,7 @@ const OperationWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const PopoverIcon = styled(PointIcon)`
+const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
   cursor: pointer;
   flex-shrink: 0;
 
