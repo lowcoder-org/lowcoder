@@ -8,7 +8,6 @@ import {
   PasswordInput,
 } from "lowcoder-design";
 import { TacoButton } from "lowcoder-design/src/components/button"
-import { PackUpIcon } from "lowcoder-design";
 import ProfileImage from "pages/common/profileImage";
 import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";
@@ -20,6 +19,7 @@ import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const FormInputStyle = css`
   input {
@@ -95,7 +95,7 @@ const IconNameWrapper = styled.div`
     margin-right: 6px;
   }
 `;
-const GoBindICon = styled(PackUpIcon)`
+const GoBindICon = styled(MultiIcon("/icon:svg/PackUpIcon"))`
   transform: scaleX(-1) scaleY(-1) rotate(-90deg);
 `;
 

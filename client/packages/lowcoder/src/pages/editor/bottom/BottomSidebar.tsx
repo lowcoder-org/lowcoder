@@ -1,16 +1,11 @@
 import styled from "styled-components";
 import {
-  BluePlusIcon,
   EditPopover,
   EditText,
-  FoldedIcon,
-  PointIcon,
   PopupCard,
   ScrollBar,
   Search,
-  SearchIcon,
   TacoButton,
-  UnfoldIcon,
 } from "lowcoder-design";
 import { CSSProperties, useContext, useEffect, useState } from "react";
 import { EditorContext } from "comps/editorState";
@@ -25,6 +20,7 @@ import {
 } from "components/DraggableTree/types";
 import RefTreeComp from "comps/comps/refTreeComp";
 import { ActiveTextColor, BorderActiveColor, NormalMenuIconColor } from "constants/style";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Contain = styled.div`
   flex-grow: 1;
@@ -67,7 +63,7 @@ const SearchWrapper = styled.div`
     height: 28px;
   }
 `;
-const SearchIconBtn = styled(SearchIcon)`
+const SearchIconBtn = styled(MultiIcon("/icon:svg/SearchIcon"))`
   height: 16px;
   width: 16px;
   margin-right: 16px;
@@ -77,7 +73,7 @@ const SearchIconBtn = styled(SearchIcon)`
     color: ${ActiveTextColor};
   }
 `;
-const AddIcon = styled(BluePlusIcon)`
+const AddIcon = styled(MultiIcon("/icon:svg/BluePlusIcon"))`
   height: 12px;
   width: 12px;
   margin-right: 2px;
@@ -386,7 +382,7 @@ const ColumnDiv = styled.div<ColumnDivProps>`
     }
   }
 `;
-const Icon = styled(PointIcon)`
+const Icon = styled(MultiIcon("/icon:svg/PointIcon"))`
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -475,7 +471,7 @@ function BottomSidebarItem(props: BottomSidebarItemProps) {
   return (
     <ColumnDiv onClick={handleClickItem} $color={isSelected} $isOverlay={isOverlay}>
       <HighlightBorder $active={isOver && isFolder} $level={level} $foldable={isFolder}>
-        {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
+        {isFolder && <FoldIconBtn>{!isFolded ? <MultiIconDisplay identifier="/icon:svg/FoldedIcon" /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />}</FoldIconBtn>}
         {icon}
         <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
           <EditText

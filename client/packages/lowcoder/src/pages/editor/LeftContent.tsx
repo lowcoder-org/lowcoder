@@ -5,13 +5,8 @@ import {
   CollapseLabel as Label,
   CollapseTitle as Title,
   CopyTextButton,
-  FoldedIcon,
-  LeftClose,
-  LeftCommon,
-  LeftOpen,
   ScrollBar,
   Tooltip,
-  UnfoldIcon,
   UnShow,
   TacoButton,
 } from "lowcoder-design";
@@ -33,6 +28,7 @@ import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 import Modal from "antd/es/modal/Modal";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -438,7 +434,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftClose />
+                  <MultiIconDisplay identifier="/icon:svg/LeftClose" />
                 </div>
               </Tooltip>
             )
@@ -493,11 +489,11 @@ export const LeftContent = (props: LeftContentProps) => {
         treeData={explorerData}
         icon={(props: any) => props.type && (
           <div style={{ margin: '16px 4px 0 -4px'}}> 
-            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+            {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier="/icon:svg/LeftCommon" />}
           </div>
         )}
         switcherIcon={(props: any) =>
-          props.expanded ? <FoldedIcon /> : <UnfoldIcon />
+          props.expanded ? <MultiIconDisplay identifier="/icon:svg/FoldedIcon" /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />
         }
         expandedKeys={expandedKeys}
         onExpand={(keys) => setExpandedKeys(keys)}

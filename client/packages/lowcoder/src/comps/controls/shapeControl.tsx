@@ -19,12 +19,10 @@ import {
   BlockGrayLabel,
   controlItem,
   ControlPropertyViewWrapper,
-  DeleteInputIcon,
   iconPrefix,
   ShapeSelect,
   IconSelectBase,
   removeQuote,
-  SwitchJsIcon,
   SwitchWrapper,
   TacoButton,
   wrapperToControlItem,
@@ -35,6 +33,7 @@ import styled from "styled-components";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -54,7 +53,7 @@ const ButtonText = styled.div`
   text-overflow: ellipsis;
   text-align: left;
 `;
-const StyledDeleteInputIcon = styled(DeleteInputIcon)`
+const StyledDeleteInputIcon = styled(MultiIcon("/icon:svg/DeleteInputIcon"))`
   margin-left: auto;
   cursor: pointer;
 
@@ -214,7 +213,7 @@ export class ShapeControl extends AbstractComp<
 
   propertyView(params: ControlParams) {
     const jsContent = (
-      <SwitchJsIcon
+      <MultiIconDisplay identifier="/icon:svg/SwitchJsIcon"
         checked={this.useCodeEditor}
         onChange={() => this.dispatch(this.changeModeAction())}
       />

@@ -3,7 +3,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { QRCodeStyle, QRCodeStyleType, avatarGroupStyle, AvatarGroupStyleType, avatarContainerStyle, AvatarContainerStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { AlignCenter, AlignLeft, AlignRight, Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
@@ -19,6 +19,7 @@ import { optionsControl } from "../controls/optionsControl";
 import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const MacaroneList = [
   '#fde68a',
@@ -80,9 +81,9 @@ const DropdownOption = new MultiCompBuilder(
 const EventOptions = [clickEvent, refreshEvent] as const;
 
 export const alignOptions = [
-  { label: <AlignLeft />, value: "flex-start" },
-  { label: <AlignCenter />, value: "center" },
-  { label: <AlignRight />, value: "flex-end" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "flex-start" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "flex-end" },
 ] as const;
 
 const childrenMap = {

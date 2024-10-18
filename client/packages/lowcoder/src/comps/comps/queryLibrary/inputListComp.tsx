@@ -7,7 +7,6 @@ import {
   ControlPropertyViewWrapper,
   EditPopover,
   Input,
-  PointIcon,
   SimplePopover,
   TacoButton,
 } from "lowcoder-design";
@@ -16,6 +15,7 @@ import styled from "styled-components";
 import { EmptyContent } from "../../../components/EmptyContent";
 import { QueryLibraryContext } from "../../../util/context/QueryLibraryContext";
 import { list } from "../../generators/list";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const childrenMap = {
   name: CompNameControl,
@@ -89,7 +89,7 @@ const Wrapper = styled.div`
   padding: 0 16px;
 `;
 
-const PopoverIcon = styled(PointIcon)`
+const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
   cursor: pointer;
   flex-shrink: 0;
   position: absolute;

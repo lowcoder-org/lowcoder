@@ -1,9 +1,10 @@
 import { ColorCodeControl } from "./codeControl";
-import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "lowcoder-design";
+import { ColorSelect, controlItem, ControlPropertyViewWrapper } from "lowcoder-design";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 import { trans } from "i18n";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const ColorContainer = styled.div`
   display: inline-flex;
@@ -20,7 +21,7 @@ const ColorContainer = styled.div`
 
 const DEFAULT_COLOR = "#ffffff";
 
-const DepIcon = styled(IconDep)`
+const DepIcon = styled(MultiIcon("/icon:svg/IconDep"))`
   margin-right: 4px;
 `;
 

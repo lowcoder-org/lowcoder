@@ -18,7 +18,7 @@ import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
-import { Section, sectionNames, UndoIcon } from "lowcoder-design";
+import { Section, sectionNames } from "lowcoder-design";
 import React, { Suspense, useEffect, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
@@ -29,6 +29,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -171,7 +172,7 @@ let SignatureTmpComp = (function () {
               <div className="footer">
                 {props.showUndo && (
                   <span className="anticon">
-                    <UndoIcon
+                    <MultiIconDisplay identifier="/icon:svg/UndoIcon"
                       onClick={() => {
                         const data = canvas?.toData();
                         if (data) {

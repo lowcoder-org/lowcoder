@@ -42,7 +42,7 @@ export const RoleSelectOptionWrapper = styled.div`
   height: fit-content;
 `;
 
-export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier="/icono:svg/GroupIcon"/>)<{
+export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier="/icon:svg/GroupIcon"/>)<{
   $color: string;
   $side?: number;
 }>`
@@ -54,7 +54,7 @@ export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier="/icono
   }
 `;
 
-export const StyledAdminIcon = styled(() => <MultiIconDisplay identifier="/icono:svg/AdminIcon"/>)<{ $color: string }>`
+export const StyledAdminIcon = styled(() => <MultiIconDisplay identifier="/icon:svg/AdminIcon"/>)<{ $color: string }>`
   width: 16px;
   height: 16px;
 

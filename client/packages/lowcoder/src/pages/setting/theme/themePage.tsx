@@ -13,12 +13,12 @@ import CreateModal from "./createModal";
 import history from "util/history";
 import { THEME_DETAIL } from "constants/routesURL";
 import { currentOrgAdmin } from "util/permissionUtils";
-import { AddIcon } from "lowcoder-design";
 import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -170,7 +170,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
           <CreateButton
             type="primary"
             disabled={!isAdmin}
-            icon={<AddIcon />}
+            icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
             onClick={() =>
               this.setState({
                 modalVisible: true,

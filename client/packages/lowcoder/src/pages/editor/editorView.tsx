@@ -10,10 +10,6 @@ import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
 import {
-  LeftPreloadIcon,
-  LeftSettingIcon,
-  LeftStateIcon,
-  LeftLayersIcon,
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
@@ -55,6 +51,7 @@ import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -262,26 +259,26 @@ enum SiderKey {
 const standardSiderItems = [
   {
     key: SiderKey.State,
-    icon: <LeftStateIcon />,
+    icon: <MultiIconDisplay identifier="/icon:svg/LeftStateIcon" />,
   },
   {
     key: SiderKey.Setting,
-    icon: <LeftSettingIcon />,
+    icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" />,
   },
   {
     key: SiderKey.Layout,
-    icon: <LeftLayersIcon />,
+    icon: <MultiIconDisplay identifier="/icon:svg/LeftLayersIcon" />,
   },
 ];
 
 const aggregationSiderItems = [
   {
     key: SiderKey.State,
-    icon: <LeftStateIcon />,
+    icon: <MultiIconDisplay identifier="/icon:svg/LeftStateIcon" />,
   },
   {
     key: SiderKey.Setting,
-    icon: <LeftSettingIcon />,
+    icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" />,
   }
 ];
 
@@ -557,7 +554,7 @@ function EditorView(props: EditorViewProps) {
                             })
                           )}
                         >
-                          <LeftPreloadIcon />
+                          <MultiIconDisplay identifier="/icon:svg/LeftPreloadIcon" />
                           {trans("leftPanel.toolbarPreload")}
                         </PreloadDiv>
                       </ScrollBar>
