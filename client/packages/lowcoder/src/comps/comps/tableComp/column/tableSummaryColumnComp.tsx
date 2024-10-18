@@ -13,7 +13,7 @@ import {
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
-import { controlItem } from "lowcoder-design";
+import {controlItem, FontFamilyIcon, IconRadius, TextSizeIcon, TextWeightIcon} from "lowcoder-design";
 import { ColumnTypeComp } from "./columnTypeComp";
 import { ColorControl } from "comps/controls/colorControl";
 import styled from "styled-components";
@@ -47,10 +47,10 @@ export const columnChildrenMap = {
   linkActiveColor: withDefault(ColorControl, ""),
 };
 
-const StyledBorderRadiusIcon = styled(MultiIcon("/icon:svg/IconRadius"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextSizeIcon = styled(MultiIcon("/icon:svg/TextSizeIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledFontFamilyIcon = styled(MultiIcon("/icon:svg/FontFamilyIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
-const StyledTextWeightIcon = styled(MultiIcon("/icon:svg/TextWeightIcon"))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledBorderRadiusIcon = styled(MultiIcon(IconRadius))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextSizeIcon = styled(MultiIcon(TextSizeIcon))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledFontFamilyIcon = styled(MultiIcon(FontFamilyIcon))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
+const StyledTextWeightIcon = styled(MultiIcon(TextWeightIcon))` width: 24px; margin: 0 8px 0 -3px; padding: 3px;`;
 
 /**
  * export for test.
@@ -148,27 +148,27 @@ export class SummaryColumnComp extends ColumnInitComp {
         })}
         {this.children.radius.propertyView({
           label: trans('style.borderRadius'),
-          preInputNode: <StyledBorderRadiusIcon as={MultiIcon("/icon:svg/IconRadius")} title="" />,
+          preInputNode: <StyledBorderRadiusIcon as={MultiIcon(IconRadius)} title="" />,
           placeholder: '3px',
         })}
         {this.children.textSize.propertyView({
           label: trans('style.textSize'),
-          preInputNode: <StyledTextSizeIcon as={MultiIcon("/icon:svg/TextSizeIcon")} title="" />,
+          preInputNode: <StyledTextSizeIcon as={MultiIcon(TextSizeIcon)} title="" />,
           placeholder: '14px',
         })}
         {this.children.textWeight.propertyView({
           label: trans('style.textWeight'),
-          preInputNode: <StyledTextWeightIcon as={MultiIcon("/icon:svg/TextWeightIcon")} title="" />,
+          preInputNode: <StyledTextWeightIcon as={MultiIcon(TextWeightIcon)} title="" />,
           placeholder: 'normal',
         })}
         {this.children.fontFamily.propertyView({
           label: trans('style.fontFamily'),
-          preInputNode: <StyledFontFamilyIcon as={MultiIcon("/icon:svg/FontFamilyIcon")} title="" />,
+          preInputNode: <StyledFontFamilyIcon as={MultiIcon(FontFamilyIcon)} title="" />,
           placeholder: 'sans-serif',
         })}
         {this.children.fontStyle.propertyView({
           label: trans('style.fontStyle'),
-          preInputNode: <StyledFontFamilyIcon as={MultiIcon("/icon:svg/FontFamilyIcon")} title="" />,
+          preInputNode: <StyledFontFamilyIcon as={MultiIcon(FontFamilyIcon)} title="" />,
           placeholder: 'normal'
         })}
         {/* {this.children.textOverflow.getPropertyView()} */}

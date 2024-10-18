@@ -1,5 +1,5 @@
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { EditPopover, SimplePopover } from "lowcoder-design";
+import {EditPopover, PointIcon, SimplePopover} from "lowcoder-design";
 import React, { HTMLAttributes, useState } from "react";
 import styled from "styled-components";
 import DraggableItem from "./DraggableItem";
@@ -31,7 +31,7 @@ const MenuItemContent = styled.div`
   width: 100%;
 `;
 
-const StyledPointIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const StyledPointIcon = styled(MultiIcon(PointIcon))`
   color: ${GreyTextColor};
 
   &:hover {

@@ -2,7 +2,7 @@ import { ThemeDetail, ThemeType } from "api/commonSettingApi";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleControl";
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
-import { Dropdown } from "lowcoder-design";
+import {AddIcon, Dropdown} from "lowcoder-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -131,7 +131,7 @@ const DivStyled = styled.div`
   }
 `;
 
-const StyledAddIcon = styled(MultiIcon("/icon:svg/AddIcon"))`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   height: 16px;
   width: 16px;
   margin-right: 4px;

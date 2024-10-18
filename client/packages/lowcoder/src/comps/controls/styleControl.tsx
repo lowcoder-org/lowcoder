@@ -7,7 +7,19 @@ import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
 import _, { omit, values } from "lodash";
 import {
-  controlItem
+  BorderRadiusIcon,
+  BorderStyleIcon,
+  BorderWidthIcon,
+  CompressIcon,
+  controlItem,
+  ExpandIcon, FontFamilyIcon, IconReset,
+  ImageCompIconSmall,
+  LineHeightIcon,
+  OpacityIcon,
+  RefreshLineIcon, RotationIcon,
+  ShadowIcon,
+  StarSmileIcon, TextDecorationIcon, TextSizeIcon, TextStyleIcon, TextTransformationIcon, TextWeightIcon, Timer2Icon,
+  TimerFlashIcon
 } from 'lowcoder-design';
 import { useContext } from "react";
 import styled from "styled-components";
@@ -739,70 +751,70 @@ const StyleContent = styled.div`
     border-radius: 0 0 6px 6px;
   }
 `;
-const LineHeightPropIcon = styled(MultiIcon("/icon:svg/LineHeightIcon"))`
+const LineHeightPropIcon = styled(MultiIcon(LineHeightIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const MarginIcon = styled(MultiIcon("/icon:svg/ExpandIcon"))` margin: 0 8px 0 2px; color: #888`;
-const PaddingIcon = styled(MultiIcon("/icon:svg/CompressIcon"))`	margin: 0 8px 0 2px; color: #888`;
-const RadiusPropIcon = styled(MultiIcon("/icon:svg/BorderRadiusIcon"))` width: 24px; margin: 0 11px 0 0px; color: #888`;
-const BorderPropIcon = styled(MultiIcon("/icon:svg/BorderWidthIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const BorderStylePropIcon = styled(MultiIcon("/icon:svg/BorderStyleIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const MarginIcon = styled(MultiIcon(ExpandIcon))` margin: 0 8px 0 2px; color: #888`;
+const PaddingIcon = styled(MultiIcon(CompressIcon))`	margin: 0 8px 0 2px; color: #888`;
+const RadiusPropIcon = styled(MultiIcon(BorderRadiusIcon))` width: 24px; margin: 0 11px 0 0px; color: #888`;
+const BorderPropIcon = styled(MultiIcon(BorderWidthIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const BorderStylePropIcon = styled(MultiIcon(BorderStyleIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 
-const StyledBackgroundImageIcon = styled(MultiIcon("/icon:svg/ImageCompIconSmall"))` margin: 0 6px 0 0; padding: 2px; color: #888`;
-const AnimationIterationCountPropIcon = styled(MultiIcon("/icon:svg/RefreshLineIcon"))`
+const StyledBackgroundImageIcon = styled(MultiIcon(ImageCompIconSmall))` margin: 0 6px 0 0; padding: 2px; color: #888`;
+const AnimationIterationCountPropIcon = styled(MultiIcon(RefreshLineIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const OpacityPropIcon = styled(MultiIcon("/icon:svg/OpacityIcon"))`
+const OpacityPropIcon = styled(MultiIcon(OpacityIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const BoxShadowColorPropIcon = styled(MultiIcon("/icon:svg/BorderWidthIcon"))`
+const BoxShadowColorPropIcon = styled(MultiIcon(BorderWidthIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const BoxShadowPropIcon = styled(MultiIcon("/icon:svg/ShadowIcon"))`
+const BoxShadowPropIcon = styled(MultiIcon(ShadowIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
-const AnimationPropIcon = styled(MultiIcon("/icon:svg/StarSmileIcon"))`
+const AnimationPropIcon = styled(MultiIcon(StarSmileIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
-const AnimationDelayPropIcon = styled(MultiIcon("/icon:svg/TimerFlashIcon"))`
-  margin: 0 8px 0 -3px;
-  padding: 3px;
-  color: #888;
-`;
-
-const AnimationDurationPropIcon = styled(MultiIcon("/icon:svg/Timer2Icon"))`
+const AnimationDelayPropIcon = styled(MultiIcon(TimerFlashIcon))`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
 `;
 
-const RotationPropIcon = styled(MultiIcon("/icon:svg/RotationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const AnimationDurationPropIcon = styled(MultiIcon(Timer2Icon))`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
 
-const StyledTextSizeIcon = styled(MultiIcon("/icon:svg/TextSizeIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextTransformIcon = styled(MultiIcon("/icon:svg/TextTransformationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledFontFamilyIcon = styled(MultiIcon("/icon:svg/FontFamilyIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextWeightIcon = styled(MultiIcon("/icon:svg/TextWeightIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextStyleIcon = styled(MultiIcon("/icon:svg/TextStyleIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
-const StyledTextDecorationPropIcon = styled(MultiIcon("/icon:svg/TextDecorationIcon"))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const RotationPropIcon = styled(MultiIcon(RotationIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+
+const StyledTextSizeIcon = styled(MultiIcon(TextSizeIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextTransformIcon = styled(MultiIcon(TextTransformationIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledFontFamilyIcon = styled(MultiIcon(FontFamilyIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextWeightIcon = styled(MultiIcon(TextWeightIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextStyleIcon = styled(MultiIcon(TextStyleIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledTextDecorationPropIcon = styled(MultiIcon(TextDecorationIcon))` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 
 
-const ResetIcon = styled(MultiIcon("/icon:svg/IconReset"))`
+const ResetIcon = styled(MultiIcon(IconReset))`
   &:hover g g {
     stroke: #315efb;
   }

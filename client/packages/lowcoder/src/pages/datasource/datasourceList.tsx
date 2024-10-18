@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { EditPopover, Search, TacoButton } from "lowcoder-design";
+import {EditPopover, PointIcon, Search, TacoButton} from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
@@ -71,7 +71,7 @@ const OperationWrapper = styled.div`
   justify-content: space-between;
 `;
 
-const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const PopoverIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
 

@@ -7,7 +7,7 @@ import Tooltip from "antd/es/tooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { styled } from "styled-components";
-import { CustomModal, EditPopover, TacoButton, messageInstance } from "lowcoder-design";
+import {CustomModal, EditPopover, TacoButton, messageInstance, AddIcon} from "lowcoder-design";
 import { trans } from "i18n";
 import { PopoverIcon } from "pages/setting/permission/styledComponents";
 import CreateApiKeyModal from "./CreateApiKeyModal";
@@ -59,7 +59,7 @@ export default function UserApiKeysCard() {
           <h4><a href={trans("docUrls.apiDocHome")} target="_blank">{trans("home.howToUseAPI")}</a></h4>
           <CreateButton
             buttonType={"primary"}
-            icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
+            icon={<MultiIconDisplay identifier={AddIcon} />}
             onClick={() =>
               setModalVisible(true)
             }

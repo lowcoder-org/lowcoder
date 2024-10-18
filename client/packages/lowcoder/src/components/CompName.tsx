@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
 import { Search } from 'lowcoder-design/src/components/Search';
-import { EditPopover } from "lowcoder-design";
+import {EditPopover, PointIcon, SearchOutlinedIcon} from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
 import { PopupCard } from "lowcoder-design/src/components/popupCard";
@@ -49,7 +49,7 @@ const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?
     }
   }
 `;
-const Icon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const Icon = styled(MultiIcon(PointIcon))`
   margin-right: 16px;
   cursor: pointer;
   color: ${GreyTextColor};
@@ -59,7 +59,7 @@ const Icon = styled(MultiIcon("/icon:svg/PointIcon"))`
   }
 `;
 
-const SearchIcon = styled(MultiIcon("/icon:svg/SearchOutlinedIcon"))`
+const SearchIcon = styled(MultiIcon(SearchOutlinedIcon))`
   font-size: 20px;
   margin-left: 6px;
   margin-right: 16px;

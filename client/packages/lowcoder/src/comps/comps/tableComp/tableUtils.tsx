@@ -20,6 +20,7 @@ import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/s
 import Tooltip from "antd/es/tooltip";
 import { EMPTY_ROW_KEY } from "./tableCompView";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {EditableIcon} from "icons";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -251,7 +252,7 @@ function renderTitle(props: { title: string; tooltip: string; editable: boolean 
           {title}
         </span>
       </Tooltip>
-      {editable && <MultiIconDisplay identifier="/icon:svg/EditableIcon" style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
+      {editable && <MultiIconDisplay identifier={EditableIcon} style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
     </div>
   );
 }

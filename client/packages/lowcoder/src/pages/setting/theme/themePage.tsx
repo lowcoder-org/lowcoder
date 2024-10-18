@@ -19,6 +19,7 @@ import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AddIcon} from "icons";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -170,7 +171,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
           <CreateButton
             type="primary"
             disabled={!isAdmin}
-            icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
+            icon={<MultiIconDisplay identifier={AddIcon} />}
             onClick={() =>
               this.setState({
                 modalVisible: true,

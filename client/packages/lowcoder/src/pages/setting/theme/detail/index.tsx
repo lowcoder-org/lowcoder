@@ -14,7 +14,14 @@ import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
 import { DETAIL_TYPE } from "../themeConstant";
-import { CustomModal } from "lowcoder-design";
+import {
+  ArrowIcon, ChartCompIcon,
+  ColorPickerCompIcon,
+  CustomModal,
+  PageLayoutCompIcon, ResetIcon,
+  ShapesCompIcon,
+  TextSizeIcon
+} from "lowcoder-design";
 import {
   DetailContainer,
   DetailContent,
@@ -372,7 +379,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           <Header>
             <HeaderBack>
               <span onClick={() => this.goList()}>{trans("settings.theme")}</span>
-              <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+              <MultiIconDisplay identifier={ArrowIcon} />
               <span>{this.state.name}</span>
             </HeaderBack>
           </Header>
@@ -380,7 +387,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
           <DetailContent>
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <MultiIconDisplay identifier="/icon:svg/ColorPickerCompIcon" width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
+                <MultiIconDisplay identifier={ColorPickerCompIcon} width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.mainColor")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
                 <Flex gap={"middle"}>
@@ -420,7 +427,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <MultiIconDisplay identifier="/icon:svg/TextSizeIcon" width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
+                <MultiIconDisplay identifier={TextSizeIcon} width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.fonts")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
                 <Flex gap={"middle"}>
@@ -464,7 +471,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <MultiIconDisplay identifier="/icon:svg/PageLayoutCompIcon" width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
+                <MultiIconDisplay identifier={PageLayoutCompIcon} width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.layout")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
                 <Flex gap={"middle"}>
@@ -576,7 +583,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <MultiIconDisplay identifier="/icon:svg/ShapesCompIcon" width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
+                <MultiIconDisplay identifier={ShapesCompIcon} width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.components")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px", height: "690px", overflow: "hidden"}}
               >
@@ -608,7 +615,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
             <ThemeSettingsView>
               <StyleThemeSettingsCover>
-                <MultiIconDisplay identifier="/icon:svg/ChartCompIcon" width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
+                <MultiIconDisplay identifier={ChartCompIcon} width={"36px"} style={{marginRight : "10px"}}/> <h2 style={{color: "#ffffff", marginTop : "8px"}}> {trans("theme.charts")}</h2>
               </StyleThemeSettingsCover>
               <Card style={{ marginBottom: "20px", minHeight : "200px" }}>
                 <Flex gap={"middle"}>
@@ -649,7 +656,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
 
           <Footer ref={this.footerRef} className="no-bottom">
             <ResetButton
-              icon={<MultiIconDisplay identifier="/icon:svg/ResetIcon" />}
+              icon={<MultiIconDisplay identifier={ResetIcon} />}
               disabled={this.isThemeNotChange()}
               onClick={() => this.handleReset()}
             >

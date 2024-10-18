@@ -9,6 +9,7 @@ import { DarkActiveTextColor, GreyTextColor } from "../../constants/style";
 import { default as AntdTable } from "antd/es/table";
 import { Switch } from "components/Switch";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CloseIcon, SuccessIcon} from "icons";
 
 export const HeaderWrapper = styled.div`
   display: flex;
@@ -235,7 +236,7 @@ export function useResultPanel(params: BottomResCompResult & { onClose: () => vo
     header: (
       <>
         <HeaderTitle>
-          <IconWrapper>{success ? <MultiIconDisplay identifier="/icon:svg/SuccessIcon" /> : <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />}</IconWrapper>
+          <IconWrapper>{success ? <MultiIconDisplay identifier={SuccessIcon} /> : <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />}</IconWrapper>
           {title}
           {runTime ? (
             <TimeLabel>
@@ -253,7 +254,7 @@ export function useResultPanel(params: BottomResCompResult & { onClose: () => vo
           )}
         </HeaderTitle>
         <CloseIconWrapper onClick={params.onClose}>
-          <MultiIconDisplay identifier="/icon:svg/CloseIcon" />
+          <MultiIconDisplay identifier={CloseIcon} />
         </CloseIconWrapper>
       </>
     ),

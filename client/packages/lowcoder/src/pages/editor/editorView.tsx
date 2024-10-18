@@ -10,6 +10,9 @@ import { TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { draggingUtils } from "layout";
 import {
+  LeftLayersIcon, LeftPreloadIcon,
+  LeftSettingIcon,
+  LeftStateIcon,
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
@@ -259,26 +262,26 @@ enum SiderKey {
 const standardSiderItems = [
   {
     key: SiderKey.State,
-    icon: <MultiIconDisplay identifier="/icon:svg/LeftStateIcon" />,
+    icon: <MultiIconDisplay identifier={LeftStateIcon} />,
   },
   {
     key: SiderKey.Setting,
-    icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" />,
+    icon: <MultiIconDisplay identifier={LeftSettingIcon} />,
   },
   {
     key: SiderKey.Layout,
-    icon: <MultiIconDisplay identifier="/icon:svg/LeftLayersIcon" />,
+    icon: <MultiIconDisplay identifier={LeftLayersIcon} />,
   },
 ];
 
 const aggregationSiderItems = [
   {
     key: SiderKey.State,
-    icon: <MultiIconDisplay identifier="/icon:svg/LeftStateIcon" />,
+    icon: <MultiIconDisplay identifier={LeftStateIcon} />,
   },
   {
     key: SiderKey.Setting,
-    icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" />,
+    icon: <MultiIconDisplay identifier={LeftSettingIcon} />,
   }
 ];
 
@@ -554,7 +557,7 @@ function EditorView(props: EditorViewProps) {
                             })
                           )}
                         >
-                          <MultiIconDisplay identifier="/icon:svg/LeftPreloadIcon" />
+                          <MultiIconDisplay identifier={LeftPreloadIcon} />
                           {trans("leftPanel.toolbarPreload")}
                         </PreloadDiv>
                       </ScrollBar>

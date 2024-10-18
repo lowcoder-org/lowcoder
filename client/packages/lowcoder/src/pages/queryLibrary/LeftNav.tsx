@@ -1,9 +1,10 @@
 import { useState } from "react";
 import styled, { css } from "styled-components";
 import {
+  BluePlusIcon,
   CustomModal,
   EditPopover,
-  EllipsisTextCss,
+  EllipsisTextCss, PointIcon,
   ScrollBar,
   Search,
   TacoButton,
@@ -44,7 +45,7 @@ const Header = styled.div`
   height: 64px;
 `;
 
-const AddIcon = styled(MultiIcon("/icon:svg/BluePlusIcon"))`
+const AddIcon = styled(MultiIcon(BluePlusIcon))`
   height: 12px;
   width: 12px;
   margin-right: 2px;
@@ -132,7 +133,7 @@ const QueryTime = styled.div`
   line-height: 13px;
 `;
 
-const PopoverIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const PopoverIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
 

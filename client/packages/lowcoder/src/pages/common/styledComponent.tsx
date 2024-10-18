@@ -1,7 +1,7 @@
 import React, { CSSProperties } from "react";
 import styled from "styled-components";
 
-import { CommonGrayLabel } from "lowcoder-design";
+import {CommonGrayLabel, EmptyDataIcon} from "lowcoder-design";
 import { Layers } from "constants/Layers";
 import _ from "lodash";
 import { useResizeDetector } from "react-resize-detector";
@@ -142,7 +142,7 @@ export const EmptyContent = (props: {
   const { text = trans("emptyContent") } = props;
   return (
     <EmptyContentWrapper style={props.style} className={props.className}>
-      <MultiIconDisplay identifier="/icon:svg/EmptyDataIcon" />
+      <MultiIconDisplay identifier={EmptyDataIcon} />
       <CommonGrayLabel style={{ marginTop: "12px" }}>{text}</CommonGrayLabel>
     </EmptyContentWrapper>
   );

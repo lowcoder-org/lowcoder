@@ -9,6 +9,7 @@ import { DarkActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
 import { modalInstance } from "components/GlobalInstances";
 import {MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {CloseIcon, ErrorIcon, SuccessIcon, WarningIcon, WarningWhiteIcon} from "../icons";
 
 type ModalWrapperProps = {
   $width?: string | number;
@@ -130,7 +131,7 @@ function ModalHeader(props: {
       )}
       <ModalHeaderTitle>{props.title}</ModalHeaderTitle>
       <ModalCloseIcon onClick={props.onCancel}>
-        <MultiIconDisplay identifier="/icon:svg/CloseIcon" />
+        <MultiIconDisplay identifier={CloseIcon} />
       </ModalCloseIcon>
     </>
   );
@@ -264,10 +265,10 @@ function CustomModal(props: CustomModalProps) {
 }
 
 const TitleIcon = {
-  error: <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />,
-  warn: <MultiIconDisplay identifier="/icon:svg/WarningIcon" />,
-  info: <MultiIconDisplay identifier="/icon:svg/WarningWhiteIcon" />,
-  success: <MultiIconDisplay identifier="/icon:svg/SuccessIcon" />,
+  error: <MultiIconDisplay identifier={ErrorIcon} />,
+  warn: <MultiIconDisplay identifier={WarningIcon} />,
+  info: <MultiIconDisplay identifier={WarningWhiteIcon} />,
+  success: <MultiIconDisplay identifier={SuccessIcon} />,
 };
 
 CustomModal.confirm = (props: {

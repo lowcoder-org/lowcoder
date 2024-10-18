@@ -1,10 +1,10 @@
 import { HomeResTypeEnum, NavigationType, NavigationTypes } from "../../types/homeRes";
 import { AppImport } from "./components/AppImport";
 import {
-  CommonGrayLabel,
-  CommonTextLabel,
-  CustomModal,
-  TacoButton,
+    CommonGrayLabel,
+    CommonTextLabel,
+    CustomModal, ImportIconV2, MobileNavIcon, PackUpIcon, PcNavIcon,
+    TacoButton,
 } from "lowcoder-design";
 import React, { FunctionComponent, useState } from "react";
 import type { ItemType } from "antd/es/menu/interface";
@@ -137,8 +137,8 @@ const LayoutItemWrapper = styled.div`
 `;
 
 const NavigationTypeInfo: Record<NavigationType, FunctionComponent<any>> = {
-  [HomeResTypeEnum.MobileTabLayout]: MultiIcon("/icon:svg/MobileNavIcon"),
-  [HomeResTypeEnum.NavLayout]: MultiIcon("/icon:svg/PcNavIcon"),
+  [HomeResTypeEnum.MobileTabLayout]: MultiIcon(MobileNavIcon),
+  [HomeResTypeEnum.NavLayout]: MultiIcon(PcNavIcon),
 };
 
 function NavLayoutPickModal(props: {
@@ -253,7 +253,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
                     label: (
                       <AppImport orgId={user.currentOrgId}>
                         <CreateMenuItem>
-                          <MultiIconDisplay identifier="/icon:svg/ImportIconV2" width="16px" height="16px" style={{ marginRight: "4px" }} />
+                          <MultiIconDisplay identifier={ImportIconV2} width="16px" height="16px" style={{ marginRight: "4px" }} />
                           {trans("home.import")}
                         </CreateMenuItem>
                       </AppImport>
@@ -268,7 +268,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
       >
         <CreateBtn buttonType={"primary"}>
           {isCreating ? trans("home.creating") : trans("newItem")}
-          <MultiIconDisplay identifier="/icon:svg/PackUpIcon" />
+          <MultiIconDisplay identifier={PackUpIcon} />
         </CreateBtn>
       </Dropdown>
     </>

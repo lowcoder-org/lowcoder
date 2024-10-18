@@ -17,6 +17,7 @@ import CountUp from 'react-countup';
 import { SERVER_HOST } from "constants/apiConstants";
 import { sdkConfig } from "constants/sdkConfig";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {ApplicationDocIcon, ArrowIcon} from "icons";
 
 const { Text, Title, Link } = Typography;
 
@@ -157,7 +158,7 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
     <Wrapper>
       <HeaderWrapper>
         <Breadcrumb
-          separator={<MultiIconDisplay identifier="/icon:svg/ArrowIcon" />}
+          separator={<MultiIconDisplay identifier={ArrowIcon} />}
           items={breadcrumbItems}
           itemRender={(item) => (
             <BreadcrumbItem
@@ -211,7 +212,7 @@ export function OrgLayout(props: OrgLayoutLayoutProps) {
                                   </div>
                               </div>
                               <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <MultiIconDisplay identifier="/icon:svg/ApplicationDocIcon" width={"42px"}/>
+                                <MultiIconDisplay identifier={ApplicationDocIcon} width={"42px"}/>
                               </BgSuccess>
                           </div>
                       </Card>

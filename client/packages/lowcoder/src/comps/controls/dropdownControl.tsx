@@ -1,5 +1,8 @@
 import { SimpleAbstractComp } from "lowcoder-core";
 import {
+  AlignBottom,
+  AlignCenter, AlignJustify,
+  AlignLeft, AlignRight, AlignTop,
   controlItem,
   Dropdown,
   OptionsType,
@@ -123,28 +126,28 @@ export function dropdownControl<T extends OptionsType>(
 }
 
 export const alignOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "left" },
+  { label: <MultiIconDisplay identifier={AlignCenter} />, value: "center" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "right" },
 ] as const;
 
 const positionOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignTop" />, value: "top" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignBottom" />, value: "bottom" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
+  { label: <MultiIconDisplay identifier={AlignTop} />, value: "top" },
+  { label: <MultiIconDisplay identifier={AlignBottom} />, value: "bottom" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "left" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "right" },
 ] as const;
 
 const sideOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "left" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "right" },
 ] as const;
 
 const alignWithStretchOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignJustify" />, value: "stretch" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "left" },
+  { label: <MultiIconDisplay identifier={AlignCenter} />, value: "center" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "right" },
+  { label: <MultiIconDisplay identifier={AlignJustify} />, value: "stretch" },
 ] as const;
 
 export const HorizontalAlignmentControl = dropdownControl(alignOptions, "left");

@@ -21,6 +21,7 @@ import { default as List, type ListRowProps } from "react-virtualized/dist/es/Li
 import styled from "styled-components";
 import { ANTDICON } from "icons/antIcon";
 import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {CloseIcon, SearchIcon} from "../../icons";
 
 const PopupContainer = styled.div`
   width: 580px;
@@ -42,7 +43,7 @@ const TitleText = styled.span`
   color: #222222;
   line-height: 16px;
 `;
-const StyledCloseIcon = styled(MultiIcon("/icon:svg/CloseIcon"))`
+const StyledCloseIcon = styled(MultiIcon(CloseIcon))`
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -60,7 +61,7 @@ const SearchDiv = styled.div`
   display: flex;
   justify-content: space-between;
 `;
-const StyledSearchIcon = styled(MultiIcon("/icon:svg/SearchIcon"))`
+const StyledSearchIcon = styled(MultiIcon(SearchIcon))`
   position: absolute;
   top: 6px;
   left: 12px;
