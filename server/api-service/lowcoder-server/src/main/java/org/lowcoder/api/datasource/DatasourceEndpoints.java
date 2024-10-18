@@ -99,7 +99,7 @@ public interface DatasourceEndpoints
 		    description = "Retrieve a list of node service plugins available within Lowcoder."
 	)
     @GetMapping("/jsDatasourcePlugins")
-    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam String name, @RequestParam String type);
+    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type);
 
     /**
      * Proxy the request to the node service, besides, add the "extra" information from the data source config stored in the mongodb if exists to
