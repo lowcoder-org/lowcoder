@@ -7,13 +7,14 @@ import Tooltip from "antd/es/tooltip";
 import { useDispatch, useSelector } from "react-redux";
 import { useState } from "react";
 import { styled } from "styled-components";
-import { AddIcon, CustomModal, EditPopover, TacoButton, messageInstance } from "lowcoder-design";
+import { CustomModal, EditPopover, TacoButton, messageInstance } from "lowcoder-design";
 import { trans } from "i18n";
 import { PopoverIcon } from "pages/setting/permission/styledComponents";
 import CreateApiKeyModal from "./CreateApiKeyModal";
 import { fetchApiKeysAction } from "redux/reduxActions/userActions";
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const TableStyled = styled(Table)`
   .ant-table-tbody > tr > td {
@@ -58,7 +59,7 @@ export default function UserApiKeysCard() {
           <h4><a href={trans("docUrls.apiDocHome")} target="_blank">{trans("home.howToUseAPI")}</a></h4>
           <CreateButton
             buttonType={"primary"}
-            icon={<AddIcon />}
+            icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
             onClick={() =>
               setModalVisible(true)
             }

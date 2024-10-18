@@ -1,7 +1,7 @@
 // import ReactPlayer from "react-player";
 import { lazy } from 'react';
 import styled from "styled-components";
-import { VideoCompIcon } from "icons";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 const ReactPlayer = lazy(() => import("react-player"));
 
@@ -28,7 +28,7 @@ export const Container = styled.div`
     }
   }
 `;
-const PlayTriangle = styled(VideoCompIcon)`
+const PlayTriangle = styled(MultiIcon("/icon:svg/VideoCompIcon"))`
   position: absolute;
   left: 0;
   top: 0;

@@ -1,6 +1,4 @@
 import {
-  CheckoutIcon,
-  CloseIcon,
   CommonTextLabel,
   CustomSelect,
   TacoButton,
@@ -27,6 +25,8 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { PermissionItem } from "./PermissionList";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+
 
 const AddAppUserContent = styled.div`
   display: flex;
@@ -284,7 +284,7 @@ function PermissionTagRender(props: CustomTagProps) {
   const { label, value, closable, onClose } = props;
   return (
     <StyledTag
-      closeIcon={<CloseIcon style={{ width: "12px", height: "12px" }} />}
+      closeIcon={<MultiIconDisplay identifier="/icon:svg/CloseIcon" style={{ width: "12px", height: "12px" }} />}
       color={value}
       closable={closable}
       onClose={onClose}
@@ -335,7 +335,7 @@ const PermissionSelector = (props: {
           optionLabelProp="label"
           tagRender={PermissionTagRender}
           listHeight={240}
-          menuItemSelectedIcon={<CheckoutIcon />}
+          menuItemSelectedIcon={<MultiIconDisplay identifier="/icon:svg/CheckoutIcon" />}
           notFoundContent={<EmptyContent style={{ paddingRight: "8px" }} />}
           onSelect={(value: any, option: any) => {
             setSelectedItems(

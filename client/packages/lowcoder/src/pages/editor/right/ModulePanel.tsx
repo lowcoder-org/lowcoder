@@ -8,7 +8,6 @@ import {
   BorderColor,
   GreyTextColor,
 } from "constants/style";
-import { ModuleDocIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
 import { useContext, useEffect } from "react";
@@ -21,6 +20,7 @@ import { formatTimestamp } from "util/dateTimeUtils";
 import { RightContext } from "./rightContext";
 import { modulesSelector } from "../../../redux/selectors/applicationSelector";
 import { ComListTitle, ExtensionContentWrapper } from "./styledComponent";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -100,7 +100,7 @@ function ModuleItem(props: ModuleItemProps) {
       }}
     >
       <div className="module-icon">
-        <ModuleDocIcon width="19px" />
+        <MultiIconDisplay identifier="/icon:svg/ModuleDocIcon" width="19px" />
       </div>
       <div className="module-content">
         <div className="module-name">{props.meta.name}</div>

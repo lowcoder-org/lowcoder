@@ -1,5 +1,6 @@
 
 import { es, ru } from "./locales";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 
 // Define the structure for a single language's metadata
@@ -12,50 +13,35 @@ export let languagesMetadata : LanguagesMetadata = {};
 export interface LanguagesMetadata {
   [key: string]: LanguageMeta;
 }
-
-let Flag_de:any = null;
-let Flag_gb:any = null;
-let Flag_it:any = null;
-let Flag_cn:any = null;
-let Flag_ru:any = null;
-let Flag_es:any = null;
-let Flag_br:any = null;
 export const initlanguageMeta = async () => {
-  Flag_de = await import("lowcoder-design").then(module => module.Flag_de);
-  Flag_gb = await import("lowcoder-design").then(module => module.Flag_gb);
-  Flag_it = await import("lowcoder-design").then(module => module.Flag_it);
-  Flag_cn = await import("lowcoder-design").then(module => module.Flag_cn);
-  Flag_ru = await import("lowcoder-design").then(module => module.Flag_ru);
-  Flag_es = await import("lowcoder-design").then(module => module.Flag_es);
-  Flag_br = await import("lowcoder-design").then(module => module.Flag_br);
   languagesMetadata = {
     en: {
       languageName: "English",
-        flag: Flag_gb
+      flag: MultiIcon("/icon:svg/Flag_gb")
     },
     zh: {
       languageName: "中文",
-      flag: Flag_cn
+      flag: MultiIcon("/icon:svg/Flag_cn")
     },
     de: {
       languageName: "Deutsch",
-      flag: Flag_de
+      flag: MultiIcon("/icon:svg/Flag_de")
     },
     pt: {
       languageName: "Português",
-      flag: Flag_br
+      flag: MultiIcon("/icon:svg/Flag_br")
     },
     it: {
       languageName: "Italiano",
-      flag: Flag_it
+      flag: MultiIcon("/icon:svg/Flag_it")
     },
     es: {
       languageName: "Español",
-      flag: Flag_es
+      flag: MultiIcon("/icon:svg/Flag_es")
     },
     ru: {
       languageName: "Русский",
-      flag: Flag_ru
+      flag: MultiIcon("/icon:svg/Flag_ru")
     },
   };
 }

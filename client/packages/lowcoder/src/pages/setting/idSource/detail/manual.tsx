@@ -1,12 +1,12 @@
 import { default as Button } from "antd/es/button";
 import { ManualWapper } from "pages/setting/idSource/styledComponents";
 import { trans } from "i18n";
-import { SyncManualIcon } from "lowcoder-design";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import { AuthType } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import IdSourceApi from "api/idSourceApi";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const Manual = (props: { type: AuthType }) => {
   const [manualLoading, setManualLoading] = useState(false);
@@ -25,7 +25,7 @@ export const Manual = (props: { type: AuthType }) => {
     <ManualWapper>
       <div>{trans("idSource.manual")}</div>
       {trans("idSource.manualTip") && <div className="tip">{trans("idSource.manualTip")}</div>}
-      <Button icon={<SyncManualIcon />} loading={manualLoading} onClick={() => syncManual()}>
+      <Button icon={<MultiIconDisplay identifier="/icon:svg/SyncManualIcon" />} loading={manualLoading} onClick={() => syncManual()}>
         {trans("idSource.syncManual")}
       </Button>
     </ManualWapper>

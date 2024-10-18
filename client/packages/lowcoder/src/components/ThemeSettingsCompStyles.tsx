@@ -1,34 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { ConfigItem, Radius, Margin, Padding, GridColumns, BorderWidth, BorderStyle } from "../pages/setting/theme/styledComponents";
-import { isValidColor, toHex } from "components/colorSelect/colorUtils";
+import { ConfigItem} from "../pages/setting/theme/styledComponents";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
-import { Slider } from "antd";
-import { 
-  ExpandIcon, 
-  CompressIcon,
-  BorderRadiusIcon,
-  BorderWidthIcon,
-  BorderStyleIcon,
-  TableCellsIcon,
-  RefreshLineIcon,
-  OpacityIcon,
-  ShadowIcon,
-  StarSmileIcon,
-  TimerFlashIcon,
-  Timer2Icon,
-  TextSizeIcon,
-  TextWeightIcon,
-  FontFamilyIcon,
-  TextTransformationIcon,
-  TextDecorationIcon,
-  TextStyleIcon,
-  ImageCompIconSmall,
-  RotationIcon,
-  LineHeightIcon
- } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { debounce } from "lodash";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type configChangeParams = {
   themeSettingKey: string;
@@ -285,19 +261,19 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'radius':
       case 'cardRadius':
       case 'gap': {
-        icon = <BorderRadiusIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/BorderRadiusIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderWidth': {
-        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/BorderWidthIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderStyle': {
-        icon = <BorderStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/BorderStyleIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'margin': {
-        icon = <ExpandIcon style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/ExpandIcon" style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'padding':
@@ -305,79 +281,79 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'containerSiderPadding':
       case 'containerFooterPadding':
       case 'containerBodyPadding': {
-        icon = <CompressIcon style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/CompressIcon" style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'opacity': {
-        icon = <OpacityIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/OpacityIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadowColor': {
-        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/BorderWidthIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadow': {
-        icon = <ShadowIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/ShadowIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationIterationCount': {
-        icon = <RefreshLineIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/RefreshLineIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animation': {
-        icon = <StarSmileIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/StarSmileIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDelay': {
-        icon = <TimerFlashIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TimerFlashIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDuration': {
-        icon = <Timer2Icon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/Timer2Icon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textSize': {
-        icon = <TextSizeIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TextSizeIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textWeight': {
-        icon = <TextWeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TextWeightIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontFamily': {
-        icon = <FontFamilyIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/FontFamilyIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textDecoration': {
-        icon = <TextDecorationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TextDecorationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textTransform': {
-        icon = <TextTransformationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TextTransformationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontStyle': {
-        icon = <TextStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/TextStyleIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImage':
       case 'headerBackgroundImage':
       case 'footerBackgroundImage': {
-        icon = <ImageCompIconSmall style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/ImageCompIconSmall" style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImageRepeat':
       case 'headerBackgroundImageRepeat':
       case 'footerBackgroundImageRepeat': {
-        icon = <ImageCompIconSmall style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/ImageCompIconSmall" style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'rotation': {
-        icon = <RotationIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/RotationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'lineHeight': {
-        icon = <LineHeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier="/icon:svg/LineHeightIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
     }

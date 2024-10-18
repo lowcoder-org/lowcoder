@@ -1,6 +1,7 @@
 import { default as Pagination, PaginationProps } from "antd/es/pagination";
 import styled, { css } from "styled-components";
 import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
+import {MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
 
 const packUpIconCss = css`
   height: 24px;
@@ -89,10 +90,10 @@ const StyledPagination = styled(Pagination)`
 
 export const pageItemRender: PaginationProps["itemRender"] = (_, type, originalElement) => {
   if (type === "prev") {
-    return <PrevIcon />;
+    return <MultiIconDisplay identifier="/icon:svg/PrevIcon" />;
   }
   if (type === "next") {
-    return <NextIcon />;
+    return <MultiIconDisplay identifier="/icon:svg/NextIcon" />;
   }
   return originalElement;
 };

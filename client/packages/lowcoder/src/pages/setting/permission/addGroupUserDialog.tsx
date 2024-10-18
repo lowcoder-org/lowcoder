@@ -11,9 +11,9 @@ import { StyledTable, UserTableCellWrapper } from "./styledComponents";
 import { formatTimestamp } from "util/dateTimeUtils";
 import ProfileImage from "pages/common/profileImage";
 import { isGroupAdmin } from "util/permissionUtils";
-import { SuperUserIcon } from "lowcoder-design";
 import { EmptyContent } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const TableWrapper = styled.div`
   margin-right: -16px;
@@ -109,7 +109,7 @@ function AddGroupUserDialog(props: {
                   <UserTableCellWrapper>
                     <ProfileImage source={record.avatarUrl} userName={record.name} side={32} />
                     <span title={record.name}>{record.name}</span>
-                    {isGroupAdmin(record.role) && <SuperUserIcon />}
+                    {isGroupAdmin(record.role) && <MultiIconDisplay identifier="/icon:svg/SuperUserIcon" />}
                   </UserTableCellWrapper>
                 )}
               />

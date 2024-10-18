@@ -9,13 +9,7 @@ import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtil
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { 
-  Menu,
-  UserGroupIcon,
-  UserShieldIcon,
-  LeftSettingIcon,
-  ThemeIcon,
-  WorkspacesIcon,
-  SubscriptionIcon,
+  Menu
  } from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -30,6 +24,7 @@ import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
 import { Subscription } from "./subscriptions";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 enum SettingPageEnum {
   UserGroups = "permission",
@@ -53,28 +48,28 @@ export function SettingHome() {
     {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
-      icon: <WorkspacesIcon width={"20px"}/>,
+      icon: <MultiIconDisplay identifier="/icon:svg/WorkspacesIcon" width={"20px"}/>,
     },
     {
       key: SettingPageEnum.OAuthProvider,
       label: (trans("settings.oauthProviders")),
       disabled: !currentOrgAdmin(user),
-      icon: <UserShieldIcon width={"20px"}/>,
+      icon: <MultiIconDisplay identifier="/icon:svg/UserShieldIcon" width={"20px"}/>,
     },
     {
       key: SettingPageEnum.UserGroups,
       label: trans("settings.userGroups"),
-      icon: <UserGroupIcon width={"20px"}/>,
+      icon: <MultiIconDisplay identifier="/icon:svg/UserGroupIcon" width={"20px"}/>,
     },
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
-      icon: <ThemeIcon width={"20px"}/>,
+      icon: <MultiIconDisplay identifier="/icon:svg/ThemeIcon" width={"20px"}/>,
     },
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
-      icon: <LeftSettingIcon width={"20px"}/>,
+      icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" width={"20px"}/>,
     },
 
     // Premium features
@@ -166,7 +161,7 @@ export function SettingHome() {
 // { 
 //  key: SettingPageEnum.Subscription,
 //  label: trans("settings.subscription"),
-//  icon: <SubscriptionIcon width={"20px"}/>, 
+//  icon: <MultiIconDisplay identifier="/icon:svg/SubscriptionIcon" width={"20px"}/>,
 // }
 
 export default SettingHome;

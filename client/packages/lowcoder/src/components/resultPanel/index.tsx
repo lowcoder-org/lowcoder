@@ -8,7 +8,7 @@ import { trans } from "../../i18n";
 import { DarkActiveTextColor, GreyTextColor } from "../../constants/style";
 import { default as AntdTable } from "antd/es/table";
 import { Switch } from "components/Switch";
-import { CloseIcon, ErrorIcon, SuccessIcon } from "icons";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const HeaderWrapper = styled.div`
   display: flex;
@@ -235,7 +235,7 @@ export function useResultPanel(params: BottomResCompResult & { onClose: () => vo
     header: (
       <>
         <HeaderTitle>
-          <IconWrapper>{success ? <SuccessIcon /> : <ErrorIcon />}</IconWrapper>
+          <IconWrapper>{success ? <MultiIconDisplay identifier="/icon:svg/SuccessIcon" /> : <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />}</IconWrapper>
           {title}
           {runTime ? (
             <TimeLabel>
@@ -253,7 +253,7 @@ export function useResultPanel(params: BottomResCompResult & { onClose: () => vo
           )}
         </HeaderTitle>
         <CloseIconWrapper onClick={params.onClose}>
-          <CloseIcon />
+          <MultiIconDisplay identifier="/icon:svg/CloseIcon" />
         </CloseIconWrapper>
       </>
     ),

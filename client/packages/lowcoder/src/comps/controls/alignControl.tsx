@@ -1,11 +1,11 @@
 import { ValueFromOption } from "lowcoder-design";
-import { AlignCenter, AlignJustify, AlignLeft, AlignRight } from "lowcoder-design";
 import { dropdownControl } from "./dropdownControl";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const AlignOptions = [
-  { label: <AlignLeft />, value: "left" },
-  { label: <AlignCenter />, value: "center" },
-  { label: <AlignRight />, value: "right" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
 ] as const;
 
 export function alignControl(defaultValue: ValueFromOption<typeof AlignOptions> = "left") {
@@ -14,7 +14,7 @@ export function alignControl(defaultValue: ValueFromOption<typeof AlignOptions> 
 
 const AlignOptionsWithJustify = [
   ...AlignOptions,
-  { label: <AlignJustify />, value: "justify" },
+  { label: <MultiIconDisplay identifier="/icon:svg/AlignJustify" />, value: "justify" },
 ] as const;
 
 export function alignWithJustifyControl(
