@@ -92,6 +92,8 @@ const EmptySet = new Set<string>();
 
 export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const currentTheme = useContext(ThemeContext)?.theme;
+  const isDefaultTheme = useContext(ThemeContext)?.themeId === 'default-theme-id';
+  const isPreviewTheme = useContext(ThemeContext)?.themeId === 'preview-theme';
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
   const scrollContainerRef = useRef(null);
@@ -124,6 +126,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
   const bgColor = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.canvas ?? defaultTheme.canvas;
+
       const themeGridBgColor = preventStylesOverwriting ? undefined : currentTheme?.canvas;
       return themeGridBgColor || appSettings.gridBg || defaultTheme.canvas;
     },
@@ -132,6 +136,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
   const bgImage = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.gridBgImage;
+
       const themeGridBgImage = preventStylesOverwriting ? undefined : currentTheme?.gridBgImage;
       return themeGridBgImage || appSettings.gridBgImage;
     },
@@ -140,6 +146,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
 
   const bgImageRepeat = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.gridBgImageRepeat ?? defaultTheme.gridBgImageRepeat;
+
       const themeGridBgImageRepeat = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageRepeat;
       return themeGridBgImageRepeat || appSettings.gridBgImageRepeat || defaultTheme?.gridBgImageRepeat;
     },
@@ -147,6 +155,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   );
   const bgImageSize = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.gridBgImageSize ?? defaultTheme.gridBgImageSize;
+
       const themeGridBgImageSize = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageSize;
       return themeGridBgImageSize || appSettings.gridBgImageSize || defaultTheme?.gridBgImageSize;
     },
@@ -154,6 +164,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   );
   const bgImagePosition = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.gridBgImagePosition ?? defaultTheme.gridBgImagePosition;
+
       const themeGridBgImagePosition = preventStylesOverwriting ? undefined : currentTheme?.gridBgImagePosition;
       return themeGridBgImagePosition || appSettings.gridBgImagePosition || defaultTheme?.gridBgImagePosition;
     },
@@ -161,6 +173,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   );
   const bgImageOrigin = useMemo(
     () => {
+      if (isPreviewTheme) return currentTheme?.gridBgImageOrigin ?? defaultTheme.gridBgImageOrigin;
+
       const themeGridBgImageOrigin = preventStylesOverwriting ? undefined : currentTheme?.gridBgImageOrigin;
       return themeGridBgImageOrigin || appSettings.gridBgImageOrigin || defaultTheme?.gridBgImageOrigin;
     },
@@ -168,6 +182,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   );
 
   const defaultGrid = useMemo(() => {
+    if (isPreviewTheme) return currentTheme?.gridColumns ?? defaultTheme.gridColumns ?? String(DEFAULT_GRID_COLUMNS);
+
     const themeGridColumns = preventStylesOverwriting ? undefined : currentTheme?.gridColumns;
     return themeGridColumns
       || String(appSettings?.gridColumns)
@@ -176,6 +192,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
 
   const defaultRowHeight = useMemo(() => {
+    if (isPreviewTheme) return currentTheme?.gridRowHeight ?? defaultTheme.gridRowHeight ?? String(DEFAULT_ROW_HEIGHT);
+
     const themeGridRowHeight = preventStylesOverwriting ? undefined : currentTheme?.gridRowHeight;
     return themeGridRowHeight
       || String(appSettings?.gridRowHeight)
@@ -184,6 +202,8 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
 
   const defaultRowCount = useMemo(() => {
+    if (isPreviewTheme) return currentTheme?.gridRowCount ?? defaultTheme.gridRowCount;
+
     const themeGridRowCount = preventStylesOverwriting ? undefined : currentTheme?.gridRowCount;
     return themeGridRowCount
       || appSettings?.gridRowCount
@@ -192,13 +212,20 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   }, [preventStylesOverwriting, appSettings, currentTheme, defaultTheme]);
 
   const defaultContainerPadding: [number, number] = useMemo(() => {
-    if (isMobile) return DEFAULT_MOBILE_PADDING;
+    const DEFAULT_PADDING = isMobile ? DEFAULT_MOBILE_PADDING : DEFAULT_CONTAINER_PADDING;
+    
+    if (isPreviewTheme) {
+      return [
+        currentTheme?.gridPaddingX ?? defaultTheme.gridPaddingX ?? DEFAULT_PADDING[0],
+        currentTheme?.gridPaddingY ?? defaultTheme.gridPaddingY ?? DEFAULT_PADDING[1],
+      ];
+    }
 
-    const themeGridPaddingX = preventStylesOverwriting ? undefined : currentTheme?.gridPaddingX;
-    const themeGridPaddingY = preventStylesOverwriting ? undefined : currentTheme?.gridPaddingY;
+    const themeGridPaddingX = preventStylesOverwriting || isDefaultTheme ? undefined : currentTheme?.gridPaddingX;
+    const themeGridPaddingY = preventStylesOverwriting || isDefaultTheme ? undefined : currentTheme?.gridPaddingY;
 
-    let paddingX = themeGridPaddingX || appSettings?.gridPaddingX || defaultTheme?.gridPaddingX || DEFAULT_CONTAINER_PADDING[0];
-    let paddingY = themeGridPaddingY || appSettings?.gridPaddingY || defaultTheme?.gridPaddingY || DEFAULT_CONTAINER_PADDING[1];
+    let paddingX = themeGridPaddingX ?? appSettings?.gridPaddingX ?? defaultTheme?.gridPaddingX ?? DEFAULT_PADDING[0];
+    let paddingY = themeGridPaddingY ?? appSettings?.gridPaddingY ?? defaultTheme?.gridPaddingY ?? DEFAULT_PADDING[1];
 
     return [paddingX, paddingY];
   }, [preventStylesOverwriting, appSettings, isMobile, currentTheme, defaultTheme]);
