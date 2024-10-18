@@ -14,7 +14,7 @@ import { default as Divider } from "antd/es/divider";
 import { THEME_SETTING } from "constants/routesURL";
 import { CustomShortcutsComp } from "./customShortcutsComp";
 import { DEFAULT_THEMEID } from "comps/utils/themeUtil";
-import { StringControl } from "comps/controls/codeControl";
+import { NumberControl, RangeControl, StringControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
@@ -22,6 +22,8 @@ import { BoolControl } from "../controls/boolControl";
 import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
+import { ColorControl } from "../controls/colorControl";
+import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -106,11 +108,32 @@ const DivStyled = styled.div`
     
     > div {
       width: 100%;
+      flex: 0 0 100%;
       display: block;
+
+      .tooltipLabel {
+        width: 100%;
+      }
     }
 
     > div:first-child {
       margin-bottom: 6px;
+    }
+    
+    > div:nth-child(2) {
+      > div {
+        width: 100%;
+        justify-content: flex-start;
+        > div:first-child {
+          flex: 0 0 24px;
+        }
+        > div:nth-child(2) {
+          flex: 1;
+          > div:nth-child(2) {
+            width: 100%;
+          }
+        }
+      }
     }
 
   }
@@ -183,12 +206,23 @@ const childrenMap = {
   icon: IconControl,
   category: dropdownControl(AppCategories, ApplicationCategoriesEnum.BUSINESS),
   showHeaderInPublic: withDefault(BoolControl, true),
-  maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
   preventAppStylesOverwriting: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
   disableCollision: valueComp<boolean>(false),
   lowcoderCompVersion: withDefault(StringControl, 'latest'),
+  maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
+  gridColumns: RangeControl.closed(8, 48, 24),
+  gridRowHeight: RangeControl.closed(6, 20, 8),
+  gridRowCount: withDefault(NumberControl, DEFAULT_ROW_COUNT),
+  gridPaddingX: withDefault(NumberControl, 20),
+  gridPaddingY: withDefault(NumberControl, 20),
+  gridBg: ColorControl,
+  gridBgImage: StringControl,
+  gridBgImageRepeat: StringControl,
+  gridBgImageSize: StringControl,
+  gridBgImagePosition: StringControl,
+  gridBgImageOrigin: StringControl,
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
@@ -210,6 +244,17 @@ function AppSettingsModal(props: ChildrenInstance) {
     showHeaderInPublic,
     preventAppStylesOverwriting,
     lowcoderCompVersion,
+    gridColumns,
+    gridRowHeight,
+    gridRowCount,
+    gridPaddingX,
+    gridPaddingY,
+    gridBg,
+    gridBgImage,
+    gridBgImageRepeat,
+    gridBgImageSize,
+    gridBgImagePosition,
+    gridBgImageOrigin,
   } = props;
 
   const THEME_OPTIONS = themeList?.map((theme) => ({
@@ -278,14 +323,6 @@ function AppSettingsModal(props: ChildrenInstance) {
             label: trans("appSetting.showPublicHeader"),
           })}
         </div>
-        {maxWidth.propertyView({
-          dropdownLabel: trans("appSetting.canvasMaxWidth"),
-          inputLabel: trans("appSetting.userDefinedMaxWidth"),
-          inputPlaceholder: trans("appSetting.inputUserDefinedPxValue"),
-          placement: "bottom",
-          min: 350,
-          lastNode: <span>{trans("appSetting.maxWidthTip")}</span>,
-        })}
         <Dropdown
           defaultValue={
             themeWithDefault === ""
@@ -322,6 +359,64 @@ function AppSettingsModal(props: ChildrenInstance) {
         </div>
       </DivStyled>
       <DividerStyled />
+
+      <Title>{trans("appSetting.canvas")}</Title>
+      <DivStyled>
+        {maxWidth.propertyView({
+          dropdownLabel: trans("appSetting.canvasMaxWidth"),
+          inputLabel: trans("appSetting.userDefinedMaxWidth"),
+          inputPlaceholder: trans("appSetting.inputUserDefinedPxValue"),
+          placement: "bottom",
+          min: 350,
+          lastNode: <span>{trans("appSetting.maxWidthTip")}</span>,
+        })}
+        {gridColumns.propertyView({
+          label: trans("appSetting.gridColumns"),
+          placeholder: '24',
+        })}
+        {gridRowHeight.propertyView({
+          label: trans("appSetting.gridRowHeight"),
+          placeholder: '8',
+        })}
+        {gridRowCount.propertyView({
+          label: trans("appSetting.gridRowCount"),
+          placeholder: 'Infinity',
+        })}
+        {gridPaddingX.propertyView({
+          label: trans("appSetting.gridPaddingX"),
+          placeholder: '20',
+        })}
+        {gridPaddingY.propertyView({
+          label: trans("appSetting.gridPaddingY"),
+          placeholder: '20',
+        })}
+        {gridBg.propertyView({
+          label: trans("style.background"),
+        })}
+        {gridBgImage.propertyView({
+          label: trans("appSetting.gridBgImage"),
+          placeholder: '',
+        })}
+        {gridBgImageRepeat.propertyView({
+          label: trans("appSetting.gridBgImageRepeat"),
+          placeholder: 'no-repeat',
+        })}
+        {gridBgImageSize.propertyView({
+          label: trans("appSetting.gridBgImageSize"),
+          placeholder: 'cover',
+        })}
+        {gridBgImagePosition.propertyView({
+          label: trans("appSetting.gridBgImagePosition"),
+          placeholder: 'center',
+        })}
+        {gridBgImageOrigin.propertyView({
+          label: trans("appSetting.gridBgImageOrigin"),
+          placeholder: 'no-padding',
+        })}
+      </DivStyled>
+      <DividerStyled />
+      
+      <Title>Lowcoder Comps</Title>
       <DivStyled>
         <Dropdown
           defaultValue={lowcoderCompVersion.getView()}
@@ -329,7 +424,7 @@ function AppSettingsModal(props: ChildrenInstance) {
           options={
             lowcoderCompVersions.map(version => ({label: version, value: version}))
           }
-          label={'Lowcoder Comps Version'}
+          label={'Current Version'}
           placement="bottom"
           onChange={async (value) => {
             await getPromiseAfterDispatch(
@@ -345,6 +440,7 @@ function AppSettingsModal(props: ChildrenInstance) {
         />
       </DivStyled>
       <DividerStyled />
+      
       {props.customShortcuts.getPropertyView()}
     </SettingsStyled>
   );

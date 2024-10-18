@@ -16,6 +16,7 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const getStyle = (style: TextContainerStyleType) => {
   return css`
@@ -28,7 +29,8 @@ const getStyle = (style: TextContainerStyleType) => {
     font-style:${style.fontStyle} !important;
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
-    background-color: ${style.background};
+    ${getBackgroundStyle(style)}
+
     .markdown-body a {
       color: ${style.links};
     }
@@ -64,6 +66,7 @@ const getStyle = (style: TextContainerStyleType) => {
           color: #000000;
         }
       }
+      background-color: transparent;
     }
   `;
   }
@@ -79,14 +82,9 @@ ${props=>props.$animationStyle&&props.$animationStyle}
   overflow-y: scroll;
   border: ${(props) => props.$style.borderWidth} ${(props) => (props.$style.borderStyle ? props.$style.borderStyle : "solid")} ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
-  background-color: ${(props) => props.$style.background};
   padding: ${(props) => props.$style.padding};
   margin: ${(props) => props.$style.margin};
-  ${(props) => props.$style.backgroundImage && `background-image: url(${props.$style.backgroundImage});`}
-  ${(props) => props.$style.backgroundImageRepeat && `background-repeat: ${props.$style.backgroundImageRepeat};`}
-  ${(props) => props.$style.backgroundImageSize && `background-size: ${props.$style.backgroundImageSize};`}
-  ${(props) => props.$style.backgroundImagePosition && `background-position: ${props.$style.backgroundImagePosition};`}
-  ${(props) => props.$style.backgroundImageOrigin && `background-origin: ${props.$style.backgroundImageOrigin};`}
+  ${props => getBackgroundStyle(props.$style)}
 `;
 
 const FloatTextWrapper = styled.div<{ $style: TextContainerStyleType, $horizontalAlignment : any }>`
@@ -97,23 +95,47 @@ const FloatTextWrapper = styled.div<{ $style: TextContainerStyleType, $horizonta
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string
+  $backgroundColor: string,
+  $headerBackgroundImage: string,
+  $headerBackgroundImageSize: string,
+  $headerBackgroundImageRepeat: string,
+  $headerBackgroundImageOrigin: string,
+  $headerBackgroundImagePosition: string,
  }>`
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$headerBackgroundImage,
+    backgroundImageSize: props.$headerBackgroundImageSize,
+    backgroundImageRepeat: props.$headerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$headerBackgroundImageOrigin,
+    backgroundImagePosition: props.$headerBackgroundImagePosition,
+  })}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
   $showBorder: boolean;
-  $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
+  $backgroundColor: string;
+  $bodyBackgroundImage: string;
+  $bodyBackgroundImageRepeat: string;
+  $bodyBackgroundImageSize: string;
+  $bodyBackgroundImagePosition: string;
+  $bodyBackgroundImageOrigin: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$bodyBackgroundImage,
+    backgroundImageSize: props.$bodyBackgroundImageSize,
+    backgroundImageRepeat: props.$bodyBackgroundImageRepeat,
+    backgroundImageOrigin: props.$bodyBackgroundImageOrigin,
+    backgroundImagePosition: props.$bodyBackgroundImagePosition,
+  })}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -131,11 +153,14 @@ const FooterInnerGrid = styled(InnerGrid)<{
   overflow: visible;
   ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$footerBackgroundImage,
+    backgroundImageSize: props.$footerBackgroundImageSize,
+    backgroundImageRepeat: props.$footerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$footerBackgroundImageOrigin,
+    backgroundImagePosition: props.$footerBackgroundImagePosition,
+  })}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {
@@ -190,6 +215,11 @@ export function TriContainer(props: TriContainerProps) {
             containerPadding={[0, 0]}
             showName={{ bottom: showFooter ? 20 : 0 }}
             $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+            $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+            $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+            $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+            $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+            $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
             style={{ padding: headerStyle.containerHeaderPadding}} />
         </BackgroundColorContext.Provider>
       )}
@@ -208,6 +238,11 @@ export function TriContainer(props: TriContainerProps) {
                 containerPadding={[0, 0]}
                 hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                 $backgroundColor={bodyStyle?.background || 'transparent'}
+                $bodyBackgroundImage={bodyStyle?.backgroundImage}
+                $bodyBackgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                $bodyBackgroundImageSize={bodyStyle?.backgroundImageSize}
+                $bodyBackgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                 $borderColor={style?.border}
                 $borderWidth={style?.borderWidth}
                 style={{

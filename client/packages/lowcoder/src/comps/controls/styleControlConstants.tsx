@@ -1353,7 +1353,6 @@ export const RadioStyle = [
 ] as const;
 
 export const SegmentStyle = [
-  LABEL,
   ...STYLING_FIELDS_SEQUENCE.filter(
     (style) => ["border", "borderWidth"].includes(style.name) === false
   ),
@@ -1986,6 +1985,7 @@ export const RichTextEditorStyle = [
 ] as const;
 
 export type QRCodeStyleType = StyleConfigType<typeof QRCodeStyle>;
+export type TimeLineStyleType = StyleConfigType<typeof TimeLineStyle>;
 export type AvatarStyleType = StyleConfigType<typeof AvatarStyle>;
 export type AvatarLabelStyleType = StyleConfigType<typeof avatarLabelStyle>;
 export type AvatarContainerStyleType = StyleConfigType<

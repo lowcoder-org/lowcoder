@@ -1,5 +1,5 @@
-import { RgbaStringColorPicker } from "react-colorful";
 import { default as Popover } from "antd/es/popover";
+import ColorPicker, {useColorPicker} from 'react-best-gradient-color-picker';
 import { ActionType } from '@rc-component/trigger/lib/interface';
 import {
   alphaOfRgba,
@@ -7,9 +7,10 @@ import {
   toHex,
   constantColors,
   isValidColor,
+  isValidGradient,
 } from "components/colorSelect/colorUtils";
 import styled, { css } from "styled-components";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState, useEffect } from "react";
 import { throttle } from "lodash";
 import { changeValueAction } from "lowcoder-core";
 
@@ -22,50 +23,54 @@ interface ColorSelectProps {
 
 export const ColorSelect = (props: ColorSelectProps) => {
   const { color, trigger = "click", dispatch, changeColor } = props;
-  let pickerColor = useRef(toRGBA(color));
+  let pickerColor = useRef(color);
   const [visible, setVisible] = useState(false);
+  const [ selectedColor, setSelectedColor ] = useState(color);
+  const { getGradientObject, valueToHex } = useColorPicker(selectedColor, setSelectedColor);
+
   const throttleChange = useCallback(
     throttle((rgbaColor: string) => {
-      dispatch && dispatch(changeValueAction(toHex(rgbaColor), true));
-      changeColor && changeColor(toHex(rgbaColor));
+      dispatch && dispatch(changeValueAction(rgbaColor, true));
+      changeColor && changeColor(rgbaColor);
     }, 200),
     [dispatch,changeColor]
   );
+
+  useEffect(() => {
+    if (color !== selectedColor) {
+      const value = getGradientObject();
+      if (!value?.isGradient) {
+        return throttleChange(valueToHex());
+      }
+      throttleChange(selectedColor);
+    }
+  }, [selectedColor])
+  
   return (
     <Popover
       trigger={trigger}
+      placement="left"
       destroyTooltipOnHide={true}
       onOpenChange={(value) => {
-        pickerColor.current = toRGBA(color);
         setVisible(value);
       }}
       content={
         <PopoverContainer>
-          <div style={{ position: "relative" }}>
-            <RgbaStringColorPicker color={pickerColor.current} onChange={throttleChange} />
-            <AlphaDiv color={color?.substring(0, 7)}>
-              <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
-            </AlphaDiv>
-          </div>
-          <ConstantDiv>
-            {constantColors.map((item) => {
-              return (
-                <ConstantBlock
-                  color={item.color}
-                  key={item.id}
-                  onClick={() => {
-                    throttleChange(item.color);
-                    pickerColor.current = toRGBA(item.color);
-                  }}
-                />
-              );
-            })}
-          </ConstantDiv>
+          <StyledColorPicker
+            disableDarkMode
+            value={color}
+            onChange={setSelectedColor}
+            width={250}
+            height={160}
+            hideInputs
+            hideAdvancedSliders
+            hideColorGuide
+            hideInputType
+          />
         </PopoverContainer>
       }
     >
-      <ColorBlock $color={color?.substring(0, 7)}>
-        <BackDiv $color={alphaOfRgba(toRGBA(color))}></BackDiv>
+      <ColorBlock $color={color}>
       </ColorBlock>
     </Popover>
   );
@@ -139,7 +144,6 @@ const PopoverContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 12px;
-  padding: 16px;
 `;
 // contrast block
 const AlphaDiv = styled.div.attrs((props) => ({
@@ -169,7 +173,11 @@ const BackDiv = styled.div.attrs<{ $color: string }>((props: { $color: string })
 `;
 // main block
 const ColorBlock = styled.div<{ $color: string }>`
-  background-color: ${(props) => (isValidColor(props.$color) ? props.$color : "#FFFFFF")};
+  background: ${(props) => (
+    isValidColor(props.$color) || isValidGradient(props.$color)
+    ? props.$color
+    : "#FFFFFF"
+  )};
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 4px;
   height: 24px;
@@ -177,4 +185,10 @@ const ColorBlock = styled.div<{ $color: string }>`
   cursor: pointer;
   background-clip: content-box;
   overflow: hidden;
+`;
+
+const StyledColorPicker = styled(ColorPicker)`
+  #rbgcp-advanced-btn, #rbgcp-comparibles-btn, #rbgcp-color-model-btn {
+    display: none !important;
+  }
 `;
