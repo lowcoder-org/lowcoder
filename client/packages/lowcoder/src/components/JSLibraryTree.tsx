@@ -10,6 +10,7 @@ import { jsLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { fetchJSLibraryMetasAction } from "redux/reduxActions/jsLibraryActions";
 import { default as TypographyParagraph } from "antd/es/typography/Paragraph";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {PointIcon} from "icons";
 
 const InfoWrapper = styled.div`
   color: #8b8fa3;
@@ -63,7 +64,7 @@ export const JSLibraryLabel = (props: { name: string; version: string }) => (
   </div>
 );
 
-const Icon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const Icon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
   color: #8b8fa3;

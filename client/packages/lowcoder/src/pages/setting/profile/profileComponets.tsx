@@ -4,7 +4,7 @@ import {
   CommonGrayLabel,
   CommonTextLabel,
   FormInput,
-  OtpFormInput,
+  OtpFormInput, PackUpIcon,
   PasswordInput,
 } from "lowcoder-design";
 import { TacoButton } from "lowcoder-design/src/components/button"
@@ -95,7 +95,7 @@ const IconNameWrapper = styled.div`
     margin-right: 6px;
   }
 `;
-const GoBindICon = styled(MultiIcon("/icon:svg/PackUpIcon"))`
+const GoBindICon = styled(MultiIcon(PackUpIcon))`
   transform: scaleX(-1) scaleY(-1) rotate(-90deg);
 `;
 

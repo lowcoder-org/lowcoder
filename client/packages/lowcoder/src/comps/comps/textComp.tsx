@@ -1,7 +1,7 @@
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import {AlignCenter, AlignLeft, AlignRight, ScrollBar, Section, sectionNames} from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
@@ -106,13 +106,13 @@ const TextContainer = styled.div<{
     overflow-wrap: anywhere;
   }
 `;
-const AlignTop = styled(MultiIcon("/icon:svg/AlignLeft"))`
+const AlignTop = styled(MultiIcon(AlignLeft))`
   transform: rotate(90deg);
 `;
-const AlignBottom = styled(MultiIcon("/icon:svg/AlignRight"))`
+const AlignBottom = styled(MultiIcon(AlignRight))`
   transform: rotate(90deg);
 `;
-const AlignVerticalCenter = styled(MultiIcon("/icon:svg/AlignCenter"))`
+const AlignVerticalCenter = styled(MultiIcon(AlignCenter))`
   transform: rotate(90deg);
 `;
 

@@ -1,6 +1,6 @@
 import React, { ReactNode, useEffect, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "../../api/datasourceApi";
-import { ModalFooterWrapper, TacoButton } from "lowcoder-design";
+import {AddIcon, DocIcon, ModalFooterWrapper, TacoButton} from "lowcoder-design";
 import styled from "styled-components";
 import { default as Button } from "antd/es/button";
 import { useDatasourceForm } from "./form/useDatasourceForm";
@@ -42,7 +42,7 @@ const EditButton = styled(Button)`
   }
 `;
 
-const StyledAddIcon = styled(MultiIcon("/icon:svg/AddIcon"))`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -105,7 +105,7 @@ const TutorialButton = styled(Button)`
   }
 `;
 
-const StyleTutorialIcon = styled(MultiIcon("/icon:svg/DocIcon"))`
+const StyleTutorialIcon = styled(MultiIcon(DocIcon))`
   height: 12px;
   margin-right: 4px;
 `;

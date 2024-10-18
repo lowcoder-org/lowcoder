@@ -10,6 +10,7 @@ import { CompNameContext } from "../../comps/editorState";
 import { isEmpty } from "lodash";
 import { trans } from "i18n";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CodeEditorCloseIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon, DragIcon} from "icons";
 
 const Wrapper = styled.div`
   max-width: 60vw;
@@ -40,7 +41,7 @@ const TitleWrapper = styled.div`
   color: #222222;
   //margin-bottom: 16px;
 `;
-const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
+const StyledDragIcon = styled(MultiIcon(DragIcon))`
   margin-right: 8px;
 `;
 const BodyWrapper = styled.div`
@@ -201,10 +202,10 @@ export const CodeEditorPanel = (props: {
                 </TitleWrapper>
                 <Buttons>
                   <PinButton onClick={() => setPinned(!pinned) }> 
-                    {pinned ? <MultiIconDisplay identifier="/icon:svg/CodeEditorPinnedIcon"/> : <MultiIconDisplay identifier="/icon:svg/CodeEditorUnPinnedIcon"/>}
+                    {pinned ? <MultiIconDisplay identifier={CodeEditorPinnedIcon}/> : <MultiIconDisplay identifier={CodeEditorUnPinnedIcon}/>}
                   </PinButton>
                   <CloseButton onClick={() => setVisible(false)}>
-                    <MultiIconDisplay identifier="/icon:svg/CodeEditorCloseIcon" />
+                    <MultiIconDisplay identifier={CodeEditorCloseIcon} />
                     {trans("codeEditor.fold")}
                   </CloseButton>
                 </Buttons>

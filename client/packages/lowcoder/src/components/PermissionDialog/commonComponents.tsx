@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import React from "react";
-import { CustomSelect, WhiteLoading } from "lowcoder-design";
+import {AdminIcon, CustomSelect, GroupIcon, WhiteLoading} from "lowcoder-design";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const StyledRoleSelect = styled(CustomSelect)`
@@ -42,7 +42,7 @@ export const RoleSelectOptionWrapper = styled.div`
   height: fit-content;
 `;
 
-export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier="/icon:svg/GroupIcon"/>)<{
+export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier={GroupIcon}/>)<{
   $color: string;
   $side?: number;
 }>`
@@ -54,7 +54,7 @@ export const StyledGroupIcon = styled(() => <MultiIconDisplay identifier="/icon:
   }
 `;
 
-export const StyledAdminIcon = styled(() => <MultiIconDisplay identifier="/icon:svg/AdminIcon"/>)<{ $color: string }>`
+export const StyledAdminIcon = styled(() => <MultiIconDisplay identifier={AdminIcon}/>)<{ $color: string }>`
   width: 16px;
   height: 16px;
 

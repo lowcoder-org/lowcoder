@@ -4,6 +4,7 @@ import { CopyTextButton } from "./copyTextButton";
 import { CSSProperties, ReactNode, useState } from "react";
 import styled from "styled-components";
 import {MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {ErrorIcon, SuccessIcon} from "../icons";
 
 const StyledCard = styled(Card)<{ $backcolor: string }>`
   z-index: 3;
@@ -126,7 +127,7 @@ export function PopupCard(props: PopupCardProps) {
                 message={props.title}
                 type={props.hasError ? "error" : "success"}
                 showIcon
-                icon={props.hasError ? <MultiIconDisplay identifier="/icon:svg/ErrorIcon" /> : <MultiIconDisplay identifier="/icon:svg/SuccessIcon" />}
+                icon={props.hasError ? <MultiIconDisplay identifier={ErrorIcon} /> : <MultiIconDisplay identifier={SuccessIcon} />}
               />
             }
             extra={<CopyTextButton text={props.content ?? ""} />}

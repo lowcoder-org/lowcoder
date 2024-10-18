@@ -1,5 +1,5 @@
 import { Org } from "constants/orgConstants";
-import {  BlurFinishInput } from "lowcoder-design";
+import {ArrowIcon, BlurFinishInput} from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { updateOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
@@ -35,7 +35,7 @@ export function OrgSettingContent(props: { org: Org | undefined }) {
         <span onClick={() => history.push(ORGANIZATION_SETTING)}>
           {trans("settings.organization")}
         </span>
-        <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+        <MultiIconDisplay identifier={ArrowIcon} />
         <span>{org.name}</span>
       </HeaderBack>
       <FieldWrapper>

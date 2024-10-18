@@ -6,6 +6,7 @@ import history from "util/history";
 import { SUBSCRIPTION_SETTING } from "constants/routesURL";
 import { getProduct }  from '@lowcoder-ee/api/subscriptionApi';
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {ArrowIcon} from "icons";
 
 const FieldWrapper = styled.div`
   margin-bottom: 32px;
@@ -31,7 +32,7 @@ export function SubscriptionDetail() {
         <span onClick={() => history.push(SUBSCRIPTION_SETTING)}>
           {trans("settings.subscription")}
         </span>
-        <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+        <MultiIconDisplay identifier={ArrowIcon} />
       </HeaderBack>
       <div>
         <h1>{`Subscription ID: ${subscriptionId}`}</h1>

@@ -1,6 +1,6 @@
 import { GroupRoleInfo, GroupUser, OrgGroup, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
-import { CustomSelect } from "lowcoder-design";
+import {AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon} from "lowcoder-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
@@ -35,7 +35,7 @@ import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
-const StyledAddIcon = styled(MultiIcon("/icon:svg/AddIcon"))`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   g path {
     fill: #ffffff;
   }
@@ -74,7 +74,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
       <PermissionHeaderWrapper>
         <HeaderBack>
           <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.userGroups")}</span>
-          <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+          <MultiIconDisplay identifier={ArrowIcon} />
           {isGroupAdmin(currentUserGroupRole) && !group.devGroup ? (
             <span>{group.groupName}</span>
           ) : (
@@ -112,7 +112,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
             <UserTableCellWrapper>
               <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
               <span title={record.userName}>{record.userName}</span>
-              {isGroupAdmin(record.role) && <MultiIconDisplay identifier="/icon:svg/SuperUserIcon" />}
+              {isGroupAdmin(record.role) && <MultiIconDisplay identifier={SuperUserIcon} />}
             </UserTableCellWrapper>
           )}
         />
@@ -139,7 +139,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                 group.syncGroup
               }
               optionLabelProp="label"
-              suffixIcon={<MultiIconDisplay identifier="/icon:svg/PackUpIcon" />}
+              suffixIcon={<MultiIconDisplay identifier={PackUpIcon} />}
               onChange={(val) => {
                 dispatch(
                   updateUserGroupRoleAction({

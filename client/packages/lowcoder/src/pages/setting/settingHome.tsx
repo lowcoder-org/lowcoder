@@ -8,9 +8,10 @@ import AuditSetting from "@lowcoder-ee/pages/setting/audit";
 import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
-import { 
-  Menu
- } from "lowcoder-design";
+import {
+  LeftSettingIcon,
+  Menu, ThemeIcon, UserGroupIcon, UserShieldIcon, WorkspacesIcon
+} from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
@@ -48,28 +49,28 @@ export function SettingHome() {
     {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
-      icon: <MultiIconDisplay identifier="/icon:svg/WorkspacesIcon" width={"20px"}/>,
+      icon: <MultiIconDisplay identifier={WorkspacesIcon} width={"20px"}/>,
     },
     {
       key: SettingPageEnum.OAuthProvider,
       label: (trans("settings.oauthProviders")),
       disabled: !currentOrgAdmin(user),
-      icon: <MultiIconDisplay identifier="/icon:svg/UserShieldIcon" width={"20px"}/>,
+      icon: <MultiIconDisplay identifier={UserShieldIcon} width={"20px"}/>,
     },
     {
       key: SettingPageEnum.UserGroups,
       label: trans("settings.userGroups"),
-      icon: <MultiIconDisplay identifier="/icon:svg/UserGroupIcon" width={"20px"}/>,
+      icon: <MultiIconDisplay identifier={UserGroupIcon} width={"20px"}/>,
     },
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
-      icon: <MultiIconDisplay identifier="/icon:svg/ThemeIcon" width={"20px"}/>,
+      icon: <MultiIconDisplay identifier={ThemeIcon} width={"20px"}/>,
     },
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
-      icon: <MultiIconDisplay identifier="/icon:svg/LeftSettingIcon" width={"20px"}/>,
+      icon: <MultiIconDisplay identifier={LeftSettingIcon} width={"20px"}/>,
     },
 
     // Premium features
@@ -161,7 +162,7 @@ export function SettingHome() {
 // { 
 //  key: SettingPageEnum.Subscription,
 //  label: trans("settings.subscription"),
-//  icon: <MultiIconDisplay identifier="/icon:svg/SubscriptionIcon" width={"20px"}/>,
+//  icon: <MultiIconDisplay identifier={SubscriptionIcon} width={"20px"}/>,
 // }
 
 export default SettingHome;

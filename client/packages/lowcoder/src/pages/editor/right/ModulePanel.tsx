@@ -23,6 +23,7 @@ import { modulesSelector } from "../../../redux/selectors/applicationSelector";
 import { ComListTitle, ExtensionContentWrapper } from "./styledComponent";
 import { foldersSelector } from "@lowcoder-ee/redux/selectors/folderSelector";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {ModuleDocIcon} from "icons";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -153,7 +154,7 @@ function ModuleItem(props: ModuleItemProps) {
       }}
     >
       <div className="module-icon">
-        <MultiIconDisplay identifier="/icon:svg/ModuleDocIcon" width="19px" />
+        <MultiIconDisplay identifier={ModuleDocIcon} width="19px" />
       </div>
       <div className="module-content">
         <div className="module-name">{props.meta.name}</div>

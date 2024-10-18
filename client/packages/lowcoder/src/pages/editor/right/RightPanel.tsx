@@ -1,5 +1,5 @@
 import { RightPanelWrapper } from "pages/common/styledComponent";
-import { Tabs } from "lowcoder-design";
+import {AttributeIcon, InsertIcon, Tabs} from "lowcoder-design";
 import PropertyView from "./PropertyView";
 import InsertView from "./InsertView";
 import type UIComp from "comps/comps/uiComp";
@@ -26,7 +26,7 @@ function RightPanel(props: RightPanelProps) {
     {
       key: "property",
       title: trans("rightPanel.propertyTab"),
-      icon: <MultiIconDisplay identifier="/icon:svg/AttributeIcon" />,
+      icon: <MultiIconDisplay identifier={AttributeIcon} />,
       content: <PropertyView uiComp={uiComp} />,
     },
   ];
@@ -34,7 +34,7 @@ function RightPanel(props: RightPanelProps) {
     tabConfigs.push({
       key: "insert",
       title: trans("rightPanel.createTab"),
-      icon: <MultiIconDisplay identifier="/icon:svg/InsertIcon" />,
+      icon: <MultiIconDisplay identifier={InsertIcon} />,
       content: <InsertView onCompDrag={props.onCompDrag} />,
     });
   }

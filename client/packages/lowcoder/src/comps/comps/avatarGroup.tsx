@@ -3,7 +3,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { QRCodeStyle, QRCodeStyleType, avatarGroupStyle, AvatarGroupStyleType, avatarContainerStyle, AvatarContainerStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
+import {AlignCenter, AlignLeft, AlignRight, Section, sectionNames} from "lowcoder-design";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
@@ -81,9 +81,9 @@ const DropdownOption = new MultiCompBuilder(
 const EventOptions = [clickEvent, refreshEvent] as const;
 
 export const alignOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "flex-start" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "flex-end" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "flex-start" },
+  { label: <MultiIconDisplay identifier={AlignCenter} />, value: "center" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "flex-end" },
 ] as const;
 
 const childrenMap = {

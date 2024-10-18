@@ -5,6 +5,24 @@ import { TacoInput } from "components/tacoInput";
 import { trans } from "i18n";
 import { debounce } from "lodash";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {
+  BorderRadiusIcon,
+  BorderStyleIcon,
+  BorderWidthIcon,
+  CompressIcon,
+  ExpandIcon,
+  FontFamilyIcon, ImageCompIconSmall, LineHeightIcon,
+  OpacityIcon,
+  RefreshLineIcon, RotationIcon,
+  ShadowIcon,
+  StarSmileIcon,
+  TextDecorationIcon,
+  TextSizeIcon, TextStyleIcon,
+  TextTransformationIcon,
+  TextWeightIcon,
+  Timer2Icon,
+  TimerFlashIcon
+} from "icons";
 
 export type configChangeParams = {
   themeSettingKey: string;
@@ -261,19 +279,19 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'radius':
       case 'cardRadius':
       case 'gap': {
-        icon = <MultiIconDisplay identifier="/icon:svg/BorderRadiusIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={BorderRadiusIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderWidth': {
-        icon = <MultiIconDisplay identifier="/icon:svg/BorderWidthIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={BorderWidthIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'borderStyle': {
-        icon = <MultiIconDisplay identifier="/icon:svg/BorderStyleIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={BorderStyleIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'margin': {
-        icon = <MultiIconDisplay identifier="/icon:svg/ExpandIcon" style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={ExpandIcon} style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'padding':
@@ -281,79 +299,79 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       case 'containerSiderPadding':
       case 'containerFooterPadding':
       case 'containerBodyPadding': {
-        icon = <MultiIconDisplay identifier="/icon:svg/CompressIcon" style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={CompressIcon} style={{width: "16px", margin: "3px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'opacity': {
-        icon = <MultiIconDisplay identifier="/icon:svg/OpacityIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={OpacityIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadowColor': {
-        icon = <MultiIconDisplay identifier="/icon:svg/BorderWidthIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={BorderWidthIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'boxShadow': {
-        icon = <MultiIconDisplay identifier="/icon:svg/ShadowIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={ShadowIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationIterationCount': {
-        icon = <MultiIconDisplay identifier="/icon:svg/RefreshLineIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={RefreshLineIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animation': {
-        icon = <MultiIconDisplay identifier="/icon:svg/StarSmileIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={StarSmileIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDelay': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TimerFlashIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TimerFlashIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'animationDuration': {
-        icon = <MultiIconDisplay identifier="/icon:svg/Timer2Icon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={Timer2Icon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textSize': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TextSizeIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TextSizeIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textWeight': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TextWeightIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TextWeightIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontFamily': {
-        icon = <MultiIconDisplay identifier="/icon:svg/FontFamilyIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={FontFamilyIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textDecoration': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TextDecorationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TextDecorationIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'textTransform': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TextTransformationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TextTransformationIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'fontStyle': {
-        icon = <MultiIconDisplay identifier="/icon:svg/TextStyleIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={TextStyleIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImage':
       case 'headerBackgroundImage':
       case 'footerBackgroundImage': {
-        icon = <MultiIconDisplay identifier="/icon:svg/ImageCompIconSmall" style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={ImageCompIconSmall} style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'backgroundImageRepeat':
       case 'headerBackgroundImageRepeat':
       case 'footerBackgroundImageRepeat': {
-        icon = <MultiIconDisplay identifier="/icon:svg/ImageCompIconSmall" style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={ImageCompIconSmall} style={{width: "16px", margin: "1px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'rotation': {
-        icon = <MultiIconDisplay identifier="/icon:svg/RotationIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={RotationIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
       case 'lineHeight': {
-        icon = <MultiIconDisplay identifier="/icon:svg/LineHeightIcon" style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        icon = <MultiIconDisplay identifier={LineHeightIcon} style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
     }

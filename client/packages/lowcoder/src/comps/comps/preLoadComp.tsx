@@ -13,7 +13,7 @@ import { CodeTextControl } from "comps/controls/codeTextControl";
 import SimpleStringControl from "comps/controls/simpleStringControl";
 import { MultiCompBuilder, withPropertyViewFn } from "comps/generators";
 import { list } from "comps/generators/list";
-import { BaseSection, CustomModal, ScrollBar } from "lowcoder-design";
+import {BaseSection, CustomModal, PlusIcon, ScrollBar} from "lowcoder-design";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -360,7 +360,7 @@ export class PreloadComp extends PreloadCompBase {
             <AddJSLibraryButton>
               <JSLibraryModal
                 runInHost={libs.runInHost}
-                trigger={<MultiIconDisplay identifier="/icon:svg/PlusIcon" height={"46px"} />}
+                trigger={<MultiIconDisplay identifier={PlusIcon} height={"46px"} />}
                 onCheck={(url) => !libs.getAllLibs().includes(url)}
                 onLoad={(url) => libs.loadScript(url)}
                 onSuccess={(url) => libs.dispatch(libs.pushAction(url))}

@@ -13,6 +13,7 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
 import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {DragIcon, PointIcon} from "../icons";
 
 const OptionDiv = styled.div`
   width: 100%;
@@ -103,7 +104,7 @@ const EmptyOptionSpan = styled.span`
   }
 `;
 
-const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
+const StyledDragIcon = styled(MultiIcon(DragIcon))`
   ${IconCss};
   margin-top: 8px;
   margin-left: 8px;
@@ -120,7 +121,7 @@ const StyledDragIcon = styled(MultiIcon("/icon:svg/DragIcon"))`
   }
 `;
 
-const StyledPointIcon = styled(MultiIcon("/icon:svg/PointIcon"))`
+const StyledPointIcon = styled(MultiIcon(PointIcon))`
   ${IconCss};
   color: ${GreyTextColor};
 

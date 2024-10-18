@@ -1,7 +1,7 @@
 import Column from "antd/es/table/Column";
 import OrgApi from "api/orgApi";
 import { GroupUser, MEMBER_ROLE, OrgUser } from "constants/orgConstants";
-import { CheckBox, CustomModal } from "lowcoder-design";
+import {CheckBox, CustomModal, SuperUserIcon} from "lowcoder-design";
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { AppState } from "redux/reducers";
@@ -109,7 +109,7 @@ function AddGroupUserDialog(props: {
                   <UserTableCellWrapper>
                     <ProfileImage source={record.avatarUrl} userName={record.name} side={32} />
                     <span title={record.name}>{record.name}</span>
-                    {isGroupAdmin(record.role) && <MultiIconDisplay identifier="/icon:svg/SuperUserIcon" />}
+                    {isGroupAdmin(record.role) && <MultiIconDisplay identifier={SuperUserIcon} />}
                   </UserTableCellWrapper>
                 )}
               />

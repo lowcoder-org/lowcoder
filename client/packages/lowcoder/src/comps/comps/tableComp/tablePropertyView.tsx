@@ -7,15 +7,16 @@ import { hiddenPropertyView, loadingPropertyView } from "comps/utils/propertyUti
 import { trans } from "i18n";
 import { changeValueAction, deferAction, MultiBaseComp, wrapChildAction } from "lowcoder-core";
 import {
-  CheckBox,
+  BluePlusIcon,
+  CheckBox, CloseEyeIcon,
   controlItem,
   CustomModal,
   Dropdown,
   labelCss,
-  LinkButton,
+  LinkButton, OpenEyeIcon,
   Option,
   OptionItem,
-  RedButton,
+  RedButton, RefreshIcon,
   Section,
   sectionNames,
   TextLabel,
@@ -44,7 +45,7 @@ const Graylabel = styled.span`
   color: #8b8fa3;
 `;
 
-const StyledRefreshIcon = styled(MultiIcon("/icon:svg/RefreshIcon"))`
+const StyledRefreshIcon = styled(MultiIcon(RefreshIcon))`
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -70,10 +71,10 @@ const eyeIconCss = css`
   }
 `;
 
-const CloseEye = styled(MultiIcon("/icon:svg/CloseEyeIcon"))`
+const CloseEye = styled(MultiIcon(CloseEyeIcon))`
   ${eyeIconCss}
 `;
-const OpenEye = styled(MultiIcon("/icon:svg/OpenEyeIcon"))`
+const OpenEye = styled(MultiIcon(OpenEyeIcon))`
   ${eyeIconCss}
 `;
 
@@ -319,7 +320,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         </ToolTipLabel>
       )}
       <LinkButton
-        icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />}
+        icon={<MultiIconDisplay identifier={BluePlusIcon} />}
         text={trans("addItem")}
         onClick={() => {
           comp.children.columns.dispatch(comp.children.columns.pushAction(newCustomColumn()));

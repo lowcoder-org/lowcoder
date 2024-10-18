@@ -16,6 +16,7 @@ import { trans } from "i18n";
 import { EditorContext, EditorState } from "comps/editorState";
 import { RootComp } from "comps/comps/rootComp";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {EditIcon, ShowBorderIcon} from "icons";
 
 const Wrapper = styled.div`
   border: 1px solid #d7d9e0;
@@ -92,13 +93,13 @@ const Bound = styled.div<IBoundProps>`
   border: ${({ show }) => `1px dashed ${show ? "rgb(51, 119, 255)" : "transparent"}`};
 `;
 
-const StyledBorderIcon = styled(MultiIcon("/icon:svg/ShowBorderIcon"))`
+const StyledBorderIcon = styled(MultiIcon(ShowBorderIcon))`
   width: 14px;
   height: 14px;
   margin-right: 5px;
 `;
 
-const StyledEditIcon = styled(MultiIcon("/icon:svg/EditIcon"))`
+const StyledEditIcon = styled(MultiIcon(EditIcon))`
   width: 14px;
   height: 14px;
   margin-right: 5px;

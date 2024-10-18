@@ -26,6 +26,7 @@ import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AddIcon, CloseIcon, ImportIconV2} from "icons";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -251,7 +252,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
           {trans("query.newQuery")}
         </div>
         <div className="title-close-btn">
-          <MultiIconDisplay identifier="/icon:svg/CloseIcon" onClick={onClose} />
+          <MultiIconDisplay identifier={CloseIcon} onClick={onClose} />
         </div>
       </Title>
       <Content>
@@ -314,7 +315,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                       multiple={false}
                     >
                       <DataSourceButton size={buttonSize}>
-                        <MultiIconDisplay identifier="/icon:svg/ImportIconV2" width="20px" height="20px" style={{ marginRight: "8px" }} />
+                        <MultiIconDisplay identifier={ImportIconV2} width="20px" height="20px" style={{ marginRight: "8px" }} />
                         {trans("query.importFromFile")}
                       </DataSourceButton>
                     </Upload>
@@ -340,7 +341,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 {user.orgDev && (
                   <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
                     <LargeBottomResIconWrapper>
-                      <MultiIconDisplay identifier="/icon:svg/AddIcon" />
+                      <MultiIconDisplay identifier={AddIcon} />
                     </LargeBottomResIconWrapper>
                     {trans("query.newDatasource")}
                   </DataSourceButton>

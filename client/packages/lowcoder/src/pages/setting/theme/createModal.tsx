@@ -14,6 +14,7 @@ import {
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {RadioCheckedIcon, RequiredIcon, SuccessIcon, SwitchCheckedIcon} from "icons";
 
 type CreateModalProp = {
   themeList: ThemeType[] | undefined | null;
@@ -55,18 +56,18 @@ function CreateModal(props: CreateModalProp) {
         onClick={() => setSelectId(theme.id)}
         className={selectId === theme.id ? "selected" : ""}
       >
-        <MultiIconDisplay identifier="/icon:svg/SuccessIcon" />
+        <MultiIconDisplay identifier={SuccessIcon} />
         <div>
           <div>
             <span className="name">{theme.name}</span>
             <span>
-              <MultiIconDisplay identifier="/icon:svg/SwitchCheckedIcon" />
+              <MultiIconDisplay identifier={SwitchCheckedIcon} />
             </span>
           </div>
           <div>
             <div>
               <span className="radio">
-                <MultiIconDisplay identifier="/icon:svg/RadioCheckedIcon" /> {trans("theme.option", { index: 1 })}
+                <MultiIconDisplay identifier={RadioCheckedIcon} /> {trans("theme.option", { index: 1 })}
               </span>
               <span className="radio">
                 <span></span> {trans("theme.option", { index: 2 })}
@@ -97,7 +98,7 @@ function CreateModal(props: CreateModalProp) {
       draggable={true}
     >
       <ModalNameDiv>
-        <MultiIconDisplay identifier="/icon:svg/RequiredIcon" />
+        <MultiIconDisplay identifier={RequiredIcon} />
         <span>{trans("theme.themeName")}</span>
       </ModalNameDiv>
       <TacoInputStyled

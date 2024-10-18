@@ -1,5 +1,5 @@
 import { DataNode } from "antd/es/tree";
-import { CopyTextButton, CustomTree, labelCss, Search } from "lowcoder-design";
+import {CopyTextButton, CustomTree, labelCss, PackUpIcon, Search} from "lowcoder-design";
 import _ from "lodash";
 import { default as AntdDrawer } from "antd/es/drawer";
 import { CSSProperties, useEffect, useState } from "react";
@@ -65,7 +65,7 @@ const AllData = styled.span`
   margin: 0 0 7px 8px;
 `;
 
-const DrawerIcon = styled(MultiIcon("/icon:svg/PackUpIcon"))<{ $deg: string }>`
+const DrawerIcon = styled(MultiIcon(PackUpIcon))<{ $deg: string }>`
   transform: ${(props) => props.$deg};
 `;
 

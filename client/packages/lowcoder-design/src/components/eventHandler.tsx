@@ -4,6 +4,7 @@ import { LinkButton } from "./button";
 import { ReactNode } from "react";
 import { trans } from "i18n/design";
 import {MultiIcon, MultiIconDisplay} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {BluePlusIcon} from "../icons";
 
 const InlineEventFormWrapper = styled.div`
   display: flex;
@@ -112,11 +113,11 @@ const AddLine = (props: { title: ReactNode; add: () => void }) => {
   return (
     <TitleDiv>
       <TitleSpan>{props.title}</TitleSpan>
-      <LinkButton icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />} text={trans("addItem")} onClick={props.add} />
+      <LinkButton icon={<MultiIconDisplay identifier={BluePlusIcon} />} text={trans("addItem")} onClick={props.add} />
     </TitleDiv>
   );
 };
-const Blueplus = MultiIcon("/icon:svg/BluePlusIcon")
+const Blueplus = MultiIcon(BluePlusIcon)
 export {
   Blueplus as AddEventIcon,
   EventDiv,

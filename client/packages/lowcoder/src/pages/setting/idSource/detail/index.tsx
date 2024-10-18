@@ -4,8 +4,9 @@ import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { DetailContainer } from "pages/setting/theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import {
+  ArrowIcon, CloseEyeIcon,
   CustomModal,
-  CustomSelect,
+  CustomSelect, LockIcon, UnLockIcon,
 } from "lowcoder-design";
 import history from "util/history";
 import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
@@ -169,7 +170,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
       <Header>
         <HeaderBack>
           <span onClick={() => goList()}>{trans("idSource.title")}</span>
-          <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+          <MultiIconDisplay identifier={ArrowIcon} />
           <span>{authConfig[configDetail.authType].sourceName}</span>
         </HeaderBack>
       </Header>
@@ -220,7 +221,7 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                     isPassword ? (
                       <PasswordLabel>
                         <span>{label}:</span>
-                        <MultiIconDisplay identifier="/icon:svg/CloseEyeIcon" />
+                        <MultiIconDisplay identifier={CloseEyeIcon} />
                       </PasswordLabel>
                     ) : (
                       <Tooltip title={tip}>
@@ -264,14 +265,14 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                       disabled={hasLock && lock}
                       prefix={
                         hasLock &&
-                        (lock ? <MultiIconDisplay identifier="/icon:svg/LockIcon" onClick={() => handleLockClick()} /> : <MultiIconDisplay identifier="/icon:svg/UnLockIcon" /> )
+                        (lock ? <MultiIconDisplay identifier={LockIcon} onClick={() => handleLockClick()} /> : <MultiIconDisplay identifier={UnLockIcon} /> )
                       }
                     />
                   )}
                 </Form.Item>
                 {hasLock && lock && (
                   <span className="lock-tip">
-                    {transToNode("idSource.lockTip", { icon: <MultiIconDisplay identifier="/icon:svg/LockIcon" /> })}
+                    {transToNode("idSource.lockTip", { icon: <MultiIconDisplay identifier={LockIcon} /> })}
                   </span>
                 )}
               </div>

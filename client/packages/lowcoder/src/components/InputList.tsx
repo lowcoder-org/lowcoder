@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { useForm } from "antd/es/form/Form";
 import { trans } from "i18n";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {BluePlusIcon} from "icons";
 
 const StyledItem = styled(FormItem)`
   margin-bottom: 8px;
@@ -77,7 +78,7 @@ export default function InputList(props: Omit<InputListProps, "children">) {
               ))}
             </div>
             <StyledItem>
-              <LinkPlusButton onClick={() => add("")} icon={<MultiIconDisplay identifier="/icon:svg/BluePlusIcon" />}>
+              <LinkPlusButton onClick={() => add("")} icon={<MultiIconDisplay identifier={BluePlusIcon} />}>
                 {addBtnText}
               </LinkPlusButton>
             </StyledItem>

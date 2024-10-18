@@ -1,12 +1,13 @@
 import { ADMIN_ROLE, OrgRoleInfo, OrgUser, SUPER_ADMIN_ROLE, TacoRoles } from "constants/orgConstants";
 import { User } from "constants/userConstants";
 import {
-  CustomModal,
-  CustomSelect,
-  EditPopover,
-  EditPopoverItemType,
-  ModalFooterWrapper,
-  TacoButton,
+    ArrowIcon,
+    CustomModal,
+    CustomSelect,
+    EditPopover,
+    EditPopoverItemType, MembersIcon,
+    ModalFooterWrapper, SuperUserIcon,
+    TacoButton,
 } from "lowcoder-design";
 import { trans, transToNode } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
@@ -47,7 +48,7 @@ import { BackgroundColor } from "constants/style";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
-const StyledMembersIcon = styled(MultiIcon("/icon:svg/MembersIcon"))`
+const StyledMembersIcon = styled(MultiIcon(MembersIcon))`
   g g {
     stroke: #ffffff;
   }
@@ -131,7 +132,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
       <PermissionHeaderWrapper>
         <HeaderBack>
           <span onClick={() => history.push(PERMISSION_SETTING)}>{trans("settings.userGroups")}</span>
-          <MultiIconDisplay identifier="/icon:svg/ArrowIcon" />
+          <MultiIconDisplay identifier={ArrowIcon} />
           <span>{trans("memberSettings.allMembers")}</span>
         </HeaderBack>
         <InviteDialog
@@ -160,7 +161,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
             <UserTableCellWrapper>
               <ProfileImage source={record.avatarUrl} userName={record.name} side={34} />
               <span title={record.name}>{record.name}</span>
-              {record.role === ADMIN_ROLE && <MultiIconDisplay identifier="/icon:svg/SuperUserIcon" />}
+              {record.role === ADMIN_ROLE && <MultiIconDisplay identifier={SuperUserIcon} />}
             </UserTableCellWrapper>
           )}
         />

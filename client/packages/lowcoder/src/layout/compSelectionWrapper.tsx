@@ -2,7 +2,7 @@ import { EditorContext } from "comps/editorState";
 import { UICompType } from "comps/uiCompRegistry";
 import { Layers } from "constants/Layers";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
-import { fadeColor } from "lowcoder-design";
+import {CloseEyeIcon, DragWhiteIcon, fadeColor, WidthDragIcon} from "lowcoder-design";
 import React, {
   MouseEvent,
   MouseEventHandler,
@@ -155,13 +155,13 @@ const dragIconCss = (props: DragHandleProps, handle: ResizeHandleAxis) => css`
   display: ${dragDisplay(handle, props)};
 `;
 
-const DragLeftIcon = styled(MultiIcon("/icon:svg/WidthDragIcon"))<DragHandleProps>`
+const DragLeftIcon = styled(MultiIcon(WidthDragIcon))<DragHandleProps>`
   ${(props) => dragIconCss(props, "w")};
   left: -3.5px;
   transform: translate(0px, -50%);
 `;
 
-const DragRightIcon = styled(MultiIcon("/icon:svg/WidthDragIcon"))<DragHandleProps>`
+const DragRightIcon = styled(MultiIcon(WidthDragIcon))<DragHandleProps>`
   ${(props) => dragIconCss(props, "e")};
   right: -3.5px;
   transform: translate(0px, -50%);
@@ -225,7 +225,7 @@ const DragSE = styled.div<DragHandleProps>`
   bottom: -2.5px;
 `;
 
-const HiddenIcon = styled(MultiIcon("/icon:svg/CloseEyeIcon"))`
+const HiddenIcon = styled(MultiIcon(CloseEyeIcon))`
   g g {
     fill: #f5f5f6;
   }
@@ -337,7 +337,7 @@ export const CompSelectionWrapper = React.memo((props: {
             $isDraggable={props.isDraggable}
             ref={nameDivRef}
           >
-            {props.isDraggable && <MultiIconDisplay identifier="/icon:svg/DragWhiteIcon" />}
+            {props.isDraggable && <MultiIconDisplay identifier={DragWhiteIcon} />}
             <NameLabel>{nameConfig.name}</NameLabel>
             {props.hidden && <HiddenIcon />}
           </NameDiv>

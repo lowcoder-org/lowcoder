@@ -18,7 +18,7 @@ import {
   CommonTextLabel,
   CustomModal,
   DropdownMenu,
-  EditText,
+  EditText, Layout, Left, Middle, ModuleIcon, PackUpIcon, RefreshIcon, Right,
   TacoButton,
 } from "lowcoder-design";
 import { trans } from "i18n";
@@ -88,13 +88,13 @@ const IconCss = css<{ $show?: boolean }>`
 
   cursor: pointer;
 `;
-const LayoutIcon = styled(MultiIcon("/icon:svg/Layout"))`
+const LayoutIcon = styled(MultiIcon(Layout))`
   ${IconCss}
 `;
-const LeftIcon = styled(MultiIcon("/icon:svg/Left"))`
+const LeftIcon = styled(MultiIcon(Left))`
   ${IconCss}
 `;
-const MiddleIcon = styled(MultiIcon("/icon:svg/Middle"))<{ $show: boolean }>`
+const MiddleIcon = styled(MultiIcon(Middle))<{ $show: boolean }>`
   ${IconCss}
   & g line {
     stroke: ${(props) => (props.$show ? "#dddddd" : "#dddddd65")};
@@ -113,7 +113,7 @@ const MiddleIcon = styled(MultiIcon("/icon:svg/Middle"))<{ $show: boolean }>`
   }
 `;
 
-const RightIcon = styled(MultiIcon("/icon:svg/Right"))`
+const RightIcon = styled(MultiIcon(Right))`
   ${IconCss}
 `;
 const IconRadius = styled.div<{ disabled?: boolean }>`
@@ -206,7 +206,7 @@ const ViewOnlyLabel = styled.span`
   margin-left: -22px;
 `;
 
-const PackUpIconStyled = styled(MultiIcon("/icon:svg/PackUpIcon"))`
+const PackUpIconStyled = styled(MultiIcon(PackUpIcon))`
   transform: rotate(180deg);
   margin-left: 4px;
   min-width: 18px;
@@ -296,7 +296,7 @@ const StyledCountdown = styled(Countdown)`
   }
 `;
 
-const StyledRefreshIcon = styled(MultiIcon("/icon:svg/RefreshIcon"))`
+const StyledRefreshIcon = styled(MultiIcon(RefreshIcon))`
   width: 16px !important;
   height: 16px !important;
   margin-right: -3px !important;
@@ -427,7 +427,7 @@ export default function Header(props: HeaderProps) {
       {editName ? (
         <Wrapper>
           <EditText
-            prefixIcon={isModule && <MultiIconDisplay identifier="/icon:svg/ModuleIcon" />}
+            prefixIcon={isModule && <MultiIconDisplay identifier={ModuleIcon} />}
             disabled={showAppSnapshot}
             style={showAppSnapshot ? { maxWidth: "fit-content" } : {}}
             text={application?.name ?? ""}
@@ -644,7 +644,7 @@ export default function Header(props: HeaderProps) {
           )}
         >
           <PackUpBtn buttonType="primary" disabled={blockEditing}>
-            <MultiIconDisplay identifier="/icon:svg/PackUpIcon" />
+            <MultiIconDisplay identifier={PackUpIcon} />
           </PackUpBtn>
         </Dropdown>
   

@@ -157,7 +157,7 @@ const DivStyled = styled.div`
   }
 `;
 
-const StyledAddIcon = styled(MultiIcon("/icon:svg/AddIcon"))`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   height: 16px;
   width: 16px;
   margin-right: 4px;

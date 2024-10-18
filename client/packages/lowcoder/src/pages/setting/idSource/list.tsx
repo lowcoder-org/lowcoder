@@ -29,7 +29,7 @@ import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
-import { messageInstance } from "lowcoder-design";
+import {AddIcon, messageInstance} from "lowcoder-design";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import { HelpText } from "components/HelpText";
@@ -97,7 +97,7 @@ export const IdSourceList = (props: any) => {
             {currentOrgAdmin(user) && (
               <CreateButton
                 type="primary"
-                icon={<MultiIconDisplay identifier="/icon:svg/AddIcon" />}
+                icon={<MultiIconDisplay identifier={AddIcon} />}
                 onClick={() =>
                   setModalVisible(true)
                 }

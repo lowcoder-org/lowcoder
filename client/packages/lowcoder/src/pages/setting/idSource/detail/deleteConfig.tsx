@@ -4,7 +4,7 @@ import { trans } from "i18n";
 import { useState } from "react";
 import { validateResponse } from "api/apiUtils";
 import IdSourceApi from "api/idSourceApi";
-import { CustomModal } from "lowcoder-design";
+import {CustomModal, DangerIcon} from "lowcoder-design";
 import history from "util/history";
 import { OAUTH_PROVIDER_SETTING } from "constants/routesURL";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
@@ -74,7 +74,7 @@ export const DeleteConfig = (props: {
       </Flex>
       <div>{trans("idSource.dangerLabel")}</div>
       <div className="danger-tip">
-        <MultiIconDisplay identifier="/icon:svg/DangerIcon" />
+        <MultiIconDisplay identifier={DangerIcon} />
         {trans("idSource.dangerTip")}
       </div>
       <Button loading={deleteLoading} onClick={() => handleDelete()}>

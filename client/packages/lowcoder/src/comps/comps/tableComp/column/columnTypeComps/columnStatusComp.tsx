@@ -8,7 +8,7 @@ import { StringControl, stringUnionControl } from "comps/controls/codeControl";
 import { DropdownStyled, Wrapper } from "./columnTagsComp";
 import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
-import { CustomSelect, ScrollBar } from "lowcoder-design";
+import {CustomSelect, PackUpIcon, ScrollBar} from "lowcoder-design";
 import { PresetStatusColorType } from "antd/es/_util/colors";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
@@ -61,7 +61,7 @@ const StatusEdit = (props: StatusEditPropsType) => {
         open={open}
         defaultValue={props.value.value}
         style={{ width: "100%" }}
-        suffixIcon={<MultiIconDisplay identifier="/icon:svg/PackUpIcon" />}
+        suffixIcon={<MultiIconDisplay identifier={PackUpIcon} />}
         showSearch
         onSearch={(value: string) => {
           if (defaultStatus.findIndex((item) => item.text.includes(value)) < 0) {

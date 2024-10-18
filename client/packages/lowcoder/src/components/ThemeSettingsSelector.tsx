@@ -426,7 +426,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <Radius $radius={defaultRadius || "0"}>
             <div>
-              <MultiIconDisplay identifier="/icon:svg/BorderRadiusIcon" style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderRadiusIcon} style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
             </div>
           </Radius>
           <TacoInput
@@ -441,7 +441,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderStyle $borderStyle={defaultBorderStyle || "solid"}>
             <div>
-              <MultiIconDisplay identifier="/icon:svg/BorderStyleIcon" style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderStyleIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderStyle>
           <TacoInput
@@ -456,7 +456,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderWidth $borderWidth={defaultBorderWidth || "1px"}>
             <div>
-              <MultiIconDisplay identifier="/icon:svg/BorderWidthIcon" style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderWidthIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderWidth>
           <TacoInput
@@ -472,7 +472,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Margin $margin={defaultMargin || "4px"}>  
             <div>  
-              <MultiIconDisplay identifier="/icon:svg/ExpandIcon" title="" />
+              <MultiIconDisplay identifier={ExpandIcon} title="" />
             </div>  
           </Margin>  
           <TacoInput  
@@ -491,7 +491,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Padding $padding={defaultPadding || "4px"}>  
             <div>  
-              <MultiIconDisplay identifier="/icon:svg/CompressIcon" title="" />
+              <MultiIconDisplay identifier={CompressIcon} title="" />
             </div>  
           </Padding>  
           <TacoInput  
@@ -555,7 +555,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridColumns" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
           <Slider
@@ -572,7 +572,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridRowHeight" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
           <Slider
@@ -589,7 +589,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridRowCount" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
           <TacoInput
@@ -614,7 +614,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridPaddingX" && (
         <div className="config-input">
           <Padding $padding={"3px"}>
-            <div><CompressIcon title="" /></div>
+            <div><MultiIconDisplay identifier={CompressIcon} title="" /></div>
           </Padding>
           <TacoInput
             type="number"
@@ -638,7 +638,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridPaddingY" && (
         <div className="config-input">
           <Padding $padding={"3px"}>
-            <div><CompressIcon title="" /></div>
+            <div><MultiIconDisplay identifier={CompressIcon} title="" /></div>
           </Padding>
           <TacoInput
             type="number"

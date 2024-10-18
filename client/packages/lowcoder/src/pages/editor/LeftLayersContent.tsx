@@ -1,6 +1,6 @@
 import { CompInfo, EditorContext } from "comps/editorState";
 import {
-  BaseSection,
+  BaseSection, FoldedIcon, LeftCommon, LeftShow,
   ScrollBar,
 } from "lowcoder-design";
 import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } from "react";
@@ -44,7 +44,7 @@ interface LeftLayersContentProps {
 }
 
 const DropdownLeftShow = () => (
-  <MultiIconDisplay identifier="/icon:svg/LeftShow" viewBox="0 0 256 256" /> // Setting custom viewBox
+  <MultiIconDisplay identifier={LeftShow} viewBox="0 0 256 256" /> // Setting custom viewBox
 );
 
 type NodeItem = {
@@ -521,10 +521,10 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           treeData={componentTreeData}
           icon={(props: any) => props.type && (
             <div style={{ margin: '3px 4px 0 -4px'}}> 
-              {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier="/icon:svg/LeftCommon" />}
+              {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier={LeftCommon} />}
             </div>
           )}
-          switcherIcon={(props: any) => props.expanded ? <MultiIconDisplay identifier="/icon:svg/FoldedIcon" /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />}
+          switcherIcon={(props: any) => props.expanded ? <MultiIconDisplay identifier={FoldedIcon} /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />}
           expandedKeys={expandedKeys}
           onExpand={(keys) => setExpandedKeys(keys)}
           titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}

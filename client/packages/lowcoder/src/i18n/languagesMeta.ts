@@ -1,6 +1,7 @@
 
 import { es, ru } from "./locales";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {Flag_br, Flag_cn, Flag_de, Flag_es, Flag_gb, Flag_it, Flag_ru} from "icons";
 
 
 // Define the structure for a single language's metadata
@@ -17,31 +18,31 @@ export const initlanguageMeta = async () => {
   languagesMetadata = {
     en: {
       languageName: "English",
-      flag: MultiIcon("/icon:svg/Flag_gb")
+      flag: MultiIcon(Flag_gb)
     },
     zh: {
       languageName: "中文",
-      flag: MultiIcon("/icon:svg/Flag_cn")
+      flag: MultiIcon(Flag_cn)
     },
     de: {
       languageName: "Deutsch",
-      flag: MultiIcon("/icon:svg/Flag_de")
+      flag: MultiIcon(Flag_de)
     },
     pt: {
       languageName: "Português",
-      flag: MultiIcon("/icon:svg/Flag_br")
+      flag: MultiIcon(Flag_br)
     },
     it: {
       languageName: "Italiano",
-      flag: MultiIcon("/icon:svg/Flag_it")
+      flag: MultiIcon(Flag_it)
     },
     es: {
       languageName: "Español",
-      flag: MultiIcon("/icon:svg/Flag_es")
+      flag: MultiIcon(Flag_es)
     },
     ru: {
       languageName: "Русский",
-      flag: MultiIcon("/icon:svg/Flag_ru")
+      flag: MultiIcon(Flag_ru)
     },
   };
 }

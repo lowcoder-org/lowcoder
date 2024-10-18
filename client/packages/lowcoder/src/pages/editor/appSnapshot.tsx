@@ -16,7 +16,7 @@ import {
   isAppSnapshotsFetching,
 } from "redux/selectors/appSnapshotSelector";
 import { default as Skeleton } from "antd/es/skeleton";
-import { TacoPagination } from "lowcoder-design";
+import {AppSnapshotIcon, CloseIcon, TacoPagination} from "lowcoder-design";
 import { AppSnapshotContext, AppSnapshotList } from "constants/applicationConstants";
 import { ExtraActionType } from "lowcoder-core";
 import { formatString } from "util/stringUtils";
@@ -82,11 +82,11 @@ const SnapshotFooter = styled.div`
   bottom: 0;
   width: 100%;
 `;
-const StyledSnapshotIcon = styled(() => <MultiIconDisplay identifier="/icon:svg/AppSnapshotIcon"/>)`
+const StyledSnapshotIcon = styled(() => <MultiIconDisplay identifier={AppSnapshotIcon}/>)`
   margin-right: 4px;
 `;
 
-const StyledCloseIcon = styled(MultiIcon("/icon:svg/CloseIcon"))`
+const StyledCloseIcon = styled(MultiIcon(CloseIcon))`
   margin-left: auto;
   cursor: pointer;
 

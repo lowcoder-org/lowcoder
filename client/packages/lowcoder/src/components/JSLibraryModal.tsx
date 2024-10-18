@@ -17,6 +17,7 @@ import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CalendarDeleteIcon, DocBoldIcon, DownloadBoldIcon, DownloadedIcon, ErrorIcon} from "icons";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -42,7 +43,7 @@ const JSLibraryCardWrapper = styled.div`
   width: 280px;
   margin-bottom: -1px;
 `;
-const StyledDocIcon = styled(MultiIcon("/icon:svg/DocBoldIcon"))`
+const StyledDocIcon = styled(MultiIcon(DocBoldIcon))`
   margin-right: 16px;
   cursor: pointer;
   color: ${GreyTextColor};
@@ -53,7 +54,7 @@ const StyledDocIcon = styled(MultiIcon("/icon:svg/DocBoldIcon"))`
     }
   }
 `;
-const StyledDownloadIcon = styled(MultiIcon("/icon:svg/DownloadBoldIcon"))`
+const StyledDownloadIcon = styled(MultiIcon(DownloadBoldIcon))`
   cursor: pointer;
 
   &:hover {
@@ -123,7 +124,7 @@ const JSLibraryCard = (
           {loading ? (
             <Spin indicator={<LoadingOutlined style={{ fontSize: 15 }} spin />} />
           ) : !props.onCheck(meta.downloadUrl) ? (
-            <MultiIconDisplay identifier="/icon:svg/DownloadedIcon" />
+            <MultiIconDisplay identifier={DownloadedIcon} />
           ) : (
             <StyledDownloadIcon
               onClick={() =>
@@ -194,10 +195,10 @@ const Error = (props: {
   <ErrorWrapper>
     <div className={"error-title"}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <MultiIconDisplay identifier="/icon:svg/ErrorIcon" />
+        <MultiIconDisplay identifier={ErrorIcon} />
         {props.title}
       </div>
-      <MultiIconDisplay identifier="/icon:svg/CalendarDeleteIcon" className={"close-button"} onClick={() => props.setError(undefined)} />
+      <MultiIconDisplay identifier={CalendarDeleteIcon} className={"close-button"} onClick={() => props.setError(undefined)} />
     </div>
     <div className={"error-description"}>{props.description}</div>
   </ErrorWrapper>

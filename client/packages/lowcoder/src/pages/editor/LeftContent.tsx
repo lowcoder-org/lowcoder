@@ -8,7 +8,7 @@ import {
   ScrollBar,
   Tooltip,
   UnShow,
-  TacoButton,
+  TacoButton, LeftClose, LeftCommon, FoldedIcon,
 } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
@@ -434,7 +434,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <MultiIconDisplay identifier="/icon:svg/LeftClose" />
+                  <MultiIconDisplay identifier={LeftClose} />
                 </div>
               </Tooltip>
             )
@@ -489,11 +489,11 @@ export const LeftContent = (props: LeftContentProps) => {
         treeData={explorerData}
         icon={(props: any) => props.type && (
           <div style={{ margin: '16px 4px 0 -4px'}}> 
-            {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier="/icon:svg/LeftCommon" />}
+            {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier={LeftCommon} />}
           </div>
         )}
         switcherIcon={(props: any) =>
-          props.expanded ? <MultiIconDisplay identifier="/icon:svg/FoldedIcon" /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />
+          props.expanded ? <MultiIconDisplay identifier={FoldedIcon} /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />
         }
         expandedKeys={expandedKeys}
         onExpand={(keys) => setExpandedKeys(keys)}

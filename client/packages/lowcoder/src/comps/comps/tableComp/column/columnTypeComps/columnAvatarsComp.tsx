@@ -17,6 +17,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
 import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AlignCenter, AlignLeft, AlignRight} from "icons";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -81,9 +82,9 @@ const DropdownOption = new MultiCompBuilder(
 const EventOptions = [clickEvent, refreshEvent] as const;
 
 export const alignOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "flex-start" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignCenter" />, value: "center" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "flex-end" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "flex-start" },
+  { label: <MultiIconDisplay identifier={AlignCenter} />, value: "center" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "flex-end" },
 ] as const;
 
 export const ColumnAvatarsComp = (function () {

@@ -6,7 +6,7 @@ import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { withDefault } from "comps/generators";
 import { MultiCompBuilder } from "comps/generators/multi";
-import { labelCss, Section, Tooltip, UnderlineCss } from "lowcoder-design";
+import {AlignLeft, AlignRight, labelCss, Section, StarIcon, Tooltip, UnderlineCss} from "lowcoder-design";
 import { ValueFromOption } from "lowcoder-design";
 import { isEmpty } from "lodash";
 import { Fragment, ReactElement, ReactNode } from "react";
@@ -28,7 +28,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   showValidationWhenEmpty?: boolean;
 };
 
-const StyledStarIcon = styled(MultiIcon("/icon:svg/StarIcon"))`
+const StyledStarIcon = styled(MultiIcon(StarIcon))`
   margin-left: 4px;
   flex-shrink: 0;
 `;
@@ -148,8 +148,8 @@ const PositionOptions = [
 type PositionOptionsValue = ValueFromOption<typeof PositionOptions>;
 
 const AlignOptions = [
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignLeft" />, value: "left" },
-  { label: <MultiIconDisplay identifier="/icon:svg/AlignRight" />, value: "right" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "left" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "right" },
 ] as const;
 type AlignOptionsValue = ValueFromOption<typeof AlignOptions>;
 

@@ -21,9 +21,9 @@ import {
   withFunction,
 } from "lowcoder-core";
 import {
-  AutoArea,
-  controlItem,
-  Option,
+    AutoArea, CompressIcon,
+    controlItem, ExpandIcon, IconRadius,
+    Option, WidthIcon,
 } from "lowcoder-design";
 import styled from "styled-components";
 import { lastValueIfEqual } from "util/objectUtils";
@@ -590,7 +590,7 @@ const ColumnOption = new MultiCompBuilder(
   <StyledContent>
     {children.minWidth.propertyView({
       label: trans('responsiveLayout.minWidth'),
-      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/WidthIcon")} title="" />,
+      preInputNode: <StyledIcon as={MultiIcon(WidthIcon)} title="" />,
       placeholder: '3px',
     })}
     {children.background.propertyView({
@@ -598,7 +598,7 @@ const ColumnOption = new MultiCompBuilder(
     })}
     {children.backgroundImage.propertyView({
       label: `Background Image`,
-      // preInputNode: <StyledIcon as={IMultiIcon("/icon:svg/mageCompIcon")} title="" />,
+      // preInputNode: <StyledIcon as={IMultiIcon(mageCompIcon)} title="" />,
       placeholder: 'https://temp.im/350x400',
     })}
     {children.border.propertyView({
@@ -606,17 +606,17 @@ const ColumnOption = new MultiCompBuilder(
     })}
     {children.radius.propertyView({
       label: trans('style.borderRadius'),
-      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/IconRadius")} title="" />,
+      preInputNode: <StyledIcon as={MultiIcon(IconRadius)} title="" />,
       placeholder: '3px',
     })}
     {children.margin.propertyView({
       label: trans('style.margin'),
-      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/ExpandIcon")} title="" />,
+      preInputNode: <StyledIcon as={MultiIcon(ExpandIcon)} title="" />,
       placeholder: '3px',
     })}
     {children.padding.propertyView({
       label: trans('style.padding'),
-      preInputNode: <StyledIcon as={MultiIcon("/icon:svg/CompressIcon")} title="" />,
+      preInputNode: <StyledIcon as={MultiIcon(CompressIcon)} title="" />,
       placeholder: '3px',
     })}
   </StyledContent>

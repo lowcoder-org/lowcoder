@@ -31,6 +31,7 @@ import { LayoutActionComp } from "./layoutActionComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AlignCenter, AlignLeft, AlignRight} from "icons";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -147,13 +148,13 @@ const defaultStyle = {
   padding: '0px',
 }
 
-const AlignTop = styled(MultiIcon("/icon:svg/AlignLeft"))`
+const AlignTop = styled(MultiIcon(AlignLeft))`
   transform: rotate(90deg);
 `;
-const AlignBottom = styled(MultiIcon("/icon:svg/AlignRight"))`
+const AlignBottom = styled(MultiIcon(AlignRight))`
   transform: rotate(90deg);
 `;
-const AlignVerticalCenter = styled(MultiIcon("/icon:svg/AlignCenter"))`
+const AlignVerticalCenter = styled(MultiIcon(AlignCenter))`
   transform: rotate(90deg);
 `;
 
