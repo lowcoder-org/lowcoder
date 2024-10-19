@@ -147,8 +147,6 @@ const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
 export function MarketplaceResCard(props: { res: HomeRes; }) {
   const { res } = props;
 
-  console.log(res);
-
   const subTitle = trans("home.resCardSubTitle", { time: timestampToHumanReadable(res.lastModifyTime, MONTH_MILLIS), creator: res.creator});
 
   const resInfo = HomeResInfo[res.type];

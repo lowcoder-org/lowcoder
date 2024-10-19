@@ -1,7 +1,7 @@
 import { CompInfo, EditorContext } from "comps/editorState";
 import {
   BaseSection, FoldedIcon, LeftCommon, LeftShow,
-  ScrollBar,
+  ScrollBar, UnfoldIcon,
 } from "lowcoder-design";
 import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } from "react";
 import _, { get, set } from "lodash";
@@ -524,7 +524,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
               {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier={LeftCommon} />}
             </div>
           )}
-          switcherIcon={(props: any) => props.expanded ? <MultiIconDisplay identifier={FoldedIcon} /> : <MultiIconDisplay identifier="/icon:svg/UnfoldIcon" />}
+          switcherIcon={(props: any) => props.expanded ? <MultiIconDisplay identifier={FoldedIcon} /> : <MultiIconDisplay identifier={UnfoldIcon} />}
           expandedKeys={expandedKeys}
           onExpand={(keys) => setExpandedKeys(keys)}
           titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}

@@ -10,7 +10,7 @@ import { CompNameContext } from "../../comps/editorState";
 import { isEmpty } from "lodash";
 import { trans } from "i18n";
 import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
-import {CodeEditorCloseIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon, DragIcon} from "icons";
+import {CodeEditorCloseIcon, CodeEditorOpenIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon, DragIcon} from "icons";
 
 const Wrapper = styled.div`
   max-width: 60vw;
@@ -218,7 +218,7 @@ export const CodeEditorPanel = (props: {
       )}
     >
       <OpenButton className={"code-editor-panel-open-button"} onClick={() => setVisible(true)}>
-        <MultiIconDisplay identifier={"/icon:svg/CodeEditorOpenIcon"} />
+        <MultiIconDisplay identifier={CodeEditorOpenIcon} />
       </OpenButton>
     </Trigger>
   );
