@@ -12,6 +12,7 @@ import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   checkMentionListData,
+  fixOldInputCompData,
   textInputChildren,
 } from "./textInputConstants";
 import {
@@ -21,6 +22,7 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import {
+  AnimationStyle,
   InputLikeStyle,
   InputLikeStyleType,
 } from "comps/controls/styleControlConstants";
@@ -35,15 +37,14 @@ import {
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { TextAreaRef } from "antd/lib/input/TextArea";
-import { Mentions, ConfigProvider } from "antd";
+import { TextAreaRef } from "antd/es/input/TextArea";
+import { default as ConfigProvider } from "antd/es/config-provider";
+import { default as Mentions, type MentionsOptionProps } from "antd/es/mentions";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
-import type { MentionsOptionProps } from "antd/es/mentions";
 import {
   textInputValidate,
 } from "../textInputComp/textInputConstants";
-import { jsonControl } from "@lowcoder-ee/comps/controls/codeControl";
-// 事件控制
+import { jsonControl } from "comps/controls/codeControl";
 import {
   submitEvent,
   eventHandlerControl,
@@ -53,10 +54,21 @@ import {
   changeEvent
 } from "comps/controls/eventHandlerControl";
 
+import React, { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  box-sizing:border-box;
+  .rc-textarea {
+    background-color:${(props) => props.$style.background};
+    padding:${(props) => props.$style.padding};
+    text-transform:${(props)=>props.$style.textTransform};
+    text-decoration:${(props)=>props.$style.textDecoration};
+    margin: 0px 3px 0px 3px !important;
+  }
 
   .ant-input-clear-icon {
     opacity: 0.45;
@@ -84,23 +96,20 @@ let MentionTmpComp = (function () {
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
     autoHeight: AutoHeightControl,
-    style: styleControl(InputLikeStyle),
-    mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
-    }),
+    style: styleControl(InputLikeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
     onEvent: eventHandlerControl(EventOptions),
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props) => {  
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
     const [prefix, setPrefix] = useState<PrefixType>("@");
     type PrefixType = "@" | keyof typeof mentionList;
 
-    // 获取提及搜索关键字
     const onSearch = (_: string, newPrefix: PrefixType) => {
       setPrefix(newPrefix);
     };
@@ -191,67 +200,88 @@ let MentionTmpComp = (function () {
                 label: value,
               }))}
               autoSize={props.autoHeight}
-              style={{ height: "100%", maxHeight: "100%", resize: "none", padding: props.style.padding }}
+              style={{
+                height: "100%",
+                maxHeight: "100%",
+                resize: "none",
+                // padding: props.style.padding,
+                fontStyle: props.style.fontStyle,
+                fontFamily: props.style.fontFamily,
+                borderWidth: props.style.borderWidth,
+                fontWeight: props.style.textWeight,
+                fontSize: props.style.textSize
+              }}
               readOnly={props.readOnly}
             />
           </ConfigProvider>
         </Wrapper>
       ),
       style: props.style,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.mentionList.propertyView({
-            label: trans("mention.mentionList"),
-          })}
           {children.value.propertyView({ label: trans("prop.defaultValue") })}
           {children.placeholder.propertyView({
             label: trans("prop.placeholder"),
           })}
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.mentionList.propertyView({
+              label: trans("mention.mentionList"),
+            })
+          )}
         </Section>
         <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {readOnlyPropertyView(children)}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+          </Section>
+            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+            <Section name={sectionNames.advanced}>
+              {readOnlyPropertyView(children)}
+            </Section><Section name={sectionNames.validation}>
+              {requiredPropertyView(children)}
+              {children.validationType.propertyView({
+                label: trans("prop.textType"),
+              })}
+              {minLengthPropertyView(children)}
+              {maxLengthPropertyView(children)}
+              {children.customRule.propertyView({})}
+            </Section></>
+        )}
 
-        <Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {children.validationType.propertyView({
-            label: trans("prop.textType"),
-          })}
-          {minLengthPropertyView(children)}
-          {maxLengthPropertyView(children)}
-          {children.customRule.propertyView({})}
-        </Section>
-
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+            <Section name={sectionNames.style}>
+            {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     ))
     .build();
 })();
+
 
 MentionTmpComp = class extends MentionTmpComp {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
+
+MentionTmpComp = migrateOldData(MentionTmpComp, fixOldInputCompData);
 
 const TextareaTmp2Comp = withMethodExposing(
   MentionTmpComp,

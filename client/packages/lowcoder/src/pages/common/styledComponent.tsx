@@ -7,7 +7,7 @@ import _ from "lodash";
 import { useResizeDetector } from "react-resize-detector";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 export const Height100Div = styled.div`
   height: 100%;
@@ -39,6 +39,7 @@ const RightStyledCard = styled(Card)`
 
 export const LeftPanel = styled(StyledCard)`
   display: block;
+  z-index: ${Layers.rightPanel};
 `;
 export const RightPanelWrapper = styled(RightStyledCard)`
   display: flex;
@@ -49,13 +50,13 @@ export const EditorContainerWithViewMode = styled.div`
   height: 100%;
 
   div {
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       width: 16px;
     }
   }
 
   div {
-    ::-webkit-scrollbar-thumb {
+    &::-webkit-scrollbar-thumb {
       border: 5px solid transparent;
       background-clip: content-box;
       border-radius: 9999px;
@@ -65,7 +66,7 @@ export const EditorContainerWithViewMode = styled.div`
   }
 
   div {
-    ::-webkit-scrollbar-thumb:hover {
+    &::-webkit-scrollbar-thumb:hover {
       background-color: rgba(139, 143, 163, 0.5);
     }
   }
@@ -83,11 +84,11 @@ export const EditorContainer = styled.div`
   padding-right: 0;
   scrollbar-gutter: stable;
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 16px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 5px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
@@ -95,7 +96,7 @@ export const EditorContainer = styled.div`
     min-height: 30px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.5);
   }
 `;
@@ -103,7 +104,7 @@ export const EditorContainer = styled.div`
 export const StyledLink = styled.a`
   color: #4965f2;
 
-  :hover {
+  &:hover {
     color: #315efb;
   }
 `;

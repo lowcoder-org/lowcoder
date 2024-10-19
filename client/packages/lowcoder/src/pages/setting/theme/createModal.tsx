@@ -54,7 +54,7 @@ function CreateModal(props: CreateModalProp) {
     return (
       <ThemeBtn
         key={theme.id}
-        theme={theme.theme}
+        $theme={theme.theme}
         onClick={() => setSelectId(theme.id)}
         className={selectId === theme.id ? "selected" : ""}
       >
@@ -121,7 +121,7 @@ function CreateModal(props: CreateModalProp) {
       <ScrollBarStyled
         style={{
           height: themeList?.length ? (themeList?.length > 3 ? "363px" : "313px") : "156px",
-          marginBottom: (!!themeList?.length && themeList?.length) > 3 ? "4px" : "0",
+          marginBottom: (!!themeList?.length && themeList?.length > 3) ? "4px" : "0",
         }}
       >
         <SelectTitle>{trans("theme.defaultThemeTip")}</SelectTitle>

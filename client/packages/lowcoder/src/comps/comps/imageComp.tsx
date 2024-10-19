@@ -17,6 +17,8 @@ import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
+  AnimationStyle,
+  AnimationStyleType,
   ImageStyle,
   ImageStyleType,
   heightCalculator,
@@ -26,10 +28,14 @@ import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { Image as AntImage } from "antd";
+import { default as AntImage } from "antd/es/image";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
 
-const Container = styled.div<{ $style: ImageStyleType | undefined }>`
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { StringControl } from "../controls/codeControl";
+
+const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
   width: 100%;
   display: flex;
@@ -44,6 +50,7 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
   img {
     object-fit: contain;
     pointer-events: auto;
+    ${props=>props.$animationStyle}
   }
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -52,12 +59,13 @@ const Container = styled.div<{ $style: ImageStyleType | undefined }>`
 const getStyle = (style: ImageStyleType) => {
   return css`
     img {
-      border: 1px solid ${style.border};
+      border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
       padding: ${style.padding};
       max-width: ${widthCalculator(style.margin)};
       max-height: ${heightCalculator(style.margin)};
+      rotate: ${style.rotation};
     }
 
     .ant-image-mask {
@@ -99,7 +107,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 
   // on safari
   const setStyle = (height: string, width: string) => {
-    console.log(width, height);
+    // console.log(width, height);
 
     const img = imgRef.current;
     const imgDiv = img?.getElementsByTagName("div")[0];
@@ -129,24 +137,28 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   };
   return (
-    <ReactResizeDetector onResize={onResize}>
-      <Container ref={conRef} $style={props.style}>
-        <div
-          ref={imgRef}
-          style={
-            props.autoHeight ? { width: "100%", height: "100%" } : undefined
-          }
-        >
-          <AntImage
-            src={props.src.value}
-            referrerPolicy="same-origin"
-            draggable={false}
-            preview={props.supportPreview}
-            fallback={DEFAULT_IMG_URL}
-            onClick={() => props.onEvent("click")}
-          />
-        </div>
-      </Container>
+    <ReactResizeDetector
+      onResize={onResize}
+      render={() => (
+        <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
+          <div
+            ref={imgRef}
+            style={
+              props.autoHeight ? { width: "100%", height: "100%" } : undefined
+            }
+          >
+            <AntImage
+              src={props.src.value}
+              referrerPolicy="same-origin"
+              draggable={false}
+              preview={props.supportPreview}
+              fallback={DEFAULT_IMG_URL}
+              onClick={() => props.onEvent("click")}
+            />
+          </div>
+        </Container>
+      )}
+    >
     </ReactResizeDetector>
   );
 };
@@ -154,9 +166,11 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
   onEvent: eventHandlerControl(EventOptions),
-  style: styleControl(ImageStyle),
+  style: styleControl(ImageStyle , 'style'),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
+  restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -169,24 +183,32 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.src.propertyView({
             label: trans("image.src"),
           })}
-          {children.supportPreview.propertyView({
-            label: trans("image.supportPreview"),
-            tooltip: trans("image.supportPreviewTip"),
-          })}
         </Section>
 
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {hiddenPropertyView(children)}
+            {children.supportPreview.propertyView({
+              label: trans("image.supportPreview"),
+              tooltip: trans("image.supportPreviewTip"),
+            })}
+          </Section>
+        )}
 
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
+        )}
       </>
     );
   })

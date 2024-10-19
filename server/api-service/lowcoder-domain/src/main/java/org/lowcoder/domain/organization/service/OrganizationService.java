@@ -14,17 +14,23 @@ import reactor.core.publisher.Mono;
 
 public interface OrganizationService {
 
+    public static final String PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, %s<br/>" +
+            "Here is the link to reset your password: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/></p>";
+
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();
 
-    Mono<Organization> create(Organization organization, String creatorUserId);
+    Mono<Organization> create(Organization organization, String creatorUserId, boolean isSuperAdmin);
 
-    Mono<Organization> createDefault(User user);
+    Mono<Organization> createDefault(User user, boolean isSuperAdmin);
 
     Mono<Organization> getById(String id);
 
     @NonEmptyMono
     Flux<Organization> getByIds(Collection<String> ids);
+    @NonEmptyMono
+    Flux<Organization> getAllActive();
 
     Mono<OrganizationCommonSettings> getOrgCommonSettings(String orgId);
 

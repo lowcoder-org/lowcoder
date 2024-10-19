@@ -1,28 +1,25 @@
 package org.lowcoder.sdk.plugin.common;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_TIMEOUT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
-import static org.lowcoder.sdk.util.JsonUtils.fromJson;
-import static org.lowcoder.sdk.util.JsonUtils.toJson;
-
-import java.time.Duration;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.reflect.TypeToken;
+import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.exception.PluginCommonError;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.DatasourceTestResult;
 import org.lowcoder.sdk.models.TokenBasedConnectionDetail;
 import org.pf4j.ExtensionPoint;
-
-import com.google.common.reflect.TypeToken;
-
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeoutException;
+
+import static org.lowcoder.sdk.exception.PluginCommonError.DATASOURCE_TIMEOUT_ERROR;
+import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
+import static org.lowcoder.sdk.util.JsonUtils.fromJson;
+import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
 @SuppressWarnings("unchecked")
 public interface DatasourceConnector<Connection, ConnectionConfig extends DatasourceConnectionConfig> extends ExtensionPoint {

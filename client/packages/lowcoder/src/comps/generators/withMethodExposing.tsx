@@ -44,7 +44,7 @@ export function withMethodExposingBase<T extends ExposeMethodCompConstructor<Abs
       try {
         result = method.execute(this as ConstructorToComp<T>, action.value.params);
       } catch (e) {
-        console.log(e);
+        // console.log(e);
         result = Promise.reject(e);
       }
       handlePromiseAfterResult(action, result);

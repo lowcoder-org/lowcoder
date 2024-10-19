@@ -2,12 +2,11 @@ package org.lowcoder.domain.group.repository;
 
 import java.util.Collection;
 
-import javax.validation.constraints.NotNull;
-
 import org.lowcoder.domain.group.model.Group;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
+import jakarta.validation.constraints.NotNull;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -15,6 +14,7 @@ import reactor.core.publisher.Mono;
 public interface GroupRepository extends ReactiveMongoRepository<Group, String> {
 
     Flux<Group> findByIdIn(Collection<String> id);
+    Flux<Group> findByGid(String id);
 
     Flux<Group> findByOrganizationId(String organizationId);
 

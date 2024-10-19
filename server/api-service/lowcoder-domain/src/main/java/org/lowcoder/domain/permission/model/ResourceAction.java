@@ -1,18 +1,16 @@
 package org.lowcoder.domain.permission.model;
 
-import static com.google.common.collect.Multimaps.toMultimap;
-import static java.util.Collections.emptySet;
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
+import jakarta.annotation.Nonnull;
+import lombok.Getter;
 
 import java.util.Arrays;
 import java.util.Set;
 
-import javax.annotation.Nonnull;
-
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.SetMultimap;
-
-import lombok.Getter;
+import static com.google.common.collect.Multimaps.toMultimap;
+import static java.util.Collections.emptySet;
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 
 @Getter
 public enum ResourceAction {
@@ -23,7 +21,19 @@ public enum ResourceAction {
     EXPORT_APPLICATIONS(ResourceRole.EDITOR, ResourceType.APPLICATION),
     EDIT_APPLICATIONS(ResourceRole.EDITOR, ResourceType.APPLICATION),
 
+    MANAGE_BUNDLES(ResourceRole.OWNER, ResourceType.BUNDLE),
+    READ_BUNDLES(ResourceRole.VIEWER, ResourceType.BUNDLE),
+    PUBLISH_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    EXPORT_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    EDIT_BUNDLES(ResourceRole.EDITOR, ResourceType.BUNDLE),
+
     SET_APPLICATIONS_PUBLIC(ResourceRole.EDITOR, ResourceType.APPLICATION),
+    SET_APPLICATIONS_PUBLIC_TO_MARKETPLACE(ResourceRole.EDITOR, ResourceType.APPLICATION),
+    SET_APPLICATIONS_AS_AGENCY_PROFILE(ResourceRole.EDITOR, ResourceType.APPLICATION),
+
+    SET_BUNDLES_PUBLIC(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    SET_BUNDLES_PUBLIC_TO_MARKETPLACE(ResourceRole.EDITOR, ResourceType.BUNDLE),
+    SET_BUNDLES_AS_AGENCY_PROFILE(ResourceRole.EDITOR, ResourceType.BUNDLE),
 
     // datasource action
     MANAGE_DATASOURCES(ResourceRole.OWNER, ResourceType.DATASOURCE),

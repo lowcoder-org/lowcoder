@@ -2,13 +2,16 @@ package org.lowcoder.domain.user.model;
 
 import static org.apache.commons.collections4.MapUtils.emptyIfNull;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotEmpty;
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotEmpty;
 
+import lombok.extern.jackson.Jacksonized;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +29,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class Connection {
+@Jacksonized
+public class Connection implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = -9218373922209100577L;
 
     private String authId;
@@ -40,6 +45,8 @@ public class Connection {
     private final String rawId;
 
     private final String name;
+
+    private final String email;
 
     private final String avatar;
 
@@ -54,21 +61,18 @@ public class Connection {
     private Set<String> tokens;
 
     @JsonCreator
-    private Connection(String authId, String source, String rawId, String name, String avatar, Set<String> orgIds, @Nullable
+    private Connection(String authId, String source, String rawId, String name, String email, String avatar, Set<String> orgIds, @Nullable
     ConnectionAuthToken authConnectionAuthToken, Map<String, Object> rawUserInfo, Set<String> tokens) {
         this.authId = authId;
         this.source = source;
         this.rawId = rawId;
         this.name = name;
+        this.email = email;
         this.avatar = avatar;
         this.orgIds = CollectionUtils.isEmpty(orgIds) ? new HashSet<>() : orgIds;
         this.authConnectionAuthToken = authConnectionAuthToken;
         this.rawUserInfo = rawUserInfo;
         this.tokens = tokens;
-    }
-
-    public static Connection.ConnectionBuilder builder() {
-        return new ConnectionBuilder();
     }
 
     public Set<String> getTokens() {

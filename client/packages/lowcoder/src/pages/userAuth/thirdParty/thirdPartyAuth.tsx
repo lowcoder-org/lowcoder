@@ -1,21 +1,21 @@
 import {
-  AuthSearchParams,
   OAuthLocationState,
   ThirdPartyAuthGoal,
   ThirdPartyConfigType,
 } from "constants/authConstants";
-import { CommonGrayLabel, WhiteLoading } from "lowcoder-design";
-import { useLocation } from "react-router-dom";
+import { WhiteLoading } from "lowcoder-design";
 import history from "util/history";
 import { LoginLogoStyle, LoginLabelStyle, StyledLoginButton } from "pages/userAuth/authComponents";
 import { useSelector } from "react-redux";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import React from "react";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
-import { Divider } from "antd";
+import { default as Divider } from "antd/es/divider";
+import { useRedirectUrl } from "util/hooks";
+import { MultiIconDisplay } from "../../../comps/comps/multiIconDisplay";
 
 const ThirdPartyLoginButtonWrapper = styled.div`
   button{
@@ -36,9 +36,7 @@ function ThirdPartyLoginButton(props: {
   label: string;
 }) {
   const { config, label } = props;
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  const loginRedirectUrl = queryParams.get(AuthSearchParams.redirectUrl);
+  const loginRedirectUrl = useRedirectUrl();
   const redirectUrl = getRedirectUrl(config.authType);
   const onLoginClick = () => {
     const state = geneAuthStateAndSaveParam(
@@ -90,7 +88,8 @@ function ThirdPartyLoginButton(props: {
 
   return (
     <StyledLoginButton buttonType="normal" onClick={onLoginClick}>
-      <LoginLogoStyle alt={config.name} src={config.logo} title={config.name} />
+      {config.icon && <MultiIconDisplay identifier={config.icon} width="20px" height="20px" style={{ marginRight: "20px", flexShrink: 0, color: "#000" }} />}
+      {!config.icon && <LoginLogoStyle alt={config.name} src={config.logo} title={config.name} />}
       <LoginLabelStyle className="auth-label">
         { buttonLabel }
       </LoginLabelStyle>

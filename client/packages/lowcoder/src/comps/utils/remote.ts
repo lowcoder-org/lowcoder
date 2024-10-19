@@ -12,7 +12,7 @@ export function getRemoteCompType(
 }
 
 export function parseCompType(compType: string) {
-  const [type, source, packageNameAndVersion, compName] = compType.split("#");
+  let [type, source, packageNameAndVersion, compName] = compType.split("#");
   const isRemote = type === "remote";
 
   if (!isRemote) {
@@ -22,7 +22,13 @@ export function parseCompType(compType: string) {
     };
   }
 
-  const [packageName, packageVersion] = packageNameAndVersion.split("@");
+  const packageRegex = /^(?<packageName>(@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*)@(?<packageVersion>([0-9]+.[0-9]+.[0-9]+)(-[\w\d-]+)?)$/;
+  const matches = packageNameAndVersion.match(packageRegex);
+  if (!matches?.groups) {
+    throw new Error(`Invalid package name and version: ${packageNameAndVersion}`);
+  }
+
+  const {packageName, packageVersion} = matches.groups;
   return {
     compName,
     isRemote,
@@ -33,7 +39,7 @@ export function parseCompType(compType: string) {
 }
 
 export async function getNpmPackageMeta(packageName: string) {
-  const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${packageName}/`);
+  const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/none/${packageName}`);
   if (res.status >= 400) {
     return null;
   }

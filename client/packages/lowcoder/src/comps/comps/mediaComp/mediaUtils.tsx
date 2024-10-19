@@ -7,7 +7,7 @@ import {
 } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import { MultiBaseComp } from "lowcoder-core";
-import ReactPlayer from "react-player";
+import type ReactPlayer from "react-player";
 
 export const mediaCommonChildren = {
   viewRef: RefControl<ReactPlayer>,

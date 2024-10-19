@@ -1,14 +1,16 @@
 package org.lowcoder.sdk.models;
 
-import org.lowcoder.sdk.plugin.restapi.DataUtils.MultipartFormDataType;
-
 import com.fasterxml.jackson.annotation.JsonCreator;
-
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import lombok.extern.jackson.Jacksonized;
+import org.lowcoder.sdk.plugin.restapi.DataUtils.MultipartFormDataType;
 
 @ToString
 @EqualsAndHashCode
+@Builder
+@Jacksonized
 public class Property {
 
     private final String key;

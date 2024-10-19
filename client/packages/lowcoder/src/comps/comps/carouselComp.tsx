@@ -1,4 +1,4 @@
-import { Carousel } from "antd";
+import { default as Carousel } from "antd/es/carousel";
 import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder, withDefault } from "../generators";
@@ -9,22 +9,28 @@ import { trans } from "i18n";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
-import { CarouselStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
 
-const CarouselItem = styled.div<{ src: string }>`
-  background: ${(props) => props.src && `url(${props.src})`} no-repeat 50% 50%;
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+// TODO: dots at top position needs proper margin (should be the same as bottom position)
+
+const CarouselItem = styled.div<{ $src: string }>`
+  background: ${(props) => props.$src && `url(${props.$src})`} no-repeat 50% 50%;
   background-size: contain;
 `;
 
-const Container = styled.div<{ bg: string }>`
+const Container = styled.div<{$bg: string; $animationStyle:AnimationStyleType}>`
   &,
   .ant-carousel {
     height: 100%;
-    background-color: ${(props) => props.bg};
+    background-color: ${(props) => props.$bg};
+    ${props=>props.$animationStyle}
   }
 `;
 
@@ -38,8 +44,8 @@ let CarouselBasicComp = (function () {
     onEvent: ChangeEventHandlerControl,
     showDots: withDefault(BoolControl, true),
     dotPosition: withDefault(PositionControl, "bottom"),
-    style: styleControl(CarouselStyle),
-
+    style: styleControl(CarouselStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -51,7 +57,11 @@ let CarouselBasicComp = (function () {
       }
     };
     return (
-      <Container ref={containerRef} bg={props.style.background}>
+      <Container
+        ref={containerRef}
+        $bg={props.style.background}
+        $animationStyle={props.animationStyle}
+      >
         <ReactResizeDetector onResize={onResize}>
           <Carousel
             dots={props.showDots}
@@ -61,7 +71,7 @@ let CarouselBasicComp = (function () {
           >
             {props.data.map((url, index) => (
               <div key={index}>
-                <CarouselItem src={url} style={{ height }} />
+                <CarouselItem $src={url} style={{ height }} />
               </div>
             ))}
           </Carousel>
@@ -74,19 +84,32 @@ let CarouselBasicComp = (function () {
         <>
           <Section name={sectionNames.basic}>
             {children.data.propertyView({ label: trans("data") })}
-            {children.autoPlay.propertyView({ label: trans("carousel.autoPlay") })}
           </Section>
-          <FormDataPropertyView {...children} />
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
-          <Section name={sectionNames.layout}>
-            {children.showDots.propertyView({ label: trans("carousel.showDots") })}
-            {children.dotPosition.propertyView({
-              label: trans("carousel.dotPosition"),
-              radioButton: true,
-            })}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <><FormDataPropertyView {...children} />
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.autoPlay.propertyView({ label: trans("carousel.autoPlay") })}
+            </Section></>
+          )}
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <><Section name={sectionNames.layout}>
+                {children.showDots.propertyView({ label: trans("carousel.showDots") })}
+                {children.dotPosition.propertyView({
+                  label: trans("carousel.dotPosition"),
+                  radioButton: true,
+                })}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+            </>
+          )}
         </>
       );
     })

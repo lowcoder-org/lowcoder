@@ -1,10 +1,11 @@
 import styled, { css } from "styled-components";
 import { CSSProperties } from "react";
+import { default as Skeleton } from "antd/es/skeleton";
 
 type LoadingContainerProps = {
-  backgroundColor: string;
-  color: string;
-  size: number;
+  $backgroundColor: string;
+  $color: string;
+  $size: number;
 };
 
 const LoadingWrapper = styled.div`
@@ -12,12 +13,14 @@ const LoadingWrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 100%;
 `;
 
 // Loading
 const ContainerX = styled.div<LoadingContainerProps>`
-  height: ${(props) => props.size}px;
-  width: ${(props) => props.size}px;
+  height: ${(props) => props.$size}px;
+  width: ${(props) => props.$size}px;
   animation: circle infinite 1.75s linear;
   @keyframes circle {
     0% {
@@ -29,14 +32,14 @@ const ContainerX = styled.div<LoadingContainerProps>`
   }
 `;
 const Container = styled.div<LoadingContainerProps>`
-  height: ${(props) => props.size / 2}px;
-  width: ${(props) => props.size}px;
-  background-color: ${(props) => props.backgroundColor};
+  height: ${(props) => props.$size / 2}px;
+  width: ${(props) => props.$size}px;
+  background-color: ${(props) => props.$backgroundColor};
   overflow: hidden;
 `;
 const loadcss = css<LoadingContainerProps>`
-  width: ${(props) => props.size}px;
-  height: ${(props) => props.size}px;
+  width: ${(props) => props.$size}px;
+  height: ${(props) => props.$size}px;
   border: solid 2.5px transparent;
   border-radius: 999px;
   background-origin: border-box;
@@ -46,19 +49,23 @@ const loadcss = css<LoadingContainerProps>`
 const Load1 = styled.div<LoadingContainerProps>`
   ${loadcss};
   background-image: linear-gradient(
-      ${(props) => props.backgroundColor},
-      ${(props) => props.backgroundColor}
+      ${(props) => props.$backgroundColor},
+      ${(props) => props.$backgroundColor}
     ),
-    linear-gradient(to left, ${(props) => props.color}, ${(props) => props.color}91);
+    linear-gradient(to left, ${(props) => props.$color}, ${(props) => props.$color}91);
 `;
 const Load2 = styled.div<LoadingContainerProps>`
   ${loadcss};
-  transform: translateY(-${(props) => props.size / 2}px);
+  transform: translateY(-${(props) => props.$size / 2}px);
   background-image: linear-gradient(
-      ${(props) => props.backgroundColor},
-      ${(props) => props.backgroundColor}
+      ${(props) => props.$backgroundColor},
+      ${(props) => props.$backgroundColor}
     ),
-    linear-gradient(to right, ${(props) => props.color}a3, ${(props) => props.color}1a);
+    linear-gradient(to right, ${(props) => props.$color}a3, ${(props) => props.$color}1a);
+`;
+
+const StyledSkeleton = styled(Skeleton)`
+  height: 100%;
 `;
 
 type LoadingProps = {
@@ -71,20 +78,21 @@ type LoadingProps = {
 
 export const Loading = (props: LoadingProps) => {
   const loadingProps = {
-    backgroundColor: props.backgroundColor ?? "#315efb",
-    color: props.color ?? "#ffffff",
-    size: props.size ?? 14,
+    $backgroundColor: props.backgroundColor ?? "#315efb",
+    $color: props.color ?? "#ffffff",
+    $size: props.size ?? 14,
   };
   return (
     <LoadingWrapper className={props.className} style={props.style}>
-      <ContainerX {...loadingProps}>
+      {/* <ContainerX {...loadingProps}>
         <Container {...loadingProps}>
           <Load1 {...loadingProps} />
         </Container>
         <Container {...loadingProps}>
           <Load2 {...loadingProps} />
         </Container>
-      </ContainerX>
+      </ContainerX> */}
+      <StyledSkeleton active style={{height: '100%', animationDuration: '2s'}} />
     </LoadingWrapper>
   );
 };

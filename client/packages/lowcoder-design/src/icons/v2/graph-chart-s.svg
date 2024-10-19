@@ -1,0 +1,18 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<circle cx="9" cy="5" r="2" stroke="black"/>
+<path d="M11 5.5L16 7.5" stroke="black"/>
+<path d="M8 6.5L5.5 9.5" stroke="black"/>
+<path d="M5.5 17L4.5 13" stroke="black"/>
+<path d="M17 20L8 19.5" stroke="black"/>
+<path d="M19 18L18.5 10" stroke="black"/>
+<path d="M13.5 12.5L16.5 9.5" stroke="black"/>
+<path d="M11.5 12L9.5 7" stroke="black"/>
+<path d="M10 13L5.5 11.5" stroke="black"/>
+<path d="M10.5 15L7.5 17.5" stroke="black"/>
+<path d="M13.5 15L17.5 18.5" stroke="black"/>
+<circle cx="18" cy="8" r="2" stroke="black"/>
+<circle cx="6" cy="19" r="2" stroke="black"/>
+<circle cx="19" cy="20" r="2" stroke="black"/>
+<circle cx="12" cy="14" r="2" stroke="black"/>
+<circle cx="4" cy="11" r="2" stroke="black"/>
+</svg>

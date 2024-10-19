@@ -1,5 +1,5 @@
 {{- if .Values.apiService.autoscaling.enabled }}
-apiVersion: autoscaling/v2beta1
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: {{ include "lowcoder.fullname" . }}-api-service
@@ -17,12 +17,16 @@ spec:
     - type: Resource
       resource:
         name: cpu
-        targetAverageUtilization: {{ .Values.apiService.autoscaling.targetCPUUtilizationPercentage }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.apiService.autoscaling.targetCPUUtilizationPercentage }}
     {{- end }}
     {{- if .Values.apiService.autoscaling.targetMemoryUtilizationPercentage }}
     - type: Resource
       resource:
         name: memory
-        targetAverageUtilization: {{ .Values.apiService.autoscaling.targetMemoryUtilizationPercentage }}
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.apiService.autoscaling.targetMemoryUtilizationPercentage }}
     {{- end }}
 {{- end }}

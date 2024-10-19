@@ -1,20 +1,19 @@
 package org.lowcoder.infra.conditional;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-import java.util.Map;
-
-import javax.annotation.Nullable;
-import javax.validation.constraints.NotBlank;
-
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.NotBlank;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.infra.conditional.ConditionalOnPropertyNotBlank.OnPropertyNotBlankCondition;
 import org.springframework.context.annotation.Condition;
 import org.springframework.context.annotation.ConditionContext;
 import org.springframework.context.annotation.Conditional;
 import org.springframework.core.type.AnnotatedTypeMetadata;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+import java.util.Map;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)

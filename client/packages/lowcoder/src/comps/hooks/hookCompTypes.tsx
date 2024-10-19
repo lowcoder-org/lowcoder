@@ -3,7 +3,7 @@ import { withExposingRaw } from "comps/generators/withExposing";
 const AllHookComp = [
   "modal",
   "drawer",
-  "meeting",
+  // "meeting",
   "title",
   "windowSize",
   "currentTime",
@@ -12,10 +12,13 @@ const AllHookComp = [
   "momentJsLib",
   "utils",
   "message",
+  "toast",
   "localStorage",
   "currentUser",
+  "screenInfo",
   "urlParams",
   "theme",
+  "meeting"
 ] as const;
 
 export type HookCompType = (typeof AllHookComp)[number];
@@ -57,6 +60,7 @@ const HookCompConfig: Record<
   },
   utils: { category: "hide" },
   message: { category: "hide" },
+  toast: { category: "hide" },
 };
 
 // Get hook component category

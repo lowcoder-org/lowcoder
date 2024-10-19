@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import { PropsWithChildren, ReactNode } from "react";
 import styled from "styled-components";
 
@@ -22,7 +22,7 @@ const Btn = styled(TacoButton)`
     line-height: 13px;
     box-shadow: none;
 
-    :hover {
+    &:hover {
       color: #315efb;
       border: none;
       background-color: #ffffff;

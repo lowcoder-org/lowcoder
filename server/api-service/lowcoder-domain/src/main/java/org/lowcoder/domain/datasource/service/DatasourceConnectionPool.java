@@ -1,10 +1,8 @@
 package org.lowcoder.domain.datasource.service;
 
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
-
 import reactor.core.publisher.Mono;
 
 public interface DatasourceConnectionPool {

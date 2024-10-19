@@ -1,24 +1,18 @@
 package org.lowcoder.sdk.plugin.sqlcommand.changeset;
 
-import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.Streams;
+import jakarta.annotation.Nonnull;
+import org.lowcoder.sdk.exception.PluginException;
+import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
 
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-import javax.annotation.Nonnull;
-
-import org.lowcoder.sdk.exception.PluginException;
-import org.lowcoder.sdk.util.SqlGuiUtils.GuiSqlValue;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.common.collect.Streams;
+import static org.lowcoder.sdk.exception.PluginCommonError.INVALID_GUI_SETTINGS;
 
 @SuppressWarnings("UnstableApiUsage")
 public class ChangeSetRow implements Iterable<ChangeSetItem> {

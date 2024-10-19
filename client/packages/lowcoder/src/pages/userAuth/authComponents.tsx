@@ -1,4 +1,4 @@
-import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 import React, { CSSProperties, useRef } from "react";
 import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
 import { Link } from "react-router-dom";
@@ -6,6 +6,7 @@ import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
 import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
+import { favicon } from "assets/images";
 
 const AuthCardContainer = styled.div`
   display: flex;
@@ -32,7 +33,7 @@ const AuthCard = styled.div`
   }
 `;
 
-const AuthCardHeading = styled.div<{ type?: string }>`
+const AuthCardHeading = styled.div<{ $type?: string }>`
   font-weight: 600;
   font-size: 28px;
   color: #222222;
@@ -47,14 +48,20 @@ const AuthCardHeading = styled.div<{ type?: string }>`
   @media screen and (max-width: 640px) {
     font-size: 23px;
     line-height: 23px;
-    ${(props) => props.type === "large" && "margin-top: 32px"}
+    ${(props) => props.$type === "large" && "margin-top: 32px"}
   }
 `;
 
-const AuthCardSubHeading = styled.div`
+const AuthCardSubFooter = styled.div`
   font-size: 14px;
-  color: #222222;
+  color: #dddddd;
   line-height: 14px;
+  margin-top: 40px;
+  > a {
+    margin-left: 4px;
+    color: #dddddd;
+    text-decoration: none;
+  }
 `
 
 const AuthBottom = styled.div`
@@ -62,18 +69,25 @@ const AuthBottom = styled.div`
   align-items: center;
   flex-wrap: wrap;
 
+  > a {
+    margin-right: auto;
+    margin-left: auto;
+    font-size: 1.3em;
+    font-weight: 500;
+  }
+
   > button {
     margin-right: 24px;
+    margin-left: 24px;
     margin-bottom: 16px;
     outline: 0;
   }
 
   > button:first-child {
     // over 5 children, hide the button label
-    :nth-last-child(n + 5),
-    :nth-last-child(n + 5) ~ button {
+    &:nth-last-child(n + 5),
+    &:nth-last-child(n + 5) ~ button {
       margin-right: 16px;
-
       .auth-label {
         display: none;
       }
@@ -131,16 +145,20 @@ export const AuthContainer = (props: {
   return (
     <AuthCardContainer>
       <AuthCardHeading
-        type={props.type}
+        $type={props.type}
       >
         {props.heading || ""}
       </AuthCardHeading>
-      { props.subHeading && (
-        <AuthCardSubHeading>
-          {props.subHeading}
-        </AuthCardSubHeading>
-      )}
+      
       <AuthCard>{props.children}</AuthCard>
+      { props.subHeading && (
+        <AuthCardSubFooter>
+          <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
+          <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
+            {props.subHeading}
+          </a>
+        </AuthCardSubFooter>
+      )}
     </AuthCardContainer>
   );
 };
@@ -157,7 +175,7 @@ export const ConfirmButton = (props: {
   style?: CSSProperties;
   loading?: boolean;
 }) => {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLButtonElement>(null);
   return (
     <>
       <ReactHotkeys
@@ -203,11 +221,11 @@ export const TermsAndPrivacyInfo = (props: { onCheckChange: (e: CheckboxChangeEv
     <TermsAndPrivacyContent>
       <CheckBox defaultChecked onChange={(e) => props.onCheckChange(e)} />
       <TermsAndPrivacyLabel>
-        {trans("userAuth.registerHint")}
+        {trans("userAuth.registerHint")}{`: `}
         <StyledLink href={termsUrl} target="_blank">
           {trans("userAuth.terms")}
         </StyledLink>
-        {` `}
+        {` & `}
         <StyledLink href={privacyUrl} target="_blank">
           {trans("userAuth.privacy")}
         </StyledLink>
@@ -261,13 +279,14 @@ export const StyledLoginButton = styled(TacoButton)`
 export const StyledRouteLink = styled(Link)`
   display: flex;
   align-items: center;
-
-  font-size: 16px;
+  margin-right: auto;
+  margin-left: auto;
+  font-size: 1.3em;
+  font-weight: 500;
   color: #4965f2;
   line-height: 16px;
-  margin-left: auto;
 
-  :hover {
+  &:hover {
     color: #315efb;
   }
 `;
@@ -281,11 +300,13 @@ export const StyledRouteLinkLogin = styled(StyledRouteLink)`
 
 export const LoginCardTitle = styled.header`
   font-weight: 500;
-  font-size: 18px;
+  font-size: 2em;
   color: #222222;
   line-height: 18px;
   margin-bottom: 36px;
   margin-top: 8px;
+  margin-left: auto;
+  margin-right: auto;
   @media screen and (max-width: 640px) {
     margin: 0 0 26px 0;
   }

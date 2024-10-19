@@ -1,10 +1,11 @@
 import { UICompType } from "comps/uiCompRegistry";
 import _ from "lodash";
-import React, { ReactElement, SyntheticEvent } from "react";
+import React, { ReactElement, SyntheticEvent, useContext } from "react";
 import { DraggableEvent } from "react-draggable";
 import { PositionParams } from "./calculateUtils";
 import { draggingUtils } from "./draggingUtils";
 import { GridLayoutProps, ResizeHandleAxis } from "./gridLayoutPropTypes";
+import { getCollisionStatus } from "util/localStorageUtil";
 
 export type LayoutItem = {
   w: number;
@@ -12,6 +13,7 @@ export type LayoutItem = {
   x: number;
   y: number;
   i: string;
+  pos?: number;
   minW?: number;
   minH?: number;
   maxW?: number;
@@ -31,6 +33,7 @@ export type LayoutItem = {
 };
 export type ExtraItem = {
   name: string;
+  comp: any;
   compType: UICompType;
   autoHeight?: boolean;
   isSelected?: boolean;
@@ -169,7 +172,7 @@ export function collides(l1: LayoutItem, l2: LayoutItem): boolean {
   if (l1.y + l1.h <= l2.y) return false; // l1 is above l2
   if (l1.y >= l2.y + l2.h) return false; // l1 is below l2
 
-  return true; // boxes overlap
+  return !getCollisionStatus();
 }
 
 /**
@@ -197,9 +200,23 @@ export function getStatics(layout: Layout): Layout {
   return _.pickBy(layout, (l) => l.static);
 }
 
-export function setTransform({ top, left, width, height }: Position): Record<string, any> {
+export function setTransform(
+  {top, left, width, height }: Position,
+  name ?: string,
+  autoHeight?: boolean,
+  hidden?: boolean,
+  isDragging?: boolean,
+): Record<string, any> {
   // Replace unitless items with px
   const translate = `translate(${left}px,${top}px)`;
+  function containsChart(str:string) {
+    return /chart/i.test(str);
+  }
+  let updatedHeight = 'auto';
+  if (isDragging || !autoHeight || hidden || (name && containsChart(name))) {
+    updatedHeight = `${height}px`;
+  }
+
   return {
     transform: translate,
     WebkitTransform: translate,
@@ -207,8 +224,8 @@ export function setTransform({ top, left, width, height }: Position): Record<str
     msTransform: translate,
     OTransform: translate,
     width: `${width}px`,
-    height: `${height}px`,
-    position: "absolute",
+    height: updatedHeight,
+    position: 'absolute',
   };
 }
 

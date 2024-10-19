@@ -1,5 +1,5 @@
-import { WidgetProps } from "@rjsf/utils";
-import { DatePicker } from "antd";
+import type { WidgetProps } from "@rjsf/utils";
+import { default as DatePicker } from "antd/es/date-picker";
 import dayjs from "dayjs";
 
 const DATE_PICKER_STYLE = {

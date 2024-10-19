@@ -1,11 +1,10 @@
 package org.lowcoder.domain.authentication.context;
 
-import javax.annotation.Nullable;
 
-import org.lowcoder.sdk.auth.AbstractAuthConfig;
-
+import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.Setter;
+import org.lowcoder.sdk.auth.AbstractAuthConfig;
 
 @Setter
 @Getter

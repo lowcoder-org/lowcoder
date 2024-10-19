@@ -1,43 +1,54 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
-const ColumnTypeViewWrapper = styled.div`
-  div {
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    word-break: keep-all;
-  }
+const ColumnTypeViewWrapper = styled.div<{
+  $textOverflow?: boolean
+}>`
+  position: relative;
+  ${props => props.$textOverflow == false && `
+    div {
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: keep-all;
+    }
+    span {
+      display: inline-block; /* Change display to inline-block for span */
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      word-break: keep-all;
+    }
+  `}
 `;
 
 const ColumnTypeHoverView = styled.div<{
-  adjustLeft?: number;
-  adjustTop?: number;
-  adjustWidth?: number;
-  adjustHeight?: number;
-  minWidth?: number;
-  padding: string;
-  visible: boolean;
+  $adjustLeft?: number;
+  $adjustTop?: number;
+  $adjustWidth?: number;
+  $adjustHeight?: number;
+  $minWidth?: number;
+  $padding: string;
+  $visible: boolean;
 }>`
   position: absolute;
-  height: ${(props) => (props.adjustHeight ? `${props.adjustHeight}px` : "max-content")};
-  width: ${(props) => (props.adjustWidth ? `${props.adjustWidth}px` : "max-content")};
-  visibility: ${(props) => (props.visible ? "visible" : "hidden")};
-  min-width: ${(props) => (props.minWidth ? `${props.minWidth}px` : "unset")};
+  height: ${(props) => (props.$adjustHeight ? `${props.$adjustHeight}px` : "max-content")};
+  width: ${(props) => (props.$adjustWidth ? `${props.$adjustWidth}px` : "max-content")};
+  visibility: ${(props) => (props.$visible ? "visible" : "hidden")};
+  min-width: ${(props) => (props.$minWidth ? `${props.$minWidth}px` : "unset")};
   max-height: 150px;
   max-width: 300px;
   overflow: auto;
   background: inherit;
   z-index: 3;
-  padding: ${(props) => props.padding};
-  top: ${(props) => `${props.adjustTop || 0}px`};
-  left: ${(props) => `${props.adjustLeft || 0}px`};
+  padding: ${(props) => props.$padding};
+  top: ${(props) => `${props.$adjustTop || 0}px`};
+  left: ${(props) => `${props.$adjustLeft || 0}px`};
 
-  ::-webkit-scrollbar {
+  &::-webkit-scrollbar {
     width: 16px;
   }
 
-  ::-webkit-scrollbar-thumb {
+  &::-webkit-scrollbar-thumb {
     border: 5px solid transparent;
     background-clip: content-box;
     border-radius: 9999px;
@@ -45,7 +56,7 @@ const ColumnTypeHoverView = styled.div<{
     min-height: 30px;
   }
 
-  ::-webkit-scrollbar-thumb:hover {
+  &::-webkit-scrollbar-thumb:hover {
     background-color: rgba(139, 143, 163, 0.5);
   }
 `;
@@ -62,7 +73,11 @@ function childIsOverflow(nodes: HTMLCollection): boolean {
   return false;
 }
 
-export default function ColumnTypeView(props: { children: React.ReactNode }) {
+export default function ColumnTypeView(props: {
+  children: React.ReactNode,
+  textOverflow?: boolean,
+}) {
+
   const wrapperRef = useRef<HTMLDivElement>(null);
   const hoverViewRef = useRef<HTMLDivElement>(null);
   const [isHover, setIsHover] = useState(false);
@@ -161,6 +176,7 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
     <>
       <ColumnTypeViewWrapper
         ref={wrapperRef}
+        $textOverflow={props.textOverflow}
         onMouseEnter={() => {
           delayMouseEnter();
         }}
@@ -171,16 +187,16 @@ export default function ColumnTypeView(props: { children: React.ReactNode }) {
       >
         {props.children}
       </ColumnTypeViewWrapper>
-      {isHover && hasOverflow && wrapperRef.current && (
+      {isHover && hasOverflow && wrapperRef.current && !props.textOverflow && (
         <ColumnTypeHoverView
           ref={hoverViewRef}
-          visible={adjustedPosition.done}
-          minWidth={wrapperRef.current.offsetParent?.clientWidth}
-          adjustWidth={adjustedPosition.width}
-          adjustHeight={adjustedPosition.height}
-          adjustLeft={adjustedPosition.left}
-          adjustTop={adjustedPosition.top}
-          padding={`${wrapperRef.current.offsetTop}px ${wrapperRef.current.offsetLeft}px`}
+          $visible={adjustedPosition.done}
+          $minWidth={wrapperRef.current.offsetParent?.clientWidth}
+          $adjustWidth={adjustedPosition.width}
+          $adjustHeight={adjustedPosition.height}
+          $adjustLeft={adjustedPosition.left}
+          $adjustTop={adjustedPosition.top}
+          $padding={`${wrapperRef.current.offsetTop}px ${wrapperRef.current.offsetLeft}px`}
           onMouseEnter={() => {
             setIsHover(true);
           }}

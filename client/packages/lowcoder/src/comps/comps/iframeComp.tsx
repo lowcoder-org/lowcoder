@@ -5,18 +5,26 @@ import { BoolControl } from "../controls/boolControl";
 import styled from "styled-components";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
-const Wrapper = styled.div<{ $style: IframeStyleType }>`
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border: 1px solid ${(props) => props.$style.border};
+  border: ${(props) =>
+      props.$style.borderWidth ? props.$style.borderWidth : '1px'}
+    solid ${(props) => props.$style.border};
   border-radius: calc(min(${(props) => props.$style.radius}, 20px));
-
+rotate:${props => props.$style.rotation};
+margin:${props => props.$style.margin};
+padding:${props => props.$style.padding};
+${props=>props.$animationStyle}
   iframe {
     border: 0;
     width: 100%;
@@ -37,7 +45,8 @@ let IFrameCompBase = new UICompBuilder(
     allowMicrophone: BoolControl,
     allowCamera: BoolControl,
     allowPopup: BoolControl,
-    style: styleControl(IframeStyle),
+    style: styleControl(IframeStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   },
   (props) => {
     const sandbox = ["allow-scripts", "allow-same-origin"];
@@ -52,7 +61,7 @@ let IFrameCompBase = new UICompBuilder(
     const src = regex.test(props.url) ? props.url : "about:blank";
     log.log(props.url, regex.test(props.url) ? props.url : "about:blank", src);
     return (
-      <Wrapper $style={props.style}>
+      <Wrapper $style={props.style} $animationStyle={props.animationStyle}>
         <iframe src={src} sandbox={sandbox.join(" ")} allow={allow.join(";")} />
       </Wrapper>
     );
@@ -61,19 +70,30 @@ let IFrameCompBase = new UICompBuilder(
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
-        {children.url.propertyView({ label: "URL", placeholder: "https://example.com" })}
+        {children.url.propertyView({ label: "Source URL", placeholder: "https://example.com", tooltip: trans("iframe.URLDesc") })}
       </Section>
 
-      <Section name={sectionNames.advanced}>
-        {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
-        {children.allowSubmitForm.propertyView({ label: trans("iframe.allowSubmitForm") })}
-        {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
-        {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
-        {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
-      </Section>
+      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <Section name={sectionNames.interaction}>
+          {hiddenPropertyView(children)}
+          {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
+          {children.allowSubmitForm.propertyView({ label: trans("iframe.allowSubmitForm") })}
+          {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
+          {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
+          {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
+        </Section>
+      )}
 
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <>
+        <Section name={sectionNames.style}>
+          {children.style.getPropertyView()}
+        </Section>
+        <Section name={sectionNames.animationStyle} hasTooltip={true}>
+          {children.animationStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
     </>
   ))
   .build();

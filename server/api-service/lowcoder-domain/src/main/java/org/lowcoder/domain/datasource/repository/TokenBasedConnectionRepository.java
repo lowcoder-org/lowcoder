@@ -2,6 +2,7 @@ package org.lowcoder.domain.datasource.repository;
 
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.datasource.model.TokenBasedConnection;
 import org.lowcoder.domain.datasource.model.TokenBasedConnectionDO;
 import org.lowcoder.domain.encryption.EncryptionService;
@@ -16,19 +17,13 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
+@RequiredArgsConstructor
 public class TokenBasedConnectionRepository {
 
-    @Autowired
-    private TokenBasedConnectionDORepository tokenBasedConnectionDORepository;
-
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-
-    @Autowired
-    private EncryptionService encryptionService;
-
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    private final TokenBasedConnectionDORepository tokenBasedConnectionDORepository;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final EncryptionService encryptionService;
+    private final MongoUpsertHelper mongoUpsertHelper;
 
     public Mono<TokenBasedConnection> findByDatasourceId(String datasourceId, String datasourceType) {
         return tokenBasedConnectionDORepository.findByDatasourceId(datasourceId)
@@ -39,14 +34,16 @@ public class TokenBasedConnectionRepository {
 
         tokenBasedConnection.getTokenDetail().doEncrypt(encryptionService::encryptString);
 
-        TokenBasedConnectionDO result = new TokenBasedConnectionDO();
-        result.setDatasourceId(tokenBasedConnection.getDatasourceId());
-        result.setTokenDetail(tokenBasedConnection.getTokenDetail().toMap());
-        result.setId(tokenBasedConnection.getId());
-        result.setCreatedAt(tokenBasedConnection.getCreatedAt());
-        result.setUpdatedAt(tokenBasedConnection.getUpdatedAt());
-        result.setCreatedBy(tokenBasedConnection.getCreatedBy());
-        result.setModifiedBy(tokenBasedConnection.getModifiedBy());
+        TokenBasedConnectionDO result = TokenBasedConnectionDO.builder()
+                .datasourceId(tokenBasedConnection.getDatasourceId())
+                .tokenDetail(tokenBasedConnection.getTokenDetail().toMap())
+                .id(tokenBasedConnection.getId())
+                .createdAt(tokenBasedConnection.getCreatedAt())
+                .updatedAt(tokenBasedConnection.getUpdatedAt())
+                .createdBy(tokenBasedConnection.getCreatedBy())
+                .modifiedBy(tokenBasedConnection.getModifiedBy())
+                .build();
+
         return mongoUpsertHelper.upsertWithAuditingParams(result, "datasourceId", datasourceId)
                 .doOnNext(__ -> tokenBasedConnection.getTokenDetail().doDecrypt(encryptionService::decryptString))
                 .then();

@@ -18,6 +18,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
@@ -37,6 +38,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -73,6 +75,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -101,6 +104,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.replaceAuthUrlClientIdPlaceholder(source.userInfo()))
@@ -113,7 +117,7 @@ public class OryRequest extends AbstractOauth2Request<Oauth2OryAuthConfig> {
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .avatar(MapUtils.getString(map, "picture"))
                             .rawUserInfo(map)
                             .build();

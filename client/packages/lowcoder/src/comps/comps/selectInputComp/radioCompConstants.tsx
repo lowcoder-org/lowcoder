@@ -14,11 +14,15 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { RadioStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { withDefault } from "@lowcoder-ee/comps/generators";
 
 export const RadioLayoutOptions = [
   { label: trans("radio.horizontal"), value: "horizontal" },
@@ -27,15 +31,18 @@ export const RadioLayoutOptions = [
 ] as const;
 
 export const RadioChildrenMap = {
+  defaultValue: stringExposingStateControl("value"),
   value: stringExposingStateControl("value"),
   label: LabelControl,
   disabled: BoolCodeControl,
   onEvent: ChangeEventHandlerControl,
   options: SelectInputOptionControl,
-  style: styleControl(RadioStyle),
+  style: styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle , 'labelStyle'),
   layout: dropdownControl(RadioLayoutOptions, "horizontal"),
   viewRef: RefControl<HTMLDivElement>,
-
+  inputFieldStyle:styleControl(RadioStyle ,'inputFieldStyle' ),
+  animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -43,6 +50,9 @@ export const RadioChildrenMap = {
 export const RadioPropertyView = (
   children: RecordConstructorToComp<
     typeof RadioChildrenMap & { hidden: typeof BoolCodeControl } & {
+      defaultValue:
+        | ReturnType<typeof stringExposingStateControl>
+        | ReturnType<typeof arrayStringExposingStateControl>;
       value:
         | ReturnType<typeof stringExposingStateControl>
         | ReturnType<typeof arrayStringExposingStateControl>;
@@ -52,31 +62,45 @@ export const RadioPropertyView = (
   <>
     <Section name={sectionNames.basic}>
       {children.options.propertyView({})}
-      {children.value.propertyView({ label: trans("prop.defaultValue") })}
-    </Section>
-    <FormDataPropertyView {...children} />
-    {children.label.getPropertyView()}
-
-    <Section name={sectionNames.interaction}>
-      {children.onEvent.getPropertyView()}
-      {disabledPropertyView(children)}
+      {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
     </Section>
 
-    <SelectInputValidationSection {...children} />
+    {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <><SelectInputValidationSection {...children} />
+      <FormDataPropertyView {...children} />
+      <Section name={sectionNames.interaction}>
+        {children.onEvent.getPropertyView()}
+        {disabledPropertyView(children)}
+        {hiddenPropertyView(children)}
+      </Section></>
+    )}
 
-    <Section name={sectionNames.layout}>
-      {children.layout.propertyView({
-        label: trans("radio.options"),
-        tooltip: (
-          <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-            <div>{trans("radio.horizontalTooltip")}</div>
-            <div>{trans("radio.verticalTooltip")}</div>
-            <div>{trans("radio.autoColumnsTooltip")}</div>
-          </div>
-        ),
-      })}
-      {hiddenPropertyView(children)}
-    </Section>
-    <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <Section name={sectionNames.layout}>
+        {children.layout.propertyView({
+          label: trans("radio.options"),
+          tooltip: (
+            <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+              <div>{trans("radio.horizontalTooltip")}</div>
+              <div>{trans("radio.verticalTooltip")}</div>
+              <div>{trans("radio.autoColumnsTooltip")}</div>
+            </div>
+          ),
+        })}
+      </Section>
+    )}
+
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( 
+      children.label.getPropertyView() 
+    )}
+
+    {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+      <>
+      <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+      <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+      <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+      <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+      </>
+    )}
   </>
 );

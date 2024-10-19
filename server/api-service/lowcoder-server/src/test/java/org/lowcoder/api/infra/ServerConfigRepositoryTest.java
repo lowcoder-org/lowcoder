@@ -2,6 +2,7 @@ package org.lowcoder.api.infra;
 
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.lowcoder.infra.config.model.ServerConfig;

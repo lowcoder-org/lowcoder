@@ -1,9 +1,9 @@
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { ButtonCompWrapper, buttonRefMethods } from "comps/comps/buttonComp/buttonCompConstants";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { styleControl } from "comps/controls/styleControl";
-import { LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, LinkStyle, LinkStyleType } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
@@ -20,9 +20,37 @@ import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-const Link = styled(Button)<{ $style: LinkStyleType }>`
-  ${(props) => `color: ${props.$style.text};margin: ${props.$style.margin}; padding: ${props.$style.padding};`}
-  &.ant-btn {
+import { EditorContext } from "comps/editorState";
+import React, { useContext, useEffect } from "react";
+
+const Link = styled(Button)<{
+  $style: LinkStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
+  ${(props) => `
+    color: ${props.$style.text};
+    rotate: ${props.$style.rotation};
+    margin: ${props.$style.margin};
+    padding: ${props.$style.padding};
+    font-size: ${props.$style.textSize};
+    font-style:${props.$style.fontStyle};
+    ${props.$style.fontFamily && `font-family: ${props.$style.fontFamily}`};
+    font-weight:${props.$style.textWeight};
+    border: ${props.$style.borderWidth} ${props.$style.borderStyle} ${props.$style.border};
+    border-radius:${props.$style.radius ? props.$style.radius:'0px'};
+    text-transform:${props.$style.textTransform ? props.$style.textTransform:''};
+    text-decoration:${props.$style.textDecoration ? props.$style.textDecoration:''} !important;
+    background-color: ${props.$style.background};
+    &:hover {
+      color: ${props.$style.hoverText} !important;
+    }
+    &:active {
+      color: ${props.$style.activeText} !important;
+    }
+  `}
+
+  &.ant-btn { 
     display: inline-flex;
     align-items: center;
     > span {
@@ -57,17 +85,19 @@ const LinkTmpComp = (function () {
     onEvent: ButtonEventHandlerControl,
     disabled: BoolCodeControl,
     loading: BoolCodeControl,
-    style: migrateOldData(styleControl(LinkStyle), fixOldData),
+    style: migrateOldData(styleControl(LinkStyle, 'style'), fixOldData),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     prefixIcon: IconControl,
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  return new UICompBuilder(childrenMap, (props) => {  
     // chrome86 bug: button children should not contain only empty span
     const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
       <ButtonCompWrapper disabled={props.disabled}>
         <Link
+          $animationStyle={props.animationStyle}
           ref={props.viewRef}
           $style={props.style}
           loading={props.loading}
@@ -93,19 +123,25 @@ const LinkTmpComp = (function () {
             {children.text.propertyView({ label: trans("text") })}
           </Section>
 
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {loadingPropertyView(children)}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <><Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {disabledPropertyView(children)}
+              {hiddenPropertyView(children)}
+              {loadingPropertyView(children)}
+            </Section>
+              <Section name={sectionNames.advanced}>
+                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+                {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+              </Section></>
+          )}
 
-          <Section name={sectionNames.layout}>
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {hiddenPropertyView(children)}
-          </Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+            </>
+          )}
         </>
       );
     })

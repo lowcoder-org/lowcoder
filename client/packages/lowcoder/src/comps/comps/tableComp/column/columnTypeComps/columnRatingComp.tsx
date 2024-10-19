@@ -3,7 +3,7 @@ import { trans } from "i18n";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import styled from "styled-components";
-import { Rate } from "antd";
+import { default as Rate } from "antd/es/rate";
 
 const RateStyled = styled(Rate)<{ isEdit?: boolean }>`
   display: inline-flex;

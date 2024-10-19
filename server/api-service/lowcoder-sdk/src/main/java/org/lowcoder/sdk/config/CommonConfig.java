@@ -1,14 +1,8 @@
 package org.lowcoder.sdk.config;
 
-import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -17,9 +11,10 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Duration;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Getter
 @Setter
@@ -44,6 +39,11 @@ public class CommonConfig {
     private Cookie cookie = new Cookie();
     private JsExecutor jsExecutor = new JsExecutor();
     private Set<String> disallowedHosts = new HashSet<>();
+    private List<String> pluginDirs = new ArrayList<>();
+    private SuperAdmin superAdmin = new SuperAdmin();
+    private Marketplace marketplace = new Marketplace();
+    private String lowcoderPublicUrl;
+    private String notificationsEmailSender;
 
     public boolean isSelfHost() {
         return !isCloud();
@@ -136,8 +136,12 @@ public class CommonConfig {
 
     @Data
     public static class Cookie {
+        //Set cookie max age to 1 day
+        private long maxAgeInHours = 24;
 
-        private long maxAgeInSeconds = Duration.ofDays(30).toSeconds();
+        public long getMaxAgeInSeconds() {
+            return Duration.ofHours(maxAgeInHours).toSeconds();
+        }
     }
 
     @Data
@@ -145,10 +149,22 @@ public class CommonConfig {
         private String host;
     }
 
+    @Data
+    public static class Marketplace {
+
+        private boolean privateMode = Boolean.TRUE;
+    }
+
 
     @Getter
     @Setter
     public static class Query {
         private long readStructureTimeout = 15000;
+    }
+
+    @Data
+    public static class SuperAdmin {
+        private String userName;
+        private String password;
     }
 }

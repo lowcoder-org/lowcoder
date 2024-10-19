@@ -28,18 +28,17 @@ import {
 } from "../../generators/withExposing";
 import { IForm } from "../formComp/formDataConstants";
 import { SimpleNameComp } from "../simpleNameComp";
-import {
-  Button100,
-  ButtonStyleControl,
-} from "./videobuttonCompConstants";
+import { Button100, ButtonStyleControl } from "./videobuttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
+import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import {
-  AutoHeightControl,
   heightCalculator,
   widthCalculator,
-} from "@lowcoder-ee/index.sdk";
+} from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
+
+import { useContext } from "react";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -53,9 +52,10 @@ const Container = styled.div<{ $style: any }>`
 const getStyle = (style: any) => {
   return css`
     button {
-      border: 1px solid ${style.border};
+      border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       margin: ${style.margin};
+      rotate: ${style.rotation};
       padding: ${style.padding};
       max-width: ${widthCalculator(style.margin)};
       max-height: ${heightCalculator(style.margin)};
@@ -174,20 +174,22 @@ function submitForm(editorState: EditorState, formName: string) {
   }
 }
 
-let ButtonTmpComp = (function () {
-  const childrenMap = {
-    iconSize: withDefault(StringControl, "20px"),
-    type: dropdownControl(typeOptions, ""),
-    autoHeight: withDefault(AutoHeightControl, "fixed"),
-    onEvent: ButtonEventHandlerControl,
-    disabled: BoolCodeControl,
-    loading: BoolCodeControl,
-    form: SelectFormControl,
-    prefixIcon: IconControl,
-    style: ButtonStyleControl,
-    viewRef: RefControl<HTMLElement>,
-  };
+const childrenMap = {
+  iconSize: withDefault(StringControl, "20px"),
+  type: dropdownControl(typeOptions, ""),
+  autoHeight: withDefault(AutoHeightControl, "fixed"),
+  aspectRatio: withDefault(StringControl, "1 / 1"),
+  onEvent: ButtonEventHandlerControl,
+  disabled: BoolCodeControl,
+  loading: BoolCodeControl,
+  form: SelectFormControl,
+  prefixIcon: IconControl,
+  style: ButtonStyleControl,
+  viewRef: RefControl<HTMLElement>,
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
+};
 
+let ButtonTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props) => {
     const [width, setWidth] = useState(120);
     const [height, setHeight] = useState(0);
@@ -228,47 +230,59 @@ let ButtonTmpComp = (function () {
     return (
       <EditorContext.Consumer>
         {(editorState) => (
-          <ReactResizeDetector onResize={onResize}>
-            <Container ref={conRef} $style={props.style}>
-              <div
-                ref={imgRef}
-                style={
-                  props.autoHeight
-                    ? { width: "100%", height: "100%" }
-                    : undefined
-                }
-              >
-                <Button100
-                  ref={props.viewRef}
-                  $buttonStyle={props.style}
-                  loading={props.loading}
+          <ReactResizeDetector
+            onResize={onResize}
+            render={() => (
+              <Container ref={conRef} $style={props.style}>
+                <div
+                  ref={imgRef}
                   style={
                     props.autoHeight
                       ? { width: "100%", height: "100%" }
                       : undefined
                   }
-                  disabled={
-                    props.disabled ||
-                    (!isDefault(props.type) &&
-                      getForm(editorState, props.form)?.disableSubmit())
-                  }
-                  onClick={() =>
-                    isDefault(props.type)
-                      ? props.onEvent("click")
-                      : submitForm(editorState, props.form)
-                  }
                 >
-                  {props.prefixIcon && (
-                    <IconWrapper
-                      $style={{ ...props.style, size: props.iconSize }}
-                    >
-                      {props.prefixIcon}
-                    </IconWrapper>
-                  )}
-                  
-                </Button100>
-              </div>
-            </Container>
+                  <Button100
+                    ref={props.viewRef}
+                    $buttonStyle={props.style}
+                    loading={props.loading}
+                    style={
+                      props.autoHeight
+                        ? { 
+                          width: "100%", 
+                          height: "100%",
+                          aspectRatio: props.aspectRatio,
+                          borderRadius: props.style.radius,
+                        }
+                        : {
+                          aspectRatio: props.aspectRatio,
+                          borderRadius: props.style.radius,
+                        }
+                    }
+                    disabled={
+                      props.disabled ||
+                      (!isDefault(props.type) &&
+                        getForm(editorState, props.form)?.disableSubmit())
+                    }
+                    onClick={() =>
+                      isDefault(props.type)
+                        ? props.onEvent("click")
+                        : submitForm(editorState, props.form)
+                    }
+                  >
+                    {props.prefixIcon && (
+                      <IconWrapper
+                        $style={{ ...props.style, size: props.iconSize }}
+                      >
+                        {props.prefixIcon}
+                      </IconWrapper>
+                    )}
+                    
+                  </Button100>
+                </div>
+              </Container>
+            )}
+          >
           </ReactResizeDetector>
         )}
       </EditorContext.Consumer>
@@ -277,34 +291,38 @@ let ButtonTmpComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.autoHeight.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.type.propertyView({
-            label: trans("prop.type"),
-            radioButton: true,
+          {children.prefixIcon.propertyView({
+            label: trans("button.icon"),
           })}
-          {isDefault(children.type.getView())
-            ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                loadingPropertyView(children),
-              ]
-            : children.form.getPropertyView()}
         </Section>
 
-        <Section name={sectionNames.layout}>
-          {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.iconSize.propertyView({
-            label: trans("meeting.iconSize"),
-          })}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
+            {disabledPropertyView(children)}
+            {hiddenPropertyView(children)}
+            {loadingPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" ||
+          useContext(EditorContext).editorModeStatus === "both") && (
+          <>
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {children.iconSize.propertyView({
+                label: trans("button.iconSize"),
+              })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+              {children.aspectRatio.propertyView({
+                label: trans("style.aspectRatio"),
+              })}
+            </Section>
+          </>
+        )}
       </>
     ))
     .build();

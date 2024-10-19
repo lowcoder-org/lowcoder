@@ -2,6 +2,7 @@ package org.lowcoder.api.authentication.request.oauth2.request;
 
 import static java.net.URLDecoder.decode;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -18,6 +19,7 @@ import org.lowcoder.domain.user.model.AuthToken;
 import org.lowcoder.domain.user.model.AuthUser;
 import org.lowcoder.sdk.auth.Oauth2SimpleAuthConfig;
 import org.lowcoder.sdk.util.JsonUtils;
+import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.lowcoder.sdk.webclient.WebClients;
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -43,7 +45,10 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
-        return WebClients.getInstance()
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
+                .build()
                 .post()
                 .uri(uri)
                 .exchangeToMono(response -> response.bodyToMono(String.class))
@@ -81,7 +86,10 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
 
     @Override
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
-        return WebClients.getInstance()
+        return WebClientBuildHelper.builder()
+                .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
+                .build()
                 .get()
                 .uri(source.userInfo())
                 .header("Authorization", "token " + authToken.getAccessToken())
@@ -91,9 +99,10 @@ public class GithubRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
                     if (map.containsKey("error")) {
                         return Mono.error(new AuthException(JsonUtils.toJson(map)));
                     }
+                    String username = MapUtils.getString(map, "email");
                     AuthUser authUser = AuthUser.builder()
                             .uid(map.get("id").toString())
-                            .username(MapUtils.getString(map, "login"))
+                            .username(username == null ? MapUtils.getString(map, "login") : username)
                             .avatar(MapUtils.getString(map, "avatar_url"))
                             .rawUserInfo(map)
                             .build();

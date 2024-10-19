@@ -18,7 +18,7 @@ import { CreateButton, ThemeContent } from "./styledComponents";
 import { genQueryId } from "comps/utils/idGenerator";
 import { trans } from "i18n";
 import { Level1SettingPageTitleWithBtn } from "../styled";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 type ThemeProps = {
   setCommonSettings: (params: SetCommonSettingPayload) => void;
@@ -43,17 +43,6 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
       modalVisible: false,
     };
   }
-  componentDidMount() {
-    if (this.props.orgId) {
-      this.props.fetchCommonSettings(this.props.orgId);
-    }
-  }
-
-  componentDidUpdate(prevProps: ThemeProps, prevState: ThemeState) {
-    if (prevProps.orgId !== this.props.orgId) {
-      this.props.fetchCommonSettings(this.props.orgId);
-    }
-  }
 
   GoDetail(params: ThemeType, themeList: ThemeType[], type: string) {
     this.props.setCommonSettings({
@@ -62,10 +51,9 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
         key: "themeList",
         value: themeList,
       },
-    });
-    history.push({
-      pathname: THEME_DETAIL,
-      state: { ...params, type },
+      onSuccess: () => {
+        history.push(`${THEME_DETAIL}/${params.id}`)
+      },
     });
   }
 
@@ -152,13 +140,7 @@ class ThemePage extends React.Component<ThemeProps, ThemeState> {
         this.copyTheme(info.themeId);
         break;
       case MENU_TYPE.EDIT:
-        history.push({
-          pathname: THEME_DETAIL,
-          state: {
-            ...this.props.themeList?.find((theme) => theme.id === info.themeId),
-            type: DETAIL_TYPE.EDIT,
-          },
-        });
+        history.push(`${THEME_DETAIL}/${info.themeId}`)
         break;
       case MENU_TYPE.RENAME:
         this.setCommonSettings(

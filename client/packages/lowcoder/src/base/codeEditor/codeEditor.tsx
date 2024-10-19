@@ -9,11 +9,12 @@ import React, {
 import styled, { css } from "styled-components";
 import { EditorState, EditorView } from "./codeMirror";
 import { useExtensions } from "./extensions";
-import { PopupCard } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
 import { CodeEditorPanel } from "../../pages/editor/codeEditorPanel";
-import { CodeEditorProps, StyleName } from "./codeEditorTypes";
+import type { CodeEditorProps, StyleName } from "./codeEditorTypes";
 import { useClickCompNameEffect } from "./clickCompName";
 import { Layers } from "../../constants/Layers";
+import { debounce } from "lodash";
 
 type StyleConfig = {
   minHeight: string;
@@ -51,8 +52,10 @@ const textStyle = css`
 export const CodeEditorTooltipContainer = styled.div`
   // tooltip common
   .cm-tooltip {
-    z-index: ${Layers.codeEditorTooltip};
-    border: none;
+    border: 1px solid #d7d9e0;
+    padding: 5px !important;
+    margin-top: 5px !important;
+    height: 120px;
   }
   // make sure antd popover in the code editor available
   .ant-popover {
@@ -84,6 +87,7 @@ export const CodeEditorTooltipContainer = styled.div`
     border-radius: 8px;
     box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
     transform: translate(-16px, 10px);
+    z-index: ${Layers.codeEditorTooltip};
   }
 
   // left minor tooltip
@@ -109,6 +113,7 @@ export const CodeEditorTooltipContainer = styled.div`
     color: #4965f2;
     ${textStyle};
     font-weight: 600;
+    z-index: ${Layers.codeEditorTooltip};
   }
 
   .cm-tooltip > .cm-completionInfo .hintDiv:hover {
@@ -215,18 +220,19 @@ function useCodeMirror(
   const showLineNum = props.showLineNum ?? getStyle(props.styleName).showLineNum;
 
   const handleChange = useCallback(
-    (state: EditorState) => {
+    debounce((state: EditorState) => {
       window.clearTimeout(isTypingRef.current);
       isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
       onChange?.(state);
-    },
-    [onChange]
+    }, 1000)
+    , [onChange]
   );
 
   const { extensions, reconfigure, isFocus } = useExtensions({
     ...props,
     showLineNum,
     onChange: handleChange,
+    tooltipContainer: container.current,
   });
   useEffect(() => reconfigure(viewRef.current), [reconfigure]);
   useEffect(() => {
@@ -269,8 +275,8 @@ function clickCompNameCss(enableClickCompName?: boolean) {
 }
 
 const CodeEditorPanelContainer = styled.div<{
-  styleName?: StyleName;
-  enableClickCompName?: boolean;
+  $styleName?: StyleName;
+  $enableClickCompName?: boolean;
 }>`
   height: 100%;
   max-height: 100%;
@@ -325,7 +331,7 @@ const CodeEditorPanelContainer = styled.div<{
     padding-right: 16px;
   }
 
-  ${(props) => clickCompNameCss(props.enableClickCompName)}
+  ${(props) => clickCompNameCss(props.$enableClickCompName)}
 `;
 
 const CodeEditorWrapper = styled.div`
@@ -369,9 +375,9 @@ function CodeEditorForPanel(props: CodeEditorProps) {
   return (
     <CodeEditorCommon {...props} editor={editor} cardStyle={{ borderRadius: "8px" }}>
       <CodeEditorPanelContainer
-        styleName={props.styleName}
+        $styleName={props.styleName}
         ref={editor as MutableRefObject<HTMLDivElement>}
-        enableClickCompName={props.enableClickCompName}
+        $enableClickCompName={props.enableClickCompName}
       />
     </CodeEditorCommon>
   );
@@ -385,55 +391,57 @@ export function CodeEditor(props: CodeEditorProps) {
   const { expandable = true, ...editorProps } = props;
   const [disabled, setDisabled] = useState(false);
   return (
-    <CodeEditorCommon {...editorProps} editor={editor} disabled={disabled}>
-      <Container
-        styleName={props.styleName}
-        bordered={props.bordered}
-        disabled={disabled}
-        error={props.hasError}
-        ref={editor as MutableRefObject<HTMLDivElement>}
-        enableClickCompName={props.enableClickCompName}
-      >
-        {expandable && (
-          <CodeEditorPanel
-            breadcrumb={[props.label ?? ""]}
-            editor={<CodeEditorForPanel {...props} styleName="window" showLineNum />}
-            onVisibleChange={(visible) => setDisabled(visible)}
-          />
-        )}
-      </Container>
-    </CodeEditorCommon>
+    <CodeEditorTooltipContainer>
+      <CodeEditorCommon {...editorProps} editor={editor} disabled={disabled}>
+        <Container
+          $styleName={props.styleName}
+          $bordered={props.bordered}
+          disabled={disabled}
+          $error={props.hasError}
+          ref={editor as MutableRefObject<HTMLDivElement>}
+          $enableClickCompName={props.enableClickCompName}
+        >
+          {expandable && (
+            <CodeEditorPanel
+              breadcrumb={[props.label ?? ""]}
+              editor={<CodeEditorForPanel {...props} styleName="window" showLineNum />}
+              onVisibleChange={(visible) => setDisabled(visible)}
+            />
+          )}
+        </Container>
+      </CodeEditorCommon>
+    </CodeEditorTooltipContainer>
   );
 }
 
 const Container = styled.div<{
   disabled?: boolean;
-  error?: boolean;
-  bordered?: boolean;
-  styleName?: StyleName;
-  enableClickCompName?: boolean;
+  $error?: boolean;
+  $bordered?: boolean;
+  $styleName?: StyleName;
+  $enableClickCompName?: boolean;
 }>`
   position: relative;
   height: 100%;
 
-  :hover {
+  &:hover {
     .code-editor-panel-open-button {
       display: block;
     }
   }
 
   .cm-editor:hover {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#8B8FA3")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#8B8FA3")};
   }
 
   .cm-editor.cm-focused {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#3377ff")};
-    box-shadow: 0 0 0 2px ${(props) => (props.error ? "#feeaea" : "#d6e4ff")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#3377ff")};
+    box-shadow: 0 0 0 2px ${(props) => (props.$error ? "#feeaea" : "#d6e4ff")};
   }
 
   .cm-editor {
-    border: 1px solid ${(props) => (props.error ? "#f73131" : "#d7d9e0")};
-    border-radius: ${(props) => (props.bordered ? "4px" : "")};
+    border: 1px solid ${(props) => (props.$error ? "#f73131" : "#d7d9e0")};
+    border-radius: ${(props) => (props.$bordered ? "4px" : "")};
   }
 
   .cm-line {
@@ -441,17 +449,17 @@ const Container = styled.div<{
   }
 
   .cm-editor {
-    min-height: ${(props) => getStyle(props.styleName).minHeight};
+    min-height: ${(props) => getStyle(props.$styleName).minHeight};
   }
   .cm-content,
   .cm-gutter {
-    min-height: ${(props) => getStyle(props.styleName).minHeight};
-    min-height: calc(${(props) => getStyle(props.styleName).minHeight} - 2px);
+    min-height: ${(props) => getStyle(props.$styleName).minHeight};
+    min-height: calc(${(props) => getStyle(props.$styleName).minHeight} - 2px);
   }
 
   .cm-editor {
     overflow: hidden;
-    max-height: ${(props) => getStyle(props.styleName).maxHeight};
+    max-height: ${(props) => getStyle(props.$styleName).maxHeight};
   }
 
   ${(props) => {
@@ -466,5 +474,5 @@ const Container = styled.div<{
       `;
     }
   }}
-  ${(props) => clickCompNameCss(props.enableClickCompName)}
+  ${(props) => clickCompNameCss(props.$enableClickCompName)}
 `;

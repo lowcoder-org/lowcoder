@@ -25,7 +25,7 @@ import { Comp } from "lowcoder-core";
 import { LibraryQuery } from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import {
   CustomModal,
   DatasourceForm,
@@ -34,7 +34,7 @@ import {
   FormSection,
   TacoButton,
 } from "lowcoder-design";
-import { CheckboxOptionType } from "antd/lib/checkbox/Group";
+import { CheckboxOptionType } from "antd/es/checkbox/Group";
 import { trans } from "i18n";
 import { getDataSource } from "../../redux/selectors/datasourceSelectors";
 import {
@@ -44,7 +44,8 @@ import {
 } from "@lowcoder-ee/constants/datasourceConstants";
 import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { Helmet } from "react-helmet";
 
 const Wrapper = styled.div`
   display: flex;
@@ -177,42 +178,41 @@ export const QueryLibraryEditor = () => {
   };
 
   return (
-    <Wrapper>
-      <LeftNav
-        selectedQuery={isCreatePanelShow ? undefined : selectedQuery}
-        queryList={Object.values(queryLibrary)}
-        addQuery={() => showCreatePanel(true)}
-        onSelect={(id) => {
-          setSelectedQuery(id);
-          showCreatePanel(false);
-        }}
-        readOnly={showHistory}
-      />
-      <RightContent>
-        {!selectedQuery || !comp?.children.query.children.id.getView() ? (
-          EmptyQueryWithoutTab
-        ) : showHistory ? (
-          <QueryLibraryHistoryView
-            libraryQueryId={selectedQuery}
-            compContainer={container}
-            onClose={() => setShowHistory(false)}
-          />
-        ) : (
-          comp.propertyView({
-            onPublish: () => setPublishModalVisible(true),
-            onHistoryShow: () => setShowHistory(true),
-          })
-        )}
+    <>
+      <Helmet>{<title>{trans("home.queryLibrary")}</title>}</Helmet>
+        <Wrapper>
+        <LeftNav
+          selectedQuery={isCreatePanelShow ? undefined : selectedQuery}
+          queryList={Object.values(queryLibrary)}
+          addQuery={() => showCreatePanel(true)}
+          onSelect={(id) => {
+            setSelectedQuery(id);
+            showCreatePanel(false);
+          } }
+          readOnly={showHistory} />
+        <RightContent>
+          {!selectedQuery || !comp?.children.query.children.id.getView() ? (
+            EmptyQueryWithoutTab
+          ) : showHistory ? (
+            <QueryLibraryHistoryView
+              libraryQueryId={selectedQuery}
+              compContainer={container}
+              onClose={() => setShowHistory(false)} />
+          ) : (
+            comp.propertyView({
+              onPublish: () => setPublishModalVisible(true),
+              onHistoryShow: () => setShowHistory(true),
+            })
+          )}
 
-        {isCreatePanelShow && (
-          <ResCreatePanel
-            recentlyUsed={recentlyUsed}
-            datasource={datasource.filter((d) => d.creationSource !== 2)}
-            onSelect={handleAdd}
-            onClose={() => showCreatePanel(false)}
-            placement={"queryLibrary"}
-            onImport={(options) =>
-              importQueryLibrary({
+          {isCreatePanelShow && (
+            <ResCreatePanel
+              recentlyUsed={recentlyUsed}
+              datasource={datasource.filter((d) => d.creationSource !== 2)}
+              onSelect={handleAdd}
+              onClose={() => showCreatePanel(false)}
+              placement={"queryLibrary"}
+              onImport={(options) => importQueryLibrary({
                 dispatch: dispatch,
                 options: options,
                 orgId: orgId,
@@ -220,18 +220,16 @@ export const QueryLibraryEditor = () => {
                   setSelectedQuery(resp.data.data.id);
                   showCreatePanel(false);
                 },
-              })
-            }
-          />
-        )}
-      </RightContent>
-      <PublishModal
-        libraryQueryId={comp?.children.query.children.id.getView() || ""}
-        visible={publishModalVisible}
-        onClose={() => setPublishModalVisible(false)}
-        latestVersion={Object.values(selectedRecords)?.[0]?.tag}
-      />
-    </Wrapper>
+              })} />
+          )}
+        </RightContent>
+        <PublishModal
+          libraryQueryId={comp?.children.query.children.id.getView() || ""}
+          visible={publishModalVisible}
+          onClose={() => setPublishModalVisible(false)}
+          latestVersion={Object.values(selectedRecords)?.[0]?.tag} />
+      </Wrapper>
+    </>
   );
 };
 

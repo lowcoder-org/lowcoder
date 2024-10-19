@@ -7,9 +7,10 @@ import {
 import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../../controls/boolControl";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
+  fixOldInputCompData,
   getStyle,
   TextInputBasicSection,
   textInputChildren,
@@ -21,7 +22,7 @@ import {
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
-import { InputLikeStyle, InputLikeStyleType } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
 import {
   allowClearPropertyView,
@@ -30,27 +31,37 @@ import {
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
-import { TextAreaRef } from "antd/lib/input/TextArea";
+import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
+
+import React, { useContext, useEffect } from "react";
+import { EditorContext } from "comps/editorState";
+import { migrateOldData } from "comps/generators/simpleGenerators";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
 }>`
+  box-shadow: ${(props) =>
+    `${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
-  height: 100%;
+  height: 100% !important;
+  
+  .ant-input { 
+    height:100% !important;
+  }
 
   .ant-input-clear-icon {
-    opacity: 0.45;
+    opacity: 0.75;
     color: ${(props) => props.$style.text};
     top: 10px;
 
     &:hover {
-      opacity: 0.65;
+      opacity: 0.9;
       color: ${(props) => props.$style.text};
     }
   }
@@ -61,26 +72,33 @@ let TextAreaTmpComp = (function () {
     ...textInputChildren,
     viewRef: RefControl<TextAreaRef>,
     allowClear: BoolControl,
-    autoHeight: AutoHeightControl,
-    style: styleControl(InputLikeStyle),
+    autoHeight: withDefault(AutoHeightControl, "fixed"),
+    style: styleControl(InputFieldStyle, 'style') , 
+    labelStyle: styleControl(LabelStyle ,'labelStyle' ),
+    textAreaScrollBar: withDefault(BoolControl, false),
+    inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle')
   };
   return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
+
     return props.label({
       required: props.required,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
-        <Wrapper $style={props.style}>
+        <Wrapper $style={props.inputFieldStyle}>
           <TextAreaStyled
             {...inputProps}
             ref={props.viewRef}
             allowClear={props.allowClear}
-            autoSize={props.autoHeight}
-            style={{ height: "100%", maxHeight: "100%", resize: "none" }}
-            $style={props.style}
+            style={{ height: "100% !important", resize: "vertical" }}
+            $style={props.inputFieldStyle}
           />
         </Wrapper>
       ),
       style: props.style,
+      labelStyle: props.labelStyle,
+      animationStyle: props.animationStyle,
       ...validateState,
     });
   })
@@ -88,23 +106,36 @@ let TextAreaTmpComp = (function () {
       <>
         <TextInputBasicSection {...children} />
         <FormDataPropertyView {...children} />
-        {children.label.getPropertyView()}
 
-        <TextInputInteractionSection {...children} />
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          children.label.getPropertyView()
+        )}
 
-        <Section name={sectionNames.advanced}>
-          {allowClearPropertyView(children)}
-          {readOnlyPropertyView(children)}
-        </Section>
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><TextInputInteractionSection {...children} />
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() &&
+                children.textAreaScrollBar.propertyView({
+                  label: trans("prop.textAreaScrollBar"),
+                })}
+              {hiddenPropertyView(children)}
+            </Section>
+            <Section name={sectionNames.advanced}>
+              {allowClearPropertyView(children)}
+              {readOnlyPropertyView(children)}
+            </Section>
+            <TextInputValidationSection {...children} /></>
+        )}
 
-        <TextInputValidationSection {...children} />
-
-        <Section name={sectionNames.layout}>
-          {children.autoHeight.getPropertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+          </>
+        )}
       </>
     ))
     .build();
@@ -115,6 +146,8 @@ TextAreaTmpComp = class extends TextAreaTmpComp {
     return this.children.autoHeight.getView();
   }
 };
+
+TextAreaTmpComp = migrateOldData(TextAreaTmpComp, fixOldInputCompData);
 
 const TextareaTmp2Comp = withMethodExposing(
   TextAreaTmpComp,

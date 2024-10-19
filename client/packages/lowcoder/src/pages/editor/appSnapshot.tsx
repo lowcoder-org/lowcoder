@@ -9,7 +9,7 @@ import {
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
 import dayjs from "dayjs";
-import { useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useState } from "react";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
   appSnapshotCountSelector,
@@ -17,7 +17,7 @@ import {
   isAppSnapshotDslFetching,
   isAppSnapshotsFetching,
 } from "redux/selectors/appSnapshotSelector";
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { TacoPagination } from "lowcoder-design";
 import { AppSnapshotContext, AppSnapshotList } from "constants/applicationConstants";
 import { ExtraActionType } from "lowcoder-core";
@@ -28,14 +28,20 @@ import { RightPanelWrapper } from "pages/common/styledComponent";
 import { Layers } from "constants/Layers";
 import { useMount } from "react-use";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
-import FreeLimitTag from "pages/common/freeLimitTag";
 import { AppSnapshotDslInfo } from "api/appSnapshotApi";
 import { EmptyContent } from "components/EmptyContent";
 import { AppSummaryInfo } from "redux/reduxActions/applicationActions";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
+import { useRootCompInstance } from "./useRootCompInstance";
 import { TopHeaderHeight } from "constants/style";
 import { SnapshotItemProps, SnapshotList } from "../../components/SnapshotList";
 import { trans } from "i18n";
+import EditorSkeletonView from "./editorSkeletonView";
+import React from "react";
+
+const AppEditorInternalView = lazy(
+  () => import("pages/editor/appEditorInternal")
+    .then((moduleExports) => ({default: moduleExports.AppEditorInternalView}))
+);
 
 const AppSnapshotPanel = styled(RightPanelWrapper)`
   position: fixed;
@@ -86,7 +92,7 @@ const StyledCloseIcon = styled(CloseIcon)`
   margin-left: auto;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     g line {
       stroke: #4965f2;
     }
@@ -129,7 +135,7 @@ const PAGE_SIZE = 10;
 const CURRENT_ITEM_KEY = "current_key";
 const TIME_FORMAT = trans("history.timeFormat");
 
-export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
+export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }) => {
   const { currentAppInfo } = props;
   const currentDsl = currentAppInfo.dsl;
   const dispatch = useDispatch();
@@ -248,7 +254,7 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
   }
 
   return (
-    <>
+    <Suspense fallback={<EditorSkeletonView />}>
       <AppEditorInternalView
         appInfo={appInfo}
         loading={isSnapshotDslLoading}
@@ -282,6 +288,6 @@ export function AppSnapshot(props: { currentAppInfo: AppSummaryInfo }) {
           />
         </SnapshotFooter>
       </AppSnapshotPanel>
-    </>
+    </Suspense>
   );
-}
+});

@@ -5,6 +5,7 @@ import static org.lowcoder.sdk.exception.BizError.DATASOURCE_TYPE_ERROR;
 import static org.lowcoder.sdk.exception.BizError.PLUGIN_CREATE_CONNECTION_FAILED;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceConnectionHolder;
 import org.lowcoder.domain.datasource.model.TokenBasedConnection;
@@ -20,15 +21,13 @@ import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class TokenBasedConnectionPool implements DatasourceConnectionPool {
 
-    @Autowired
-    private DatasourceMetaInfoService datasourceMetaInfoService;
-
-    @Autowired
-    private TokenBasedConnectionRepository connectionRepository;
+    private final DatasourceMetaInfoService datasourceMetaInfoService;
+    private final TokenBasedConnectionRepository connectionRepository;
 
     @Override
     public Mono<? extends DatasourceConnectionHolder> getOrCreateConnection(Datasource datasource) {

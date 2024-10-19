@@ -32,13 +32,15 @@ public interface UserService {
 
     Mono<Boolean> bindEmail(User user, String email);
 
-    Mono<User> findByAuthUser(AuthUser authUser);
+    Mono<User> findByAuthUserSourceAndRawId(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthUser authUser);
+    Mono<User> findByAuthUserRawId(AuthUser authUser);
+
+    Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
-    Mono<Boolean> addNewConnection(String userId, Connection connection);
+    Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser);
 
     Mono<Void> deleteProfilePhoto(User visitor);
 
@@ -46,7 +48,12 @@ public interface UserService {
 
     Mono<String> resetPassword(String userId);
 
+    Mono<Boolean> lostPassword(String userEmail);
+
+    Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
+
     Mono<Boolean> setPassword(String userId, String password);
+    Mono<Boolean> markAsSuperAdmin(String userId);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 

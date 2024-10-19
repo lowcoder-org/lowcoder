@@ -9,18 +9,18 @@ import {
   LeftClose,
   LeftCommon,
   LeftOpen,
-  PadDiv,
   ScrollBar,
   Tooltip,
   UnfoldIcon,
   UnShow,
+  TacoButton,
 } from "lowcoder-design";
 import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
 import { leftCompListClassName } from "pages/tutorials/tutorialsConstant";
-import UIComp from "comps/comps/uiComp";
+import type UIComp from "comps/comps/uiComp";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getParentNodeKeysByKey, getTreeNodeByKey, safeJSONStringify } from "util/objectUtils";
 import { Tabs, TabTitle } from "components/Tabs";
@@ -28,15 +28,34 @@ import { BackgroundColor, TopHeaderHeight } from "constants/style";
 import { trans } from "i18n";
 import { CompTree } from "comps/comps/containerBase";
 import { CompStateIcon } from "./editorConstants";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
-import { DataNode, EventDataNode } from "antd/lib/tree";
+import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
+import Modal from "antd/es/modal/Modal";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
   width: fit-content;
   max-width: calc(100% - 8px);
+`;
+
+const PadDiv = styled.div`
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  &:hover .copy-icon {
+    visibility: visible;
+  }
+`;
+
+const CopyIcon = styled(CopyTextButton)`
+  visibility: hidden;
+  margin-left: 8px;
+  color: #1890ff;
+  cursor: pointer;
 `;
 
 function getLen(config: string | boolean | number) {
@@ -49,9 +68,24 @@ function getLen(config: string | boolean | number) {
   return 0;
 }
 
-function toDataView(value: any, name: string, desc?: ReactNode) {
-  const str = typeof value === "function" ? "Function" : safeJSONStringify(value);
+function safeStringify(obj: any, space = 2) {
+  const cache = new Set();
+  return JSON.stringify(obj, (key, value) => {
+    if (typeof value === 'object' && value !== null) {
+      if (cache.has(value)) {
+        return '[Circular]';
+      }
+      cache.add(value);
+    }
+    return value;
+  }, space);
+}
+
+
+function toDataView(value: any, name: string, desc?: ReactNode, modal?: boolean) {
+  const str = typeof value === "function" ? "Function" : safeStringify(value);
   const descRecord: Record<string, ReactNode> = {};
+  const shortenedString = modal === true ? (getLen(str) > 42 ? str.slice(0, 42) + "..." : str) : (getLen(str) > 20 ? str.slice(0, 20) + "..." : str);
   descRecord[name] = desc;
   if (Array.isArray(value)) {
     const dataChild: Record<string, any> = {};
@@ -59,35 +93,36 @@ function toDataView(value: any, name: string, desc?: ReactNode) {
       dataChild[index] = valueChild;
     });
     return (
-      <CollapseView name={name} desc={descRecord} data={dataChild} isArray={true} key={name} />
+      <CollapseView name={name} desc={descRecord} data={dataChild} isArray={true} key={name} modal={modal} />
     );
   } else if (_.isPlainObject(value)) {
-    return <CollapseView name={name} desc={descRecord} data={value} key={name} />;
-  }
-  return (
-    <PadDiv key={name}>
-      <Tooltip title={desc} placement={"right"} popupVisible={!!desc}>
-        <Label label={name} />
-        &#8203;
-      </Tooltip>
-
-      <Tooltip
-        title={
-          getLen(str) > 50 ? (
-            <div style={{ display: "flex", wordBreak: "break-all" }}>
-              {getLen(str) > 300 ? str.slice(0, 300) + "..." : str}
-              <CopyTextButton text={value} style={{ color: "#fff", margin: "4px 0 0 6px" }} />
-            </div>
-          ) : null
-        }
-        placement={"right"}
+    return (
+      <CollapseView name={name} desc={descRecord} data={value} key={name} modal={modal}/>
+    );
+  } else {
+    return (
+      <PadDiv 
+        style={{marginLeft: "20px", borderBottom: "1px solid #f0f0f0", height: "32px", display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}
+        key={name}
       >
-        &#8203;
-        <Label color="#FF9816" label={getLen(str) > 50 ? str.slice(0, 50) + "..." : str} />
-      </Tooltip>
-    </PadDiv>
-  );
+        <Tooltip title={desc} placement={"right"}>
+          <Label label={name} /> &#8203;
+        </Tooltip>
+
+        <div style={{ display: "flex", wordBreak: "break-all", textAlign: "right" }}>
+          <span style={{marginRight: "10px"}}>{shortenedString}</span>
+          {getLen(str) > 0 && 
+            <CopyTextButton text={value} style={{ color: "#ccc", marginRight: "0px", marginTop: "4px" }} />
+          }
+        </div>
+        
+      </PadDiv>
+    );
+  }
 }
+
+
+export default toDataView;
 
 function sliceArr(arr: string[]) {
   let preArr: string[] = [];
@@ -103,23 +138,23 @@ function sliceArr(arr: string[]) {
   return { preArr, afterArr } as const;
 }
 
-function toData(props: { data: Record<string, any>; desc?: Record<string, ReactNode> }) {
+function toData(props: { data: Record<string, any>; desc?: Record<string, ReactNode>, modal?: boolean}) {
   const totalArr = Object.keys(props.data);
   const sliceFn = sliceArr;
   return (
     <div>
       {totalArr.length < 30 ? (
         totalArr.map((name) => {
-          return toDataView(props.data[name], name, props.desc?.[name]);
+          return toDataView(props.data[name], name, props.desc?.[name], props.modal);
         })
       ) : (
         <>
           {sliceFn(totalArr).preArr.map((name) => {
-            return toDataView(props.data[name], name, props.desc?.[name]);
+            return toDataView(props.data[name], name, props.desc?.[name], props.modal);
           })}
           <UnShow num={totalArr.length - 6} />
           {sliceFn(totalArr).afterArr.map((name) => {
-            return toDataView(props.data[name], name, props.desc?.[name]);
+            return toDataView(props.data[name], name, props.desc?.[name], props.modal);
           })}
         </>
       )}
@@ -136,6 +171,8 @@ const CollapseView = React.memo(
     onClick?: (compName: string) => void;
     isSelected?: boolean;
     isOpen?: boolean;
+    children?: React.ReactNode; // Accept children
+    modal?: boolean;
   }) => {
     const { data = {} } = props;
     const onlyOne = Object.keys(data).length === 1;
@@ -147,47 +184,52 @@ const CollapseView = React.memo(
           {
             key: props.name,
             title: (
-              <Tooltip
-                title={props.desc?.[props.name]}
-                placement={"right"}
-                popupVisible={!!props.desc?.[props.name]}
-              >
-                <CollapseTitleWrapper onClick={() => props.onClick && props.onClick(props.name)}>
-                  <Title
-                    style={{
-                      whiteSpace: "nowrap",
-                      textOverflow: "ellipsis",
-                      overflow: "hidden",
-                    }}
-                    label={props.name}
-                    hasChild={Object.keys(data).length > 0}
-                  />
-                  <Title
-                    style={{ flexShrink: 0 }}
-                    color="#8B8FA3"
-                    label={`${props.isArray ? "[]" : "{}"} ${trans(
-                      props.isArray
-                        ? onlyOne
-                          ? "leftPanel.propTipArr"
-                          : "leftPanel.propTipsArr"
-                        : onlyOne
-                        ? "leftPanel.propTip"
-                        : "leftPanel.propTips",
-                      {
-                        num: Object.keys(data).length,
-                      }
-                    )}`}
-                  />
-                </CollapseTitleWrapper>
-              </Tooltip>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Tooltip
+                  title={props.desc?.[props.name]}
+                  placement={"right"}
+                >
+                  <CollapseTitleWrapper onClick={() => props.onClick && props.onClick(props.name)}>
+                    <Title
+                      style={{
+                        whiteSpace: "nowrap",
+                        textOverflow: "ellipsis",
+                        overflow: "hidden",
+                      }}
+                      label={props.name}
+                      hasChild={Object.keys(data).length > 0}
+                    />
+                    <Title
+                      style={{ flexShrink: 0 }}
+                      color="#8B8FA3"
+                      label={`${props.isArray ? "[]" : "{}"} ${trans(
+                        props.isArray
+                          ? onlyOne
+                            ? "leftPanel.propTipArr"
+                            : "leftPanel.propTipsArr"
+                          : onlyOne
+                          ? "leftPanel.propTip"
+                          : "leftPanel.propTips",
+                        {
+                          num: Object.keys(data).length,
+                        }
+                      )}`}
+                    />
+                  </CollapseTitleWrapper>
+                </Tooltip>
+                {Object.keys(data).length > 0 && 
+                  <CopyTextButton text={safeStringify(data)} style={{ color: "#aaa", marginRight: "8px"  }} />
+                }
+              </div>
             ),
-            data: toData({ data, desc: props.desc }),
+            data: toData({ data, desc: props.desc, modal: props.modal}),
           },
         ]}
       />
     );
   }
 );
+
 
 interface LeftContentProps {
   uiComp: InstanceType<typeof UIComp>;
@@ -240,7 +282,7 @@ const LeftContentWrapper = styled.div`
 export const LeftContent = (props: LeftContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
-  const [expandedKeys, setExpandedKeys] = useState<Array<string | number>>([]);
+  const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [showData, setShowData] = useState<NodeInfo[]>([]);
 
   const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
@@ -324,13 +366,23 @@ export const LeftContent = (props: LeftContentProps) => {
   const getTreeNode = (node: NodeItem, uiCompInfos: CompInfo[]) => {
     const info = showData.find((item) => item.key === node.key);
     const data = uiCompInfos.find((item) => item.name === node.title);
+
+    const prepareData = (data: Record<string, any>, desc?: Record<string, ReactNode>) => {
+      return (
+        <div>
+          {Object.keys(data).map((name) => {
+            return toDataView(data[name], name, desc?.[name], true);
+          })}
+        </div>
+      );
+    };
+
     return (
-      <Node>
+      <Node key={node.key}>
         <span>
-          <span>{node.title}</span>
-          {data &&
-            !!Object.keys(data.data)?.length &&
-            (info?.show ? (
+          <span>{node.title} </span>
+          {data && !!Object.keys(data.data)?.length && (
+            info?.show ? (
               <Tooltip
                 placement="right"
                 title={trans("leftPanel.collapseTip", { component: node.title })}
@@ -353,7 +405,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-                  <LeftOpen />
+         
                 </div>
               </Tooltip>
             ) : (
@@ -389,24 +441,29 @@ export const LeftContent = (props: LeftContentProps) => {
                   <LeftClose />
                 </div>
               </Tooltip>
-            ))}
+            )
+          )}
         </span>
         {info?.show && data && (
-          <CollapseWrapper title="" clientX={info?.clientX} onClick={(e) => e.stopPropagation()}>
-            <ScrollBar style={{ maxHeight: "400px" }}>
-              <CollapseView
-                key={data.name}
-                name={data.name}
-                desc={data.dataDesc}
-                data={data.data}
-                isOpen={true}
-              />
-            </ScrollBar>
-          </CollapseWrapper>
+          <Modal
+            title={data.name}
+            open={info.show}
+            onOk={() => setShowData([])}
+            cancelButtonProps={{ style: { display: 'none' } }}
+            maskClosable={true} // Prevent closing on background click
+          >
+            <div
+              style={{ whiteSpace: 'nowrap', wordWrap: 'normal', maxHeight: "calc(100vh - 400px)", overflow: "scroll" }}
+              onClick={(e) => e.stopPropagation()} // Prevent closing on clicking inside the modal
+            >
+              {prepareData(data.data, data.dataDesc)}
+            </div>
+          </Modal>
         )}
       </Node>
     );
   };
+  
 
   const getTreeUI = (type: TreeUIKey) => {
     const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
@@ -434,9 +491,13 @@ export const LeftContent = (props: LeftContentProps) => {
     return (
       <DirectoryTreeStyle
         treeData={explorerData}
-        icon={(props: NodeItem) => props.type && (CompStateIcon[props.type] || <LeftCommon />)}
-        switcherIcon={({ expanded }: { expanded: boolean }) =>
-          expanded ? <FoldedIcon /> : <UnfoldIcon />
+        icon={(props: any) => props.type && (
+          <div style={{ margin: '16px 4px 0 -4px'}}> 
+            {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+          </div>
+        )}
+        switcherIcon={(props: any) =>
+          props.expanded ? <FoldedIcon /> : <UnfoldIcon />
         }
         expandedKeys={expandedKeys}
         onExpand={(keys) => setExpandedKeys(keys)}

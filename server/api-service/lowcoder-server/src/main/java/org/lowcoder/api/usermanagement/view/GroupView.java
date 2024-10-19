@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 public class GroupView {
 
     private String groupId;
+    private String groupGid;
     private String groupName;
     private boolean allUsersGroup;
     private boolean isDevGroup;
@@ -28,6 +29,7 @@ public class GroupView {
             Locale locale = LocaleUtils.getLocale(contextView);
             GroupView groupView = GroupView.builder()
                     .groupId(group.getId())
+                    .groupGid(group.getGid())
                     .groupName(group.getName(locale))
                     .allUsersGroup(group.isAllUsersGroup())
                     .isDevGroup(group.isDevGroup())

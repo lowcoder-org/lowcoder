@@ -1,5 +1,23 @@
 package org.lowcoder.sdk.plugin.graphql;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.collections4.SetUtils;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
+import org.lowcoder.sdk.models.Property;
+import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
+import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
+
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Function;
+
 import static org.apache.commons.collections4.ListUtils.emptyIfNull;
 import static org.apache.commons.lang3.StringUtils.trimToEmpty;
 import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
@@ -8,27 +26,8 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
 import static org.lowcoder.sdk.util.JsonUtils.fromJson;
 import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.collections4.SetUtils;
-import org.lowcoder.sdk.exception.PluginCommonError;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-import org.lowcoder.sdk.models.Property;
-import org.lowcoder.sdk.plugin.restapi.auth.AuthConfig;
-import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 @Builder
+@Jacksonized
 public class GraphQLDatasourceConfig implements DatasourceConnectionConfig {
     public static final GraphQLDatasourceConfig EMPTY_CONFIG = GraphQLDatasourceConfig.builder().build();
 
@@ -108,6 +107,13 @@ public class GraphQLDatasourceConfig implements DatasourceConnectionConfig {
 
     public boolean isForwardAllCookies() {
         return forwardAllCookies;
+    }
+
+    public boolean isOauth2InheritFromLogin() {
+        if (this.authConfig != null) {
+            return this.authConfig.getType().name().equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
+        }
+        return false;
     }
 
     @Override

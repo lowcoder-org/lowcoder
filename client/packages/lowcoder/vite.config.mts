@@ -8,18 +8,17 @@ import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 import chalk from "chalk";
 import { createHtmlPlugin } from "vite-plugin-html";
-import { ensureLastSlash } from "lowcoder-dev-utils/util";
-import { buildVars } from "lowcoder-dev-utils/buildVars";
-import { globalDepPlugin } from "lowcoder-dev-utils/globalDepPlguin";
+import dynamicImport from 'vite-plugin-dynamic-import';
+import { ensureLastSlash } from "./src/dev-utils/util";
+import { buildVars } from "./src/dev-utils/buildVars";
+import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
+// import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 dotenv.config();
 
 const apiProxyTarget = process.env.LOWCODER_API_SERVICE_URL;
-const nodeServiceApiProxyTarget = process.env.NODE_SERVICE_API_PROXY_TARGET;
+const nodeServiceApiProxyTarget = process.env.LOWCODER_NODE_SERVICE_URL;
 const nodeEnv = process.env.NODE_ENV ?? "development";
-const edition = process.env.REACT_APP_EDITION;
-const isEEGlobal = edition === "enterprise-global";
-const isEE = edition === "enterprise" || isEEGlobal;
 const isDev = nodeEnv === "development";
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 // the file was never created
@@ -61,22 +60,27 @@ export const viteConfig: UserConfig = {
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
     alias: {
       "@lowcoder-ee": path.resolve(
-        __dirname,
-        isEE ? `../lowcoder/src/${isEEGlobal ? "ee-global" : "ee"}` : "../lowcoder/src"
+        __dirname, "../lowcoder/src"
       ),
     },
   },
   base,
   build: {
     manifest: true,
-    target: "es2015",
-    cssTarget: "chrome63",
+    target: "es2020",
+    cssTarget: "chrome87",
     outDir: "build",
     assetsDir: "static",
     emptyOutDir: false,
     rollupOptions: {
       output: {
         chunkFileNames: "[hash].js",
+      },
+      onwarn: (warning, warn) => {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return
+        }
+        warn(warning)
       },
     },
     commonjsOptions: {
@@ -87,6 +91,12 @@ export const viteConfig: UserConfig = {
         return "auto";
       },
     },
+  },
+  optimizeDeps: {
+    entries: ['./src/**/*.{js,jsx,ts,tsx}'],
+    include: ['antd'],
+    // include: ['antd/**/*'],
+    // force: true,
   },
   css: {
     preprocessorOptions: {
@@ -100,6 +110,10 @@ export const viteConfig: UserConfig = {
         javascriptEnabled: true,
       },
     },
+    modules: {
+      // Configuration for CSS modules
+      scopeBehaviour: 'local' // Ensures CSS modules are scoped locally by default
+    }
   },
   server: {
     open: true,
@@ -147,6 +161,8 @@ export const viteConfig: UserConfig = {
       },
     }),
     isVisualizerEnabled && visualizer(),
+    dynamicImport(),
+    ({ include: ['process'] }),
   ].filter(Boolean),
 };
 

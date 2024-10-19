@@ -1,8 +1,6 @@
 package org.lowcoder.api.usermanagement;
 
-import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -17,42 +15,26 @@ import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.exception.BizError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
-
 import reactor.core.publisher.Mono;
 
+import static org.lowcoder.sdk.exception.BizError.INVALID_USER_STATUS;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
+@RequiredArgsConstructor
 @RestController
 public class UserController implements UserEndpoints
 {
-
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserHomeApiService userHomeApiService;
-
-    @Autowired
-    private OrgApiService orgApiService;
-
-    @Autowired
-    private UserStatusService userStatusService;
-
-    @Autowired
-    private UserApiService userApiService;
-
-    @Autowired
-    private CommonConfig commonConfig;
+    private final SessionUserService sessionUserService;
+    private final UserService userService;
+    private final UserHomeApiService userHomeApiService;
+    private final OrgApiService orgApiService;
+    private final UserStatusService userStatusService;
+    private final UserApiService userApiService;
+    private final CommonConfig commonConfig;
 
     @Override
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
@@ -90,6 +72,9 @@ public class UserController implements UserEndpoints
                     if (StringUtils.isNotBlank(updateUserRequest.getName())) {
                         updateUser.setName(updateUserRequest.getName());
                         updateUser.setHasSetNickname(true);
+                    }
+                    if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+                        updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
                     }
                     return userService.update(uid, updateUser);
                 })
@@ -144,6 +129,26 @@ public class UserController implements UserEndpoints
         return userApiService.resetPassword(request.userId())
                 .map(ResponseView::success);
 
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> lostPassword(@RequestBody LostPasswordRequest request) {
+        if (StringUtils.isBlank(request.userEmail())) {
+            return Mono.empty();
+        }
+        return userApiService.lostPassword(request.userEmail())
+                .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request) {
+        if (StringUtils.isBlank(request.userEmail()) || StringUtils.isBlank(request.token())
+                || StringUtils.isBlank(request.newPassword())) {
+            return ofError(BizError.INVALID_PARAMETER, "INVALID_PARAMETER");
+        }
+
+        return userApiService.resetLostPassword(request.userEmail(), request.token(), request.newPassword())
+                .map(ResponseView::success);
     }
 
     @Override

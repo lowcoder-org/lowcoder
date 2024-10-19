@@ -1,4 +1,5 @@
-import { Dropdown, Menu } from "antd";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Menu, MenuItemProps } from "antd/es/menu";
 import { Org, OrgRoleInfo } from "constants/orgConstants";
 import { ORGANIZATION_SETTING } from "constants/routesURL";
 import { User } from "constants/userConstants";
@@ -26,7 +27,9 @@ import { trans } from "i18n";
 import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { ItemType } from "antd/es/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
+
+const { Item } = Menu;
 
 const ProfileWrapper = styled.div`
   display: flex;
@@ -68,7 +71,7 @@ const StyledPackUpIcon = styled(PackUpIcon)`
   transform: rotate(90deg);
 `;
 
-const SelectDropMenuItem = styled(Menu.Item)`
+const SelectDropMenuItem = styled((props: MenuItemProps) => <Item {...props} />)`
   .ant-dropdown-menu-item-icon {
     position: absolute;
     right: 0;

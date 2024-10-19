@@ -19,13 +19,15 @@ const defaultHookListValue = [
   { compType: "lodashJsLib", name: "_" },
   { compType: "utils", name: "utils" },
   { compType: "message", name: "message" },
+  { compType: "toast", name: "toast" },
   { compType: "localStorage", name: "localStorage" },
   { compType: "currentUser", name: "currentUser" },
+  { compType: "screenInfo", name: "screenInfo" },
   { compType: "theme", name: "theme" },
 ] as const;
 
-const HookListTmpComp = list(HookComp);
-const HookListTmp2Comp = class extends HookListTmpComp {
+// const HookListTmpComp = list(HookComp);
+const HookListTmp2Comp = class extends list(HookComp) {
   getAllCompItems() {
     return getAllCompItems(this.getCompTree());
   }

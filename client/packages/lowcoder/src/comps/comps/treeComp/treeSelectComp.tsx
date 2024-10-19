@@ -2,18 +2,17 @@ import { changeChildAction, DispatchType, RecordConstructorToView } from "lowcod
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { TreeSelect } from "antd";
+import { default as TreeSelect } from "antd/es/tree-select";
 import { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
-import { TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
+import {  InputFieldStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
   advancedSection,
   expandSection,
   formSection,
-  intersectSection,
   treeCommonChildren,
   treeDataPropertyView,
   TreeNameConfigs,
@@ -21,11 +20,12 @@ import {
   valuePropertyView,
 } from "./treeUtils";
 import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
-import { useSelectInputValidate } from "../selectInputComp/selectInputConstants";
+import { useSelectInputValidate, SelectInputValidationSection } from "../selectInputComp/selectInputConstants";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
+import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
-import { stateComp } from "comps/generators/simpleGenerators";
+import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import {
   allowClearPropertyView,
@@ -34,6 +34,8 @@ import {
 } from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
@@ -57,13 +59,15 @@ const childrenMap = {
   selectType: dropdownControl(selectTypeOptions, "single"),
   checkedStrategy: dropdownControl(checkedStrategyOptions, "parent"),
   label: LabelControl,
-  placeholder: StringControl,
+  placeholder: withDefault(StringControl, trans("tree.placeholder")),
   // TODO: more event
   onEvent: SelectEventHandlerControl,
   allowClear: BoolControl,
   showSearch: BoolControl.DEFAULT_TRUE,
   inputValue: stateComp<string>(""), // search value
-  style: styleControl(TreeSelectStyle),
+  style:styleControl(InputFieldStyle , 'style'),
+  labelStyle:styleControl(LabelStyle  , 'labelStyle'),
+  inputFieldStyle: styleControl(TreeSelectStyle, 'inputFieldStyle'),
   viewRef: RefControl<BaseSelectRef>,
 };
 
@@ -81,9 +85,13 @@ function getCheckedStrategy(v: ValueFromOption<typeof checkedStrategyOptions>) {
 const TreeCompView = (
   props: RecordConstructorToView<typeof childrenMap> & { dispatch: DispatchType }
 ) => {
-  const { treeData, selectType, value, expanded, style, inputValue } = props;
+  const { treeData, selectType, value, expanded, style,labelStyle, inputValue } = props;
   const isSingle = selectType === "single";
-  const [validateState, handleValidate] = useSelectInputValidate(props);
+  const [
+    validateState,
+    handleChange,
+  ] = useSelectInputValidate(props);
+
   useEffect(() => {
     if (isSingle && value.value.length > 1) {
       value.onChange(value.value.slice(0, 1));
@@ -93,12 +101,14 @@ const TreeCompView = (
   return props.label({
     required: props.required,
     ...validateState,
-    style: style,
+    style,
+    labelStyle,
+    inputFieldStyle:props.inputFieldStyle,
     children: (
       <StyledTreeSelect
         ref={props.viewRef}
         key={selectType}
-        $style={style}
+        $style={props.inputFieldStyle}
         popupMatchSelectWidth={false}
         disabled={props.disabled}
         placeholder={props.placeholder}
@@ -113,13 +123,11 @@ const TreeCompView = (
         // fix expand issue when searching
         treeExpandedKeys={inputValue ? undefined : expanded.value}
         onTreeExpand={(keys) => {
-          expanded.onChange(keys);
+          expanded.onChange(keys as (string | number)[]);
         }}
         onChange={(keys) => {
           const nextValue = Array.isArray(keys) ? keys : keys !== undefined ? [keys] : [];
-          handleValidate(nextValue);
-          value.onChange(nextValue);
-          props.onEvent("change");
+          handleChange(nextValue);
         }}
         showSearch={props.showSearch}
         // search label
@@ -137,28 +145,52 @@ const TreeCompView = (
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  return new UICompBuilder(childrenMap, (props, dispatch) => {
+    return(
     <TreeCompView {...props} dispatch={dispatch} />
-  ))
+  )})
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
           {treeDataPropertyView(children)}
-          {children.selectType.propertyView({ label: trans("tree.selectType") })}
-          {valuePropertyView(children)}
-          {children.selectType.getView() === "check" &&
-            children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
           {placeholderPropertyView(children)}
         </Section>
-        {formSection(children)}
-        {children.label.getPropertyView()}
-        {expandSection(children)}
-        {intersectSection(children, children.onEvent.getPropertyView())}
-        {advancedSection(children, [
-          allowClearPropertyView(children),
-          showSearchPropertyView(children),
-        ])}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <><SelectInputValidationSection {...children} />
+            {formSection(children)}
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {children.hidden.propertyView({ label: trans("prop.hide") })}
+              {children.disabled.propertyView({ label: trans("prop.disabled") })}
+              {children.selectType.propertyView({ label: trans("tree.selectType") })}
+              {valuePropertyView(children)}
+              {children.selectType.getView() === "check" &&
+                children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
+              {allowClearPropertyView(children)}
+              {showSearchPropertyView(children)}
+            </Section>
+          </>
+        )}
+      
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <Section name={sectionNames.layout}>
+            {children.expanded.propertyView({ label: trans("tree.expanded") })}
+            {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
+            {children.showLine.propertyView({ label: trans("tree.showLine") })}
+            {children.showLine.getView() && children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
+          </Section>
+        )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
+
+        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          <>
+          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+          <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
+          <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
+          </>
+        )}
       </>
     ))
     .setExposeMethodConfigs(baseSelectRefMethods)

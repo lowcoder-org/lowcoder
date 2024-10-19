@@ -4,9 +4,11 @@ import static org.lowcoder.sdk.exception.BizError.INVALID_HISTORY_SNAPSHOT;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.repository.ApplicationHistorySnapshotRepository;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
@@ -19,12 +21,11 @@ import org.springframework.stereotype.Service;
 
 import reactor.core.publisher.Mono;
 
-@Lazy
+@RequiredArgsConstructor
 @Service
 public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistorySnapshotService {
 
-    @Autowired
-    private ApplicationHistorySnapshotRepository repository;
+    private final ApplicationHistorySnapshotRepository repository;
 
     @Override
     public Mono<Boolean> createHistorySnapshot(String applicationId, Map<String, Object> dsl, Map<String, Object> context, String userId) {
@@ -56,5 +57,14 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
     public Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId) {
         return repository.findById(historySnapshotId)
                 .switchIfEmpty(deferredError(INVALID_HISTORY_SNAPSHOT, "INVALID_HISTORY_SNAPSHOT", historySnapshotId));
+    }
+
+    @Override
+    public Mono<ApplicationHistorySnapshot> getLastSnapshotByApp(String applicationId) {
+        ApplicationHistorySnapshot _default = new ApplicationHistorySnapshot();
+        _default.setCreatedAt(Instant.ofEpochMilli(0));
+        _default.setCreatedBy("");
+        return repository.findAllByApplicationId(applicationId, PageRequest.of(0, 1).withSort(Direction.DESC, "createdAt"))
+                .switchIfEmpty(Mono.just(_default)).next();
     }
 }

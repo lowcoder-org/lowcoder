@@ -1,28 +1,33 @@
 import { withTheme } from '@rjsf/core';
-import { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
+import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-// import Ajv from "@rjsf/validator-ajv8";
-import { Button } from "antd";
+import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
 import { styleControl } from "comps/controls/styleControl";
-import { JsonSchemaFormStyle, JsonSchemaFormStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, JsonSchemaFormStyle, type JsonSchemaFormStyleType } from "comps/controls/styleControlConstants";
 import { depsConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
-import { ValueFromOption } from "lowcoder-design";
-import { i18n } from "lowcoder-core";
+import type { ValueFromOption } from "lowcoder-design";
 import { i18nObjs, trans } from "i18n";
-import { JSONSchema7 } from "json-schema";
+import type { JSONSchema7 } from "json-schema";
 import styled from "styled-components";
 import { toBoolean, toNumber, toString } from "util/convertUtils";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames, ScrollBar } from "lowcoder-design";
 import { jsonObjectControl } from "../../controls/codeControl";
 import { eventHandlerControl, submitEvent } from "../../controls/eventHandlerControl";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { AutoHeightControl } from "../../controls/autoHeightControl";
+import { useContext, useEffect } from "react";
+import { EditorContext } from "comps/editorState";
+import ObjectFieldTemplate from './ObjectFieldTemplate';
+import ArrayFieldTemplate from './ArrayFieldTemplate';
+import { Select } from 'antd';
+import Title from 'antd/es/typography/Title';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -30,7 +35,11 @@ const Form = withTheme(Theme);
 
 const EventOptions = [submitEvent] as const;
 
-const Container = styled.div<{ $style: JsonSchemaFormStyleType }>`
+const Container = styled.div<{
+  $style: JsonSchemaFormStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
+  ${(props) => props.$animationStyle}
   background: ${(props) => props.$style.background};
   border: 1px solid ${(props) => props.$style.border};
   padding: 15px;
@@ -41,6 +50,11 @@ const Container = styled.div<{ $style: JsonSchemaFormStyleType }>`
 
   label[for="root-title"] {
     font-size: 18px;
+  }
+
+  .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   #root-description {
@@ -106,7 +120,7 @@ function convertData(schema?: JSONSchema7, data?: any) {
   }
 }
 
-// FIXME: translate more other errors
+// TODO: translate more other errors
 // refer to ajv-i18n, https://github.com/ajv-validator/ajv-i18n/blob/master/messages/index.js
 // https://github.com/ajv-validator/ajv/tree/6a671057ea6aae690b5967ee26a0ddf8452c6297#Validation-keywords
 // JSON schema refer to https://json-schema.org/understanding-json-schema/reference/
@@ -166,6 +180,30 @@ function ErrorList(props: ErrorListProps) {
   );
 }
 
+const SearchableSelectWidget = (props : any) => {
+  const { options, value, required, disabled, readonly, autofocus, onChange } = props;
+  const { enumOptions } = options;
+
+  return (
+    <Select
+      showSearch
+      optionFilterProp="children"
+      value={value || undefined}
+      disabled={disabled || readonly}
+      autoFocus={autofocus}
+      onChange={(val) => onChange(val)}
+      style={{ width: '100%' }}
+      placeholder={props.placeholder}
+    >
+      {enumOptions.map((option : any) => (
+        <Select.Option key={option.value} value={option.value}>
+          {option.label}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
+
 function onSubmit(props: {
   resetAfterSubmit: boolean;
   data: { reset: () => void };
@@ -182,10 +220,13 @@ let FormBasicComp = (function () {
   const childrenMap = {
     resetAfterSubmit: BoolControl,
     schema: jsonObjectControl(i18nObjs.jsonForm.defaultSchema),
+    showVerticalScrollbar: withDefault(BoolControl, false),
     uiSchema: jsonObjectControl(i18nObjs.jsonForm.defaultUiSchema),
+    autoHeight: AutoHeightControl,
     data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
-    style: styleControl(JsonSchemaFormStyle),
+    style: styleControl(JsonSchemaFormStyle , 'style'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
@@ -193,9 +234,23 @@ let FormBasicComp = (function () {
       "ui:submitButtonOptions"
     ] as UISchemaSubmitButtonOptions;
 
+    const schema = props.schema;
+
     return (
-      <Container $style={props.style}>
+      <Container $style={props.style} $animationStyle={props.animationStyle}>
+        <ScrollBar
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow={"hidden"}
+            hideScrollbar={!props.showVerticalScrollbar}
+          >
         <ErrorBoundary>
+          <Title level={2} style={{ marginBottom: '24px' }}>
+            {schema.title as string | number}
+          </Title>
           <Form
             validator={validator}
             schema={props.schema}
@@ -204,6 +259,11 @@ let FormBasicComp = (function () {
             onSubmit={() => onSubmit(props)}
             onChange={(e) => props.data.onChange(e.formData)}
             transformErrors={(errors) => transformErrors(errors)}
+            templates={{
+              ObjectFieldTemplate: ObjectFieldTemplate,
+              ArrayFieldTemplate: ArrayFieldTemplate,
+            }}
+            widgets={{ searchableSelect: SearchableSelectWidget }}
             // ErrorList={ErrorList}
             children={
               <Button
@@ -219,63 +279,137 @@ let FormBasicComp = (function () {
             }
           />
         </ErrorBoundary>
+        </ScrollBar>
       </Container>
     );
   })
     .setPropertyViewFn((children) => {
       return (
         <>
-          <Section name={sectionNames.basic}>
-            {children.resetAfterSubmit.propertyView({
-              label: trans("jsonSchemaForm.resetAfterSubmit"),
-            })}
-            {children.schema.propertyView({
-              label: trans("jsonSchemaForm.jsonSchema"),
-              tooltip: (
-                <>
-                  {trans("jsonSchemaForm.schemaTooltip") + " "}
-                  <a
-                    href={"http://json-schema.org/learn/getting-started-step-by-step"}
-                    target={"_blank"}
-                    rel="noreferrer"
-                  >
-                    JSON schema
-                  </a>
-                </>
-              ),
-            })}
-            {children.uiSchema.propertyView({
-              label: trans("jsonSchemaForm.uiSchema"),
-              tooltip: (
-                <>
-                  {trans("jsonSchemaForm.schemaTooltip") + " "}
-                  <a
-                    href={
-                      "https://jsonforms.io/docs/uischema"
-                    }
-                    target={"_blank"}
-                    rel="noreferrer"
-                  >
-                    UI schema
-                  </a>
-                </>
-              ),
-            })}
-            {children.data.propertyView({
-              label: trans("jsonSchemaForm.defaultData"),
-            })}
-          </Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.basic}>
+              
+              {children.schema.propertyView({
+                key: trans("jsonSchemaForm.jsonSchema"),
+                label: (
+                  <>
+                    {trans("jsonSchemaForm.jsonSchema") + " ("}
+                    <a
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 1
+                    </a>
+                    {", "}
+                    <a
+                      href={"https://jsonforms.io/examples/basic"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 2
+                    </a>
+                    {")"}
+                  </>
+                ),
+                tooltip: (
+                  <>
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
+                    <a
+                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      JSON Schema
+                    </a>
+                  </>
+                ),
+              })}
+              {children.uiSchema.propertyView({
+                key: trans("jsonSchemaForm.uiSchema"),
+                label: (
+                  <>
+                    {trans("jsonSchemaForm.uiSchema") + " ("}
+                    <a
+                      href={"https://jsonforms.io/docs/uischema"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 1
+                    </a>
+                    {", "}
+                    <a
+                      href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema"}
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      Docs 2
+                    </a>
+                    {")"}
+                  </> 
+                ),
+                tooltip: (
+                  <>
+                    {trans("jsonSchemaForm.schemaTooltip") + " "}
+                    <a
+                      href={
+                        "https://jsonforms.io/docs/uischema"
+                      }
+                      target={"_blank"}
+                      rel="noreferrer"
+                    >
+                      UI Schema
+                    </a>
+                  </>
+                ),
+              })}
+              {children.data.propertyView({
+                key: trans("jsonSchemaForm.defaultData"),
+                label: trans("jsonSchemaForm.defaultData"),
+              })}
+            </Section>
+          )}
 
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
+          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.resetAfterSubmit.propertyView({
+                label: trans("jsonSchemaForm.resetAfterSubmit"),
+              })}
+            </Section>
+          )}
+          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+            <>
+             <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
+              </Section>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+                {children.animationStyle.getPropertyView()}
+              </Section>
+            </>
+          )}
 
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
         </>
       );
     })
     .build();
 })();
+
+FormBasicComp = class extends FormBasicComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
+
 
 let FormTmpComp = withExposingConfigs(FormBasicComp, [
   depsConfig({

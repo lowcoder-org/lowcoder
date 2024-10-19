@@ -1,27 +1,8 @@
 package org.lowcoder.api.framework.filter;
 
-import static java.util.Optional.ofNullable;
-import static java.util.stream.Collectors.toMap;
-import static org.lowcoder.api.framework.filter.FilterOrder.GLOBAL_CONTEXT;
-import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
-import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
-import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_LOCALE;
-import static org.lowcoder.sdk.constants.GlobalContext.CURRENT_ORG_MEMBER;
-import static org.lowcoder.sdk.constants.GlobalContext.DOMAIN;
-import static org.lowcoder.sdk.constants.GlobalContext.REQUEST;
-import static org.lowcoder.sdk.constants.GlobalContext.REQUEST_ID_LOG;
-import static org.lowcoder.sdk.constants.GlobalContext.REQUEST_METHOD;
-import static org.lowcoder.sdk.constants.GlobalContext.REQUEST_PATH;
-import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_ID;
-import static org.lowcoder.sdk.constants.GlobalContext.VISITOR_TOKEN;
-import static org.lowcoder.sdk.util.IDUtils.generate;
-
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Optional;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.api.framework.service.GlobalContextService;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.organization.service.OrgMemberService;
@@ -30,7 +11,6 @@ import org.lowcoder.infra.serverlog.ServerLogService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.sdk.util.CookieHelper;
 import org.lowcoder.sdk.util.UriUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.Ordered;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -38,11 +18,21 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+
+import static java.util.Optional.ofNullable;
+import static java.util.stream.Collectors.toMap;
+import static org.lowcoder.api.framework.filter.FilterOrder.GLOBAL_CONTEXT;
+import static org.lowcoder.sdk.constants.Authentication.isAnonymousUser;
+import static org.lowcoder.sdk.constants.GlobalContext.*;
+import static org.lowcoder.sdk.util.IDUtils.generate;
+
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalContextFilter implements WebFilter, Ordered {
 
@@ -51,38 +41,18 @@ public class GlobalContextFilter implements WebFilter, Ordered {
 
     public static final String CONTEXT_MAP = "context-map";
 
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private OrgMemberService orgMemberService;
-
-    @Autowired
-    private ServerLogService serverLogService;
-
-    @Autowired
-    private GlobalContextService globalContextService;
-
-    @Autowired
-    private CookieHelper cookieHelper;
+    private final SessionUserService sessionUserService;
+    private final OrgMemberService orgMemberService;
+    private final ServerLogService serverLogService;
+    private final GlobalContextService globalContextService;
+    private final CookieHelper cookieHelper;
 
     @Nonnull
     @Override
     public Mono<Void> filter(@Nonnull ServerWebExchange exchange, @Nonnull WebFilterChain chain) {
 
         return sessionUserService.getVisitorId()
-                .doOnNext(visitorId -> {
-                    if (isAnonymousUser(visitorId)) {
-                        return;
-                    }
-                    ServerLog serverLog = ServerLog.builder()
-                            .userId(visitorId)
-                            .urlPath(exchange.getRequest().getPath().toString())
-                            .httpMethod(Optional.ofNullable(exchange.getRequest().getMethod()).map(HttpMethod::name).orElse(""))
-                            .createTime(System.currentTimeMillis())
-                            .build();
-                    serverLogService.record(serverLog);
-                })
+                .flatMap(visitorId -> saveServerLog(exchange, visitorId))
                 .flatMap(visitorId -> chain.filter(exchange)
                         .contextWrite(ctx -> {
                             Map<String, Object> contextMap = buildContextMap(exchange, visitorId);
@@ -93,6 +63,27 @@ public class GlobalContextFilter implements WebFilter, Ordered {
                             }
                             return ctx.put(CONTEXT_MAP, contextMap);
                         }));
+    }
+
+    private Mono<String> saveServerLog(ServerWebExchange exchange, String visitorId) {
+        if (isAnonymousUser(visitorId)) {
+            return Mono.just(visitorId);
+        }
+
+        return orgMemberService
+                .getCurrentOrgMember(visitorId)
+                .map(orgMember -> {
+                    ServerLog serverLog = ServerLog.builder()
+                            .orgId(orgMember.getOrgId())
+                            .userId(visitorId)
+                            .urlPath(exchange.getRequest().getPath().toString())
+                            .httpMethod(Optional.ofNullable(exchange.getRequest().getMethod()).map(HttpMethod::name).orElse(""))
+                            .createTime(System.currentTimeMillis())
+                            .build();
+                    serverLogService.record(serverLog);
+                    return visitorId;
+                });
+
     }
 
     private Map<String, Object> buildContextMap(ServerWebExchange serverWebExchange, String visitorId) {

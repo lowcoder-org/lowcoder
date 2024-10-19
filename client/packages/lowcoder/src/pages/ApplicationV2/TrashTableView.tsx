@@ -8,7 +8,7 @@ import { HomeResTypeEnum } from "../../types/homeRes";
 import { deleteApplication, restoreApplication } from "../../redux/reduxActions/applicationActions";
 import { HomeRes } from "./HomeLayout";
 import { trans, transToNode } from "../../i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -27,7 +27,8 @@ const NameWrapper = styled.div`
 
 const EditBtn = styled(TacoButton)`
   opacity: 0;
-  width: 52px;
+  min-width: 52px !important;
+  width: auto !important;
   height: 24px;
 `;
 

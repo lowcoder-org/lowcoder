@@ -1,10 +1,8 @@
 package org.lowcoder.infra.event.user;
 
-import org.lowcoder.infra.event.AbstractEvent;
-import org.lowcoder.infra.event.EventType;
-
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
+import org.lowcoder.infra.event.AbstractEvent;
 
 @Getter
 @SuperBuilder

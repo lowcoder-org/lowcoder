@@ -33,6 +33,7 @@ import React, { useMemo, useState } from "react";
 import { GreyTextColor } from "constants/style";
 import { alignOptions } from "comps/controls/dropdownControl";
 import { ColumnTypeCompMap } from "comps/comps/tableComp/column/columnTypeComp";
+import Segmented from "antd/es/segmented";
 
 const InsertDiv = styled.div`
   display: flex;
@@ -51,7 +52,7 @@ const StyledRefreshIcon = styled(RefreshIcon)`
   height: 16px;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     g g {
       stroke: #4965f2;
     }
@@ -63,7 +64,7 @@ const eyeIconCss = css`
   width: 16px;
   display: inline-block;
 
-  :hover {
+  &:hover {
     cursor: pointer;
   }
 
@@ -103,6 +104,34 @@ const ColumnBatchOptionWrapper = styled.div`
   font-size: 13px;
 `;
 
+type ViewOptionType = "normal" | "summary";
+
+const summaryRowOptions = [
+  {
+    label: "Row 1",
+    value: 0,
+  },
+  {
+    label: "Row 2",
+    value: 1,
+  },
+  {
+    label: "Row 3",
+    value: 2,
+  },
+];
+
+const columnViewOptions = [
+  {
+    label: "Normal",
+    value: "normal",
+  },
+  {
+    label: "Summary",
+    value: "summary",
+  },
+];
+
 const columnFilterOptions = [
   { label: trans("table.allColumn"), value: "all" },
   { label: trans("table.visibleColumn"), value: "visible" },
@@ -139,7 +168,7 @@ function HideIcon(props: { hide: boolean; setHide: (hide: boolean) => void }) {
   const Eye = hide ? CloseEye : OpenEye;
   return (
     <Eye
-      onClick={(e) => {
+      onClick={(e: any) => {
         setHide(!hide);
       }}
     />
@@ -248,6 +277,8 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
   comp: T;
   columnLabel: string;
 }) {
+  const [viewMode, setViewMode] = useState('normal');
+  const [summaryRow, setSummaryRow] = useState(0);
   const { comp } = props;
   const selection = getSelectedRowKeys(comp.children.selection)[0] ?? "0";
   const [columnFilterType, setColumnFilterType] = useState<ColumnFilterOptionValueType>("all");
@@ -260,18 +291,20 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
     () => columns.filter((c) => columnFilterType === "all" || !c.children.hide.getView()),
     [columnFilterType, columns]
   );
+  const summaryRows = parseInt(comp.children.summaryRows.getView());
 
   const columnOptionToolbar = (
     <InsertDiv>
       <div style={{ display: "flex", alignItems: "center", marginRight: "auto" }}>
         <TextLabel label={props.columnLabel} />
-        <Graylabel>{"(" + columns.length + ")"}</Graylabel>
+        <Graylabel>{" (" + columns.length + ")"}</Graylabel>
       </div>
       {rowExample && (
         <ToolTipLabel title={trans("table.refreshButtonTooltip")}>
           <StyledRefreshIcon
             onClick={() => {
-              const actions = [
+              // console.log("comp", comp);
+              comp.dispatch(
                 wrapChildAction(
                   "columns",
                   comp.children.columns.dataChangedAction({
@@ -280,10 +313,10 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
                     dynamicColumn: dynamicColumn,
                     data: data,
                   })
-                ),
-                comp.changeChildAction("dataRowExample", null),
-              ];
-              actions.forEach((action) => comp.dispatch(deferAction(action)));
+                )
+              );
+              // the function below is not working
+              // comp.dispatch(comp.changeChildAction("dataRowExample", null));
             }}
           />
         </ToolTipLabel>
@@ -363,7 +396,21 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
         }}
         content={(column, index) => (
           <>
-            {column.propertyView(selection)}
+            <Segmented
+              block
+              options={columnViewOptions}
+              value={viewMode}
+              onChange={(k) => setViewMode(k as ViewOptionType)}
+            />
+            {viewMode === 'summary' && (
+              <Segmented
+                block
+                options={summaryRowOptions.slice(0, summaryRows)}
+                value={summaryRow}
+                onChange={(k) => setSummaryRow(k)}
+              />
+            )}
+            {column.propertyView(selection, viewMode, summaryRow)}
             {column.getView().isCustom && (
               <RedButton
                 onClick={() => {
@@ -390,6 +437,7 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
           comp.children.columns.dispatch(action);
         }}
         dataIndex={(column) => column.getView().dataIndex}
+        scrollable={true}
       />
     </>
   );
@@ -397,72 +445,170 @@ function ColumnPropertyView<T extends MultiBaseComp<TableChildrenType>>(props: {
 
 function columnPropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
   const columnLabel = trans("table.columnNum");
-  const dynamicColumn = comp.children.dynamicColumn.getView();
+  // const dynamicColumn = comp.children.dynamicColumn.getView();
   return [
     controlItem(
       { filterText: columnLabel },
       <ColumnPropertyView comp={comp} columnLabel={columnLabel} />
     ),
-    comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") }),
+    /* comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") }),
     dynamicColumn &&
       comp.children.dynamicColumnConfig.propertyView({
         label: trans("table.dynamicColumnConfig"),
         tooltip: trans("table.dynamicColumnConfigDesc"),
-      }),
+      }), */
   ];
 }
 
-export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>>(comp: T) {
+export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType> & { editorModeStatus: string }>(comp: T) {
+  const editorModeStatus = comp.editorModeStatus;
   const dataLabel = trans("data");
+
   return (
     <>
-      <Section name={trans("data")}>
-        {controlItem(
-          { filterText: dataLabel },
-          <div className={tableDataDivClassName}>
-            {comp.children.data.propertyView({
-              label: dataLabel,
+      {["logic", "both"].includes(editorModeStatus) && (
+        <Section name={trans("table.dataDesc")}>
+          {controlItem(
+            { filterText: dataLabel },
+            <div className={tableDataDivClassName}>
+              {comp.children.data.propertyView({
+                label: dataLabel,
+              })}
+            </div>
+          )}
+        </Section>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <Section name={trans("prop.columns")}>
+          {columnPropertyView(comp)}
+        </Section>
+      )}
+
+      {["logic", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.interaction}>
+            {comp.children.onEvent.getPropertyView()}
+            {hiddenPropertyView(comp.children)}
+            {loadingPropertyView(comp.children)}
+            {comp.children.showDataLoadSpinner.propertyView({
+              label: trans("table.showDataLoadSpinner"),
             })}
-          </div>
-        )}
-      </Section>
-      <Section name={trans("prop.columns")}>{columnPropertyView(comp)}</Section>
-      <Section name={sectionNames.layout}>
-        {comp.children.expansion.getPropertyView()}
-        {hiddenPropertyView(comp.children)}
-      </Section>
-      <Section name={trans("prop.rowSelection")}>
-        {comp.children.selection.getPropertyView()}
-      </Section>
-      <Section name={trans("prop.toolbar")}>{comp.children.toolbar.getPropertyView()}</Section>
-      <Section name={trans("prop.pagination")}>
-        {comp.children.pagination.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.interaction}>
-        {comp.children.onEvent.getPropertyView()}
-        {loadingPropertyView(comp.children)}
-        {comp.children.showDataLoadSpinner.propertyView({
-          label: trans("table.showDataLoadSpinner"),
-        })}
-        {comp.children.viewModeResizable.propertyView({
-          label: trans("table.viewModeResizable"),
-          tooltip: trans("table.viewModeResizableTooltip"),
-        })}
-      </Section>
-      <Section name={sectionNames.style}>
-        {comp.children.style.getPropertyView()}
-        {comp.children.rowColor.getPropertyView()}
-        {comp.children.size.propertyView({
-          label: trans("table.tableSize"),
-          radioButton: true,
-        })}
-        {comp.children.hideHeader.propertyView({
-          label: trans("table.hideHeader"),
-        })}
-        {comp.children.hideBordered.propertyView({
-          label: trans("table.hideBordered"),
-        })}
-      </Section>
+            {comp.children.selection.getPropertyView()}
+            {comp.children.editModeClicks.propertyView({
+              label: trans("table.editMode"),
+              radioButton: true,
+            })}
+            {comp.children.searchText.propertyView({
+              label: trans("table.searchText"),
+              tooltip: trans("table.searchTextTooltip"),
+              placeholder: "{{input1.value}}",
+            })}
+          </Section>
+
+          <Section name={"Summary"}>
+            {comp.children.showSummary.propertyView({
+              label: trans("table.showSummary")
+            })}
+            {comp.children.showSummary.getView() &&
+              comp.children.summaryRows.propertyView({
+              label: trans("table.totalSummaryRows"),
+              radioButton: true,
+            })}
+          </Section>
+
+          <Section name={"Insert Rows"}>
+            {comp.children.inlineAddNewRow.propertyView({
+              label: trans("table.inlineAddNewRow")
+            })}
+          </Section>
+
+          <Section name={trans("prop.toolbar")}>
+            {comp.children.toolbar.getPropertyView()}
+          </Section>
+        </>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.layout}>
+            {comp.children.size.propertyView({
+              label: trans("table.tableSize"),
+              radioButton: true,
+            })}
+            {comp.children.autoHeight.getPropertyView()}
+            {comp.children.showHorizontalScrollbar.propertyView({
+              label: trans("prop.showHorizontalScrollbar"),
+            })}
+            {!comp.children.autoHeight.getView() && comp.children.showVerticalScrollbar.propertyView({
+              label: trans("prop.showVerticalScrollbar"),
+            })}
+            {comp.children.fixedHeader.propertyView({
+              label: trans("table.fixedHeader"),
+              tooltip: trans("table.fixedHeaderTooltip")
+            })}
+            {comp.children.hideHeader.propertyView({
+              label: trans("table.hideHeader"),
+            })}
+            {comp.children.viewModeResizable.propertyView({
+              label: trans("table.viewModeResizable"),
+              tooltip: trans("table.viewModeResizableTooltip"),
+            })}
+            {comp.children.visibleResizables.propertyView({
+              label: trans("table.visibleResizables"),
+              tooltip: trans("table.visibleResizablesTooltip"),
+            })}
+          </Section>
+          <Section name={trans("prop.pagination")}>
+            {comp.children.pagination.getPropertyView()}
+          </Section>
+        </>
+      )}
+
+      {["logic", "both"].includes(editorModeStatus) && (
+        <>
+          <Section name={sectionNames.advanced}>
+            {comp.children.expansion.getPropertyView()}
+            {comp.children.dynamicColumn.propertyView({ label: trans("table.dynamicColumn") })}
+            {comp.children.dynamicColumn.getView() &&
+              comp.children.dynamicColumnConfig.propertyView({
+                label: trans("table.dynamicColumnConfig"),
+                tooltip: trans("table.dynamicColumnConfigDesc"),
+            })}
+          </Section>
+        </>
+      )}
+
+      {["layout", "both"].includes(editorModeStatus) && (
+        <><Section name={"Table Style"}>
+            {comp.children.style.getPropertyView()} 
+          </Section>
+          <Section name={"Header Style"}>
+            {comp.children.headerStyle.getPropertyView()}
+          </Section>
+          <Section name={"Toolbar Style"}>
+            {comp.children.toolbarStyle.getPropertyView()}
+          </Section>
+          <Section name={"Row Style"}>
+            {comp.children.showRowGridBorder.propertyView({
+              label: trans("table.showVerticalRowGridBorder"),
+            })}
+            {comp.children.showHRowGridBorder.propertyView({
+              label: trans("table.showHorizontalRowGridBorder"),
+            })}
+            {comp.children.rowStyle.getPropertyView()}
+            {comp.children.rowAutoHeight.getPropertyView()}
+            {comp.children.rowHeight.getPropertyView()}
+            {comp.children.rowColor.getPropertyView()}
+          </Section>
+          <Section name={"Column Style"}>
+            {comp.children.columnsStyle.getPropertyView()}
+          </Section>
+          <Section name={"Summary Row Style"}>
+            {comp.children.summaryRowStyle.getPropertyView()}
+          </Section>
+        </>
+      )}
     </>
   );
 }

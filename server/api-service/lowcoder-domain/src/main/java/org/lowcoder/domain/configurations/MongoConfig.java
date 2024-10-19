@@ -1,16 +1,17 @@
 package org.lowcoder.domain.configurations;
 
-import com.github.cloudyrock.mongock.driver.mongodb.springdata.v3.SpringDataMongoV3Driver;
-import com.github.cloudyrock.spring.v5.MongockSpring5;
 import com.mongodb.ReadConcern;
 import com.mongodb.ReadPreference;
 import com.mongodb.WriteConcern;
+import io.mongock.driver.mongodb.springdata.v4.SpringDataMongoV4Driver;
+import io.mongock.runner.springboot.MongockSpringboot;
+import io.mongock.runner.springboot.base.MongockApplicationRunner;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.sdk.config.MaterialProperties;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,15 +31,13 @@ import java.util.List;
 
 @Slf4j
 @Configuration
+@RequiredArgsConstructor
 @EnableReactiveMongoAuditing
 @EnableReactiveMongoRepositories(basePackages = {"org.lowcoder.infra", "org.lowcoder.domain"})
 public class MongoConfig {
 
-    @Autowired
-    private MaterialProperties materialProperties;
-
-    @Autowired
-    private MappingMongoConverter mappingMongoConverter;
+    private final MaterialProperties materialProperties;
+    private final MappingMongoConverter mappingMongoConverter;
 
     @PostConstruct
     public void init() {
@@ -46,14 +45,14 @@ public class MongoConfig {
     }
 
     @Bean
-    public MongockSpring5.MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
-        SpringDataMongoV3Driver springDataMongoV3Driver = SpringDataMongoV3Driver.withDefaultLock(mongoTemplate);
-        springDataMongoV3Driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
-        springDataMongoV3Driver.setReadConcern(ReadConcern.LOCAL);
+    public MongockApplicationRunner mongockApplicationRunner(ApplicationContext springContext, MongoTemplate mongoTemplate) {
+        SpringDataMongoV4Driver driver = SpringDataMongoV4Driver.withDefaultLock(mongoTemplate);
+        driver.setWriteConcern(WriteConcern.JOURNALED.withJournal(false));
+        driver.setReadConcern(ReadConcern.LOCAL);
 
-        return MongockSpring5.builder()
-                .setDriver(springDataMongoV3Driver)
-                .addChangeLogsScanPackages(List.of("org.lowcoder.runner.migrations"))
+        return MongockSpringboot.builder()
+                .setDriver(driver)
+                .addMigrationScanPackages(List.of("org.lowcoder.runner.migrations"))
                 .setSpringContext(springContext)
                 .buildApplicationRunner();
     }

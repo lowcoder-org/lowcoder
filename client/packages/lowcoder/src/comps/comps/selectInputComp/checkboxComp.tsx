@@ -1,4 +1,4 @@
-import { Checkbox } from "antd";
+import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
 import { BoolCodeControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
@@ -15,17 +15,18 @@ import {
 } from "./selectInputConstants";
 import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { CheckboxStyle, CheckboxStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { ValueFromOption } from "lowcoder-design";
+import { ValueFromOption, lightenColor } from "lowcoder-design";
 import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
+import { migrateOldData } from "comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
-    &,
     .ant-checkbox-wrapper:not(.ant-checkbox-wrapper-disabled) {
       color: ${style.staticText};
       max-width: calc(100% - 8px);
@@ -34,10 +35,21 @@ export const getStyle = (style: CheckboxStyleType) => {
         ${EllipsisTextCss};
       }
 
-      .ant-checkbox-checked {
+      .ant-checkbox .ant-checkbox-checked > .ant-checkbox-inner {
+        border-color: ${style.checkedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      .ant-checkbox:not(.ant-checkbox-checked) > .ant-checkbox-inner{
+        border-color: ${style.uncheckedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      .ant-checkbox-checked:not(.ant-checkbox-disabled) {
         .ant-checkbox-inner {
           background-color: ${style.checkedBackground};
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
+          border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
 
           &::after {
             border-color: ${style.checked};
@@ -45,24 +57,51 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
 
         &::after {
-          border-color: ${style.checkedBackground};
+          border-color: ${style.checkedBorder};
+          border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
           border-radius: ${style.radius};
         }
       }
-
-      .ant-checkbox-inner {
-        border-radius: ${style.radius};
+      
+      .ant-checkbox-inner) {
         background-color: ${style.uncheckedBackground};
-        border-color: ${style.uncheckedBorder};
+        border-radius: ${style.radius};
+        border-color: ${style.checkedBorder};
+        border-width:${style.borderWidth ? style.borderWidth : '2px'};
       }
+    
+      &:hover .ant-checkbox-inner, 
+      .ant-checkbox:hover .ant-checkbox-inner,
+      .ant-checkbox-input + ant-checkbox-inner {
+        ${style.hoverBackground && `background-color: ${style.hoverBackground}`};
+        ${style.hoverBackground && `border-color: ${style.hoverBackground}`};
+      }
+
+      
 
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input:focus + .ant-checkbox-inner {
-        border-color: ${style.checkedBackground};
+        border-color: ${style.checkedBorder};
+        border-width:${!!style.borderWidth ? style.borderWidth : '2px'};
+      }
+
+      &:hover .ant-checkbox-checked:not(.ant-checkbox-disabled) .ant-checkbox-inner {
+        background-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
+        border-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
       }
     }
 
+    
+
+    .ant-checkbox-group-item {
+      font-family:${style.fontFamily};
+      font-size:${style.textSize};
+      font-weight:${style.textWeight};
+      font-style:${style.fontStyle};
+      text-transform:${style.textTransform};
+      text-decoration:${style.textDecoration};
+    }
     .ant-checkbox-wrapper {
       padding: ${style.padding};
       .ant-checkbox-inner,
@@ -73,7 +112,7 @@ export const getStyle = (style: CheckboxStyleType) => {
   `;
 };
 
-const CheckboxGroup = styled(Checkbox.Group)<{
+const CheckboxGroup = styled(AntdCheckboxGroup) <{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
 }>`
@@ -100,31 +139,43 @@ const CheckboxGroup = styled(Checkbox.Group)<{
   }}
 `;
 
-const CheckboxBasicComp = (function () {
+let CheckboxBasicComp = (function () {
   const childrenMap = {
-    value: arrayStringExposingStateControl("value", ["1"]),
+    defaultValue: arrayStringExposingStateControl("defaultValue"),
+    value: arrayStringExposingStateControl("value"),
     label: LabelControl,
     disabled: BoolCodeControl,
     onEvent: ChangeEventHandlerControl,
     options: SelectInputOptionControl,
-    style: styleControl(CheckboxStyle),
+    style: styleControl(InputFieldStyle , 'style'),
+    labelStyle: styleControl(
+      LabelStyle.filter((style) => ['accent', 'validate', 'lineheight'].includes(style.name) === false),
+      'labelStyle',
+    ),
     layout: dropdownControl(RadioLayoutOptions, "horizontal"),
     viewRef: RefControl<HTMLDivElement>,
-
+    inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
+    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
-    const [validateState, handleValidate] = useSelectInputValidate(props);
+    const [
+      validateState,
+      handleChange,
+    ] = useSelectInputValidate(props);
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <CheckboxGroup
           ref={props.viewRef}
           disabled={props.disabled}
           value={props.value.value}
-          $style={props.style}
+          $style={props.inputFieldStyle}
           $layout={props.layout}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -134,9 +185,7 @@ const CheckboxBasicComp = (function () {
               disabled: option.disabled,
             }))}
           onChange={(values) => {
-            handleValidate(values as string[]);
-            props.value.onChange(values as string[]);
-            props.onEvent("change");
+            handleChange(values as string[]);
           }}
         />
       ),
@@ -147,6 +196,8 @@ const CheckboxBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+CheckboxBasicComp = migrateOldData(CheckboxBasicComp, fixOldInputCompData);
 
 export const CheckboxComp = withExposingConfigs(CheckboxBasicComp, [
   new NameConfig("value", trans("selectInput.valueDesc")),

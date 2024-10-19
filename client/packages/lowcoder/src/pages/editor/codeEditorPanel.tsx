@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { ReactNode, useContext, useMemo, useRef, useState } from "react";
 import { Layers } from "../../constants/Layers";
-import { CodeEditorOpenIcon } from "lowcoder-design";
+import { CodeEditorOpenIcon, CodeEditorPinnedIcon, CodeEditorUnPinnedIcon } from "lowcoder-design";
 import { CodeEditorCloseIcon } from "lowcoder-design";
 import { DragIcon } from "lowcoder-design";
 import Trigger from "rc-trigger";
@@ -68,12 +68,17 @@ const OpenButton = styled.div`
     margin: auto;
   }
 
-  :hover {
+  &:hover {
     svg g g {
       stroke: #222222;
     }
   }
 `;
+const Buttons = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+`
 const CloseButton = styled.div`
   display: flex;
   justify-content: space-between;
@@ -90,13 +95,37 @@ const CloseButton = styled.div`
   //margin-bottom: auto;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     background: #f5f5f6;
 
     svg g g {
       stroke: #222222;
     }
   }
+`;
+const PinButton = styled.div`
+    width: 32px;
+    height: 26px;
+    border: 1px solid #d7d9e0;
+    border-radius: 4px;
+    color: #333333;
+    padding: 2px ;
+    cursor: pointer;
+
+    &:hover {
+        background: #f5f5f6;
+
+        svg g g {
+            stroke: #222222;
+        }
+    }
+
+    // fixes the icon when there's no text in the container
+    svg {
+        width: 100%;
+        height: 100%;
+        fill: currentColor; 
+    }
 `;
 
 export const CodeEditorPanel = (props: {
@@ -106,6 +135,8 @@ export const CodeEditorPanel = (props: {
 }) => {
   const draggableRef = useRef<HTMLDivElement>(null);
   const [unDraggable, setUnDraggable] = useState(true);
+  const [pinned, setPinned] = useState(false);
+
   const [bounds, setBounds] = useState({
     left: 0,
     top: 0,
@@ -126,9 +157,11 @@ export const CodeEditorPanel = (props: {
       action={["click"]}
       zIndex={Layers.codeEditorPanel}
       popupStyle={{ opacity: 1, display: visible ? "block" : "none" }}
-      maskClosable={true}
+      maskClosable={!pinned}
+      mask={true}
       onPopupVisibleChange={(visible) => setVisible(visible)}
       afterPopupVisibleChange={(visible) => props.onVisibleChange(visible)}
+      getPopupContainer={(node: any) => node.parentNode.parentNode}
       popup={() => (
         <Draggable
           positionOffset={{ x: "-50%", y: "-50%" }}
@@ -168,10 +201,15 @@ export const CodeEditorPanel = (props: {
                   <StyledDragIcon />
                   {[compName, ...(props.breadcrumb ?? [])].filter((t) => !isEmpty(t)).join(" / ")}
                 </TitleWrapper>
-                <CloseButton onClick={() => setVisible(false)}>
-                  <CodeEditorCloseIcon />
-                  {trans("codeEditor.fold")}
-                </CloseButton>
+                <Buttons>
+                  <PinButton onClick={() => setPinned(!pinned) }> 
+                    {pinned ? <CodeEditorPinnedIcon/> : <CodeEditorUnPinnedIcon/>}
+                  </PinButton>
+                  <CloseButton onClick={() => setVisible(false)}>
+                    <CodeEditorCloseIcon />
+                    {trans("codeEditor.fold")}
+                  </CloseButton>
+                </Buttons>
               </HeaderWrapper>
 
               <BodyWrapper>{props.editor}</BodyWrapper>

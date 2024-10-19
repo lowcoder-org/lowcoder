@@ -8,6 +8,7 @@ import { trans } from "i18n";
 import _ from "lodash";
 import { CompAction, CompActionTypes } from "lowcoder-core";
 import {
+  TacoMarkDown,
   DocLink,
   QueryConfigLabel,
   QueryConfigWrapper,
@@ -20,6 +21,7 @@ import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bot
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
+import SupaDemoDisplay from "comps/utils/supademoDisplay";
 
 const dataChangeEvent: EventConfigType = {
   label: "onDataChange",
@@ -45,18 +47,18 @@ const DataResponderItemCompBase = new MultiCompBuilder(
             key: "general",
             title: trans("query.generalTab"),
             children: (
-              <QueryPropertyViewWrapper>
+              <><QueryPropertyViewWrapper>
                 <QuerySectionWrapper>
                   {children.data.propertyView({
                     label: trans("dataResponder.data"),
                     tooltip: trans("dataResponder.dataTooltip"),
                     placement: "bottom",
                     placeholder: "{{anyDependencies}}",
-                    extraChildren: QueryTutorials.dataResponder && (
+                    /* extraChildren: QueryTutorials.dataResponder && (
                       <DocLink style={{ marginTop: 8 }} href={QueryTutorials.dataResponder}>
                         {trans("dataResponder.docLink")}
                       </DocLink>
-                    ),
+                    ), */
                   })}
                 </QuerySectionWrapper>
 
@@ -68,7 +70,18 @@ const DataResponderItemCompBase = new MultiCompBuilder(
                     {children.onEvent.getPropertyView()}
                   </QueryConfigWrapper>
                 </QuerySectionWrapper>
-              </QueryPropertyViewWrapper>
+              </QueryPropertyViewWrapper><><TacoMarkDown>{trans("dataResponder.documentationText")}</TacoMarkDown><DocLink style={{ marginTop: 8 }} href={QueryTutorials.dataResponder} title={trans("dataResponder.documentationText")}>
+                {trans("dataResponder.docLink")}
+              </DocLink><br/><br/>
+
+              <SupaDemoDisplay
+                url={trans("supademos.dataresponder")}
+                modalWidth="80%"
+                modalTop="20px"
+              />
+              
+              </></>
+              
             ),
           },
         ]}

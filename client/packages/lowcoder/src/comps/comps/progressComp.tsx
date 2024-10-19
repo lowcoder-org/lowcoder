@@ -1,20 +1,27 @@
-import { Progress } from "antd";
+import { default as Progress } from "antd/es/progress";
 import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
-import { ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
     line-height: 2;
     .ant-progress-text {
       color: ${style.text};
+      font-style:${style.fontStyle};
+        font-family:${style.fontFamily};
+        font-weight:${style.textWeight};
+        font-size:${style.textSize};
     }
     width: ${widthCalculator(style.margin)};	
     height: ${heightCalculator(style.margin)};	
@@ -37,15 +44,17 @@ const getStyle = (style: ProgressStyleType) => {
   `;
 };
 
-export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType }>`
+export const ProgressStyled = styled(Progress)<{ $style: ProgressStyleType,$animationStyle?: AnimationStyleType}>`
   ${(props) => props.$style && getStyle(props.$style)}
+  ${props=>props.$animationStyle}
 `;
 
 const ProgressBasicComp = (function () {
   const childrenMap = {
-    value: numberExposingStateControl("value", 60),
+    value: numberExposingStateControl('value', 60),
     showInfo: BoolControl,
-    style: styleControl(ProgressStyle),
+    style: styleControl(ProgressStyle, 'style'),
+    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
   return new UICompBuilder(childrenMap, (props) => {
     return (
@@ -53,6 +62,7 @@ const ProgressBasicComp = (function () {
         percent={Math.round(props.value.value)}
         showInfo={props.showInfo}
         $style={props.style}
+        $animationStyle={props.animationStyle}
       />
     );
   })
@@ -64,12 +74,27 @@ const ProgressBasicComp = (function () {
               label: trans("progress.value"),
               tooltip: trans("progress.valueTooltip"),
             })}
-            {children.showInfo.propertyView({
-              label: trans("progress.showInfo"),
-            })}
           </Section>
-          <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {hiddenPropertyView(children)}
+              {children.showInfo.propertyView({
+                label: trans("progress.showInfo"),
+              })}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+              <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+            </>
+          )}
         </>
       );
     })

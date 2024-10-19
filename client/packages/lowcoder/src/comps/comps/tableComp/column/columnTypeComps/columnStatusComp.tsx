@@ -1,4 +1,4 @@
-import { Badge } from "antd";
+import { default as Badge } from "antd/es/badge";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -9,7 +9,7 @@ import { DropdownStyled, Wrapper } from "./columnTagsComp";
 import { ReactNode, useContext, useState } from "react";
 import { StatusContext } from "components/table/EditableCell";
 import { CustomSelect, PackUpIcon, ScrollBar } from "lowcoder-design";
-import { PresetStatusColorType } from "antd/lib/_util/colors";
+import { PresetStatusColorType } from "antd/es/_util/colors";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -47,20 +47,22 @@ type StatusEditPropsType = {
 const StatusEdit = (props: StatusEditPropsType) => {
   const defaultStatus = useContext(StatusContext);
   const [status, setStatus] = useState(defaultStatus);
-  const [open, setOpen] = useState(true);
+  const [allOptions, setAllOptions] = useState(BadgeStatusOptions);
+  const [open, setOpen] = useState(false);
+
   return (
     <Wrapper>
       <CustomSelect
         autoFocus
         defaultOpen
-        bordered={false}
+        variant="borderless"
         optionLabelProp="children"
         open={open}
         defaultValue={props.value.value}
         style={{ width: "100%" }}
         suffixIcon={<PackUpIcon />}
         showSearch
-        onSearch={(value) => {
+        onSearch={(value: string) => {
           if (defaultStatus.findIndex((item) => item.text.includes(value)) < 0) {
             setStatus([
               ...defaultStatus,
@@ -77,11 +79,12 @@ const StatusEdit = (props: StatusEditPropsType) => {
             status: status.find((item) => item.text === value)?.status || "none",
           });
         }}
-        onChange={(value) => {
+        onChange={(value: string) => {
           props.onChange({
             value,
             status: status.find((item) => item.text === value)?.status || "none",
           });
+          setOpen(false)
         }}
         dropdownRender={(originNode: ReactNode) => (
           <DropdownStyled>
@@ -89,20 +92,21 @@ const StatusEdit = (props: StatusEditPropsType) => {
           </DropdownStyled>
         )}
         dropdownStyle={{ marginTop: "7px", padding: "8px 0 6px 0" }}
-        onBlur={props.onChangeEnd}
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            props.onChangeEnd();
-          }
+        onBlur={() => {
+          props.onChangeEnd();
+          setOpen(false);
+        }}
+        onFocus={() => {
+          setOpen(true);
         }}
         onClick={() => setOpen(!open)}
       >
-        {status.map((value, index) => (
-          <CustomSelect.Option value={value.text} key={index}>
-            {value.status === "none" ? (
-              value.text
+        {allOptions.map((value, index) => (
+          <CustomSelect.Option value={value} key={index}>
+            {value === "none" ? (
+              value
             ) : (
-              <Badge status={value.status} text={value.text} />
+              <Badge status={value} text={value} />
             )}
           </CustomSelect.Option>
         ))}
@@ -117,7 +121,7 @@ export const BadgeStatusComp = (function () {
     (props, dispatch) => {
       const text = props.changeValue?.value ?? getBaseValue(props, dispatch).value;
       const status = props.changeValue?.status ?? getBaseValue(props, dispatch).status;
-      return status === "none" ? text : <Badge status={status} text={text} />;
+      return status === "none" ? text : <Badge status={status} text={text}/>;
     },
     (nodeValue) => [nodeValue.status.value, nodeValue.text.value].filter((t) => t).join(" "),
     getBaseValue

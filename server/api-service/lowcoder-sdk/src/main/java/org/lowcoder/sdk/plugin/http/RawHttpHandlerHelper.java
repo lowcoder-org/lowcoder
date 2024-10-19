@@ -1,12 +1,5 @@
 package org.lowcoder.sdk.plugin.http;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.stream.Collectors;
-
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.models.Property;
 import org.lowcoder.sdk.plugin.restapi.DataUtils;
@@ -18,6 +11,13 @@ import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 public class RawHttpHandlerHelper {
 

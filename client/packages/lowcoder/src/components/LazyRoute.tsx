@@ -1,7 +1,9 @@
-import { Skeleton } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
 import { ComponentType, lazy, Suspense, useRef } from "react";
 import { Route, RouteProps } from "react-router";
 import PageSkeleton from "./PageSkeleton";
+import EditorSkeletonView from "@lowcoder-ee/pages/editor/editorSkeletonView";
+import { ProductLoading } from "./ProductLoading";
 
 interface IProps extends RouteProps {
   /**
@@ -13,7 +15,7 @@ interface IProps extends RouteProps {
 
 const fallbacks = {
   normal: <Skeleton style={{ padding: 32 }} />,
-  layout: <PageSkeleton />,
+  layout: <ProductLoading />,
   outAppLayout: <PageSkeleton logoWithName />,
 };
 

@@ -2,22 +2,23 @@ import { CommonSettingResponseData } from "api/commonSettingApi";
 import { trans } from "i18n";
 
 export const ADMIN_ROLE = "admin";
+export const SUPER_ADMIN_ROLE = "super_admin";
 export const MEMBER_ROLE = "member";
+
 export const NEW_ORG_PREFIX = trans("orgSettings.newOrg");
 
 export const TacoRoles = [ADMIN_ROLE, MEMBER_ROLE] as const;
-export type RoleIdType = typeof TacoRoles[number];
+export type RoleIdType = typeof TacoRoles[number] | "super_admin";
 type RoleInfoType = Record<RoleIdType, { name: string; desc: string }>;
 
 export const GroupRoleInfo: RoleInfoType = {
+  super_admin: { name: trans("memberSettings.superAdmin"), desc: trans("memberSettings.adminGroupRoleInfo") },
   admin: { name: trans("memberSettings.admin"), desc: trans("memberSettings.adminGroupRoleInfo") },
-  member: {
-    name: trans("memberSettings.member"),
-    desc: trans("memberSettings.memberGroupRoleInfo"),
-  },
+  member: { name: trans("memberSettings.member"), desc: trans("memberSettings.memberGroupRoleInfo"), },
 };
 
 export const OrgRoleInfo: RoleInfoType = {
+  super_admin: { name: trans("memberSettings.superAdmin"), desc: trans("memberSettings.adminGroupRoleInfo") },
   admin: { name: trans("memberSettings.admin"), desc: trans("memberSettings.adminOrgRoleInfo") },
   member: { name: trans("memberSettings.member"), desc: trans("memberSettings.memberOrgRoleInfo") },
 };

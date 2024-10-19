@@ -1,0 +1,52 @@
+# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
+# For more information see: https://docs.github.com/en/actions/publishing-packages/publishing-nodejs-packages
+
+name: Publish Lowcoder Comps
+
+on:
+  push:
+    branches: [ "dev" ]
+
+jobs:
+  publish-package:
+    if: ${{ github.repositoryUrl == 'git://github.com/lowcoder-org/lowcoder.git'}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check version changes
+        uses: EndBug/version-check@v1
+        id: check
+        with:
+          diff-search: true
+          static-checking: localIsNew
+          file-name: client/packages/lowcoder-comps/package.json
+          file-url: https://unpkg.com/lowcoder-comps@latest/package.json
+
+      - name: Version update detected
+        if: steps.check.outputs.changed == 'true'
+        run: 'echo "Version change found! New version: ${{ steps.check.outputs.version }} (${{ steps.check.outputs.type }})"'
+      
+      - name: Set up Node.js for NPM
+        if: steps.check.outputs.changed == 'true'
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install dependencies
+        if: steps.check.outputs.changed == 'true'
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: install
+          dir: client/packages/lowcoder-comps
+
+      - name: Publish
+        if: steps.check.outputs.changed == 'true'
+        uses: borales/actions-yarn@v4.2.0
+        with:
+          cmd: build_publish
+          dir: client/packages/lowcoder-comps
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.LOWCODERNPMBOT }}

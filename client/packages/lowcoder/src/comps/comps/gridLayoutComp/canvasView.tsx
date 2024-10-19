@@ -1,6 +1,6 @@
 import { EditorContext } from "comps/editorState";
 import { EditorContainer } from "pages/common/styledComponent";
-import { Profiler, useContext, useRef, useState } from "react";
+import React, { Profiler, useContext, useRef, useState } from "react";
 import styled from "styled-components";
 import { profilerCallback } from "util/cacheUtils";
 import {
@@ -15,22 +15,26 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { EditorContainerPadding, TopHeaderHeight } from "constants/style";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import { checkIsMobile } from "util/commonUtils";
 import { CanvasContainerID } from "constants/domLocators";
 import { CNRootContainer } from "constants/styleSelectors";
+import { ScrollBar } from "lowcoder-design";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { isEqual } from "lodash";
 
-const UICompContainer = styled.div<{ maxWidth?: number; readOnly?: boolean; bgColor: string }>`
+// min-height: 100vh;
+
+const UICompContainer = styled.div<{ $maxWidth?: number; readOnly?: boolean; $bgColor: string }>`
   height: 100%;
   margin: 0 auto;
-  max-width: ${(props) => props.maxWidth || 1600}px;
-  background-color: ${(props) => props.bgColor};
+  max-width: ${(props) => props.$maxWidth || 1600}px;
+  background-color: ${(props) => props.$bgColor};
 `;
 
 // modal/drawer container
-export const CanvasContainer = styled.div<{ maxWidth: number }>`
-  max-width: ${(props) => props.maxWidth}px;
-  min-width: min(${(props) => props.maxWidth}px, 718px);
+export const CanvasContainer = styled.div<{ $maxWidth: number }>`
+  max-width: ${(props) => props.$maxWidth}px;
+  min-width: min(${(props) => props.$maxWidth}px, 718px);
   margin: 0 auto;
   height: 100%;
   contain: paint;
@@ -69,7 +73,7 @@ function getDragSelectedNames(
 
 const EmptySet = new Set<string>();
 
-export function CanvasView(props: ContainerBaseProps) {
+export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState(EmptySet);
   const scrollContainerRef = useRef(null);
@@ -102,36 +106,33 @@ export function CanvasView(props: ContainerBaseProps) {
     cols: parseInt(defaultGrid),
   };
   //////////////////////
-
   if (readOnly) {
     return (
       <UICompContainer
-        maxWidth={maxWidth}
+        $maxWidth={maxWidth}
         readOnly={true}
         className={CNRootContainer}
-        bgColor={bgColor}
+        $bgColor={bgColor}
       >
-        <div>
-          <Profiler id="Panel" onRender={profilerCallback}>
-            <InnerGrid
-              containerPadding={rootContainerPadding}
-              overflow={rootContainerOverflow}
-              {...props}
-              positionParams={positionParams} // Added By Aqib Mirza
-              {...gridLayoutCanvasProps}
-              bgColor={bgColor}
-              radius="0px"
-            />
-          </Profiler>
-        </div>
+        <Profiler id="Panel" onRender={profilerCallback}>
+          <InnerGrid
+            containerPadding={rootContainerPadding}
+            overflow={rootContainerOverflow}
+            {...props}
+            positionParams={positionParams} // Added By Aqib Mirza
+            {...gridLayoutCanvasProps}
+            bgColor={bgColor}
+            radius="0px"
+          />
+        </Profiler>
       </UICompContainer>
     );
   }
 
   return (
-    <CanvasContainer maxWidth={maxWidth} id={CanvasContainerID}>
+    <CanvasContainer $maxWidth={maxWidth} id={CanvasContainerID}>
       <EditorContainer ref={scrollContainerRef}>
-        <UICompContainer maxWidth={maxWidth} className={CNRootContainer} bgColor={bgColor}>
+        <UICompContainer $maxWidth={maxWidth} className={CNRootContainer} $bgColor={bgColor}>
           <DragSelector
             onMouseDown={() => {
               setDragSelectedComp(EmptySet);
@@ -166,4 +167,6 @@ export function CanvasView(props: ContainerBaseProps) {
       </EditorContainer>
     </CanvasContainer>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});

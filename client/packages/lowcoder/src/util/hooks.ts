@@ -2,6 +2,7 @@ import { AppPathParams } from "constants/applicationConstants";
 import React, {
   Dispatch,
   SetStateAction,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -16,6 +17,11 @@ import { checkIsMobile } from "util/commonUtils";
 import { EditorContext } from "comps/editorState";
 import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
 import { DatasourceStructure } from "api/datasourceApi";
+import { loadAuthSearchParams } from "pages/userAuth/authUtils";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
+import { CompAction, changeChildAction } from "lowcoder-core";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -24,7 +30,7 @@ export function isUserViewMode(params?: AppPathParams) {
     return false;
   }
   const { viewMode } = params;
-  return viewMode === "preview" || viewMode === "view";
+  return viewMode === "preview" || viewMode === "view" || viewMode === "view_marketplace";
 }
 
 /**
@@ -59,9 +65,9 @@ export function useApplicationId() {
 }
 
 export function useRedirectUrl() {
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
-  return queryParams.get(AuthSearchParams.redirectUrl);
+  const authSearchParams = loadAuthSearchParams()
+  const redirectUrl = authSearchParams && authSearchParams.redirectUrl
+  return redirectUrl && decodeURIComponent(redirectUrl);
 }
 
 export function useFixedDelay(callback: () => Promise<unknown>, delay: number | null) {
@@ -160,4 +166,63 @@ export function useMetaData(datasourceId: string) {
     () => getMetaData(datasourceStructure, datasourceId),
     [datasourceStructure, datasourceId]
   );
+}
+
+
+export function useMergeCompStyles(
+  props: Record<string, any>,
+  dispatch: (action: CompAction) => void
+) {
+  const editorState = useContext(EditorContext);
+  const theme = useContext(ThemeContext);
+  const compType = useContext(CompTypeContext);
+  const compTheme = theme?.theme?.components?.[compType];
+  const themeId = theme?.themeId;
+  const appSettingsComp = editorState?.getAppSettingsComp();
+  const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
+  const { preventStyleOverwriting, appliedThemeId } = props;
+
+  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
+  const styleProps: Record<string, any> = {};
+  styleKeys.forEach((key: string) => {
+    styleProps[key] = (props as any)[key];
+  });
+
+  const mergeStyles = useCallback(
+    ({
+      dispatch,
+      compTheme,
+      styleProps,
+      themeId
+    }: any) => {
+      setInitialCompStyles({
+        dispatch,
+        compTheme,
+        styleProps,
+        themeId,
+      })
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (
+      preventAppStylesOverwriting
+      || preventStyleOverwriting
+      || themeId === appliedThemeId
+    ) return;
+    mergeStyles({
+      dispatch,
+      compTheme,
+      styleProps,
+      themeId,
+    })
+  }, [
+    themeId,
+    JSON.stringify(styleProps),
+    JSON.stringify(compTheme),
+    mergeStyles,
+    preventAppStylesOverwriting,
+    preventStyleOverwriting,
+  ]);
 }

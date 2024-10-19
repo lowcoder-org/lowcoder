@@ -1,4 +1,5 @@
-import { Popover, Table as AntdTable } from "antd";
+import { default as Popover } from "antd/es/popover";
+import { default as AntdTable } from "antd/es/table";
 import {
   CustomModal,
   LockIcon,
@@ -20,6 +21,8 @@ import { validateResponse } from "api/apiUtils";
 import ReactJson from "react-json-view";
 import { StyledLink } from "pages/common/styledComponent";
 import _ from "lodash";
+import { Avatar, Card, List } from "antd";
+import { fullAvatarUrl } from "util/urlUtils";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
@@ -48,11 +51,11 @@ export const StyledTable = styled(AntdTable)`
   }
 
   .ant-table-body {
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       width: 16px;
     }
 
-    ::-webkit-scrollbar-thumb {
+    &::-webkit-scrollbar-thumb {
       border: 5px solid transparent;
       background-clip: content-box;
       border-radius: 9999px;
@@ -172,7 +175,7 @@ export const PermissionHeaderWrapper = styled.div`
     padding: 7px 12px;
     white-space: nowrap;
 
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       display: none;
     }
   }
@@ -294,7 +297,7 @@ export const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;
@@ -361,38 +364,45 @@ const UserDetailPopWrapper = styled.div`
   }
 `;
 
+interface User {
+  id: string;
+  name: string;
+  avatarUrl: string;
+  uiLanguage: string;
+  email: string;
+  ip: string;
+  groups: Group[];
+  extra: any;
+}
+
+interface Group {
+  groupName: string;
+  groupId: string;
+}
+
 export function UserDetailPopup(props: { userId: string; title: string }) {
   const { userId, title } = props;
-  const [userInfo, setUserInfo] = useState({ success: false, view: <></> });
+  const [userInfo, setUserInfo] = useState<User | null>(null);
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    if (!userInfo.success && visible) {
-      setUserInfo({ success: false, view: <WhiteLoading className="loading-class" /> });
+    if (userId) {
+      setLoading(true);
+      setError('');
       UserApi.getUserDetail(userId)
-        .then((resp) => {
+        .then(resp => {
           if (validateResponse(resp)) {
-            setUserInfo({
-              success: true,
-              view: (
-                <ReactJson
-                  name={false}
-                  src={resp.data.data}
-                  collapsed={3}
-                  style={{ wordBreak: "break-word" }}
-                />
-              ),
-            });
+            setUserInfo(resp.data.data);
+          } else {
+            throw new Error('Invalid response from server');
           }
         })
-        .catch((e) => {
-          setUserInfo({
-            success: false,
-            view: <span>{e.message}</span>,
-          });
-        });
+        .catch(e => setError(e.message))
+        .finally(() => setLoading(false));
     }
-  }, [visible]);
+  }, [userId, visible]);
 
   return (
     <>
@@ -405,14 +415,56 @@ export function UserDetailPopup(props: { userId: string; title: string }) {
       </OperationLink>
       <CustomModal
         width={550}
-        bodyStyle={{ maxHeight: "500px", overflow: "auto", maxWidth: "550px", width: "550px" }}
+        styles={{ 
+          body: {
+            maxHeight: "500px",
+            overflow: "auto",
+            maxWidth: "550px",
+            width: "550px"
+          }
+        }}
         open={visible}
         onCancel={() => setVisible(false)}
         title={title}
         showOkButton={false}
         showCancelButton={false}
       >
-        <UserDetailPopWrapper>{userInfo.view}</UserDetailPopWrapper>
+        <UserDetailPopWrapper>
+          {loading && <WhiteLoading />}
+          {userInfo &&
+            <Card
+              style={{ width: "90%", borderRadius: 8, margin: "0 auto" }}
+              cover={
+                <div style={{ display: 'flex', justifyContent: 'center', padding: 20 }}>
+                  <Avatar 
+                    size={100}
+                    src={userInfo.avatarUrl ? fullAvatarUrl(userInfo.avatarUrl) : ''}
+                    alt={userInfo.name || ''}
+                  />
+                </div>
+              }
+            >
+              <Card.Meta
+                title={userInfo.name || 'N/A'}
+                description={userInfo.email || 'N/A'}
+              />
+              <List
+                itemLayout="horizontal"
+                dataSource={userInfo.groups}
+                renderItem={item => (
+                  <List.Item>
+                    <List.Item.Meta
+                      title={item.groupName}
+                      description={`Group ID: ${item.groupId}`}
+                    />
+                  </List.Item>
+                )}
+              />
+              <p style={{ marginTop: 12 }}>Language: {userInfo.uiLanguage}</p>
+              <p>IP Address: {userInfo.ip}</p>
+            </Card>
+          }
+        </UserDetailPopWrapper>
       </CustomModal>
     </>
   );

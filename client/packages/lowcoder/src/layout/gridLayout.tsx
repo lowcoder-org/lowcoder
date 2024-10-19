@@ -51,6 +51,8 @@ import {
   synchronizeLayoutWithChildren,
   updateInCanvasCount,
 } from "./utils";
+import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
+import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 
 type GridLayoutState = {
   layout: Layout;
@@ -70,10 +72,10 @@ const DELAY_HIGHER_MS = 5;
 export const FLY_START_INFO = "flyStartInfo";
 export const FLY_OVER_INFO = "flyOverInfo";
 
-const DragPlaceHolder = styled.div<{ compType: UICompType }>`
+const DragPlaceHolder = styled.div<{ $compType: UICompType }>`
   height: 100%;
   background-color: ${(props) =>
-    props.compType === "module" ? ModulePrimaryColor : PrimaryColor} !important;
+    props.$compType === "module" ? ModulePrimaryColor : PrimaryColor} !important;
 `;
 
 /**
@@ -172,12 +174,25 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   }
 
   componentDidUpdate(prevProps: GridLayoutProps, prevState: GridLayoutState) {
-    const uiLayout = this.getUILayout();
     if (!draggingUtils.isDragging()) {
       // log.debug("render. clear ops. layout: ", uiLayout);
       // only change in changeHs, don't change state
       if (_.size(this.state.ops) > 0) {
-        this.setState({ layout: uiLayout, changedHs: undefined, ops: undefined });
+        // temporary fix for components becomes invisible in drawer/modal
+        // TODO: find a way to call DELETE_ITEM operation after layouts are updated in state
+        const ops = [...this.state.ops as any[]];
+        const [firstOp] = ops;
+        const { droppingItem } = this.props;
+        if(
+          ops.length === 1
+          && firstOp.type === 'DELETE_ITEM'
+          && firstOp.key === droppingItem?.i
+        ) {
+          this.setState({ changedHs: undefined, ops: undefined });
+        } else {
+          const uiLayout = this.getUILayout();
+          this.setState({ layout: uiLayout, changedHs: undefined, ops: undefined })
+        }
       }
     }
     if (!draggingUtils.isDragging() && _.isNil(this.state.ops)) {
@@ -387,19 +402,27 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // const ops = layoutOpUtils.push(this.state.ops, stickyItemOp(i, { h }));
     // this.setState({ ops });
     if (this.state.changedHs?.[i] !== h) {
-      const changedHeights = { ...this.state.changedHs, [i]: h };
-      this.setState({ changedHs: changedHeights });
+      this.setState((prevState) => {
+        return {
+          ...prevState,
+          changedHs: {
+            ...prevState.changedHs,
+            [i]: h,
+          }
+        }
+      })
     }
   };
 
   processGridItem(
+    zIndex: number,
     item: LayoutItem,
     childrenMap: _.Dictionary<React.ReactElement>
   ): React.ReactElement | undefined {
     const draggingExtraLayout = draggingUtils.getData<FlyStartInfo>(FLY_START_INFO)?.flyExtraLayout;
     const extraItem = this.props.extraLayout?.[item.i] ?? draggingExtraLayout?.[item.i];
     const child = item.placeholder ? (
-      <DragPlaceHolder compType={extraItem?.compType} className="react-grid-placeholder" />
+      <DragPlaceHolder $compType={extraItem?.compType} className="react-grid-placeholder" />
     ) : (
       childrenMap[item.i]
     );
@@ -421,52 +444,64 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const selectable = isSelectable;
     const positionParams = genPositionParams(this.props);
     return (
-      <GridItem
-        compType={extraItem?.compType}
+      <CompContext.Provider
         key={item.i}
-        containerWidth={width}
-        cols={cols}
-        margin={margin}
-        containerPadding={positionParams.containerPadding}
-        maxRows={maxRows}
-        rowHeight={rowHeight}
-        onDragStart={this.onDragStart}
-        onDrag={this.onDrag}
-        onDragEnd={this.onDragEnd}
-        onResizeStart={this.onResizeStart}
-        onResize={this.onResize}
-        onResizeStop={this.onResizeStop}
-        onHeightChange={this.onHeightChange}
-        isDraggable={isDraggable && isItemDraggable(item)}
-        isResizable={isResizable && isItemResizable(item)}
-        isSelectable={selectable}
-        transformScale={transformScale}
-        w={item.w}
-        h={extraItem?.hidden && !extraItem?.isSelected ? 0 : item.h}
-        x={item.x}
-        y={item.y}
-        i={item.i}
-        minH={item.minH}
-        minW={item.minW}
-        maxH={item.maxH}
-        maxW={item.maxW}
-        placeholder={item.placeholder}
-        layoutHide={item.hide}
-        static={item.static}
-        resizeHandles={getItemResizeHandles(item, extraItem)}
-        name={extraItem?.name}
-        autoHeight={extraItem?.autoHeight}
-        isSelected={extraItem?.isSelected}
-        hidden={extraItem?.hidden}
-        selectedSize={selectedSize}
-        clickItem={clickItem}
-        showName={{
-          top: showName?.top ?? 0,
-          bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
+        value={{
+          compType: extraItem?.compType,
+          comp: extraItem?.comp?.toJsonValue(),
         }}
       >
-        {child}
-      </GridItem>
+        <CompTypeContext.Provider value={extraItem?.compType}>
+          <GridItem
+            compType={extraItem?.compType}
+            key={item.i}
+            containerWidth={width}
+            cols={cols}
+            margin={margin}
+            containerPadding={positionParams.containerPadding}
+            maxRows={maxRows}
+            rowHeight={rowHeight}
+            onDragStart={this.onDragStart}
+            onDrag={this.onDrag}
+            onDragEnd={this.onDragEnd}
+            onResizeStart={this.onResizeStart}
+            onResize={this.onResize}
+            onResizeStop={this.onResizeStop}
+            onHeightChange={this.onHeightChange}
+            isDraggable={isDraggable && isItemDraggable(item)}
+            isResizable={isResizable && isItemResizable(item)}
+            isSelectable={selectable}
+            transformScale={transformScale || 1}
+            w={item.w}
+            h={extraItem?.hidden && !extraItem?.isSelected ? 0 : item.h}
+            x={item.x}
+            y={item.y}
+            i={item.i}
+            minH={item.minH || 1}
+            minW={item.minW || 1}
+            maxH={item.maxH || Infinity}
+            maxW={item.maxW || Infinity}
+            placeholder={item.placeholder}
+            layoutHide={item.hide}
+            static={item.static}
+            resizeHandles={getItemResizeHandles(item, extraItem)}
+            name={extraItem?.name}
+            autoHeight={extraItem?.autoHeight}
+            isSelected={extraItem?.isSelected}
+            hidden={extraItem?.hidden}
+            selectedSize={selectedSize}
+            clickItem={clickItem}
+            showName={{
+              top: showName?.top ?? 0,
+              bottom: (showName?.bottom ?? 0) + (this.ref.current?.scrollHeight ?? 0),
+            }}
+            zIndex={zIndex}
+            className=""
+          >
+            {child}
+          </GridItem>
+        </CompTypeContext.Provider>
+      </CompContext.Provider>
     );
   }
 
@@ -863,7 +898,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       // move the logic to onDragEnd function when dragging from the canvas
       return;
     }
-
     let layout = this.getUILayout();
     const ops = layoutOpUtils.push(this.state.ops, deleteItemOp(droppingKey));
     const items = _.pick(layout, droppingKey);
@@ -1001,15 +1035,17 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     this.ref = this.props.innerRef ?? this.innerRef;
 
     // log.debug("GridLayout render. layout: ", layout, " oriLayout: ", this.state.layout, " extraLayout: ", this.props.extraLayout);
+    const layouts = Object.values(layout);
+    const maxLayoutPos = Math.max(...layouts.map(l => l.pos || 0))
     return (
       <LayoutContainer
         ref={this.ref}
         className={mergedClassName}
         style={style}
-        bgColor={this.props.bgColor}
-        radius={this.props.radius}
-        autoHeight={this.props.autoHeight}
-        overflow={this.props.overflow}
+        $bgColor={this.props.bgColor}
+        $radius={this.props.radius}
+        $autoHeight={this.props.autoHeight}
+        $overflow={this.props.overflow}
         tabIndex={-1}
         onDrop={isDroppable ? this.onDrop : _.noop}
         onDragLeave={isDroppable ? this.onDragLeave : _.noop}
@@ -1025,8 +1061,14 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         >
           <div style={contentStyle}>
             {showGridLines && this.gridLines()}
-            {mounted &&
-              Object.values(layout).map((item) => this.processGridItem(item, childrenMap))}
+            {mounted && 
+              layouts.map((item) => {
+                const zIndex = item.pos !== undefined
+                  ? (maxLayoutPos - item.pos) + 1
+                  : 1;
+                return this.processGridItem(zIndex, item, childrenMap)
+              })
+            }
             {this.hintPlaceholder()}
           </div>
         </ReactResizeDetector>
@@ -1036,26 +1078,26 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
 }
 
 const LayoutContainer = styled.div<{
-  bgColor?: string;
-  autoHeight?: boolean;
-  overflow?: string;
-  radius?: string;
+  $bgColor?: string;
+  $autoHeight?: boolean;
+  $overflow?: string;
+  $radius?: string;
 }>`
-  border-radius: ${(props) => props.radius ?? "4px"};
-  background-color: ${(props) => props.bgColor ?? "#f5f5f6"};
+  border-radius: ${(props) => props.$radius ?? "4px"};
+  background-color: ${(props) => props.$bgColor ?? "#f5f5f6"};
   /* height: 100%; */
-  height: ${(props) => (props.autoHeight ? "auto" : "100%")};
+  height: ${(props) => (props.$autoHeight ? "auto" : "100%")};
 
   overflow: auto;
-  overflow: ${(props) => props.overflow ?? "overlay"};
+  overflow: ${(props) => props.$overflow ?? "overlay"};
   ${(props) =>
-    props.autoHeight &&
+    props.$autoHeight &&
     `::-webkit-scrollbar {
     display: none;
   }`}
 `;
 
-export const ReactGridLayout = GridLayout;
+export const ReactGridLayout = React.memo(GridLayout);
 
 function moveOrResize(
   e: React.KeyboardEvent,

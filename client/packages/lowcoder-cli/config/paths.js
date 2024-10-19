@@ -1,6 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
-import { currentDirName } from "lowcoder-dev-utils/util.js";
+import { currentDirName } from "../dev-utils/util.js";
 
 const currentDir = currentDirName(import.meta.url);
 const appDirectory = fs.realpathSync(process.cwd());

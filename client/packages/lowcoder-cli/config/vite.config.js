@@ -1,12 +1,12 @@
 import react from "@vitejs/plugin-react";
 import svgrPlugin from "vite-plugin-svgr";
 import global from "rollup-plugin-external-globals";
-import { buildVars } from "lowcoder-dev-utils/buildVars.js";
+import { buildVars } from "../dev-utils/buildVars.js";
 import injectCss from "vite-plugin-css-injected-by-js";
-import { getLibNames, getAllLibGlobalVarNames } from "lowcoder-dev-utils/external.js";
+import { getLibNames, getAllLibGlobalVarNames } from "../dev-utils/external.js";
 import paths from "./paths.js";
 import { defineConfig } from "vite";
-import { readJson } from "lowcoder-dev-utils/util.js";
+import { readJson } from "../dev-utils/util.js";
 
 const isProduction = process.env.NODE_ENV === "production";
 const packageJson = readJson(paths.appPackageJson);
@@ -27,8 +27,8 @@ export default defineConfig({
     extensions: [".mjs", ".js", ".ts", ".jsx", ".tsx", ".json"],
   },
   build: {
-    target: "es2015",
-    cssTarget: "chrome63",
+    target: "es2020",
+    cssTarget: "chrome87",
     outDir: paths.appOutPath,
     emptyOutDir: true,
     lib: {

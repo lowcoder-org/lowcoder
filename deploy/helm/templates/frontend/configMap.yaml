@@ -11,16 +11,18 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 data:
-  PUID: {{ .Values.frontend.config.userId | default "9001" | quote }}
-  PGID: {{ .Values.frontend.config.groupId | default "9001" | quote }}
-  {{- if .Values.frontend.config.apiServiceUrl }}
-  LOWCODER_API_SERVICE_URL: {{ .Values.frontend.config.apiServiceUrl | trimSuffix "/" | quote }}
+  LOWCODER_PUID: {{ .Values.global.config.userId | default "9001" | quote }}
+  LOWCODER_PGID: {{ .Values.global.config.groupId | default "9001" | quote }}
+  {{- if .Values.global.config.apiServiceUrl }}
+  LOWCODER_API_SERVICE_URL: {{ .Values.global.config.apiServiceUrl | trimSuffix "/" | quote }}
   {{- else }}
   LOWCODER_API_SERVICE_URL: "http://{{ $name }}-api-service:{{ .Values.apiService.service.port }}"
   {{- end }}
-  {{- if .Values.frontend.config.nodeServiceUrl }}
-  LOWCODER_NODE_SERVICE_URL: {{ .Values.frontend.config.nodeServiceUrl | trimSuffix "/" | quote }}
+  {{- if .Values.global.config.nodeServiceUrl }}
+  LOWCODER_NODE_SERVICE_URL: {{ .Values.global.config.nodeServiceUrl | trimSuffix "/" | quote }}
   {{- else }}
   LOWCODER_NODE_SERVICE_URL: "http://{{ $name }}-node-service:{{ .Values.nodeService.service.port }}"
   {{- end }}
+  LOWCODER_MAX_REQUEST_SIZE: {{ .Values.global.config.maxRequestSize | default "20m" | quote }}
+  LOWCODER_MAX_QUERY_TIMEOUT: {{ .Values.global.config.maxQueryTimeout | default "120" | quote }}
 

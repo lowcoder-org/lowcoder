@@ -1,4 +1,6 @@
 import { PanelStatus } from "pages/common/header";
+import { DisabledCollisionStatus as DisabledCollisionStatus } from "pages/editor/LeftLayersContent";
+import { EditorModeStatus } from "pages/common/header";
 import log from "loglevel";
 import { JSONValue } from "util/jsonTypes";
 
@@ -17,6 +19,7 @@ export const DefaultPanelStatus: PanelStatus = {
   bottom: true,
   right: true,
 };
+
 const DefaultPanelStyle: PanelStyle = {
   bottom: {
     h: 285,
@@ -37,6 +40,38 @@ export function getPanelStatus(): PanelStatus {
     return DefaultPanelStatus;
   }
   return { ...DefaultPanelStatus, ...JSON.parse(str) };
+}
+
+export function saveEditorModeStatus(editorModeStatus: EditorModeStatus) {
+  localStorage.setItem("editor_mode_status", editorModeStatus);
+}
+//ADDED BY FRED TO SAVE enabledCollision
+export function saveCollisionStatus(
+  collisionStatus: boolean
+) {
+  localStorage.setItem("disableCollision", String(collisionStatus));
+}
+
+// export const DefaultCollisionStatus: DisabledCollisionStatus = "true";
+export function getCollisionStatus(): boolean {
+  const str = localStorage.getItem("disableCollision");
+  if (str === 'true') {
+    return true;
+  }
+  return false;
+}
+
+export function removeCollisionStatus() {
+  localStorage.removeItem("disableCollision");
+}
+
+export const DefaultEditorModeStatus: EditorModeStatus = "both";
+export function getEditorModeStatus(): EditorModeStatus {
+  const str = localStorage.getItem("editor_mode_status");
+  if (!str) {
+    return DefaultEditorModeStatus;
+  }
+  return str as EditorModeStatus;
 }
 
 export function savePanelStyle(panelStyle: PanelStyle) {
@@ -71,11 +106,11 @@ export function getMainCompValue(): object {
 export type HomeLayoutType = "list" | "card";
 
 export function saveHomeLayout(layout: HomeLayoutType) {
-  localStorage.setItem("home_layout", layout);
+  localStorage.setItem("lowcoder_home_layout", layout);
 }
 
 export function getHomeLayout(): HomeLayoutType {
-  const layout = localStorage.getItem("home_layout");
+  const layout = localStorage.getItem("lowcoder_home_layout");
   return layout === "list" || layout === "card" ? layout : "card";
 }
 

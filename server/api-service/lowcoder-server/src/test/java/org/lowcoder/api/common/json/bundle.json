@@ -1,0 +1,75 @@
+{
+  "class": "org.lowcoder.domain.bundle.model.Bundle",
+  "data": [
+    {
+      "id": "bundle01",
+      "gid": "019053a1-ce82-7f28-bf17-d2251497a54e",
+      "name": "bundle01",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle02",
+      "gid": "019053a1-f771-7c3a-9f33-6f79d50ad5d4",
+      "name": "bundle02",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle03",
+      "gid": "019053a2-19e4-72b1-ac58-bf5debe20444",
+      "name": "bundle03",
+      "organizationId": "org01",
+      "bundleStatus": "RECYCLED"
+    },
+    {
+      "id": "bundle04",
+      "gid": "019053a2-3ab7-75a9-b347-49e9a7095e97",
+      "name": "bundle04",
+      "organizationId": "org01",
+      "bundleStatus": "DELETED"
+    },
+    {
+      "id": "bundle05",
+      "gid": "019053a2-83f4-76fb-8f10-47c0420176d6",
+      "name": "bundle05",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle06",
+      "gid": "019053a2-a618-7b0f-b54c-e5038d10da71",
+      "name": "bundle06",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle07",
+      "gid": "019053a2-c9a8-7a89-8d5c-e3870f3a2d24",
+      "name": "bundle07",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle08",
+      "gid": "019053a2-e92f-7985-9cce-ce87ea7121c0",
+      "name": "bundle08",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle09",
+      "gid": "019053a3-105b-7d3f-a38c-3dbac7b3c4e6",
+      "name": "bundle09",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    },
+    {
+      "id": "bundle10",
+      "gid": "019053a3-3d41-7531-9c50-6da5e4b288c7",
+      "name": "bundle10",
+      "organizationId": "org01",
+      "bundleStatus": "NORMAL"
+    }
+  ]
+}

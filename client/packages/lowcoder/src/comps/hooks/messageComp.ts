@@ -4,18 +4,18 @@ import { withExposingConfigs } from "../generators/withExposing";
 import { EvalParamType, ParamsConfig } from "../controls/actionSelector/executeCompTypes";
 import { JSONObject } from "../../util/jsonTypes";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const params: ParamsConfig = [
   { name: "text", type: "string" },
   { name: "options", type: "JSON" },
 ];
 
-const showMessage = (params: EvalParamType[], level: "info" | "success" | "warning" | "error") => {
+const showMessage = (params: EvalParamType[], level: "info" | "success" | "loading" | "warning" | "error") => {
   const text = params?.[0];
   const options = params?.[1] as JSONObject;
   const duration = options?.["duration"] ?? 3;
-  text && messageInstance[level](text, duration as number);
+  text && messageInstance[level](text as any, duration as number);
 };
 
 const MessageCompBase = simpleMultiComp({});
@@ -33,6 +33,12 @@ MessageComp = withMethodExposing(MessageComp, [
     method: { name: "success", description: trans("messageComp.success"), params: params },
     execute: (comp, params) => {
       showMessage(params, "success");
+    },
+  },
+  {
+    method: { name: "loading", description: trans("messageComp.loading"), params: params },
+    execute: (comp, params) => {
+      showMessage(params, "loading");
     },
   },
   {

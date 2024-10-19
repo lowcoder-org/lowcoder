@@ -12,7 +12,7 @@ import { trans, transToNode } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { AppTypeEnum } from "constants/applicationConstants";
 import { CopyModal } from "pages/common/copyModal";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const PopoverIcon = styled(PointIcon)`
   cursor: pointer;
@@ -22,7 +22,7 @@ const PopoverIcon = styled(PointIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;

@@ -1,6 +1,6 @@
 import { NumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { InputNumber } from "antd";
+import { default as InputNumber } from "antd/es/input-number";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
 import { ProgressStyle } from "comps/controls/styleControlConstants";
@@ -55,7 +55,7 @@ const InputNumberStyled = styled(InputNumber)`
       position: unset;
       transform: none;
     }
-    :hover {
+    &:hover {
       &:not(.ant-input-number-handler-up-disabled):not(.ant-input-number-handler-down-disabled)
         path {
         fill: #315efb;
@@ -94,7 +94,7 @@ export const ProgressComp = (function () {
           max={100}
           defaultValue={props.value}
           autoFocus
-          bordered={false}
+          variant="borderless"
           controls={{ upIcon: <TablePlusIcon />, downIcon: <TableMinusIcon /> }}
           onChange={(value) => {
             props.onChange(Number(value));

@@ -1,5 +1,5 @@
-import HelloWorldComp from "./HelloWorldComp";
+import HillchartsComp from "./HillchartsComp";
 
 export default {
-  hello_world: HelloWorldComp,
+  hillcharts: HillchartsComp
 };

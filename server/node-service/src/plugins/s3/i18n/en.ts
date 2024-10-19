@@ -1,5 +1,5 @@
 export const en = {
-  name: "S3",
+  name: "AWS S3",
   description: "Supports AWS S3 and object storage services that support S3",
   skRequiredMessage: "Please input the SecretKey",
   akRequiredMessage: "Please input the AccessKey",

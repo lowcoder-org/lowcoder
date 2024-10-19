@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { trans, transToNode } from "i18n";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
 import { DetailContainer } from "pages/setting/theme/styledComponents";
@@ -20,7 +20,11 @@ import {
 } from "@lowcoder-ee/pages/setting/idSource/idSourceConstants";
 import { Manual } from "pages/setting/idSource/detail/manual";
 import { DeleteConfig } from "pages/setting/idSource/detail/deleteConfig";
-import { Divider, Form, Input, Tooltip } from "antd";
+import { default as Divider } from "antd/es/divider";
+import { default as Form } from "antd/es/form";
+import { useForm } from "antd/es/form/Form";
+import { default as Input } from "antd/es/input";
+import { default as Tooltip } from "antd/es/tooltip";
 import {
   SaveButton,
   CheckboxStyled,
@@ -31,15 +35,20 @@ import {
 } from "pages/setting/idSource/styledComponents";
 import { validateResponse } from "api/apiUtils";
 import { ItemType } from "pages/setting/idSource/idSourceConstants";
-import { useForm } from "antd/es/form/Form";
 import _ from "lodash";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { IconPicker } from "@lowcoder-ee/comps/controls/iconControl";
+import Switch from "antd/es/switch";
+import Title from "antd/es/typography/Title";
+import { sourceMappingKeys } from "../OAuthForms/GenericOAuthForm";
+import Flex from "antd/es/flex";
 
 type IdSourceDetailProps = {
   location: Location & { state: ConfigItem };
 };
 
 export const IdSourceDetail = (props: IdSourceDetailProps) => {
+  const configDetail = props.location.state;
   const [form] = useForm();
   const [lock, setLock] = useState(() => {
     const config = props.location.state;
@@ -57,20 +66,46 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
       return true;
     }
   });
-  const configDetail = props.location.state;
+
+  useEffect(() => {
+    if (configDetail.authType === AuthType.Generic) {
+      sourceMappingKeys.forEach((sourceKey) => {
+        form.setFieldValue(sourceKey, (configDetail as any).sourceMappings[sourceKey]);
+      })
+    }
+  }, [configDetail]);
   const goList = () => {
     history.push(OAUTH_PROVIDER_SETTING);
   };
   if (!configDetail) {
     goList();
   }
-  const handleSuccess = (values: ConfigItem) => {
+  const handleSuccess = (values: any) => {
     setSaveLoading(true);
-    const params = {
-      ...values,
-      ...(configDetail.ifLocal ? null : { id: configDetail.id }),
+    let params = {
+      id: configDetail.id,
       authType: configDetail.authType,
+      enableRegister: configDetail.enableRegister,
     };
+
+    if (configDetail.authType === AuthType.Generic) {
+      const { uid, email, avatar, username, ...newValues } = values;
+      params = {
+        ...newValues,
+        sourceMappings: {
+          uid,
+          email,
+          avatar,
+          username,
+        },
+        ...params,
+      }
+    } else {
+      params = {
+        ...values,
+        ...params,
+      }
+    }
     IdSourceApi.saveConfig(params)
       .then((resp) => {
         if (validateResponse(resp)) {
@@ -153,13 +188,16 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
         >
           {Object.entries(authConfig[configDetail.authType].form).map(([key, value]) => {
             const valueObject = _.isObject(value) ? (value as ItemType) : false;
-            let required = configDetail.ifLocal || (key !== "clientSecret" && key !== "publicKey");
+            // let required = configDetail.ifLocal || (key !== "clientSecret" && key !== "publicKey");
+            let required = (key === "clientId" || key === "clientSecret" || key === "scope");
             required = valueObject ? valueObject.isRequire ?? required : required;
             const hasLock = valueObject && valueObject?.hasLock;
             const tip = valueObject && valueObject.tip;
-            const label = valueObject ? valueObject.label : value;
+            const label = valueObject ? valueObject.label : value as string;
             const isList = valueObject && valueObject.isList;
             const isPassword = valueObject && valueObject.isPassword;
+            const isIcon = valueObject && valueObject.isIcon;
+            const isSwitch = valueObject && valueObject.isSwitch;
             return (
               <div key={key}>
                 <Form.Item
@@ -203,7 +241,22 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                       }
                       autoComplete={"one-time-code"}
                     />
-                  ) : !isPassword && !isList ? (
+                  ) : isSwitch ? (
+                    <Switch />
+                  ) : isIcon ? (
+                    <IconPicker
+                      onChange={(value) => form.setFieldValue("sourceIcon", value)}
+                      label={'Source Icon'}
+                      value={form.getFieldValue('sourceIcon')}
+                    />
+                  ) : isList ? (
+                    <CustomSelect
+                      options={(value as ItemType).options}
+                      placeholder={trans("idSource.formSelectPlaceholder", {
+                        label,
+                      })}
+                    />
+                  ) : (
                     <Input
                       placeholder={trans("idSource.formPlaceholder", {
                         label,
@@ -213,13 +266,6 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
                         hasLock &&
                         (lock ? <LockIcon onClick={() => handleLockClick()} /> : <UnLockIcon />)
                       }
-                    />
-                  ) : (
-                    <CustomSelect
-                      options={(value as ItemType).options}
-                      placeholder={trans("idSource.formSelectPlaceholder", {
-                        label,
-                      })}
                     />
                   )}
                 </Form.Item>
@@ -234,6 +280,34 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
           {/* <Form.Item className="register" name="enableRegister" valuePropName="checked">
             <CheckboxStyled>{trans("idSource.enableRegister")}</CheckboxStyled>
           </Form.Item> */}
+
+          {configDetail.authType === AuthType.Generic &&  (
+            <>
+              <Title level={5}>Source Mappings</Title>
+              {sourceMappingKeys.map(sourceKey => (
+                <Flex gap="10px" align="start" key={sourceKey} >
+                  <Input
+                    readOnly
+                    disabled
+                    value={sourceKey}
+                    style={{flex: 1}}
+                  />
+                  <span> &#8594; </span>
+                  <Form.Item
+                    name={sourceKey}
+                    rules={[{ required: true }]}
+                    style={{flex: 1}}
+                  >
+                    <Input
+                      placeholder={trans("idSource.formPlaceholder", {
+                        label: sourceKey,
+                      })}
+                    />
+                  </Form.Item>
+                </Flex>
+              ))}
+            </>
+          )}
 
           <Form.Item>
             <SaveButton loading={saveLoading} disabled={saveDisable} htmlType="submit">

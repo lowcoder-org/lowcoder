@@ -13,16 +13,17 @@ export function developEnv(): boolean {
 /**
  * is enterprise edition
  */
+// Falk: TODO: check EE by API Call
 export function isEE(): boolean {
   return REACT_APP_EDITION === "enterprise" || REACT_APP_EDITION === "enterprise-global";
 }
 
 export function isSaasMode(config?: SystemConfig) {
-  return config?.workspaceMode === "SAAS";
+  return config?.workspaceMode === "SAAS" || config?.workspaceMode === "MULTIWORSPACE";
 }
 
 export function isEnterpriseMode(config?: SystemConfig) {
-  return config?.workspaceMode === "ENTERPRISE";
+  return config?.workspaceMode === "ENTERPRISE" || config?.workspaceMode === "SINGLEWORKSPACE";
 }
 
 export function isSelfDomain(config?: SystemConfig) {

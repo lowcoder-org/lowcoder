@@ -1,5 +1,5 @@
 import { BoolControl } from "comps/controls/boolControl";
-import { stateComp, UICompBuilder, valueComp } from "comps/generators";
+import { stateComp, UICompBuilder, valueComp, withDefault } from "comps/generators";
 import { NameGenerator } from "comps/utils";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { trans } from "i18n";
@@ -11,7 +11,7 @@ import { CompAction, CompActionTypes } from "lowcoder-core";
 import { ReactElement, useContext } from "react";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { JSONValue } from "util/jsonTypes";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { getAllCompItems, IContainer } from "../containerBase";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { GridItemsType } from "../containerComp/containerView";

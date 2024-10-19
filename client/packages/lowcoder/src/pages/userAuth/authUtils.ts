@@ -3,19 +3,19 @@ import {
   BASE_URL,
   CAS_AUTH_REDIRECT,
   OAUTH_REDIRECT,
-  USER_INFO_COMPLETION,
 } from "constants/routesURL";
 import { AxiosPromise, AxiosResponse } from "axios";
 import { ApiResponse } from "api/apiResponses";
 import { doValidResponse } from "api/apiUtils";
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { trans } from "i18n";
 import { createContext, useState } from "react";
 import { SystemConfig } from "constants/configConstants";
 import {
   AuthInviteInfo,
+  AuthSearchParamsType,
   AuthSessionStoreParams,
   ThirdPartyAuthGoal,
   ThirdPartyAuthType,
@@ -79,14 +79,10 @@ export function authRespValidate(
 ) {
   let replaceUrl = redirectUrl || BASE_URL;
   const baseUrl = `${window.location.protocol}//${window.location.host}`;
-  if (infoCompleteCheck) {
-    // need complete info
-    replaceUrl = redirectUrl
-      ? `${USER_INFO_COMPLETION}?redirectUrl=${redirectUrl}`
-      : USER_INFO_COMPLETION;
-  }
+
   if (doValidResponse(resp)) {
     onAuthSuccess?.();
+    sessionStorage.setItem("_just_logged_in_", "true");
     history.replace(replaceUrl.replace(baseUrl, ''));
   } else if (
     resp.data.code === SERVER_ERROR_CODES.EXCEED_MAX_USER_ORG_COUNT ||
@@ -121,11 +117,11 @@ export const checkPassWithMsg = (value: string) => {
   return [valid, messages.join(",")] as const;
 };
 
-export const getLoginTitle = (inviteUserName?: string, brandName?: string) => {
-  const productName = brandName ?? trans("productName");
+export const getLoginTitle = (inviteUserName?: string) => {
+  // const productName = brandName ?? trans("productName");
   return inviteUserName
-    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName, productName })
-    : trans("userAuth.welcomeTitle", { productName });
+    ? trans("userAuth.inviteWelcomeTitle", { username: inviteUserName })
+    : trans("userAuth.userLogin"); 
 };
 
 /**
@@ -185,3 +181,21 @@ export const getRedirectUrl = (authType: ThirdPartyAuthType) => {
     `${window.location.origin}${authType === "CAS" ? CAS_AUTH_REDIRECT : OAUTH_REDIRECT}`
   );
 };
+
+const AuthSearchParamStorageKey = "_temp_auth_search_params_";
+
+export const saveAuthSearchParams = (
+  authSearchParams: AuthSearchParamsType
+) => {
+  sessionStorage.setItem(AuthSearchParamStorageKey, JSON.stringify(authSearchParams));
+}
+
+export const loadAuthSearchParams = ():AuthSearchParamsType | null => {
+  const authParams = sessionStorage.getItem(AuthSearchParamStorageKey);
+  if (!authParams) return null;
+  return JSON.parse(authParams);
+}
+
+export const clearAuthSearchParams = () => {
+  sessionStorage.removeItem(AuthSearchParamStorageKey);
+}

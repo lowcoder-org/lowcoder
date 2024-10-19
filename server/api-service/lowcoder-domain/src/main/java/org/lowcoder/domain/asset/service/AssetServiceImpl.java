@@ -1,14 +1,6 @@
 package org.lowcoder.domain.asset.service;
 
-import java.awt.Color;
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Set;
-
-import javax.imageio.ImageIO;
-
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.sdk.config.dynamic.Conf;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
@@ -25,10 +17,15 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ServerWebExchange;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -50,6 +47,8 @@ public class AssetServiceImpl implements AssetService {
     public Mono<Asset> getById(String id) {
         return repository.findById(id);
     }
+
+    // Falk TODO: Enable base64 upload
 
     @Override
     public Mono<Asset> upload(Part filePart, int maxFileSizeKB, boolean isThumbnail) {

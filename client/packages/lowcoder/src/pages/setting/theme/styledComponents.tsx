@@ -1,4 +1,6 @@
-import { Button, Divider, Table } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Divider } from "antd/es/divider";
+import { default as Table } from "antd/es/table";
 import { ThemeDetail } from "api/commonSettingApi";
 import {
   CustomModal,
@@ -80,7 +82,7 @@ export const ColumnName = styled(InlineFlexAlignCenter)`
 `;
 
 export const DetailContent = styled.div`
-  max-width: 672px;
+  max-width: 95%;
   margin-left: 24px;
   padding-bottom: 80px;
   .common {
@@ -124,7 +126,7 @@ export const Footer = styled.div`
   bottom: 0;
   width: calc(100vw - 492px);
   background-color: #fff;
-  z-index: 1;
+  z-index: 1000;
   margin-right: 10px;
   &.no-bottom {
     box-shadow: 0 -6px 10px -6px rgba(0, 0, 0, 0.1);
@@ -132,7 +134,10 @@ export const Footer = styled.div`
 `;
 
 export const Header = styled.div`
-  margin: 0 0 37px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 24px 37px 24px;
 `;
 
 export const DetailTitle = styled.div`
@@ -150,7 +155,7 @@ export const BackBtn = styled.div`
   cursor: pointer;
   height: 24px;
 
-  :hover {
+  &:hover {
     color: #4965f2;
   }
 
@@ -161,7 +166,7 @@ export const BackBtn = styled.div`
     margin-right: 4px;
   }
 
-  :hover svg g path {
+  &:hover svg g path {
     fill: #4965f2;
   }
 `;
@@ -216,19 +221,19 @@ export const TacoInputStyled = styled(TacoInput)`
   }
 `;
 
-export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
+export const ThemeBtn = styled.div<{ $theme: ThemeDetail }>`
   width: 180px;
   margin-bottom: 4px;
   height: auto;
   padding: 7px;
-  background-color: ${(props) => props.theme.canvas};
+  background-color: ${(props) => props.$theme.canvas};
   border-radius: 6px;
   border: 1px solid #efeff1;
   font-size: 12px;
   position: relative;
   cursor: pointer;
   color: ${(props) =>
-    isDarkColor(props.theme.primarySurface) ? props.theme.textLight : props.theme.textDark};
+    isDarkColor(props.$theme.primarySurface) ? props.$theme.textLight : props.$theme.textDark};
   .name {
     font-size: 13px;
     font-weight: 600;
@@ -239,7 +244,7 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
   &:hover,
   &:focus,
   &:active {
-    background-color: ${(props) => props.theme.canvas};
+    background-color: ${(props) => props.$theme.canvas};
     border-color: #315efb;
     box-shadow: 0 0 1px 4px #d6e4ff;
   }
@@ -247,8 +252,8 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
     border-radius: 6px;
     overflow: hidden;
     display: block;
-    border: 1px solid ${(props) => darkenColor(props.theme.primarySurface, 0.1)};
-    background-color: ${(props) => props.theme.primarySurface};
+    border: 1px solid ${(props) => darkenColor(props.$theme.primarySurface, 0.1)};
+    background-color: ${(props) => props.$theme.primarySurface};
     span {
       display: inline-flex;
       align-items: center;
@@ -257,7 +262,7 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
       display: flex;
       align-items: center;
       padding: 0 6px;
-      border-bottom: 1px solid ${(props) => darkenColor(props.theme.primarySurface, 0.1)};
+      border-bottom: 1px solid ${(props) => darkenColor(props.$theme.primarySurface, 0.1)};
     }
     > div:nth-of-type(1) {
       height: 28px;
@@ -266,7 +271,7 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
       svg {
         margin-right: 2px;
         rect {
-          fill: ${(props) => props.theme.primary};
+          fill: ${(props) => props.$theme.primary};
         }
       }
     }
@@ -290,10 +295,10 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
         svg {
           margin-right: 2px;
           circle:nth-of-type(1) {
-            stroke: ${(props) => props.theme.primary};
+            stroke: ${(props) => props.$theme.primary};
           }
           circle:nth-of-type(2) {
-            fill: ${(props) => props.theme.primary};
+            fill: ${(props) => props.$theme.primary};
           }
         }
         span {
@@ -327,9 +332,9 @@ export const ThemeBtn = styled.div<{ theme: ThemeDetail }>`
         display: flex;
         align-items: center;
         justify-content: center;
-        background-color: ${(props) => props.theme.primary};
+        background-color: ${(props) => props.$theme.primary};
         color: ${(props) =>
-          isDarkColor(props.theme.primary) ? props.theme.textLight : props.theme.textDark};
+          isDarkColor(props.$theme.primary) ? props.$theme.textLight : props.$theme.textDark};
       }
     }
   }
@@ -435,7 +440,7 @@ export const ConfigItem = styled.div`
   }
 `;
 
-export const Radius = styled.div<{ radius: string }>`
+export const Radius = styled.div<{ $radius: string }>`
   width: 24px;
   height: 24px;
   border-radius: 4px 0 0 4px;
@@ -449,7 +454,7 @@ export const Radius = styled.div<{ radius: string }>`
       height: 24px;
       width: 24px;
       border: 2px solid #777;
-      border-radius: ${(props) => props.radius};
+      border-radius: ${(props) => props.$radius};
     }
   }
 `;
@@ -576,7 +581,7 @@ export const StyledMoreActionIcon = styled(PopoverIcon)`
     fill: #8b8fa3;
   }
 
-  :hover {
+  &:hover {
     background-color: #e1e3eb;
     border-radius: 4px;
     cursor: pointer;
@@ -616,14 +621,14 @@ const getTagStyle = (theme: ThemeDetail) => {
   `;
 };
 
-export const TagDesc = styled.span<{ theme: ThemeDetail }>`
+export const TagDesc = styled.span<{ $theme: ThemeDetail }>`
   display: inline-flex;
   margin-right: 12px;
   height: 36px;
   width: 58px;
   border-radius: 6px;
   border: 1px solid rgba(0, 0, 0, 0.1);
-  ${(props) => getTagStyle(props.theme)}
+  ${(props) => getTagStyle(props.$theme)}
 `;
 
 export const EmptySpan = styled.span`
@@ -654,7 +659,7 @@ export const CustomModalStyled = styled(CustomModal)`
   }
 `;
 
-export const Margin = styled.div<{ margin: string }>`	
+export const Margin = styled.div<{ $margin: string }>`	
 > div {	
   margin: 3px;	
   overflow: hidden;	
@@ -664,7 +669,7 @@ export const Margin = styled.div<{ margin: string }>`
   }	
 }	
 `;	
-export const Padding = styled.div<{ padding: string }>`	
+export const Padding = styled.div<{ $padding: string }>`	
 > div {	
   margin: 3px;	
   overflow: hidden;	
@@ -674,7 +679,7 @@ export const Padding = styled.div<{ padding: string }>`
   }	
 }`
 // Added By Aqib Mirza
-export const GridColumns = styled.div<{ gridColumns: string }>`
+export const GridColumns = styled.div<{ $gridColumns: string }>` 
   > div {
     margin: 3px;
     overflow: hidden;
@@ -684,3 +689,26 @@ export const GridColumns = styled.div<{ gridColumns: string }>`
     }
   }
 `;
+
+export const BorderStyle = styled.div<{ $borderStyle: string }>` 
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+
+export const BorderWidth = styled.div<{ $borderWidth: string }>`
+  > div {
+    margin: 3px;
+    overflow: hidden;
+      > svg {
+        fill: currentColor;
+      }
+    }
+  }
+`;
+

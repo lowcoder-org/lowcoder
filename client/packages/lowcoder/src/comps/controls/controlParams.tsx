@@ -1,6 +1,5 @@
-import { CodeEditorControlParams } from "base/codeEditor/codeEditorTypes";
+import type { CodeEditorControlParams } from "base/codeEditor/codeEditorTypes";
 import { Comp } from "lowcoder-core";
-// import { CodeEditorControlParams } from "../../base/codeEditor/codeEditorTypes";
 import { CSSProperties, ReactNode } from "react";
 
 export type ControlLayout = "horizontal" | "vertical"; // set propertyView's layout, default horizontal;
@@ -18,6 +17,7 @@ export interface ControlParams extends CodeEditorControlParams {
   preInputNode?: ReactNode;
   childrenWrapperStyle?: CSSProperties;
   extraChildren?: ReactNode;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }
 
 export interface ControlType {

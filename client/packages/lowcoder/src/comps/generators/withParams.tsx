@@ -34,7 +34,7 @@ export const paramsEqual = (
   params1: Record<string, unknown> | undefined,
   params2: Record<string, unknown> | undefined
 ) => {
-  return depthEqual(params1, params2, 3);
+  return depthEqual(params1, params2, 4);
 };
 
 export function withParams<TCtor extends MultiCompConstructor>(

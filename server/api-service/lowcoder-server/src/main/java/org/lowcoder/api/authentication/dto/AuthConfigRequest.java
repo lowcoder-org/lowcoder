@@ -1,14 +1,14 @@
 package org.lowcoder.api.authentication.dto;
 
-import static org.lowcoder.sdk.util.IDUtils.generate;
-
-import java.util.HashMap;
-
-import javax.annotation.Nullable;
-
+import jakarta.annotation.Nullable;
+import jakarta.validation.constraints.Null;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.HashMap;
+
+import static org.lowcoder.sdk.util.IDUtils.generate;
 
 public class AuthConfigRequest extends HashMap<String, Object> {
 
@@ -28,6 +28,30 @@ public class AuthConfigRequest extends HashMap<String, Object> {
         return MapUtils.getBoolean(this, "enableRegister", true);
     }
 
+    /**
+     * Additional configs for generic
+     * config will be updated instead of creating a new one.
+     */
+    @Nullable
+    public String getIssuerUri() {
+        return getString("issuerUri");
+    }
+
+    @Nullable
+    public String getAuthorizationEndpoint() {
+        return getString("authorizationEndpoint");
+    }
+
+    @Nullable
+    public String getTokenEndpoint() {
+        return getString("tokenEndpoint");
+    }
+
+    @Nullable
+    public String getUserInfoEndpoint() {
+        return getString("userInfoEndpoint");
+    }
+
     @Nullable
     public String getInstanceId() {
         return getString("instanceId");
@@ -41,6 +65,11 @@ public class AuthConfigRequest extends HashMap<String, Object> {
     @Nullable
     public String getClientSecret() {
         return getString("clientSecret");
+    }
+
+    @Nullable
+    public String getScope() {
+        return getString("scope");
     }
 
     public String getSource(String defaultValue) {
@@ -59,7 +88,24 @@ public class AuthConfigRequest extends HashMap<String, Object> {
         return defaultValue;
     }
 
+    public String getSourceDescription() {
+        return getString("sourceDescription");
+    }
+
+    public String getSourceIcon() {
+        return getString("sourceIcon");
+    }
+
+    public String getSourceCategory() {
+        return getString("sourceCategory");
+    }
+
+    public HashMap<String, String> getSourceMappings() {
+        return (HashMap<String, String>) MapUtils.getMap(this, "sourceMappings");
+    }
+
     public String getString(String key) {
         return MapUtils.getString(this, key);
     }
+
 }

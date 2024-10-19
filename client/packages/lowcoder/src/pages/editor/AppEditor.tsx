@@ -1,5 +1,5 @@
 import { AppPathParams, AppTypeEnum } from "constants/applicationConstants";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
@@ -7,12 +7,10 @@ import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/d
 import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
-import { AppSnapshot } from "pages/editor/appSnapshot";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { setShowAppSnapshot } from "redux/reduxActions/appSnapshotActions";
 import { fetchGroupsAction } from "redux/reduxActions/orgActions";
 import { getFetchOrgGroupsFinished } from "redux/selectors/orgSelectors";
-import { AppEditorInternalView, useRootCompInstance } from "pages/editor/appEditorInternal";
 import { getIsCommonSettingFetching } from "redux/selectors/commonSettingSelectors";
 import {
   MarkAppDSLLoaded,
@@ -27,22 +25,65 @@ import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettin
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { DatasourceApi } from "api/datasourceApi";
+import { useRootCompInstance } from "./useRootCompInstance";
+import EditorSkeletonView from "./editorSkeletonView";
+import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
+import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
+import history from "util/history";
+import Flex from "antd/es/flex";
+import React from "react";
+import dayjs from "dayjs";
+import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { notificationInstance } from "components/GlobalInstances";
+import { AppState } from "@lowcoder-ee/redux/reducers";
 
-export default function AppEditor() {
-  const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const isUserViewMode = useUserViewMode();
-  const params = useParams<AppPathParams>();
-  const applicationId = params.applicationId;
-  const viewMode = params.viewMode === "view" ? "published" : "editing";
-  const currentUser = useSelector(getUser);
+const AppSnapshot = lazy(() => {
+  return import("pages/editor/appSnapshot")
+    .then(moduleExports => ({default: moduleExports.AppSnapshot}));
+});
+
+const AppEditorInternalView = lazy(
+  () => import("pages/editor/appEditorInternal")
+    .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
+);
+
+const AppEditor = React.memo(() => {
   const dispatch = useDispatch();
+  const params = useParams<AppPathParams>();
+  const isUserViewModeCheck = useUserViewMode();
+  const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const currentUser = useSelector(getUser);
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
-  const orgId = currentUser.currentOrgId;
-  const firstRendered = useRef(false);
-  const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
+  const application = useSelector(currentApplication);
+  const isLowcoderCompLoading = useSelector((state: AppState) => state.npmPlugin.loading.lowcoderComps);
 
-  setGlobalSettings({ applicationId, isViewMode: params.viewMode === "view" });
+  const isUserViewMode = useMemo(
+    () => params.viewMode ? isUserViewModeCheck : true,
+    [params.viewMode, isUserViewModeCheck]
+  );
+  const applicationId = useMemo(
+    () => params.applicationId || window.location.pathname.split("/")[2],
+    [params.applicationId, window.location.pathname]
+  );
+  const paramViewMode = useMemo(
+    () => params.viewMode || window.location.pathname.split("/")[3],
+    [params.viewMode, window.location.pathname]
+  );
+  const viewMode = useMemo(
+    () => (paramViewMode === "view" || paramViewMode === "admin")
+      ? "published"
+      : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
+    [paramViewMode]
+  );
+
+  const firstRendered = useRef(false);
+  const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
+  const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
+  const [appError, setAppError] = useState('');
+  const [blockEditing, setBlockEditing] = useState<boolean>(false);
+
+  setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
   if (!firstRendered.current) {
     perfClear();
@@ -65,25 +106,39 @@ export default function AppEditor() {
   });
 
   const readOnly = isUserViewMode;
-  const compInstance = useRootCompInstance(appInfo, readOnly, isDataSourcePluginRegistered);
+  const compInstance = useRootCompInstance(
+    appInfo,
+    readOnly,
+    isDataSourcePluginRegistered,
+    blockEditing,
+  );
+
+  useEffect(() => {
+    if (currentUser && application) {
+      const lastEditedAt = dayjs(application?.lastEditedAt);
+      const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
+      const shouldBlockEditing = Boolean(application?.editingUserId) && currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
+      setBlockEditing(shouldBlockEditing);
+    }
+  }, [application, currentUser]);
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (!orgId || params.viewMode !== "edit") {
+    if (!orgId || paramViewMode !== "edit") {
       return;
     }
     dispatch(fetchDataSourceTypes({ organizationId: orgId }));
     dispatch(fetchFolderElements({}));
-  }, [dispatch, orgId, params.viewMode]);
+  }, [dispatch, orgId, paramViewMode]);
 
   useEffect(() => {
-    if (applicationId && params.viewMode === "edit") {
+    if (applicationId && paramViewMode === "edit") {
       dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
       dispatch(fetchQueryLibraryDropdown());
     }
-  }, [dispatch, applicationId, params.viewMode]);
-
-  useEffect(() => {
+  }, [dispatch, applicationId, paramViewMode]);
+  
+  const fetchJSDataSourceByApp = useCallback(() => {
     DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
       res.data.data.forEach((i) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
@@ -91,7 +146,13 @@ export default function AppEditor() {
       setIsDataSourcePluginRegistered(true);
     });
     dispatch(setShowAppSnapshot(false));
-  }, [applicationId, dispatch]);
+  }, [
+    applicationId,
+    registryDataSourcePlugin,
+    setIsDataSourcePluginRegistered,
+    setShowAppSnapshot,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (!fetchOrgGroupsFinished) {
@@ -99,7 +160,7 @@ export default function AppEditor() {
     }
   }, [dispatch, fetchOrgGroupsFinished, orgId]);
 
-  useEffect(() => {
+  const fetchApplication = useCallback(() => {
     dispatch(
       fetchApplicationInfo({
         type: viewMode,
@@ -115,30 +176,72 @@ export default function AppEditor() {
             },
           });
           setAppInfo(info);
+          fetchJSDataSourceByApp();
         },
+        onError: (errorMessage) => {
+          setAppError(errorMessage);
+        }
       })
     );
-  }, [viewMode, applicationId, dispatch]);
+  }, [viewMode, applicationId, dispatch, fetchJSDataSourceByApp]);
+
+  useEffect(() => {
+    if(!isLowcoderCompLoading) {
+      fetchApplication();
+    }
+  }, [isLowcoderCompLoading, fetchApplication]);
+
+  const fallbackUI = useMemo(() => (
+    <Flex align="center" justify="center" vertical style={{
+      height: '300px',
+      width: '400px',
+      margin: '0 auto',
+    }}>
+      <h4 style={{margin: 0}}>Something went wrong while displaying this webpage</h4>
+      <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
+    </Flex>
+  ), []);
+
+  if (Boolean(appError)) {
+    return (
+      <Flex align="center" justify="center" vertical style={{
+        height: '300px',
+        width: '400px',
+        margin: '0 auto',
+      }}>
+        <h4>{appError}</h4>
+        <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Back to Home</button>
+      </Flex>
+    )
+  }
 
   return (
-    <>
+    <ErrorBoundary fallback={fallbackUI}>
       {showAppSnapshot ? (
-        <AppSnapshot
-          currentAppInfo={{
-            ...appInfo,
-            dsl: compInstance.comp?.toJsonValue() || {},
-          }}
-        />
+        <Suspense fallback={<EditorSkeletonView />}>
+          <AppSnapshot
+            currentAppInfo={{
+              ...appInfo,
+              dsl: compInstance.comp?.toJsonValue() || {},
+            }}
+          />
+        </Suspense>
       ) : (
-        <AppEditorInternalView
-          appInfo={appInfo}
-          readOnly={readOnly}
-          loading={
-            !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-          }
-          compInstance={compInstance}
-        />
+        <Suspense fallback={<EditorSkeletonView />}>
+          <AppEditorInternalView
+            appInfo={appInfo}
+            readOnly={readOnly}
+            blockEditing={blockEditing}
+            loading={
+              !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+            }
+            compInstance={compInstance}
+            fetchApplication={fetchApplication}
+          />
+        </Suspense>
       )}
-    </>
+    </ErrorBoundary>
   );
-}
+});
+
+export default AppEditor;

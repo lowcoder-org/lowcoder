@@ -1,5 +1,5 @@
 import { HomeRes } from "./HomeLayout";
-import { Form } from "antd";
+import { default as Form } from "antd/es/form";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -107,8 +107,8 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                     {
                       label: (
                         <FolderSelectLabel>
-                          <FolderIcon style={{ marginRight: "8px", flexShrink: 0 }} />
-                          {trans("home.rootFolder")}
+                          <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
+                          {trans("home.rootFolder")} 
                         </FolderSelectLabel>
                       ),
                       value: "",
@@ -120,7 +120,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                 .map((f) => ({
                   label: (
                     <FolderSelectLabel>
-                      <FolderIcon style={{ marginRight: "8px", flexShrink: 0 }} />
+                      <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
                       {f.name}
                     </FolderSelectLabel>
                   ),

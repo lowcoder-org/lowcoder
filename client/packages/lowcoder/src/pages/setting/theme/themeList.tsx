@@ -1,4 +1,9 @@
-import { Button, Dropdown, Empty, Menu, Table, Typography } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Dropdown } from "antd/es/dropdown";
+import { default as Empty } from "antd/es/empty";
+import { default as Menu } from "antd/es/menu";
+import { default as Table } from "antd/es/table";
+import { default as Typography } from "antd/es/typography";
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { MENU_TYPE } from "./themeConstant";
 import React, { useState } from "react";
@@ -16,7 +21,7 @@ import {
 } from "./styledComponents";
 import { ThemeType } from "api/commonSettingApi";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const { Column } = Table;
 
@@ -39,6 +44,7 @@ function ThemeList(props: ThemeListProp) {
   }
   return (
     <TableStyled
+      id="theme-list-table"
       ref={tableRef}
       rowKey="id"
       pagination={false}
@@ -86,7 +92,7 @@ function ThemeList(props: ThemeListProp) {
         render={(value, theme: ThemeType) => {
           return (
             <ColumnName>
-              <TagDesc theme={theme.theme}>
+              <TagDesc $theme={theme.theme}>
                 <div className="left" />
                 <div className="right" />
               </TagDesc>
@@ -140,7 +146,7 @@ function ThemeList(props: ThemeListProp) {
       <Column
         key="id"
         dataIndex="id"
-        render={(value, theme) =>
+        render={(value, theme: ThemeType) =>
           isAdmin && (
             <ControlCol>
               <EditButton
@@ -153,7 +159,7 @@ function ThemeList(props: ThemeListProp) {
               <ListDropdown onClick={(e) => e.stopPropagation()}>
                 <Dropdown
                   trigger={["click"]}
-                  getPopupContainer={() => tableRef.current!}
+                  getPopupContainer={() => document.getElementById("theme-list-table")!}
                   dropdownRender={() => (
                     <Menu
                       onClick={(params) => {

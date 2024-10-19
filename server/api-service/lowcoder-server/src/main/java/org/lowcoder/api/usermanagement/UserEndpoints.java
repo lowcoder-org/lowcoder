@@ -123,6 +123,24 @@ public interface UserEndpoints
 
 	@Operation(
 			tags = TAG_USER_PASSWORD_MANAGEMENT,
+			operationId = "lostPassword",
+			summary = "Lost User Password",
+			description = "Initiate a Lost Password recovery process."
+	)
+	@PostMapping("/lost-password")
+	public Mono<ResponseView<Boolean>> lostPassword(@RequestBody LostPasswordRequest request);
+
+	@Operation(
+			tags = TAG_USER_PASSWORD_MANAGEMENT,
+			operationId = "resetLostPassword",
+			summary = "Reset Lost User Password",
+			description = "Resets lost password based on the token from lost password email."
+	)
+	@PostMapping("/reset-lost-password")
+	public Mono<ResponseView<Boolean>> resetLostPassword(@RequestBody ResetLostPasswordRequest request);
+
+	@Operation(
+			tags = TAG_USER_PASSWORD_MANAGEMENT,
 		    operationId = "setPassword",
 		    summary = "Set User Password",
 		    description = "Set a new Password for the User within Lowcoder, ensuring secure access to their account."
@@ -150,6 +168,12 @@ public interface UserEndpoints
 
     public record ResetPasswordRequest(String userId) {
     }
+
+	public record LostPasswordRequest(String userEmail) {
+	}
+
+	public record ResetLostPasswordRequest(String token, String userEmail, String newPassword) {
+	}
 
     public record UpdatePasswordRequest(String oldPassword, String newPassword) {
     }

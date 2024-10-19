@@ -1,5 +1,6 @@
 import { loadComps } from "comps";
-import { AppViewInstance, AppViewInstanceOptions } from "./AppViewInstance";
+import type { AppViewInstanceOptions } from "./AppViewInstance";
+import { createRoot } from "react-dom/client";
 
 loadComps();
 
@@ -12,5 +13,7 @@ export async function bootstrapAppAt<I>(
     console.error("node must be not null.");
     return;
   }
-  return new AppViewInstance(appId, node, options);
+
+  const { AppViewInstance } = await import("./AppViewInstance");
+  return new AppViewInstance(appId, node, createRoot(node), options);
 }

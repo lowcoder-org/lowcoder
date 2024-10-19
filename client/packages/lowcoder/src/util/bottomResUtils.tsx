@@ -40,10 +40,10 @@ const QueryLibrary = styled(QueryLibraryIcon)`
   }
 `;
 
-export const IconWrapper = styled.div<{ isRestApi?: boolean }>`
+export const IconWrapper = styled.div<{ $isRestApi?: boolean }>`
   display: flex;
-  width: ${(props) => (props.isRestApi ? "26px" : "16px")};
-  height: ${(props) => (props.isRestApi ? "13px" : "16px")};
+  width: ${(props) => (props.$isRestApi ? "26px" : "16px")};
+  height: ${(props) => (props.$isRestApi ? "13px" : "16px")};
   border-radius: 2px;
   flex-shrink: 0;
   margin-right: 4px;
@@ -51,20 +51,20 @@ export const IconWrapper = styled.div<{ isRestApi?: boolean }>`
 `;
 
 export const LargeBottomResIconWrapper = styled(IconWrapper)`
-  width: ${(props) => (props.isRestApi ? "32px" : "20px")};
-  height: ${(props) => (props.isRestApi ? "16px" : "20px")};
+  width: ${(props) => (props.$isRestApi ? "32px" : "20px")};
+  height: ${(props) => (props.$isRestApi ? "16px" : "20px")};
   margin-right: 8px;
 
   svg {
-    width: ${(props) => (props.isRestApi ? "32px" : "20px")};
-    height: ${(props) => (props.isRestApi ? "16px" : "20px")};
+    width: ${(props) => (props.$isRestApi ? "32px" : "20px")};
+    height: ${(props) => (props.$isRestApi ? "16px" : "20px")};
   }
 `;
 
 function getBottomResIconInnerByUrl(type: BottomResType, url: string) {
   let fullUrl = url;
   if (!fullUrl.startsWith("http")) {
-    fullUrl = `${LOWCODER_NODE_SERVICE_URL !== "" ? LOWCODER_NODE_SERVICE_URL : REACT_APP_API_HOST}/node-service/plugin-icons/${url}`;
+    fullUrl = `${REACT_APP_NODE_SERVICE_URL !== "" ? REACT_APP_NODE_SERVICE_URL : REACT_APP_API_SERVICE_URL}/node-service/plugin-icons/${url}`;
   }
   return <img style={{ width: "100%", height: "100%" }} src={fullUrl} alt="" />;
 }
@@ -146,8 +146,8 @@ export const getBottomResIcon = (
   };
   const isRestApi = type === "restApi" && !!httpMethod;
   return size === "large" ? (
-    <LargeBottomResIconWrapper isRestApi={isRestApi}>{getIcon()}</LargeBottomResIconWrapper>
+    <LargeBottomResIconWrapper $isRestApi={isRestApi}>{getIcon()}</LargeBottomResIconWrapper>
   ) : (
-    <IconWrapper isRestApi={isRestApi}>{getIcon()}</IconWrapper>
+    <IconWrapper $isRestApi={isRestApi}>{getIcon()}</IconWrapper>
   );
 };

@@ -1,26 +1,19 @@
 package org.lowcoder.sdk.models;
 
-import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
-import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
-
-import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.data.annotation.Transient;
-
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.MapUtils;
+import org.apache.commons.lang3.ObjectUtils;
+import org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType;
+import org.springframework.data.annotation.Transient;
+
+import java.util.*;
+import java.util.function.Function;
+
+import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
+import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Getter
@@ -159,6 +152,20 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         if (this.containsKey("extra") || jsDatasourceConnectionConfig.containsKey("extra")) {
             newJsDatasourceConnectionConfig.putIfAbsent("extra", ObjectUtils.firstNonNull(jsDatasourceConnectionConfig.getExtra(), this.getExtra()));
         }
+
+        // for oauth handling
+        if(this.containsKey("authConfig")) {
+            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
+                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+            } else {
+                // do nothing, save empty ( this will clear db )
+            }
+        } else {
+            if(jsDatasourceConnectionConfig.containsKey("authConfig")) {
+                newJsDatasourceConnectionConfig.put("authConfig", jsDatasourceConnectionConfig.get("authConfig"));
+            }
+        }
+
         return newJsDatasourceConnectionConfig;
     }
 
@@ -198,5 +205,19 @@ public class JsDatasourceConnectionConfig extends HashMap<String, Object> implem
         }
 
         return this;
+    }
+
+    public boolean isOauth2InheritFromLogin() {
+        if (this.get("authConfig") != null) {
+            return ((HashMap<String, String>)this.get("authConfig")).get("type").equals(RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN.name());
+        }
+        return false;
+    }
+
+    public String getAuthId() {
+        if(isOauth2InheritFromLogin()) {
+            return ((HashMap<String, String>)this.get("authConfig")).get("authId");
+        }
+        return null;
     }
 }

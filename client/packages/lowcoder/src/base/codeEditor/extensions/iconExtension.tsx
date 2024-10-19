@@ -1,14 +1,14 @@
 import {
   Decoration,
-  DecorationSet,
+  type DecorationSet,
   EditorView,
   MatchDecorator,
   ViewPlugin,
-  ViewUpdate,
+  type ViewUpdate,
   WidgetType,
 } from "@codemirror/view";
-import { useIcon } from "lowcoder-design";
-import ReactDOM from "react-dom";
+import { useIcon } from "lowcoder-design/src/components/iconSelect";
+import { createRoot } from "react-dom/client";
 import styled from "styled-components";
 
 const IconContainer = styled.div`
@@ -47,7 +47,8 @@ class IconWidget extends WidgetType {
 
   toDOM() {
     let wrap = document.createElement("span");
-    ReactDOM.render(<IconElement value={this.value} />, wrap);
+    const root = createRoot(wrap);
+    root.render(<IconElement value={this.value} />);
     return wrap;
   }
 

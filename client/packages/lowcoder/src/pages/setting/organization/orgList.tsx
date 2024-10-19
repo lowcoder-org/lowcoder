@@ -1,4 +1,4 @@
-import { ADMIN_ROLE } from "constants/orgConstants";
+import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "constants/orgConstants";
 import { AddIcon, CustomModal, DangerIcon, EditPopover } from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
@@ -18,7 +18,8 @@ import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from 
 import { timestampToHumanReadable } from "util/dateTimeUtils";
 import { isSaasMode } from "util/envUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { Form, Input } from "antd";
+import { default as Form } from "antd/es/form";
+import { default as Input } from "antd/es/input";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
 
@@ -127,7 +128,10 @@ type DataItemInfo = {
 function OrganizationSetting() {
   const user = useSelector(getUser);
   const orgs = user.orgs;
-  const adminOrgs = orgs.filter((org) => user.orgRoleMap.get(org.id) === ADMIN_ROLE);
+  const adminOrgs = orgs.filter((org) => {
+    const role = user.orgRoleMap.get(org.id);
+    return role === ADMIN_ROLE || role === SUPER_ADMIN_ROLE;
+  });
   const orgCreateStatus = useSelector(getOrgCreateStatus);
   const dispatch = useDispatch();
   const sysConfig = useSelector(selectSystemConfig);

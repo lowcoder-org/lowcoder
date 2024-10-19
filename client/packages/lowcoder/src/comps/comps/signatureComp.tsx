@@ -1,5 +1,5 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Skeleton } from "antd";
+import { default as DeleteOutlined } from "@ant-design/icons/DeleteOutlined";
+import { default as Skeleton } from "antd/es/skeleton";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -8,16 +8,18 @@ import { styleControl } from "comps/controls/styleControl";
 import {
   contrastColor,
   SignatureStyle,
+  LabelStyle,
   SignatureStyleType,
   widthCalculator,
-  heightCalculator
+  heightCalculator,
+  SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
@@ -25,27 +27,30 @@ import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 
-const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+
+const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
   display: flex;
   flex-direction: column;
   position: relative;
-  border: 1px solid ${(props) => props.$style.border};
+  border: ${(props) => (props.$style.borderWidth ? props.$style.borderWidth : "1px")} solid ${(props) => props.$style.border};
   border-radius: ${(props) => props.$style.radius};
   overflow: hidden;
   width: 100%;
   height: 100%;
-  width: ${(props) => {	
-    return widthCalculator(props.$style.margin);	
+  width: ${(props) => {
+    return widthCalculator(props.$style.margin);
   }};	
-  height: ${(props) => {	
-    return heightCalculator(props.$style.margin);	
+  height: ${(props) => {
+    return heightCalculator(props.$style.margin);
   }};	
   margin: ${(props) => props.$style.margin};	
   padding: ${(props) => props.$style.padding};
   .signature {
     background-color: ${(props) => props.$style.background};
-    opacity: ${(props) => (props.isEmpty ? 0 : 1)};
+    opacity: ${(props) => (props.$isEmpty ? 0 : 1)};
     width: 100%;
     height: 100%;
   }
@@ -91,14 +96,15 @@ const Wrapper = styled.div<{ $style: SignatureStyleType; isEmpty: boolean }>`
 `;
 
 const childrenMap = {
-  tips: withDefault(StringControl, trans("signature.signHere")),
+  tips: withDefault(StringControl, trans('signature.signHere')),
   onEvent: ChangeEventHandlerControl,
-  label: withDefault(LabelControl, { position: "column", text: "" }),
-  style: styleControl(SignatureStyle),
+  label: withDefault(LabelControl, {position: 'column', text: ''}),
+  style: styleControl(SignatureContainerStyle , 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   showUndo: withDefault(BoolControl, true),
   showClear: withDefault(BoolControl, true),
-  value: stateComp(""),
-
+  value: stateComp(''),
+  inputFieldStyle: styleControl(SignatureStyle , 'inputFieldStyle'),
   ...formDataChildren,
 };
 
@@ -123,6 +129,8 @@ let SignatureTmpComp = (function () {
     };
     return props.label({
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
       children: (
         <ReactResizeDetector
           onResize={(width, height) => {
@@ -134,8 +142,8 @@ let SignatureTmpComp = (function () {
             onMouseDown={(e) => {
               e.preventDefault();
             }}
-            $style={props.style}
-            isEmpty={!props.value && !isBegin}
+            $style={props.inputFieldStyle}
+            $isEmpty={!props.value && !isBegin}
           >
             <div className="signature">
               <Suspense fallback={<Skeleton />}>
@@ -143,7 +151,7 @@ let SignatureTmpComp = (function () {
                   ref={(ref) => {
                     canvas = ref;
                   }}
-                  penColor={props.style.pen}
+                  penColor={props.inputFieldStyle.pen}
                   clearOnResize={false}
                   canvasProps={{
                     className: "sigCanvas",
@@ -198,15 +206,35 @@ let SignatureTmpComp = (function () {
           <Section name={sectionNames.basic}>
             {children.tips.propertyView({ label: trans("signature.tips") })}
           </Section>
+
           <FormDataPropertyView {...children} />
-          {children.label.getPropertyView()}
-          <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>
-          <Section name={sectionNames.layout}>
-            {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
-            {children.showClear.propertyView({ label: trans("signature.showClear") })}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.interaction}>
+              {children.onEvent.getPropertyView()}
+              {hiddenPropertyView(children)}
+              {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
+              {children.showClear.propertyView({ label: trans("signature.showClear") })}
+            </Section>
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            children.label.getPropertyView()
+          )}
+
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <>
+              <Section name={sectionNames.style}>
+                {children.style.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.labelStyle}>
+                {children.labelStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.inputFieldStyle}>
+                {children.inputFieldStyle.getPropertyView()}
+              </Section>
+            </>
+          )}
         </>
       );
     })

@@ -212,9 +212,12 @@ export async function runPluginQuery(
   const queryConfig = await getQueryConfig(plugin, dataSourceConfig);
   const action = await evalToValue(queryConfig, dsl, context, dataSourceConfig);
 
-  //forward cookies
+  // forward cookies
   context.forEach(({ key, value }) => {
-    if (dataSourceConfig.dynamicParamsConfig && key in dataSourceConfig.dynamicParamsConfig) {
+    // for oauth(inherit from login) support
+    if(key == "OAUTH_ACCESS_TOKEN") {
+      dataSourceConfig["OAUTH_ACCESS_TOKEN"] = value
+    } else if (dataSourceConfig.dynamicParamsConfig && key in dataSourceConfig.dynamicParamsConfig) {
       const valueKey = `${key}.value`;
       dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value
     }

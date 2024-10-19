@@ -18,6 +18,8 @@ import org.springframework.core.ParameterizedTypeReference;
 
 import reactor.core.publisher.Mono;
 
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
+
 public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig> {
 
     public GoogleRequest(Oauth2SimpleAuthConfig config) {
@@ -41,6 +43,7 @@ public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -76,6 +79,7 @@ public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -98,6 +102,7 @@ public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(source.userInfo())
@@ -110,7 +115,7 @@ public class GoogleRequest extends AbstractOauth2Request<Oauth2SimpleAuthConfig>
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .avatar(MapUtils.getString(map, "picture"))
                             .rawUserInfo(map)
                             .build();

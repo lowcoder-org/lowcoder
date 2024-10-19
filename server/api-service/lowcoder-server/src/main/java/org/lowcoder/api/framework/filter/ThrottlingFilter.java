@@ -1,16 +1,10 @@
 package org.lowcoder.api.framework.filter;
 
-import static java.util.Collections.emptyMap;
-import static org.lowcoder.api.framework.filter.FilterOrder.THROTTLING;
-import static org.lowcoder.sdk.exception.BizError.REQUEST_THROTTLED;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Supplier;
-
-import javax.annotation.Nonnull;
-
+import com.google.common.util.concurrent.RateLimiter;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.PostConstruct;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.config.dynamic.ConfigCenter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,13 +15,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
-
-import com.google.common.util.concurrent.RateLimiter;
-
-import jakarta.annotation.PostConstruct;
-import lombok.Getter;
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+
+import static java.util.Collections.emptyMap;
+import static org.lowcoder.api.framework.filter.FilterOrder.THROTTLING;
+import static org.lowcoder.sdk.exception.BizError.REQUEST_THROTTLED;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @ConditionalOnExpression("${default.api-rate-limit:0} > 0")
 @SuppressWarnings("UnstableApiUsage")
@@ -48,7 +45,7 @@ public class ThrottlingFilter implements WebFilter, Ordered {
     @PostConstruct
     private void init() {
         urlRateLimiter = configCenter.threshold().ofMap("urlRateLimiter", String.class, Integer.class, emptyMap());
-        log.info("API rate limit filter enabled with default rate limit set to: {} requests per second");
+        log.info("API rate limit filter enabled with default rate limit set to: {} requests per second", defaultApiRateLimit);
     }
 
     @Nonnull

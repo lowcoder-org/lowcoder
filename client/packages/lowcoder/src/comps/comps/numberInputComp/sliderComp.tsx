@@ -6,6 +6,7 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
+import { BoolControl } from "comps/controls/boolControl";
 
 const SliderBasicComp = (function () {
   /**
@@ -14,13 +15,18 @@ const SliderBasicComp = (function () {
   const childrenMap = {
     ...SliderChildren,
     value: numberExposingStateControl("value", 60),
+    vertical: BoolControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
+      labelStyle: props.labelStyle,
+      inputFieldStyle:props.inputFieldStyle,
+      animationStyle:props.animationStyle,
       children: (
         <SliderWrapper
+          vertical={props.vertical}
           onMouseDown={(e: any) => {
             e.stopPropagation();
             return false;
@@ -30,8 +36,9 @@ const SliderBasicComp = (function () {
           <SliderStyled
             {...props}
             value={props.value.value}
-            $style={props.style}
+            $style={props.inputFieldStyle}
             style={{margin: 0}}
+            vertical={props.vertical || false}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");
@@ -53,6 +60,7 @@ const SliderBasicComp = (function () {
               label: trans("slider.step"),
               tooltip: trans("slider.stepTooltip"),
             })}
+            {children.vertical.propertyView({ label: trans("slider.vertical") })}
           </Section>
           <FormDataPropertyView {...children} />
           <SliderPropertyView {...children} />

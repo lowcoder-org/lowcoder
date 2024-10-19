@@ -22,13 +22,14 @@ import {
   PublishApplicationPayload,
   RecycleApplicationPayload,
   RestoreApplicationPayload,
+  SetAppEditingStatePayload,
   UpdateApplicationPayload,
   UpdateAppMetaPayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
 import { doValidResponse, validateResponse } from "api/apiUtils";
 import { APPLICATION_VIEW_URL, BASE_URL } from "constants/routesURL";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
@@ -242,7 +243,8 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
       return;
     } else if (!isValidResponse) {
       if (response.data.code === SERVER_ERROR_CODES.NO_PERMISSION_TO_REQUEST_APP) {
-        history.push(BASE_URL);
+        // history.push(BASE_URL);
+        action.payload.onError?.(response.data.message);
       }
       throw Error(response.data.message);
     }
@@ -372,6 +374,35 @@ function* fetchApplicationRecycleListSaga() {
   }
 }
 
+function* fetchAllMarketplaceAppsSaga() {
+  try {
+    const response: AxiosResponse<GenericApiResponse<ApplicationMeta[]>> = yield call(
+      ApplicationApi.fetchAllMarketplaceApps
+    );
+    const isValidResponse: boolean = validateResponse(response);
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS_SUCCESS,
+        payload: response.data.data,
+      });
+    }
+  } catch (error: any) {
+    messageInstance.error(error.message);
+    log.debug("fetch marketplace apps error: ", error);
+  }
+}
+
+function* setAppEditingStateSaga(action: ReduxAction<SetAppEditingStatePayload>) {
+  try {
+    yield call(
+      ApplicationApi.setAppEditingState,
+      action.payload
+    ); 
+  } catch (error) {
+    log.debug("set app editing state: ", error);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -393,5 +424,10 @@ export default function* applicationSagas() {
       ReduxActionTypes.FETCH_APPLICATION_RECYCLE_LIST_INIT,
       fetchApplicationRecycleListSaga
     ),
+    takeLatest(
+      ReduxActionTypes.FETCH_ALL_MARKETPLACE_APPS,
+      fetchAllMarketplaceAppsSaga,
+    ),
+    takeLatest(ReduxActionTypes.SET_APP_EDITING_STATE, setAppEditingStateSaga),
   ]);
 }

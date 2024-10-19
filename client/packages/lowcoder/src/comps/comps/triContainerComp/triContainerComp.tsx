@@ -2,14 +2,19 @@ import { JSONValue } from "util/jsonTypes";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
-import { ContainerStyle } from "comps/controls/styleControlConstants";
+import {
+  ContainerStyle,
+  ContainerHeaderStyle,
+  ContainerBodyStyle,
+  ContainerFooterStyle,
+} from "comps/controls/styleControlConstants";
 import { MultiCompBuilder, sameTypeMap, withDefault } from "comps/generators";
-import { migrateOldData } from "comps/generators/simpleGenerators";
+import { migrateOldData, valueComp } from "comps/generators/simpleGenerators";
 import { NameGenerator } from "comps/utils";
-import { fromRecord, Node } from "lowcoder-core";
+import { changeValueAction, fromRecord, multiChangeAction, Node } from "lowcoder-core";
 import { nodeIsRecord } from "lowcoder-core";
 import _ from "lodash";
-import { ReactNode } from "react";
+import { ReactNode, useContext, useEffect } from "react";
 import { lastValueIfEqual } from "util/objectUtils";
 import {
   CompTree,
@@ -22,6 +27,8 @@ import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
+import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -30,24 +37,31 @@ const childrenMap = {
     0: { view: { layout: {}, items: {} } },
   }),
   footer: SimpleContainerComp,
-
   showHeader: BoolControl.DEFAULT_TRUE,
   showBody: BoolControl.DEFAULT_TRUE,
   showFooter: BoolControl,
   autoHeight: AutoHeightControl,
-
-  style: styleControl(ContainerStyle),
+  showVerticalScrollbar: withDefault(BoolControl, false),
+  horizontalGridCells: SliderControl,
+  scrollbars: withDefault(BoolControl, false),
+  style: withDefault(styleControl(ContainerStyle, 'style'),{borderWidth:'1px'}),
+  headerStyle: styleControl(ContainerHeaderStyle, 'headerStyle'),
+  bodyStyle: styleControl(ContainerBodyStyle, 'bodyStyle'),
+  footerStyle: styleControl(ContainerFooterStyle, 'footerStyle'),
+  appliedThemeId: valueComp<string>(''), // for comp containing container, comps's appliedThemeId will always be empty so maintaining here
 };
 
 // Compatible with old style data 2022-8-15
 const TriContainerBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
+    useMergeCompStyles(props, dispatch);
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData
 );
 
 export class TriContainerComp extends TriContainerBaseComp implements IContainer {
+  scrollbars: any;
   private allContainers() {
     return [
       this.children.header,
@@ -108,8 +122,12 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
     return lastValueIfEqual(this, "exposing_node", fromRecord(allNodes), checkEquals);
   }
 
-  getPropertyView(): ControlNode {
-    return [this.areaPropertyView(), this.heightPropertyView()];
+  getPropertyView(): ControlNode {    
+    return [
+      this.areaPropertyView(),
+      this.heightPropertyView(),
+      this.gridPropertyView(),
+    ];
   }
 
   areaPropertyView() {
@@ -121,11 +139,34 @@ export class TriContainerComp extends TriContainerBaseComp implements IContainer
   }
 
   heightPropertyView() {
-    return this.children.autoHeight.getPropertyView();
+    return [
+      this.children.autoHeight.getPropertyView(),
+      (!this.children.autoHeight.getView()) && this.children.showVerticalScrollbar.propertyView({ label: trans("prop.showVerticalScrollbar") })
+    ];
+  }
+
+  gridPropertyView() {
+    return [
+      this.children.horizontalGridCells.propertyView({
+        label: trans('prop.horizontalGridCells'),
+      }),
+    ]
   }
 
   stylePropertyView() {
     return this.children.style.getPropertyView();
+  }
+
+  headerStylePropertyView() {
+    return this.children.headerStyle.getPropertyView();
+  }
+
+  bodyStylePropertyView() {
+    return this.children.bodyStyle.getPropertyView();
+  }
+
+  footerStylePropertyView() {
+    return this.children.footerStyle.getPropertyView();
   }
 }
 

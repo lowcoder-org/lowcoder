@@ -1,13 +1,14 @@
-import { Button, Pagination, Popover } from "antd";
-import { PaginationProps } from "antd/lib/pagination/Pagination";
+import { default as Button } from "antd/es/button";
+import { default as Pagination, PaginationProps } from "antd/es/pagination";
+import { default as Popover } from "antd/es/popover";
 import { ThemeDetail } from "api/commonSettingApi";
 import { ColumnCompType } from "comps/comps/tableComp/column/tableColumnComp";
 import { TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import { BoolControl } from "comps/controls/boolControl";
 import { StringControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { defaultTheme, TableStyleType } from "comps/controls/styleControlConstants";
-import { stateComp } from "comps/generators";
+import { TableToolbarStyleType } from "comps/controls/styleControlConstants";
+import { stateComp, withDefault } from "comps/generators";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { ThemeContext } from "comps/utils/themeContext";
 import { trans } from "i18n";
@@ -27,7 +28,7 @@ import {
   LinkButton,
   pageItemRender,
   RefreshIcon,
-  SettingIcon,
+  TableColumnVisibilityIcon,
   SuspensionBox,
   TacoButton,
   TacoInput,
@@ -37,6 +38,7 @@ import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -45,16 +47,24 @@ const SaveChangeButtons = styled.div`
 `;
 
 const getStyle = (
-  style: TableStyleType,
+  style: TableToolbarStyleType,
   filtered: boolean,
   theme: ThemeDetail,
-  position: ToolbarRowType["position"]
+  position: ToolbarRowType["position"],
+  fixedToolbar: boolean,
 ) => {
   return css`
-    background-color: ${style.toolbarBackground};
+    background-color: ${style.background};
     // Implement horizontal scrollbar and vertical page number selection is not blocked
-    padding: ${position === "above" ? "13px 16px 313px 16px" : "313px 16px 13px 16px"};
-    margin: ${position === "above" ? "0 0 -300px 0" : "-300px 0 0 0"};
+    padding: 13px 12px;
+    position: sticky;
+    postion: -webkit-sticky;
+    left: 0px !important;
+    margin: ${style.margin} !important;
+    z-index: 999;
+
+    ${fixedToolbar && position === 'below' && `bottom: 0;`};
+    ${fixedToolbar && position === 'above' && `top: 0;` };
 
     .toolbar-icons {
       .refresh,
@@ -66,7 +76,7 @@ const getStyle = (
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          stroke: ${theme?.primary};
         }
       }
 
@@ -82,19 +92,20 @@ const getStyle = (
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          stroke: ${theme?.primary};
         }
       }
 
       .column-setting {
+        width: 20px;
         cursor: pointer;
 
         * {
-          ${style.toolbarText !== defaultTheme.textDark ? `stroke: ${style.toolbarText}` : null}
+          ${style.toolbarText && style.toolbarText !== defaultTheme.textDark ? `fill: ${style.toolbarText}` : `fill: #8b8fa3`} 
         }
 
         &:hover * {
-          stroke: ${theme.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -107,7 +118,7 @@ const getStyle = (
 
       svg:hover {
         path {
-          fill: ${theme.primary};
+          fill: ${theme?.primary};
         }
       }
     }
@@ -117,7 +128,7 @@ const getStyle = (
     }
 
     .ant-pagination-item-active {
-      border-color: ${theme?.primary};
+      border-color: ${style.border || theme?.primary};
 
       a {
         color: ${theme?.textDark};
@@ -128,7 +139,7 @@ const getStyle = (
       color: ${style.toolbarText};
 
       &:hover {
-        color: ${theme.primary};
+        color: ${theme?.primary};
       }
     }
 
@@ -137,19 +148,26 @@ const getStyle = (
       .ant-select-selector,
     .ant-pagination-options-quick-jumper input:hover,
     .ant-pagination-options-quick-jumper input:focus {
-      border-color: ${theme.primary};
+      border-color: ${style.border || theme?.primary};
     }
   `;
 };
 
 const ToolbarWrapper = styled.div<{
-  $style: TableStyleType;
+  $style: TableToolbarStyleType;
   $filtered: boolean;
-  theme: ThemeDetail;
-  position: ToolbarRowType["position"];
+  $theme: ThemeDetail;
+  $position: ToolbarRowType["position"];
+  $fixedToolbar: boolean;
 }>`
-  overflow: auto;
-  ${(props) => props.$style && getStyle(props.$style, props.$filtered, props.theme, props.position)}
+  // overflow: auto;
+  ${(props) => props.$style && getStyle(
+    props.$style,
+    props.$filtered,
+    props.$theme,
+    props.$position,
+    props.$fixedToolbar,
+  )}
 `;
 
 const ToolbarWrapper2 = styled.div`
@@ -539,9 +557,12 @@ export const TableToolbarComp = (function () {
     showDownload: BoolControl,
     showFilter: BoolControl,
     columnSetting: BoolControl,
-    searchText: StringControl,
+    fixedToolbar: BoolControl,
+    // searchText: StringControl,
     filter: stateComp<TableFilter>({ stackType: "and", filters: [] }),
     position: dropdownControl(positionOptions, "below"),
+    columnSeparator: withDefault(StringControl, ','),
+    showUpdateButtons: withDefault(BoolControl, true),
   };
 
   return new ControlNodeCompBuilder(childrenMap, (props, dispatch) => {
@@ -563,15 +584,24 @@ export const TableToolbarComp = (function () {
   })
     .setPropertyViewFn((children) => [
       children.position.propertyView({ label: trans("table.position"), radioButton: true }),
+      children.fixedToolbar.propertyView({
+        label: trans("table.fixedToolbar"),
+        tooltip: trans("table.fixedToolbarTooltip")
+      }),
+      children.showUpdateButtons.propertyView({ label: trans("table.showUpdateButtons")}),
       children.showFilter.propertyView({ label: trans("table.showFilter") }),
       children.showRefresh.propertyView({ label: trans("table.showRefresh") }),
       children.showDownload.propertyView({ label: trans("table.showDownload") }),
+      children.showDownload.getView() && children.columnSeparator.propertyView({
+        label: trans("table.columnSeparator"),
+        tooltip: trans("table.columnSeparatorTooltip"),
+      }),
       children.columnSetting.propertyView({ label: trans("table.columnSetting") }),
-      children.searchText.propertyView({
+      /* children.searchText.propertyView({
         label: trans("table.searchText"),
         tooltip: trans("table.searchTextTooltip"),
         placeholder: "{{input1.value}}",
-      }),
+      }), */
     ])
     .build();
 })();
@@ -589,7 +619,7 @@ function ColumnSetting(props: {
       allChecked = false;
     }
     return (
-      <ColumnCheckItem>
+      <ColumnCheckItem key={columnView.dataIndex}>
         <CheckBox
           checked={checked}
           onChange={(e) => {
@@ -657,6 +687,7 @@ function ToolbarPopover(props: {
     <Popover
       open={visible}
       overlayStyle={{ pointerEvents: "auto" }}
+      overlayInnerStyle={{ padding: '0' }}
       content={
         <div
           ref={popOverRef}
@@ -690,7 +721,7 @@ type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
 
 export function TableToolbar(props: {
   toolbar: ToolbarRowType;
-  $style: TableStyleType;
+  $style: TableToolbarStyleType;
   pagination: PaginationProps;
   columns: Array<ColumnCompType>;
   onRefresh: () => void;
@@ -725,9 +756,10 @@ export function TableToolbar(props: {
   return (
     <ToolbarWrapper
       $style={props.$style}
-      theme={theme}
+      $theme={theme || defaultTheme}
       $filtered={toolbar.filter.filters.length > 0}
-      position={toolbar.position}
+      $position={toolbar.position}
+      $fixedToolbar={toolbar.fixedToolbar}
     >
       <ToolbarWrapper2>
         <ToolbarIcons className="toolbar-icons">
@@ -770,7 +802,7 @@ export function TableToolbar(props: {
               visible={settingVisible}
               setVisible={setSettingVisible}
               content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={SettingIcon}
+              Icon={TableColumnVisibilityIcon}
               iconClassName="column-setting"
             />
           )}
@@ -786,7 +818,7 @@ export function TableToolbar(props: {
             }
           }}
         />
-        {hasChange && (
+        {hasChange && toolbar.showUpdateButtons && (
           <SaveChangeButtons>
             <Button onClick={onCancelChanges}>{trans("cancel")}</Button>
             <Button type="primary" onClick={onSaveChanges}>

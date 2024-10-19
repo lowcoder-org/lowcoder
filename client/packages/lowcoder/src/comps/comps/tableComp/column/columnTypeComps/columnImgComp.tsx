@@ -1,4 +1,4 @@
-import { Input } from "antd";
+import { default as Input } from "antd/es/input";
 import {
   ColumnTypeCompBuilder,
   ColumnTypeViewFn,
@@ -31,7 +31,7 @@ export const ImageComp = (function () {
       <Input
         defaultValue={props.value}
         autoFocus
-        bordered={false}
+        variant="borderless"
         onChange={(e) => {
           const value = e.target.value;
           props.onChange(value);

@@ -1,7 +1,7 @@
 import { QueryNotificationControl } from "./queryNotificationControl";
 import { trans } from "../../../i18n";
 import { evalAndReduce } from "comps/utils";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 jest.mock('lowcoder-design/src/components/GlobalInstances', () => ({
   __esModule: true, // this property makes it work

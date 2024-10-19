@@ -57,14 +57,14 @@ const ListWrapper = styled.div`
   }
 `;
 
-const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: boolean }>`
+const ItemWrapper = styled.div<{ $popover: boolean; $active: boolean; $hasValue: boolean }>`
   height: 32px;
   font-size: 13px;
   padding-left: 12px;
   display: flex;
-  background-color: ${(props) => (props.active ? ItemHoverBackgroundColor : "inherit")};
+  background-color: ${(props) => (props.$active ? ItemHoverBackgroundColor : "inherit")};
 
-  cursor: ${(props) => (props.popover ? "pointer" : "default")};
+  cursor: ${(props) => (props.$popover ? "pointer" : "default")};
 
   &:hover {
     background-color: ${ItemHoverBackgroundColor};
@@ -79,8 +79,8 @@ const ItemWrapper = styled.div<{ popover: boolean; active: boolean; hasValue: bo
     white-space: nowrap;
     overflow: hidden;
     padding-right: 8px;
-    width: ${(props) => (props.hasValue ? col1Width : "auto")};
-    ${(props) => (props.active ? `color: ${ActiveTextColor}` : "")}
+    width: ${(props) => (props.$hasValue ? col1Width : "auto")};
+    ${(props) => (props.$active ? `color: ${ActiveTextColor}` : "")}
   }
 
   .col2 {
@@ -152,7 +152,7 @@ export function KeyValueItem(props: KeyValueItemProps) {
   );
 
   return (
-    <ItemWrapper active={isPopShow} popover={!!clickPopoverContent} hasValue={!!value}>
+    <ItemWrapper $active={isPopShow} $popover={!!clickPopoverContent} $hasValue={!!value}>
       {clickPopoverContent ? content : itemContent}
       <div className="item-op-btn">
         <EditPopover {...editPopoverProps}>

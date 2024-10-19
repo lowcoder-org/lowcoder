@@ -1,5 +1,6 @@
 package org.lowcoder.api.authentication.request.oauth2.request;
 
+import static org.lowcoder.sdk.plugin.common.constant.Constants.HTTP_TIMEOUT;
 import static org.springframework.web.reactive.function.BodyInserters.fromFormData;
 
 import java.net.URI;
@@ -40,6 +41,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -76,6 +78,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
 
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(uri)
@@ -94,6 +97,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
                             .accessToken(MapUtils.getString(map, "access_token"))
                             .expireIn(MapUtils.getIntValue(map, "expires_in"))
                             .refreshToken(MapUtils.getString(map, "refresh_token"))
+                            .refreshTokenExpireIn(MapUtils.getIntValue(map, "refresh_expires_in"))
                             .build();
                     return Mono.just(authToken);
                 });
@@ -104,6 +108,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
     protected Mono<AuthUser> getAuthUser(AuthToken authToken) {
         return WebClientBuildHelper.builder()
                 .systemProxy()
+                .timeoutMs(HTTP_TIMEOUT)
                 .build()
                 .post()
                 .uri(config.replaceAuthUrlClientIdPlaceholder(source.userInfo()))
@@ -116,7 +121,7 @@ public class KeycloakRequest extends AbstractOauth2Request<Oauth2KeycloakAuthCon
                     }
                     AuthUser authUser = AuthUser.builder()
                             .uid(MapUtils.getString(map, "sub"))
-                            .username(MapUtils.getString(map, "name"))
+                            .username(MapUtils.getString(map, "email"))
                             .rawUserInfo(map)
                             .build();
                     return Mono.just(authUser);

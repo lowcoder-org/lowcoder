@@ -1,29 +1,23 @@
 package org.lowcoder.api.usermanagement;
 
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.sdk.exception.BizError;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
 import reactor.core.publisher.Mono;
 
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
+
+@RequiredArgsConstructor
 @Component
 public class OrgDevChecker {
 
-    @Autowired
-    private SessionUserService sessionUserService;
-
-    @Autowired
-    private GroupService groupService;
-
-    @Autowired
-    private GroupMemberService groupMemberService;
+    private final SessionUserService sessionUserService;
+    private final GroupService groupService;
+    private final GroupMemberService groupMemberService;
 
     /**
      * check whether current user is org admin or dev
@@ -44,7 +38,7 @@ public class OrgDevChecker {
     public Mono<Boolean> isCurrentOrgDev() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> {
-                    if (orgMember.isAdmin()) {
+                    if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                         return Mono.just(true);
                     }
                     return inDevGroup(orgMember.getOrgId(), orgMember.getUserId());

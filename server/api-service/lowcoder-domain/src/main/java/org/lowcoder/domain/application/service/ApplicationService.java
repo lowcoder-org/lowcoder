@@ -1,157 +1,79 @@
 package org.lowcoder.domain.application.service;
 
+import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRequestType;
+import org.lowcoder.domain.application.model.ApplicationStatus;
+import org.lowcoder.infra.annotation.NonEmptyMono;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import static org.lowcoder.domain.application.ApplicationUtil.getDependentModulesFromDsl;
-
+import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationStatus;
-import org.lowcoder.domain.application.repository.ApplicationRepository;
-import org.lowcoder.domain.permission.model.ResourceRole;
-import org.lowcoder.domain.permission.service.ResourcePermissionService;
-import org.lowcoder.infra.annotation.NonEmptyMono;
-import org.lowcoder.infra.mongo.MongoUpsertHelper;
-import org.lowcoder.sdk.constants.FieldName;
-import org.lowcoder.sdk.exception.BizError;
-import org.lowcoder.sdk.exception.BizException;
-import org.lowcoder.sdk.models.HasIdAndAuditing;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.stereotype.Service;
+public interface ApplicationService {
+    Mono<Application> findById(String id);
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+    Mono<Application> findByIdWithoutDsl(String id);
 
-import lombok.extern.slf4j.Slf4j;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+    Mono<Boolean> updateById(String applicationId, Application application);
 
-@Lazy
-@Service
-@Slf4j
-public class ApplicationService {
+    Mono<Boolean> updatePublishedApplicationDSL(String applicationId, Map<String, Object> applicationDSL);
 
+    Mono<Application> publish(String applicationId);
 
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
+    Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished);
 
-    @Autowired
-    private ResourcePermissionService resourcePermissionService;
+    Mono<Application> create(Application newApplication, String visitorId);
 
-    @Autowired
-    private ApplicationRepository repository;
+    Flux<Application> findByOrganizationIdWithDsl(String organizationId);
 
-    public Mono<Application> findById(String id) {
-        if (id == null) {
-            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
-        }
+    Flux<Application> findByOrganizationIdWithoutDsl(String organizationId);
 
-        return repository.findByIdWithDsl(id)
-                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
-    }
+    Flux<Application> findAllMarketplaceApps();
 
-    public Mono<Application> findByIdWithoutDsl(String id) {
-        if (id == null) {
-            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
-        }
+    Flux<Application> findAllAgencyProfileApps();
 
-        return repository.findById(id)
-                .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
-    }
+    Mono<Long> countByOrganizationId(String orgId, ApplicationStatus applicationStatus);
 
-    public Mono<Boolean> updateById(String applicationId, Application application) {
-        if (applicationId == null) {
-            return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
-        }
+    Flux<Application> findByIdIn(List<String> applicationIds);
 
-        return mongoUpsertHelper.updateById(application, applicationId);
-    }
+    Mono<List<Application>> getAllDependentModulesFromApplicationId(String applicationId, boolean viewMode);
 
+    Mono<List<Application>> getAllDependentModulesFromApplication(Application application, boolean viewMode);
 
-    public Mono<Boolean> updatePublishedApplicationDSL(String applicationId, Map<String, Object> applicationDSL) {
-        Application application = Application.builder().publishedApplicationDSL(applicationDSL).build();
-        return mongoUpsertHelper.updateById(application, applicationId);
-    }
+    Mono<List<Application>> getAllDependentModulesFromDsl(Map<String, Object> dsl);
 
-    public Mono<Application> publish(String applicationId) {
-        return findById(applicationId)
-                .flatMap(newApplication -> { // copy editingApplicationDSL to publishedApplicationDSL
-                    Map<String, Object> editingApplicationDSL = newApplication.getEditingApplicationDSL();
-                    return updatePublishedApplicationDSL(applicationId, editingApplicationDSL)
-                            .thenReturn(newApplication);
-                });
-    }
+    Mono<Boolean> setApplicationPublicToAll(String applicationId, boolean publicToAll);
 
-    public Mono<Application> create(Application newApplication, String visitorId) {
-        return repository.save(newApplication)
-                .delayUntil(app -> resourcePermissionService.addApplicationPermissionToUser(app.getId(), visitorId, ResourceRole.OWNER));
-    }
+    // Falk: String title, String category, String description, String image will be set in Application Settings inside DSL by Frontend
+    Mono<Boolean> setApplicationPublicToMarketplace(String applicationId, Boolean publicToMarketplace);
 
-    /**
-     * If you don't need dsl, please use {@link #findByOrganizationIdWithoutDsl(String)}
-     */
-    public Flux<Application> findByOrganizationIdWithDsl(String organizationId) {
-        return repository.findByOrganizationIdWithDsl(organizationId);
-    }
-
-    public Flux<Application> findByOrganizationIdWithoutDsl(String organizationId) {
-        return repository.findByOrganizationId(organizationId);
-    }
-
-    public Mono<Long> countByOrganizationId(String orgId, ApplicationStatus applicationStatus) {
-        return repository.countByOrganizationIdAndApplicationStatus(orgId, applicationStatus);
-    }
-
-    public Flux<Application> findByIdIn(List<String> applicationIds) {
-        return repository.findByIdIn(applicationIds);
-    }
-
-    public Mono<List<Application>> getAllDependentModulesFromApplicationId(String applicationId, boolean viewMode) {
-        return findById(applicationId)
-                .flatMap(app -> getAllDependentModulesFromApplication(app, viewMode));
-    }
-
-    public Mono<List<Application>> getAllDependentModulesFromApplication(Application application, boolean viewMode) {
-        Map<String, Object> dsl = viewMode ? application.getLiveApplicationDsl() : application.getEditingApplicationDSL();
-        return getAllDependentModulesFromDsl(dsl);
-    }
-
-    public Mono<List<Application>> getAllDependentModulesFromDsl(Map<String, Object> dsl) {
-        Set<String> circularDependencyCheckSet = Sets.newHashSet();
-        return Mono.just(getDependentModulesFromDsl(dsl))
-                .doOnNext(circularDependencyCheckSet::addAll)
-                .flatMapMany(moduleSet -> findByIdIn(Lists.newArrayList(moduleSet)))
-                .onErrorContinue((e, i) -> log.warn("get dependent modules on error continue , {}", e.getMessage()))
-                .expandDeep(module -> getDependentModules(module, circularDependencyCheckSet))
-                .collectList();
-    }
-
-    private Flux<Application> getDependentModules(Application module, Set<String> circularDependencyCheckSet) {
-        return Flux.fromIterable(module.getLiveModules())
-                .filter(moduleId -> !circularDependencyCheckSet.contains(moduleId))
-                .doOnNext(circularDependencyCheckSet::add)
-                .collectList()
-                .flatMapMany(this::findByIdIn)
-                .onErrorContinue((e, i) -> log.warn("get dependent modules on error continue , {}", e.getMessage()));
-    }
-
-    public Mono<Boolean> setApplicationPublicToAll(String applicationId, boolean publicToAll) {
-        Application application = Application.builder()
-                .publicToAll(publicToAll)
-                .build();
-        return mongoUpsertHelper.updateById(application, applicationId);
-    }
+    Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile);
 
     @NonEmptyMono
     @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
-    public Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds) {
-        return repository.findByPublicToAllIsTrueAndIdIn(applicationIds)
-                .map(HasIdAndAuditing::getId)
-                .collect(Collectors.toSet());
-    }
+    Mono<Set<String>> getFilteredPublicApplicationIds(ApplicationRequestType requestType, Collection<String> applicationIds, String userId, Boolean isPrivateMarketplace);
+
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    Mono<Set<String>> getPublicApplicationIds(Collection<String> applicationIds);
+
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    Mono<Set<String>> getPrivateApplicationIds(Collection<String> applicationIds, String userId);
+
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    Mono<Set<String>> getPublicMarketplaceApplicationIds(Collection<String> applicationIds, boolean isAnonymous, boolean isPrivateMarketplace);
+
+    @NonEmptyMono
+    @SuppressWarnings("ReactiveStreamsNullableInLambdaInTransform")
+    Mono<Set<String>> getPublicAgencyApplicationIds(Collection<String> applicationIds);
+
+    Flux<Application> findAll();
+
+    Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId);
 }

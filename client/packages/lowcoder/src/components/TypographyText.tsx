@@ -1,8 +1,8 @@
-import { Typography } from "antd";
+import { default as AntdTypographyText } from "antd/es/typography/Text";
 import React from "react";
 import styled from "styled-components";
 
-const AntdTypographyText = styled(Typography.Text)`
+const StyledTypographyText = styled(AntdTypographyText)`
   font-size: 14px;
   color: #333333;
   line-height: 14px;
@@ -10,7 +10,7 @@ const AntdTypographyText = styled(Typography.Text)`
   text-overflow: ellipsis;
   display: block;
 
-  :is(.ant-typography-edit-content) {
+  &:is(.ant-typography-edit-content) {
     color: red;
     padding: unset;
     margin: unset !important;
@@ -33,7 +33,7 @@ const AntdTypographyText = styled(Typography.Text)`
     color: #333333;
     line-height: 14px;
 
-    ::-webkit-scrollbar {
+    &::-webkit-scrollbar {
       display: none;
     }
   }
@@ -44,7 +44,7 @@ export const TypographyText = (props: {
   editing: boolean;
   onChange: (value: string) => void;
 }) => (
-  <AntdTypographyText
+  <StyledTypographyText
     title={props.value}
     ellipsis={true}
     editable={{
@@ -57,5 +57,5 @@ export const TypographyText = (props: {
     }}
   >
     {props.value}
-  </AntdTypographyText>
+  </StyledTypographyText>
 );

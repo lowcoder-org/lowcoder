@@ -1,122 +1,23 @@
 package org.lowcoder.api.usermanagement;
 
-import static org.lowcoder.sdk.exception.BizError.UNSUPPORTED_OPERATION;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
-import java.util.Objects;
-import java.util.Set;
-import java.util.stream.Collectors;
-
-import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.domain.organization.service.OrgMemberService;
-import org.lowcoder.domain.user.model.Connection;
-import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
-import org.lowcoder.domain.user.repository.UserRepository;
-import org.lowcoder.domain.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-@Service
-@Slf4j
-public class UserApiService {
+public interface UserApiService {
+    Mono<UserDetail> getUserDetailById(String userId);
 
-    @Autowired
-    private SessionUserService sessionUserService;
+    Mono<String> resetPassword(String userId);
 
-    @Autowired
-    private OrgMemberService orgMemberService;
+    Mono<Boolean> lostPassword(String userEmail);
 
-    @Autowired
-    private UserService userService;
+    Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
 
-    @Autowired
-    private UserRepository repository;
+    Mono<Void> saveToken(String userId, String source, String token);
 
-    public Mono<UserDetail> getUserDetailById(String userId) {
-        return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
-                .then(userService.findById(userId)
-                        .flatMap(user -> userService.buildUserDetail(user, false)));
-    }
+    Mono<Void> removeToken(String userId, String token);
 
-    private Mono<Void> checkAdminPermissionAndUserBelongsToCurrentOrg(String userId) {
-        return sessionUserService.getVisitorOrgMemberCache()
-                .flatMap(orgMember -> {
-                    if (!orgMember.isAdmin()) {
-                        return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
-                    }
-                    return orgMemberService.getOrgMember(orgMember.getOrgId(), userId)
-                            .hasElement()
-                            .flatMap(hasElement -> {
-                                if (hasElement) {
-                                    return Mono.empty();
-                                }
-                                return ofError(UNSUPPORTED_OPERATION, "BAD_REQUEST");
-                            });
-                });
-    }
+    Flux<String> getTokensByAuthId(String userId, String authId);
 
-    public Mono<String> resetPassword(String userId) {
-        return checkAdminPermissionAndUserBelongsToCurrentOrg(userId)
-                .then(userService.resetPassword(userId));
-    }
-
-    // ========================== TOKEN OPERATIONS START ==========================
-
-    public Mono<Void> saveToken(String userId, String source, String token) {
-        return repository.findById(userId)
-                .doOnNext(user -> user.getConnections().stream()
-                        .filter(connection -> connection.getSource().equals(source))
-                        .forEach(connection -> connection.addToken(token)))
-                .flatMap(repository::save)
-                .then();
-    }
-
-    /**
-     * Remove the token.
-     */
-    public Mono<Void> removeToken(String userId, String token) {
-        return repository.findById(userId)
-                .doOnNext(user -> removeToken(user, token))
-                .flatMap(repository::save)
-                .then();
-    }
-
-    private void removeToken(User user, String token) {
-        user.getConnections().forEach(connection -> connection.removeToken(token));
-    }
-
-    public Flux<String> getTokensByAuthId(String userId, String authId) {
-        return repository.findById(userId)
-                .flatMapIterable(User::getConnections)
-                .filter(connection -> Objects.equals(connection.getAuthId(), authId))
-                .flatMapIterable(Connection::getTokens);
-    }
-
-    /**
-     * Token stored in redis will expire if there's no access while it stored in mongodb will not expire. These tokens still stored in mongodb
-     * become invalid so that we should clear them.
-     */
-    public Mono<Void> removeInvalidTokens(String userId) {
-        return repository.findById(userId)
-                .delayUntil(user -> getInvalidTokens(user).doOnNext(invalidToken -> removeToken(user, invalidToken)))
-                .flatMap(repository::save)
-                .then();
-    }
-
-    private Flux<String> getInvalidTokens(User user) {
-        Set<String> allTokens = user.getConnections().stream()
-                .map(Connection::getTokens)
-                .flatMap(Set::stream)
-                .collect(Collectors.toSet());
-        return Flux.fromIterable(allTokens)
-                // token not exist in redis
-                .filterWhen(token -> sessionUserService.tokenExist(token).map(aBoolean -> !aBoolean));
-    }
-
-    // ========================== TOKEN OPERATIONS END ==========================
+    Mono<Void> removeInvalidTokens(String userId);
 }

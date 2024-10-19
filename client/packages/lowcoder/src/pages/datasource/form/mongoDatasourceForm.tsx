@@ -25,7 +25,7 @@ export const MongoDatasourceForm = (props: DatasourceFormProps) => {
 
   return (
     <DatasourceForm form={form} preserve={false}>
-      <FormSection size={props.size}>
+      <FormSection $size={props.size}>
         <DatasourceNameFormInputItem placeholder={"My MongoDB1"} initialValue={datasource?.name} />
         <FormSelectItem
           name={"usingUri"}

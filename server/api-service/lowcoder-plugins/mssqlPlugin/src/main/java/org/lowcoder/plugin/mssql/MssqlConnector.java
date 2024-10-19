@@ -55,7 +55,7 @@ public class MssqlConnector extends SqlBasedConnector<MssqlDatasourceConfig> {
 
 
         if (isNotBlank(database)) {
-            urlBuilder.append("database=")
+            urlBuilder.append("databaseName=")
                     .append(database)
                     .append(";");
         }

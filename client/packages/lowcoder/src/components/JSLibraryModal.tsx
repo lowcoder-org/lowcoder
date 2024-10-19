@@ -1,11 +1,11 @@
 import styled from "styled-components";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { ReactNode, lazy, useEffect, useState } from "react";
 import { CustomModal } from "components/CustomModal";
 import { trans } from "i18n";
 import { DocLink } from "components/ExternalLink";
 import { Input } from "components/Input";
 import { TacoButton } from "components/button";
-import { Spin } from "antd";
+import { default as Spin } from "antd/es/spin";
 import { useDispatch, useSelector } from "react-redux";
 import { recommendJSLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { JSLibraryInfo, JSLibraryLabel } from "components/JSLibraryTree";
@@ -18,11 +18,11 @@ import {
   ErrorIcon,
 } from "icons";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { LoadingOutlined } from "@ant-design/icons";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -53,7 +53,7 @@ const StyledDocIcon = styled(DocBoldIcon)`
   cursor: pointer;
   color: ${GreyTextColor};
 
-  :hover {
+  &:hover {
     & > g > g {
       stroke: ${ActiveTextColor};
     }
@@ -62,7 +62,7 @@ const StyledDocIcon = styled(DocBoldIcon)`
 const StyledDownloadIcon = styled(DownloadBoldIcon)`
   cursor: pointer;
 
-  :hover {
+  &:hover {
     & > g > g {
       stroke: ${ActiveTextColor};
     }
@@ -169,20 +169,20 @@ const ErrorWrapper = styled.div`
       color: #8b8fa3;
       display: none;
 
-      :hover {
+      &:hover {
         color: #000000;
       }
     }
   }
 
-  :hover {
+  &:hover {
     .close-button {
       display: block;
     }
   }
 
   .error-description a {
-    :hover {
+    &:hover {
       color: #315efb;
     }
   }
@@ -341,6 +341,9 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
             </JSLibraryRecommends>
           </>
         )}
+
+        <HelpText>{trans("preLoad.externalLibsHelperText")}</HelpText>
+
       </CustomModal>
     </div>
   );

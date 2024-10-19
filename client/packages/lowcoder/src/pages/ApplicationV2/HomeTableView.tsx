@@ -1,25 +1,26 @@
 import { timestampToHumanReadable } from "../../util/dateTimeUtils";
 import { Table } from "../../components/Table";
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import {
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
+  handleMarketplaceAppViewClick,
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import React, { useState } from "react";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import { updateAppMetaAction } from "../../redux/reduxActions/applicationActions";
-import { Typography } from "antd";
+import { default as AntdTypographyText } from "antd/es/typography/Text";
 import { HomeRes } from "./HomeLayout";
 import { HomeResOptions } from "./HomeResOptions";
 import { MoveToFolderModal } from "./MoveToFolderModal";
 import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -44,7 +45,7 @@ const EditBtn = styled(TacoButton)`
   height: 24px;
 `;
 
-const TypographyText = styled(Typography.Text)`
+const TypographyText = styled(AntdTypographyText)`
   margin: 0 !important;
   left: 0 !important;
   width: 100%;
@@ -68,13 +69,15 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
-            console.log(e.target);
+            // console.log(e.target);
             const item = record as HomeRes;
             if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
               return;
             }
             if (item.type === HomeResTypeEnum.Folder) {
               handleFolderViewClick(item.id);
+            } else if(item.isMarketplace) {
+              handleMarketplaceAppViewClick(item.id);
             } else {
               item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
             }
@@ -209,6 +212,8 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                       e.stopPropagation();
                       return item.type === HomeResTypeEnum.Folder
                         ? handleFolderViewClick(item.id)
+                        : item.isMarketplace
+                        ? handleMarketplaceAppViewClick(item.id)
                         : handleAppViewClick(item.id);
                     }}
                     style={{ marginRight: "52px" }}

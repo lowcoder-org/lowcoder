@@ -15,6 +15,7 @@ import {
   withType,
   ValueFromOption,
   uiChildren,
+  clickEvent,
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
@@ -67,7 +68,6 @@ export const UIEventOptions = [
     value: "select",
     description: trans("chart.selectDesc"),
   },
-
   {
     label: trans("chart.unSelect"),
     value: "unselect",
@@ -253,6 +253,10 @@ export const chartUiModeChildren = {
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
+const chartJsonModeChildren = {
+  echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
+}
+
 const chartMapModeChildren = {
   mapInstance: stateComp(),
   getMapInstance: FunctionControl,
@@ -265,21 +269,28 @@ const chartMapModeChildren = {
   showCharts: withDefault(BoolControl, true),
 }
 
+export type UIChartDataType = {
+  seriesName: string;
+  // coordinate chart
+  x?: any;
+  y?: any;
+  // pie or funnel
+  itemName?: any;
+  value?: any;
+};
+
+export type NonUIChartDataType = {
+  name: string;
+  value: any;
+}
+
 export const chartChildrenMap = {
   mode: dropdownControl(chartModeOptions, "ui"),
-  echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
-  selectedPoints: stateComp<
-    Array<{
-      seriesName: string;
-      // coordinate chart
-      x?: any;
-      y?: any;
-      // pie or funnel
-      itemName?: any;
-      value?: any;
-    }>
-  >([]),
+  selectedPoints: stateComp<Array<UIChartDataType>>([]),
+  lastInteractionData: stateComp<Array<UIChartDataType> | NonUIChartDataType>({}),
+  onEvent: eventHandlerControl([clickEvent] as const),
   ...chartUiModeChildren,
+  ...chartJsonModeChildren,
   ...chartMapModeChildren,
 };
 

@@ -5,6 +5,7 @@ import { hookCompCategory, HookCompType } from "comps/hooks/hookCompTypes";
 import { UICompLayoutInfo, uiCompRegistry, UICompType } from "comps/uiCompRegistry";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { parseCompType } from "comps/utils/remote";
+import { ScrollBar } from "lowcoder-design";
 import {
   DEFAULT_POSITION_PARAMS,
   draggingUtils,
@@ -23,7 +24,7 @@ import {
   DEFAULT_GRID_COLUMNS,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -59,7 +60,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
-import { defaultTheme } from "comps/controls/styleControlConstants";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -102,6 +103,7 @@ type ExtraProps = {
   rowCount?: number;
   isRowCountLocked?: boolean;
   autoHeight?: boolean;
+  scrollbars?: boolean;
   minHeight?: string;
   emptyRows?: number;
   extraHeight?: string;
@@ -119,6 +121,7 @@ type ExtraProps = {
   isSelectable?: boolean;
   overflow?: string;
   enableGridLines?: boolean;
+  horizontalGridCells?: number;
   onRowCountChange?: (rowHeight: number) => void;
 };
 
@@ -193,7 +196,7 @@ const onFlyDrop = (layout: Layout, items: Layout, dispatch: DispatchType) => {
   }
 };
 
-const onDrop = (
+const onDrop = async (
   layout: Layout,
   items: Layout,
   event: DragEvent<HTMLElement>,
@@ -220,7 +223,20 @@ const onDrop = (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
-    const defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
+    let defaultDataFn = undefined;
+    
+    if (!compInfo.isRemote) {
+      const {
+        defaultDataFnName,
+        defaultDataFnPath,
+      } = uiCompRegistry[compType as UICompType];
+  
+      if(defaultDataFnName && defaultDataFnPath) {
+        const module = await import(`../../${defaultDataFnPath}.tsx`);
+        defaultDataFn = module[defaultDataFnName];
+      }
+    }
+
     const widgetValue: GridItemDataType = {
       compType,
       name: compName,
@@ -230,6 +246,14 @@ const onDrop = (
     };
     const key = genRandomKey();
     const layoutItem = Object.values(items)[0];
+    // calculate postion of newly added comp
+    // should have last position in the comps list
+    let itemPos = 0;
+    if (!Object.keys(layout).length) {
+      itemPos = 0;
+    } else {
+      itemPos = Math.max(...Object.values(layout).map(l => l.pos || 0)) + 1;      
+    }
     // log.debug("layout: onDrop. widgetValue: ", widgetValue, " layoutItem: ", layoutItem);
     dispatch(
       wrapActionExtraInfo(
@@ -237,7 +261,12 @@ const onDrop = (
           layout: changeValueAction(
             {
               ...layout,
-              [key]: { ...layoutItem, i: key, placeholder: undefined },
+              [key]: {
+                ...layoutItem,
+                i: key,
+                placeholder: undefined,
+                pos: itemPos,
+              },
             },
             true
           ),
@@ -265,9 +294,10 @@ const getExtraLayout = (
     const autoHeight = item.autoHeight;
     const name = item.name;
     const compType = item.compType;
+    const comp = item.comp;
     const isSelected = selectedCompNames.has(name) || dragSelectedNames?.has?.(name);
     const hidden = item.hidden;
-    return { autoHeight, isSelected, name, hidden, compType };
+    return { autoHeight, isSelected, name, hidden, compType, comp };
   });
 };
 
@@ -278,12 +308,12 @@ type ViewPropsWithSelect = ContainerBaseProps & {
   dragSelectedComps?: Set<string>;
 };
 
-const ItemWrapper = styled.div<{ disableInteract?: boolean }>`
+const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   height: 100%;
-  pointer-events: ${(props) => (props.disableInteract ? "none" : "unset")};
+  pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
-const GridItemWrapper = React.forwardRef(
+const GridItemWrapper = React.memo(React.forwardRef(
   (
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -291,16 +321,16 @@ const GridItemWrapper = React.forwardRef(
     const editorState = useContext(EditorContext);
     const { children, ...divProps } = props;
     return (
-      <ItemWrapper ref={ref} disableInteract={editorState.disableInteract} {...divProps}>
+      <ItemWrapper ref={ref} $disableInteract={editorState.disableInteract} {...divProps}>
         {props.children}
       </ItemWrapper>
     );
   }
-);
+));
 
 type GirdItemViewRecord = Record<string, GridItem>;
 
-export function InnerGrid(props: ViewPropsWithSelect) {
+export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const {
     positionParams,
     rowCount = Infinity,
@@ -309,16 +339,22 @@ export function InnerGrid(props: ViewPropsWithSelect) {
     enableGridLines,
     isRowCountLocked,
   } = props;
+  const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
+  const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
   const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
 
+  // Falk: TODO: Here we can define the inner grid columns dynamically
   //Added By Aqib Mirza
-  const defaultGrid =
-    useContext(ThemeContext)?.theme?.gridColumns ||
+  const defaultGrid = useMemo(() => {
+    return horizontalGridCells ||
+    currentTheme?.gridColumns ||
     defaultTheme?.gridColumns ||
-    "24";
+    "12";
+  }, [horizontalGridCells, currentTheme?.gridColumns, defaultTheme?.gridColumns]);
+
   /////////////////////
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
@@ -351,12 +387,14 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const canAddSelect = useMemo(
     () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
-    [containerSelectNames, editorState]
+    [containerSelectNames, editorState.selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
   const onResize = useCallback(
-    (width, height) => {
+    (width?: number, height?: number) => {
+      if(!width || !height) return;
+
       if (width !== positionParams.containerWidth) {
         const newPositionParams: PositionParams = {
           margin: [0, 0],
@@ -389,23 +427,28 @@ export function InnerGrid(props: ViewPropsWithSelect) {
         setRowHeight(nextRowHeight);
       }
     },
-    [
+    [ defaultGrid,
       currentRowCount,
       currentRowHeight,
       isRowCountLocked,
       onPositionParamsChange,
       onRowCountChange,
       positionParams,
-      props,
+      props.dispatch,
+      props.containerPadding,
     ]
   );
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
       editorState.setSelectedCompNames(names);
     },
-    [editorState]
+    [editorState.setSelectedCompNames]
   );
-  const { width, ref } = useResizeDetector({ onResize, handleHeight: isRowCountLocked });
+
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+  });
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -426,8 +469,12 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   }, [props.items]);
 
   const clickItem = useCallback(
-    (e, name) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
-    [canAddSelect, containerSelectNames, setSelectedNames]
+    (
+      e: React.MouseEvent<HTMLDivElement,
+      globalThis.MouseEvent>,
+      name: string,
+    ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
+    [selectItem, canAddSelect, containerSelectNames, setSelectedNames]
   );
 
   useEffect(() => {
@@ -516,7 +563,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       {itemViews}
     </ReactGridLayout>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
 
 function selectItem(
   e: MouseEvent<HTMLDivElement>,

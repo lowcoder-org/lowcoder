@@ -5,12 +5,18 @@ import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { EventData, EventTypeEnum } from "./types";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
+import { EditorContext } from "comps/editorState";
+import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+
+// TODO: eventually to embedd in container so we have styling?
+// TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
 
 const defaultModel = {
   name: "{{currentUser.name}}",
@@ -54,7 +60,6 @@ const defaultCode = `
   );
   
   const ConnectedComponent = ${trans("customComp.sdkGlobalVarName")}.connect(MyCustomComponent);
-  
   const root = ReactDOM.createRoot(document.getElementById("root"));
   root.render(<ConnectedComponent />);
   
@@ -69,13 +74,21 @@ const iframe_index = `<!doctype html><html lang="en"><head><meta charset="UTF-8"
 type IProps = {
   code: string;
   model: any;
+  style: CustomStyleType;
+  animationStyle:AnimationStyleType
   onModelChange: (v: any) => void;
   dispatch: (action: CompAction<any>) => void;
 };
 
-const Wrapper = styled.div`
+const Wrapper = styled.div<{
+  $style: CustomStyleType;
+  $animationStyle: AnimationStyleType;
+}>`
   width: 100%;
   height: 100%;
+  ${(props) => props.$style};
+  rotate: ${(props) => props.$style.rotation};
+  ${(props) => props.$animationStyle};
   iframe {
     border: 0;
     width: 100%;
@@ -198,8 +211,12 @@ function InnerCustomComponent(props: IProps) {
   }, [code]);
 
   return (
-    <Wrapper>
-      <iframe ref={iframeRef} title="custom-comp" srcDoc={iframe_index} />
+    <Wrapper $style={props.style} $animationStyle={props.animationStyle}>
+      <iframe
+        ref={iframeRef}
+        title="custom-comp"
+        srcDoc={iframe_index}
+      />
     </Wrapper>
   );
 }
@@ -207,12 +224,16 @@ function InnerCustomComponent(props: IProps) {
 const childrenMap = {
   model: jsonObjectStateControl(defaultModel),
   code: withDefault(StringControl, defaultCode),
+  style: styleControl(CustomStyle , 'style'),
+  animationStyle:styleControl(AnimationStyle , 'animationStyle'),
 };
 
 const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
   const { code, model } = props;
   return (
     <InnerCustomComponent
+      style={props.style}
+      animationStyle={props.animationStyle}
       code={code}
       model={model.value}
       onModelChange={(v) => model.onChange(v)}
@@ -223,11 +244,20 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
   .setPropertyViewFn((children) => {
     return (
       <>
-        <Section name={sectionNames.basic}>
-          {children.model.propertyView({ label: trans("data") })}
-          {children.code.propertyView({ label: trans("code"), language: "html" })}
-        </Section>
-        <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.interaction}>
+              {children.model.propertyView({ label: trans("customComp.data") })}
+              {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
+              {hiddenPropertyView(children)}
+          </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section>
+          </>
+        )}  
       </>
     );
   })

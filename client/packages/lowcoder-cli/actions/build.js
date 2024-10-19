@@ -1,7 +1,7 @@
 import { execSync } from "child_process";
 import fsExtra from "fs-extra";
 import { build } from "vite";
-import { writeFileSync, existsSync, readFileSync } from "fs";
+import { writeFileSync, existsSync, readFileSync, readdirSync } from "fs";
 import { resolve } from "path";
 import paths from "../config/paths.js";
 import "../util/log.js";
@@ -43,6 +43,12 @@ function validPackageJSON() {
   if (compErrors.length > 0) {
     return compErrors.join("\n");
   }
+}
+
+function findReadmeFileName(directory) {
+  const files = readdirSync(directory);
+  const readmeFile = files.find(file => file.toLowerCase() === 'readme.md');
+  return readmeFile ? `${directory}/${readmeFile}` : null;
 }
 
 /**
@@ -93,6 +99,16 @@ export default async function buildAction(options) {
       copySync(paths.resolveApp(compManifest.icon), resolve(paths.appOutPath, compManifest.icon));
     }
   });
+
+  // copy readme file
+  const readmePath = findReadmeFileName(paths.appPath + '/src');
+  if (readmePath) {
+    const destinationPath = resolve(paths.appOutPath, 'readme.md');
+    copySync(readmePath, destinationPath);
+    console.log(`Copied README file to: ${destinationPath}`);
+  } else {
+    console.warn('README.md file not found.');
+  }
 
   if (options.publish) {
     // publish

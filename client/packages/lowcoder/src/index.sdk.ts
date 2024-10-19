@@ -1,10 +1,27 @@
 import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
+import * as supabase from "@supabase/supabase-js";
 
 import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
+export * as styledm from "styled-components";
+export * from "comps/comps/containerBase/containerCompBuilder";
+export * from "comps/comps/containerBase/iContainer";
+export * from "comps/comps/containerBase/utils";
+export * from "comps/comps/containerBase/simpleContainerComp";
+export * from "comps/utils/backgroundColorContext";
+export { getData } from "comps/comps/listViewComp/listViewUtils";
+export { gridItemCompToGridItems, InnerGrid } from "comps/comps/containerComp/containerView";
+export type { ContainerBaseProps } from "comps/comps/containerComp/containerView";
 
+export { Layers } from "constants/Layers";
+export * from "comps/controls/eventHandlerControl";
+export * from "comps/utils/methodUtils";
+// export * from Button
+
+export { useUserViewMode } from "util/hooks";
+export * from "comps/editorState";
 export * from "redux/store/store";
 
 // util
@@ -29,6 +46,7 @@ export * from "util/objectUtils";
 export * from "util/objectUtils";
 export * from "util/perfUtils";
 export * from "util/permissionUtils";
+export * from "util/promiseUtils";
 export * from "util/reducerUtils";
 export * from "util/scheduleUtils";
 export * from "util/stringUtils";
@@ -72,6 +90,7 @@ export * from "comps/controls/dropdownInputSimpleControl";
 export * from "comps/controls/eventHandlerControl";
 export * from "comps/controls/actionSelector/actionSelectorControl";
 export * from "comps/controls/iconControl";
+export * from "comps/controls/shapeControl";
 export * from "comps/controls/keyValueControl";
 export * from "comps/controls/labelControl";
 export * from "comps/controls/millisecondControl";
@@ -83,6 +102,7 @@ export * from "comps/controls/simpleStringControl";
 export * from "comps/controls/stringSimpleControl";
 export * from "comps/controls/styleControl";
 export * from "comps/controls/styleControlConstants";
+export * from "comps/controls/slotControl";
 
 // generators
 export * from "comps/generators/changeDataType";
@@ -100,6 +120,7 @@ export * from "comps/generators/withExposing";
 export * from "comps/generators/withIsLoading";
 export * from "comps/generators/withMethodExposing";
 export * from "comps/generators/withType";
+export * from "comps/generators/controlCompBuilder";
 
 export * from "appView/bootstrapAt";
 export * from "appView/LowcoderAppView";
@@ -108,9 +129,10 @@ export * from "appView/AppViewInstance";
 export * from "ide/CompIde";
 export * from "ide/CompPlayground";
 
-export * as antd from "antd";
+export * as antd from "antd/es";
 export const styled = { ...styledDefault, ...styledNameExports };
 
 window.numbro = numbro;
 window.Papa = Papa;
 window.uuid = uuid;
+window.supabase = supabase;

@@ -1,12 +1,11 @@
 package org.lowcoder.domain.permission.model;
 
-import static org.lowcoder.domain.permission.config.PermissionConst.ID_SPLITTER;
+import jakarta.annotation.Nullable;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.Arrays;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang3.StringUtils;
+import static org.lowcoder.domain.permission.config.PermissionConst.ID_SPLITTER;
 
 public enum ResourceHolder {
     USER("u"),

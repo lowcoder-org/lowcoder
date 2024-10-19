@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { ReactComponent as Bin } from "icons/icon-recycle-bin.svg";
+import { ReactComponent as Bin } from "icons/v1/icon-recycle-bin.svg";
 import { TacoButton } from "./button";
 import { ReactNode } from "react";
 import { BluePlusIcon } from "icons";
@@ -24,7 +24,7 @@ const DelIcon = styled(Bin)<{
     ${(props) => props.$forbidden && "stroke: #D7D9E0;"}
   }
 
-  :hover {
+  &:hover {
     cursor: ${(props) => (props.$forbidden ? "default" : "pointer")};
   }
 
@@ -50,13 +50,13 @@ const AddBtn = styled(TacoButton)`
   box-shadow: none;
   margin-bottom: 2px;
 
-  :hover {
+  &:hover {
     color: #315efb;
     border: none;
     background-color: #ffffff;
   }
 
-  :focus {
+  &:focus {
     color: #315efb;
     border: none;
     background-color: #ffffff;

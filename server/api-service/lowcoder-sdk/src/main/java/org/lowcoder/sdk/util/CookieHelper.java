@@ -1,16 +1,9 @@
 package org.lowcoder.sdk.util;
 
-import static java.util.Optional.ofNullable;
-import static org.lowcoder.sdk.util.IDUtils.generate;
-import static org.lowcoder.sdk.util.UriUtils.getRefererURI;
-
-import java.util.Optional;
-
-import javax.annotation.Nullable;
-
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfig.Cookie;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpCookie;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseCookie.ResponseCookieBuilder;
@@ -18,14 +11,18 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Optional;
 
+import static java.util.Optional.ofNullable;
+import static org.lowcoder.sdk.util.IDUtils.generate;
+import static org.lowcoder.sdk.util.UriUtils.getRefererURI;
+
+@RequiredArgsConstructor
 @Component
 @Slf4j
 public class CookieHelper {
 
-    @Autowired
-    private CommonConfig commonConfig;
+    private final CommonConfig commonConfig;
 
     public void saveCookie(String token, ServerWebExchange exchange) {
         boolean isUsingHttps = Optional.ofNullable(getRefererURI(exchange.getRequest()))

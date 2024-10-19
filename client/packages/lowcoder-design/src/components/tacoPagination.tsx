@@ -1,13 +1,12 @@
-import { Pagination } from "antd";
-import { PaginationProps } from "antd/lib/pagination/Pagination";
+import { default as Pagination, PaginationProps } from "antd/es/pagination";
 import styled, { css } from "styled-components";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
 
 const packUpIconCss = css`
   height: 24px;
   width: 24px;
 
-  :hover:not([disabled]) {
+  &:hover:not([disabled]) {
     g path {
       fill: #315efb;
     }

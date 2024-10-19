@@ -1,5 +1,23 @@
 package org.lowcoder.plugin.mongo.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.google.common.annotations.VisibleForTesting;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.extern.jackson.Jacksonized;
+import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.sdk.config.JsonViews;
+import org.lowcoder.sdk.exception.PluginCommonError;
+import org.lowcoder.sdk.models.DatasourceConnectionConfig;
+import org.lowcoder.sdk.models.Endpoint;
+
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+
 import static org.apache.commons.lang3.ObjectUtils.firstNonNull;
 import static org.lowcoder.plugin.mongo.model.MongoConnectionUriParser.parseDatabaseFrom;
 import static org.lowcoder.sdk.exception.BizError.INVALID_DATASOURCE_CONFIG_TYPE;
@@ -8,27 +26,9 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofPluginException;
 import static org.lowcoder.sdk.util.JsonUtils.fromJson;
 import static org.lowcoder.sdk.util.JsonUtils.toJson;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-
-import org.apache.commons.collections4.ListUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.lowcoder.sdk.config.SerializeConfig.JsonViews;
-import org.lowcoder.sdk.exception.PluginCommonError;
-import org.lowcoder.sdk.models.DatasourceConnectionConfig;
-import org.lowcoder.sdk.models.Endpoint;
-
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
-import com.google.common.annotations.VisibleForTesting;
-
-import lombok.Builder;
-import lombok.Getter;
-
 @Getter
 @Builder
+@Jacksonized
 public class MongoDatasourceConfig implements DatasourceConnectionConfig {
 
     private final boolean usingUri;

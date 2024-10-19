@@ -1,35 +1,13 @@
 package org.lowcoder.plugin.graphql;
 
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static org.apache.commons.lang3.StringUtils.firstNonBlank;
-import static org.apache.commons.lang3.StringUtils.trimToEmpty;
-import static org.lowcoder.plugin.graphql.GraphQLError.GRAPHQL_EXECUTION_ERROR;
-import static org.lowcoder.plugin.graphql.utils.GraphQLBodyUtils.convertToGraphQLBody;
-import static org.lowcoder.sdk.exception.PluginCommonError.JSON_PARSE_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_ARGUMENT_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_ERROR;
-import static org.lowcoder.sdk.exception.PluginCommonError.QUERY_EXECUTION_TIMEOUT;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
-import static org.lowcoder.sdk.util.JsonUtils.readTree;
-import static org.lowcoder.sdk.util.JsonUtils.toJsonThrows;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-import static org.lowcoder.sdk.util.StreamUtils.collectList;
-import static org.lowcoder.sdk.util.StreamUtils.distinctByKey;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.text.ParseException;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.TimeoutException;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
+import jakarta.annotation.Nullable;
+import lombok.Builder;
+import lombok.Getter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.plugin.graphql.constants.ResponseDataType;
@@ -55,13 +33,7 @@ import org.lowcoder.sdk.util.MoreMapUtils;
 import org.lowcoder.sdk.util.MustacheHelper;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.pf4j.Extension;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.InvalidMediaTypeException;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.reactive.ClientHttpRequest;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
@@ -69,20 +41,43 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-
-import lombok.Builder;
-import lombok.Getter;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.TimeoutException;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.apache.commons.collections4.MapUtils.emptyIfNull;
+import static org.apache.commons.lang3.StringUtils.firstNonBlank;
+import static org.apache.commons.lang3.StringUtils.trimToEmpty;
+import static org.lowcoder.plugin.graphql.GraphQLError.GRAPHQL_EXECUTION_ERROR;
+import static org.lowcoder.plugin.graphql.utils.GraphQLBodyUtils.convertToGraphQLBody;
+import static org.lowcoder.sdk.exception.PluginCommonError.*;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.OAUTH2_INHERIT_FROM_LOGIN;
+import static org.lowcoder.sdk.util.ExceptionUtils.propagateError;
+import static org.lowcoder.sdk.util.JsonUtils.readTree;
+import static org.lowcoder.sdk.util.JsonUtils.toJsonThrows;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
+import static org.lowcoder.sdk.util.StreamUtils.collectList;
+import static org.lowcoder.sdk.util.StreamUtils.distinctByKey;
 
 @Extension
 public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, Object, GraphQLQueryExecutionContext> {
     private static final String RESPONSE_DATA_TYPE = "X-LOWCODER-RESPONSE-DATA-TYPE";
     private static final String GRAPHQL_TYPE = "application/graphql";
+
+    private static final String DEFAULT_GRAPHQL_ERROR_CODE = "GRAPHQL_EXECUTION_ERROR";
     private static final int MAX_REDIRECTS = 5;
     private static final Set<String> BINARY_DATA_TYPES = Set.of("application/zip",
             "application/octet-stream",
@@ -245,53 +240,55 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
 
     @Override
     public Mono<QueryExecutionResult> executeQuery(Object o, GraphQLQueryExecutionContext context) {
-        return Mono.defer(() -> {
-            URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
-            WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
-                    .disallowedHosts(commonConfig.getDisallowedHosts())
-                    .toWebClientBuilder();
+        return Mono.defer(() -> authByOauth2InheritFromLogin(context))
+                .then(Mono.defer(() -> {
+                    URI uri = RestApiUriBuilder.buildUri(context.getUrl(), new HashMap<>(), context.getUrlParams());
+                    WebClient.Builder webClientBuilder = WebClientBuildHelper.builder()
+                            .systemProxy()
+                            .disallowedHosts(commonConfig.getDisallowedHosts())
+                            .toWebClientBuilder();
 
-            Map<String, String> allHeaders = context.getHeaders();
-            String contentType = context.getContentType();
-            allHeaders.forEach(webClientBuilder::defaultHeader);
+                    Map<String, String> allHeaders = context.getHeaders();
+                    String contentType = context.getContentType();
+                    allHeaders.forEach(webClientBuilder::defaultHeader);
 
-            //basic auth
-            AuthConfig authConfig = context.getAuthConfig();
-            if (authConfig != null && authConfig.getType() == RestApiAuthType.BASIC_AUTH) {
-                webClientBuilder.defaultHeaders(AuthHelper.basicAuth((BasicAuthConfig) authConfig));
-            }
+                    //basic auth
+                    AuthConfig authConfig = context.getAuthConfig();
+                    if (authConfig != null && authConfig.getType() == RestApiAuthType.BASIC_AUTH) {
+                        webClientBuilder.defaultHeaders(AuthHelper.basicAuth((BasicAuthConfig) authConfig));
+                    }
 
-            if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(contentType)) {
-                webClientBuilder.filter(new BufferingFilter());
-            }
+                    if (MediaType.MULTIPART_FORM_DATA_VALUE.equals(contentType)) {
+                        webClientBuilder.filter(new BufferingFilter());
+                    }
 
-            webClientBuilder.defaultCookies(injectCookies(context));
+                    webClientBuilder.defaultCookies(injectCookies(context));
 
-            WebClient client = webClientBuilder
-                    .exchangeStrategies(EXCHANGE_STRATEGIES)
-                    .build();
-            if (!GRAPHQL_TYPE.equalsIgnoreCase(contentType)) {
-                context.setQueryBody(convertToGraphQLBody(context));
-            }
-            BodyInserter<?, ? super ClientHttpRequest> bodyInserter = buildBodyInserter(
-                    context.isEncodeParams(),
-                    contentType,
-                    context.getQueryBody(),
-                    context.getBodyParams());
-            return httpCall(client, context.getHttpMethod(), uri, bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER)
-                    .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
-                    .map(this::convertToQueryExecutionResult)
-                    .onErrorResume(error -> {
-                        if (error instanceof TimeoutException) {
-                            return Mono.just(QueryExecutionResult.error(QUERY_EXECUTION_TIMEOUT, "QUERY_TIMEOUT_ERROR", error));
-                        }
-                        if (error instanceof PluginException pluginException) {
-                            throw pluginException;
-                        }
-                        return Mono.just(
-                                QueryExecutionResult.error(GRAPHQL_EXECUTION_ERROR, "GRAPHQL_EXECUTION_ERROR", error));
-                    });
-        });
+                    WebClient client = webClientBuilder
+                            .exchangeStrategies(EXCHANGE_STRATEGIES)
+                            .build();
+                    if (!GRAPHQL_TYPE.equalsIgnoreCase(contentType)) {
+                        context.setQueryBody(convertToGraphQLBody(context));
+                    }
+                    BodyInserter<?, ? super ClientHttpRequest> bodyInserter = buildBodyInserter(
+                            context.isEncodeParams(),
+                            contentType,
+                            context.getQueryBody(),
+                            context.getBodyParams());
+                    return httpCall(client, context.getHttpMethod(), uri, bodyInserter, 0, authConfig, DEFAULT_HEADERS_CONSUMER)
+                            .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
+                            .map(this::convertToQueryExecutionResult)
+                            .onErrorResume(error -> {
+                                if (error instanceof TimeoutException) {
+                                    return Mono.just(QueryExecutionResult.error(QUERY_EXECUTION_TIMEOUT, "QUERY_TIMEOUT_ERROR", error));
+                                }
+                                if (error instanceof PluginException pluginException) {
+                                    throw pluginException;
+                                }
+                                return Mono.just(
+                                        QueryExecutionResult.error(GRAPHQL_EXECUTION_ERROR, "GRAPHQL_EXECUTION_ERROR", error));
+                            });
+                }));
     }
 
     private Consumer<MultiValueMap<String, String>> injectCookies(GraphQLQueryExecutionContext request) {
@@ -456,6 +453,39 @@ public class GraphQLExecutor implements QueryExecutor<GraphQLDatasourceConfig, O
                 }
                 return BodyInserters.fromValue(queryBody);
         }
+    }
+
+    private Mono<Void> authByOauth2InheritFromLogin(GraphQLQueryExecutionContext context) {
+        if (context.getAuthConfig() == null || context.getAuthConfig().getType() != OAUTH2_INHERIT_FROM_LOGIN) {
+            return Mono.empty();
+        }
+        return context.getAuthTokenMono()
+                .doOnNext(properties -> {
+                    Map<String, List<Property>> propertyMap = properties.stream()
+                            .collect(Collectors.groupingBy(Property::getType));
+
+                    List<Property> params = propertyMap.get("param");
+                    if (CollectionUtils.isNotEmpty(params)) {
+                        Map<String, String> paramMap = new HashMap<>(emptyIfNull(context.getUrlParams()));
+                        for (Property param : params) {
+                            paramMap.put(param.getKey(), param.getValue());
+                        }
+                        context.setUrlParams(ImmutableMap.copyOf(paramMap));
+                    }
+
+                    List<Property> headers = propertyMap.get("header");
+                    if (CollectionUtils.isNotEmpty(headers)) {
+                        Map<String, String> headerMap = new HashMap<>(emptyIfNull(context.getHeaders()));
+                        for (Property header : headers) {
+                            headerMap.put(header.getKey(), header.getValue());
+                        }
+                        context.setHeaders(ImmutableMap.copyOf(headerMap));
+                    }
+                })
+                .switchIfEmpty(Mono.error(new PluginException(GRAPHQL_EXECUTION_ERROR, DEFAULT_GRAPHQL_ERROR_CODE,
+                        "$ACCESS_TOKEN parameter missing.")))
+                .onErrorResume(throwable -> propagateError(GRAPHQL_EXECUTION_ERROR, DEFAULT_GRAPHQL_ERROR_CODE, throwable))
+                .then();
     }
 
     @Getter

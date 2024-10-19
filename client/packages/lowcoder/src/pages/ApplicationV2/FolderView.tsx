@@ -6,6 +6,8 @@ import { fetchFolderElements } from "../../redux/reduxActions/folderActions";
 import { FolderMeta } from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
 import { folderElementsSelector, foldersSelector } from "../../redux/selectors/folderSelector";
+import { Helmet } from "react-helmet";
+import { trans } from "i18n";
 
 function getBreadcrumbs(
   folder: FolderMeta,
@@ -36,7 +38,7 @@ export function FolderView() {
   const elements = useSelector(folderElementsSelector);
   const allFolders = useSelector(foldersSelector);
 
-  const folder = allFolders.filter((f) => f.folderId === folderId)[0];
+  const folder = allFolders.filter((f) => f.folderId === folderId)[0] || {};
   const breadcrumbs = getBreadcrumbs(folder, allFolders, [
     {
       text: folder.name,
@@ -45,8 +47,15 @@ export function FolderView() {
   ]);
 
   useEffect(() => {
-    dispatch(fetchFolderElements({ folderId: folderId }));
+    setTimeout(() => {
+      dispatch(fetchFolderElements({ folderId: folderId }));
+    }, 100);
   }, [folderId]);
 
-  return <HomeLayout elements={elements[folderId]} mode={"folder"} breadcrumb={breadcrumbs} />;
+  return (
+    <>
+      <Helmet>{<title>{trans("home.yourFolders")}</title>}</Helmet>
+      <HomeLayout elements={elements[folderId]} mode={"folder"} breadcrumb={breadcrumbs} />
+    </>
+  );
 }

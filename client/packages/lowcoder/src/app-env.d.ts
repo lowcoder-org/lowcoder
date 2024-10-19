@@ -4,7 +4,10 @@ declare module "*.svg" {
   import * as React from "react";
 
   export const ReactComponent: React.FunctionComponent<
-    React.SVGProps<SVGSVGElement> & { title?: string }
+    React.SVGProps<SVGSVGElement> & {
+      title?: string
+      $show?: boolean
+    }
   >;
 
   const src: string;
@@ -32,8 +35,8 @@ declare var PUBLIC_URL: string;
 declare var REACT_APP_EDITION: string;
 declare var REACT_APP_LANGUAGES: string;
 declare var REACT_APP_COMMIT_ID: string;
-declare var REACT_APP_API_HOST: string;
-declare var LOWCODER_NODE_SERVICE_URL: string;
+declare var REACT_APP_API_SERVICE_URL: string;
+declare var REACT_APP_NODE_SERVICE_URL: string;
 declare var REACT_APP_ENV: string;
 declare var REACT_APP_BUILD_ID: string;
 declare var REACT_APP_LOG_LEVEL: string;
@@ -42,4 +45,4 @@ declare var REACT_APP_BUNDLE_TYPE: "sdk" | "app";
 declare var REACT_APP_DISABLE_JS_SANDBOX: string;
 declare var REACT_APP_BUNDLE_BUILTIN_PLUGIN: string;
 
-declare module "weixin-js-sdk";
+// declare module "weixin-js-sdk";

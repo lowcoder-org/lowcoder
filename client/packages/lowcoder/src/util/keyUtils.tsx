@@ -203,6 +203,7 @@ export function ShortcutsWrapper(props: HTMLAttributes<HTMLDivElement> & { disab
 
 type GlobalWrapperProps = {
   disabled?: boolean;
+  children?: React.ReactNode;
   onKeyDownCapture?: (e: KeyboardEvent) => void;
   onKeyUpCapture?: (e: KeyboardEvent) => void;
   onMouseMoveCapture?: (e: MouseEvent) => void;

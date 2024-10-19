@@ -1,21 +1,11 @@
 package org.lowcoder.plugin.restapi;
 
-import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BASIC_AUTH;
-import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
-
-import java.net.URI;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
-import org.lowcoder.plugin.restapi.RestApiConnector;
-import org.lowcoder.plugin.restapi.RestApiExecutor;
 import org.lowcoder.plugin.restapi.model.RestApiQueryExecutionContext;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.models.Property;
@@ -25,14 +15,18 @@ import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.auth.BasicAuthConfig;
 import org.lowcoder.sdk.query.QueryExecutionContext;
 import org.lowcoder.sdk.query.QueryVisitorContext;
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import com.google.common.collect.ImmutableMap;
-
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static org.junit.Assert.*;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.BASIC_AUTH;
+import static org.lowcoder.sdk.plugin.restapi.auth.RestApiAuthType.DIGEST_AUTH;
 
 public class RestApiEngineTest {
 
@@ -233,7 +227,11 @@ public class RestApiEngineTest {
     public void testBasicAuth() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
-                .authConfig(new BasicAuthConfig("postman", "password", BASIC_AUTH))
+                .authConfig(BasicAuthConfig.builder()
+                        .username("postman")
+                        .password("password")
+                        .type(BASIC_AUTH)
+                    .build())
                 .url("https://postman-echo.com/basic-auth")
                 .build();
 
@@ -254,7 +252,12 @@ public class RestApiEngineTest {
     public void testDigestAuth() {
         RestApiDatasourceConfig datasourceConfig = RestApiDatasourceConfig.builder()
                 .headers(List.of(new Property("Content-Type", "application/json")))
-                .authConfig(new BasicAuthConfig("postman", "password", DIGEST_AUTH))
+                .authConfig(BasicAuthConfig.builder()
+                        .username("postman")
+                        .password("password")
+                        .type(DIGEST_AUTH)
+                        .build()
+                )
                 .url("https://postman-echo.com/digest-auth")
                 .build();
 

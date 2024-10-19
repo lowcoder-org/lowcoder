@@ -1,6 +1,6 @@
-import { ButtonProps, Modal as AntdModal } from "antd";
-import { ModalFuncProps, ModalProps as AntdModalProps } from "antd/lib/modal";
-import { ReactComponent as PackUpIcon } from "icons/icon-Pack-up.svg";
+import { ButtonProps } from "antd/es/button";
+import { default as AntdModal, ModalFuncProps, ModalProps as AntdModalProps } from "antd/es/modal";
+import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
 import React, { ReactNode, useState } from "react";
 import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";
@@ -11,7 +11,8 @@ import { trans } from "i18n/design";
 import { modalInstance } from "components/GlobalInstances";
 
 type ModalWrapperProps = {
-  width?: string | number;
+  $width?: string | number;
+  $customStyles?:any
 };
 
 type Model = {
@@ -22,14 +23,18 @@ type Model = {
 const ModalWrapper = styled.div<ModalWrapperProps>`
   display: flex;
   flex-direction: column;
-  width: ${(props) => (props.width ? props.width : "368px")};
+  width: ${(props) => (props.$width ? props.$width : "368px")};
   height: fit-content;
-  background: #ffffff;
+  background:${(props) => props.$customStyles?.backgroundColor || '#ffffff'};
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   padding: 0 0 16px;
   pointer-events: auto;
   will-change: transform;
+  animation: ${(props) => props.$customStyles?.animationStyle?.animation};
+  animation-delay: ${(props) => props.$customStyles?.animationStyle?.animationDelay};
+  animation-duration: ${(props) => props.$customStyles?.animationStyle?.animationDuration};
+  animation-iteration-count: ${(props) => props.$customStyles?.animationStyle?.animationIterationCount};
 `;
 
 const ModalHeaderWrapper = styled.div<{ $draggable?: boolean }>`
@@ -205,6 +210,7 @@ export type CustomModalProps = {
   children?: JSX.Element | React.ReactNode;
   okButtonType?: TacoButtonType;
   model?: Model;
+  customStyles?:any
 } & AntdModalProps;
 
 const DEFAULT_PROPS = {
@@ -217,25 +223,27 @@ const DEFAULT_PROPS = {
 function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper width={props.width}>
-        <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
-          <ModalHeader
-            title={props.title}
-            onCancel={props.onCancel}
-            showBackLink={props.showBackLink}
-            onBack={props.onBack}
-          />
-        </ModalHeaderWrapper>
+      <ModalWrapper $width={props.width} $customStyles={props?.customStyles}>
+        <>
+          <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
+            <ModalHeader
+              title={props.title}
+              onCancel={props.onCancel}
+              showBackLink={props.showBackLink}
+              onBack={props.onBack}
+            />
+          </ModalHeaderWrapper>
 
-        <div style={{ padding: "0 16px", ...props.bodyStyle }}>{props.children}</div>
+          <div style={{ padding: "0 16px", ...props.styles?.body }}>{props.children}</div>
 
-        {props.footer === null || props.footer ? (
-          props.footer
-        ) : (
-          <ModalFooterWrapper>
-            <ModalFooter {...props} />
-          </ModalFooterWrapper>
-        )}
+          {props.footer === null || props.footer ? (
+            props.footer
+          ) : (
+            <ModalFooterWrapper>
+              <ModalFooter {...props} />
+            </ModalFooterWrapper>
+          )}
+        </>
       </ModalWrapper>
     </Draggable>
   );
@@ -274,19 +282,22 @@ CustomModal.confirm = (props: {
   footer?: ReactNode;
   type?: "info" | "warn" | "error" | "success";
   width?: number | string;
+  customStyles?:React.CSSProperties;
 }): any => {
 
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
     okText: trans("ok"),
     cancelText: trans("cancel"),
-    bodyStyle: {
-      fontSize: "14px",
-      color: "#333333",
-      lineHeight: "22px",
-      minHeight: "72px",
-      marginTop: "24px",
-    },
+    styles: {
+      body: {
+        fontSize: "14px",
+        color: "#333333",
+        lineHeight: "22px",
+        minHeight: "72px",
+        marginTop: "24px",
+      }
+    }
   };
   // create model
   const model = modalInstance.confirm({
@@ -321,9 +332,15 @@ CustomModal.confirm = (props: {
         title={title}
         okButtonType={props.confirmBtnType}
         okText={props.okText}
-        bodyStyle={{ ...defaultConfirmProps.bodyStyle, ...props.bodyStyle }}
+        styles={{
+          body: {
+            ...defaultConfirmProps.styles?.body,
+            ...props.bodyStyle,
+          }
+        }}
         footer={props.footer}
         width={props.width}
+        customStyles={props.customStyles}
       />
     ),
   });

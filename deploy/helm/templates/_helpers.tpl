@@ -62,7 +62,13 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "lowcoder.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "lowcoder.name" . }}
+{{- $name := include "lowcoder.name" . -}}
+{{- $componentName := .component | default "" -}}
+{{- if ne $componentName "" -}}
+app.kubernetes.io/name: {{ $name }}-{{ $componentName }}
+{{- else -}}
+app.kubernetes.io/name: {{ $name }}
+{{- end }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

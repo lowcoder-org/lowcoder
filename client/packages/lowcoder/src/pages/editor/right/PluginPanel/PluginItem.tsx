@@ -1,7 +1,7 @@
 import axios from "axios";
 import { EmptyContent } from "components/EmptyContent";
 import { LinkButton } from "lowcoder-design";
-import { useShallowEqualSelector } from "util/hooks";
+import { useApplicationId, useShallowEqualSelector } from "util/hooks";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
@@ -55,6 +55,7 @@ interface PluginViewProps {
 export function PluginItem(props: PluginViewProps) {
   const { name, onRemove } = props;
   const dispatch = useDispatch();
+  const appId = useApplicationId();
   const { onDrag, searchValue } = useContext(RightContext);
   const [loading, setLoading] = useState(false);
   const packageMeta = useShallowEqualSelector(
@@ -67,7 +68,7 @@ export function PluginItem(props: PluginViewProps) {
 
   useEffect(() => {
     setLoading(true);
-    axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${name}/`).then((res) => {
+    axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${appId}/${name}`).then((res) => {
       if (res.status >= 400) {
         return;
       }

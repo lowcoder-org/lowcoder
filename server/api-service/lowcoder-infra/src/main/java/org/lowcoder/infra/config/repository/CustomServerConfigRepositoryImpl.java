@@ -4,7 +4,6 @@ import org.lowcoder.infra.config.model.ServerConfig;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-
 import reactor.core.publisher.Mono;
 
 @Repository

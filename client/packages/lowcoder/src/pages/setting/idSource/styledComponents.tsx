@@ -1,7 +1,10 @@
 import styled, { css } from "styled-components";
 import { Table } from "components/Table";
-import { Button, Checkbox, Form } from "antd";
+import { default as Button } from "antd/es/button";
+import { default as Checkbox} from "antd/es/checkbox";
+import { default as Form } from "antd/es/form";
 import { UnderlineCss } from "lowcoder-design";
+import Steps from "antd/es/steps";
 
 const btnLoadingCss = css`
   > .ant-btn-loading-icon .anticon {
@@ -59,10 +62,11 @@ export const SpanStyled = styled.div<{ disabled: boolean }>`
   align-items: center;
   height: 100%;
 
-  img {
-    width: 32px;
-    height: 32px;
+  img, .sourceIcon {
+    width: 25px;
+    height: 25px;
     margin-right: 12px;
+    text-align: center;
     opacity: ${(props) => props.disabled && "0.4"};
   }
 
@@ -324,5 +328,20 @@ export const CreateButton = styled(Button)`
     margin-right: 2px;
     width: 12px;
     height: 12px;
+  }
+`;
+
+export const StyledSteps = styled(Steps)`
+  .ant-steps-item-icon {
+    width: 25px;
+    height: 25px;
+    font-size: 10px;
+    line-height: 26px;
+  }
+
+  .ant-steps-item-title {
+    font-size: 14px;
+    line-height: 22px;
+    font-weight: bold;
   }
 `;

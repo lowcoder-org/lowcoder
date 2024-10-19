@@ -1,12 +1,11 @@
 package org.lowcoder.sdk.models;
 
-import java.util.Locale;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.Nonnull;
-
+import jakarta.annotation.Nonnull;
 import org.lowcoder.sdk.exception.PluginException;
 import org.lowcoder.sdk.util.LocaleUtils;
+
+import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 
 public class DatasourceTestResult {
 

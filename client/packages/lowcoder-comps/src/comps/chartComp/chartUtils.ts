@@ -128,7 +128,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
 }
 
 // https://echarts.apache.org/en/option.html
-export function getEchartsConfig(props: EchartsConfigProps, chartSize?: ChartSize): EChartsOptionWithMap {
+export function getEchartsConfig(
+  props: EchartsConfigProps,
+  chartSize?: ChartSize,
+  theme?: any,  
+): EChartsOptionWithMap {
   if (props.mode === "json") {
     return props.echartsOption ? props.echartsOption : {};
   }
@@ -266,8 +270,8 @@ export function getSelectedPoints(param: any, option: any) {
   return [];
 }
 
-export function loadGoogleMapsScript(apiKey?: string) {
-  const mapsUrl = `${googleMapsApiUrl}&key=${apiKey}`;
+export function loadGoogleMapsScript(apiKey: string) {
+  const mapsUrl = `${googleMapsApiUrl}?key=${apiKey}`;
   const scripts = document.getElementsByTagName('script');
   // is script already loaded
   let scriptIndex = _.findIndex(scripts, (script) => script.src.endsWith(mapsUrl));

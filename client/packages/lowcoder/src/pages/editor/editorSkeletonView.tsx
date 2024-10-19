@@ -1,20 +1,26 @@
 import Header from "pages/common/header";
-import React from "react";
+import React, {lazy} from "react";
 import {
   Body,
   EditorContainer,
   Height100Div,
-  LeftPanel,
-  MiddlePanel,
 } from "pages/common/styledComponent";
-import { getPanelStatus, getPanelStyle } from "util/localStorageUtil";
-import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
-import RightPanel from "pages/editor/right/RightPanel";
+import { getPanelStatus, getEditorModeStatus, getPanelStyle } from "util/localStorageUtil";
+// import { BottomSkeleton } from "pages/editor/bottom/BottomContent";
+// import RightPanel from "pages/editor/right/RightPanel";
 import _ from "lodash";
+
 import styled from "styled-components";
-import { Skeleton, Spin } from "antd";
+import { default as Skeleton } from "antd/es/skeleton";
+import { default as Spin } from "antd/es/spin";
 import { useTemplateViewMode, useUserViewMode } from "util/hooks";
 import { ProductLoading } from "components/ProductLoading";
+import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
+
+const BottomSkeleton = lazy(() => import("pages/editor/bottom/BottomContent").then(module => ({default: module.BottomSkeleton})));
+const RightPanel = lazy(() => import('pages/editor/right/RightPanel'));
+const LeftPanel = lazy(() => import("pages/common/styledComponent").then(module =>({default: module.LeftPanel})));
+const MiddlePanel = lazy(() => import("pages/common/styledComponent").then(module =>({default: module.MiddlePanel})));
 
 const StyledSkeleton = styled(Skeleton)`
   padding: 16px;
@@ -39,13 +45,14 @@ export const EditorLoadingSpin = (props: { height?: string | number }) => {
   const { height = "100vh" } = props;
   return (
     <div style={{ height: height }}>
-      <StyledSpin />
+      <StyledSpin size="large" indicator={<LoadingOutlined spin />}/>
     </div>
   );
 };
 
 export default function EditorSkeletonView() {
   const panelStatus = getPanelStatus();
+  const editorModeStatus = getEditorModeStatus();
   const panelStyle = getPanelStyle();
   const isUserViewMode = useUserViewMode();
   const isTemplate = useTemplateViewMode();
@@ -57,11 +64,19 @@ export default function EditorSkeletonView() {
   return (
     <>
       <Height100Div>
-        <Header panelStatus={panelStatus} togglePanel={_.noop} />
+        {/* <Header
+          panelStatus={panelStatus}
+          togglePanel={_.noop}
+          editorModeStatus={editorModeStatus}
+          toggleEditorModeStatus={_.noop}
+        /> */}
         <Body>
           <SiderStyled />
           {panelStatus.left && (
-            <LeftPanel>
+            <LeftPanel
+              collisionStatus={false}
+              toggleCollisionStatus={_.noop}
+            >
               <StyledSkeleton active paragraph={{ rows: 10 }} />
             </LeftPanel>
           )}
@@ -76,7 +91,11 @@ export default function EditorSkeletonView() {
             )}
           </MiddlePanel>
           {panelStatus.right && (
-            <RightPanel showPropertyPane={false} onCompDrag={_.noop} onTabChange={_.noop} />
+            <RightPanel
+              showPropertyPane={false}
+              onCompDrag={_.noop}
+              onTabChange={_.noop}
+            />
           )}
         </Body>
       </Height100Div>

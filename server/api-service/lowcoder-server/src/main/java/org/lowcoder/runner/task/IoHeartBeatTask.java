@@ -20,11 +20,8 @@ import lombok.extern.slf4j.Slf4j;
 @Component
 public class IoHeartBeatTask {
 
-    @Autowired
-    private ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
-
-    @Autowired
-    private PerfHelper perfHelper;
+    private final ReactiveRedisTemplate<String, String> reactiveRedisTemplate;
+    private final PerfHelper perfHelper;
 
     @Scheduled(initialDelay = 1, fixedRate = 2, timeUnit = TimeUnit.MINUTES)
     public void ping() {

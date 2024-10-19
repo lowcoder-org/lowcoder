@@ -7,20 +7,19 @@ import {
   OtpFormInput,
   PasswordInput,
 } from "lowcoder-design";
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import { PackUpIcon } from "lowcoder-design";
 import ProfileImage from "pages/common/profileImage";
 import { User } from "constants/userConstants";
 import { replaceMiddleWithStar } from "util/stringUtils";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
-import { UploadChangeParam } from "antd/lib/upload";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
 import { updateUserAction, updateUserSuccess } from "redux/reduxActions/userActions";
-import { Upload } from "antd";
+import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { trans } from "i18n";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 const FormInputStyle = css`
   input {
@@ -165,7 +164,7 @@ const ProfileImageMask = styled.div`
   opacity: 0;
   cursor: pointer;
 
-  :hover {
+  &:hover {
     opacity: 1;
     background: rgba(0, 0, 0, 0.5);
     border: 1px solid rgba(0, 0, 0, 0.1);

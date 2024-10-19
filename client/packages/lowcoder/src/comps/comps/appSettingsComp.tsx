@@ -1,19 +1,27 @@
 import { ThemeDetail, ThemeType } from "api/commonSettingApi";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleControl";
-import { MultiCompBuilder, valueComp } from "comps/generators";
+import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
 import { AddIcon, Dropdown } from "lowcoder-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getDefaultTheme, getThemeList } from "redux/selectors/commonSettingSelectors";
 import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import { GreyTextColor } from "constants/style";
-import { Divider } from "antd";
+import { default as Divider } from "antd/es/divider";
 import { THEME_SETTING } from "constants/routesURL";
 import { CustomShortcutsComp } from "./customShortcutsComp";
 import { DEFAULT_THEMEID } from "comps/utils/themeUtil";
+import { StringControl } from "comps/controls/codeControl";
+import { IconControl } from "comps/controls/iconControl";
+import { dropdownControl } from "comps/controls/dropdownControl";
+import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { BoolControl } from "../controls/boolControl";
+import { getNpmPackageMeta } from "../utils/remote";
+import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
+import type { AppState } from "@lowcoder-ee/redux/reducers";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -25,9 +33,9 @@ const ItemSpan = styled.span`
   max-width: 218px;
 `;
 
-const getTagStyle = (theme: ThemeDetail) => {
+const getTagStyle = (theme?: ThemeDetail) => {
   return css`
-    background-color: ${theme.canvas};
+    background-color: ${theme?.canvas};
     padding: 3px 4px;
     .left,
     .right {
@@ -35,17 +43,17 @@ const getTagStyle = (theme: ThemeDetail) => {
       border: 1px solid rgba(0, 0, 0, 0.1);
     }
     .left {
-      background-color: ${theme.primary};
+      background-color: ${theme?.primary};
       border-radius: 2px 0 0 2px;
     }
     .right {
-      background-color: ${theme.primarySurface};
+      background-color: ${theme?.primarySurface};
       border-radius: 0 2px 2px 0;
     }
   `;
 };
 
-export const TagDesc = styled.span<{ theme: ThemeDetail }>`
+export const TagDesc = styled.span<{ $theme?: ThemeDetail }>`
   display: inline-flex;
   margin-right: 8px;
   height: 22px;
@@ -53,7 +61,7 @@ export const TagDesc = styled.span<{ theme: ThemeDetail }>`
   border-radius: 2px;
   border: 1px solid rgba(0, 0, 0, 0.1);
   font-size: 13px;
-  ${(props) => getTagStyle(props.theme)}
+  ${(props) => getTagStyle(props.$theme)}
 `;
 
 export const DefaultSpan = styled.span`
@@ -92,9 +100,33 @@ const SettingsStyled = styled.div`
 `;
 
 const DivStyled = styled.div`
-  div {
-    width: 100%;
-    display: block;
+  > div {
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+    
+    > div {
+      width: 100%;
+      display: block;
+    }
+
+    > div:first-child {
+      margin-bottom: 6px;
+    }
+
+  }
+  // custom styles for icon selector
+  .app-icon {
+    > div {
+      margin-bottom: 0;
+
+      > div:first-child {
+        margin-bottom: 6px;
+      }
+      > div:nth-child(2) {
+        width: 88%;
+        display: inline-block;
+      }
+    }
   }
 `;
 
@@ -134,10 +166,29 @@ const DividerStyled = styled(Divider)`
   border-color: #e1e3eb;
 `;
 
+type AppCategoriesEnumKey = keyof typeof ApplicationCategoriesEnum
+const AppCategories = Object.keys(ApplicationCategoriesEnum).map(
+  (cat) => {
+    const value = ApplicationCategoriesEnum[cat as AppCategoriesEnumKey];
+    return {
+      label: value,
+      value: cat
+    }
+  }
+)
+
 const childrenMap = {
+  title: withDefault(StringControl, ''),
+  description: withDefault(StringControl, ''),
+  icon: IconControl,
+  category: dropdownControl(AppCategories, ApplicationCategoriesEnum.BUSINESS),
+  showHeaderInPublic: withDefault(BoolControl, true),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   themeId: valueComp<string>(DEFAULT_THEMEID),
+  preventAppStylesOverwriting: withDefault(BoolControl, true),
   customShortcuts: CustomShortcutsComp,
+  disableCollision: valueComp<boolean>(false),
+  lowcoderCompVersion: withDefault(StringControl, 'latest'),
 };
 type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
   themeList: ThemeType[];
@@ -145,11 +196,27 @@ type ChildrenInstance = RecordConstructorToComp<typeof childrenMap> & {
 };
 
 function AppSettingsModal(props: ChildrenInstance) {
-  const { themeList, defaultTheme, themeId, maxWidth } = props;
+  const lowcoderCompsMeta = useSelector((state: AppState) => state.npmPlugin.packageMeta['lowcoder-comps']);
+  const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
+  const {
+    themeList,
+    defaultTheme,
+    themeId,
+    maxWidth,
+    title,
+    description,
+    icon,
+    category,
+    showHeaderInPublic,
+    preventAppStylesOverwriting,
+    lowcoderCompVersion,
+  } = props;
+
   const THEME_OPTIONS = themeList?.map((theme) => ({
     label: theme.name,
     value: theme.id + "",
   }));
+
   const themeWithDefault = (
     themeId.getView() === DEFAULT_THEMEID ||
     (!!themeId.getView() &&
@@ -163,12 +230,20 @@ function AppSettingsModal(props: ChildrenInstance) {
       themeId.dispatchChangeValueAction(themeWithDefault);
     }
   }, [themeWithDefault]);
+  
+  useEffect(() => {
+    setLowcoderCompVersions([
+      'latest',
+      ...Object.keys(lowcoderCompsMeta?.versions || []).reverse()
+    ])
+  }, [lowcoderCompsMeta])
+
 
   const DropdownItem = (params: { value: string }) => {
     const themeItem = themeList.find((theme) => theme.id === params.value);
     return (
       <ItemSpan>
-        <TagDesc theme={themeItem?.theme}>
+        <TagDesc $theme={themeItem?.theme}>
           <div className="left" />
           <div className="right" />
         </TagDesc>
@@ -181,6 +256,28 @@ function AppSettingsModal(props: ChildrenInstance) {
     <SettingsStyled>
       <Title>{TITLE}</Title>
       <DivStyled>
+        {title.propertyView({
+          label: trans("appSetting.appTitle"),
+          placeholder: trans("appSetting.appTitle")
+        })}
+        {description.propertyView({
+          label: trans("appSetting.appDescription"),
+          placeholder: trans("appSetting.appDescription")
+        })}
+        {category.propertyView({
+          label: trans("appSetting.appCategory"),
+        })}
+        <div className="app-icon">
+          {icon.propertyView({
+            label: trans("icon"),
+            tooltip: trans("aggregation.iconTooltip"),
+          })}
+        </div>
+        <div style={{ margin: '20px 0'}}>
+          {showHeaderInPublic.propertyView({
+            label: trans("appSetting.showPublicHeader"),
+          })}
+        </div>
         {maxWidth.propertyView({
           dropdownLabel: trans("appSetting.canvasMaxWidth"),
           inputLabel: trans("appSetting.userDefinedMaxWidth"),
@@ -188,9 +285,6 @@ function AppSettingsModal(props: ChildrenInstance) {
           placement: "bottom",
           min: 350,
           lastNode: <span>{trans("appSetting.maxWidthTip")}</span>,
-          labelStyle: {marginBottom: "8px"},
-          dropdownStyle: {marginBottom: "12px"},
-          inputStyle: {marginBottom: "12px"}
         })}
         <Dropdown
           defaultValue={
@@ -204,8 +298,6 @@ function AppSettingsModal(props: ChildrenInstance) {
           options={THEME_OPTIONS}
           label={trans("appSetting.themeSetting")}
           placement="bottom"
-          labelStyle={{marginBottom: "8px"}}
-          dropdownStyle={{marginBottom: "12px"}}
           itemNode={(value) => <DropdownItem value={value} />}
           preNode={() => (
             <>
@@ -223,7 +315,36 @@ function AppSettingsModal(props: ChildrenInstance) {
             );
           }}
         />
+        <div style={{ margin: '20px 0'}}>
+          {preventAppStylesOverwriting.propertyView({
+            label: trans("prop.preventOverwriting"),
+          })}
+        </div>
       </DivStyled>
+      <DividerStyled />
+      <DivStyled>
+        <Dropdown
+          defaultValue={lowcoderCompVersion.getView()}
+          placeholder={'Select version'}
+          options={
+            lowcoderCompVersions.map(version => ({label: version, value: version}))
+          }
+          label={'Lowcoder Comps Version'}
+          placement="bottom"
+          onChange={async (value) => {
+            await getPromiseAfterDispatch(
+              lowcoderCompVersion.dispatch,
+              lowcoderCompVersion.changeValueAction(value), {
+                autoHandleAfterReduce: true,
+              }
+            )
+            setTimeout(() => {
+              window.location.reload();
+            }, 1000);
+          }}
+        />
+      </DivStyled>
+      <DividerStyled />
       {props.customShortcuts.getPropertyView()}
     </SettingsStyled>
   );

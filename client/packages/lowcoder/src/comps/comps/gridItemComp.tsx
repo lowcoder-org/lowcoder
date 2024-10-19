@@ -23,6 +23,7 @@ import { profilerCallback } from "util/cacheUtils";
 import { setFieldsNoTypeCheck, shallowEqual } from "util/objectUtils";
 import { remoteComp } from "./remoteComp/remoteComp";
 import { SimpleNameComp } from "./simpleNameComp";
+import { lazyLoadComp } from "./lazyLoadComp/lazyLoadComp";
 
 export function defaultLayout(compType: UICompType): UICompLayoutInfo {
   return uiCompRegistry[compType]?.layoutInfo ?? { w: 5, h: 5 };
@@ -46,15 +47,22 @@ const TmpComp = withTypeAndChildren<
       if (name !== type) {
         continue;
       }
-      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp);
-      return withErrorBoundary(comp) as ExposingMultiCompConstructor;
+
+      if(manifest.lazyLoad) {
+        return lazyLoadComp(
+          manifest.compName,
+          manifest.compPath,
+        );
+      }
+      const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);
+      return withErrorBoundary(comp!) as ExposingMultiCompConstructor;
     }
   },
   "button",
   childrenMap
 );
 
-function CachedView(props: { comp: Comp; name: string }) {
+const CachedView = React.memo((props: { comp: Comp; name: string }) => {
   return React.useMemo(
     () => (
       <Profiler id={props.name} onRender={profilerCallback}>
@@ -65,13 +73,13 @@ function CachedView(props: { comp: Comp; name: string }) {
     ),
     [props.comp, props.name]
   );
-}
+})
 
-function CachedPropertyView(props: {
+const CachedPropertyView = React.memo((props: {
   comp: Comp;
   name: string;
   withParamsContext: WithParamsContext;
-}) {
+}) => {
   const prevHints = useContext(CompExposingContext);
   const { withParamsContext } = props;
   const hints = useMemo(
@@ -101,7 +109,7 @@ function CachedPropertyView(props: {
       </>
     );
   }, [props.comp, props.name, hints, searchText, setSearchText]);
-}
+});
 
 export class GridItemComp extends TmpComp {
   private readonly withParamsContext: WithParamsContext = { params: {} };

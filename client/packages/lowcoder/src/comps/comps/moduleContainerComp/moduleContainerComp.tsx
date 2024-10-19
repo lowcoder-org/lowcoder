@@ -1,4 +1,3 @@
-import { defaultTheme } from "comps/controls/styleControlConstants";
 import { ThemeContext } from "comps/utils/themeContext";
 import { BorderColor } from "constants/style";
 import { HintPlaceHolder } from "lowcoder-design";
@@ -13,10 +12,12 @@ import {
   gridItemCompToGridItems,
   InnerGrid,
 } from "../containerComp/containerView";
+import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 
-const StyledInnerGrid = styled(InnerGrid)<ContainerBaseProps & { bordered: boolean }>`
-  border: ${(props) => (!props.bordered ? "0px" : `1px solid ${BorderColor}`)};
+const StyledInnerGrid = styled(InnerGrid)<ContainerBaseProps & { $bordered: boolean }>`
+  border: ${(props) => (!props.$bordered ? "0px" : `1px solid ${BorderColor}`)};
   height: 100%;
+  overflow: auto;
 `;
 
 function ModuleContainerView(props: ContainerBaseProps) {
@@ -36,7 +37,7 @@ function ModuleContainerView(props: ContainerBaseProps) {
       overflow="hidden"
       containerPadding={readOnly ? [0, 0] : [4, 4]}
       hintPlaceholder={HintPlaceHolder}
-      bordered={!readOnly}
+      $bordered={!readOnly}
       isDraggable={!readOnly}
       isDroppable={!readOnly}
       isSelectable={!readOnly}

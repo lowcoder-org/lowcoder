@@ -1,18 +1,17 @@
 package org.lowcoder.sdk.plugin.http;
 
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
-import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
-
-import java.util.List;
-import java.util.Map;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.sdk.models.Property;
 import org.springframework.http.HttpMethod;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
+import java.util.Map;
+
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheJsonString;
+import static org.lowcoder.sdk.util.MustacheHelper.renderMustacheString;
 
 @Setter
 @Getter

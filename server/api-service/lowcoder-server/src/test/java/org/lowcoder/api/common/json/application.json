@@ -3,71 +3,81 @@
   "data": [
     {
       "id": "app01",
+      "gid": "019053a0-22be-7bd0-a92e-28f4abb4a8ea",
       "name": "app01",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app02",
+      "gid": "019053a0-551c-7bcd-b329-a5926e245d44",
       "name": "app02",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app03",
+      "gid": "019053a0-8814-7c5f-a57b-12ce664b66c3",
       "name": "app03",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "RECYCLED"
     },
     {
       "id": "app04",
+      "gid": "019053a0-a790-7617-84d9-efc8b601fc6a",
       "name": "app04",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "DELETED"
     },
     {
       "id": "app05",
+      "gid": "019053a0-c978-73a8-abe4-7ad1009ec13e",
       "name": "app05",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app06",
+      "gid": "019053a0-ec0e-76e2-8b69-185c5137ca96",
       "name": "app06",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app07",
+      "gid": "019053a1-0c40-79ed-882d-e822594b6cfe",
       "name": "app07",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app08",
+      "gid": "019053a1-371c-7432-9458-97bbe3018939",
       "name": "app08",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app09",
+      "gid": "019053a1-6eda-7472-8dda-7d858ec02f97",
       "name": "app09",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     },
     {
       "id": "app10",
+      "gid": "019053a1-9a04-7a57-8089-b6bc6f429ec6",
       "name": "app10",
-      "orgId": "org01",
+      "organizationId": "org01",
       "applicationType": 1,
       "applicationStatus": "NORMAL"
     }

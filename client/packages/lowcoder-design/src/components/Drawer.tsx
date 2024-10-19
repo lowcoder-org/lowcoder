@@ -1,4 +1,4 @@
-import { Drawer as AntdDrawer, DrawerProps as AntdDrawerProps } from "antd";
+import { default as AntdDrawer, DrawerProps as AntdDrawerProps } from "antd/es/drawer";
 import Handle from "./Modal/handler";
 import { useEffect, useMemo, useState } from "react";
 import { Resizable, ResizeHandle } from "react-resizable";

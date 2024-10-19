@@ -1,11 +1,10 @@
 package org.lowcoder.sdk.destructor;
 
-import java.util.Queue;
-import java.util.concurrent.LinkedBlockingQueue;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 @Slf4j
 public class DestructorUtil {

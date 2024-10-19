@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Input as AntdInput, InputProps as AntdInputProps, InputRef } from "antd";
+import { default as AntdInput, InputProps as AntdInputProps, InputRef } from "antd/es/input";
 import { BorderActiveColor, BorderColor, BorderRadius, GreyTextColor } from "constants/style";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
 import _ from "lodash";
@@ -8,7 +8,6 @@ import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
 
 export const StyledInput = styled(AntdInput)`
   width: ${(props) => (props.width ? props.width : "100%")};
-  background: #fdfdfd;
   border: 1px solid ${BorderColor};
   border-radius: ${BorderRadius};
   padding-left: 12px;

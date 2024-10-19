@@ -1,5 +1,9 @@
-export const zh = {
+import { en } from "./en";
+
+export const zh: typeof en = {
+    ...en,
     chart: {
+        ...en.chart,
         delete: "删除",
         data: "数据",
         mode: "模式",
@@ -61,6 +65,7 @@ export const zh = {
         selectDesc: "当用户选择图表中的部分数据时触发",
         unselectDesc: "当用户取消选择图表中的部分数据时触发",
         selectedPointsDesc: "已选中的数据点",
+        lastInteractionDataDesc: "最后交互数据",
         dataDesc: "当前图表使用的原始数据",
         titleDesc: "当前图表标题",
         scatterShape: "散点形状",
@@ -77,9 +82,11 @@ export const zh = {
         zoomLevelChange: "缩放级别更改",
         zoomLevelChangeDesc: "地图缩放级别更改时触发",
         centerPositionChange: "中心位置变化",
-        centerPositionChangeDesc: "地图中心位置改变时触发"
+        centerPositionChangeDesc: "地图中心位置改变时触发",
+        chartEventHandlers: "图表事件处理程序",
     },
     imageEditor: {
+        ...en.imageEditor,
         defaultSrc: "",
         save: "保存",
         saveDesc: "保存图像",
@@ -93,7 +100,14 @@ export const zh = {
         buttonTextDesc: "按钮文本",
     },
     calendar: {
+        ...en.calendar,
         events: "事件数据",
+        resources: "资源数据",
+        resourcesDefault: "客房",
+        resourcesEvents: "资源事件",
+        resourcesName: "资源名称",
+        license : "许可证密钥",
+        licenseTooltip: "从 https://fullcalendar.io/purchase 获取许可证密钥，启用资源时间轴和资源网格等高级视图。",
         editable: "可编辑",
         defaultDate: "默认日期",
         defaultDateTooltip: "日历最初显示的日期",
@@ -120,6 +134,8 @@ export const zh = {
         week: "周",
         day: "日",
         list: "列表",
+        timeline: "时间轴",
+        resourceTimeGridDay: "资源时间网格日",
         monday: "星期一",
         tuesday: "星期二",
         wednesday: "星期三",
@@ -141,5 +157,6 @@ export const zh = {
         eventIdRequire: "请输入事件ID",
         eventIdTooltip: "每个事件的唯一标识符",
         eventIdExist: "ID已存在",
+        dragDropEventHandlers: "拖/放事件处理程序",
     },
 };

@@ -4,7 +4,7 @@ import {
   Level1SettingPageContentWithList,
   Level1SettingPageTitleWithBtn,
 } from "pages/setting/styled";
-import Column from "antd/lib/table/Column";
+import { default as Column } from "antd/es/table/Column";
 import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import IdSourceApi, { ConfigItem } from "api/idSourceApi";
@@ -25,7 +25,7 @@ import history from "util/history";
 import { OAUTH_PROVIDER_DETAIL } from "constants/routesURL";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
-import { Badge } from "antd";
+import { default as Badge } from "antd/es/badge";
 import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
@@ -34,6 +34,8 @@ import { messageInstance, AddIcon } from "lowcoder-design";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import _ from "lodash";
+import { HelpText } from "components/HelpText";
+import { IconControlView } from "@lowcoder-ee/comps/controls/iconControl";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
@@ -43,6 +45,17 @@ export const IdSourceList = (props: any) => {
   const [fetching, setFetching] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const enableEnterpriseLogin = useSelector(selectSystemConfig)?.featureFlag?.enableEnterpriseLogin;
+
+  let protocol = window.location.protocol;
+  const port = window.location.port;
+  let currentDomain = window.location.hostname;
+
+  // Show port only if it is not a standard port
+  if (port && port !== '80' && port !== '443') {
+    currentDomain += `:${port}`;
+  }
+
+  const loginUrl = `${protocol}//${currentDomain}/org/${currentOrgId}/auth/login`;
 
   useEffect(() => {
     if (!currentOrgId) {
@@ -63,7 +76,7 @@ export const IdSourceList = (props: any) => {
           let res: ConfigItem[] = resp.data.data.filter((item: ConfigItem) =>
             IdSource.includes(item.authType)
           );
-          res = _.uniqBy(res, 'authType');
+          // res = _.uniqBy(res, 'authType');
           setConfigs(res);
         }
       })
@@ -79,18 +92,20 @@ export const IdSourceList = (props: any) => {
     <>
       <Level1SettingPageContentWithList>
         <Level1SettingPageTitleWithBtn>
-          {trans("idSource.title")}
-          {currentOrgAdmin(user) && (
-            <CreateButton
-              type="primary"
-              icon={<AddIcon />}
-              onClick={() =>
-                setModalVisible(true)
-              }
-            >
-              {"Add OAuth Provider"}
-            </CreateButton>
-          )}
+          <>
+            {trans("idSource.title")}
+            {currentOrgAdmin(user) && (
+              <CreateButton
+                type="primary"
+                icon={<AddIcon />}
+                onClick={() =>
+                  setModalVisible(true)
+                }
+              >
+                {"Add OAuth Provider"}
+              </CreateButton>
+            )}
+          </>
         </Level1SettingPageTitleWithBtn>
         <TableStyled
           tableLayout={"auto"}
@@ -120,15 +135,22 @@ export const IdSourceList = (props: any) => {
             title={trans("idSource.loginType")}
             dataIndex="authType"
             key="authType"
-            render={(value, record: ConfigItem) => (
+            render={(value: AuthType, record: ConfigItem) => (
               <SpanStyled disabled={authTypeDisabled(value, enableEnterpriseLogin)}>
                 {
-                  <img
-                    src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
-                    alt={value}
-                  />
+                  (record as any).sourceIcon
+                    ? <span className="sourceIcon"><IconControlView value={(record as any).sourceIcon} /></span>
+                    : <img
+                      src={ServerAuthTypeInfo[value as AuthType]?.logo || GeneralLoginIcon}
+                      alt={value}
+                    />
                 }
-                <span>{authConfig[value as AuthType].sourceName}</span>
+                <span>
+                  {value === AuthType.Generic
+                    ? record.sourceName
+                    : authConfig[value as AuthType].sourceName
+                  }
+                </span>
                 {!FreeTypes.includes(value) && (
                   <FreeLimitTag
                     text={
@@ -154,6 +176,11 @@ export const IdSourceList = (props: any) => {
             )}
           />
         </TableStyled>
+
+        <div style={{ marginTop: 20, marginLeft: 12 }} className="section-title">{trans("advanced.AuthOrgTitle")}</div>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}>{trans("advanced.AuthOrgDescrition") + ": "}</HelpText>
+        <HelpText style={{ marginBottom: 12, marginLeft: 12 }}><a href={loginUrl} target="blank">{loginUrl}</a></HelpText> 
+
       </Level1SettingPageContentWithList>
       <CreateModal
         modalVisible={modalVisible}
@@ -167,3 +194,4 @@ export const IdSourceList = (props: any) => {
     </>
   );
 };
+

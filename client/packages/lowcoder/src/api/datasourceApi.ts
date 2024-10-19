@@ -102,6 +102,7 @@ export interface HttpConfig {
 
   authConfig: {
     type: AuthType;
+    authId?: string;
   } & (
     | {
         username: string; // basic auth
@@ -154,7 +155,7 @@ export interface DataSourceTypeInfo {
 }
 
 export class DatasourceApi extends Api {
-  static url = "v1/datasources";
+  static url = "datasources";
 
   // this api can be accessed by anonymous users when app is public.
   static fetchJsDatasourceByApp(
@@ -206,7 +207,7 @@ export class DatasourceApi extends Api {
   static fetchDatasourceType(
     orgId: string
   ): AxiosPromise<GenericApiResponse<DataSourceTypeInfo[]>> {
-    return Api.get(`/v1/organizations/${orgId}/datasourceTypes`);
+    return Api.get(`/organizations/${orgId}/datasourceTypes`);
   }
 
   static fetchDynamicPluginConfig<T = any>(

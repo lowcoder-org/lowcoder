@@ -28,6 +28,7 @@ interface DropdownControlParams<T extends OptionsType> extends ControlParams {
   showSearch?: boolean;
   dropdownStyle?: React.CSSProperties;
   labelStyle?: React.CSSProperties;
+  IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }
 
 interface DropdownPropertyViewProps<T extends OptionsType>
@@ -92,6 +93,7 @@ export function dropdownAbstractControl<T extends OptionsType>(
       return controlItem(
         { filterText: params.label },
         <DropdownPropertyView<T>
+          {...params}
           value={this.value}
           options={finalOptions}
           onChange={(value) => {
@@ -100,7 +102,6 @@ export function dropdownAbstractControl<T extends OptionsType>(
             }
             params.onChange?.(value);
           }}
-          {...params}
         />
       );
     }

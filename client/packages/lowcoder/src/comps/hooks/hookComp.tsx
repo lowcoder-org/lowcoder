@@ -3,6 +3,7 @@ import { getAllCompItems } from "comps/comps/containerBase/utils";
 import { SimpleNameComp } from "comps/comps/simpleNameComp";
 import { StringControl } from "comps/controls/codeControl";
 import { EditorContext } from "comps/editorState";
+import { RemoteCompInfo } from "types/remoteComp";
 import {
   simpleMultiComp,
   withDefault,
@@ -13,6 +14,8 @@ import {
 import { hookToStateComp, simpleValueComp } from "comps/generators/hookToComp";
 import { withSimpleExposing } from "comps/generators/withExposing";
 import { DrawerComp } from "comps/hooks/drawerComp";
+import { remoteComp } from "comps/comps/remoteComp/remoteComp";
+
 import {
   HookCompConstructor,
   HookCompMapRawType,
@@ -23,16 +26,17 @@ import { trans } from "i18n";
 import _ from "lodash";
 import dayjs from "dayjs";
 import { ConstructorToComp } from "lowcoder-core";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import React, { useContext, useEffect, useMemo } from "react";
 import { useInterval, useTitle, useWindowSize } from "react-use";
 import { useCurrentUser } from "util/currentUser";
 import { LocalStorageComp } from "./localStorageComp";
 import { MessageComp } from "./messageComp";
+import { ToastComp } from "./toastComp";
 import { ThemeComp } from "./themeComp";
 import UrlParamsHookComp from "./UrlParamsHookComp";
 import { UtilsComp } from "./utilsComp";
-import { VideoMeetingControllerComp } from "../comps/meetingComp/videoMeetingControllerComp";
+import { ScreenInfoHookComp } from "./screenInfoComp";
 
 window._ = _;
 window.dayjs = dayjs;
@@ -83,7 +87,12 @@ const TitleHookComp = withPropertyViewFn(TitleTmp2Comp, (comp) => {
     </Section>
   );
 });
-
+const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
+  // source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  source: "npm",
+  isRemote: true,
+  packageName: "lowcoder-comps",
+};
 const HookMap: HookCompMapRawType = {
   title: TitleHookComp,
   windowSize: WindowSizeComp,
@@ -93,10 +102,12 @@ const HookMap: HookCompMapRawType = {
   momentJsLib: DayJsLib, // old components use this hook
   utils: UtilsComp,
   message: MessageComp,
+  toast: ToastComp,
   localStorage: LocalStorageComp,
   modal: ModalComp,
-  meeting: VideoMeetingControllerComp,
+  meeting: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
   currentUser: CurrentUserHookComp,
+  screenInfo: ScreenInfoHookComp,
   urlParams: UrlParamsHookComp,
   drawer: DrawerComp,
   theme: ThemeComp,
@@ -114,6 +125,7 @@ function SelectHookView(props: {
 }) {
   const editorState = useContext(EditorContext);
   const selectedComp = editorState.selectedComp();
+
   // Select the modal and its subcomponents on the left to display the modal
   useEffect(() => {
     if (
@@ -125,7 +137,13 @@ function SelectHookView(props: {
         editorState.selectSource !== "leftPanel")
     ) {
       return;
-    } else if ((selectedComp as any).children.comp === props.comp) {
+    } else if (
+      (selectedComp as any).children.comp === props.comp
+    ) {
+      if ((selectedComp as any).children.comp?.remoteInfo?.isRemote){
+        return;
+      }
+
       // Select the current modal to display the modal
       !props.comp.children.visible.getView().value &&
         props.comp.children.visible.dispatch(
@@ -167,7 +185,7 @@ export class HookComp extends HookTmpComp {
   }
 
   override getView() {
-    const view = this.children.comp.getView();
+    const view = this.children?.comp?.getView();
     if (!view) {
       // most hook components have no view
       return view;
@@ -187,7 +205,9 @@ export class HookComp extends HookTmpComp {
     return (
       <>
         <CompName name={this.children.name.getView()} />
-        {this.children.comp.getPropertyView()}
+        <ScrollBar>
+          {this.children.comp.getPropertyView()}
+        </ScrollBar>
       </>
     );
   }

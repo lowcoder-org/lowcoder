@@ -1,4 +1,4 @@
-import { TableRowSelection } from "antd/lib/table/interface";
+import { TableRowSelection } from "antd/es/table/interface";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stateComp } from "comps/generators";
 import { trans } from "i18n";
@@ -83,7 +83,7 @@ export const SelectionControl = (function () {
         selectedRowKeys: props.selectedRowKeys,
         preserveSelectedRowKeys: true,
         onChange: (selectedRowKeys) => {
-          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys, false));
+          dispatch(changeChildAction("selectedRowKeys", selectedRowKeys as string[], false));
           onEvent("rowSelectChange");
         },
         // click checkbox also trigger row click event

@@ -1,21 +1,20 @@
 package org.lowcoder.sdk.auth;
 
-import java.util.function.Function;
-
-import javax.annotation.Nullable;
-
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
+import jakarta.annotation.Nullable;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
-
-import lombok.Getter;
-import lombok.Setter;
+import java.util.function.Function;
 
 @Getter
 @Setter
 @JsonTypeInfo(use = Id.NAME, property = "authType", visible = true)
+@SuperBuilder
 public abstract class AbstractAuthConfig {
 
     protected String id;

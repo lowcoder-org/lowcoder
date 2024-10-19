@@ -1,4 +1,4 @@
-import { CurrentUser, User } from "constants/userConstants";
+import { ApiKey, CurrentUser, User } from "constants/userConstants";
 import { AppState } from "redux/reducers";
 
 export const getUser = (state: AppState): User => {
@@ -33,3 +33,7 @@ export const isProfileUpdating = (state: AppState): boolean => {
 
 export const isProfileSettingModalVisible = (state: AppState) =>
   state.ui.users.profileSettingModalVisible;
+
+export const getApiKeys = (state: AppState): Array<ApiKey> => {
+  return state.ui.users.apiKeys;
+};

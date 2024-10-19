@@ -1,7 +1,9 @@
 package org.lowcoder.domain.user.service;
 
 
+import jakarta.annotation.Nonnull;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -16,6 +18,7 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.*;
 import org.lowcoder.domain.user.model.User.TransformedUserInfo;
 import org.lowcoder.domain.user.repository.UserRepository;
@@ -29,8 +32,8 @@ import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
+import org.lowcoder.sdk.util.HashUtils;
 import org.lowcoder.sdk.util.LocaleUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
@@ -38,13 +41,15 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.Nonnull;
 import java.security.SecureRandom;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.lowcoder.domain.organization.service.OrganizationServiceImpl.PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.domain.user.model.UserDetail.ANONYMOUS_CURRENT_USER;
 import static org.lowcoder.sdk.constants.GlobalContext.CLIENT_IP;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -52,29 +57,21 @@ import static org.lowcoder.sdk.util.ExceptionUtils.ofException;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    private AssetService assetService;
-    @Autowired
-    private ConfigCenter configCenter;
-    @Autowired
-    private EncryptionService encryptionService;
-    @Autowired
-    private MongoUpsertHelper mongoUpsertHelper;
-    @Autowired
-    private UserRepository repository;
-    @Autowired
-    private GroupMemberService groupMemberService;
-    @Autowired
-    private OrgMemberService orgMemberService;
-    @Autowired
-    private GroupService groupService;
-    @Autowired
-    private CommonConfig commonConfig;
-    @Autowired
-    private AuthenticationService authenticationService;
-
+    private final AssetService assetService;
+    private final ConfigCenter configCenter;
+    private final EncryptionService encryptionService;
+    private final MongoUpsertHelper mongoUpsertHelper;
+    private final UserRepository repository;
+    private final GroupMemberService groupMemberService;
+    private final OrgMemberService orgMemberService;
+    private final OrganizationService organizationService;
+    private final GroupService groupService;
+    private final CommonConfig commonConfig;
+    private final AuthenticationService authenticationService;
+    private final EmailCommunicationService emailCommunicationService;
     private Conf<Integer> avatarMaxSizeInKb;
 
     @PostConstruct
@@ -111,6 +108,15 @@ public class UserServiceImpl implements UserService {
         return repository.findByConnections_SourceAndConnections_RawId(source, sourceUuid);
     }
 
+    public Mono<User> findByName(String rawUuid) {
+        return repository.findByName(rawUuid);
+    }
+
+    public Mono<User> findByEmailDeep(String email) {
+        if(StringUtils.isEmpty(email)) return Mono.empty();
+        return repository.findByEmailOrConnections_Email(email, email).next();
+    }
+
     @Override
     public Mono<Boolean> saveProfilePhoto(Part filePart, User user) {
         String prevAvatar = ObjectUtils.defaultIfNull(user.getAvatar(), "");
@@ -127,8 +133,9 @@ public class UserServiceImpl implements UserService {
     }
 
     private Mono<Boolean> updateUserAvatar(Asset newAvatar, String userId) {
-        User user = new User();
-        user.setAvatar(newAvatar.getId());
+        User user = User.builder()
+                .avatar(newAvatar.getId())
+                .build();
         return mongoUpsertHelper.updateById(user, userId);
     }
 
@@ -143,25 +150,36 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<User> findByAuthUser(AuthUser authUser) {
+    public Mono<User> findByAuthUserSourceAndRawId(AuthUser authUser) {
         return findBySourceAndId(authUser.getSource(), authUser.getUid());
     }
 
     @Override
-    public Mono<User> createNewUserByAuthUser(AuthUser authUser) {
-        User newUser = new User();
-        newUser.setName(authUser.getUsername());
-        newUser.setState(UserState.ACTIVATED);
-        newUser.setIsEnabled(true);
-        newUser.setTpAvatarLink(authUser.getAvatar());
+    public Mono<User> findByAuthUserRawId(AuthUser authUser) {
+        return findByEmailDeep(authUser.getEmail());
+    }
+
+    @Override
+    public Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin) {
+         User.UserBuilder userBuilder = User.builder()
+                .name(authUser.getUsername())
+                .email(authUser.getEmail())
+                .state(UserState.ACTIVATED)
+                .superAdmin(isSuperAdmin)
+                .isEnabled(true)
+                .tpAvatarLink(authUser.getAvatar());
+
         if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
                 && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
-            newUser.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+            userBuilder.password(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
         }
+        User newUser = userBuilder.build();
+
         Set<Connection> connections = newHashSet();
         Connection connection = authUser.toAuthConnection();
         connections.add(connection);
         newUser.setConnections(connections);
+        newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
         return create(newUser);
     }
@@ -191,11 +209,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Mono<Boolean> addNewConnection(String userId, Connection connection) {
+    public Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser) {
+        Connection connection = authUser.toAuthConnection();
         return findById(userId)
-                .doOnNext(user -> user.getConnections().add(connection))
-                .flatMap(repository::save)
-                .then(Mono.just(true));
+                .doOnNext(user -> {
+                    user.getConnections().add(connection);
+                    user.setActiveAuthId(connection.getAuthId());
+
+                    if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
+                            && authUser.getAuthContext() instanceof FormAuthRequestContext formAuthRequestContext) {
+                        user.setPassword(encryptionService.encryptPassword(formAuthRequestContext.getPassword()));
+                    }
+                })
+                .flatMap(repository::save);
     }
 
     @Override
@@ -243,6 +269,47 @@ public class UserServiceImpl implements UserService {
                 });
     }
 
+    @Override
+    public Mono<Boolean> lostPassword(String userEmail) {
+        return findByName(userEmail)
+                .zipWhen(user -> orgMemberService.getCurrentOrgMember(user.getId())
+                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                .map(organization -> organization.getCommonSettings().getOrDefault(PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT, PASSWORD_RESET_EMAIL_TEMPLATE_DEFAULT)))
+                .flatMap(tuple -> {
+                    User user = tuple.getT1();
+                    String emailTemplate = (String)tuple.getT2();
+
+                    String token = generateNewRandomPwd();
+                    Instant tokenExpiry = Instant.now().plus(12, ChronoUnit.HOURS);
+                    if (!emailCommunicationService.sendPasswordResetEmail(userEmail, token, emailTemplate)) {
+                        return Mono.empty();
+                    }
+                    user.setPasswordResetToken(HashUtils.hash(token.getBytes()));
+                    user.setPasswordResetTokenExpiry(tokenExpiry);
+                    return repository.save(user).then(Mono.empty());
+                });
+    }
+
+    @Override
+    public Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword) {
+        return findByName(userEmail)
+                .flatMap(user -> {
+                    if (Instant.now().until(user.getPasswordResetTokenExpiry(), ChronoUnit.MINUTES) <= 0) {
+                        return ofError(BizError.INVALID_PARAMETER, "TOKEN_EXPIRED");
+                    }
+
+                    if (!StringUtils.equals(HashUtils.hash(token.getBytes()), user.getPasswordResetToken())) {
+                        return ofError(BizError.INVALID_PARAMETER, "INVALID_TOKEN");
+                    }
+
+                    user.setPassword(encryptionService.encryptPassword(newPassword));
+                    user.setPasswordResetToken(StringUtils.EMPTY);
+                    user.setPasswordResetTokenExpiry(Instant.now());
+                    return repository.save(user)
+                            .thenReturn(true);
+                });
+    }
+
     @SuppressWarnings("SpellCheckingInspection")
     @Nonnull
     private static String generateNewRandomPwd() {
@@ -263,6 +330,16 @@ public class UserServiceImpl implements UserService {
                 .thenReturn(true);
     }
 
+    @Override
+    public Mono<Boolean> markAsSuperAdmin(String userId) {
+        return findById(userId)
+                .map(user -> {
+                    user.setSuperAdmin(true);
+                    return user;
+                })
+                .flatMap(repository::save)
+                .thenReturn(true);
+    }
 
     @Override
     public Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups) {
@@ -279,8 +356,9 @@ public class UserServiceImpl implements UserService {
                         List<Map<String, String>> groups = tuple2.getT2();
                         return UserDetail.builder()
                                 .id(user.getId())
-                                .name(user.getName())
+                                .name(StringUtils.isEmpty(user.getName())?user.getId():user.getName())
                                 .avatarUrl(user.getAvatarUrl())
+                                .uiLanguage(user.getUiLanguage())
                                 .email(convertEmail(user.getConnections()))
                                 .ip(ip)
                                 .groups(groups)
@@ -316,7 +394,7 @@ public class UserServiceImpl implements UserService {
             Locale locale) {
         String orgId = orgMember.getOrgId();
         Flux<Group> groups;
-        if (orgMember.isAdmin()) {
+        if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
             groups = groupService.getByOrgId(orgId).sort();
         } else {
             if (withoutDynamicGroups) {

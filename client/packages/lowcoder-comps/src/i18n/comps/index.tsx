@@ -13,6 +13,8 @@ export function getEchartsLocale() {
     switch (locale.language) {
       case "en":
         return "EN";
+      case "pt":
+        return "PT";
       case "zh":
         return "ZH";
     }
@@ -23,6 +25,8 @@ export function getCalendarLocale() {
   switch (language) {
     case "zh":
       return "zh-cn";
+    case "pt":
+      return "pt-br";
     default:
       return "en-gb";
   }

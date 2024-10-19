@@ -2,6 +2,9 @@ import { trans, transToNode } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
 import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
+import { useContext } from "react";
+import { EditorContext } from "comps/editorState";
+import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
@@ -15,7 +18,7 @@ export function listPropertyView(compType: ListCompType) {
       <>
         <Section name={sectionNames.basic}>
           {children.noOfRows.propertyView({
-            label: trans("data"),
+            label: trans("listView.dataDesc"),
             tooltip: trans("listView.dataTooltip"),
           })}
           {compType === "grid" &&
@@ -43,12 +46,53 @@ export function listPropertyView(compType: ListCompType) {
             }),
           })}
         </Section>
-        <Section name={trans("prop.pagination")}>
-          {comp.children.pagination.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.layout}>{children.autoHeight.getPropertyView()}</Section>
-        {/* <Section name={sectionNames.style}>{children.showBorder.propertyView({ label: "" })}</Section> */}
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={trans("prop.pagination")}>
+            {comp.children.pagination.getPropertyView()}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          <Section name={sectionNames.interaction}>
+            {hiddenPropertyView(children)}
+          </Section>
+        )}
+
+        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
+          <><Section name={sectionNames.layout}>
+              {children.horizontalGridCells.propertyView({
+                label: trans('prop.horizontalGridCells'),
+              })}
+              {children.autoHeight.getPropertyView()}
+              {(!children.autoHeight.getView()) && !children.horizontal.getView()&&
+                children.showVerticalScrollbar.propertyView({
+                label: trans("prop.showVerticalScrollbar"),
+               }  
+              )}
+              {(children.horizontal.getView()) && 
+                children.showHorizontalScrollbar.propertyView({
+                label: trans("prop.showHorizontalScrollbar"),
+               }  
+              )}
+              {children.horizontal.propertyView({
+                label: trans("prop.horizontal"),
+              })}
+              {children.horizontal.getView() && (
+                children.minHorizontalWidth.propertyView({
+                  label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
+                })
+              )}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.animationStyle} hasTooltip={true}>
+              {children.animationStyle.getPropertyView()}
+            </Section></>
+        )}
+   
       </>
     );
   };

@@ -1,39 +1,42 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { EditPopoverItemType, PointIcon, Search, SearchOutlinedIcon } from "lowcoder-design";
+import { PointIcon, SearchOutlinedIcon } from "lowcoder-design/src/icons";
+import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
+import { Search } from 'lowcoder-design/src/components/Search';
 import { EditPopover } from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
-import { PopupCard } from "lowcoder-design";
-import { EditText } from "lowcoder-design";
+import { PopupCard } from "lowcoder-design/src/components/popupCard";
+import { EditText } from "lowcoder-design/src/components/edit";
 import { values } from "lodash";
 import { GreyTextColor } from "constants/style";
 import { UICompType } from "comps/uiCompRegistry";
 import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
+import { getComponentPlaygroundUrl } from "comps/utils/compDocUtil";
 import { parseCompType } from "comps/utils/remote";
 
-const CompDiv = styled.div<{ width?: number; hasSearch?: boolean; showSearch?: boolean }>`
-  width: ${(props) => (props.width ? props.width : 312)}px;
-  height: ${(props) => (props.showSearch ? 45 : 46)}px;
+const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?: boolean }>`
+  width: ${(props) => (props.$width ? props.$width : 312)}px;
+  height: ${(props) => (props.$showSearch ? 45 : 46)}px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: ${(props) => (props.showSearch ? 0 : 1)}px solid #e1e3eb;
+  border-bottom: ${(props) => (props.$showSearch ? 0 : 1)}px solid #e1e3eb;
 
   .taco-edit-text-wrapper {
-    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
+    width: ${(props) => (props.$hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     margin-left: 8px;
 
-    :hover {
+    &:hover {
       background-color: #f5f5f6;
     }
   }
 
   .taco-edit-text-input {
-    width: ${(props) => (props.hasSearch ? 226 : 252)}px;
+    width: ${(props) => (props.$hasSearch ? 226 : 252)}px;
     color: #222222;
     font-size: 16px;
     background-color: #f5f5f6;
@@ -78,9 +81,11 @@ export const CompName = (props: Iprops) => {
   const compType = selectedComp.children.compType.getView() as UICompType;
   const compInfo = parseCompType(compType);
   const docUrl = getComponentDocUrl(compType);
+  const playgroundUrl = getComponentPlaygroundUrl(compType);
 
   const items: EditPopoverItemType[] = [];
 
+  // Falk: TODO - Implement upgrade for individual Version functionality
   const handleUpgrade = async () => {
     if (upgrading) {
       return;
@@ -99,12 +104,36 @@ export const CompName = (props: Iprops) => {
     });
   }
 
+  if (playgroundUrl) {
+    items.push({
+      text: trans("comp.menuViewPlayground"),
+      onClick: () => {
+        window.open(playgroundUrl, "_blank");
+      },
+    });
+  }
+
+
   if (compInfo.isRemote) {
+    // Falk: Displaying the current version of the component
+    items.push({
+      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+      onClick: () => {
+      },
+    });
+    // items.push({
+    //   text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+    //   onClick: () => {
+        
+    //   },
+    // });
+
     items.push({
       text: trans("comp.menuUpgradeToLatest"),
       onClick: () => {
         handleUpgrade();
       },
+      
     });
   }
 
@@ -114,7 +143,7 @@ export const CompName = (props: Iprops) => {
     setShowSearch(false);
   }, [props.name]);
   const compName = (
-    <CompDiv width={props.width} hasSearch={!!search} showSearch={showSearch}>
+    <CompDiv $width={props.width} $hasSearch={!!search} $showSearch={showSearch}>
       <div>
         <EditText
           text={props.name}

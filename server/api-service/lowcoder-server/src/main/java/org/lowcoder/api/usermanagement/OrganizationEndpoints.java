@@ -2,7 +2,7 @@ package org.lowcoder.api.usermanagement;
 
 import java.util.List;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
@@ -39,12 +39,21 @@ public interface OrganizationEndpoints
 	
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,
-		    operationId = "createOrganization",
-		    summary = "Create a new Organization",
-		    description = "Create a new Organization (Workspace) within the Lowcoder platform as a encapsulated space for Applications, Users and Resources."
+		    operationId = "getOrganizationByUser",
+		    summary = "Get a list of specified user's organization",
+		    description = "Get a list of specified user's organization"
 	)
-    @PostMapping
-    public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization);
+    @GetMapping("/byuser/{userId}")
+    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String userId);
+
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "createOrganization",
+			summary = "Create a new Organization",
+			description = "Create a new Organization (Workspace) within the Lowcoder platform as a encapsulated space for Applications, Users and Resources."
+	)
+	@PostMapping
+	public Mono<ResponseView<OrgView>> create(@Valid @RequestBody Organization organization);
 
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,
@@ -159,6 +168,15 @@ public interface OrganizationEndpoints
 	)
     @PutMapping("/{orgId}/common-settings")
     public Mono<ResponseView<Boolean>> updateOrgCommonSettings(@PathVariable String orgId, @RequestBody UpdateOrgCommonSettingsRequest request);
+
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "getOrgApiUsageCount",
+			summary = "Get the api usage count for the org",
+			description = "Calculate the used api calls for this organization and return the count"
+	)
+	@GetMapping("/{orgId}/api-usage")
+	public Mono<ResponseView<Long>> getOrgApiUsageCount(@PathVariable String orgId, @RequestParam(required = false) Boolean lastMonthOnly);
 
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 

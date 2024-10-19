@@ -1,0 +1,23 @@
+### login?
+POST http://localhost:8080/api/auth/form/login
+Content-Type: application/json
+
+{
+  "register": false,
+  "loginId": "test@test.com",
+  "password": "test1234",
+  "source": "EMAIL"
+}
+
+### get apps
+GET http://localhost:8080/api/applications/list
+
+### Send POST request with json body
+POST http://localhost:8080/api/applications
+Content-Type: application/json
+
+{
+  "orgId": "65ea883d248b9d61b5ec8eaf",
+  "name": "testingapi2",
+  "appUrlName": "thisIsASlug"
+}

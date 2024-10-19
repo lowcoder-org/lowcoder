@@ -1,4 +1,5 @@
-import { Layout, Skeleton } from "antd";
+import { default as Layout } from "antd/es/layout";
+import { default as Skeleton } from "antd/es/skeleton";
 import MainContent from "components/layout/MainContent";
 import SideBar from "components/layout/SideBar";
 import Header from "./layout/Header";
@@ -82,12 +83,12 @@ export default function PageSkeleton(props: IProps) {
 
   return (
     <Layout>
-      {!hideHeader && isHeaderReady && (
+      {/* {!hideHeader && isHeaderReady && (
         <Header 
           headerStart={<StyledLogoWithName branding={true} />}
           style={{ backgroundColor: brandingConfig?.headerColor, ...props.headStyle }}
         />
-      )}
+      )} */}
       <Layout>
         {!hideSideBar && <SideBar>{skeleton}</SideBar>}
         <MainContent>{!hideContent && skeleton}</MainContent>

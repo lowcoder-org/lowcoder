@@ -1,4 +1,4 @@
-import { TacoButton } from "lowcoder-design";
+import { TacoButton } from "lowcoder-design/src/components/button"
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";
@@ -11,6 +11,7 @@ import {
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
+  handleMarketplaceAppViewClick,
   HomeResInfo,
 } from "../../util/homeResUtils";
 import { HomeResOptions } from "./HomeResOptions";
@@ -20,7 +21,8 @@ import history from "util/history";
 import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
-import { messageInstance } from "lowcoder-design";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { colorPickerEvent } from "@lowcoder-ee/comps/comps/mediaComp/colorPickerComp";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -43,7 +45,7 @@ const ExecButton = styled(TacoButton)`
   font-weight: 500;
   color: #4965f2;
 
-  :hover {
+  &:hover {
     background: #f9fbff;
     border: 1px solid #c2d6ff;
     color: #315efb;
@@ -62,7 +64,7 @@ const Wrapper = styled.div`
   margin-bottom: -1px;
   margin-top: 1px;
 
-  :hover {
+  &:hover {
     background-color: #f5f7fa;
   }
 `;
@@ -72,14 +74,14 @@ const Card = styled.div`
   align-items: center;
   height: 100%;
   width: 100%;
-  border-bottom: 1px solid #f5f5f6;
+  
   padding: 0 10px;
 
   button {
     opacity: 0;
   }
 
-  :hover {
+  &:hover {
     button {
       opacity: 1;
     }
@@ -100,14 +102,14 @@ const CardInfo = styled.div`
   justify-content: center;
   margin-left: 14px;
   white-space: nowrap;
-  width: 284px;
+  width: 30%;
   height: 100%;
   flex-grow: 1;
   cursor: pointer;
   overflow: hidden;
   padding-right: 12px;
 
-  :hover {
+  &:hover {
     .ant-typography {
       color: #315efb;
     }
@@ -157,13 +159,30 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
     return null;
   }
 
+  var iconColor = "#444";
+  if (res.type === HomeResTypeEnum.Application) {
+    iconColor = "#2650cf";
+  }
+  else if (res.type === HomeResTypeEnum.Module) {
+    iconColor = "#cf9e26";
+  }
+  else if (res.type === HomeResTypeEnum.NavLayout || res.type === HomeResTypeEnum.MobileTabLayout) {
+    iconColor = "#af41ff";
+  }
+
   const Icon = resInfo.icon;
 
   return (
     <Wrapper>
       <Card>
         {Icon && (
-          <Icon width={"24px"} height={"24px"} style={{ marginRight: "10px", flexShrink: 0 }} />
+          <Icon width={"42px"} height={"42px"} style={
+            { 
+              color: iconColor,
+              marginRight: "10px", 
+              flexShrink: 0 
+            }
+          } />
         )}
         <CardInfo
           onClick={(e) => {
@@ -175,6 +194,10 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             } else {
               if (checkIsMobile(window.innerWidth)) {
                 history.push(APPLICATION_VIEW_URL(res.id, "view"));
+                return;
+              }
+              if(res.isMarketplace) {
+                handleMarketplaceAppViewClick(res.id);
                 return;
               }
               res.isEditable ? handleAppEditClick(e, res.id) : handleAppViewClick(res.id);
@@ -202,15 +225,17 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
           <AppTimeOwnerInfoLabel title={subTitle}>{subTitle}</AppTimeOwnerInfoLabel>
         </CardInfo>
         <OperationWrapper>
-          {res.isEditable && (
+          {/* {res.isEditable && (
             <EditButton onClick={(e) => handleAppEditClick(e, res.id)} buttonType="primary">
               {trans("edit")}
             </EditButton>
-          )}
+          )} */}
           <ExecButton
             onClick={() =>
               res.type === HomeResTypeEnum.Folder
                 ? handleFolderViewClick(res.id)
+                : res.isMarketplace
+                ? handleMarketplaceAppViewClick(res.id)
                 : handleAppViewClick(res.id)
             }
           >
