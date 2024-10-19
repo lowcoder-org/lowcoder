@@ -238,7 +238,7 @@ var uiCompMap: Registry = {
     enName: "Table",
     description: trans("uiComp.tableCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon:MultiIcon("/icon:svg/TableCompIcon" ),
+    icon:MultiIcon(TableCompIcon),
     keywords: trans("uiComp.tableCompKeywords"),
     comp: TableComp,
     layoutInfo: {

@@ -55,7 +55,8 @@ const appendStyleSuffix = (name: string) => {
 
 // Multi icon Display Component
 
-const baseMultiIconDisplay: React.FC<any> = ({identifier, width = '24px', height = '24px', style}) => {
+const baseMultiIconDisplay: React.FC<any> = (props) => {
+    const {identifier, width, height, style, ...others} = props;
 
     const iconData = parseIconIdentifier(identifier);
 
@@ -84,7 +85,7 @@ const baseMultiIconDisplay: React.FC<any> = ({identifier, width = '24px', height
                     style={{width, height, ...style,}}/>;
     } else if (iconData.type === 'customize') {
         const Icon = iconData.data as React.FC<any>; //TreeSelectCompIcon
-        return <Suspense fallback={null}><Icon style={{width: width, height: height, ...style}}/></Suspense>;
+        return <Suspense fallback={null}><Icon {...others} style={{width, height, ...style}}/></Suspense>;
     } else {
         return null; // Unknown type
     }
