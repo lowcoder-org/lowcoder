@@ -5,14 +5,8 @@ import { isValidColor, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
 import { Slider, Switch } from "antd";
-import { 
-  ExpandIcon, 
-  CompressIcon,
-  BorderRadiusIcon,
-  BorderWidthIcon,
-  BorderStyleIcon,
-  TableCellsIcon,
- } from "lowcoder-design/src/icons";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {BorderRadiusIcon, BorderStyleIcon, BorderWidthIcon, CompressIcon, ExpandIcon, TableCellsIcon} from "icons";
 
 export type configChangeParams = {
   themeSettingKey: string;
@@ -309,7 +303,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <Radius $radius={defaultRadius || "0"}>
             <div>
-              <BorderRadiusIcon style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderRadiusIcon} style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
             </div>
           </Radius>
           <TacoInput
@@ -324,7 +318,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderStyle $borderStyle={defaultBorderStyle || "solid"}>
             <div>
-              <BorderStyleIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderStyleIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderStyle>
           <TacoInput
@@ -339,7 +333,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderWidth $borderWidth={defaultBorderWidth || "1px"}>
             <div>
-              <BorderWidthIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderWidthIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderWidth>
           <TacoInput
@@ -355,7 +349,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Margin $margin={defaultMargin || "4px"}>  
             <div>  
-              <ExpandIcon title="" />  
+              <MultiIconDisplay identifier={ExpandIcon} title="" />
             </div>  
           </Margin>  
           <TacoInput  
@@ -374,7 +368,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Padding $padding={defaultPadding || "4px"}>  
             <div>  
-              <CompressIcon title="" />
+              <MultiIconDisplay identifier={CompressIcon} title="" />
             </div>  
           </Padding>  
           <TacoInput  
@@ -393,7 +387,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
             <div>
-              <TableCellsIcon title="" />
+              <MultiIconDisplay identifier={TableCellsIcon} title="" />
             </div>
           </GridColumns>
 

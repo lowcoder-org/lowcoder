@@ -27,13 +27,11 @@ import { check } from "@lowcoder-ee/util/convertUtils";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 import { isEmpty } from "lodash";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
-import { AlignCenter } from "lowcoder-design";
-import { AlignLeft } from "lowcoder-design";
-import { AlignRight } from "lowcoder-design";
 import { LayoutActionComp } from "./layoutActionComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
-import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AlignCenter, AlignLeft, AlignRight} from "icons";
 
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
@@ -150,13 +148,13 @@ const defaultStyle = {
   padding: '0px',
 }
 
-const AlignTop = styled(AlignLeft)`
+const AlignTop = styled(MultiIcon(AlignLeft))`
   transform: rotate(90deg);
 `;
-const AlignBottom = styled(AlignRight)`
+const AlignBottom = styled(MultiIcon(AlignRight))`
   transform: rotate(90deg);
 `;
-const AlignVerticalCenter = styled(AlignCenter)`
+const AlignVerticalCenter = styled(MultiIcon(AlignCenter))`
   transform: rotate(90deg);
 `;
 

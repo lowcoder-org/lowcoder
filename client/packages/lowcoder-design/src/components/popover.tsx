@@ -4,7 +4,8 @@ import { Children, cloneElement, MouseEvent, ReactNode, useState } from "react";
 import styled from "styled-components";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { trans } from "i18n/design";
-import { PointIcon } from "icons";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {PointIcon} from "../icons";
 
 const Wedge = styled.div`
   height: 8px;
@@ -36,7 +37,7 @@ const Handle = styled.div`
   }
 `;
 
-const StyledPointIcon = styled(PointIcon)`
+const StyledPointIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   color: ${GreyTextColor};
 

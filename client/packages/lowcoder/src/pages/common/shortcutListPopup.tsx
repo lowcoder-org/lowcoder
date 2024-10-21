@@ -1,8 +1,9 @@
 import styled from "styled-components";
-import { CloseIcon } from "lowcoder-design";
 import { allShortcutGroups } from "./shortcutConfigs";
 import { isMac } from "util/commonUtils";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CloseIcon} from "icons";
 
 const Wrapper = styled.div`
   position: absolute;
@@ -143,7 +144,7 @@ export function ShortcutListPopup(props: { setShowShortcutList: (v: boolean) => 
       <HeadLine>
         {trans("shortcut.shortcutList")}
         <CloseIconWrapper onClick={() => props.setShowShortcutList(false)}>
-          <CloseIcon />
+          <MultiIconDisplay identifier={CloseIcon} />
         </CloseIconWrapper>
       </HeadLine>
       <Content>

@@ -1,6 +1,6 @@
 import { I18nObjects } from "./types";
 
-export const enObj: I18nObjects = {
+export const ptObj: I18nObjects = {
   jsonForm: {
     defaultSchema: {
       title: "Informações do Usuário",

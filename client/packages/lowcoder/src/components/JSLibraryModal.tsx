@@ -10,19 +10,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { recommendJSLibrarySelector } from "redux/selectors/jsLibrarySelector";
 import { JSLibraryInfo, JSLibraryLabel } from "components/JSLibraryTree";
 import { fetchJSLibraryRecommendsAction } from "redux/reduxActions/jsLibraryActions";
-import {
-  CalendarDeleteIcon,
-  DocBoldIcon,
-  DownloadBoldIcon,
-  DownloadedIcon,
-  ErrorIcon,
-} from "icons";
 import { ActiveTextColor, GreyTextColor } from "constants/style";
 import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CalendarDeleteIcon, DocBoldIcon, DownloadBoldIcon, DownloadedIcon, ErrorIcon} from "icons";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -48,7 +43,7 @@ const JSLibraryCardWrapper = styled.div`
   width: 280px;
   margin-bottom: -1px;
 `;
-const StyledDocIcon = styled(DocBoldIcon)`
+const StyledDocIcon = styled(MultiIcon(DocBoldIcon))`
   margin-right: 16px;
   cursor: pointer;
   color: ${GreyTextColor};
@@ -59,7 +54,7 @@ const StyledDocIcon = styled(DocBoldIcon)`
     }
   }
 `;
-const StyledDownloadIcon = styled(DownloadBoldIcon)`
+const StyledDownloadIcon = styled(MultiIcon(DownloadBoldIcon))`
   cursor: pointer;
 
   &:hover {
@@ -129,7 +124,7 @@ const JSLibraryCard = (
           {loading ? (
             <Spin indicator={<LoadingOutlined style={{ fontSize: 15 }} spin />} />
           ) : !props.onCheck(meta.downloadUrl) ? (
-            <DownloadedIcon />
+            <MultiIconDisplay identifier={DownloadedIcon} />
           ) : (
             <StyledDownloadIcon
               onClick={() =>
@@ -200,10 +195,10 @@ const Error = (props: {
   <ErrorWrapper>
     <div className={"error-title"}>
       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <ErrorIcon />
+        <MultiIconDisplay identifier={ErrorIcon} />
         {props.title}
       </div>
-      <CalendarDeleteIcon className={"close-button"} onClick={() => props.setError(undefined)} />
+      <MultiIconDisplay identifier={CalendarDeleteIcon} className={"close-button"} onClick={() => props.setError(undefined)} />
     </div>
     <div className={"error-description"}>{props.description}</div>
   </ErrorWrapper>

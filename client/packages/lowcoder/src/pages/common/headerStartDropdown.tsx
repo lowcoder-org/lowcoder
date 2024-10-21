@@ -1,13 +1,11 @@
 import { default as Dropdown } from "antd/es/dropdown";
 import { BASE_URL } from "constants/routesURL";
 import {
-  CommonTextLabel,
-  CustomModal,
-  DropdownMenu,
-  EditTextWrapper,
-  PackUpIcon,
-  TextWrapper,
-  ModuleIcon,
+    CommonTextLabel,
+    CustomModal,
+    DropdownMenu,
+    EditTextWrapper, ModuleIcon, PackUpIcon,
+    TextWrapper,
 } from "lowcoder-design";
 import { trans, transToNode } from "i18n";
 import { exportApplicationAsJSONFile } from "pages/ApplicationV2/components/AppImport";
@@ -25,8 +23,9 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { getUser } from "redux/selectors/usersSelectors";
 import { canEditApp } from "util/permissionUtils";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
-const PackUpIconStyled = styled(PackUpIcon)`
+const PackUpIconStyled = styled(MultiIcon(PackUpIcon))`
   transform: rotate(180deg);
   margin-left: 4px;
   min-width: 18px;
@@ -173,7 +172,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
         >
           {isModule && (
             <Prefix className="module">
-              <ModuleIcon />
+              <MultiIconDisplay identifier={ModuleIcon} />
             </Prefix>
           )}
           <TextWrapper className={"taco-edit-text-body"}>{application?.name ?? ""}</TextWrapper>

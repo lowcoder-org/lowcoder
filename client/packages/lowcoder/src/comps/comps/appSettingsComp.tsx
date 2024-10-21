@@ -2,7 +2,7 @@ import { ThemeDetail, ThemeType } from "api/commonSettingApi";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { dropdownInputSimpleControl } from "comps/controls/dropdownInputSimpleControl";
 import { MultiCompBuilder, valueComp, withDefault } from "comps/generators";
-import { AddIcon, Dropdown } from "lowcoder-design";
+import {AddIcon, Dropdown} from "lowcoder-design";
 import { EllipsisSpan } from "pages/setting/theme/styledComponents";
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
@@ -22,6 +22,7 @@ import { BoolControl } from "../controls/boolControl";
 import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -130,7 +131,7 @@ const DivStyled = styled.div`
   }
 `;
 
-const StyledAddIcon = styled(AddIcon)`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   height: 16px;
   width: 16px;
   margin-right: 4px;

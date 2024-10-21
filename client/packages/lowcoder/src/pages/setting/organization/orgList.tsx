@@ -1,5 +1,5 @@
 import { ADMIN_ROLE, SUPER_ADMIN_ROLE } from "constants/orgConstants";
-import { AddIcon, CustomModal, DangerIcon, EditPopover } from "lowcoder-design";
+import {AddIcon, CustomModal, DangerIcon, EditPopover} from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { createOrgAction, deleteOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
@@ -22,6 +22,7 @@ import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
 import { getUser } from "redux/selectors/usersSelectors";
 import { getOrgCreateStatus } from "redux/selectors/orgSelectors";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const OrgName = styled.div`
   display: flex;
@@ -153,7 +154,7 @@ function OrganizationSetting() {
           <CreateButton
             loading={orgCreateStatus === "requesting"}
             buttonType={"primary"}
-            icon={<AddIcon />}
+            icon={<MultiIconDisplay identifier={AddIcon} />}
             onClick={() => dispatch(createOrgAction(orgs))}
           >
             {trans("orgSettings.createOrg")}
@@ -214,7 +215,7 @@ function OrganizationSetting() {
                         content: (
                           <Content>
                             <Tip>
-                              <DangerIcon />
+                              <MultiIconDisplay identifier={DangerIcon} />
                               <span>
                                 {transToNode("orgSettings.deleteModalContent", {
                                   permanentlyDelete: (

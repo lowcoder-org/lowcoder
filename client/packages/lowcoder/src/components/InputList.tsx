@@ -5,10 +5,11 @@ import { TacoButton } from "lowcoder-design/src/components/button"
 import { Input } from "lowcoder-design/src/components/Input";
 import styled from "styled-components";
 import LinkPlusButton from "./LinkPlusButton";
-import { BluePlusIcon } from "lowcoder-design/src/icons";
 import { useEffect } from "react";
 import { useForm } from "antd/es/form/Form";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {BluePlusIcon} from "icons";
 
 const StyledItem = styled(FormItem)`
   margin-bottom: 8px;
@@ -77,7 +78,7 @@ export default function InputList(props: Omit<InputListProps, "children">) {
               ))}
             </div>
             <StyledItem>
-              <LinkPlusButton onClick={() => add("")} icon={<BluePlusIcon />}>
+              <LinkPlusButton onClick={() => add("")} icon={<MultiIconDisplay identifier={BluePlusIcon} />}>
                 {addBtnText}
               </LinkPlusButton>
             </StyledItem>

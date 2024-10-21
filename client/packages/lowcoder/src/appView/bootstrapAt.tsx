@@ -1,4 +1,4 @@
-import { loadComps } from "comps";
+import { loadComps } from "bootstrap/admin";
 import type { AppViewInstanceOptions } from "./AppViewInstance";
 import { createRoot } from "react-dom/client";
 

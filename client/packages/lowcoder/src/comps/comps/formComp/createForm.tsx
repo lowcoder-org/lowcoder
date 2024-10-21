@@ -4,8 +4,7 @@ import { default as Select } from "antd/es/select";
 import {
   CheckBox,
   CustomModal,
-  CustomSelect,
-  DragIcon,
+  CustomSelect, DragIcon,
   EditText,
   labelCss,
   ModalFooterWrapper,
@@ -29,6 +28,7 @@ import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const OpenDialogButton = styled.span`
   &:hover {
@@ -162,7 +162,7 @@ const CellRequired = styled.div<{ $head?: boolean }>`
   /* width: 52px; */
   padding-left: 16px;
 `;
-const StyledDragIcon = styled(DragIcon)`
+const StyledDragIcon = styled(MultiIcon(DragIcon))`
   cursor: grab;
   width: 16px;
   height: 16px;
