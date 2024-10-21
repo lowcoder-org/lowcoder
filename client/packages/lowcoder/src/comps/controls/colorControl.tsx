@@ -1,9 +1,10 @@
 import { ColorCodeControl } from "./codeControl";
 import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "lowcoder-design";
 import styled from "styled-components";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 import { trans } from "i18n";
+import { useThemeColors } from "@lowcoder-ee/util/hooks";
 
 const ColorContainer = styled.div`
   display: inline-flex;
@@ -93,6 +94,8 @@ function ColorItem(props: {
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLDivElement>();
   const containerRef = React.createRef<HTMLDivElement>();
+  
+  const currentThemeColors = useThemeColors();
 
   const input = propertyView.call(controlThis, {
     placeholder: param.panelDefaultColor,
@@ -135,6 +138,7 @@ function ColorItem(props: {
         <ColorSelect
           dispatch={controlThis.dispatch}
           color={param.panelDefaultColor || color || DEFAULT_COLOR}
+          presetColors={currentThemeColors}
         />
         <div style={{ display: "flex" }}>
           <DepStyle

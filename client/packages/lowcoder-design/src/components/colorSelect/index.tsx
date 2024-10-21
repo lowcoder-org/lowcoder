@@ -8,9 +8,10 @@ import {
   constantColors,
   isValidColor,
   isValidGradient,
+  gradientColors,
 } from "components/colorSelect/colorUtils";
 import styled, { css } from "styled-components";
-import { useCallback, useRef, useState, useEffect } from "react";
+import { useCallback, useRef, useState, useEffect, useMemo, } from "react";
 import { throttle } from "lodash";
 import { changeValueAction } from "lowcoder-core";
 
@@ -19,6 +20,7 @@ interface ColorSelectProps {
   trigger?: ActionType;
   dispatch?: (value: any) => void;
   changeColor?: (value: any) => void;
+  presetColors?: string[];
 }
 
 export const ColorSelect = (props: ColorSelectProps) => {
@@ -27,6 +29,12 @@ export const ColorSelect = (props: ColorSelectProps) => {
   const [visible, setVisible] = useState(false);
   const [ selectedColor, setSelectedColor ] = useState(color);
   const { getGradientObject, valueToHex } = useColorPicker(selectedColor, setSelectedColor);
+
+  const presetColors = useMemo(() => {
+    let colors = props.presetColors || [];
+    colors = colors.concat(gradientColors.slice(0, 16 - colors.length));
+    return colors;
+  }, [props.presetColors, selectedColor]);
 
   const throttleChange = useCallback(
     throttle((rgbaColor: string) => {
@@ -62,10 +70,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
             onChange={setSelectedColor}
             width={250}
             height={160}
-            hideInputs
-            hideAdvancedSliders
-            hideColorGuide
-            hideInputType
+            presets={presetColors}
           />
         </PopoverContainer>
       }
@@ -188,7 +193,12 @@ const ColorBlock = styled.div<{ $color: string }>`
 `;
 
 const StyledColorPicker = styled(ColorPicker)`
-  #rbgcp-advanced-btn, #rbgcp-comparibles-btn, #rbgcp-color-model-btn {
-    display: none !important;
+  #rbgcp-wrapper > div:last-child > div:last-child {
+    justify-content: flex-start !important;
+    gap: 3px;
+
+    > div {
+      border: 1px solid lightgray;
+    }
   }
 `;

@@ -4,18 +4,36 @@ import { generate } from "@ant-design/colors/es";
 
 extend([namesPlugin]);
 
+export const gradientColors = [
+  "linear-gradient(90deg, #1CB5E0 0%, #000851 100%)",
+  "linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%)",
+  "linear-gradient(90deg, #FC466B 0%, #3F5EFB 100%)",
+  "linear-gradient(90deg, #3F2B96 0%, #A8C0FF 100%)",
+  "linear-gradient(90deg, #FDBB2D 0%, #22C1C3 100%)",
+  "linear-gradient(90deg, #FDBB2D 0%, #3A1C71 100%)",
+  "linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 100%)",
+  "linear-gradient(90deg, #4b6cb7 0%, #182848 100%)",
+  "linear-gradient(90deg, #9ebd13 0%, #008552 100%)",
+  "linear-gradient(90deg, #0700b8 0%, #00ff88 100%)",
+  "linear-gradient(90deg, #d53369 0%, #daae51 100%)",
+  "linear-gradient(90deg, #efd5ff 0%, #515ada 100%)",
+  "linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%)",
+  "linear-gradient(90deg, #f8ff00 0%, #3ad59f 100%)",
+  "linear-gradient(90deg, #fcff9e 0%, #c67700 100%)",
+];
+
 // Color Palette
 export const constantColors = [
-  { id: 1, color: "#6D83F2" },
-  { id: 2, color: "#5589F2" },
-  { id: 3, color: "#36B389" },
-  { id: 4, color: "#E68E50" },
-  { id: 5, color: "#E67373" },
-  { id: 6, color: "#F5FFF7" },
-  { id: 7, color: "#F3FAFF" },
-  { id: 8, color: "#FFF6E6" },
-  { id: 9, color: "#F5F5F6" },
-  { id: 10, color: "#FFFFFF" },
+  "#6D83F2",
+  "#5589F2",
+  "#36B389",
+  "#E68E50",
+  "#E67373",
+  "#F5FFF7",
+  "#F3FAFF",
+  "#FFF6E6",
+  "#F5F5F6",
+  "#FFFFFF",
 ];
 
 export const chartColorPalette = [
