@@ -236,36 +236,13 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
   const lowcoderCompsMeta = useSelector((state: AppState) => state.npmPlugin.packageMeta['lowcoder-comps']);
   const [lowcoderCompVersions, setLowcoderCompVersions] = useState(['latest']);
   const {
-    themeList,
-    defaultTheme,
-    themeId,
     title,
     description,
     icon,
     category,
     showHeaderInPublic,
-    preventAppStylesOverwriting,
     lowcoderCompVersion,
   } = props;
-
-  const THEME_OPTIONS = themeList?.map((theme) => ({
-    label: theme.name,
-    value: theme.id + "",
-  }));
-
-  const themeWithDefault = (
-    themeId.getView() === DEFAULT_THEMEID ||
-    (!!themeId.getView() &&
-      THEME_OPTIONS.findIndex((item) => item.value === themeId.getView()) === -1)
-      ? DEFAULT_THEMEID
-      : themeId.getView()
-  ) as string;
-
-  useEffect(() => {
-    if (themeWithDefault === DEFAULT_THEMEID) {
-      themeId.dispatchChangeValueAction(themeWithDefault);
-    }
-  }, [themeWithDefault]);
   
   useEffect(() => {
     setLowcoderCompVersions([
@@ -274,20 +251,6 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
     ])
   }, [lowcoderCompsMeta])
 
-
-  const DropdownItem = (params: { value: string }) => {
-    const themeItem = themeList.find((theme) => theme.id === params.value);
-    return (
-      <ItemSpan>
-        <TagDesc $theme={themeItem?.theme}>
-          <div className="left" />
-          <div className="right" />
-        </TagDesc>
-        <EllipsisSpan style={{ maxWidth: "238px" }}>{themeItem?.name}</EllipsisSpan>
-        {themeItem?.id === defaultTheme && <DefaultSpan>{trans("appSetting.default")}</DefaultSpan>}
-      </ItemSpan>
-    );
-  };
   return (
     <>
       <BaseSection
@@ -320,40 +283,6 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
           <div style={{ margin: '20px 0'}}>
             {showHeaderInPublic.propertyView({
               label: trans("appSetting.showPublicHeader"),
-            })}
-          </div>
-          <Dropdown
-            defaultValue={
-              themeWithDefault === ""
-                ? undefined
-                : themeWithDefault === DEFAULT_THEMEID
-                ? defaultTheme || undefined
-                : themeWithDefault
-            }
-            placeholder={trans("appSetting.themeSettingDefault")}
-            options={THEME_OPTIONS}
-            label={trans("appSetting.themeSetting")}
-            placement="bottom"
-            itemNode={(value) => <DropdownItem value={value} />}
-            preNode={() => (
-              <>
-                <CreateDiv onClick={() => window.open(THEME_SETTING)}>
-                  <StyledAddIcon />
-                  {trans("appSetting.themeCreate")}
-                </CreateDiv>
-                <DividerStyled />
-              </>
-            )}
-            allowClear
-            onChange={(value) => {
-              themeId.dispatchChangeValueAction(
-                value === defaultTheme ? DEFAULT_THEMEID : value || ""
-              );
-            }}
-          />
-          <div style={{ margin: '20px 0'}}>
-            {preventAppStylesOverwriting.propertyView({
-              label: trans("prop.preventOverwriting"),
             })}
           </div>
         </DivStyled>
@@ -409,6 +338,10 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
 
 function AppCanvasSettingsModal(props: ChildrenInstance) {
   const {
+    themeList,
+    defaultTheme,
+    themeId,
+    preventAppStylesOverwriting,
     maxWidth,
     gridColumns,
     gridRowHeight,
@@ -423,8 +356,87 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
     gridBgImageOrigin,
   } = props;
 
+  const THEME_OPTIONS = themeList?.map((theme) => ({
+    label: theme.name,
+    value: theme.id + "",
+  }));
+
+  const themeWithDefault = (
+    themeId.getView() === DEFAULT_THEMEID ||
+    (!!themeId.getView() &&
+      THEME_OPTIONS.findIndex((item) => item.value === themeId.getView()) === -1)
+      ? DEFAULT_THEMEID
+      : themeId.getView()
+  ) as string;
+
+  useEffect(() => {
+    if (themeWithDefault === DEFAULT_THEMEID) {
+      themeId.dispatchChangeValueAction(themeWithDefault);
+    }
+  }, [themeWithDefault]);
+
+  const DropdownItem = (params: { value: string }) => {
+    const themeItem = themeList.find((theme) => theme.id === params.value);
+    return (
+      <ItemSpan>
+        <TagDesc $theme={themeItem?.theme}>
+          <div className="left" />
+          <div className="right" />
+        </TagDesc>
+        <EllipsisSpan style={{ maxWidth: "238px" }}>{themeItem?.name}</EllipsisSpan>
+        {themeItem?.id === defaultTheme && <DefaultSpan>{trans("appSetting.default")}</DefaultSpan>}
+      </ItemSpan>
+    );
+  };
+
   return (
     <>
+      <BaseSection
+        name={"Theme Settings"}
+        width={288}
+        noMargin
+        style={{
+          borderTop: "1px solid #e1e3eb",
+          backgroundColor: "#fff",
+        }}
+      >
+        <DivStyled>
+          <Dropdown
+            defaultValue={
+              themeWithDefault === ""
+                ? undefined
+                : themeWithDefault === DEFAULT_THEMEID
+                ? defaultTheme || undefined
+                : themeWithDefault
+            }
+            placeholder={trans("appSetting.themeSettingDefault")}
+            options={THEME_OPTIONS}
+            label={trans("appSetting.themeSetting")}
+            placement="bottom"
+            itemNode={(value) => <DropdownItem value={value} />}
+            preNode={() => (
+              <>
+                <CreateDiv onClick={() => window.open(THEME_SETTING)}>
+                  <StyledAddIcon />
+                  {trans("appSetting.themeCreate")}
+                </CreateDiv>
+                <DividerStyled />
+              </>
+            )}
+            allowClear
+            onChange={(value) => {
+              themeId.dispatchChangeValueAction(
+                value === defaultTheme ? DEFAULT_THEMEID : value || ""
+              );
+            }}
+          />
+          <div style={{ margin: '20px 0'}}>
+            {preventAppStylesOverwriting.propertyView({
+              label: trans("prop.preventOverwriting"),
+            })}
+          </div>
+        </DivStyled>
+      </BaseSection>
       <BaseSection
         name={trans("appSetting.canvas")}
         width={288}

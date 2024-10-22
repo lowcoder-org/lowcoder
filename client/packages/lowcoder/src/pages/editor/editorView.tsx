@@ -562,18 +562,6 @@ function EditorView(props: EditorViewProps) {
                                   {appSettingsComp.getPropertyView()}
                                 </>
                               )}
-                            <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
-                            {props.preloadComp.getPropertyView()}
-                            <PreloadDiv
-                              onClick={() => dispatch(
-                                setEditorExternalStateAction({
-                                  showScriptsAndStyleModal: true,
-                                })
-                              )}
-                            >
-                              <LeftPreloadIcon />
-                              {trans("leftPanel.toolbarPreload")}
-                            </PreloadDiv>
                           </ScrollBar>
                         </SettingsDiv>
                       )}
@@ -595,6 +583,19 @@ function EditorView(props: EditorViewProps) {
                   </AppSettingContext.Provider>
                   {menuKey === SiderKey.JS && (
                     <>
+                      <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
+                      {props.preloadComp.getPropertyView()}
+                      <PreloadDiv
+                        onClick={() => dispatch(
+                          setEditorExternalStateAction({
+                            showScriptsAndStyleModal: true,
+                          })
+                        )}
+                      >
+                        <LeftPreloadIcon />
+                        {trans("leftPanel.toolbarPreload")}
+                      </PreloadDiv>
+                      
                       {props.preloadComp.getJSLibraryPropertyView()}
                     </>
                   )}
