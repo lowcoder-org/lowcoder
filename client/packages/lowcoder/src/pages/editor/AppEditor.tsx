@@ -34,8 +34,10 @@ import Flex from "antd/es/flex";
 import React from "react";
 import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
-import { notificationInstance } from "components/GlobalInstances";
 import { AppState } from "@lowcoder-ee/redux/reducers";
+import { notificationInstance } from "components/GlobalInstances";
+import { initTranslator as initTranslatorDesign } from "i18n/design";
+import { initTranslator } from "@lowcoder-ee/i18n";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -47,7 +49,17 @@ const AppEditorInternalView = lazy(
     .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
 );
 
+const initialize = async () => {
+  try {
+    await initTranslatorDesign();
+    await initTranslator();
+  } catch (error) {
+    console.error('Initialization failed:', error);
+  }
+};
+
 const AppEditor = React.memo(() => {
+  const [isInitialized, setIsInitialized] = useState(false);
   const dispatch = useDispatch();
   const params = useParams<AppPathParams>();
   const isUserViewModeCheck = useUserViewMode();
@@ -201,6 +213,14 @@ const AppEditor = React.memo(() => {
       <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
     </Flex>
   ), []);
+
+  useEffect(() => {
+    initialize().then(() => setIsInitialized(true));
+  }, []);
+
+  if (!isInitialized) {
+    return <EditorSkeletonView />;
+  }
 
   if (Boolean(appError)) {
     return (

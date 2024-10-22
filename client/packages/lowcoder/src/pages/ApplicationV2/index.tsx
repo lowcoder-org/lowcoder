@@ -52,7 +52,7 @@ import { RootFolderListView } from "./RootFolderListView";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 // import { ModuleView } from "./ModuleView";
 // import { useCreateFolder } from "./useCreateFolder";
-import { trans } from "../../i18n";
+import {initTranslator, trans} from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { Support } from "pages/support";
@@ -67,6 +67,7 @@ import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {initTranslator as initTranslatorDesign} from "i18n/design";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -147,7 +148,17 @@ const DivStyled = styled.div`
   }
 `;
 
+const initialize = async () => {
+  try {
+    await initTranslatorDesign();
+    await initTranslator();
+  } catch (error) {
+    console.error('Initialization failed:', error);
+  }
+};
+
 export default function ApplicationHome() {
+  const [isInitialized, setIsInitialized] = useState(false);
   const dispatch = useDispatch();
   const [isPreloadCompleted, setIsPreloadCompleted] = useState(false);
   const fetchingUser = useSelector(isFetchingUser);
@@ -162,6 +173,10 @@ export default function ApplicationHome() {
   const subscriptions = useSelector(getSubscriptions);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
+
+  useEffect(() => {
+    initialize().then(() => setIsInitialized(true));
+  }, []);
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
@@ -197,7 +212,7 @@ export default function ApplicationHome() {
     user.currentOrgId && dispatch(fetchFolderElements({}));
   }, [dispatch, allFoldersCount, user.currentOrgId]);
 
-  if (fetchingUser || !isPreloadCompleted) {
+  if (!isInitialized || fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
   }
 

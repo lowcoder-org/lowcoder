@@ -29,17 +29,6 @@ const InsertViewHeader = styled.div`
   }
 `;
 
-const options = [
-  {
-    value: "ui",
-    label: trans("rightPanel.uiComponentTab"),
-  },
-  {
-    value: "extension",
-    label: trans("rightPanel.extensionTab"),
-  },
-];
-
 interface InsertViewProps {
   onCompDrag: (dragCompKey: string) => void;
 }
@@ -48,6 +37,17 @@ export default function InsertView(props: InsertViewProps) {
   const { onCompDrag } = props;
   const [searchValue, setSearchValue] = useState("");
   const [activeKey, setActiveKey] = useState<OptionValue>("ui");
+
+  const options = [
+    {
+      value: "ui",
+      label: trans("rightPanel.uiComponentTab"),
+    },
+    {
+      value: "extension",
+      label: trans("rightPanel.extensionTab"),
+    },
+  ];
 
   return (
     <Wrapper>
