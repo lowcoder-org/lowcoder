@@ -113,6 +113,13 @@ import {
   KanbanCompIcon,
 
 } from "lowcoder-design";
+import {TableComp} from "@lowcoder-ee/comps/comps/tableComp";
+import {TextComp} from "@lowcoder-ee/comps/comps/textComp";
+import {ModuleComp} from "@lowcoder-ee/comps/comps/moduleComp/moduleComp";
+import {InputComp} from "@lowcoder-ee/comps/comps/textInputComp/inputComp";
+import {TextAreaComp} from "@lowcoder-ee/comps/comps/textInputComp/textAreaComp";
+import {ButtonComp} from "@lowcoder-ee/comps/comps/buttonComp/buttonComp";
+import {ImageComp} from "@lowcoder-ee/comps/comps/imageComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -343,7 +350,8 @@ export var uiCompMap: Registry = {
         categories: ["dashboards"],
         icon:MultiIcon(TableCompIcon),
         keywords: trans("uiComp.tableCompKeywords"),
-        lazyLoad: true,
+        lazyLoad: false,
+        comp: TableComp,
         compName: "TableComp",
         compPath: "comps/tableComp/index",
         layoutInfo: {
@@ -927,8 +935,9 @@ export var uiCompMap: Registry = {
         categories: ["forms"],
         icon: MultiIcon(InputCompIcon),
         keywords: trans("uiComp.inputCompKeywords"),
-        lazyLoad: true,
+        lazyLoad: false,
         compName: "InputComp",
+        comp: InputComp,
         compPath: "comps/textInputComp/inputComp",
         layoutInfo: {
           w: 6,
@@ -972,8 +981,9 @@ export var uiCompMap: Registry = {
         categories: ["forms"],
         icon: MultiIcon(TextAreaCompIcon),
         keywords: trans("uiComp.textAreaCompKeywords"),
-        lazyLoad: true,
+        lazyLoad: false,
         compName: "TextAreaComp",
+        comp: TextAreaComp,
         compPath: "comps/textInputComp/textAreaComp",
         layoutInfo: {
           w: 6,
@@ -1141,8 +1151,9 @@ export var uiCompMap: Registry = {
         categories: ["forms"],
         icon: MultiIcon(ButtonCompIcon),
         keywords: trans("uiComp.buttonCompKeywords"),
-        lazyLoad: true,
+        lazyLoad: false,
         compName: "ButtonComp",
+        comp: ButtonComp,
         compPath: "comps/buttonComp/buttonComp",
         layoutInfo: {
           w: 6,
@@ -1381,8 +1392,9 @@ export var uiCompMap: Registry = {
         categories: ["multimedia"],
         icon: MultiIcon(ImageCompIcon),
         keywords: trans("uiComp.imageCompKeywords"),
-        lazyLoad: true,
+        lazyLoad: false,
         compName: "ImageComp",
+        comp: ImageComp,
         compPath: "comps/imageComp",
         layoutInfo: {
           w: 12,
@@ -1705,8 +1717,9 @@ export var uiCompMap: Registry = {
       description: trans("uiComp.moduleCompDesc"),
       categories: [],
       keywords: trans("uiComp.moduleCompKeywords"),
-      lazyLoad: true,
+      lazyLoad: false,
       compName: "ModuleComp",
+      comp: ModuleComp,
       compPath: "comps/moduleComp/moduleComp",
       layoutInfo: {
         w: 12,
@@ -1724,7 +1737,8 @@ export var uiCompMap: Registry = {
       icon: MultiIcon(TextCompIcon),
       keywords: trans("uiComp.textCompKeywords"),
       compName: "TextComp",
-      lazyLoad: true,
+      comp: TextComp,
+      lazyLoad: false,
       compPath: "comps/textComp",
       layoutInfo: {
         w: 6,
