@@ -116,9 +116,11 @@ export default function FormLoginSteps() {
     OrgApi.fetchOrgsByEmail(account)
       .then((resp) => {
         if (validateResponse(resp)) {
-          console.log(resp.data.data);
           setOrgList(resp.data.data);
-          if (resp.data.data.length === 1) {
+          if (!resp.data.data.lenght) {
+            throw new Error('Error: no workspaces found');
+          }
+          else if (resp.data.data.length === 1) {
             setOrganizationId(resp.data.data[0].orgId);
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
             return;
@@ -154,7 +156,6 @@ export default function FormLoginSteps() {
             }}
           />
           <ConfirmButton loading={orgLoading} disabled={!account} onClick={fetchOrgsByEmail}>
-            {/* {trans("userAuth.login")} */}
             Continue
           </ConfirmButton>
         </AccountLoginWrapper>
