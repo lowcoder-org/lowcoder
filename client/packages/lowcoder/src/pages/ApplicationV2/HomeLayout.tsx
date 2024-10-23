@@ -11,12 +11,8 @@ import { default as Skeleton } from "antd/es/skeleton";
 import { Card } from "antd";
 import React, { useEffect, useState } from "react";
 import {
-  ArrowIcon,
-  ArrowSolidIcon,
-  HomeCardIcon,
-  HomeEmptyIcon,
-  HomeListIcon,
-  Search,
+  ArrowIcon, ArrowSolidIcon, HomeCardIcon, HomeEmptyIcon, HomeListIcon,
+  Search
 } from "lowcoder-design";
 import { canEditApp, canManageApp } from "../../util/permissionUtils";
 import { HomeResKey, HomeResTypeEnum, NavigationTypes } from "../../types/homeRes";
@@ -35,6 +31,7 @@ import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div`
   display: flex;
@@ -446,7 +443,7 @@ export function HomeLayout(props: HomeLayoutProps) {
     <Wrapper>
       <HeaderWrapper>
         <Breadcrumb
-          separator={<ArrowIcon />}
+          separator={<MultiIconDisplay identifier={ArrowIcon} />}
           items={breadcrumbItems}
           itemRender={(item) => (
             <BreadcrumbItem
@@ -489,7 +486,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                     ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
                   ]}
                   getPopupContainer={(node: any) => node}
-                  suffixIcon={<ArrowSolidIcon />} />
+                  suffixIcon={<MultiIconDisplay identifier={ArrowSolidIcon} />} />
               )}
               {mode === "marketplace" && (
                 <FilterDropdown
@@ -499,7 +496,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   onChange={(value: any) => setCategoryFilter(value as ApplicationCategoriesEnum)}
                   options={categoryOptions}
                   // getPopupContainer={(node) => node}
-                  suffixIcon={<ArrowSolidIcon />} />
+                  suffixIcon={<MultiIconDisplay identifier={ArrowSolidIcon} />} />
               )}
 
               <OperationRightWrapper>
@@ -530,7 +527,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                       ) : (
                         <>
                           <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
-                            {layout === "list" ? <HomeCardIcon style={{marginRight: "-11px"}}/> : <HomeListIcon style={{marginTop: "-30px"}}/>}
+                            {layout === "list" ? <MultiIconDisplay identifier={HomeCardIcon} style={{marginRight: "-11px"}}/> : <MultiIconDisplay identifier={HomeListIcon} style={{marginTop: "-30px"}}/>}
                           </LayoutSwitcher>
                         
                           {mode === "marketplace" && (
@@ -587,7 +584,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                     </>
                   ) : (
                     <EmptyView>
-                      <HomeEmptyIcon style={{ width: "90px", height: "120px" }} />
+                      <MultiIconDisplay identifier={HomeEmptyIcon} style={{ width: "90px", height: "120px" }} />
                       <div style={{ marginBottom: "16px" }}>
                         {mode === "trash"
                           ? trans("home.trashEmpty")

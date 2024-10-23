@@ -1,11 +1,11 @@
 import { ActiveTextColor, GreyTextColor } from "constants/style";
-import { EditPopover, SimplePopover } from "lowcoder-design";
-import { PointIcon } from "lowcoder-design";
+import {EditPopover, PointIcon, SimplePopover} from "lowcoder-design";
 import React, { HTMLAttributes, useState } from "react";
 import styled from "styled-components";
 import DraggableItem from "./DraggableItem";
 import { NavCompType } from "comps/comps/navComp/components/types";
 import { trans } from "i18n";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export interface ICommonItemProps {
   path: number[];
@@ -31,7 +31,7 @@ const MenuItemContent = styled.div`
   width: 100%;
 `;
 
-const StyledPointIcon = styled(PointIcon)`
+const StyledPointIcon = styled(MultiIcon(PointIcon))`
   color: ${GreyTextColor};
 
   &:hover {

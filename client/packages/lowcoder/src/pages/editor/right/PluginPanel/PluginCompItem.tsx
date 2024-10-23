@@ -9,9 +9,9 @@ import styled from "styled-components";
 import { getRemoteCompType } from "comps/utils/remote";
 import { LowcoderCompMeta } from "types/remoteComp";
 import { TransparentImg } from "util/commonUtils";
-import { ModuleIcon } from "lowcoder-design";
 import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
-import { useApplicationId } from "@lowcoder-ee/index.sdk";
+import {ModuleIcon, useApplicationId} from "@lowcoder-ee/index.sdk";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const ItemWrapper = styled.div`
   display: flex;
@@ -94,7 +94,7 @@ export function PluginCompItem(props: PluginCompItemProps) {
       }}
     >
       <div className="module-icon">
-        {compMeta.icon ? <img alt={compMeta.name} src={icon} /> : <ModuleIcon width={"19px"} />}
+        {compMeta.icon ? <img alt={compMeta.name} src={icon} /> : <MultiIconDisplay identifier={ModuleIcon} width={"19px"} />}
       </div>
       <div className="module-content">
         <div className="module-name">{compMeta.name}</div>

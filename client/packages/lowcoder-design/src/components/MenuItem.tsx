@@ -1,7 +1,8 @@
 import React from "react";
 import styled, { css } from "styled-components";
-import { PointIcon, DragIcon, PencilIcon } from "icons";
 import { labelCss } from "./Label";
+import {MultiIcon} from "lowcoder/src/comps/comps/multiIconDisplay";
+import {DragIcon, PencilIcon, PointIcon} from "../icons";
 
 interface IItem {
   $width?: number;
@@ -26,7 +27,7 @@ const IconCss = css`
     cursor: pointer;
   }
 `;
-const StyledDragIcon = styled(DragIcon)`
+const StyledDragIcon = styled(MultiIcon(DragIcon))`
   ${IconCss}
   margin-left: 12px;
   margin-top: 8px;
@@ -79,12 +80,12 @@ const GrayText = styled.span`
   color: #8b8fa3;
   margin-left: 8px;
 `;
-const StyledPencilIcon = styled(PencilIcon)`
+const StyledPencilIcon = styled(MultiIcon(PencilIcon))`
   ${IconCss}
   margin-top: 8px;
   float: right;
 `;
-const StyledPointIcon = styled(PointIcon)`
+const StyledPointIcon = styled(MultiIcon(PointIcon))`
   ${IconCss}
   margin-left: 16px;
   margin-top: 8px;
