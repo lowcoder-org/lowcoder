@@ -20,7 +20,8 @@ import { Link, useLocation, useParams } from "react-router-dom";
 import { Divider } from "antd";
 import Flex from "antd/es/flex";
 
-const AccountLoginWrapper = styled(FormWrapperMobile)`
+export const AccountLoginWrapper = styled(FormWrapperMobile)`
+  position: relative;
   display: flex;
   flex-direction: column;
   margin-bottom: 0px;
@@ -62,7 +63,6 @@ export default function FormLogin(props: FormLoginProps) {
 
   return (
     <>
-      {/* <LoginCardTitle>{trans("userAuth.login")}</LoginCardTitle> */}
       <AccountLoginWrapper>
         <FormInput
           className="form-input"
