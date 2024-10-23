@@ -52,6 +52,7 @@ export class OrgApi extends Api {
   static deleteOrgURL = (orgId: string) => `/organizations/${orgId}`;
   static updateOrgURL = (orgId: string) => `/organizations/${orgId}/update`;
   static fetchUsage = (orgId: string) => `/organizations/${orgId}/api-usage`;
+  static fetchOrgsByEmailURL = (email: string) => `organizations/byuser/${email}`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
@@ -141,6 +142,9 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchUsage(orgId), { lastMonthOnly: true });
   }
 
+  static fetchOrgsByEmail(email: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email));
+  }
 }
 
 export default OrgApi;
