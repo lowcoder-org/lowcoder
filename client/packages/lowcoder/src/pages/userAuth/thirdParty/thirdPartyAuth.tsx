@@ -14,8 +14,11 @@ import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
 import { default as Divider } from "antd/es/divider";
+import { default as Typography } from "antd/es/typography";
 import { useRedirectUrl } from "util/hooks";
 import { MultiIconDisplay } from "../../../comps/comps/multiIconDisplay";
+
+const { Text } = Typography;
 
 const ThirdPartyLoginButtonWrapper = styled.div`
   button{
@@ -128,7 +131,11 @@ export function ThirdPartyAuth(props: {
   });
   return (
     <ThirdPartyLoginButtonWrapper>
-      { Boolean(socialLoginButtons.length) && <Divider /> }
+      { Boolean(socialLoginButtons.length) && (
+        <Divider plain>
+          <Text type="secondary">or</Text>
+        </Divider>
+      )}
       {socialLoginButtons}
     </ThirdPartyLoginButtonWrapper>
   );
