@@ -35,7 +35,7 @@ const getStyle = (style: TextStyleType) => {
     color: ${style.text};
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
-    background-color: ${style.background};
+    background: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }

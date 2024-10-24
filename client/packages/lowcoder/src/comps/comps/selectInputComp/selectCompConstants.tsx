@@ -109,7 +109,7 @@ export const getStyle = (
       }
 
       .ant-select-selector {
-        background-color: ${style.background};
+        background: ${style.background};
         border-color: ${style.border};
         border-width:${(style as SelectStyleType).borderWidth};
         box-shadow:${(style as SelectStyleType).boxShadow} ${(style as SelectStyleType).boxShadowColor};
@@ -124,7 +124,7 @@ export const getStyle = (
 
       .ant-select-arrow,
       .ant-select-clear {
-        background-color: ${style.background};
+        // background: ${style.background};
         color: ${style.text === "#222222"
       ? "#8B8FA3"
       : isDarkColor(style.text)
@@ -142,7 +142,7 @@ export const getStyle = (
 
       &.ant-select-multiple .ant-select-selection-item {
         border: none;
-        background-color: ${(style as MultiSelectStyleType).tags};
+        background: ${(style as MultiSelectStyleType).tags};
         color: ${(style as MultiSelectStyleType).tagsText};
         border-radius: ${style.radius};
 
@@ -191,7 +191,7 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
 `;
 
 const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
- background-color: ${props => props.$style?.background};
+    background: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     border-style: ${props => props.$style?.borderStyle};
     border-width: ${props => props.$style?.borderWidth};

@@ -28,6 +28,7 @@ import {
 import {
   ControlPropertyViewWrapper,
   isValidColor,
+  isValidGradient,
   toHex,
   wrapperToControlItem,
 } from "lowcoder-design";
@@ -432,7 +433,7 @@ export function stringUnionControl<T extends readonly string[]>(
 export const ColorCodeControl = codeControl<string>(
   (value: unknown) => {
     const valueString = toString(value);
-
+    
     if (valueString === "") {
       return valueString;
     }
@@ -440,6 +441,9 @@ export const ColorCodeControl = codeControl<string>(
       return toHex(valueString);
     }
     if (isThemeColorKey(valueString)) {
+      return valueString;
+    }
+    if (isValidGradient(valueString)) {
       return valueString;
     }
     throw new Error(`the argument must be type CSS color`);
@@ -463,6 +467,9 @@ export const ColorOrBoolCodeControl = codeControl<string>(
       return toHex(valueString);
     }
     if (isThemeColorKey(valueString)) {
+      return valueString;
+    }
+    if (isValidGradient(valueString)) {
       return valueString;
     }
     throw new Error(`the argument must be type CSS color or Boolean`);

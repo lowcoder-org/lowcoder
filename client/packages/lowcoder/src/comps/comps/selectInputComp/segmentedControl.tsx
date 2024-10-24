@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, LabelStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -44,7 +44,7 @@ const getStyle = (style: SegmentStyleType) => {
       }
       .ant-segmented-item-selected,
       .ant-segmented-thumb {
-        background-color: ${style.indicatorBackground};
+        background: ${style.indicatorBackground};
       }
     }
 
@@ -77,6 +77,7 @@ const SegmentChildrenMap = {
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
   style: styleControl(SegmentStyle, 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLDivElement>,
 
@@ -93,6 +94,7 @@ let SegmentedControlBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
       animationStyle: props.animationStyle,
       children: (
         <Segmented
@@ -142,6 +144,9 @@ let SegmentedControlBasicComp = (function () {
           <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}

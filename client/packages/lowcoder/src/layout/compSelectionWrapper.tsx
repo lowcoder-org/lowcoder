@@ -89,9 +89,10 @@ function getLineStyle(
 
   return `
       border: ${GRID_ITEM_BORDER_WIDTH}px ${borderStyle} ${borderColor};
-      padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      padding: 0px;
+      // padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
   `;
 }
 

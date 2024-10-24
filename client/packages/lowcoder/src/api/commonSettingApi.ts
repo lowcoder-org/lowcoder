@@ -53,7 +53,16 @@ export interface ThemeDetail {
   chart?: string;
   margin?: string;
   padding?: string;
-  gridColumns?: string; //Added By Aqib Mirza
+  gridPaddingX?: number;
+  gridPaddingY?: number;
+  gridColumns?: string;
+  gridRowHeight?: string;
+  gridRowCount?: number;
+  gridBgImage?: string;
+  gridBgImageRepeat?: string;
+  gridBgImageSize?: string;
+  gridBgImagePosition?: string;
+  gridBgImageOrigin?: string;
   text?: string;
   textSize?: string;
   fontFamily?: string;

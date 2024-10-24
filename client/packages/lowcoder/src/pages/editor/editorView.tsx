@@ -14,6 +14,8 @@ import {
   LeftSettingIcon,
   LeftStateIcon,
   LeftLayersIcon,
+  LeftColorPaletteIcon,
+  LeftJSSettingIcon,
   ScrollBar,
 } from "lowcoder-design";
 import { useTemplateViewMode } from "util/hooks";
@@ -55,6 +57,7 @@ import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
+import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -257,6 +260,8 @@ enum SiderKey {
   State = "state",
   Setting = "setting",
   Layout = "layout",
+  Canvas = "canvas",
+  JS = "js",
 }
 
 const standardSiderItems = [
@@ -267,6 +272,14 @@ const standardSiderItems = [
   {
     key: SiderKey.Setting,
     icon: <LeftSettingIcon />,
+  },
+  {
+    key: SiderKey.Canvas,
+    icon: <LeftColorPaletteIcon />,
+  },
+  {
+    key: SiderKey.JS,
+    icon: <LeftJSSettingIcon />,
   },
   {
     key: SiderKey.Layout,
@@ -536,40 +549,59 @@ function EditorView(props: EditorViewProps) {
               {panelStatus.left && editorModeStatus !== "layout" && (
                 <LeftPanel>
                   {menuKey === SiderKey.State && <LeftContent uiComp={uiComp} />}
-                  {menuKey === SiderKey.Setting && (
-                    <SettingsDiv>
-                      <ScrollBar>
-                        {application &&
-                          !isAggregationApp(
-                            AppUILayoutType[application.applicationType]
-                          ) && (
-                            <>
-                              {appSettingsComp.getPropertyView()}
-                              <Divider />
-                            </>
-                          )}
-                        <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
-                        {props.preloadComp.getPropertyView()}
-                        <PreloadDiv
-                          onClick={() => dispatch(
-                            setEditorExternalStateAction({
-                              showScriptsAndStyleModal: true,
-                            })
-                          )}
-                        >
-                          <LeftPreloadIcon />
-                          {trans("leftPanel.toolbarPreload")}
-                        </PreloadDiv>
-                      </ScrollBar>
-
+                  <AppSettingContext.Provider value={{settingType: menuKey as AppSettingType}}>
+                    <>
+                      {menuKey === SiderKey.Setting && (
+                        <SettingsDiv>
+                          <ScrollBar>
+                            {application &&
+                              !isAggregationApp(
+                                AppUILayoutType[application.applicationType]
+                              ) && (
+                                <>
+                                  {appSettingsComp.getPropertyView()}
+                                </>
+                              )}
+                          </ScrollBar>
+                        </SettingsDiv>
+                      )}
+                      {menuKey === SiderKey.Canvas && (
+                        <SettingsDiv>
+                          <ScrollBar>
+                            {application &&
+                              !isAggregationApp(
+                                AppUILayoutType[application.applicationType]
+                              ) && (
+                                <>
+                                  {appSettingsComp.getPropertyView()}
+                                </>
+                              )}
+                          </ScrollBar>
+                        </SettingsDiv>
+                      )}
+                    </>
+                  </AppSettingContext.Provider>
+                  {menuKey === SiderKey.JS && (
+                    <>
+                      <TitleDiv>{trans("leftPanel.toolbarTitle")}</TitleDiv>
+                      {props.preloadComp.getPropertyView()}
+                      <PreloadDiv
+                        onClick={() => dispatch(
+                          setEditorExternalStateAction({
+                            showScriptsAndStyleModal: true,
+                          })
+                        )}
+                      >
+                        <LeftPreloadIcon />
+                        {trans("leftPanel.toolbarPreload")}
+                      </PreloadDiv>
+                      
                       {props.preloadComp.getJSLibraryPropertyView()}
-                    </SettingsDiv>
+                    </>
                   )}
-
                   {menuKey === SiderKey.Layout && (
                     <LeftLayersContent uiComp={uiComp} />
                   )}
-
                 </LeftPanel>
               )}
             </Suspense>

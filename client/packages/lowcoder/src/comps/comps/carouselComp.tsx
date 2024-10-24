@@ -29,7 +29,7 @@ const Container = styled.div<{$bg: string; $animationStyle:AnimationStyleType}>`
   &,
   .ant-carousel {
     height: 100%;
-    background-color: ${(props) => props.$bg};
+    background: ${(props) => props.$bg};
     ${props=>props.$animationStyle}
   }
 `;

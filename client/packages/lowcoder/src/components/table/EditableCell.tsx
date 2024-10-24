@@ -1,7 +1,6 @@
 import { PresetStatusColorType } from "antd/es/_util/colors";
 import _ from "lodash";
 import { changeChildAction, DispatchType } from "lowcoder-core";
-import { constantColors } from "lowcoder-design/src/components/colorSelect/colorUtils";
 import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { JSONValue } from "util/jsonTypes";
@@ -26,8 +25,8 @@ const EditableChip = styled.div`
   height: 0px;
   border: 4.5px solid transparent;
   border-radius: 2px;
-  border-top-color: ${constantColors[1].color};
-  border-right-color: ${constantColors[1].color};
+  border-top-color: #5589F2;
+  border-right-color: #5589F2;
 `;
 
 export interface CellProps {
