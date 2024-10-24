@@ -6,7 +6,7 @@ import {
   LoginCardTitle,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -27,6 +27,7 @@ import { default as Button } from "antd/es/button";
 import LeftOutlined from "@ant-design/icons/LeftOutlined";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { useDispatch } from "react-redux";
+import history from "util/history";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -86,13 +87,16 @@ const StepBackButton = (props : {
 )
 export default function FormLoginSteps() {
   const dispatch = useDispatch();
-  const [account, setAccount] = useState("");
+  const location = useLocation(); 
+  const [account, setAccount] = useState(() => {
+    const { email } = (location.state || {}) as any;
+    return email ?? '';
+  });
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
   const authId = systemConfig?.form.id;
-  const location = useLocation(); 
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgList, setOrgList] = useState<OrgItem[]>([]);
   const [currentStep, setCurrentStep] = useState<CurrentStepEnum>(CurrentStepEnum.EMAIL);
@@ -121,9 +125,13 @@ export default function FormLoginSteps() {
         if (validateResponse(resp)) {
           setOrgList(resp.data.data);
           if (!resp.data.data.length) {
-            throw new Error('Error: no workspaces found');
+            history.push(
+              AUTH_REGISTER_URL,
+              {...location.state || {}, email: account},
+            )
+            return;
           }
-          else if (resp.data.data.length === 1) {
+          if (resp.data.data.length === 1) {
             setOrganizationId(resp.data.data[0].orgId);
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
             return;
