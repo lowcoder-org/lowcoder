@@ -43,8 +43,8 @@ public interface OrganizationEndpoints
 		    summary = "Get a list of specified user's organization",
 		    description = "Get a list of specified user's organization"
 	)
-    @GetMapping("/byuser/{userId}")
-    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String userId);
+    @GetMapping("/byuser/{email}")
+    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String email);
 
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,
