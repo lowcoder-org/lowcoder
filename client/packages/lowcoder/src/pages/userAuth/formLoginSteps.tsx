@@ -25,6 +25,8 @@ import Card from "antd/es/card/Card";
 import { AccountLoginWrapper } from "./formLogin";
 import { default as Button } from "antd/es/button";
 import LeftOutlined from "@ant-design/icons/LeftOutlined";
+import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
+import { useDispatch } from "react-redux";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -83,6 +85,7 @@ const StepBackButton = (props : {
   </Button>
 )
 export default function FormLoginSteps() {
+  const dispatch = useDispatch();
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
@@ -117,7 +120,7 @@ export default function FormLoginSteps() {
       .then((resp) => {
         if (validateResponse(resp)) {
           setOrgList(resp.data.data);
-          if (!resp.data.data.lenght) {
+          if (!resp.data.data.length) {
             throw new Error('Error: no workspaces found');
           }
           else if (resp.data.data.length === 1) {
@@ -145,7 +148,6 @@ export default function FormLoginSteps() {
           <StepHeader title={trans("userAuth.inputEmail")} />
           <FormInput
             className="form-input"
-            // label={trans("userAuth.email")}
             label={''}
             defaultValue={account}
             onChange={(value, valid) => setAccount(valid ? value : "")}
@@ -156,7 +158,7 @@ export default function FormLoginSteps() {
             }}
           />
           <ConfirmButton loading={orgLoading} disabled={!account} onClick={fetchOrgsByEmail}>
-            Continue
+            {trans("userAuth.continue")}
           </ConfirmButton>
         </AccountLoginWrapper>
         <Divider/>
@@ -177,13 +179,14 @@ export default function FormLoginSteps() {
       <>
         <AccountLoginWrapper>
           <StepBackButton onClick={() => setCurrentStep(CurrentStepEnum.EMAIL)} />
-          <StepHeader title={"Select your workspace"} />
+          <StepHeader title={trans("userAuth.selectWorkspace")} />
           {orgList.map(org => (
             <StyledCard
               key={org.orgId}
               $selected={organizationId === org.orgId}
               onClick={() => {
                 setOrganizationId(org.orgId);
+                dispatch(fetchConfigAction(org.orgId));
                 setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
               }}
             >
@@ -199,7 +202,7 @@ export default function FormLoginSteps() {
     <>
       <AccountLoginWrapper>
         <StepBackButton onClick={() => setCurrentStep(CurrentStepEnum.WORKSPACES)} />
-        <StepHeader title={"Enter your password"} />
+        <StepHeader title={trans("userAuth.enterPassword")} />
         <PasswordInput
           className="form-input password-input"
           passInputConf={{
