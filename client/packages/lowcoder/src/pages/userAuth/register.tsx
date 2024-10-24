@@ -1,4 +1,4 @@
-import React, { useContext, useState, useMemo } from "react";
+import React, { useContext, useState, useMemo, useEffect } from "react";
 import {
   AuthContainer,
   ConfirmButton,
@@ -37,11 +37,14 @@ const RegisterContent = styled(FormWrapperMobile)`
 `;
 
 function UserRegister() {
+  const location = useLocation();
   const [submitBtnDisable, setSubmitBtnDisable] = useState(false);
-  const [account, setAccount] = useState("");
+  const [account, setAccount] = useState(() => {
+    const { email } = (location.state || {}) as any;
+    return email ?? '';
+  });
   const [password, setPassword] = useState("");
   const redirectUrl = useRedirectUrl();
-  const location = useLocation();
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
 
@@ -81,10 +84,10 @@ function UserRegister() {
       type="large"
     >
       <RegisterContent>
-        {/* <LoginCardTitle>{trans("userAuth.registerByEmail")}</LoginCardTitle> */}
         <StyledFormInput
           className="form-input"
           label={trans("userAuth.email")}
+          defaultValue={account}
           onChange={(value, valid) => setAccount(valid ? value : "")}
           placeholder={trans("userAuth.inputEmail")}
           checkRule={{
