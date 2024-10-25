@@ -144,10 +144,11 @@ function Login() {
         heading={loginHeading}
         subHeading={loginSubHeading}
       >
-        { Boolean(organizationId)
+        <FormLoginSteps organizationId={organizationId} />
+        {/* { Boolean(organizationId)
           ? <FormLogin organizationId={organizationId} />
           : <FormLoginSteps />
-        }
+        } */}
       </AuthContainer>
     </>
   );

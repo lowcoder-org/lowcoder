@@ -85,7 +85,12 @@ const StepBackButton = (props : {
     Back
   </Button>
 )
-export default function FormLoginSteps() {
+
+type FormLoginProps = {
+  organizationId?: string;
+}
+
+export default function FormLoginSteps(props: FormLoginProps) {
   const dispatch = useDispatch();
   const location = useLocation(); 
   const [account, setAccount] = useState(() => {
@@ -100,7 +105,8 @@ export default function FormLoginSteps() {
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgList, setOrgList] = useState<OrgItem[]>([]);
   const [currentStep, setCurrentStep] = useState<CurrentStepEnum>(CurrentStepEnum.EMAIL);
-  const [organizationId, setOrganizationId] = useState<string>();
+  const [organizationId, setOrganizationId] = useState<string|undefined>(props.organizationId);
+  const [skipWorkspaceStep, setSkipWorkspaceStep] = useState<boolean>(false);
 
   const { onSubmit, loading } = useAuthSubmit(
     () =>
@@ -119,6 +125,15 @@ export default function FormLoginSteps() {
   );
 
   const fetchOrgsByEmail = () => {
+    // if user is invited or using org's login url then avoid fetching workspaces
+    // and skip workspace selection step
+    if (organizationId) {
+      setSkipWorkspaceStep(true);
+      dispatch(fetchConfigAction(organizationId));
+      setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
+      return;
+    }
+
     setOrgLoading(true);
     OrgApi.fetchOrgsByEmail(account)
       .then((resp) => {
@@ -209,7 +224,10 @@ export default function FormLoginSteps() {
   return (
     <>
       <AccountLoginWrapper>
-        <StepBackButton onClick={() => setCurrentStep(CurrentStepEnum.WORKSPACES)} />
+        <StepBackButton onClick={() => {
+          if (skipWorkspaceStep) return setCurrentStep(CurrentStepEnum.EMAIL);
+          setCurrentStep(CurrentStepEnum.WORKSPACES)
+        }} />
         <StepHeader title={trans("userAuth.enterPassword")} />
         <PasswordInput
           className="form-input password-input"
