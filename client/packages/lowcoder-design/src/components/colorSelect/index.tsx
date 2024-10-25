@@ -25,10 +25,9 @@ interface ColorSelectProps {
 
 export const ColorSelect = (props: ColorSelectProps) => {
   const { color, trigger = "click", dispatch, changeColor } = props;
-  let pickerColor = useRef(color);
   const [visible, setVisible] = useState(false);
   const [ selectedColor, setSelectedColor ] = useState(color);
-  const { getGradientObject, valueToHex } = useColorPicker(selectedColor, setSelectedColor);
+  const { getGradientObject } = useColorPicker(selectedColor, setSelectedColor);
 
   const presetColors = useMemo(() => {
     let colors = props.presetColors || [];
@@ -48,7 +47,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
     if (color !== selectedColor) {
       const value = getGradientObject();
       if (!value?.isGradient) {
-        return throttleChange(valueToHex());
+        return throttleChange(toHex(selectedColor));
       }
       throttleChange(selectedColor);
     }
