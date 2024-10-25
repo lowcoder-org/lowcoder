@@ -122,6 +122,7 @@ public class UserSessionPersistenceFilter implements WebFilter {
 
             return authenticationService
                     .findAllAuthConfigs(orgId, true)
+                    .onErrorResume(e -> Flux.empty())
                     .filter(findAuthConfig -> findAuthConfig.authConfig().getId().equals(connection.getAuthId()))
                     .switchIfEmpty(Mono.empty())
                     .flatMap(findAuthConfig -> {
