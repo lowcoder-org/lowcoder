@@ -36,6 +36,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const EVENT_OPTIONS = [
   {
@@ -82,25 +83,27 @@ const getStyle = (
       border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       padding: ${style.padding};
-      background-color: ${style.background};
-      background-image: url(${style.backgroundImage});
-      background-repeat: ${style.backgroundImageRepeat};
-      background-size: ${style.backgroundImageSize};
-      background-position: ${style.backgroundImagePosition};
-      background-origin: ${style.backgroundImageOrigin};
+      ${getBackgroundStyle(style)}
 
       > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
         height: 100%;
         .react-grid-layout {
           border-radius: 0;
-          background-color: ${bodyStyle.background || 'transparent'};
           padding: ${bodyStyle.containerBodyPadding};
+          ${getBackgroundStyle(bodyStyle)}
         }
       }
 
       > .ant-tabs-nav {
-        background-color: ${headerStyle.headerBackground || 'transparent'};
         padding: ${headerStyle.containerHeaderPadding};
+        ${getBackgroundStyle({
+          background: headerStyle.headerBackground,
+          backgroundImage: headerStyle.headerBackgroundImage,
+          backgroundImageSize: headerStyle.headerBackgroundImageSize,
+          backgroundImageRepeat: headerStyle.headerBackgroundImageRepeat,
+          backgroundImageOrigin: headerStyle.headerBackgroundImageOrigin,
+          backgroundImagePosition: headerStyle.headerBackgroundImagePosition,
+        })}
 
         .ant-tabs-tab {
           div {
@@ -159,7 +162,7 @@ const StyledTabs = styled(Tabs)<{
   .ant-tabs-nav {
     display: ${(props) => (props.$showHeader ? "block" : "none")};
     padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
-    background: white;
+    // background: white;
     margin: 0px;
   }
 

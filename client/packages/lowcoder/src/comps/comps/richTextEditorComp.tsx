@@ -98,7 +98,7 @@ const commonStyle = (style: RichTextEditorStyleType, contentScrollBar: boolean) 
     &.ql-container,
     &.ql-toolbar {
       border-color: ${style.border};
-      background-color: ${style.background};
+      background: ${style.background};
       
     }
   }
@@ -108,7 +108,7 @@ const commonStyle = (style: RichTextEditorStyleType, contentScrollBar: boolean) 
   }
   & .ql-container {
     border-radius: 0 0 ${style.radius} ${style.radius};
-    background-color: ${style.background};
+    background: ${style.background};
     border-width: ${style.borderWidth ? style.borderWidth : "1px"};
   }
 `;

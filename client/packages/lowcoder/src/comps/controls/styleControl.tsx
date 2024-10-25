@@ -1365,6 +1365,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                   isDep: true,
                                                                   depMsg:
                                                                     depMsg,
+                                                                  allowGradient: config.name.includes('background'),
                                                                 })}
                   </div>
                 );

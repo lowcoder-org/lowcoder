@@ -19,6 +19,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const sizeOptions = [
   {
@@ -120,14 +121,9 @@ let StepControlBasicComp = (function () {
       margin: ${props.style.margin};
       rotate: ${props.style.rotation};
       padding: ${props.style.padding};
-      background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: url(${props.style.backgroundImage});
-      background-repeat: ${props.style.backgroundImageRepeat};
-      background-size: ${props.style.backgroundImageSize};
-      background-position: ${props.style.backgroundImagePosition};
-      background-origin: ${props.style.backgroundImageOrigin};
+      ${getBackgroundStyle(props.style)}
       .ant-steps-item { padding-top: 5px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-small .ant-steps-item-icon { margin-top: 17px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-default .ant-steps-item-icon { margin-top: 12px !important; }

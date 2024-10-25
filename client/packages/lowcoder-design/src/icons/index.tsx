@@ -172,6 +172,8 @@ export { ReactComponent as LeftSettingIcon } from "./remix/tools-fill.svg";
 export { ReactComponent as LeftLayersIcon } from "./remix/stack-line.svg";
 export { ReactComponent as LeftHelpIcon } from "./v1/icon-left-help.svg";
 export { ReactComponent as LeftPreloadIcon } from "./v1/icon-left-preload.svg";
+export { ReactComponent as LeftColorPaletteIcon } from "./remix/palette-line.svg";
+export { ReactComponent as LeftJSSettingIcon } from "./remix/javascript-line.svg";
 
 
 export { ReactComponent as HomeSettingsIcon } from "./v1/icon-home-settings.svg";

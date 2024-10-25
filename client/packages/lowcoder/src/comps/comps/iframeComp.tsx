@@ -30,7 +30,7 @@ ${props=>props.$animationStyle}
     width: 100%;
     height: 100%;
     display: block;
-    background-color: ${(props) => props.$style.background};
+    background: ${(props) => props.$style.background};
   }
 `;
 
