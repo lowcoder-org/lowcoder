@@ -51,6 +51,13 @@ public class Organization extends HasIdAndAuditing implements BeforeMongodbWrite
 
     private String contactPhoneNumber;
 
+    private Boolean isEmailDisabled;
+
+    public Boolean getIsEmailDisabled() {
+        if(isEmailDisabled == null) return false;
+        else return isEmailDisabled;
+    }
+
     @JsonIgnore
     private String logoAssetId;
 
