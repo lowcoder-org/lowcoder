@@ -5,21 +5,24 @@ import { generate } from "@ant-design/colors/es";
 extend([namesPlugin]);
 
 export const gradientColors = [
-  "linear-gradient(90deg, #1CB5E0 0%, #000851 100%)",
-  "linear-gradient(90deg, #00C9FF 0%, #92FE9D 100%)",
-  "linear-gradient(90deg, #FC466B 0%, #3F5EFB 100%)",
-  "linear-gradient(90deg, #3F2B96 0%, #A8C0FF 100%)",
-  "linear-gradient(90deg, #FDBB2D 0%, #22C1C3 100%)",
-  "linear-gradient(90deg, #FDBB2D 0%, #3A1C71 100%)",
+  "linear-gradient(0deg, #fdfbfb 0%, #ebedee 100%)",
+  "linear-gradient(45deg, #cfd9df 0%, #e2ebf0 100%)",
   "linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 100%)",
-  "linear-gradient(90deg, #4b6cb7 0%, #182848 100%)",
-  "linear-gradient(90deg, #9ebd13 0%, #008552 100%)",
-  "linear-gradient(90deg, #0700b8 0%, #00ff88 100%)",
-  "linear-gradient(90deg, #d53369 0%, #daae51 100%)",
-  "linear-gradient(90deg, #efd5ff 0%, #515ada 100%)",
-  "linear-gradient(90deg, #00d2ff 0%, #3a47d5 100%)",
-  "linear-gradient(90deg, #f8ff00 0%, #3ad59f 100%)",
-  "linear-gradient(90deg, #fcff9e 0%, #c67700 100%)",
+
+  "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+  "linear-gradient(0deg, #fbc2eb 0%, #a6c1ee 100%)",
+  "linear-gradient(45deg, #efd5ff 0%, #515ada 100%)",
+  "linear-gradient(90deg, #4b6cb7 0%, #72afd3 100%)",
+  "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+
+  "linear-gradient(90deg, #fa709a 0%, #fee140 100%)",
+  "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+  "linear-gradient(0deg, #f43b47 0%, #453a94 100%)",
+  
+  "linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%)",
+  "linear-gradient(0deg, #f8ff00 0%, #3ad59f 100%)",
+  "linear-gradient(45deg, #fcff9e 0%, #c67700 100%)",
+  "linear-gradient(90deg, #fad0c4 0%, #ffd1ff 100%)",
 ];
 
 // Color Palette

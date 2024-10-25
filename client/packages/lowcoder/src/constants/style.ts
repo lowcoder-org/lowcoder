@@ -1,5 +1,5 @@
 // brand color
-export const PrimaryColor = "#3377ff";
+export const PrimaryColor = "#b85fff";
 
 // module
 export const ModulePrimaryColor = "#F27A24";
@@ -21,10 +21,10 @@ export const DarkActiveTextColor = "#222222";
 export const ActiveTextColor = "#315efb";
 
 // icon
-export const NormalMenuIconColor = "#8B8FA3";
+export const NormalMenuIconColor = "#b480de";
 
 // Ui Comp
-export const UiCompBorderRadius = "2px";
+export const UiCompBorderRadius = "4px";
 
 // Tab
 export const TabActiveColor = "#222222";
