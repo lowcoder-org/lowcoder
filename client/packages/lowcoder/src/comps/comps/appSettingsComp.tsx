@@ -477,6 +477,7 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
           })}
           {gridBg.propertyView({
             label: trans("style.background"),
+            allowGradient: true,
           })}
           {gridBgImage.propertyView({
             label: trans("appSetting.gridBgImage"),

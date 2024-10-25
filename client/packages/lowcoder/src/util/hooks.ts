@@ -233,7 +233,7 @@ export function useMergeCompStyles(
 type ColorKey = 'primary' | 'textDark' | 'textLight' | 'canvas' | 'primarySurface' | 'border';
 type ColorKeys = ColorKey[];
 
-export function useThemeColors() {
+export function useThemeColors(allowGradient?: boolean) {
   const currentTheme = useContext(ThemeContext)?.theme ?? {} as ThemeDetail;
   const colorKeys: ColorKeys = ['primary', 'textDark', 'textLight', 'canvas', 'primarySurface', 'border'];
 
@@ -248,6 +248,9 @@ export function useThemeColors() {
         colors.push(currentTheme[colorKey] ?? '');
       }
     })
+    if (!allowGradient) {
+      colors = colors.concat(constantColors);
+    }
     return uniq(colors);
   }, [
     currentTheme,

@@ -73,6 +73,7 @@ type PropertyViewParam = {
   isDep?: boolean;
   // auto-generated message?
   depMsg?: string;
+  allowGradient?: boolean;
 };
 
 export class ColorControl extends ColorCodeControl {
@@ -95,7 +96,7 @@ function ColorItem(props: {
   const inputRef = React.createRef<HTMLDivElement>();
   const containerRef = React.createRef<HTMLDivElement>();
   
-  const currentThemeColors = useThemeColors();
+  const currentThemeColors = useThemeColors(param.allowGradient);
 
   const input = propertyView.call(controlThis, {
     placeholder: param.panelDefaultColor,
@@ -138,6 +139,7 @@ function ColorItem(props: {
         <ColorSelect
           dispatch={controlThis.dispatch}
           color={param.panelDefaultColor || color || DEFAULT_COLOR}
+          allowGradient={param.allowGradient}
           presetColors={currentThemeColors}
         />
         <div style={{ display: "flex" }}>

@@ -15,6 +15,18 @@ const getBackgroundStyle = (style: Record<string, string | undefined>) => {
   `;
 }
 
+const getTextStyle = (color?: string) => {
+  return css`
+    ${isValidColor(color) && `color: ${color};`}
+    ${isValidGradient(color) && `
+      background-image: -webkit-${color};
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    `}
+  `;
+}
+
 export {
   getBackgroundStyle,
+  getTextStyle,
 }

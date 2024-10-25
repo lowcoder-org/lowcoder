@@ -379,12 +379,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         themeSettingKey !== "gridBgImageOrigin" && (
         <div className="config-input">
           <ColorSelect
-            changeColor={_.debounce(setColor, 500, {
-              leading: true,
-              trailing: true,
-            })}
+            changeColor={setColor}
             color={color!}
             trigger="hover"
+            allowGradient={themeSettingKey === 'canvas' || themeSettingKey === 'primarySurface'}
           />
           <TacoInput
             value={color}

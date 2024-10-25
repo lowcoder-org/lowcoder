@@ -21,6 +21,7 @@ interface ColorSelectProps {
   dispatch?: (value: any) => void;
   changeColor?: (value: any) => void;
   presetColors?: string[];
+  allowGradient?: boolean;
 }
 
 export const ColorSelect = (props: ColorSelectProps) => {
@@ -31,9 +32,11 @@ export const ColorSelect = (props: ColorSelectProps) => {
 
   const presetColors = useMemo(() => {
     let colors = props.presetColors || [];
-    colors = colors.concat(gradientColors.slice(0, 16 - colors.length));
+    if (props.allowGradient) {
+      colors = colors.concat(gradientColors.slice(0, 16 - colors.length));
+    }
     return colors;
-  }, [props.presetColors, selectedColor]);
+  }, [props.presetColors, selectedColor, props.allowGradient]);
 
   const throttleChange = useCallback(
     throttle((rgbaColor: string) => {
@@ -70,6 +73,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
             width={250}
             height={160}
             presets={presetColors}
+            $allowGradient={props.allowGradient}
           />
         </PopoverContainer>
       }
@@ -191,11 +195,14 @@ const ColorBlock = styled.div<{ $color: string }>`
   overflow: hidden;
 `;
 
-const StyledColorPicker = styled(ColorPicker)`
+const StyledColorPicker = styled(ColorPicker)<{$allowGradient?: boolean}>`
+  #rbgcp-wrapper > div:nth-child(2) > div:first-child > div:first-child {
+    ${props => !props.$allowGradient && `visibility: hidden`};
+  }
   #rbgcp-wrapper > div:last-child > div:last-child {
     justify-content: flex-start !important;
     gap: 3px;
-
+  
     > div {
       border: 1px solid lightgray;
     }
