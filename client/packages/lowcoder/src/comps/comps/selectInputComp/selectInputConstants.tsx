@@ -18,6 +18,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 
 export const SelectInputValidationChildren = {
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   customRule: CustomRuleControl,
 };
 type ValidationComp = RecordConstructorToComp<typeof SelectInputValidationChildren>;
@@ -122,6 +123,9 @@ export const SelectInputInvalidConfig = depsConfig<
 export const SelectInputValidationSection = (children: ValidationComp) => (
   <Section name={sectionNames.validation}>
     {requiredPropertyView(children)}
+    {children.showValidationWhenEmpty.propertyView({
+      label: trans("prop.showEmptyValidation"),
+    })}
     {children.customRule.propertyView({})}
   </Section>
 );

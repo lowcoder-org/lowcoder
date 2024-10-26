@@ -1,4 +1,5 @@
 import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
+import { DEFAULT_GRID_COLUMNS, DEFAULT_ROW_COUNT, DEFAULT_ROW_HEIGHT } from "@lowcoder-ee/layout/calculateUtils";
 
 const theme = {
   primary: "#3377FF",
@@ -13,7 +14,9 @@ const theme = {
   margin: "3px",
   padding: "3px",
   lineHeight: "18px",
-  gridColumns: "24",
+  gridColumns: String(DEFAULT_GRID_COLUMNS),
+  gridRowHeight: String(DEFAULT_ROW_HEIGHT),
+  gridRowCount: DEFAULT_ROW_COUNT,
   textSize: "14px",
   // text: "#222222",
   animation: "",
@@ -25,6 +28,10 @@ const theme = {
   animationIterationCount: "",
   showComponentLoadingIndicators: true,
   showDataLoadingIndicators: true,
+  gridBgImageSize: "cover",
+  gridBgImagePosition: "center",
+  gridBgImageRepeat: "no-repeat",
+  gridBgImageOrigin: "padding-box",
 };
 
 const text = {

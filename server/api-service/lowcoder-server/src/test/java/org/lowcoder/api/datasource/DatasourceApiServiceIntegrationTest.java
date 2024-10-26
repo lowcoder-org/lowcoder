@@ -54,7 +54,7 @@ public class DatasourceApiServiceIntegrationTest {
                         .flatMap(permissionItemView -> datasourceApiService.updatePermission(permissionItemView.getPermissionId(), VIEWER))
                         // create mysql05
                         .then(datasourceApiService.create(buildMysqlDatasource("mysql05")))
-                        .then(datasourceApiService.listOrgDataSources("org01").collectList());
+                        .then(datasourceApiService.listOrgDataSources("org01", null, null).collectList());
 
         StepVerifier.create(datasourceListMono)
                 .assertNext(datasourceViews -> {

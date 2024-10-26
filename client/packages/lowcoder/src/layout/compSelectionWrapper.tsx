@@ -35,7 +35,7 @@ const NameDiv = styled.div<{
     }
     return "#B8B9BF";
   }};
-  border-radius: ${(props) => (props.$position === "top" ? "2px 2px 0 0" : "0 0 2px 2px")};
+  border-radius: ${(props) => (props.$position === "top" ? "4px 4px 0 0" : "0 0 4px 4px")};
   font-weight: 500;
   color: #ffffff;
   position: absolute;
@@ -89,13 +89,15 @@ function getLineStyle(
 
   return `
       border: ${GRID_ITEM_BORDER_WIDTH}px ${borderStyle} ${borderColor};
-      padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
-      padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      padding: 0px;
+      // padding: ${isHidden || !isSelected ? 0 : padding[1] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-left: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
+      // padding-right: ${padding[0] - GRID_ITEM_BORDER_WIDTH}px;
   `;
 }
 
 // padding: ${props => props.hover || props.showDashline ? 3 : 4}px;
+
 const SelectableDiv = styled.div<{
   $hover?: boolean;
   $showDashLine: boolean;
@@ -173,7 +175,7 @@ const dragCss = (props: DragHandleProps, handle: ResizeHandleAxis) => css`
   height: 8px;
   width: 8px;
   border: 1px solid ${props.$compType === "module" ? ModulePrimaryColor : PrimaryColor};
-  border-radius: 2px;
+  border-radius: 4px;
   background-color: #f5f5f6;
   z-index: 11;
   pointer-events: none;

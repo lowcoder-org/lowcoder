@@ -4,18 +4,39 @@ import { generate } from "@ant-design/colors/es";
 
 extend([namesPlugin]);
 
+export const gradientColors = [
+  "linear-gradient(0deg, #fdfbfb 0%, #ebedee 100%)",
+  "linear-gradient(45deg, #cfd9df 0%, #e2ebf0 100%)",
+  "linear-gradient(90deg, #e3ffe7 0%, #d9e7ff 100%)",
+
+  "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
+  "linear-gradient(0deg, #fbc2eb 0%, #a6c1ee 100%)",
+  "linear-gradient(45deg, #efd5ff 0%, #515ada 100%)",
+  "linear-gradient(90deg, #4b6cb7 0%, #72afd3 100%)",
+  "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+
+  "linear-gradient(90deg, #fa709a 0%, #fee140 100%)",
+  "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+  "linear-gradient(0deg, #f43b47 0%, #453a94 100%)",
+  
+  "linear-gradient(135deg, #00d2ff 0%, #3a47d5 100%)",
+  "linear-gradient(0deg, #f8ff00 0%, #3ad59f 100%)",
+  "linear-gradient(45deg, #fcff9e 0%, #c67700 100%)",
+  "linear-gradient(90deg, #fad0c4 0%, #ffd1ff 100%)",
+];
+
 // Color Palette
 export const constantColors = [
-  { id: 1, color: "#6D83F2" },
-  { id: 2, color: "#5589F2" },
-  { id: 3, color: "#36B389" },
-  { id: 4, color: "#E68E50" },
-  { id: 5, color: "#E67373" },
-  { id: 6, color: "#F5FFF7" },
-  { id: 7, color: "#F3FAFF" },
-  { id: 8, color: "#FFF6E6" },
-  { id: 9, color: "#F5F5F6" },
-  { id: 10, color: "#FFFFFF" },
+  "#6D83F2",
+  "#5589F2",
+  "#36B389",
+  "#E68E50",
+  "#E67373",
+  "#F5FFF7",
+  "#F3FAFF",
+  "#FFF6E6",
+  "#F5F5F6",
+  "#FFFFFF",
 ];
 
 export const chartColorPalette = [
@@ -40,7 +61,17 @@ const alphaOfRgba = (rgba: string) => {
   return colord(rgba).alpha().toString();
 };
 
-const isValidColor = (str: string) => {
+const isValidGradient = (color?: string) => {
+  if (!color) return false;
+
+  const linearGradientRegex = /^linear-gradient\((\d+deg|to\s+(top|right|bottom|left)(\s+(top|right|bottom|left))?)\s*,\s*((#[0-9a-fA-F]{3,6}|rgba?\(\d+,\s*\d+,\s*\d+(,\s*\d+(\.\d+)?)?\)|[a-zA-Z]+)(\s+\d+%?)?,?\s*)+\)$/i;
+  const radialGradientRegex = /^radial-gradient\(\s*(circle|ellipse)?\s*,\s*((#[0-9a-fA-F]{3,6}|rgba?\(\d+,\s*\d+,\s*\d+(,\s*\d+(\.\d+)?)?\)|[a-zA-Z]+)(\s+\d+%?)?,?\s*)+\)$/i;
+  
+  return linearGradientRegex.test(color) || radialGradientRegex.test(color);
+}
+
+const isValidColor = (str?: string) => {
+  if (!str) return false;
   return colord(str).isValid();
 };
 
@@ -91,4 +122,4 @@ export const darkenColor = (colorStr: string, intensity: number) => {
   return color.darken(intensity).toHex().toUpperCase();
 };
 
-export { toRGBA, toHex, alphaOfRgba, isValidColor };
+export { toRGBA, toHex, alphaOfRgba, isValidColor, isValidGradient };

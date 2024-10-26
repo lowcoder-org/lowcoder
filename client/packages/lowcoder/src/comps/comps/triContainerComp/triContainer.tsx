@@ -7,6 +7,7 @@ import styled, { css } from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { gridItemCompToGridItems, InnerGrid } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const getStyle = (style: ContainerStyleType) => {
   return css`
@@ -16,12 +17,7 @@ const getStyle = (style: ContainerStyleType) => {
     border-style: ${style.borderStyle};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
+    ${getBackgroundStyle(style)}
   `;
 };
 
@@ -44,13 +40,15 @@ const HeaderInnerGrid = styled(InnerGrid)<{
   $headerBackgroundImageOrigin: string;
  }>`
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$headerBackgroundImage && `background-image: url(${props.$headerBackgroundImage});`}
-  ${(props) => props.$headerBackgroundImageRepeat && `background-repeat: ${props.$headerBackgroundImageRepeat};`}
-  ${(props) => props.$headerBackgroundImageSize && `background-size: ${props.$headerBackgroundImageSize};`}
-  ${(props) => props.$headerBackgroundImagePosition && `background-position: ${props.$headerBackgroundImagePosition};`}
-  ${(props) => props.$headerBackgroundImageOrigin && `background-origin: ${props.$headerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$headerBackgroundImage,
+    backgroundImageSize: props.$headerBackgroundImageSize,
+    backgroundImageRepeat: props.$headerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$headerBackgroundImageOrigin,
+    backgroundImagePosition: props.$headerBackgroundImagePosition,
+  })}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
@@ -66,13 +64,15 @@ const BodyInnerGrid = styled(InnerGrid)<{
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$backgroundImage && `background-image: url(${props.$backgroundImage});`}
-  ${(props) => props.$backgroundImageRepeat && `background-repeat: ${props.$backgroundImageRepeat};`}
-  ${(props) => props.$backgroundImageSize && `background-size: ${props.$backgroundImageSize};`}
-  ${(props) => props.$backgroundImagePosition && `background-position: ${props.$backgroundImagePosition};`}
-  ${(props) => props.$backgroundImageOrigin && `background-origin: ${props.$backgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$backgroundImage,
+    backgroundImageSize: props.$backgroundImageSize,
+    backgroundImageRepeat: props.$backgroundImageRepeat,
+    backgroundImageOrigin: props.$backgroundImageOrigin,
+    backgroundImagePosition: props.$backgroundImagePosition,
+  })}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -88,13 +88,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$footerBackgroundImage,
+    backgroundImageSize: props.$footerBackgroundImageSize,
+    backgroundImageRepeat: props.$footerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$footerBackgroundImageOrigin,
+    backgroundImagePosition: props.$footerBackgroundImagePosition,
+  })}
 `;
 
 export type TriContainerProps = TriContainerViewProps & {

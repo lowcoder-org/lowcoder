@@ -1,9 +1,10 @@
 import { ColorCodeControl } from "./codeControl";
 import { ColorSelect, controlItem, ControlPropertyViewWrapper, IconDep } from "lowcoder-design";
 import styled from "styled-components";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ControlParams } from "./controlParams";
 import { trans } from "i18n";
+import { useThemeColors } from "@lowcoder-ee/util/hooks";
 
 const ColorContainer = styled.div`
   display: inline-flex;
@@ -72,6 +73,7 @@ type PropertyViewParam = {
   isDep?: boolean;
   // auto-generated message?
   depMsg?: string;
+  allowGradient?: boolean;
 };
 
 export class ColorControl extends ColorCodeControl {
@@ -93,6 +95,8 @@ function ColorItem(props: {
   const [focus, setFocus] = useState(false);
   const inputRef = React.createRef<HTMLDivElement>();
   const containerRef = React.createRef<HTMLDivElement>();
+  
+  const currentThemeColors = useThemeColors(param.allowGradient);
 
   const input = propertyView.call(controlThis, {
     placeholder: param.panelDefaultColor,
@@ -112,6 +116,7 @@ function ColorItem(props: {
   }, [focus]);
 
   const color = controlThis.getView();
+
   useEffect(() => {
     setShowDep(param.isDep && !focus && !color);
   }, [color, focus, param.isDep]);
@@ -134,6 +139,8 @@ function ColorItem(props: {
         <ColorSelect
           dispatch={controlThis.dispatch}
           color={param.panelDefaultColor || color || DEFAULT_COLOR}
+          allowGradient={param.allowGradient}
+          presetColors={currentThemeColors}
         />
         <div style={{ display: "flex" }}>
           <DepStyle

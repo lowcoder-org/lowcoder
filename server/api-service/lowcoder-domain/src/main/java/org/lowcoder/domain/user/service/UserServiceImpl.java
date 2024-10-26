@@ -112,6 +112,7 @@ public class UserServiceImpl implements UserService {
         return repository.findByName(rawUuid);
     }
 
+    @Override
     public Mono<User> findByEmailDeep(String email) {
         if(StringUtils.isEmpty(email)) return Mono.empty();
         return repository.findByEmailOrConnections_Email(email, email).next();

@@ -23,6 +23,7 @@ import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "comps/generators";
 import SliderControl from "../controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const EventOptions = [
   { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
@@ -35,13 +36,9 @@ const getStyle = (style: ModalStyleType, modalScrollbar: boolean) => {
       border-radius: ${style.radius};
       border: ${style.borderWidth} solid ${style.border};
       overflow: hidden;
-      background-color: ${style.background};
-      ${style.backgroundImage ? `background-image: url(${style.backgroundImage}) !important; ` : ';'}
-      ${style.backgroundImageRepeat ? `background-repeat: ${style.backgroundImageRepeat};` : 'no-repeat;'}
-      ${style.backgroundImageSize ? `background-size: ${style.backgroundImageSize};` : 'cover'}
-      ${style.backgroundImagePosition ? `background-position: ${style.backgroundImagePosition};` : 'center;'}
-      ${style.backgroundImageOrigin ? `background-origin: ${style.backgroundImageOrigin};` : 'padding-box;'}
       margin: ${style.margin};
+      ${getBackgroundStyle(style)}
+      
       .ant-modal-body > .react-resizable > .react-grid-layout {
         background-color: ${style.background};
       }

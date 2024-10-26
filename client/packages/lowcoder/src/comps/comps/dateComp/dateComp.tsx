@@ -56,6 +56,7 @@ import { timeZoneOptions } from "./timeZone";
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
 const validationChildren = {
+  showValidationWhenEmpty: BoolControl,
   required: BoolControl,
   minDate: StringControl,
   maxDate: StringControl,
@@ -224,6 +225,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       />
     ),
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validate(props),
   });
 })
@@ -247,6 +249,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
+            {children.showValidationWhenEmpty.propertyView({
+              label: trans("prop.showEmptyValidation")
+            })}
             {dateValidationFields(children)}
             {timeValidationFields(children)}
             {children.customRule.propertyView({})}
@@ -381,6 +386,7 @@ export const dateRangeControl = (function () {
       children: children,
       inputFieldStyle:props.inputFieldStyle,
       onMouseDown: (e) => e.stopPropagation(),
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...(startResult.validateStatus !== "success"
         ? startResult
         : endResult.validateStatus !== "success"
@@ -413,6 +419,9 @@ export const dateRangeControl = (function () {
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.validation}>
               {requiredPropertyView(children)}
+              {children.showValidationWhenEmpty.propertyView({
+                label: trans("prop.showEmptyValidation")
+              })}
               {dateValidationFields(children)}
               {timeValidationFields(children)}
               {children.customRule.propertyView({})}

@@ -99,6 +99,7 @@ let TextAreaTmpComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       animationStyle: props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })

@@ -17,6 +17,7 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.plugin.DatasourceMetaInfo;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
+import org.lowcoder.domain.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
@@ -41,10 +42,12 @@ public class OrganizationController implements OrganizationEndpoints
     private OrgMemberService orgMemberService;
     @Autowired
     private OrganizationService organizationService;
+    @Autowired
+    private UserService userService;
 
     @Override
-    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String userId) {
-        return orgMemberService.getAllActiveOrgs(userId)
+    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String email) {
+        return userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
                 .map(OrgView::new)
                 .collectList()

@@ -21,6 +21,7 @@ import { getCurrentItemParams, getData } from "./listViewUtils";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -28,7 +29,7 @@ const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animati
   border-radius: ${(props) => props.$style.radius};
   padding: 3px ${(props) => props.$paddingWidth};
   rotate: ${(props) => props.$style.rotation};
-  background-color: ${(props) => props.$style.background};
+  ${props => getBackgroundStyle(props.$style)}
   ${props=>props.$animationStyle}
   
 `;

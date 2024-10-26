@@ -20,6 +20,7 @@ import { ButtonEventHandlerControl, CardEventHandlerControl, clickEvent, refresh
 import { optionsControl } from "comps/controls/optionsControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const { Meta } = Card;
 
@@ -34,7 +35,6 @@ const Wrapper = styled.div<{
   height: 100%;
   width: 100%;
   .ant-card-small >.ant-card-head {
-    background-color: ${props => props.$headerStyle?.background} !important;
     border: ${props => props.$headerStyle?.border};
     border-style: ${props => props.$headerStyle?.borderStyle};
     border-width: ${props => props.$headerStyle?.borderWidth};
@@ -49,6 +49,7 @@ const Wrapper = styled.div<{
     rotate: ${props => props.$headerStyle?.rotation};
     margin: ${props => props.$headerStyle?.margin};
     padding: ${props => props.$headerStyle?.padding};
+    ${props => getBackgroundStyle(props.$headerStyle)}
   }
   .ant-card-head-title{
     font-size: ${props => props.$headerStyle?.textSize};
@@ -61,10 +62,9 @@ const Wrapper = styled.div<{
     border-inline-end: 1px solid ${props => props.$style?.border};
   }
   .ant-card .ant-card-actions {
-    background-color: ${props => props.$style?.background};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
   .ant-card .ant-card-body {
-   background-color: ${props => props.$bodyStyle?.background} !important;
     border: ${props => props.$bodyStyle?.border};
     border-style: ${props => props.$bodyStyle?.borderStyle};
     border-width: ${props => props.$bodyStyle?.borderWidth};
@@ -72,6 +72,7 @@ const Wrapper = styled.div<{
     rotate: ${props => props.$bodyStyle?.rotation};
     margin: ${props => props.$bodyStyle?.margin};
     padding: ${props => props.$bodyStyle?.padding};
+    ${props => getBackgroundStyle(props.$bodyStyle)}
   }
   .ant-card {
     display: flex;
@@ -79,13 +80,13 @@ const Wrapper = styled.div<{
     justify-content: space-between;
     margin: ${props => props.$style?.margin};
     padding: ${props => props.$style?.padding};
-    background-color: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     rotate: ${props => props.$style?.rotation};
     border-style: ${props => props.$style?.borderStyle};
     border-radius: ${props => props.$style?.radius};
     border-width: ${props => props.$style?.borderWidth};
     box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
     ${props=>props.$animationStyle}
   }
   .ant-card-body {

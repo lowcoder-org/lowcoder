@@ -2,10 +2,9 @@ package org.lowcoder.api.service.impl;
 
 import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +43,12 @@ public class ApplicationHistorySnapshotServiceTest {
                 .verifyComplete();
 
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(0, 5)))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, null, null, PageRequest.of(0, 5)))
                 .assertNext(list -> {
                     assertEquals(2, list.size());
 
-                    ApplicationHistorySnapshot first = list.get(0);
-                    ApplicationHistorySnapshot second = list.get(1);
+                    ApplicationHistorySnapshotTS first = list.get(0);
+                    ApplicationHistorySnapshotTS second = list.get(1);
                     assertTrue(first.getCreatedAt().isAfter(second.getCreatedAt()));
 
                     assertNull(first.getDsl());
@@ -64,10 +63,10 @@ public class ApplicationHistorySnapshotServiceTest {
                 })
                 .verifyComplete();
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(1, 1)))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, null, null, PageRequest.of(1, 1)))
                 .assertNext(list -> {
                     assertEquals(1, list.size());
-                    ApplicationHistorySnapshot one = list.get(0);
+                    ApplicationHistorySnapshotTS one = list.get(0);
                     assertNull(one.getDsl());
                     assertEquals(ImmutableMap.of("context", "context1"), one.getContext());
                     assertEquals(applicationId, one.getApplicationId());
@@ -75,7 +74,7 @@ public class ApplicationHistorySnapshotServiceTest {
                 .verifyComplete();
 
 
-        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, PageRequest.of(0, 5))
+        StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, null, null, PageRequest.of(0, 5))
                         .map(it -> it.get(0))
                         .map(HasIdAndAuditing::getId)
                         .flatMap(id -> service.getHistorySnapshotDetail(id)))

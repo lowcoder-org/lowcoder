@@ -19,6 +19,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const sizeOptions = [
   {
@@ -95,7 +96,7 @@ const StepsChildrenMap = {
   style: styleControl(StepsStyle , 'style'),
   viewRef: RefControl<HTMLDivElement>,
   animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
-  showVerticalScrollbar: withDefault(BoolControl, false),
+  showScrollBars: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, ''),
 };
 
@@ -120,14 +121,9 @@ let StepControlBasicComp = (function () {
       margin: ${props.style.margin};
       rotate: ${props.style.rotation};
       padding: ${props.style.padding};
-      background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: url(${props.style.backgroundImage});
-      background-repeat: ${props.style.backgroundImageRepeat};
-      background-size: ${props.style.backgroundImageSize};
-      background-position: ${props.style.backgroundImagePosition};
-      background-origin: ${props.style.backgroundImageOrigin};
+      ${getBackgroundStyle(props.style)}
       .ant-steps-item { padding-top: 5px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-small .ant-steps-item-icon { margin-top: 17px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-default .ant-steps-item-icon { margin-top: 12px !important; }
@@ -182,7 +178,7 @@ let StepControlBasicComp = (function () {
               padding: "0px",
             }}
             overflow="scroll"
-            hideScrollbar={!props.showVerticalScrollbar}>
+            hideScrollbar={!props.showScrollBars}>
             <Steps 
               initial={props.initialValue.value -1}
               current={current}
@@ -197,6 +193,7 @@ let StepControlBasicComp = (function () {
             >
               {props.options.map((option, index) => (
                 <Steps.Step 
+                  style={{minWidth:props.minHorizontalWidth || '100%'}}
                   key={index}
                   title={option.label}
                   subTitle={option.subTitle}
@@ -234,15 +231,6 @@ let StepControlBasicComp = (function () {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
             {children.autoHeight.getPropertyView()}
-            {!children.autoHeight.getView() && (
-              children.showVerticalScrollbar.propertyView({
-                label: trans("prop.showVerticalScrollbar"),
-              })
-            )}
-            {children.minHorizontalWidth.propertyView({
-                label: trans("prop.minHorizontalWidth"),
-                placeholder: '100px',
-              })}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
@@ -261,15 +249,23 @@ let StepControlBasicComp = (function () {
                 radioButton: true,
               })
             }
+            {children.direction.getView() == "horizontal" && (
+              children.minHorizontalWidth.propertyView({
+                label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
+              })
+            )}
+            {!children.autoHeight.getView() && (
+              children.showScrollBars.propertyView({
+              label: trans("prop.scrollbar"),
+            })
+            )}
             { children.displayType.getView() != "inline" && !children.showIcons.getView() && (
               children.showDots.propertyView({label: trans("step.showDots")}
             ))}
             { children.displayType.getView() != "inline" && !children.showDots.getView() && (
               children.showIcons.propertyView({label: trans("step.showIcons")}
             ))}
-            {!children.autoHeight.getView() && (
-              children.showVerticalScrollbar.propertyView({label: trans("prop.showVerticalScrollbar")})
-            )}
           </Section>
         )}
 

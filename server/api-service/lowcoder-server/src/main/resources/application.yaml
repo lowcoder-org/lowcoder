@@ -88,6 +88,8 @@ common:
   notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
   cookie:
     max-age-in-hours: ${LOWCODER_COOKIE_MAX_AGE:24}
+  query:
+    app-snapshot-keep-duration: ${LOWCODER_APP_SNAPSHOT_RETENTIONTIME:30}
 
 material:
   mongodb-grid-fs:

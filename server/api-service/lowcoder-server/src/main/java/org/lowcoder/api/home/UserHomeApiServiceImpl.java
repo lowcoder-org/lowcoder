@@ -157,7 +157,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     return organizationService.getById(currentOrgId)
-                            .zipWith(folderApiService.getElements(null, applicationType).collectList())
+                            .zipWith(folderApiService.getElements(null, applicationType, null).collectList())
                             .map(tuple2 -> {
                                 Organization organization = tuple2.getT1();
                                 List<?> list = tuple2.getT2();
@@ -189,7 +189,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -202,8 +202,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 }
                                 return applicationService.findByOrganizationIdWithoutDsl(currentOrgId);
                             })
-                            .filter(application -> isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
-                            .filter(application -> isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
+                            .filter(application -> (isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
+                                    && (isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
+                                    && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name)))
                             .cache()
                             .collectList()
                             .flatMapIterable(Function.identity());

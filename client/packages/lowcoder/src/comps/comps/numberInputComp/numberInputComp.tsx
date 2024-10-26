@@ -268,6 +268,7 @@ const childrenMap = {
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
   // validation
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   min: UndefinedNumberControl,
   max: UndefinedNumberControl,
   customRule: CustomRuleControl,
@@ -389,6 +390,7 @@ let NumberInputTmpComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validate(props),
     });
   })
@@ -405,6 +407,7 @@ let NumberInputTmpComp = (function () {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
+            {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
             {children.min.propertyView({ label: trans("prop.minimum") })}
             {children.max.propertyView({ label: trans("prop.maximum") })}
             {children.customRule.propertyView({})}

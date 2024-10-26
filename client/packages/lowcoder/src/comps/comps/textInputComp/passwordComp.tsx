@@ -82,6 +82,7 @@ let PasswordTmpComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })
@@ -106,6 +107,7 @@ let PasswordTmpComp = (function () {
                 {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
               </Section><Section name={sectionNames.validation}>
                 {requiredPropertyView(children)}
+                {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
                 {regexPropertyView(children)}
                 {minLengthPropertyView(children)}
                 {maxLengthPropertyView(children)}

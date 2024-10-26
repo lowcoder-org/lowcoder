@@ -19,9 +19,13 @@ import { getDataSourceStructures } from "redux/selectors/datasourceSelectors";
 import { DatasourceStructure } from "api/datasourceApi";
 import { loadAuthSearchParams } from "pages/userAuth/authUtils";
 import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
+import { defaultTheme } from "constants/themeConstants";
 import { CompTypeContext } from "@lowcoder-ee/comps/utils/compTypeContext";
 import { setInitialCompStyles } from "@lowcoder-ee/comps/utils/themeUtil";
 import { CompAction, changeChildAction } from "lowcoder-core";
+import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
+import { uniq } from "lodash";
+import { constantColors } from "components/colorSelect/colorUtils";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -168,7 +172,6 @@ export function useMetaData(datasourceId: string) {
   );
 }
 
-
 export function useMergeCompStyles(
   props: Record<string, any>,
   dispatch: (action: CompAction) => void
@@ -224,5 +227,33 @@ export function useMergeCompStyles(
     mergeStyles,
     preventAppStylesOverwriting,
     preventStyleOverwriting,
+  ]);
+}
+
+type ColorKey = 'primary' | 'textDark' | 'textLight' | 'canvas' | 'primarySurface' | 'border';
+type ColorKeys = ColorKey[];
+
+export function useThemeColors(allowGradient?: boolean) {
+  const currentTheme = useContext(ThemeContext)?.theme ?? {} as ThemeDetail;
+  const colorKeys: ColorKeys = ['primary', 'textDark', 'textLight', 'canvas', 'primarySurface', 'border'];
+
+  return useMemo(() => {
+    let colors: string[] = [];
+
+    colorKeys.forEach(colorKey => {
+      if (Boolean(defaultTheme[colorKey])) {
+        colors.push(defaultTheme[colorKey] ?? '');
+      }
+      if (Boolean(currentTheme[colorKey])) {
+        colors.push(currentTheme[colorKey] ?? '');
+      }
+    })
+    if (!allowGradient) {
+      colors = colors.concat(constantColors);
+    }
+    return uniq(colors);
+  }, [
+    currentTheme,
+    defaultTheme,
   ]);
 }

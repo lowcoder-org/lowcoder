@@ -71,10 +71,11 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     private int port;
 
     @Override
-    public Mono<List<LibraryQueryView>> listLibraryQueries() {
+    public Mono<List<LibraryQueryView>> listLibraryQueries(String name) {
         return orgDevChecker.checkCurrentOrgDev()
                 .then(sessionUserService.getVisitorOrgMemberCache())
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .flatMap(libraryQueries -> ViewBuilder.multiBuild(libraryQueries,
                         LibraryQuery::getCreatedBy,
@@ -152,9 +153,10 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
 
     @Override
     @SuppressWarnings("ConstantConditions")
-    public Mono<List<LibraryQueryAggregateView>> dropDownList() {
+    public Mono<List<LibraryQueryAggregateView>> dropDownList(String name) {
         Mono<List<LibraryQuery>> libraryQueryListMono = sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> getByOrgIdWithDatasourcePermissions(orgMember.getOrgId()))
+                .filter(libraryQuery -> StringUtils.containsIgnoreCase(libraryQuery.getName(), name))
                 .collectList()
                 .cache();
 

@@ -102,9 +102,9 @@ export const viteConfig: UserConfig = {
     preprocessorOptions: {
       less: {
         modifyVars: {
-          "@primary-color": "#3377FF",
+          "@primary-color": "#b480de",
           "@link-color": "#3377FF",
-          "@border-color-base": "#D7D9E0",
+          "@border-color-base": "#b480de",
           "@border-radius-base": "4px",
         },
         javascriptEnabled: true,
