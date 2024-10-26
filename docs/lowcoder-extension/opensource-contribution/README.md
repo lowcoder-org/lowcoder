@@ -8,9 +8,9 @@ Here is a small guide on where to start and which style of development we prefer
 
 OpenFlower has 3 main services, which are developed by the Community and us - the OpenFlower Team.
 
-* [Frontend App](https://github.com/lowcoder-org/lowcoder/tree/main/client) - JavaScript, TypeScript, React, ANTd
-* [API-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/api-service) - Java, Spring, Spring WebFlux - using MongoDB and Redis
-* [Node-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service) - Node.js, TypeScript
+* [Frontend App](https://github.com/flowerappeng-org/openflower/tree/main/client) - JavaScript, TypeScript, React, ANTd
+* [API-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/api-service) - Java, Spring, Spring WebFlux - using MongoDB and Redis
+* [Node-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/node-service) - Node.js, TypeScript
 
 These 3 services are the main deliverables and the codebase of OpenFlower. We are happy to work with you on your contribution and express that Frontend App and API-Service are fairly complex systems. You would need to reserve a bit of time to get to know it and understand the details.
 
@@ -18,9 +18,9 @@ These 3 services are the main deliverables and the codebase of OpenFlower. We ar
 
 Extension of OpenFlower for and with the Community happens mainly by the Plugins and Extensions at defined Interfaces. OpenFlower has the following Plugin Systems:
 
-* [Visual Component Plugins](https://github.com/lowcoder-org/lowcoder-create-component-plugin)
+* [Visual Component Plugins](https://github.com/flowerappeng-org/openflower-create-component-plugin)
 * Plugin API of API Service
-* [Data-Source Plugins in the Node-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service/src/plugins)
+* [Data-Source Plugins in the Node-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/node-service/src/plugins)
 
 {% hint style="success" %}
 We suggest looking first into the development of these plugins, as they offer a good abstraction that speeds up development and offers a good and fast value for the community.
@@ -30,14 +30,14 @@ We suggest looking first into the development of these plugins, as they offer a 
 
 The main steps are:
 
-* Fork of [this Repository](https://github.com/lowcoder-org/lowcoder-create-component-plugin)
+* Fork of [this Repository](https://github.com/flowerappeng-org/openflower-create-component-plugin)
 * Local installation & preparation
 * Developing & preview the Components
 * Publish the Components to NPM
 
 1. Forking of the Repository
 
-To ensure you can develop your Component Plugin including as your repository, please fork (update) our lowcoder-org/lowcoder-create-component-plugin repository first.&#x20;
+To ensure you can develop your Component Plugin including as your repository, please fork (update) our Flowerappeng-org/openflower-create-component-plugin repository first.&#x20;
 
 Find here more information: [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 
@@ -46,11 +46,11 @@ Find here more information: [https://docs.github.com/en/pull-requests/collaborat
 Now you can clone your new repository to develop local.
 
 ```
-https://github.com/<your org>/lowcoder-create-component-plugin.git
+https://github.com/<your org>/openflower-create-component-plugin.git
 
 or 
 
-git@github.com:<your org>/lowcoder-create-component-plugin.git
+git@github.com:<your org>/openflower-create-component-plugin.git
 ```
 
 3. Local Development preparation
@@ -126,12 +126,12 @@ You can follow the [Guide for Apps & Modules to publish on the Marketplace](../.
 
 We feel honored to work with you together on OpenFlower as a Platform! A good start and procedure that allows a smooth development process is like this:
 
-1. [Fork the Repository](https://github.com/Flowerappeng-org/openflower/fork)
+1. [Fork the Repository](https://github.com/flowerappeng-org/openflower/fork)
 2. Clone it into your local environment / IDE
 3. Create a workable local Development Environment
 4. Create your Feature-Branch from **/main** branch to get the latest stable Environment
 5. **Develop your magic and enjoy the ride!**
-6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/Flowerappeng-org/openflower/tree/dev) of the OpenFlower Main Repository
+6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/flowerappeng-org/openflower/tree/dev) of the OpenFlower Main Repository
 7. Follow up if / when we have questions at your Merge Request
 
 Please ask us directly for any related questions so we can help you the fastest way. 
@@ -332,7 +332,7 @@ If you run the Api-Service locally on Port 8080, remember the URL for the Fronte
 Please read more information in the following guides:
 
 1. [How to develop a DataSouce Plugin](develop-data-source-plugins.md)
-2. [Data Source Plugin Skeleton](https://github.com/lowcoder-org/lowcoder-datasource-plugin-skeleton)
+2. [Data Source Plugin Skeleton] - todo fix this.()
 
 #### Preparation
 

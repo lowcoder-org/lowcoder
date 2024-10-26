@@ -80,7 +80,7 @@ You can access OpenFlower from [cloud-hosted demo version](https://demo.openflow
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
-- [Contributing guide](https://docs.openflower.org/lowcoder-extension/opensource-contribution)
+- [Contributing guide](https://docs.openflower.org/openflower-extension/opensource-contribution)
 
 ## Intro Video
 

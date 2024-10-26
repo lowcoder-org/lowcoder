@@ -9,7 +9,7 @@
 Simply run the below command to start a backend server.
 
 ```bash
-docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
 ```
 
 For more information, view our [docs](https://docs.openflower.org/lowcoder-documentation/setup-and-run/self-hosting)
