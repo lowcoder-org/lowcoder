@@ -2,10 +2,10 @@ import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
-import { Flex } from 'antd';
+import { Flex, Card, Button, message } from 'antd';
 import { ProductCard } from "./productCard";
 import { InitializeSubscription } from "@lowcoder-ee/api/subscriptionApi";
-import { getProducts }  from '@lowcoder-ee/api/subscriptionApi';
+import { getProducts, getCustomerPortalSession }  from '@lowcoder-ee/api/subscriptionApi';
 import { useState, useEffect } from 'react';
 
 const SubscriptionSettingContent = styled.div`
@@ -27,6 +27,15 @@ const SubscriptionSettingContent = styled.div`
   }
 `;
 
+const CardWrapper = styled(Card)`
+  width: 100%;
+  margin-bottom: 24px;
+`;
+
+const ManageSubscriptionButton = styled(Button)`
+  margin-top: 24px;
+`;
+
 
 export function SubscriptionSetting() {
   const {
@@ -42,6 +51,30 @@ export function SubscriptionSetting() {
   const [subscriptionProducts, setSubscriptionProducts] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const customerId = customer?.id; // Get the customer ID from subscription details
+
+
+    // Handle Customer Portal Session Redirect
+    const handleCustomerPortalRedirect = async () => {
+      try {
+        if (!customerId) {
+          message.error("Customer ID not available for the subscription.");
+          return;
+        }
+  
+        // Get the Customer Portal session URL
+        const portalSession = await getCustomerPortalSession(customerId);
+        if (portalSession && portalSession.url) {
+          // Redirect to the Stripe Customer Portal
+          window.open(portalSession.url, '_blank', 'noopener,noreferrer');
+        } else {
+          message.error("Failed to generate customer portal session link.");
+        }
+      } catch (error) {
+        console.error("Error redirecting to customer portal:", error);
+        message.error("An error occurred while redirecting to the customer portal.");
+      }
+    };
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -68,7 +101,7 @@ export function SubscriptionSetting() {
       {customer != null ? (
         <SubscriptionSettingContent>
           {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin && "| you are Subscriptions-Admin of this Workspace"}</h3>}
-          <Flex wrap='wrap' gap="large" style={{marginTop: "40px"}}>
+          <Flex wrap='wrap' gap="large" style={{marginTop: "40px", width : "100%"}}>
             {products
             .filter((product) => {
               if (product.type === "org") { 
@@ -96,6 +129,12 @@ export function SubscriptionSetting() {
               );
             } )}
           </Flex>
+          {/* Manage Subscription Button */}
+        <CardWrapper title={trans("subscription.manageSubscription")}>
+          <ManageSubscriptionButton type="primary" onClick={handleCustomerPortalRedirect}>
+            {trans("subscription.manageSubscription")}
+          </ManageSubscriptionButton>
+        </CardWrapper>
         </SubscriptionSettingContent>
       ) : (
         <div>Loading...</div>

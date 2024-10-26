@@ -177,7 +177,7 @@ export default function ApplicationHome() {
     dispatch(fetchHomeData({}));
   }, [user.currentOrgId]);
 
-  const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
+  const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT && sub.status === 'active');
 
   useEffect(() => {
     if (!org) {

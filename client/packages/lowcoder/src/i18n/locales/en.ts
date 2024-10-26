@@ -2300,7 +2300,7 @@ export const en = {
     "billingReason.subscription_threshold": "Subscription Threshold",
     "billingReason.subscription_update": "Subscription Update",
     "backToSubscriptions": "Back to Subscriptions",
-    "manageSubscription" : "Manage Your Subscription",
+    "manageSubscription" : "Manage Your Subscriptions",
     "subscriptionHelp" : "Subscription Help",
     "subscriptionHelpDescription" : "If you have any questions, please contact us. We are happy to help you. service@lowcoder.cloud",
     "success" : "Payment & Subscription Success",

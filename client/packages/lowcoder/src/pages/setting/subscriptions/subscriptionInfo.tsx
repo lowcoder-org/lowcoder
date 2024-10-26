@@ -11,7 +11,7 @@ import { Card, Tag, List } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Level1SettingPageContent } from "../styled";
 import { TacoMarkDown } from "lowcoder-design";
-import ProductDescriptions, {Translations, ProductDescription} from "./ProductDescriptions";
+import ProductDescriptions, {Translations} from "./ProductDescriptions";
 
 const { Meta } = Card;
 

@@ -337,7 +337,7 @@ export function SupportOverview() {
                         }>
                         <Avatar src={assignee.avatar} alt={assignee.email} />
                       </Tooltip>
-                      <StatusDot active={assignee.active} />
+                      <StatusDot active={assignee.active.toString()} />
                     </SubColumnCell>
                   ),
                 },

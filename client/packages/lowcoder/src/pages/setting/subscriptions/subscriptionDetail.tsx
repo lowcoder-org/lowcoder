@@ -6,8 +6,8 @@ import { useParams } from "react-router-dom";
 import { HeaderBack } from "../permission/styledComponents";
 import history from "util/history";
 import { SUBSCRIPTION_SETTING } from "constants/routesURL";
-import { getProduct, getSubscriptionDetails, getInvoices, getCustomerPortalSession } from "api/subscriptionApi";
-import { Skeleton, Timeline, Card, Descriptions, Table, Typography, Button, message } from "antd";
+import { getProduct, getSubscriptionDetails, getInvoices } from "api/subscriptionApi";
+import { Skeleton, Timeline, Card, Descriptions, Table, Typography, Button } from "antd";
 
 const { Text } = Typography;
 
@@ -78,29 +78,6 @@ export function SubscriptionDetail() {
   const usageRecords = subscription ? subscription[1]?.data || [] : [];
 
   const statusColor = subscriptionDetails?.status === "active" ? "green" : "red";
-  const customerId = subscriptionDetails?.customer; // Get the customer ID from subscription details
-
-  // Handle Customer Portal Session Redirect
-  const handleCustomerPortalRedirect = async () => {
-    try {
-      if (!customerId) {
-        message.error("Customer ID not available for the subscription.");
-        return;
-      }
-
-      // Get the Customer Portal session URL
-      const portalSession = await getCustomerPortalSession(customerId);
-      if (portalSession && portalSession.url) {
-        // Redirect to the Stripe Customer Portal
-        window.location.href = portalSession.url;
-      } else {
-        message.error("Failed to generate customer portal session link.");
-      }
-    } catch (error) {
-      console.error("Error redirecting to customer portal:", error);
-      message.error("An error occurred while redirecting to the customer portal.");
-    }
-  };
 
   return (
     <Wrapper>
@@ -215,14 +192,6 @@ export function SubscriptionDetail() {
         </TimelineWrapper>
       </CardWrapper>
 
-      {/* Manage Subscription Button */}
-      <CardWrapper title={trans("subscription.manageSubscription")}>
-        <ManageSubscriptionButton type="primary" onClick={handleCustomerPortalRedirect}>
-          {trans("subscription.manageSubscription")}
-        </ManageSubscriptionButton>
-      </CardWrapper>
-
-      {/* Manage Subscription Button */}
       <CardWrapper title={trans("subscription.subscriptionHelp")}>
         <span>{trans("subscription.subscriptionHelpDescription")}</span>
       </CardWrapper>

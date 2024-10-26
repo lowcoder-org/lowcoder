@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
@@ -5,8 +6,7 @@ import { trans } from "i18n";
 import { HeaderBack } from "../permission/styledComponents";
 import history from "util/history";
 import { SUBSCRIPTION_SETTING } from "constants/routesURL";
-import { Flex } from 'antd';
-import { ProductCard } from "./productCard";
+
 
 const SubscriptionSuccessContent = styled.div`
   max-width: 840px;
@@ -41,6 +41,10 @@ const useQuery = () => {
 export function SubscriptionCancel() {
   const query = useQuery();
   const session_id = query.get("session_id");
+
+  useEffect(() => {
+    window.location.replace(SUBSCRIPTION_SETTING);
+  }, []);
   
   return (
     <Wrapper>
@@ -50,7 +54,7 @@ export function SubscriptionCancel() {
         </span>
       </HeaderBack>
       <div>
-        <h1>{`Canceled | Session ID: ${session_id}`}</h1>
+        <h1>Canceled</h1>
       </div>
     </Wrapper>
   );
