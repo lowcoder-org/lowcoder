@@ -171,10 +171,10 @@ export default function ApplicationHome() {
 
   useEffect(() => {
     if (user.currentOrgId) {
-      dispatch(fetchHomeData({}));
       dispatch(fetchSubscriptionsAction());
       dispatch(fetchDeploymentIdAction());
     }
+    dispatch(fetchHomeData({}));
   }, [user.currentOrgId]);
 
   const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
