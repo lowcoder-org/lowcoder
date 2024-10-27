@@ -1,10 +1,19 @@
+<h1 style="text-align:center;">OpenFlower</h3>
 
-## 📢 Use OpenFlower in 3 steps
+<p style="text-align:center;">An enterprise-grade application engine.</p>
+
+<p style="text-align:center;"><a href="https://prod-us1.openflower.org/">Get Started >> </a></p>
+
+<p style="text-align:center;"><a href="https://docs.openflower.org/">Read the Docs</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=bug%2Cneeds+triage&projects=&template=bug_report.yml">Report Bug</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md">Request Feature</a>
+
+# About the Project
+
+## Use OpenFlower in 3 steps
 1. Connect to any data sources or APIs.
 2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
 3. Share with colleagues and customers.
 
-## 💡 Why OpenFlower
+## Why OpenFlower
 One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
@@ -17,24 +26,24 @@ OpenFlower is:
 - The tool and community to support your business, and lower the cost and time to develop interactive applications.
 - The only platform to embed OpenFlower/Lowcoder Apps natively in Websites (no iFrame!)
 - The only platform where you can build your own Meeting Tool - like Teams, Zoom or Google Meets, - just in the Lowcode way.
-- The only platform which has extensibility plugin architecture [Check Community Contributions](https://www.npmjs.com/search?q=OpenFlower-comp)
+- The only platform which has extensibility plugin architecture 
 
 ## 🪄 Features
 - **Visual UI builder** with 100+ built-in components. Save 90% of time to build apps.
 - **Modules** for reusable (!) embedable component sets in the UI builder.
-- **Embed OpenFlower Apps as native parts of any Website** instead of iFrame (!). [Demo](todo), [Docu](https://docs.openflower.org/lowcoder-extension/native-embed-sdk)
+- **Embed OpenFlower Apps as native parts of any Website** instead of iFrame (!). [Docs](https://docs.openflower.org/publish-apps/embedd-an-app/native-embed-sdk)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
 - **Query Library** for reusable data queries of your data sources.
 - **Custom components** to develop own components and use them in the UI builder.
 - **Native Data connections** to PostgreSQL, MongoDB, MySQL, Redis, Elasticsearch, REST API, SMTP, etc.
-- **Stream Data connections** to Websockets for realtime data updates & collaboration! [Docu](https://docs.openflower.org/connect-your-data/data-sources-in-lowcoder/websocket-datasource)
+- **Stream Data connections** to Websockets for realtime data updates & collaboration! [Docs](https://docs.openflower.org/connect-your-data/data-sources-in-lowcoder/websocket-datasource)
 - **JavaScript supported everywhere** to transform data, control components, etc.
-- **Role-based access control (RBAC)** for granular permission management. [Docu](https://docs.openflower.org/workspaces-and-teamwork/members-and-groups)
+- **Role-based access control (RBAC)** for granular permission management. [Docs](https://docs.openflower.org/workspaces-and-teamwork/members-and-groups)
 - **Auto-saved and restorable history** for release and version control.
 - **App Themes and Theme Editor** to precisely align with your company's brand guidelines.
 
-- **Self Hosting** to use OpenFlower in your internal company network, even behind the firewall. [Docu](https://docs.openflower.org/setup-and-run/self-hosting)
-- **Free Community Cloud** to start within a minute and build your first Apps. [Start here](https://todo)
+- **Self Hosting** to use OpenFlower in your internal company network, even behind the firewall. [Docs](https://docs.openflower.org/setup-and-run/self-hosting)
+- **Free Community Cloud** to start within a minute and build your first Apps. [Start here](https://prod-us1.openflower.org/)
 
 ## 🏆 Comparisons
 ### OpenFlower vs Powerapps
@@ -45,7 +54,6 @@ OpenFlower is:
 - In OpenFlower, developers can build truly responsive apps - not as cumbersome as the "Desktop / Mobile switch" in Retool
 - OpenFlower is free and you can contribute!
 - With OpenFlower you can design better Apps. More Layout & Design Components as also better support for powerful Data & Admin Dashboards
-- The EE Version of OpenFlower comes with a much better pricing model, so you have no "per-user costs"
 ### OpenFlower vs Appsmith, Tooljet
 - OpenFlower has more components and richer configuration than Appsmith and Tooljet
 - In OpenFlower, you can choose auto-height or fixed-height mode for your components, while Appsmith supports fixed-height mode only
@@ -72,16 +80,11 @@ And we mean it... Day by day!
 🔎 Submit an issue here on [GitHub](https://github.com/flowerappeng-org/openflower/issues)
 
 ## 💻 Deployment Options
-todo 
 
-You can access OpenFlower from [cloud-hosted demo version](https://demo.openflower.orgTODO/) at any time, or use the following resources for self-host OpenFlower on different platforms:
+You can access OpenFlower from [cloud-hosted demo version](https://prod-us1.openflower.org/) at any time, or use the following resources for self-host OpenFlower on different platforms:
 - [Docker](https://docs.openflower.org/setup-and-run/self-hosting)
 
 ## 💪 Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
 - [Contributing guide](https://docs.openflower.org/openflower-extension/opensource-contribution)
-
-## Intro Video
-
-todo
