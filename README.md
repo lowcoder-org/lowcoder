@@ -1,10 +1,12 @@
-<h1 style="text-align:center;">OpenFlower</h3>
+<p align="center">
+<h1 align="center">OpenFlower</h3>
 
-<p style="text-align:center;">An enterprise-grade application engine.</p>
+<p align="center">An enterprise-grade application engine.</p>
 
-<p style="text-align:center;"><a href="https://prod-us1.openflower.org/">Get Started >> </a></p>
+<p align="center"><a href="https://prod-us1.openflower.org/">Get Started >> </a></p>
 
-<p style="text-align:center;"><a href="https://docs.openflower.org/">Read the Docs</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=bug%2Cneeds+triage&projects=&template=bug_report.yml">Report Bug</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md">Request Feature</a>
+<p align="center"><a href="https://docs.openflower.org/">Read the Docs</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=bug%2Cneeds+triage&projects=&template=bug_report.yml">Report Bug</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md">Request Feature</a>
+</p>
 
 # About the Project
 
@@ -13,7 +15,7 @@
 2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
 3. Share with colleagues and customers.
 
-## Why OpenFlower
+# OpenFlower Value Proposition
 One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
