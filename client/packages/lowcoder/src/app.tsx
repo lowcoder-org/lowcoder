@@ -28,6 +28,7 @@ import {
   ADMIN_APP_URL,
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
+  ADMIN_AUTH_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -337,6 +338,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 // component={ApplicationListPage}
                 component={LazyApplicationHome}
               />
+              <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute
                 path={ORG_AUTH_LOGIN_URL}

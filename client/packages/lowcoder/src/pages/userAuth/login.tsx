@@ -3,7 +3,7 @@ import { AuthSearchParams } from "constants/authConstants";
 import { CommonTextLabel } from "components/Label";
 import { trans } from "i18n";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import FormLogin from "@lowcoder-ee/pages/userAuth/formLogin";
+import FormLogin from "@lowcoder-ee/pages/userAuth/formLoginAdmin";
 import { AuthContainer } from "pages/userAuth/authComponents";
 import React, { useContext, useMemo } from "react";
 import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";
@@ -145,10 +145,6 @@ function Login() {
         subHeading={loginSubHeading}
       >
         <FormLoginSteps organizationId={organizationId} />
-        {/* { Boolean(organizationId)
-          ? <FormLogin organizationId={organizationId} />
-          : <FormLoginSteps />
-        } */}
       </AuthContainer>
     </>
   );
