@@ -4,11 +4,12 @@ import PropertyView from "./PropertyView";
 import InsertView from "./InsertView";
 import type UIComp from "comps/comps/uiComp";
 import type { UiLayoutType } from "comps/comps/uiComp";
-import { useEffect, useState } from "react";
+import {Suspense, useEffect, useState} from "react";
 import { trans } from "i18n";
 import { isAggregationApp } from "util/appUtils";
 import React from "react";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {Skeleton} from "antd";
 
 type RightPanelProps = {
   onTabChange: (key: string) => void;
@@ -45,13 +46,15 @@ function RightPanel(props: RightPanelProps) {
 
   return (
     <RightPanelWrapper className="cypress-right-content">
-      <Tabs
-        onChange={(key) => {
-          onTabChange(key);
-        }}
-        tabsConfig={tabConfigs}
-        activeKey={activeKey}
-      />
+      <Suspense fallback={<Skeleton></Skeleton>}>
+        <Tabs
+          onChange={(key) => {
+            onTabChange(key);
+          }}
+          tabsConfig={tabConfigs}
+          activeKey={activeKey}
+        />
+      </Suspense>
     </RightPanelWrapper>
   );
 }
