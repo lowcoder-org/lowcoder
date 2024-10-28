@@ -13,22 +13,21 @@ import { i18nObjs, trans } from "i18n";
 import type { JSONSchema7 } from "json-schema";
 import styled from "styled-components";
 import { toBoolean, toNumber, toString } from "util/convertUtils";
-import { Section, sectionNames, ScrollBar } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 import { jsonObjectControl } from "../../controls/codeControl";
 import { eventHandlerControl, submitEvent } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);
@@ -228,7 +227,7 @@ let FormBasicComp = (function () {
     style: styleControl(JsonSchemaFormStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder =  new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[
       "ui:submitButtonOptions"
@@ -283,124 +282,10 @@ let FormBasicComp = (function () {
       </Container>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.basic}>
-              
-              {children.schema.propertyView({
-                key: trans("jsonSchemaForm.jsonSchema"),
-                label: (
-                  <>
-                    {trans("jsonSchemaForm.jsonSchema") + " ("}
-                    <a
-                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 1
-                    </a>
-                    {", "}
-                    <a
-                      href={"https://jsonforms.io/examples/basic"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 2
-                    </a>
-                    {")"}
-                  </>
-                ),
-                tooltip: (
-                  <>
-                    {trans("jsonSchemaForm.schemaTooltip") + " "}
-                    <a
-                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      JSON Schema
-                    </a>
-                  </>
-                ),
-              })}
-              {children.uiSchema.propertyView({
-                key: trans("jsonSchemaForm.uiSchema"),
-                label: (
-                  <>
-                    {trans("jsonSchemaForm.uiSchema") + " ("}
-                    <a
-                      href={"https://jsonforms.io/docs/uischema"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 1
-                    </a>
-                    {", "}
-                    <a
-                      href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 2
-                    </a>
-                    {")"}
-                  </> 
-                ),
-                tooltip: (
-                  <>
-                    {trans("jsonSchemaForm.schemaTooltip") + " "}
-                    <a
-                      href={
-                        "https://jsonforms.io/docs/uischema"
-                      }
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      UI Schema
-                    </a>
-                  </>
-                ),
-              })}
-              {children.data.propertyView({
-                key: trans("jsonSchemaForm.defaultData"),
-                label: trans("jsonSchemaForm.defaultData"),
-              })}
-            </Section>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-              {children.resetAfterSubmit.propertyView({
-                label: trans("jsonSchemaForm.resetAfterSubmit"),
-              })}
-            </Section>
-          )}
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-             <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && (
-                  children.showVerticalScrollbar.propertyView({
-                    label: trans("prop.showVerticalScrollbar"),
-                  })
-                )}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+    return builder
     .build();
 })();
 

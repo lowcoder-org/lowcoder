@@ -20,24 +20,17 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import { ValueFromOption } from "lowcoder-design";
+import React, { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { InputEventHandlerControl } from "../../controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "../../generators";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { formDataChildren } from "../formComp/formDataConstants";
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
 import { RefControl } from "../../controls/refControl";
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  placeholderPropertyView,
-  readOnlyPropertyView,
-  requiredPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
@@ -50,10 +43,10 @@ import {
   setSelectionRangeMethod,
 } from "comps/utils/methodUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewNumberInputComp = React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewNumberInputComp})))
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -382,7 +375,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
 };
 
 let NumberInputTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
@@ -394,70 +387,11 @@ let NumberInputTmpComp = (function () {
       ...validate(props),
     });
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
-          {placeholderPropertyView(children)}
-          {children.formatter.propertyView({ label: trans("numberInput.formatter") })}
-        </Section>
-
-        <FormDataPropertyView {...children} />
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.validation}>
-            {requiredPropertyView(children)}
-            {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
-            {children.min.propertyView({ label: trans("prop.minimum") })}
-            {children.max.propertyView({ label: trans("prop.maximum") })}
-            {children.customRule.propertyView({})}
-          </Section>
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-          </>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          children.label.getPropertyView()
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.advanced}>
-            {children.step.propertyView({ label: trans("numberInput.step") })}
-            {children.precision.propertyView({ label: trans("numberInput.precision") })}
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.prefixText.propertyView({ label: trans("button.prefixText") })}
-            {children.allowNull.propertyView({ label: trans("numberInput.allowNull") })}
-            {children.thousandsSeparator.propertyView({
-              label: trans("numberInput.thousandsSeparator"),
-            })}
-            {children.controls.propertyView({ label: trans("numberInput.controls") })}
-            {readOnlyPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.labelStyle}>
-            {children.labelStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.inputFieldStyle}>
-            {children.inputFieldStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-          </>
-        )}
-      </>
-    ))
-    .build();
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewNumberInputComp {...children}></SetPropertyViewNumberInputComp>);
+  }
+  return builder
+      .build();
 })();
 
 NumberInputTmpComp = migrateOldData(NumberInputTmpComp, fixOldInputCompData);

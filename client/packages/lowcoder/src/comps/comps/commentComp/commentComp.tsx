@@ -1,24 +1,15 @@
-import React, { useEffect, useState, useRef, useContext } from "react";
-// Render the component to the editor
+import React, {useEffect, useState, useRef, useContext, Suspense} from "react";
 import {
   changeChildAction,
   CompAction,
   RecordConstructorToView,
 } from "lowcoder-core";
-// Text internationalisation conversion api
 import { trans } from "i18n";
-// General frame of the right property bar
 import { UICompBuilder, withDefault } from "../../generators";
-// Right-side attribute subframe
-import { Section, sectionNames } from "lowcoder-design";
-// Switch indicating whether the component is hidden or not
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-// Right property switch
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl"; //样式输入框
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { jsonControl, StringControl } from "comps/controls/codeControl";
-// Event Control
 import {
   clickEvent,
   submitEvent,
@@ -27,18 +18,14 @@ import {
   mentionEvent,
 } from "comps/controls/eventHandlerControl";
 
-import { EditorContext } from "comps/editorState";
 
-// Introducing styles
 import {
   AnimationStyle,
   CommentStyle,
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-// Initialise exposed values
-import { stateComp, valueComp } from "comps/generators/simpleGenerators";
-// The component's api for exposing properties externally
+import { valueComp } from "comps/generators/simpleGenerators";
 import {
   NameConfig,
   NameConfigHidden,
@@ -48,8 +35,6 @@ import {
 import {
   commentDate,
   commentDataTYPE,
-  CommentDataTooltip,
-  CommentUserDataTooltip,
   convertCommentData,
   checkUserInfoData,
   checkMentionListData,
@@ -59,13 +44,14 @@ import { default as List } from "antd/es/list";
 import { default as Button } from "antd/es/button";
 import { default as Mentions } from "antd/es/mentions";
 import { default as Tooltip } from "antd/es/tooltip";
-import VirtualList, { ListRef } from "rc-virtual-list";
+import VirtualList from "rc-virtual-list";
 import _ from "lodash";
 import relativeTime from "dayjs/plugin/relativeTime";
 import dayjs from "dayjs";
-// import "dayjs/locale/zh-cn";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
@@ -368,68 +354,14 @@ const CommentCompBase = (
 };
 
 let CommentBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
     <CommentCompBase {...props} dispatch={dispatch} />
   )})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.title.propertyView({
-            label: trans("comment.title"),
-          })}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-          <Section name={sectionNames.data}>
-            {children.value.propertyView({
-              label: trans("comment.value"),
-              tooltip: CommentDataTooltip,
-              placeholder: "[]",
-            })}
-            {children.userInfo.propertyView({
-              label: trans("comment.userInfo"),
-              tooltip: CommentUserDataTooltip,
-            })}
-            {children.mentionList.propertyView({
-              label: trans("comment.mentionList"),
-              tooltip: trans("comment.mentionListDec"),
-            })}
-          </Section>
-          <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-              {children.sendCommentAble.propertyView({
-                label: trans("comment.showSendButton"),
-              })}
-              {children.deleteAble.propertyView({
-                label: trans("comment.deleteAble"),
-              })}
-            </Section>
-          </>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.layout}>
-            {children.sendCommentAble.getView() &&
-              children.buttonText.propertyView({
-                label: trans("comment.buttonTextDec"),
-              })}
-            {children.placeholder.propertyView({
-              label: trans("comment.placeholderDec"),
-            })}
-          </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section></>
-        )}
-
-      </>
-    ))
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+  return builder
     .build();
 })();
 

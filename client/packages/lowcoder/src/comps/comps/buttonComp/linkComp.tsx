@@ -7,21 +7,16 @@ import { AnimationStyle, AnimationStyleType, LinkStyle, LinkStyleType } from "co
 import { withDefault } from "comps/generators";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import {
-  hiddenPropertyView,
-  disabledPropertyView,
-  loadingPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-import { EditorContext } from "comps/editorState";
-import React, { useContext, useEffect } from "react";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewLinkComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewLinkComp})))
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -91,7 +86,7 @@ const LinkTmpComp = (function () {
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {  
+  let builder = new UICompBuilder(childrenMap, (props) => {
     // chrome86 bug: button children should not contain only empty span
     const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
@@ -116,35 +111,10 @@ const LinkTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.text.propertyView({ label: trans("text") })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-              {loadingPropertyView(children)}
-            </Section>
-              <Section name={sectionNames.advanced}>
-                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-                {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-              </Section></>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewLinkComp {...children}></SetPropertyViewLinkComp>);
+  }
+  return builder
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

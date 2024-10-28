@@ -3,15 +3,12 @@ import { ToDataType } from "comps/generators/multi";
 import { NameConfigDisabled, NameConfigHidden, withExposingConfigs, NameConfig, CompDepsConfig } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { NameGenerator } from "comps/utils/nameGenerator";
-import { Section, sectionNames } from "lowcoder-design";
 import { oldContainerParamsToNew } from "../containerBase";
 import { toSimpleContainerData } from "../containerBase/simpleContainerComp";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import React, { useContext, useEffect, useState } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useState } from "react";
 
 import {
   ContainerChildren,
@@ -20,6 +17,8 @@ import {
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewPageLayout =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewPageLayout})))
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -27,7 +26,7 @@ export const ContainerBaseComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
     const [siderCollapsed, setSiderCollapsed] = useState(false);  
 
@@ -37,50 +36,10 @@ export const ContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-              { children.container.appSelectorPropertyView()}
-            </Section>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.layout}>
-              {children.container.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.style}>
-              { children.container.stylePropertyView() }
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            {children.container.children.showHeader.getView() && (
-              <Section name={"Header Style"}>
-                { children.container.headerStylePropertyView() }
-              </Section>
-            )}
-            {children.container.children.showSider.getView() && (
-              <Section name={"Sider Style"}>
-                { children.container.siderStylePropertyView() }
-              </Section>
-            )}
-            <Section name={"Body Style"}>
-              { children.container.bodyStylePropertyView() }
-            </Section>
-            {children.container.children.showFooter.getView() && (
-              <Section name={"Footer Style"}>
-                { children.container.footerStylePropertyView() }
-              </Section>
-            )}
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewPageLayout {...children}></SetPropertyViewPageLayout>);
+  }
+  return builder
     .build();
 })(); 
 

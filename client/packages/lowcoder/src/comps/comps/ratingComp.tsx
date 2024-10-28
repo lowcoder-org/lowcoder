@@ -1,6 +1,5 @@
 import { default as Rate } from "antd/es/rate";
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "lowcoder-design";
 import { NumberControl, BoolCodeControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
 import { changeEvent, eventHandlerControl } from "../controls/eventHandlerControl";
@@ -8,15 +7,14 @@ import { LabelControl } from "../controls/labelControl";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import { formDataChildren } from "./formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
-import { useContext, useEffect, useRef } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect, useRef } from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/ratingComp"));
 
 const EventOptions = [changeEvent] as const;
 
@@ -54,7 +52,7 @@ const RatingBasicComp = (function () {
     inputFieldStyle: migrateOldData(styleControl(RatingStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const defaultValue = { ...props.defaultValue }.value;
     const value = { ...props.value }.value;
     const changeRef = useRef(false);
@@ -90,55 +88,10 @@ const RatingBasicComp = (function () {
       ),
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
-            {children.max.propertyView({
-              label: trans("rating.max"),
-            })}
-          </Section>
-
-          <FormDataPropertyView {...children} />
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <><Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-              <Section name={sectionNames.advanced}>
-                {children.allowHalf.propertyView({
-                  label: trans("rating.allowHalf"),
-                })}
-              </Section>
-            </>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            children.label.getPropertyView()
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.labelStyle}>
-                {children.labelStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.inputFieldStyle}>
-                {children.inputFieldStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+    return builder
     .build();
 })();
 

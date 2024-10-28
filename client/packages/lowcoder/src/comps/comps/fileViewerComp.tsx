@@ -1,19 +1,17 @@
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, FileViewerStyle, FileViewerStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { isEmpty } from "lodash";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import { BoolControl } from "../controls/boolControl";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/fileViewerComp"));
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -79,7 +77,7 @@ let FileViewerBasicComp = (function () {
     style: styleControl(FileViewerStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
       return (
         <ErrorWrapper
@@ -97,45 +95,10 @@ let FileViewerBasicComp = (function () {
       showVerticalScrollbar={props.showVerticalScrollbar}
     />;
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.src.propertyView({
-              label: trans("fileViewer.src"),
-              tooltip: (
-                <span>{trans("fileViewer.srcTooltip")}</span>
-              ),
-            })}
-          </Section>
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-          <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && (
-                  children.showVerticalScrollbar.propertyView({
-                    label: trans("prop.showVerticalScrollbar"),
-                  })
-                )}
-          </Section>
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-              </Section>
-              </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+      return builder
     .build();
 })();
 

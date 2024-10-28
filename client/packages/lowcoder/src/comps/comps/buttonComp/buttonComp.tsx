@@ -5,12 +5,7 @@ import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  loadingPropertyView,
-} from "comps/utils/propertyUtils";
-import { CommonBlueLabel, controlItem, Dropdown, Section, sectionNames } from "lowcoder-design";
+import { CommonBlueLabel, controlItem, Dropdown } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -24,10 +19,12 @@ import {
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import {viewMode} from "@lowcoder-ee/util/editor";
 
+const SetPropertyViewButtonComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewButtonComp})))
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
   margin-right: 4px;
@@ -134,7 +131,7 @@ const ButtonTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  const builder = new UICompBuilder(childrenMap, (props) => {
     return(
       <ButtonCompWrapper $disabled={props.disabled}>
         <EditorContext.Consumer>
@@ -160,40 +157,14 @@ const ButtonTmpComp = (function () {
           )}
         </EditorContext.Consumer>
       </ButtonCompWrapper>
-    );
+    )
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.text.propertyView({ label: trans("text") })}
-        </Section>
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.interaction}>
-            {children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
-            {isDefault(children.type.getView())
-              ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                hiddenPropertyView(children),
-                loadingPropertyView(children),
-              ]
-              : children.form.getPropertyView()}
-            </Section>
-          </>
-        )}
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewButtonComp {...children}></SetPropertyViewButtonComp>);
+  }
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            </Section>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          </>
-        )}
-      </>
-    ))
+  return builder
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

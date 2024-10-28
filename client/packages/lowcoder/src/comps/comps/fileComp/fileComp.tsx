@@ -4,14 +4,12 @@ import { default as Dropdown } from "antd/es/dropdown";
 import { UploadFile, UploadProps, UploadChangeParam, UploadFileStatus, RcFile } from "antd/es/upload/interface";
 import { Buffer } from "buffer";
 import { darkenColor } from "components/colorSelect/colorUtils";
-import { Section, sectionNames } from "components/Section";
 import { IconControl } from "comps/controls/iconControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, FileStyle, FileStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import _ from "lodash";
 import mime from "mime";
@@ -19,7 +17,6 @@ import {
   changeValueAction,
   CompAction,
   multiChangeAction,
-  RecordConstructorToComp,
   RecordConstructorToView,
 } from "lowcoder-core";
 import { UploadRequestOption } from "rc-upload/lib/interface";
@@ -38,12 +35,13 @@ import { dropdownControl } from "../../controls/dropdownControl";
 import { changeEvent, eventHandlerControl } from "../../controls/eventHandlerControl";
 import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { formDataChildren } from "../formComp/formDataConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { CustomModal } from "lowcoder-design";
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 import type { ItemType } from "antd/es/menu/interface";
 import Skeleton from "antd/es/skeleton";
 import Menu from "antd/es/menu";
@@ -117,18 +115,7 @@ const commonChildren = {
   ...validationChildren,
 };
 
-const commonValidationFields = (children: RecordConstructorToComp<typeof validationChildren>) => [
-  children.minSize.propertyView({
-    label: trans("file.minSize"),
-    placeholder: "1kb",
-    tooltip: trans("file.minSizeTooltip"),
-  }),
-  children.maxSize.propertyView({
-    label: trans("file.maxSize"),
-    placeholder: "10kb",
-    tooltip: trans("file.maxSizeTooltip"),
-  }),
-];
+
 
 const commonProps = (
   props: RecordConstructorToView<typeof commonChildren> & {
@@ -464,7 +451,7 @@ const Upload = (
   }, [files]);
   // chrome86 bug: button children should not contain only empty span
   const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
-  
+
   const handleOnChange = (param: UploadChangeParam) => {
     const uploadingFiles = param.fileList.filter((f) => f.status === "uploading");
     // the onChange callback will be executed when the state of the antd upload file changes.
@@ -624,67 +611,15 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   return(
     <Upload {...props} dispatch={dispatch} />
   )})
-  .setPropertyViewFn((children) => (
-    <>
-      <Section name={sectionNames.basic}>
-        {children.text.propertyView({
-          label: trans("text"),
-        })}
-        {children.uploadType.propertyView({ label: trans("file.uploadType") })}
-      </Section>
 
-      <FormDataPropertyView {...children} />
 
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-        <><Section name={sectionNames.validation}>
-          {children.uploadType.getView() !== "single" && children.maxFiles.propertyView({ label: trans("file.maxFiles") })}
-          {commonValidationFields(children)}
-        </Section>
-        <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.advanced}>
-              {children.fileType.propertyView({
-              label: trans("file.fileType"),
-              placeholder: '[".png"]',
-              tooltip: (
-                <>
-                  {trans("file.reference")}{" "}
-                  <a href={trans("file.fileTypeTooltipUrl")} target="_blank" rel="noreferrer">
-                    {trans("file.fileTypeTooltip")}
-                  </a>
-                </>
-              ),
-            })}
-            {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {children.forceCapture.propertyView({
-              label: trans("file.forceCapture"),
-              tooltip: trans("file.forceCaptureTooltip")
-            })}
-            {children.showUploadList.propertyView({ label: trans("file.showUploadList") })}
-            {children.parseFiles.propertyView({
-              label: trans("file.parseFiles"),
-              tooltip: ParseFileTooltip,
-              placement: "right",
-            })}
-          </Section>
-        </>
-      )}
-
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-        </>
-      )}
-    </>
-  ))
+if (viewMode() === "edit") {
+    FileTmpComp.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+}
+const FileTmpCompBuilder = FileTmpComp
   .build();
 
-FileTmpComp = withMethodExposing(FileTmpComp, [
+const FileTmpComps = withMethodExposing(FileTmpCompBuilder, [
   {
     method: {
       name: "clearValue",
@@ -702,7 +637,7 @@ FileTmpComp = withMethodExposing(FileTmpComp, [
   },
 ]);
 
-export const FileComp = withExposingConfigs(FileTmpComp, [
+export const FileComp = withExposingConfigs(FileTmpComps, [
   new NameConfig("value", trans("file.filesValueDesc")),
   new NameConfig(
     "files",

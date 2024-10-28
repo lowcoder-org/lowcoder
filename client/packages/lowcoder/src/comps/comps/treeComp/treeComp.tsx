@@ -1,9 +1,9 @@
 import { RecordConstructorToView } from "lowcoder-core";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { withExposingConfigs } from "comps/generators/withExposing";
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 import { default as Tree } from "antd/es/tree";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { StyleConfigType, styleControl } from "comps/controls/styleControl";
 import {  InputFieldStyle, LabelStyle, TreeStyle } from "comps/controls/styleControlConstants";
@@ -12,24 +12,16 @@ import { withDefault } from "comps/generators";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
 import {
-  formSection,
-  // intersectSection,
   treeCommonChildren,
-  treeDataPropertyView,
   TreeNameConfigs,
   useTree,
-  valuePropertyView,
 } from "./treeUtils";
-import {
-  SelectInputValidationSection,
-} from "../selectInputComp/selectInputConstants";
 import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewTreeComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewTreeComp})))
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
 const Container = styled.div<TreeStyleType & { verticalScrollbar: boolean }>`
@@ -135,58 +127,13 @@ const TreeCompView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return(<TreeCompView {...props} />)}
 )
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {treeDataPropertyView(children)}
-        </Section>
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><SelectInputValidationSection {...children} />
-            {formSection(children)}
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {children.hidden.propertyView({ label: trans("prop.hide") })}
-              {children.disabled.propertyView({ label: trans("prop.disabled") })}
-              {children.selectType.propertyView({ label: trans("tree.selectType") })}
-              {children.selectType.getView() !== "none" && valuePropertyView(children)}
-              {children.selectType.getView() === "check" &&
-                children.checkStrictly.propertyView({
-                  label: trans("tree.checkStrictly"),
-                  tooltip: trans("tree.checkStrictlyTooltip"),
-                })}
-            </Section>
-          </>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.layout}>
-            {children.autoHeight.getPropertyView()}
-            {!children.autoHeight.getView() && 
-              children.verticalScrollbar.propertyView({
-                label: trans("prop.showVerticalScrollbar")
-              })}
-            {children.expanded.propertyView({ label: trans("tree.expanded") })}
-            {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
-            {children.showLine.propertyView({ label: trans("tree.showLine") })}
-            {children.showLine.getView() && children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (children.label.getPropertyView())}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-          </>
-        )}
-      </>
-    ))
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewTreeComp {...children}></SetPropertyViewTreeComp>);
+  }
+      return builder
     .build();
 })();
 

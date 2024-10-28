@@ -1,31 +1,22 @@
 import { StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { BoolCodeControl } from "../controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import type ReactQuill from "react-quill";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import { formDataChildren } from "./formComp/formDataConstants";
 import { INPUT_DEFAULT_ONCHANGE_DEBOUNCE } from "constants/perf";
-import {
-  hiddenPropertyView,
-  placeholderPropertyView,
-  readOnlyPropertyView,
-} from "comps/utils/propertyUtils";
-import _ from "lodash";
 import { trans } from "i18n";
 import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/richTextEditorComp"));
 
 const localizeStyle = css`
   & .ql-snow {
@@ -211,8 +202,7 @@ function RichTextEditor(props: IProps) {
   const originOnChangeRef = useRef(props.onChange);
   originOnChangeRef.current = props.onChange;
 
-  const onChangeRef = useRef(
-    (v: string) => originOnChangeRef.current?.(v)
+  const onChangeRef = useRef(    (v: string) => originOnChangeRef.current?.(v)
   );
 
   // react-quill will not take effect after the placeholder is updated
@@ -312,45 +302,12 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
     />
   );
 })
-  .setPropertyViewFn((children) => {
-    return (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("richTextEditor.defaultValue") })}
-          {placeholderPropertyView(children)}
-        </Section>
+if (viewMode() === "edit") {
+  RichTextEditorCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+}
+const RichTextEditorCompBuilder = RichTextEditorCompBase.build();
 
-        <FormDataPropertyView {...children} />
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
-            {readOnlyPropertyView(children)}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && children.contentScrollBar.propertyView({
-                label: trans("prop.textAreaScrollBar"),
-              })}
-              {children.toolbar.propertyView({ label: trans("richTextEditor.toolbar"), tooltip: trans("richTextEditor.toolbarDescription") })}
-              {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    );
-  })
-  .build();
-
-class RichTextEditorCompAutoHeight extends RichTextEditorCompBase {
+class RichTextEditorCompAutoHeight extends RichTextEditorCompBuilder {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }

@@ -11,15 +11,15 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
-import { useContext, useState, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useState, useEffect } from "react";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewStepControl =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewStepControl})))
 
 const sizeOptions = [
   {
@@ -209,89 +209,22 @@ let StepControlBasicComp = (function () {
     );
 
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.options.propertyView({})}
-          {children.initialValue.propertyView({ label: trans("step.initialValue"), tooltip : trans("step.initialValueTooltip")})}
-        </Section>
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-            {children.stepStatus.propertyView({label: trans("step.status")})}
-            {children.stepPercent.propertyView({label: trans("step.percent")})}
-            {children.selectable.propertyView({label: trans("step.selectable")})}
-          </Section></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.layout}>
-            {children.autoHeight.getPropertyView()}
-            {children.size.propertyView({
-              label: trans("step.size"),
-              radioButton: true,
-            })}
-            {children.displayType.propertyView({
-              label: trans("step.type"),
-              radioButton: false,
-            })}
-            {children.direction.propertyView({
-              label: trans("step.direction"),
-              radioButton: true,
-            })}
-            { children.direction.getView() == "horizontal" && 
-              children.labelPlacement.propertyView({
-                label: trans("step.labelPlacement"),
-                radioButton: true,
-              })
-            }
-            {children.direction.getView() == "horizontal" && (
-              children.minHorizontalWidth.propertyView({
-                label: trans("prop.minHorizontalWidth"),
-                  placeholder: '100px',
-              })
-            )}
-            {!children.autoHeight.getView() && (
-              children.showScrollBars.propertyView({
-              label: trans("prop.scrollbar"),
-            })
-            )}
-            { children.displayType.getView() != "inline" && !children.showIcons.getView() && (
-              children.showDots.propertyView({label: trans("step.showDots")}
-            ))}
-            { children.displayType.getView() != "inline" && !children.showDots.getView() && (
-              children.showIcons.propertyView({label: trans("step.showIcons")}
-            ))}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-          </>
-        )}
-      </>
-    ))
-    .setExposeMethodConfigs(selectDivRefMethods)
-    .build();
 })();
 
-StepControlBasicComp = class extends StepControlBasicComp {
+if (viewMode() === "edit") {
+  StepControlBasicComp.setPropertyViewFn((children) => <SetPropertyViewStepControl {...children}></SetPropertyViewStepControl>);
+}
+const StepControlBasicCompTmp = StepControlBasicComp
+.setExposeMethodConfigs(selectDivRefMethods)
+.build();
+
+const StepControlBasicCompBuilder = class extends StepControlBasicCompTmp  {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
 
-export const StepComp = withExposingConfigs(StepControlBasicComp, [
+export const StepComp = withExposingConfigs(StepControlBasicCompBuilder, [
   new NameConfig("value", trans("step.valueDesc")),
   new NameConfig("stepStatus", trans("step.status") ),
   new NameConfig("stepPercent", trans("step.percent")),

@@ -26,7 +26,6 @@ import {
   InnerGrid,
 } from "../containerComp/containerView";
 import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
@@ -37,6 +36,8 @@ import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 
 const EVENT_OPTIONS = [
   {
@@ -296,69 +297,17 @@ const TabbedContainer = (props: TabbedContainerProps) => {
 
 
 export const TabbedContainerBaseComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
       <DisabledContext.Provider value={props.disabled}>
         <TabbedContainer {...props} dispatch={dispatch} />
       </DisabledContext.Provider>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.tabs.propertyView({
-              title: trans("tabbedContainer.tab"),
-              newOptionLabel: "Tab",
-            })}
-            {children.selectedTabKey.propertyView({ label: trans("prop.defaultValue") })}
-          </Section>
-        
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
-              {children.destroyInactiveTab.propertyView({ label: trans("tabbedContainer.destroyInactiveTab") })}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.placement.propertyView({ label: trans("tabbedContainer.placement"), radioButton: true })}
-                {children.tabsCentered.propertyView({ label: trans("tabbedContainer.tabsCentered")})}
-                { children.tabsGutter.propertyView({ label: trans("tabbedContainer.gutter"), tooltip : trans("tabbedContainer.gutterTooltip") })}
-                {children.horizontalGridCells.propertyView({
-                  label: trans('prop.horizontalGridCells'),
-                })}
-                {children.autoHeight.getPropertyView()}
-                {!children.autoHeight.getView() && (
-                  children.showVerticalScrollbar.propertyView({
-                    label: trans("prop.showVerticalScrollbar"),
-                  })
-                )}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              {children.showHeader.getView() && (
-                <Section name={"Header Style"}>
-                  { children.headerStyle.getPropertyView() }
-                </Section>
-              )}
-              <Section name={"Body Style"}>
-                { children.bodyStyle.getPropertyView() }
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                { children.animationStyle.getPropertyView() }
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+      return builder
     .build();
 })();
 

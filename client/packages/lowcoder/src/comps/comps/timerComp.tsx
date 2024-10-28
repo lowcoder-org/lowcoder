@@ -3,18 +3,17 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, startButtonStyle, StartButtonStyleType, timerStyle, timerStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Button, Space } from "antd";
 import { countdownEvent, eventHandlerControl, pauseEvent, resetEvent, resumeEvent, startEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { stateComp } from "../generators";
-import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "../controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/timerComp"));
 
 const Container = styled.div<{
   $style: timerStyleType | undefined;
@@ -222,47 +221,11 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 };
 
 let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
-    .setPropertyViewFn((children) => (
-      <>
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.basic}>
-              {children.timerType.propertyView({
-                label: trans('timer.timerType')
-              })}
-              {children.defaultValue.propertyView({
-                label: trans('timer.defaultValue')
-              })}
-              {children.hideButton.propertyView({
-                label: trans('timer.hideButton')
-              })}
-            </Section>
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.onEvent.propertyView()}
-            </Section>
-          </>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.startButtonStyle}>
-            {children.startButtonStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.resetButtonStyle}>
-            {children.resetButtonStyle.getPropertyView()}
-          </Section>
-          </>
-        )}
-      </>
-    ))
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+  return builder
     .setExposeMethodConfigs([
       {
         method: {

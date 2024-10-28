@@ -1,20 +1,17 @@
 import { default as Layout } from "antd/es/layout";
 import { default as LayoutSider } from "antd/es/layout/Sider";
 import { default as AntdMenu, MenuProps } from "antd/es/menu";
-import { default as Segmented } from "antd/es/segmented";
 import MainContent from "components/layout/MainContent";
 import { LayoutMenuItemComp, LayoutMenuItemListComp } from "comps/comps/layout/layoutMenuItemComp";
-import { menuPropertyView } from "comps/comps/navComp/components/MenuItemList";
 import { registerLayoutMap } from "comps/comps/uiComp";
 import { MultiCompBuilder, withDefault, withViewFn } from "comps/generators";
 import { withDispatchHook } from "comps/generators/withDispatchHook";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { ALL_APPLICATIONS_URL } from "constants/routesURL";
 import { TopHeaderHeight } from "constants/style";
-import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import { EditorContainer, EmptyContent } from "pages/common/styledComponent";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import { isUserViewMode, useAppPathParam } from "util/hooks";
 import { BoolCodeControl, StringControl, jsonControl } from "comps/controls/codeControl";
@@ -42,7 +39,8 @@ import {
 } from "./navLayoutConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewNavLayout =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewNavLayout})))
 const { Header } = Layout;
 
 const DEFAULT_WIDTH = 240;
@@ -204,73 +202,13 @@ let NavTmpLayout = (function () {
     navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
     navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
   };
-  return new MultiCompBuilder(childrenMap, (props) => {
+  let builder =  new MultiCompBuilder(childrenMap, (props) => {
     return null;
   })
-    .setPropertyViewFn((children) => {
-      const [styleSegment, setStyleSegment] = useState('normal')
-
-      return (
-        <div style={{overflowY: 'auto'}}>
-          <Section name={trans("menu")}>
-            {children.dataOptionType.propertyView({
-              radioButton: true,
-              type: "oneline",
-            })}
-            {
-              children.dataOptionType.getView() === DataOption.Manual
-                ? menuPropertyView(children.items)
-                : children.jsonItems.propertyView({
-                  label: "Json Data",
-                })
-            }
-          </Section>
-          <Section name={trans("eventHandler.eventHandlers")}>
-            { children.onEvent.getPropertyView() }
-          </Section>
-          <Section name={sectionNames.layout}>
-            { children.width.propertyView({
-                label: trans("navLayout.width"),
-                tooltip: trans("navLayout.widthTooltip"),
-                placeholder: DEFAULT_WIDTH + "",
-            })}
-            { children.mode.propertyView({
-              label: trans("labelProp.position"),
-              radioButton: true
-            })}
-            { children.collapse.propertyView({
-              label: trans("labelProp.collapse"),
-            })}
-            {children.backgroundImage.propertyView({
-              label: `Background Image`,
-              placeholder: 'https://temp.im/350x400',
-            })}
-          </Section>
-          <Section name={trans("navLayout.navStyle")}>
-            { children.navStyle.getPropertyView() }
-          </Section>
-          <Section name={trans("navLayout.navItemStyle")}>
-            {controlItem({}, (
-              <Segmented
-                block
-                options={menuItemStyleOptions}
-                value={styleSegment}
-                onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
-              />
-            ))}
-            {styleSegment === 'normal' && (
-              children.navItemStyle.getPropertyView()
-            )}
-            {styleSegment === 'hover' && (
-              children.navItemHoverStyle.getPropertyView()
-            )}
-            {styleSegment === 'active' && (
-              children.navItemActiveStyle.getPropertyView()
-            )}
-          </Section>
-        </div>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewNavLayout {...children}></SetPropertyViewNavLayout>);
+  }
+      return builder
     .build();
 })();
 

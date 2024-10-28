@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import _ from "lodash";
 import {
   avatarContainerStyle,
   AvatarContainerStyleType,
@@ -17,8 +16,6 @@ import {
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -30,10 +27,12 @@ import { Avatar, AvatarProps, Badge, Dropdown, Menu } from "antd";
 import { LeftRightControl, dropdownControl } from "../controls/dropdownControl";
 import { stringExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
-import { BadgeBasicSection, badgeChildren } from "./badgeComp/badgeConstants";
+import { badgeChildren } from "./badgeComp/badgeConstants";
 import { DropdownOptionControl } from "../controls/optionsControl";
-import { ReactElement, useContext, useEffect } from "react";
+import React, { ReactElement, useContext } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/avatar"));
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -197,80 +196,12 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let AvatarBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return(<AvatarView {...props} />)})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.src.propertyView({
-            label: trans("avatarComp.src"),
-            placeholder: "http://xxxx/xx.jpg",
-            tooltip: trans("avatarComp.avatarCompTooltip"),
-          })}
-          {children.title.propertyView({
-            label: trans("avatarComp.title"),
-            tooltip: trans("avatarComp.avatarCompTooltip"),
-          })}
-          {children.icon.propertyView({
-            label: trans("avatarComp.icon"),
-            IconType: "All",
-            tooltip: trans("avatarComp.avatarCompTooltip"),
-          })}
-          {children.shape.propertyView({
-            label: trans("avatarComp.shape"),
-            radioButton: true,
-          })}
-          {
-            children.iconSize.propertyView({
-              label: trans("avatarComp.iconSize"),
-            })}
-          {
-            children.enableDropdownMenu.propertyView({
-              label: trans("avatarComp.enableDropDown")
-            })}
-          {children.enableDropdownMenu.getView() && children.options.propertyView({})}
-        </Section>
-        <Section name={trans('avatarComp.label')}>
-          {
-            children.avatarLabel.propertyView({
-              label: trans("avatarComp.label"),
-            })}
-          {
-            children.avatarCatption.propertyView({
-              label: trans("avatarComp.caption"),
-            })}
-          {
-            children.labelPosition.propertyView({
-              label: trans("avatarComp.labelPosition"),
-              radioButton: true,
-            })}
-          {
-            children.alignmentPosition.propertyView({
-              label: trans("avatarComp.alignmentPosition"),
-              radioButton: true,
-            })}
-        </Section>
-        {<BadgeBasicSection {...children} />}
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.avatarStyle}>
-          {children.avatarStyle.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.labelStyle}>
-          {children.labelStyle.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.captionStyle}>
-          {children.captionStyle.getPropertyView()}
-        </Section>
-      </>
-    ))
+    if (viewMode() === "edit") {
+        builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    }
+      return builder
     .build();
 })();
 

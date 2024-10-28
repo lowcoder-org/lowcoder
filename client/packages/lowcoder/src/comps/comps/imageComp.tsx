@@ -1,5 +1,4 @@
 import styled, { css } from "styled-components";
-import { Section, sectionNames } from "lowcoder-design";
 import {
   clickEvent,
   eventHandlerControl,
@@ -12,7 +11,7 @@ import {
   withExposingConfigs,
 } from "../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import _ from "lodash";
 import ReactResizeDetector from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
@@ -24,16 +23,16 @@ import {
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { default as AntImage } from "antd/es/image";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn = React.lazy( async () => await import("./setProperty/imageComp"));
+
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
   height: 100%;
@@ -128,8 +127,8 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
     // fixme border style bug on safari
     if (
-      (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
-      (_.divide(Number(width), Number(height)) || 0)
+        (_.divide(container?.clientWidth!, container?.clientHeight!) || 0) >
+        (_.divide(Number(width), Number(height)) || 0)
     ) {
       setStyle("100%", "auto");
     } else {
@@ -137,29 +136,29 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   };
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
-        <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
-          <div
-            ref={imgRef}
-            style={
-              props.autoHeight ? { width: "100%", height: "100%" } : undefined
-            }
-          >
-            <AntImage
-              src={props.src.value}
-              referrerPolicy="same-origin"
-              draggable={false}
-              preview={props.supportPreview}
-              fallback={DEFAULT_IMG_URL}
-              onClick={() => props.onEvent("click")}
-            />
-          </div>
-        </Container>
-      )}
-    >
-    </ReactResizeDetector>
+      <ReactResizeDetector
+          onResize={onResize}
+          render={() => (
+              <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
+                <div
+                    ref={imgRef}
+                    style={
+                      props.autoHeight ? { width: "100%", height: "100%" } : undefined
+                    }
+                >
+                  <AntImage
+                      src={props.src.value}
+                      referrerPolicy="same-origin"
+                      draggable={false}
+                      preview={props.supportPreview}
+                      fallback={DEFAULT_IMG_URL}
+                      onClick={() => props.onEvent("click")}
+                  />
+                </div>
+              </Container>
+          )}
+      >
+      </ReactResizeDetector>
   );
 };
 
@@ -176,51 +175,18 @@ const childrenMap = {
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
   return <ContainerImg {...props} />;
 })
-  .setPropertyViewFn((children) => {
-    return (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.src.propertyView({
-            label: trans("image.src"),
-          })}
-        </Section>
+if (viewMode() === "edit") {
+  ImageBasicComp.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+}
+const ImageBasicCompBuilder = ImageBasicComp.build();
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
-            {children.supportPreview.propertyView({
-              label: trans("image.supportPreview"),
-              tooltip: trans("image.supportPreviewTip"),
-            })}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    );
-  })
-  .build();
-
-ImageBasicComp = class extends ImageBasicComp {
+const ImageBasicCompTmp = class extends ImageBasicCompBuilder {
   override autoHeight(): boolean {
     return this.children.autoHeight.getView();
   }
 };
 
-export const ImageComp = withExposingConfigs(ImageBasicComp, [
+export const ImageComp = withExposingConfigs(ImageBasicCompTmp, [
   new NameConfig("src", trans("image.srcDesc")),
   NameConfigHidden,
 ]);

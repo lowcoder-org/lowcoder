@@ -1,4 +1,3 @@
-import { default as Row } from "antd/es/row";
 import { default as Col } from "antd/es/col";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { CompAction, CompActionTypes, deleteCompAction, wrapChildAction } from "lowcoder-core";
@@ -17,7 +16,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { ScrollBar, Section, controlItem, sectionNames } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import styled from "styled-components";
@@ -35,13 +34,12 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, NumberControl, StringControl } from "comps/controls/codeControl";
 
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
-
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import React from "react";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -188,66 +186,15 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
 };
 
 export const ResponsiveLayoutBaseComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
       <ColumnLayout {...props} dispatch={dispatch} />
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.columns.propertyView({
-              title: trans("responsiveLayout.column"),
-              newOptionLabel: trans("responsiveLayout.addColumn"),
-            })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
-                label: trans("prop.mainScrollbar")
-              })}
-              {children.horizontalGridCells.propertyView({
-                label: trans('prop.horizontalGridCells'),
-              })}
-            </Section>
-            <Section name={trans("responsiveLayout.columnsLayout")}>
-              {children.matchColumnsHeight.propertyView({ label: trans("responsiveLayout.matchColumnsHeight")
-              })}
-              {controlItem({}, (
-                <div style={{ marginTop: '8px' }}>{trans("responsiveLayout.columnsSpacing")}</div>
-              ))}
-              {children.templateColumns.propertyView({label: trans("responsiveLayout.columnDefinition"), tooltip: trans("responsiveLayout.columnsDefinitionTooltip")})}
-              {children.templateRows.propertyView({label: trans("responsiveLayout.rowDefinition"), tooltip: trans("responsiveLayout.rowsDefinitionTooltip")})}
-              {children.columnGap.propertyView({label: trans("responsiveLayout.columnGap")})}
-              {children.rowGap.propertyView({label: trans("responsiveLayout.rowGap")})}
-            </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.columnStyle}>
-                {children.columnStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+    return builder
     .build();
 })();
 

@@ -15,21 +15,18 @@ import {
   SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
-import { Section, sectionNames } from "lowcoder-design";
 import React, { Suspense, useEffect, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
 import { UICompBuilder } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import { formDataChildren } from "./formComp/formDataConstants";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/signatureComp"));
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -112,7 +109,7 @@ const childrenMap = {
 const SignatureCanvas = React.lazy(() => import("react-signature-canvas"));
 
 let SignatureTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     let canvas: SignatureCanvasType | null = null;
     const [isBegin, setIsBegin] = useState(false);
     const [canvasSize, setCanvasSize] = useState([0, 0]);
@@ -201,44 +198,10 @@ let SignatureTmpComp = (function () {
       ),
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.tips.propertyView({ label: trans("signature.tips") })}
-          </Section>
-
-          <FormDataPropertyView {...children} />
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-              {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
-              {children.showClear.propertyView({ label: trans("signature.showClear") })}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            children.label.getPropertyView()
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.labelStyle}>
-                {children.labelStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.inputFieldStyle}>
-                {children.inputFieldStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+      return builder
     .build();
 })();
 

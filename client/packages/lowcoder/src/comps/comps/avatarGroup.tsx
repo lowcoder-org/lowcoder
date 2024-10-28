@@ -1,18 +1,16 @@
 import { CompAction, RecordConstructorToView, changeChildAction } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { QRCodeStyle, QRCodeStyleType, avatarGroupStyle, AvatarGroupStyleType, avatarContainerStyle, AvatarContainerStyleType } from "comps/controls/styleControlConstants";
+import { avatarGroupStyle, avatarContainerStyle, AvatarContainerStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import {AlignCenter, AlignLeft, AlignRight, Section, sectionNames} from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import {AlignCenter, AlignLeft, AlignRight} from "lowcoder-design";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
 import { clickEvent, eventHandlerControl, refreshEvent } from "../controls/eventHandlerControl";
 import styled from "styled-components";
-import { useContext, ReactElement, useEffect } from "react";
+import React, { ReactElement } from "react";
 import { MultiCompBuilder, stateComp, withDefault } from "../generators";
-import { EditorContext } from "comps/editorState";
 import { IconControl } from "../controls/iconControl";
 import { ColorControl } from "../controls/colorControl";
 import { optionsControl } from "../controls/optionsControl";
@@ -20,7 +18,9 @@ import { BoolControl } from "../controls/boolControl";
 import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewAvatarGroup1 =  React.lazy( async () => await import("./setProperty/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup1})))
+const SetPropertyViewAvatarGroup2 =  React.lazy( async () => await import("./setProperty/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup2})))
 const MacaroneList = [
   '#fde68a',
   '#eecff3',
@@ -48,7 +48,7 @@ const Container = styled.div<{ $style: AvatarContainerStyleType | undefined, ali
   border-width: ${props => props?.$style?.borderWidth};
 `;
 
-const DropdownOption = new MultiCompBuilder(
+let DropdownOption = new MultiCompBuilder(
   {
     src: StringControl,
     AvatarIcon: IconControl,
@@ -59,24 +59,10 @@ const DropdownOption = new MultiCompBuilder(
   },
   (props) => props
 )
-  .setPropertyViewFn((children) => (
-    <>
-      {children.src.propertyView({ label: trans("avatarComp.src"), placeholder: "", tooltip: trans("avatarComp.avatarCompTooltip") })}
-      {children.label.propertyView({
-        label: trans("avatarComp.title"),
-        tooltip: trans("avatarComp.avatarCompTooltip"),
-      })}
-      {children.AvatarIcon.propertyView({
-        label: trans("avatarComp.icon"),
-        IconType: "All",
-        tooltip: trans("avatarComp.avatarCompTooltip"),
-      })}
-      {children.color.propertyView({ label: trans("style.fill") })}
-      {children.backgroundColor.propertyView({ label: trans("style.background") })}
-      {children.Tooltip.propertyView({ label: trans("badge.tooltip") })}
-    </>
-  ))
-  .build();
+if (viewMode() === "edit") {
+  DropdownOption.setPropertyViewFn((children) => <SetPropertyViewAvatarGroup1 {...children}></SetPropertyViewAvatarGroup1>);
+}
+const DropdownOptionBuilder = DropdownOption.build();
 
 const EventOptions = [clickEvent, refreshEvent] as const;
 
@@ -95,7 +81,7 @@ const childrenMap = {
   autoColor: BoolControl.DEFAULT_TRUE,
   onEvent: eventHandlerControl(EventOptions),
   currentAvatar: stateComp<JSONObject>({}),
-  avatars: optionsControl(DropdownOption, {
+  avatars: optionsControl(DropdownOptionBuilder, {
     initOptions: [
       { src: "https://api.dicebear.com/7.x/miniavs/svg?seed=1", label: String.fromCharCode(65 + Math.ceil(Math.random() * 25)) },
       { AvatarIcon: "/icon:antd/startwotone" },
@@ -143,48 +129,13 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 };
 
 let AvatarGroupBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return( <AvatarGroupView {...props} dispatch={dispatch} />
-)}) 
-    .setPropertyViewFn((children) => (
-      <>
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.basic}>
-              {children.avatars.propertyView({})}
-              {children.maxCount.propertyView({
-                label: trans("avatarGroup.maxCount")
-              })}
-              {children.avatarSize.propertyView({
-                label: trans("avatarGroup.avatarSize")
-              })}
-              {children.autoColor.propertyView({
-                label: trans("avatarGroup.autoColor")
-              })}
-              {children.alignment.propertyView({
-                label: trans("avatarGroup.alignment"),
-                radioButton: true,
-              })}
-            </Section>
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.onEvent.propertyView()}
-            </Section>
-          </>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.avatarStyle}>
-            {children.avatar.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          </>
-        )}
-      </>
-    ))
+)})
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewAvatarGroup2 {...children}></SetPropertyViewAvatarGroup2>);
+  }
+      return builder
     .build();
 })();
 

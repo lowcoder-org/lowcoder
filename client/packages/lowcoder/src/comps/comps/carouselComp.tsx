@@ -1,22 +1,20 @@
 import { default as Carousel } from "antd/es/carousel";
-import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import styled from "styled-components";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
+import { formDataChildren } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
+import {viewMode} from "@lowcoder-ee/util/editor";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/carouselComp"));
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -48,7 +46,7 @@ let CarouselBasicComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState(0);
     const onResize = () => {
@@ -79,40 +77,10 @@ let CarouselBasicComp = (function () {
       </Container>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.data.propertyView({ label: trans("data") })}
-          </Section>
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <><FormDataPropertyView {...children} />
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-              {children.autoPlay.propertyView({ label: trans("carousel.autoPlay") })}
-            </Section></>
-          )}
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <><Section name={sectionNames.layout}>
-                {children.showDots.propertyView({ label: trans("carousel.showDots") })}
-                {children.dotPosition.propertyView({
-                  label: trans("carousel.dotPosition"),
-                  radioButton: true,
-                })}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+      return builder
     .build();
 })();
 

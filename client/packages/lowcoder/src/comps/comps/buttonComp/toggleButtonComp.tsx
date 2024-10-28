@@ -1,12 +1,6 @@
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  loadingPropertyView,
-} from "comps/utils/propertyUtils";
-import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
 import styled from "styled-components";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -23,8 +17,9 @@ import {
 import { styleControl } from "comps/controls/styleControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState"; 
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewToggleButton =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewToggleButton})))
 
 const IconWrapper = styled.div`
   display: flex;
@@ -65,7 +60,7 @@ const ToggleTmpComp = (function () {
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
       ? (props.value.value ? props.trueText : props.falseText) || undefined
       : undefined;
@@ -94,60 +89,10 @@ const ToggleTmpComp = (function () {
       </ButtonCompWrapperStyled>
     );
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({
-            label: trans("prop.defaultValue"),
-            tooltip: trans("toggleButton.valueDesc"),
-          })}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-              {loadingPropertyView(children)}
-            </Section>
-            <Section name={sectionNames.advanced}>
-              {children.showText.propertyView({ label: trans("toggleButton.showText") })}
-              {children.showText.getView() && 
-                children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
-              {children.showText.getView() &&
-                children.falseText.propertyView({ label: trans("toggleButton.falseLabel") })}
-              {children.trueIcon.propertyView({ label: trans("toggleButton.trueIconLabel") })}
-              {children.falseIcon.propertyView({ label: trans("toggleButton.falseIconLabel") })}
-              {children.showText.getView() &&
-                children.iconPosition.propertyView({
-                  label: trans("toggleButton.iconPosition"),
-                  radioButton: true,
-              })}
-              {children.alignment.propertyView({
-                label: trans("toggleButton.alignment"),
-                radioButton: true,
-              })}
-            </Section>
-          </>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.style}>
-              {children.showBorder.propertyView({
-                label: trans("toggleButton.showBorder"),
-              })}
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-          )}
-        
-      </>
-    ))
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewToggleButton {...children}></SetPropertyViewToggleButton>);
+  }
+  return builder
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

@@ -5,18 +5,10 @@ import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import _ from "lodash";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  loadingPropertyView,
-} from "comps/utils/propertyUtils";
 import {
   CommonBlueLabel,
   controlItem,
   Dropdown,
-  Section,
-  sectionNames,
 } from "lowcoder-design";
 import { trans } from "i18n";
 import styled, { css } from "styled-components";
@@ -35,10 +27,11 @@ import {
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
-import { useContext } from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -190,7 +183,7 @@ const childrenMap = {
 };
 
 let ButtonTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const [width, setWidth] = useState(120);
     const [height, setHeight] = useState(0);
 
@@ -288,43 +281,10 @@ let ButtonTmpComp = (function () {
       </EditorContext.Consumer>
     );
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.prefixIcon.propertyView({
-            label: trans("button.icon"),
-          })}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-            {loadingPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {children.iconSize.propertyView({
-                label: trans("button.iconSize"),
-              })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-              {children.aspectRatio.propertyView({
-                label: trans("style.aspectRatio"),
-              })}
-            </Section>
-          </>
-        )}
-      </>
-    ))
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  }
+      return builder
     .build();
 })();
 ButtonTmpComp = class extends ButtonTmpComp {

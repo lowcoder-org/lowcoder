@@ -6,20 +6,16 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../../controls/boolControl";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { LabelControl } from "../../controls/labelControl";
 import { UICompBuilder, withDefault } from "../../generators";
-import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   fixOldInputCompData,
   getStyle,
   inputRefMethods,
-  TextInputBasicSection,
   textInputChildren,
   TextInputConfigs,
-  TextInputInteractionSection,
   TextInputValidationOptions,
   useTextInputProps,
 } from "./textInputConstants";
@@ -27,22 +23,14 @@ import { withMethodExposing } from "../../generators/withMethodExposing";
 import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
-import {
-  hiddenPropertyView,
-  minLengthPropertyView,
-  readOnlyPropertyView,
-  requiredPropertyView,
-  regexPropertyView,
-  maxLengthPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewPasswordComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewPasswordComp})))
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
 }>`
@@ -64,7 +52,7 @@ let PasswordTmpComp = (function () {
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
 
     return props.label({
@@ -86,46 +74,10 @@ let PasswordTmpComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <TextInputBasicSection {...children} />
-          <FormDataPropertyView {...children} />
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            children.label.getPropertyView()
-          )}
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <><TextInputInteractionSection {...children} />
-              <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-              <Section name={sectionNames.advanced}>
-                {children.visibilityToggle.propertyView({
-                  label: trans("password.visibilityToggle"),
-                })}
-                {readOnlyPropertyView(children)}
-                {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-              </Section><Section name={sectionNames.validation}>
-                {requiredPropertyView(children)}
-                {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
-                {regexPropertyView(children)}
-                {minLengthPropertyView(children)}
-                {maxLengthPropertyView(children)}
-                {children.customRule.propertyView({})}
-              </Section></>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-              <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-              <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewPasswordComp {...children}></SetPropertyViewPasswordComp>);
+  }
+      return builder
     .build();
 })();
 

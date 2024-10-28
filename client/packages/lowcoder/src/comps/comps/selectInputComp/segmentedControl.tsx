@@ -9,24 +9,22 @@ import { AnimationStyle, LabelStyle, SegmentStyle, SegmentStyleType } from "comp
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { formDataChildren } from "../formComp/formDataConstants";
 import {
   selectDivRefMethods,
   SelectInputInvalidConfig,
   SelectInputValidationChildren,
-  SelectInputValidationSection,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
 import { RefControl } from "comps/controls/refControl";
 
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewSegmentedControl =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewSegmentedControl})))
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -86,7 +84,7 @@ const SegmentChildrenMap = {
 };
 
 let SegmentedControlBasicComp = (function () {
-  return new UICompBuilder(SegmentChildrenMap, (props) => {
+  let builder = new UICompBuilder(SegmentChildrenMap, (props) => {
     const [
       validateState,
       handleChange,
@@ -119,44 +117,12 @@ let SegmentedControlBasicComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.options.propertyView({})}
-          {children.defaultValue.propertyView({ label: trans("prop.defaultValue") })}
-        </Section>
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><SelectInputValidationSection {...children} />
-          <FormDataPropertyView {...children} />
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-          </Section></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.labelStyle}>
-            {children.labelStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-            </Section>
-            </>
-        )}
-      </>
-    ))
-    .setExposeMethodConfigs(selectDivRefMethods)
-    .build();
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewSegmentedControl {...children}></SetPropertyViewSegmentedControl>);
+  }
+  return builder
+      .setExposeMethodConfigs(selectDivRefMethods)
+      .build();
 })();
 
 SegmentedControlBasicComp = migrateOldData(SegmentedControlBasicComp, fixOldInputCompData);

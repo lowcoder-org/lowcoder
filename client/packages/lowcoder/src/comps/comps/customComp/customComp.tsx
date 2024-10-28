@@ -4,17 +4,15 @@ import { StringControl } from "comps/controls/codeControl";
 import { jsonObjectStateControl } from "comps/controls/codeStateControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { useEffect, useRef, useContext } from "react";
+import React, {useEffect, useRef } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { EventData, EventTypeEnum } from "./types";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { EditorContext } from "comps/editorState";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
 
@@ -223,7 +221,7 @@ const childrenMap = {
   animationStyle:styleControl(AnimationStyle , 'animationStyle'),
 };
 
-const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
+let CustomCompBaseBuilder = new UICompBuilder(childrenMap, (props, dispatch) => {
   const { code, model } = props;
   return (
     <InnerCustomComponent
@@ -236,27 +234,12 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
     />
   );
 })
-  .setPropertyViewFn((children) => {
-    return (
-      <>
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.interaction}>
-              {children.model.propertyView({ label: trans("customComp.data") })}
-              {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
-              {hiddenPropertyView(children)}
-          </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}  
-      </>
-    );
-  })
-  .build();
+
+if (viewMode() === "edit") {
+  CustomCompBaseBuilder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+}
+
+const CustomCompBase = CustomCompBaseBuilder.build();
 
 class CustomCompAutoHeight extends CustomCompBase {
   override autoHeight(): boolean {

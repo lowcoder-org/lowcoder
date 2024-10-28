@@ -1,6 +1,5 @@
 import { MultiCompBuilder, withDefault, withViewFn } from "comps/generators";
 import { trans } from "i18n";
-import { Section, sectionNames } from "components/Section";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { BoolCodeControl, StringControl, jsonControl, NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -18,11 +17,9 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { default as Skeleton } from "antd/es/skeleton";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
-import { DataOption, DataOptionType, ModeOptions, menuItemStyleOptions, mobileNavJsonMenuItems } from "./navLayoutConstants";
+import { DataOption, DataOptionType, mobileNavJsonMenuItems } from "./navLayoutConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { NavLayoutItemActiveStyle, NavLayoutItemActiveStyleType, NavLayoutItemHoverStyle, NavLayoutItemHoverStyleType, NavLayoutItemStyle, NavLayoutItemStyleType, NavLayoutStyle, NavLayoutStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
-import Segmented from "antd/es/segmented";
-import { controlItem } from "components/control";
 import { check } from "@lowcoder-ee/util/convertUtils";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 import { isEmpty } from "lodash";
@@ -32,7 +29,8 @@ import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {AlignCenter, AlignLeft, AlignRight} from "icons";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewMobileTabLayout =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewMobileTabLayout})))
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
   import("antd-mobile/es/components/tab-bar/tab-bar").then((module) => ({
@@ -320,67 +318,13 @@ let MobileTabLayoutTmp = (function () {
     navItemHoverStyle: styleControl(NavLayoutItemHoverStyle, 'navItemHoverStyle'),
     navItemActiveStyle: styleControl(NavLayoutItemActiveStyle, 'navItemActiveStyle'),
   };
-  return new MultiCompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new MultiCompBuilder(childrenMap, (props, dispatch) => {
     return null;
   })
-    .setPropertyViewFn((children) => {
-      const [styleSegment, setStyleSegment] = useState('normal')
-      return (
-        <div style={{overflowY: 'auto'}}>
-          <Section name={trans("aggregation.tabBar")}>
-            {children.dataOptionType.propertyView({
-              radioButton: true,
-              type: "oneline",
-            })}
-            {
-              children.dataOptionType.getView() === DataOption.Manual
-                ? children.tabs.propertyView({})
-                : children.jsonItems.propertyView({
-                  label: "Json Data",
-                })
-            }
-          </Section>
-          <Section name={trans("eventHandler.eventHandlers")}>
-            { children.onEvent.getPropertyView() }
-          </Section>
-          <Section name={sectionNames.layout}>
-            {children.backgroundImage.propertyView({
-              label: `Background Image`,
-              placeholder: 'https://temp.im/350x400',
-            })}
-            { children.showSeparator.propertyView({label: trans("navLayout.mobileNavVerticalShowSeparator")})}
-            {children.tabBarHeight.propertyView({label: trans("navLayout.mobileNavBarHeight")})}
-            {children.navIconSize.propertyView({label: trans("navLayout.mobileNavIconSize")})}
-            {children.maxWidth.propertyView({label: trans("navLayout.mobileNavVerticalMaxWidth")})}
-            {children.verticalAlignment.propertyView(
-              { label: trans("navLayout.mobileNavVerticalOrientation"),radioButton: true }
-            )}
-          </Section>
-          <Section name={trans("navLayout.navStyle")}>
-            { children.navStyle.getPropertyView() }
-          </Section>
-          <Section name={trans("navLayout.navItemStyle")}>
-            {controlItem({}, (
-              <Segmented
-                block
-                options={menuItemStyleOptions}
-                value={styleSegment}
-                onChange={(k) => setStyleSegment(k as MenuItemStyleOptionValue)}
-              />
-            ))}
-            {styleSegment === 'normal' && (
-              children.navItemStyle.getPropertyView()
-            )}
-            {styleSegment === 'hover' && (
-              children.navItemHoverStyle.getPropertyView()
-            )}
-            {styleSegment === 'active' && (
-              children.navItemActiveStyle.getPropertyView()
-            )}
-          </Section>
-        </div>
-      );
-    })
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewMobileTabLayout {...children}></SetPropertyViewMobileTabLayout>);
+  }
+    return builder
     .build();
 })();
 

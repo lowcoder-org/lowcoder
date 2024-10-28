@@ -5,11 +5,9 @@ import {
   NameConfigRequired,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import { BoolControl } from "../../controls/boolControl";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { UICompBuilder } from "../../generators";
-import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   checkMentionListData,
   fixOldInputCompData,
@@ -26,14 +24,6 @@ import {
   InputLikeStyle,
   InputLikeStyleType,
 } from "comps/controls/styleControlConstants";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  maxLengthPropertyView,
-  minLengthPropertyView,
-  readOnlyPropertyView,
-  requiredPropertyView,
-} from "comps/utils/propertyUtils";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
@@ -54,10 +44,10 @@ import {
   changeEvent
 } from "comps/controls/eventHandlerControl";
 
-import React, { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewMentionComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewMentionComp})))
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`
@@ -103,7 +93,7 @@ let MentionTmpComp = (function () {
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props) => {  
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);
@@ -221,56 +211,10 @@ let MentionTmpComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({ label: trans("prop.defaultValue") })}
-          {children.placeholder.propertyView({
-            label: trans("prop.placeholder"),
-          })}
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            children.mentionList.propertyView({
-              label: trans("mention.mentionList"),
-            })
-          )}
-        </Section>
-        <FormDataPropertyView {...children} />
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
-        )}
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-          </Section>
-            <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-            <Section name={sectionNames.advanced}>
-              {readOnlyPropertyView(children)}
-            </Section><Section name={sectionNames.validation}>
-              {requiredPropertyView(children)}
-              {children.validationType.propertyView({
-                label: trans("prop.textType"),
-              })}
-              {minLengthPropertyView(children)}
-              {maxLengthPropertyView(children)}
-              {children.customRule.propertyView({})}
-            </Section></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
+  if (viewMode() === "edit") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewMentionComp {...children}></SetPropertyViewMentionComp>);
+  }
+  return builder
     .build();
 })();
 

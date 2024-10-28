@@ -6,58 +6,25 @@ import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { trans } from "i18n";
 import _ from "lodash";
-import { DocLink } from "lowcoder-design";
-import { BottomTabs } from "pages/editor/bottom/BottomTabs";
-import { ReactNode, useState } from "react";
+import React, { ReactNode } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";
 import { JSONObject } from "util/jsonTypes";
-import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
-import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
-import SupaDemoDisplay from "comps/utils/supademoDisplay";
-
-const TemporaryStateItemCompBase = new MultiCompBuilder(
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewFn = React.lazy( async () => await import("./setProperty/temporaryStateComp"));
+let TemporaryStateItemCompBase = new MultiCompBuilder(
     {
       name: SimpleNameComp,
       value: jsonValueStateControl(null),
     },
     () => null
   )
-  .setPropertyViewFn((children) => {
-    return (
-        <BottomTabs
-          type={BottomResTypeEnum.TempState}
-          tabsConfig={[
-            {
-              key: "general",
-              title: trans("query.generalTab"),
-              children: children.value.propertyView({
-                label: trans("temporaryState.value"),
-                tooltip: trans("temporaryState.valueTooltip"),
-                placement: "bottom",
-                extraChildren: QueryTutorials.tempState && (
-                  <><br/><TacoMarkDown>{trans("temporaryState.documentationText")}</TacoMarkDown><br/><DocLink style={{ marginTop: 8 }} href={QueryTutorials.tempState} title={trans("temporaryState.documentationText")}>
-                    {trans("temporaryState.docLink")}
-                  </DocLink><br/><br/>
+if (viewMode() === "edit") {
+  TemporaryStateItemCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+}
+const TemporaryStateItemCompBasebuilder = TemporaryStateItemCompBase.build();
 
-                  <SupaDemoDisplay
-                    url={trans("supademos.temporarystate")}
-                    modalWidth="80%"
-                    modalTop="20px"
-                  />
-                  </>
-                ),
-              }),
-            },
-          ]}
-          tabTitle={children.name.getView()}
-          status=""
-        />
-      );
-  })
-  .build();
-
-class TemporaryStateAsBottomRes extends TemporaryStateItemCompBase implements BottomResComp {
+class TemporaryStateAsBottomRes extends TemporaryStateItemCompBasebuilder implements BottomResComp {
   result(): BottomResCompResult | null {
     return null;
   }
