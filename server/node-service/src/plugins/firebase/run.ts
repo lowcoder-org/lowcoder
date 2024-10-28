@@ -87,10 +87,21 @@ export async function runFirebasePlugin(
       const data = await withFirestoreCollection(async (ref) => {
         let query;
         if (actionData.orderBy) {
+          console.log("orderBy", actionData.orderBy);
           query = ref.orderBy(
             actionData.orderBy,
             (actionData.orderDirection || "asc") as OrderByDirection
           );
+        }
+        // Apply startAt if specified (for pagination)
+        if (actionData.startAt) {
+          if (Array.isArray(actionData.startAt)) {
+              // If startAt is an array, pass it as is
+              query = (query || ref).startAt(...actionData.startAt);
+          } else {
+              // If startAt is a single value, use it directly
+              query = (query || ref).startAt(actionData.startAt);
+          }
         }
         if (actionData.limit > 0) {
           query = (query || ref).limit(actionData.limit);

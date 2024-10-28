@@ -113,24 +113,6 @@ const queryConfig = {
               label: "Start at",
               type: "textInput",
               tooltip: "Start the query at a specific document.",
-            },
-            {
-              key: "endAt",
-              label: "End at",
-              type: "textInput",
-              tooltip: "End the query at a specific document.",
-            },
-            {
-              key: "startAfter",
-              label: "Start after",
-              type: "textInput",
-              tooltip: "Start the query after a specific document.",
-            },
-            {
-              key: "endBefore",
-              label: "End before",
-              type: "textInput",
-              tooltip: "End the query before a specific document.",
             }
           ],
         },
