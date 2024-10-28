@@ -54,7 +54,7 @@ const getStyle = (
   fixedToolbar: boolean,
 ) => {
   return css`
-    background-color: ${style.background};
+    background: ${style.background};
     // Implement horizontal scrollbar and vertical page number selection is not blocked
     padding: 13px 12px;
     position: sticky;

@@ -41,6 +41,7 @@ import { EditorContext } from "comps/editorState";
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -57,13 +58,13 @@ const ContainWrapper = styled.div<{
   column-gap: ${(props) => props.$style?.columnGap};
   row-gap: ${(props) => props.$style?.rowGap};
 
-  background-color: ${(props) => props.$style?.background} !important;
   border-radius: ${(props) => props.$style?.radius};
   border-width: ${(props) => props.$style?.borderWidth};
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   margin: ${(props) => props.$style?.margin};
   padding: ${(props) => props.$style?.padding};
+  ${props => props.$style && getBackgroundStyle(props.$style)}
 `;
 
 const ColWrapper = styled(Col)<{
@@ -73,13 +74,13 @@ const ColWrapper = styled(Col)<{
 }>`
   > div {
     height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
-    background-color: ${(props) => props.$style?.background} !important;
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth};
     border-color: ${(props) => props.$style?.border};
     border-style: ${(props) => props.$style?.borderStyle};
     margin: ${(props) => props.$style?.margin};
     padding: ${(props) => props.$style?.padding};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
 `;
 

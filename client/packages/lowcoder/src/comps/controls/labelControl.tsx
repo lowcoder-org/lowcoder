@@ -26,6 +26,7 @@ type LabelViewProps = Pick<FormItemProps, "required" | "help" | "validateStatus"
   childrenInputFieldStyle?: Record<string, string>;
   animationStyle?: Record<string, string>;
   onMouseDown?: React.MouseEventHandler<HTMLDivElement>;
+  showValidationWhenEmpty?: boolean;
 };
 
 const StyledStarIcon = styled(StarIcon)`
@@ -77,7 +78,7 @@ const MainWrapper = styled.div<{
     props.$position === "column" && props.$hasLabel ? "calc(100% - 4px)" : "100%"};
   display: flex;
   align-items: ${(props) => (props.$position === "row" ? "center" : "start")};
-  flex-shrink: 0;
+  flex-shrink: 1;
 `;
 
 const LabelWrapper = styled.div<{
@@ -178,6 +179,12 @@ export const LabelControl = (function () {
 
   return new MultiCompBuilder(childrenMap, (props) => (args: LabelViewProps) => 
   {
+    const inputValue = (
+      ((args.children as ReactElement)?.props?.children as ReactElement)?.props?.value // text area comp
+      ?? (args.children as ReactElement)?.props.value?.value // number input comp
+      ?? (args.children as ReactElement)?.props.value
+    );
+
     return (
       <LabelViewWrapper
         $style={args.style}
@@ -245,7 +252,10 @@ export const LabelControl = (function () {
           </ChildrenWrapper>
         </MainWrapper>
 
-        {args.help && Boolean((args.children as ReactElement)?.props.value) && (
+        {args.help && (
+          args.showValidationWhenEmpty
+          || (!args.showValidationWhenEmpty && Boolean(inputValue))
+        ) && (
           <HelpWrapper
             $marginLeft={
               props.position === "column" || isEmpty(props.text) || props.hidden

@@ -116,9 +116,9 @@ public class DatasourceController implements DatasourceEndpoints
      * name, type... and the plugin definition of it, excluding the detail configs such as the connection uri, password...
      */
     @Override
-    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId) {
+    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
-        return datasourceApiService.listJsDatasourcePlugins(objectId)
+        return datasourceApiService.listJsDatasourcePlugins(objectId, name, type)
                 .collectList()
                 .map(ResponseView::success);
     }
@@ -139,24 +139,24 @@ public class DatasourceController implements DatasourceEndpoints
 
     @SneakyThrows
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId) {
+    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
         String objectId = gidService.convertOrganizationIdToObjectId(orgId);
-        return datasourceApiService.listOrgDataSources(objectId)
+        return datasourceApiService.listOrgDataSources(objectId, name, type)
                 .collectList()
                 .map(ResponseView::success);
     }
 
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId) {
+    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
 
-        return datasourceApiService.listAppDataSources(objectId)
+        return datasourceApiService.listAppDataSources(objectId, name, type)
                 .collectList()
                 .map(ResponseView::success);
     }

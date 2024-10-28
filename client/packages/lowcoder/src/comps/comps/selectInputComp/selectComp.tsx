@@ -55,6 +55,7 @@ let SelectBasicComp = (function () {
           dispatch={dispatch}
         />
       ),
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })

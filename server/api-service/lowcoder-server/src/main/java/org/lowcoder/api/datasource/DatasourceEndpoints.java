@@ -99,7 +99,7 @@ public interface DatasourceEndpoints
 		    description = "Retrieve a list of node service plugins available within Lowcoder."
 	)
     @GetMapping("/jsDatasourcePlugins")
-    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId);
+    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type);
 
     /**
      * Proxy the request to the node service, besides, add the "extra" information from the data source config stored in the mongodb if exists to
@@ -123,7 +123,7 @@ public interface DatasourceEndpoints
 	)
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByOrg")
-    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId);
+    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam String name, @RequestParam String type);
 
 	@Operation(
 			tags = TAG_DATASOURCE_MANAGEMENT,
@@ -134,7 +134,7 @@ public interface DatasourceEndpoints
     @Deprecated
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByApp")
-    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId);
+    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam String name, @RequestParam String type);
 
 	@Operation(
 			tags = TAG_DATASOURCE_PERMISSIONS,

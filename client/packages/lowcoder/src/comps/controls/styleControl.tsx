@@ -829,6 +829,48 @@ const ResetIcon = styled(IconReset)`
   }
 `;
 
+const useThemeStyles = (
+  styleKey: string,
+  props: Record<string, string | undefined>,
+) => {
+  const editorState = useContext(EditorContext);
+  const {comp, compType} = useContext(CompContext);
+  const theme = useContext(ThemeContext);
+  const bgColor = useContext(BackgroundColorContext);
+  const { themeId } = theme || {};
+  const isPreviewTheme = themeId === 'preview-theme';
+  const isDefaultTheme = themeId === 'default-theme-id';
+
+  const appSettingsComp = editorState?.getAppSettingsComp();
+  const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
+  const { appliedThemeId, preventStyleOverwriting } = (comp?.comp || {});
+  const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
+    ? theme?.theme
+    : defaultTheme;
+  let compTheme: JSONValue|undefined = {};
+  if (appliedThemeId !== themeId) {
+    compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
+      ? {
+          ...(omit(defaultTheme, 'components', 'chart')),
+          ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+          ...(omit(theme?.theme, 'components', 'chart')),
+          ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
+        }
+      : defaultTheme.components?.[compType]?.[styleKey];
+  }
+  const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
+    ? props
+    : {};
+
+  return {
+    appTheme,
+    styleProps,
+    bgColor,
+    compTheme,
+    compType,
+  }
+};
+
 export function styleControl<T extends readonly SingleColorConfig[]>(
   colorConfigs: T,
   styleKey: string = '',
@@ -888,39 +930,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
   return new ControlItemCompBuilder(
     childrenMap as ToConstructor<{ [K in Names<T>]: ColorControl }>,
     (props) => {
-      // const compType = useContext(CompTypeContext);
-      const editorState = useContext(EditorContext);
-      const {comp, compType} = useContext(CompContext);
-      const theme = useContext(ThemeContext);
-      const bgColor = useContext(BackgroundColorContext);
-      const { themeId } = theme || {};
-      const isPreviewTheme = themeId === 'preview-theme';
-      const isDefaultTheme = themeId === 'default-theme-id';
-
-
-      const appSettingsComp = editorState?.getAppSettingsComp();
-      const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
-      const { appliedThemeId, preventStyleOverwriting } = (comp?.comp || {});
-      const appTheme = isPreviewTheme || isDefaultTheme || (!preventStyleOverwriting && !preventAppStylesOverwriting)
-        ? theme?.theme
-        : defaultTheme;
-      let compTheme: JSONValue|undefined = {};
-      if (appliedThemeId !== themeId) {
-        compTheme = isPreviewTheme || isDefaultTheme || (compType && !preventStyleOverwriting && !preventAppStylesOverwriting)
-          ? {
-              ...(omit(defaultTheme, 'components', 'chart')),
-              ...defaultTheme.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
-              ...(omit(theme?.theme, 'components', 'chart')),
-              ...theme?.theme?.components?.[compType]?.[styleKey] as unknown as Record<string, string>,
-            }
-          : defaultTheme.components?.[compType]?.[styleKey];
-      }
-      const styleProps = (!comp && !compType) || preventStyleOverwriting || preventAppStylesOverwriting || appliedThemeId === themeId
-        ? props as ColorMap
-        : {} as ColorMap;
+      const {
+        styleProps,
+        appTheme,
+        bgColor,
+        compTheme,
+        compType,
+      } = useThemeStyles(styleKey, props as Record<string, string>);
 
       return calcColors(
-        styleProps,
+        styleProps as ColorMap,
         colorConfigs,
         appTheme,
         bgColor,
@@ -932,21 +951,26 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
   )
     .setControlItemData({ filterText: label, searchChild: true })
     .setPropertyViewFn((children) => {
-      const theme = useContext(ThemeContext);
-      const compType = useContext(CompTypeContext);
-      const bgColor = useContext(BackgroundColorContext);
       const isMobile = useIsMobile();
-      const compTheme = compType
-        ? theme?.theme?.components?.[compType]?.[styleKey]
-        : undefined;
+      const childrenProps = childrenToProps(children) as Record<string, string>;
+      const {
+        styleProps,
+        appTheme,
+        bgColor,
+        compTheme,
+        compType,
+      } = useThemeStyles(styleKey, childrenProps);
 
       const props = calcColors(
-        childrenToProps(children) as ColorMap,
+        styleProps as ColorMap,
         colorConfigs,
-        theme?.theme,
+        appTheme,
         bgColor,
         compTheme as Record<string, string> | undefined,
+        compType,
+        styleKey,
       );
+
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
       return (
         <>
@@ -1341,6 +1365,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                   isDep: true,
                                                                   depMsg:
                                                                     depMsg,
+                                                                  allowGradient: config.name.includes('background'),
                                                                 })}
                   </div>
                 );

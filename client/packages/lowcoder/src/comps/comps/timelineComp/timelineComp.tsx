@@ -36,6 +36,7 @@ import {
   heightCalculator,
   widthCalculator,
   marginCalculator,
+  TimeLineStyleType,
 } from "comps/controls/styleControlConstants";
 import { stateComp, valueComp } from "comps/generators/simpleGenerators";
 import {
@@ -47,6 +48,24 @@ import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConst
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import { EditorContext } from "comps/editorState";
+import { styled } from "styled-components";
+
+const TimelineWrapper = styled.div<{
+  $style: TimeLineStyleType
+}>`
+  ${props => `margin: ${props.$style.margin ?? '3px'}` };
+  ${props => `padding: ${props.$style.padding !== '3px' ? props.$style.padding : '20px 10px 0px 10px'}` };
+  ${props => `width: ${widthCalculator(props.$style.margin ?? '3px')}` };
+  ${props => `height: ${heightCalculator(props.$style.margin ?? '3px')}` };
+  ${props => `background: ${props.$style.background}` };
+  ${props => `border-radius: ${props.$style.radius}` };
+  overflow: auto;
+  overflow-x: hidden;
+
+  .ant-timeline .ant-timeline-item-head {
+    background-color: transparent;
+  }
+`;
 
 const EventOptions = [
   clickEvent,
@@ -139,18 +158,7 @@ const TimelineComp = (
 
   return (
     <ScrollBar hideScrollbar={!props.verticalScrollbar}>
-      <div
-        style={{
-          margin: style.margin ?? '3px',
-          padding: style.padding !== '3px' ? style.padding : '20px 10px 0px 10px',
-          width: widthCalculator(style.margin ?? '3px'),
-          height: heightCalculator(style.margin ?? '3px'),
-          background: style.background,
-          overflow: "auto",
-          overflowX: "hidden",
-          borderRadius: style.radius,
-        }}
-      >
+      <TimelineWrapper $style={style}>
         <Timeline
           mode={props?.mode || "left"}
           reverse={props?.reverse}
@@ -163,7 +171,7 @@ const TimelineComp = (
           }
           items={timelineItems}
         />
-      </div>
+      </TimelineWrapper>
     </ScrollBar>
   );
 };

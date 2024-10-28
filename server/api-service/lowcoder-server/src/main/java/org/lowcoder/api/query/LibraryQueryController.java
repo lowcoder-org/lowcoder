@@ -16,6 +16,7 @@ import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import reactor.core.publisher.Mono;
@@ -34,14 +35,14 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     private GidService gidService;
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList() {
-        return libraryQueryApiService.dropDownList()
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false) String name) {
+        return libraryQueryApiService.dropDownList(name)
                 .map(ResponseView::success);
     }
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryView>>> list() {
-        return libraryQueryApiService.listLibraryQueries()
+    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false) String name) {
+        return libraryQueryApiService.listLibraryQueries(name)
                 .map(ResponseView::success);
     }
 

@@ -27,6 +27,7 @@ public interface UserService {
     Mono<Map<String, User>> getByIds(Collection<String> ids);
 
     Mono<User> findBySourceAndId(String connectionSource, String connectionSourceUuid);
+    Mono<User> findByEmailDeep(String email);
 
     Mono<Boolean> saveProfilePhoto(Part filePart, User t2);
 

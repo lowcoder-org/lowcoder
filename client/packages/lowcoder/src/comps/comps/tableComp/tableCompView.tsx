@@ -29,7 +29,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
-import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
+import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
@@ -52,7 +52,7 @@ import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
-  return `linear-gradient(${color}, ${color})`;
+  return isValidColor(color) ? `linear-gradient(${color}, ${color})` : color;
 }
 
 const getStyle = (
@@ -72,62 +72,53 @@ const getStyle = (
     }
     .ant-table-tbody {
       > tr:nth-of-type(2n + 1) {
-        &,
-        > td {
-          background: ${genLinerGradient(rowStyle.background)};
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
+        background: ${genLinerGradient(rowStyle.background)};
       }
 
       > tr:nth-of-type(2n) {
-        &,
-        > td {
-          background: ${alternateBackground};
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
+        background: ${alternateBackground};
       }
 
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
-        > td {
-          background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
         }
       }
 
       > tr:nth-of-type(2n).ant-table-row-selected {
-        > td {
-          background: ${selectedRowBackground}, ${alternateBackground} !important;
+        background: ${selectedRowBackground}, ${alternateBackground} !important;
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
         }
       }
 
       // hover row
-      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${rowStyle.background} !important;
+      > tr:nth-of-type(2n + 1):hover {
+        background: ${hoverRowBackground}, ${rowStyle.background} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
+        }
+      }
+      > tr:nth-of-type(2n):hover {
+        background: ${hoverRowBackground}, ${alternateBackground} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
         }
       }
 
-      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${alternateBackground} !important;
-        }
-      }
-
-      > tr.ant-table-expanded-row > td {
+      > tr.ant-table-expanded-row {
         background: ${background};
       }
     }
@@ -255,9 +246,11 @@ const TableWrapper = styled.div<{
               z-index: 99;
             `
           }
+          > tr {
+            background: ${(props) => props.$headerStyle.headerBackground}; 
+          }
           > tr > th {
-            background-color: ${(props) => props.$headerStyle.headerBackground};
-           
+            background: transparent;
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
@@ -600,12 +593,10 @@ function TableCellView(props: {
       rowHeight: rowHeight,
     }
     let { background } = style;
-    if (rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(background)) + "," + background;
-    }
     if (rowContext.hover) {
-      background = genLinerGradient(handleToHoverRow(background)) + "," + background;
+      background = 'transparent';
     }
+
     tdView = (
       <TableTd
         {...restProps}
@@ -982,6 +973,7 @@ export function TableCompView(props: {
       <TableSummary
         tableSize={size}
         istoolbarPositionBelow={toolbar.position === "below"}
+        multiSelectEnabled={compChildren.selection.children.mode.value === 'multiple'}
         expandableRows={Boolean(expansion.expandModalView)}
         summaryRows={parseInt(summaryRows)}
         columns={columns}

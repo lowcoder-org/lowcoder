@@ -144,6 +144,7 @@ export const textInputChildren = {
 
   // validation
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   minLength: NumberControl,
   maxLength: NumberControl,
   validationType: dropdownControl(TextInputValidationOptions, "Text"),
@@ -226,6 +227,7 @@ export const TextInputInteractionSection = (children: TextInputComp) => (
 export const TextInputValidationSection = (children: TextInputComp) => (
   <Section name={sectionNames.validation}>
     {requiredPropertyView(children)}
+    {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
     {children.validationType.propertyView({ label: trans("prop.textType") })}
     {valueInfoMap[children.validationType.getView()]?.extra === undefined &&
       regexPropertyView(children)}

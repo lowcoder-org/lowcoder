@@ -7,6 +7,8 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
@@ -27,9 +29,11 @@ import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
 import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
@@ -39,6 +43,8 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -273,7 +279,7 @@ public class DatabaseChangelog {
     @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
     public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
         // collections to add gid
-        String[] collectionNames = {"group", "organization"};
+        String[] collectionNames = {"group", "organization", "application", "bundle", "datasource", "libraryQuery", "folder"};
 
         // Get the list of existing collections
         Set<String> existingCollections = mongoTemplate.getCollectionNames();
@@ -293,6 +299,35 @@ public class DatabaseChangelog {
         ensureIndexes(mongoTemplate, Group.class, makeIndex("gid").unique());
         ensureIndexes(mongoTemplate, Organization.class, makeIndex("gid").unique());
         ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
+    }
+
+    @ChangeSet(order = "026", id = "add-time-series-snapshot-history", author = "")
+    public void addTimeSeriesSnapshotHistory(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        // Create the time-series collection if it doesn't exist
+        if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
+            mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
+        }
+        Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
+        List<ApplicationHistorySnapshot> snapshots = mongoTemplate.find(new Query().addCriteria(Criteria.where("createdAt").gte(thresholdDate)), ApplicationHistorySnapshot.class);
+        snapshots.forEach(snapshot -> {
+            ApplicationHistorySnapshotTS applicationHistorySnapshotTS = new ApplicationHistorySnapshotTS();
+            applicationHistorySnapshotTS.setApplicationId(snapshot.getApplicationId());
+            applicationHistorySnapshotTS.setDsl(snapshot.getDsl());
+            applicationHistorySnapshotTS.setContext(snapshot.getContext());
+            applicationHistorySnapshotTS.setCreatedAt(snapshot.getCreatedAt());
+            applicationHistorySnapshotTS.setCreatedBy(snapshot.getCreatedBy());
+            applicationHistorySnapshotTS.setModifiedBy(snapshot.getModifiedBy());
+            applicationHistorySnapshotTS.setUpdatedAt(snapshot.getUpdatedAt());
+            applicationHistorySnapshotTS.setId(snapshot.getId());
+            mongoTemplate.insert(applicationHistorySnapshotTS);
+            mongoTemplate.remove(snapshot);
+        });
+
+        // Ensure indexes if needed
+        ensureIndexes(mongoTemplate, ApplicationHistorySnapshotTS.class,
+                makeIndex("applicationId"),
+                makeIndex("createdAt")
+        );
     }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {

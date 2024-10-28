@@ -37,7 +37,7 @@ const Wrapper = styled.div<{ $badgeStyle: BadgeStyleType, $style: FloatButtonSty
         inset-block-end: -8px;
     }
     .ant-float-btn-primary .ant-float-btn-body {
-    background-color: ${(props) => props.$style.background};
+    background: ${(props) => props.$style.background};
     border: ${(props) => props.$style.border};
     border-style: ${(props) => props.$style.borderStyle};
     border-width: ${(props) => props.$style.borderWidth};

@@ -27,7 +27,7 @@ export function getButtonStyle(buttonStyle: any) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};
         color: ${buttonStyle.text};
-        background-color: ${buttonStyle.background};
+        background: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
         margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
