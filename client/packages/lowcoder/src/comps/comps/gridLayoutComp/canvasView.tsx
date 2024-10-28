@@ -26,6 +26,7 @@ import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const UICompContainer = styled.div<{
   $maxWidth?: number;
+  $rowCount?: number;
   readOnly?: boolean;
   $bgColor: string;
   $bgImage?: string;
@@ -35,6 +36,7 @@ const UICompContainer = styled.div<{
   $bgImagePosition?: string;
 }>`
   height: auto;
+  min-height: ${props => props.$rowCount === Infinity ? '100%' : 'auto'};
   margin: 0 auto;
   max-width: ${(props) => props.$maxWidth || 1600}px;
   
@@ -246,6 +248,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
     return (
       <UICompContainer
         $maxWidth={maxWidth}
+        $rowCount={defaultRowCount}
         readOnly={true}
         className={CNRootContainer}
         $bgColor={bgColor}
@@ -278,6 +281,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
       <EditorContainer ref={scrollContainerRef}>
         <UICompContainer
           $maxWidth={maxWidth}
+          $rowCount={defaultRowCount}
           className={CNRootContainer}
           $bgColor={bgColor}
           $bgImage={bgImage}

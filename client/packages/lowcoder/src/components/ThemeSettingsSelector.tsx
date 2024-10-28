@@ -98,7 +98,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     gridBgImagePosition: defaultGridBgImagePosition,
     gridBgImageOrigin: defaultGridBgImageOrigin,
   } = props;
-  
+
   const configChangeWithDebounce = _.debounce(configChange, 0);
   const [color, setColor] = useState(defaultColor);
   const [radius, setRadius] = useState(defaultRadius);
@@ -239,20 +239,20 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     configChange({ themeSettingKey, gridColumns: result });
   };
 
-  const gridRowCountInputBlur = (value: number) => {  
+  const gridRowCountInputBlur = (value: string) => {  
     let result = Infinity;
-    if (value > 0) {
-      result = value;
+    if (value !== '') {
+      result = Number(value);
     }
 
     setGridRowCount(result);  
     configChange({ themeSettingKey, gridRowCount: result });
   };
 
-  const gridPaddingInputBlur = (padding: number) => {  
+  const gridPaddingInputBlur = (padding: string) => { 
     let result = 20;  
-    if (padding > 0) {  
-      result = padding;  
+    if (padding !== '') {  
+      result = Number(padding);  
     }
 
     if (themeSettingKey === 'gridPaddingX') {
@@ -345,6 +345,14 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   useEffect(() => {
     setDataLoaders(defaultShowDataLoaders);
   }, [defaultShowDataLoaders]);
+
+  useEffect(() => {
+    setGridPaddingX(defaultGridPaddingX);
+  }, [defaultGridPaddingX]);
+
+  useEffect(() => {
+    setGridPaddingY(defaultGridPaddingY);
+  }, [defaultGridPaddingY]);
 
   return (
     <ConfigItem className={props.className}>
@@ -587,11 +595,16 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             type="number"
             min={0}
             value={gridRowCount}
-            onChange={(e) => setGridRowCount(Number(e.target.value))}
-            onBlur={(e) => gridRowCountInputBlur(Number(e.target.value))}
+            onChange={(e) => {
+              if (e.target.value === '') {
+                return setGridRowCount(Infinity);  
+              }
+              setGridRowCount(Number(e.target.value))
+            }}
+            onBlur={(e) => gridRowCountInputBlur(e.target.value)}
             onKeyUp={(e) =>
               e.nativeEvent.key === "Enter" &&
-              gridRowCountInputBlur(Number(e.currentTarget.value))
+              gridRowCountInputBlur(e.currentTarget.value)
             }
           />
         </div>
@@ -606,11 +619,16 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             type="number"
             min={0}
             value={gridPaddingX}
-            onChange={(e) => setGridPaddingX(Number(e.target.value))}
-            onBlur={(e) => gridPaddingInputBlur(Number(e.target.value))}
+            onChange={(e) => {
+              if (e.target.value === '') {
+                return setGridPaddingX(undefined);  
+              }
+              setGridPaddingX(Number(e.target.value))
+            }}
+            onBlur={(e) => gridPaddingInputBlur(e.target.value)}
             onKeyUp={(e) =>
               e.nativeEvent.key === "Enter" &&
-              gridPaddingInputBlur(Number(e.currentTarget.value))
+              gridPaddingInputBlur(e.currentTarget.value)
             }
           />
         </div>
@@ -625,11 +643,16 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             type="number"
             min={0}
             value={gridPaddingY}
-            onChange={(e) => setGridPaddingY(Number(e.target.value))}
-            onBlur={(e) => gridPaddingInputBlur(Number(e.target.value))}
+            onChange={(e) => {
+              if (e.target.value === '') {
+                return setGridPaddingY(undefined); 
+              }
+              setGridPaddingY(Number(e.target.value))
+            }}
+            onBlur={(e) => gridPaddingInputBlur(e.target.value)}
             onKeyUp={(e) =>
               e.nativeEvent.key === "Enter" &&
-              gridPaddingInputBlur(Number(e.currentTarget.value))
+              gridPaddingInputBlur(e.currentTarget.value)
             }
           />
         </div>

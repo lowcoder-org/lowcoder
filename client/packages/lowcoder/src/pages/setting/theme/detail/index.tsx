@@ -768,7 +768,6 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   name={layoutSettingsItem.name}
                                   showComponentLoadingIndicators={layoutSettingsItem.value as boolean}
                                   configChange={(params) => {
-                                    console.log('configChange', params);
                                     this.configChange(params);
                                   }}
                                 />
