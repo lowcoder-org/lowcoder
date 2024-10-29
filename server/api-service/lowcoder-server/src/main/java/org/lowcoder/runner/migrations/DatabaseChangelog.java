@@ -320,9 +320,9 @@ public class DatabaseChangelog {
         // Create the time-series collection if it doesn't exist
         if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
             if(mongoVersion < 5) {
-                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
-            } else {
                 mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class);
+            } else {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
             }
         }
         Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
