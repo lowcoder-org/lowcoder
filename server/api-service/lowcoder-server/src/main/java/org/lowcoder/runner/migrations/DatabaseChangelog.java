@@ -301,11 +301,29 @@ public class DatabaseChangelog {
         ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
     }
 
+    private int getMongoDBVersion(MongockTemplate mongoTemplate) {
+        Document buildInfo = mongoTemplate.executeCommand(new Document("buildInfo", 1));
+        String versionString = buildInfo.getString("version");
+        if(versionString == null) return -1;
+        String[] versionParts = versionString.split("\\.");
+        int majorVersion = Integer.parseInt(versionParts[0]);
+        return majorVersion;
+    }
+
     @ChangeSet(order = "026", id = "add-time-series-snapshot-history", author = "")
     public void addTimeSeriesSnapshotHistory(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        int mongoVersion = getMongoDBVersion(mongoTemplate);
+        if (mongoVersion < 5) {
+            log.warn("MongoDB version is below 5. Time-series collections are not supported. Upgrade the MongoDB version.");
+        }
+
         // Create the time-series collection if it doesn't exist
         if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
-            mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
+            if(mongoVersion < 5) {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class);
+            } else {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
+            }
         }
         Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
         List<ApplicationHistorySnapshot> snapshots = mongoTemplate.find(new Query().addCriteria(Criteria.where("createdAt").gte(thresholdDate)), ApplicationHistorySnapshot.class);

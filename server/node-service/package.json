@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-node-server",
-  "version": "2.4.11",
+  "version": "2.4.12",
   "private": true,
   "engines": {
     "node": "^14.18.0 || >=16.0.0"

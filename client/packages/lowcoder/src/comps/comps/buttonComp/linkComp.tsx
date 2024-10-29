@@ -95,7 +95,7 @@ const LinkTmpComp = (function () {
     // chrome86 bug: button children should not contain only empty span
     const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         <Link
           $animationStyle={props.animationStyle}
           ref={props.viewRef}

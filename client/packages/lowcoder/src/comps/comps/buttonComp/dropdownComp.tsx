@@ -116,7 +116,7 @@ const DropdownTmpComp = (function () {
     );
 
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         {props.onlyMenu ? (
           <Dropdown
             disabled={props.disabled}
