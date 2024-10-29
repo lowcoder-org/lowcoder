@@ -72,7 +72,7 @@ const ToggleTmpComp = (function () {
 
     return (
       <ButtonCompWrapperStyled
-        disabled={props.disabled}
+        $disabled={props.disabled}
         $align={props.alignment}
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}

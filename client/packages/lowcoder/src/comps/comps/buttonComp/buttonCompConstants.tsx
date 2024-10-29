@@ -68,10 +68,12 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   line-height:${(props) => props.$buttonStyle?.lineHeight}; 
 `;
 
-export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`
+export const ButtonCompWrapper = styled.div<{ $disabled: boolean }>`
+  display: flex;
+
   // The button component is disabled but can respond to drag & select events
   ${(props) =>
-    props.disabled &&
+    props.$disabled &&
     `
     cursor: not-allowed;
     button:disabled {

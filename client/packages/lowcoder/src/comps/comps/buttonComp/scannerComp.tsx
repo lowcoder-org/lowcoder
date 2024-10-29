@@ -134,7 +134,7 @@ const ScannerTmpComp = (function () {
     };
 
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         <Button100
           ref={props.viewRef}
           $buttonStyle={props.style}

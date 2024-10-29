@@ -136,7 +136,7 @@ const ButtonTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props) => {
     return(
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         <EditorContext.Consumer>
           {(editorState) => (
             <Button100
