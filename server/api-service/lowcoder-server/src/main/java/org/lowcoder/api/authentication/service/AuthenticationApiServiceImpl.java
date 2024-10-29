@@ -88,15 +88,19 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     log.warn("source is deprecated and will be removed in the future, please use authId instead. {}", source);
                     return authenticationService.findAuthConfigBySource(context.getOrgId(), source);
                 })
-                .doOnNext(findAuthConfig -> {
+                .flatMap(findAuthConfig -> {
                     context.setAuthConfig(findAuthConfig.authConfig());
                     if (findAuthConfig.authConfig().getSource().equals("EMAIL")) {
                         if(StringUtils.isBlank(context.getOrgId())) {
                             context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
                         }
+                        if(!findAuthConfig.authConfig().getEnable()) {
+                            return Mono.error(new BizException(EMAIL_PROVIDER_DISABLED, "EMAIL_PROVIDER_DISABLED"));
+                        }
                     } else {
                         context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
                     }
+                    return Mono.just(findAuthConfig);
                 })
                 .then(authRequestFactory.build(context))
                 .flatMap(authRequest -> authRequest.auth(context))

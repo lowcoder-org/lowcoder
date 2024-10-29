@@ -102,6 +102,7 @@ public enum BizError {
     JWT_NOT_FIND(400, 5619),
     ID_NOT_EXIST(500, 5620),
     DUPLICATE_AUTH_CONFIG_ADDITION(400, 5621),
+    EMAIL_PROVIDER_DISABLED(403, 5622),
 
 
     // asset related, code range 5700 - 5799
