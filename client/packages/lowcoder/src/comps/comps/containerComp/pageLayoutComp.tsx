@@ -18,7 +18,7 @@ import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewPageLayout =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewPageLayout})))
+const SetPropertyViewPageLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewPageLayout})))
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {

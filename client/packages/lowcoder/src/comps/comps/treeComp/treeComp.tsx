@@ -21,7 +21,7 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewTreeComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewTreeComp})))
+const SetPropertyViewTreeComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTreeComp})))
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
 const Container = styled.div<TreeStyleType & { verticalScrollbar: boolean }>`

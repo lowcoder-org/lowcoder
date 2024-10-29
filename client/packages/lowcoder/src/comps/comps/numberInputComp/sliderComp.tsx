@@ -8,7 +8,7 @@ import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewSliderComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewSliderComp})))
+const SetPropertyViewSliderComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewSliderComp})))
 const SliderBasicComp = (function () {
   /**
    * FIXME: the range of setValue cannot exceed max

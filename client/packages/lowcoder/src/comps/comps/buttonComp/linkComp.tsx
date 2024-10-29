@@ -16,7 +16,7 @@ import { RefControl } from "comps/controls/refControl";
 
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewLinkComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewLinkComp})))
+const SetPropertyViewLinkComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewLinkComp})))
 
 const Link = styled(Button)<{
   $style: LinkStyleType;

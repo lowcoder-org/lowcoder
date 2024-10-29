@@ -47,7 +47,7 @@ import {
 import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewMentionComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewMentionComp})))
+const SetPropertyViewMentionComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewMentionComp})))
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
 }>`

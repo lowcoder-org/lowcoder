@@ -12,7 +12,7 @@ import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/dividerComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/dividerComp"));
 type IProps = DividerProps & {
     $style: DividerStyleType;
     $animationStyle:AnimationStyleType;

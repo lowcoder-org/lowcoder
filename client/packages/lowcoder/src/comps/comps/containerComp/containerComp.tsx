@@ -16,7 +16,7 @@ import React from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewContainerComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewContainerComp})))
+const SetPropertyViewContainerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewContainerComp})))
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {

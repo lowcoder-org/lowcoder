@@ -13,7 +13,7 @@ import { dropdownControl } from "../controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/timerComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/timerComp"));
 
 const Container = styled.div<{
   $style: timerStyleType | undefined;

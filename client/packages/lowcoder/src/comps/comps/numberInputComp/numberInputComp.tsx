@@ -46,7 +46,7 @@ import {
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewNumberInputComp = React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewNumberInputComp})))
+const SetPropertyViewNumberInputComp = React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewNumberInputComp})))
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`

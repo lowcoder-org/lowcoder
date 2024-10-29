@@ -21,7 +21,7 @@ import { useExtensions } from "base/codeEditor/extensions";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewJsonEditor =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewJsonEditor})))
+const SetPropertyViewJsonEditor =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewJsonEditor})))
 /**
  * JsonEditor Comp
  */

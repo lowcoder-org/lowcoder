@@ -47,7 +47,7 @@ import {
   componentSize,
 } from "./autoCompleteConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
+const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
 const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
 box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => css`

@@ -22,7 +22,7 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
 import styled from "styled-components";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewVideoComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewVideoComp})))
+const SetPropertyViewVideoComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewVideoComp})))
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },

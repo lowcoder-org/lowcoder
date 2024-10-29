@@ -25,7 +25,7 @@ import {
   eventHandlerControl,
 } from "../controls/eventHandlerControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/iconComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iconComp"));
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;

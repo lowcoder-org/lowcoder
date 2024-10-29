@@ -37,7 +37,6 @@ import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import { styled } from "styled-components";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
 
 
 const TimelineWrapper = styled.div<{
@@ -57,6 +56,7 @@ const TimelineWrapper = styled.div<{
   }
 `;
 
+const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
 const EventOptions = [
   clickEvent,
 ] as const;

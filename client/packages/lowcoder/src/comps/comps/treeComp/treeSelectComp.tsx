@@ -24,7 +24,7 @@ import { trans } from "i18n";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewTreeSelectComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewTreeSelectComp})))
+const SetPropertyViewTreeSelectComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTreeSelectComp})))
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}

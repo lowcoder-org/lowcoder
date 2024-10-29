@@ -31,7 +31,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
+const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;

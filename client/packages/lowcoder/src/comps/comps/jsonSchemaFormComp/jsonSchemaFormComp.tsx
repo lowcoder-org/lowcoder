@@ -27,7 +27,7 @@ import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
+const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);

@@ -14,7 +14,7 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import React, { useEffect, useRef } from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/ratingComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/ratingComp"));
 
 const EventOptions = [changeEvent] as const;
 

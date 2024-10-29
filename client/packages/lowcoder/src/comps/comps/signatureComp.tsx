@@ -26,7 +26,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { formDataChildren } from "./formComp/formDataConstants";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/signatureComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/signatureComp"));
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;

@@ -16,7 +16,7 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewJsonLottie =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewJsonLottie})))
+const SetPropertyViewJsonLottie =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewJsonLottie})))
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
     .then(module => ({default: module.Player}))

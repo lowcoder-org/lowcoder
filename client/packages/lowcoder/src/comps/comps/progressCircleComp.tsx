@@ -8,7 +8,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { trans } from "i18n";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import React from "react";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/progressCircleComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/progressCircleComp"));
 // TODO: after Update of ANTd, introduce Size attribute to ProgressCircle
 
 const getStyle = (style: CircleProgressType) => {

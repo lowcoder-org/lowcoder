@@ -31,7 +31,7 @@ import { default as AntImage } from "antd/es/image";
 import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { StringControl } from "../controls/codeControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn = React.lazy( async () => await import("./setProperty/imageComp"));
+const SetPropertyViewFn = React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/imageComp"));
 
 
 const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`

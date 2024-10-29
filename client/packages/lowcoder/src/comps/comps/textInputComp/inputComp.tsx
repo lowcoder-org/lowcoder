@@ -26,7 +26,7 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewInputComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewInputComp})))
+const SetPropertyViewInputComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewInputComp})))
 
 /**
  * Input Comp

@@ -11,7 +11,7 @@ import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bot
 import { JSONObject } from "util/jsonTypes";
 import { SimpleNameComp } from "./simpleNameComp";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn = React.lazy( async () => await import("./setProperty/temporaryStateComp"));
+const SetPropertyViewFn = React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/temporaryStateComp"));
 let TemporaryStateItemCompBase = new MultiCompBuilder(
     {
       name: SimpleNameComp,

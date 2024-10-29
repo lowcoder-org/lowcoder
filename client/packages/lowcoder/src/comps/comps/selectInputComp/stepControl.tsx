@@ -19,7 +19,7 @@ import React, { useState, useEffect } from "react";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewStepControl =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewStepControl})))
+const SetPropertyViewStepControl =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewStepControl})))
 
 const sizeOptions = [
   {

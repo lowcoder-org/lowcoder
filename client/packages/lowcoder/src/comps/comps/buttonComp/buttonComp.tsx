@@ -24,7 +24,7 @@ import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstant
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
 
-const SetPropertyViewButtonComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewButtonComp})))
+const SetPropertyViewButtonComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewButtonComp})))
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
   margin-right: 4px;

@@ -22,7 +22,7 @@ import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const TextPropertyView =  React.lazy( async () => await import("./setProperty/textComp"));
+const TextPropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/textComp"));
 const EventOptions = [clickEvent] as const;
 
 

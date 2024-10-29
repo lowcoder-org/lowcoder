@@ -34,8 +34,8 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewDateComp1 =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewDateComp1})));
-const SetPropertyViewDateComp2 =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewDateComp2})));
+const SetPropertyViewDateComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDateComp1})));
+const SetPropertyViewDateComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDateComp2})));
 
 
 

@@ -20,7 +20,7 @@ import {
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewDropDownComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewDropDownComp})))
+const SetPropertyViewDropDownComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDropDownComp})))
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;

@@ -21,7 +21,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewCardComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewCardComp})))
+const SetPropertyViewCardComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewCardComp})))
 const { Meta } = Card;
 
 const Wrapper = styled.div<{

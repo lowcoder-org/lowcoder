@@ -55,7 +55,7 @@ import { styled } from "styled-components";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty"));
+const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
 
 const FormWrapper = styled.div`
   height: 100%;

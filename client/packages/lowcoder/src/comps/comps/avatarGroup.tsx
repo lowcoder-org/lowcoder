@@ -19,8 +19,8 @@ import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewAvatarGroup1 =  React.lazy( async () => await import("./setProperty/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup1})))
-const SetPropertyViewAvatarGroup2 =  React.lazy( async () => await import("./setProperty/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup2})))
+const SetPropertyViewAvatarGroup1 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup1})))
+const SetPropertyViewAvatarGroup2 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup2})))
 const MacaroneList = [
   '#fde68a',
   '#eecff3',

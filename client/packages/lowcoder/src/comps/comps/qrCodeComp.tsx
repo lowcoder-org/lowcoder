@@ -12,7 +12,7 @@ import { StringControl } from "comps/controls/codeControl";
 import { withDefault } from "../generators";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/qtCodeComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/qtCodeComp"));
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)

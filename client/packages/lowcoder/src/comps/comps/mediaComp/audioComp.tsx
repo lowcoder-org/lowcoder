@@ -13,7 +13,7 @@ import { trans } from "i18n";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewAudioComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewAudioComp})))
+const SetPropertyViewAudioComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewAudioComp})))
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};

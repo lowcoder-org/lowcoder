@@ -13,7 +13,7 @@ import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewJsonExplorer =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewJsonExplorer})))
+const SetPropertyViewJsonExplorer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewJsonExplorer})))
 /**
  * JsonExplorer Comp
  */

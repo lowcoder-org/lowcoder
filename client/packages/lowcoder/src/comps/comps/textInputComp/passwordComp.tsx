@@ -30,7 +30,7 @@ import { RefControl } from "comps/controls/refControl";
 import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewPasswordComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewPasswordComp})))
+const SetPropertyViewPasswordComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewPasswordComp})))
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
 }>`

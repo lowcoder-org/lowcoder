@@ -19,7 +19,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewToggleButton =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewToggleButton})))
+const SetPropertyViewToggleButton =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewToggleButton})))
 
 const IconWrapper = styled.div`
   display: flex;

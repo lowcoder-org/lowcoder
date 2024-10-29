@@ -16,7 +16,7 @@ import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./setProperty/richTextEditorComp"));
+const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/richTextEditorComp"));
 
 const localizeStyle = css`
   & .ql-snow {

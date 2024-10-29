@@ -23,7 +23,7 @@ import React from "react";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
 
-const SetPropertyViewTextContainer =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewTextContainer})))
+const SetPropertyViewTextContainer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTextContainer})))
 const typeOptions = [
   {
     label: "Markdown",

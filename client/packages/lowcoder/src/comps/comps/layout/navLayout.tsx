@@ -40,7 +40,7 @@ import {
 import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewNavLayout =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewNavLayout})))
+const SetPropertyViewNavLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewNavLayout})))
 const { Header } = Layout;
 
 const DEFAULT_WIDTH = 240;

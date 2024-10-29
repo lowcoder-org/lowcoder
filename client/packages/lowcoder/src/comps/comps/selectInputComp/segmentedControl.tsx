@@ -24,7 +24,7 @@ import React from "react";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewSegmentedControl =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewSegmentedControl})))
+const SetPropertyViewSegmentedControl =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewSegmentedControl})))
 
 const getStyle = (style: SegmentStyleType) => {
   return css`

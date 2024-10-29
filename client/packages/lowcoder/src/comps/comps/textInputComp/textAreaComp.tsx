@@ -28,7 +28,7 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewTextAreaComp =  React.lazy( async () => await import("./setProperty").then(module => ({default: module.SetPropertyViewTextAreaComp})))
+const SetPropertyViewTextAreaComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTextAreaComp})))
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
 }>`
