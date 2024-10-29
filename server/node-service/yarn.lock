@@ -7753,7 +7753,7 @@ __metadata:
     lodash: ^4.17.21
     loglevel: ^1.8.1
     lowcoder-core: ^0.0.8
-    lowcoder-sdk: 0.0.41
+    lowcoder-sdk: 2.4.14
     morgan: ^1.10.0
     nock: ^13.3.0
     node-fetch: 2
@@ -7774,13 +7774,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"lowcoder-sdk@npm:0.0.41":
-  version: 0.0.41
-  resolution: "lowcoder-sdk@npm:0.0.41"
+"lowcoder-sdk@npm:2.4.14":
+  version: 2.4.14
+  resolution: "lowcoder-sdk@npm:2.4.14"
+  dependencies:
+    prettier: ^3.1.1
   peerDependencies:
-    react: ">=17"
-    react-dom: ">=17"
-  checksum: f7820b8ddfc9e86c3c36923347a686325b449a9d01cad761c0800e27d6f3408e76668664a24667eeb19eb6674f5024113da7a9fc3881cf5ce28d6f9304444c79
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: 9d5dd2c562d380d96e1777d0c0b2722a6f3ad3b621e892ad0cdfa4c7dbb56576c715ddbc62edb4ddbc20614289f082103f14c1a298f292c456a9716d82454f53
   languageName: node
   linkType: hard
 
@@ -8991,6 +8993,15 @@ __metadata:
   version: 1.1.2
   resolution: "prelude-ls@npm:1.1.2"
   checksum: c4867c87488e4a0c233e158e4d0d5565b609b105d75e4c05dc760840475f06b731332eb93cc8c9cecb840aa8ec323ca3c9a56ad7820ad2e63f0261dadcb154e4
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.1.1":
+  version: 3.3.3
+  resolution: "prettier@npm:3.3.3"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: bc8604354805acfdde6106852d14b045bb20827ad76a5ffc2455b71a8257f94de93f17f14e463fe844808d2ccc87248364a5691488a3304f1031326e62d9276e
   languageName: node
   linkType: hard
 

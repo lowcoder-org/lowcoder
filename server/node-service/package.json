@@ -63,7 +63,7 @@
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
     "lowcoder-core": "^0.0.8",
-    "lowcoder-sdk": "0.0.41",
+    "lowcoder-sdk": "2.4.14",
     "morgan": "^1.10.0",
     "node-fetch": "2",
     "node-firebird": "^1.1.9",
