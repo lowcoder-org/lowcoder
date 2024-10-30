@@ -43,6 +43,8 @@ public interface UserService {
 
     Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser);
 
+    Mono<User> saveUser(User user);
+
     Mono<Void> deleteProfilePhoto(User visitor);
 
     Mono<Boolean> updatePassword(String userId, String oldPassword, String newPassword);

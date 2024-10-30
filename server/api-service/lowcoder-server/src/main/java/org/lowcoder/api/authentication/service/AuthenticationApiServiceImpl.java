@@ -164,7 +164,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     if (findByAuthUserFirst.userExist()) {
                         User user = findByAuthUserFirst.user();
                         updateConnection(authUser, user);
-                        return userService.update(user.getId(), user);
+                        return userService.saveUser(user);
                     }
 
                     //If the user connection is not found with login id, but the user is
