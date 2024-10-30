@@ -36,6 +36,7 @@ import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import { notificationInstance } from "components/GlobalInstances";
 import { AppState } from "@lowcoder-ee/redux/reducers";
+import ErrorFallback from "@lowcoder-ee/components/ErrorFallback";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -191,17 +192,6 @@ const AppEditor = React.memo(() => {
     }
   }, [isLowcoderCompLoading, fetchApplication]);
 
-  const fallbackUI = useMemo(() => (
-    <Flex align="center" justify="center" vertical style={{
-      height: '300px',
-      width: '400px',
-      margin: '0 auto',
-    }}>
-      <h4 style={{margin: 0}}>Something went wrong while displaying this webpage</h4>
-      <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
-    </Flex>
-  ), []);
-
   if (Boolean(appError)) {
     return (
       <Flex align="center" justify="center" vertical style={{
@@ -216,7 +206,12 @@ const AppEditor = React.memo(() => {
   }
 
   return (
-    <ErrorBoundary fallback={fallbackUI}>
+    <ErrorBoundary fallback={
+      <ErrorFallback
+        buttonText="Go to Apps"
+        onButtonClick={() => history.push(ALL_APPLICATIONS_URL)}
+      />
+    }>
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot

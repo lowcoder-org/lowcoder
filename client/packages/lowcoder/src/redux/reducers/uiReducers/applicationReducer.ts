@@ -33,6 +33,7 @@ const initialState: ApplicationReduxState = {
     fetchingAppDetail: false,
     applicationPublishing: false,
   },
+  fetchHomeDataError: false,
 };
 
 const usersReducer = createReducer(initialState, {
@@ -91,6 +92,7 @@ const usersReducer = createReducer(initialState, {
       isFetchingHomeData: false,
       fetchHomeDataFinished: true,
     },
+    fetchHomeDataError: true,
   }),
   [ReduxActionTypes.FETCH_APPLICATION_RECYCLE_LIST_SUCCESS]: (
     state: ApplicationReduxState,
@@ -356,6 +358,7 @@ export interface ApplicationReduxState {
     fetchingAppDetail: boolean; // dsl in detail
     applicationPublishing: boolean;
   };
+  fetchHomeDataError: boolean;
 }
 
 export default usersReducer;

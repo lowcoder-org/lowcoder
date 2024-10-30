@@ -58,6 +58,7 @@ import GlobalInstances from 'components/GlobalInstances';
 import { fetchHomeData } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
+import ErrorFallback from "./components/ErrorFallback";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -89,7 +90,9 @@ type AppIndexProps = {
   currentUserAnonymous: boolean;
   orgDev: boolean;
   defaultHomePage: string | null | undefined;
+  fetchHomeOrgFinished: boolean;
   fetchHomeDataFinished: boolean;
+  fetchHomeDataError: boolean;
   fetchConfig: (orgId?: string) => void;
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   fetchLowcoderCompVersions: () => void;
@@ -130,9 +133,14 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     /* if (isLocalhost || isLowCoderDomain) {
       posthog.init('phc_lD36OXeppUehLgI33YFhioTpXqThZ5QqR8IWeKvXP7f', { api_host: 'https://eu.i.posthog.com', person_profiles: 'always' });
     } */
-
+    
+    // show error message when /home endpoint fails
+    if (this.props.fetchHomeDataFinished && this.props.fetchHomeDataError) {
+      return <ErrorFallback />
+    }
+    
     // make sure all users in this app have checked login info
-    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
+    if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeOrgFinished)) {
       const hideLoadingHeader = isTemplate || isAuthUnRequired(pathname);
       return <ProductLoading hideHeader={hideLoadingHeader} />;
     }
@@ -409,7 +417,9 @@ const mapStateToProps = (state: AppState) => ({
   currentUserAnonymous: state.ui.users.user.isAnonymous,
   currentOrgId: state.ui.users.user.currentOrgId,
   defaultHomePage: state.ui.application.homeOrg?.commonSettings.defaultHomePage,
-  fetchHomeDataFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
+  fetchHomeOrgFinished: Boolean(state.ui.application.homeOrg?.commonSettings),
+  fetchHomeDataFinished: state.ui.application.loadingStatus.fetchHomeDataFinished,
+  fetchHomeDataError: state.ui.application.fetchHomeDataError,
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
@@ -449,7 +459,7 @@ export function bootstrap() {
   const root = createRoot(container!);
   root.render(
     <Provider store={reduxStore}>
-        <AppIndexWithProps />
+      <AppIndexWithProps />
     </Provider>
   );
 }
