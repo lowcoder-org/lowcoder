@@ -4,7 +4,15 @@ import {
   type UICompType,
   type UICompManifest
 } from "../../comps/uiCompRegistry";
-import { RemoteCompInfo } from "@lowcoder-ee/types/remoteComp";
+import { RemoteCompInfo } from "../../types/remoteComp";
+
+import {TableComp} from "../../comps/comps/tableComp";
+import {TextComp} from "../../comps/comps/textComp";
+import {ModuleComp} from "../../comps/comps/moduleComp/moduleComp";
+import {InputComp} from "../../comps/comps/textInputComp/inputComp";
+import {TextAreaComp} from "../../comps/comps/textInputComp/textAreaComp";
+import {ButtonComp} from "../../comps/comps/buttonComp/buttonComp";
+import {ImageComp} from "../../comps/comps/imageComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -234,7 +242,8 @@ export var uiCompMap: Registry = {
     categories: ["dashboards"],
     icon: null,
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
+    comp: TableComp,
     compName: "TableComp",
     compPath: "comps/tableComp/index",
     layoutInfo: {
@@ -818,8 +827,9 @@ export var uiCompMap: Registry = {
     categories: ["forms"],
     icon: null,
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
     compName: "InputComp",
+    comp: InputComp,
     compPath: "comps/textInputComp/inputComp",
     layoutInfo: {
       w: 6,
@@ -863,8 +873,9 @@ export var uiCompMap: Registry = {
     categories: ["forms"],
     icon: null,
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
     compName: "TextAreaComp",
+    comp: TextAreaComp,
     compPath: "comps/textInputComp/textAreaComp",
     layoutInfo: {
       w: 6,
@@ -1030,8 +1041,9 @@ export var uiCompMap: Registry = {
     categories: ["forms"],
     icon: null,
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
     compName: "ButtonComp",
+    comp: ButtonComp,
     compPath: "comps/buttonComp/buttonComp",
     layoutInfo: {
       w: 6,
@@ -1270,8 +1282,9 @@ export var uiCompMap: Registry = {
     categories: ["multimedia"],
     icon: null,
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
     compName: "ImageComp",
+    comp: ImageComp,
     compPath: "comps/imageComp",
     layoutInfo: {
       w: 12,
@@ -1594,8 +1607,9 @@ export var uiCompMap: Registry = {
     description: "",
     categories: [],
     keywords: "",
-    lazyLoad: true,
+    lazyLoad: false,
     compName: "ModuleComp",
+    comp: ModuleComp,
     compPath: "comps/moduleComp/moduleComp",
     layoutInfo: {
       w: 12,
@@ -1613,7 +1627,8 @@ export var uiCompMap: Registry = {
     icon: null,
     keywords: "",
     compName: "TextComp",
-    lazyLoad: true,
+    lazyLoad: false,
+    comp: TextComp,
     compPath: "comps/textComp",
     layoutInfo: {
       w: 6,

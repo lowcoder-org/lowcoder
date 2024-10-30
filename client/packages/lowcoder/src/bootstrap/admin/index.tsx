@@ -1,13 +1,13 @@
 import cnchar from "cnchar";
-import { trans } from "@lowcoder-ee/i18n";
+import { trans } from "../../i18n";
 import { remoteComp } from "../../comps/comps/remoteComp/remoteComp";
 import {
   registerComp,
   type UICompManifest,
   type UICompType,
 } from "../../comps/uiCompRegistry";
-import { RemoteCompInfo } from "@lowcoder-ee/types/remoteComp";
-import { MultiIcon } from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import { RemoteCompInfo } from "../../types/remoteComp";
+import { MultiIcon } from "../../comps/comps/multiIconDisplay";
 import {
   AvatarCompIcon,
   AvatarGroupCompIcon,
@@ -113,13 +113,13 @@ import {
   KanbanCompIcon,
 
 } from "lowcoder-design";
-import {TableComp} from "@lowcoder-ee/comps/comps/tableComp";
-import {TextComp} from "@lowcoder-ee/comps/comps/textComp";
-import {ModuleComp} from "@lowcoder-ee/comps/comps/moduleComp/moduleComp";
-import {InputComp} from "@lowcoder-ee/comps/comps/textInputComp/inputComp";
-import {TextAreaComp} from "@lowcoder-ee/comps/comps/textInputComp/textAreaComp";
-import {ButtonComp} from "@lowcoder-ee/comps/comps/buttonComp/buttonComp";
-import {ImageComp} from "@lowcoder-ee/comps/comps/imageComp";
+import {TableComp} from "../../comps/comps/tableComp";
+import {TextComp} from "../../comps/comps/textComp";
+import {ModuleComp} from "../../comps/comps/moduleComp/moduleComp";
+import {InputComp} from "../../comps/comps/textInputComp/inputComp";
+import {TextAreaComp} from "../../comps/comps/textInputComp/textAreaComp";
+import {ButtonComp} from "../../comps/comps/buttonComp/buttonComp";
+import {ImageComp} from "../../comps/comps/imageComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
