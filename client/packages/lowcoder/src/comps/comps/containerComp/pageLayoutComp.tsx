@@ -36,7 +36,7 @@ export const ContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-  if (viewMode() === "edit") {
+  if (!(viewMode() === "admin")) {
     builder.setPropertyViewFn((children) => <SetPropertyViewPageLayout {...children}></SetPropertyViewPageLayout>);
   }
   return builder

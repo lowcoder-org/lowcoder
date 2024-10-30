@@ -304,7 +304,7 @@ export const TabbedContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-  if (viewMode() === "edit") {
+  if (!(viewMode() === "admin")) {
     builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
   }
       return builder

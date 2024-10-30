@@ -263,7 +263,7 @@ export const ContainerBaseComp = (function () {
       </ReactResizeDetector>
     );
   })
-  if (viewMode() === "edit") {
+  if (!(viewMode() === "admin")) {
     builder.setPropertyViewFn((children) => <SetPropertyViewCardComp {...children}></SetPropertyViewCardComp>);
   }
   return builder
