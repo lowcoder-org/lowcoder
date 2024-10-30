@@ -31,7 +31,7 @@ import React, { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -282,7 +282,7 @@ let ButtonTmpComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

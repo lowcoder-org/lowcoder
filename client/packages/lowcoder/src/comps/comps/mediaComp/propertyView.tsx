@@ -4,7 +4,7 @@ import {useContext} from "react";
 import {disabledPropertyView, EditorContext, hiddenPropertyView} from "lowcoder-sdk";
 import {FormDataPropertyView} from "@lowcoder-ee/comps/comps/formComp/formDataConstants";
 
-const SetPropertyViewAudioComp = ((children: any) => {
+const PropertyViewAudioComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -37,7 +37,7 @@ const SetPropertyViewAudioComp = ((children: any) => {
     );
 });
 
-const SetPropertyViewColorPicker = ((children: any) => {
+const PropertyViewColorPicker = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -65,7 +65,7 @@ const SetPropertyViewColorPicker = ((children: any) => {
     );
 });
 
-const SetPropertyViewVideoComp = ((children: any) => {
+const PropertyViewVideoComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -120,4 +120,4 @@ const SetPropertyViewVideoComp = ((children: any) => {
     );
 });
 
-export { SetPropertyViewVideoComp, SetPropertyViewAudioComp, SetPropertyViewColorPicker }
+export { PropertyViewVideoComp, PropertyViewAudioComp, PropertyViewColorPicker }

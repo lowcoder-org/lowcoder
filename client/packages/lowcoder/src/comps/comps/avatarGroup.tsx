@@ -19,8 +19,8 @@ import { dropdownControl } from "../controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewAvatarGroup1 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup1})))
-const SetPropertyViewAvatarGroup2 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.SetPropertyViewAvatarGroup2})))
+const PropertyViewAvatarGroup1 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.PropertyViewAvatarGroup1})))
+const PropertyViewAvatarGroup2 =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatarGroup").then(module => ({default: module.PropertyViewAvatarGroup2})))
 const MacaroneList = [
   '#fde68a',
   '#eecff3',
@@ -60,7 +60,7 @@ let DropdownOption = new MultiCompBuilder(
   (props) => props
 )
 if (viewMode() === "edit") {
-  DropdownOption.setPropertyViewFn((children) => <SetPropertyViewAvatarGroup1 {...children}></SetPropertyViewAvatarGroup1>);
+  DropdownOption.setPropertyViewFn((children) => <PropertyViewAvatarGroup1 {...children}></PropertyViewAvatarGroup1>);
 }
 const DropdownOptionBuilder = DropdownOption.build();
 
@@ -133,7 +133,7 @@ let AvatarGroupBasicComp = (function () {
     return( <AvatarGroupView {...props} dispatch={dispatch} />
 )})
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewAvatarGroup2 {...children}></SetPropertyViewAvatarGroup2>);
+    builder.setPropertyViewFn((children) => <PropertyViewAvatarGroup2 {...children}></PropertyViewAvatarGroup2>);
   }
       return builder
     .build();

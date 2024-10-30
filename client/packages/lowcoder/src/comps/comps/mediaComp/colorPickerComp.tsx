@@ -15,7 +15,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl } from "comps/controls/codeControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import React from "react";
-const SetPropertyViewColorPicker =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewColorPicker})))
+const PropertyViewColorPicker =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewColorPicker})))
 export function getStyle(style: ColorPickerStyleType) {
     return css`
     border-radius: ${style.radius};
@@ -96,7 +96,7 @@ let ColorPickerComps = new UICompBuilder(childrenMap, (props) => {
 })
 
 if (viewMode() === "edit") {
-    ColorPickerComps.setPropertyViewFn((children) => <SetPropertyViewColorPicker {...children}></SetPropertyViewColorPicker>);
+    ColorPickerComps.setPropertyViewFn((children) => <PropertyViewColorPicker {...children}></PropertyViewColorPicker>);
 }
 
 const ColorPickerComp = ColorPickerComps

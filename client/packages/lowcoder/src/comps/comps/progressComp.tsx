@@ -9,7 +9,7 @@ import styled, { css } from "styled-components";
 import { trans } from "i18n";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/progressComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/progressComp"));
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -65,7 +65,7 @@ const ProgressBasicComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

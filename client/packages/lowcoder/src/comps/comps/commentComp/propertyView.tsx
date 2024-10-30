@@ -3,7 +3,7 @@ import {EditorContext, hiddenPropertyView, Section, sectionNames} from "lowcoder
 import {trans} from "@lowcoder-ee/i18n";
 import {CommentDataTooltip, CommentUserDataTooltip} from "@lowcoder-ee/comps/comps/commentComp/commentConstants";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -65,4 +65,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

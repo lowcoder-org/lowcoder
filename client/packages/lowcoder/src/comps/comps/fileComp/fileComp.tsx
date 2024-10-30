@@ -41,7 +41,7 @@ import { CustomModal } from "lowcoder-design";
 
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 import type { ItemType } from "antd/es/menu/interface";
 import Skeleton from "antd/es/skeleton";
 import Menu from "antd/es/menu";
@@ -614,7 +614,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
 
 
 if (viewMode() === "edit") {
-    FileTmpComp.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    FileTmpComp.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const FileTmpCompBuilder = FileTmpComp
   .build();

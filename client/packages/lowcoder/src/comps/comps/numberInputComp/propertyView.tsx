@@ -13,7 +13,7 @@ import {SliderPropertyView} from "@lowcoder-ee/comps/comps/numberInputComp/slide
 
 console.log("proper")
 
-const SetPropertyViewNumberInputComp = ((children: any) => {
+const PropertyViewNumberInputComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -80,7 +80,7 @@ const SetPropertyViewNumberInputComp = ((children: any) => {
     );
 });
 
-const SetPropertyViewRangeSliderComp = ((children: any) => {
+const PropertyViewRangeSliderComp = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -100,7 +100,7 @@ const SetPropertyViewRangeSliderComp = ((children: any) => {
     );
 });
 
-const SetPropertyViewSliderComp = ((children: any) => {
+const PropertyViewSliderComp = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -119,4 +119,4 @@ const SetPropertyViewSliderComp = ((children: any) => {
     );
 });
 
-export {SetPropertyViewNumberInputComp, SetPropertyViewRangeSliderComp, SetPropertyViewSliderComp}
+export {PropertyViewNumberInputComp, PropertyViewRangeSliderComp, PropertyViewSliderComp}

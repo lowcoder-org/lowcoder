@@ -3,7 +3,7 @@ import {trans} from "@lowcoder-ee/i18n";
 import {useContext} from "react";
 import {EditorContext, hiddenPropertyView} from "lowcoder-sdk";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -36,4 +36,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 })
 
-export default SetPropertyViewFn;
+export default PropertyView;

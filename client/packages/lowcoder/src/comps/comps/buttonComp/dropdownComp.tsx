@@ -20,7 +20,7 @@ import {
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewDropDownComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDropDownComp})))
+const PropertyViewDropDownComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewDropDownComp})))
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
@@ -151,7 +151,7 @@ const DropdownTmpComp = (function () {
     );
   })
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewDropDownComp {...children}></SetPropertyViewDropDownComp>);
+        builder.setPropertyViewFn((children) => <PropertyViewDropDownComp {...children}></PropertyViewDropDownComp>);
     }
       return builder
     .build();

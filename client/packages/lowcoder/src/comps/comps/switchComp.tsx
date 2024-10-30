@@ -17,7 +17,7 @@ import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import React from "react";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/switchComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/switchComp"));
 
 const EventOptions = [
   changeEvent,
@@ -126,7 +126,7 @@ let SwitchTmpComp = (function () {
     });
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder
     .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))

@@ -7,7 +7,7 @@ import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewRangeSliderComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewRangeSliderComp})))
+const PropertyViewRangeSliderComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewRangeSliderComp})))
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -50,7 +50,7 @@ const RangeSliderBasicComp = (function () {
     });
   })
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewRangeSliderComp {...children}></SetPropertyViewRangeSliderComp>);
+        builder.setPropertyViewFn((children) => <PropertyViewRangeSliderComp {...children}></PropertyViewRangeSliderComp>);
     }
     return builder
         .build();

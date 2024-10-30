@@ -5,7 +5,7 @@ import { disabledPropertyView, EditorContext, hiddenPropertyView } from "lowcode
 
 console.log("shape");
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -43,4 +43,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

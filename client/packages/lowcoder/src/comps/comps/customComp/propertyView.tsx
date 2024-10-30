@@ -8,7 +8,7 @@ function isDefault(type?: string) {
     return !type;
 }
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -30,4 +30,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

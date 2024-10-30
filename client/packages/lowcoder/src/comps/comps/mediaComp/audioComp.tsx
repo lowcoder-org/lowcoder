@@ -13,7 +13,7 @@ import { trans } from "i18n";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewAudioComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewAudioComp})))
+const PropertyViewAudioComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewAudioComp})))
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -77,7 +77,7 @@ let AudioBasicComp = (function () {
     return <ContainerAudio {...props} />;
   })
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewAudioComp {...children}></SetPropertyViewAudioComp>);
+        builder.setPropertyViewFn((children) => <PropertyViewAudioComp {...children}></PropertyViewAudioComp>);
     }
       return builder
     .setExposeMethodConfigs(mediaMethods())

@@ -14,7 +14,7 @@ import { migrateOldData } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
 import React, { useEffect, useRef } from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/ratingComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/ratingComp"));
 
 const EventOptions = [changeEvent] as const;
 
@@ -89,7 +89,7 @@ const RatingBasicComp = (function () {
     });
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder
     .build();

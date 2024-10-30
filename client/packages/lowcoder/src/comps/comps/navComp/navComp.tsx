@@ -18,7 +18,7 @@ import {
 import { trans } from "i18n";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import React from "react";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 type IProps = {
   $justify: boolean;
   $bgColor: string;
@@ -228,7 +228,7 @@ let NavCompBase = new UICompBuilder(childrenMap, (props) => {
   );
 })
 if (viewMode() === "edit") {
-  NavCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  NavCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const NavCompTmp = NavCompBase.build();
 

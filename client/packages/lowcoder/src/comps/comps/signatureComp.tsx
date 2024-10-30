@@ -27,7 +27,7 @@ import { formDataChildren } from "./formComp/formDataConstants";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import {UndoIcon} from "icons";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/signatureComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/signatureComp"));
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
   height: 100%;
@@ -200,7 +200,7 @@ let SignatureTmpComp = (function () {
     });
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

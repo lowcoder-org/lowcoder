@@ -14,9 +14,9 @@ import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
-import {SetPropertyViewFloatButton} from "@lowcoder-ee/comps/comps/buttonComp/propertyView";
 import {viewMode} from "@lowcoder-ee/util/editor";
-
+import React from "react";
+const PropertyViewFloatButton =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewFloatButton})))
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
 }>`
@@ -136,7 +136,7 @@ let FloatButtonBasicComp = (function () {
         <FloatButtonView {...props} />
       )})
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewFloatButton {...children}></SetPropertyViewFloatButton>);
+        builder.setPropertyViewFn((children) => <PropertyViewFloatButton {...children}></PropertyViewFloatButton>);
     }
       return builder
       .build();

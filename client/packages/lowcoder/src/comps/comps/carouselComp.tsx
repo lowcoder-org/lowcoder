@@ -14,7 +14,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
 
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/carouselComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/carouselComp"));
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -78,7 +78,7 @@ let CarouselBasicComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

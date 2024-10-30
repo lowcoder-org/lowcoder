@@ -16,7 +16,7 @@ import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
 import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/styleControlConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/richTextEditorComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/richTextEditorComp"));
 
 const localizeStyle = css`
   & .ql-snow {
@@ -303,7 +303,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   );
 })
 if (viewMode() === "edit") {
-  RichTextEditorCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  RichTextEditorCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const RichTextEditorCompBuilder = RichTextEditorCompBase.build();
 

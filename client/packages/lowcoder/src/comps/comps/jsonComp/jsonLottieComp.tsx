@@ -16,7 +16,7 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewJsonLottie =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewJsonLottie})))
+const PropertyViewJsonLottie =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewJsonLottie})))
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
     .then(module => ({default: module.Player}))
@@ -140,7 +140,7 @@ let JsonLottieTmpComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewJsonLottie {...children}></SetPropertyViewJsonLottie>);
+    builder.setPropertyViewFn((children) => <PropertyViewJsonLottie {...children}></PropertyViewJsonLottie>);
   }
       return builder
     .build();

@@ -3,7 +3,7 @@ import { trans } from "@lowcoder-ee/i18n";
 import React from "react";
 import { hiddenPropertyView } from "lowcoder-sdk";
 import {BadgeBasicSection} from "@lowcoder-ee/comps/comps/badgeComp/badgeConstants";
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -78,4 +78,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

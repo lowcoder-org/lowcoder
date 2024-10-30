@@ -18,7 +18,7 @@ import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewPageLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewPageLayout})))
+const PropertyViewPageLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewPageLayout})))
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -37,7 +37,7 @@ export const ContainerBaseComp = (function () {
     );
   })
   if (!(viewMode() === "admin")) {
-    builder.setPropertyViewFn((children) => <SetPropertyViewPageLayout {...children}></SetPropertyViewPageLayout>);
+    builder.setPropertyViewFn((children) => <PropertyViewPageLayout {...children}></PropertyViewPageLayout>);
   }
   return builder
     .build();

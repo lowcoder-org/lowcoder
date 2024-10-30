@@ -9,7 +9,7 @@ import React, { ReactNode } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";
 import { SimpleNameComp } from "./simpleNameComp";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transformerListComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transformerListComp"));
 const TransformerItemCompBase = new MultiCompBuilder(
   {
     name: SimpleNameComp,
@@ -18,7 +18,7 @@ const TransformerItemCompBase = new MultiCompBuilder(
   (props) => props
 )
 if (viewMode() === "edit") {
-  TransformerItemCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  TransformerItemCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const TransformerItemCompBaseBuilder = TransformerItemCompBase.build();
 

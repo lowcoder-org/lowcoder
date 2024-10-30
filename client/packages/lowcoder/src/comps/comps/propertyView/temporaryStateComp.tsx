@@ -4,7 +4,7 @@ import {DocLink, QueryTutorials, TacoMarkDown} from "lowcoder-sdk";
 import SupaDemoDisplay from "@lowcoder-ee/comps/utils/supademoDisplay";
 import {BottomTabs} from "@lowcoder-ee/pages/editor/bottom/BottomTabs";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <BottomTabs
             type={BottomResTypeEnum.TempState}
@@ -37,4 +37,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 })
 
-export default SetPropertyViewFn;
+export default PropertyView;

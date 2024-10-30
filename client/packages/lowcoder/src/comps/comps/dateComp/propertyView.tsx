@@ -22,7 +22,7 @@ import {timeZoneOptions} from "@lowcoder-ee/comps/comps/dateComp/timeZone";
 
 
 
-const SetPropertyViewDateComp2 = ((children: any) => {
+const PropertyViewDateComp2 = ((children: any) => {
     const isMobile = useIsMobile();
 
     const commonAdvanceSection = (children: CommonChildrenType, isDate: boolean = true) => {
@@ -166,7 +166,7 @@ const SetPropertyViewDateComp2 = ((children: any) => {
     );
 });
 
-const SetPropertyViewDateComp1 = ((children: any) => {
+const PropertyViewDateComp1 = ((children: any) => {
 
 
 
@@ -312,7 +312,8 @@ const SetPropertyViewDateComp1 = ((children: any) => {
         </>
     );
 });
-const SetPropertyViewTimeComp2 = ((children: any) => {
+
+const PropertyViewTimeComp2 = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
 
     const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
@@ -426,7 +427,7 @@ const SetPropertyViewTimeComp2 = ((children: any) => {
     );
 });
 
-const SetPropertyViewTimeComp1 = ((children: any) => {
+const PropertyViewTimeComp1 = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
 
     const validationChildren = {
@@ -536,6 +537,4 @@ const SetPropertyViewTimeComp1 = ((children: any) => {
     );
 });
 
-
-
-export {SetPropertyViewDateComp1, SetPropertyViewDateComp2, SetPropertyViewTimeComp1, SetPropertyViewTimeComp2};
+export {PropertyViewDateComp1, PropertyViewDateComp2, PropertyViewTimeComp1, PropertyViewTimeComp2};

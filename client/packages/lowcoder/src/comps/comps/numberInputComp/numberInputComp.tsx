@@ -46,7 +46,7 @@ import {
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewNumberInputComp = React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewNumberInputComp})))
+const PropertyViewNumberInputComp = React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewNumberInputComp})))
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -388,7 +388,7 @@ let NumberInputTmpComp = (function () {
     });
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewNumberInputComp {...children}></SetPropertyViewNumberInputComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewNumberInputComp {...children}></PropertyViewNumberInputComp>);
   }
   return builder
       .build();

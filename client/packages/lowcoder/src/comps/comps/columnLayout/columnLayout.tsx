@@ -39,7 +39,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -192,7 +192,7 @@ export const ResponsiveLayoutBaseComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder
     .build();

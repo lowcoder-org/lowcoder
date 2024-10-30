@@ -30,7 +30,7 @@ import { clickEvent, eventHandlerControl } from "@lowcoder-ee/comps/controls/eve
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {AlignCenter, AlignLeft, AlignRight} from "icons";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewMobileTabLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewMobileTabLayout})))
+const PropertyViewMobileTabLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewMobileTabLayout})))
 const TabBar = React.lazy(() => import("antd-mobile/es/components/tab-bar"));
 const TabBarItem = React.lazy(() =>
   import("antd-mobile/es/components/tab-bar/tab-bar").then((module) => ({
@@ -322,7 +322,7 @@ let MobileTabLayoutTmp = (function () {
     return null;
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewMobileTabLayout {...children}></SetPropertyViewMobileTabLayout>);
+    builder.setPropertyViewFn((children) => <PropertyViewMobileTabLayout {...children}></PropertyViewMobileTabLayout>);
   }
     return builder
     .build();

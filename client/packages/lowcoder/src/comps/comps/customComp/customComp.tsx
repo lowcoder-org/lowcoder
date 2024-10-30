@@ -12,7 +12,7 @@ import { trans } from "i18n";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
 
@@ -236,7 +236,7 @@ let CustomCompBaseBuilder = new UICompBuilder(childrenMap, (props, dispatch) => 
 })
 
 if (viewMode() === "edit") {
-  CustomCompBaseBuilder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+  CustomCompBaseBuilder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 
 const CustomCompBase = CustomCompBaseBuilder.build();

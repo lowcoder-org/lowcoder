@@ -16,7 +16,7 @@ import React from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewContainerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewContainerComp})))
+const PropertyViewContainerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewContainerComp})))
 
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -32,7 +32,7 @@ export const ContainerBaseComp = (function () {
   })
 
   if (!(viewMode() === "admin")) {
-    builder.setPropertyViewFn((children) => <SetPropertyViewContainerComp {...children}></SetPropertyViewContainerComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewContainerComp {...children}></PropertyViewContainerComp>);
   }
       return builder
     .build();

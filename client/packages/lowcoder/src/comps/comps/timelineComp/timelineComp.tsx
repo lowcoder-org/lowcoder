@@ -56,7 +56,7 @@ const TimelineWrapper = styled.div<{
   }
 `;
 
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 const EventOptions = [
   clickEvent,
 ] as const;
@@ -171,7 +171,7 @@ let TimeLineBasicComp = (function () {
     <TimelineComp {...props} dispatch={dispatch} />
   ))
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+        builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
     return builder
         .build();

@@ -6,7 +6,7 @@ import {TimelineDataTooltip} from "@lowcoder-ee/comps/comps/timelineComp/timelin
 
 console.log("timeline");
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -52,4 +52,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

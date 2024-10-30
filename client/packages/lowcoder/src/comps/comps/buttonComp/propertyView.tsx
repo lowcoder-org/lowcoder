@@ -8,7 +8,7 @@ function isDefault(type?: string) {
     return !type;
 }
 
-const SetPropertyViewButtonComp = ((children: any) => {
+const PropertyViewButtonComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
 
     return (
@@ -46,7 +46,7 @@ const SetPropertyViewButtonComp = ((children: any) => {
 });
 
 
-const SetPropertyViewDropDownComp = ((children: any) => {
+const PropertyViewDropDownComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -77,7 +77,7 @@ const SetPropertyViewDropDownComp = ((children: any) => {
 });
 
 
-const SetPropertyViewScannerComp = ((children: any) => {
+const PropertyViewScannerComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -107,7 +107,7 @@ const SetPropertyViewScannerComp = ((children: any) => {
     );
 });
 
-const SetPropertyViewToggleButton = ((children: any) => {
+const PropertyViewToggleButton = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -165,7 +165,7 @@ const SetPropertyViewToggleButton = ((children: any) => {
     );
 });
 
-const SetPropertyViewFloatButton = ((children: any) => {
+const PropertyViewFloatButton = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -190,7 +190,7 @@ const SetPropertyViewFloatButton = ((children: any) => {
     );
 });
 
-const SetPropertyViewLinkComp = ((children: any) => {
+const PropertyViewLinkComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -221,9 +221,4 @@ const SetPropertyViewLinkComp = ((children: any) => {
     );
 });
 
-
-
-
-
-
-export {SetPropertyViewLinkComp, SetPropertyViewFloatButton, SetPropertyViewToggleButton, SetPropertyViewScannerComp, SetPropertyViewButtonComp, SetPropertyViewDropDownComp};
+export {PropertyViewLinkComp, PropertyViewFloatButton, PropertyViewToggleButton, PropertyViewScannerComp, PropertyViewButtonComp, PropertyViewDropDownComp};

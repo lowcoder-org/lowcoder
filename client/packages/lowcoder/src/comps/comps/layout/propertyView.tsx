@@ -9,7 +9,7 @@ import {menuPropertyView} from "@lowcoder-ee/comps/comps/navComp/components/Menu
 
 type MenuItemStyleOptionValue = "normal" | "hover" | "active";
 
-const SetPropertyViewMobileTabLayout = ((children: any) => {
+const PropertyViewMobileTabLayout = ((children: any) => {
     const [styleSegment, setStyleSegment] = useState('normal')
     return (
         <div style={{overflowY: 'auto'}}>
@@ -69,7 +69,7 @@ const SetPropertyViewMobileTabLayout = ((children: any) => {
     );
 });
 
-const SetPropertyViewNavLayout = ((children: any) => {
+const PropertyViewNavLayout = ((children: any) => {
     const DEFAULT_WIDTH = 240;
     const [styleSegment, setStyleSegment] = useState('normal')
     return (
@@ -134,5 +134,5 @@ const SetPropertyViewNavLayout = ((children: any) => {
     );
 });
 
-export { SetPropertyViewNavLayout, SetPropertyViewMobileTabLayout }
+export { PropertyViewNavLayout, PropertyViewMobileTabLayout }
 

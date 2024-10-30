@@ -2,7 +2,7 @@ import {disabledPropertyView, EditorContext, hiddenPropertyView, Section, sectio
 import React, {useContext} from "react";
 import {trans} from "@lowcoder-ee/i18n";
 
-const SetPropertyViewContainerComp = ((children: any) => {
+const PropertyViewContainerComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -41,7 +41,7 @@ const SetPropertyViewContainerComp = ((children: any) => {
     )
 });
 
-const SetPropertyViewTextContainer = ((children: any) => {
+const PropertyViewTextContainer = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -97,7 +97,7 @@ const SetPropertyViewTextContainer = ((children: any) => {
     )
 })
 
-const SetPropertyViewPageLayout = ((children: any) => {
+const PropertyViewPageLayout = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
 
     return (
@@ -144,7 +144,7 @@ const SetPropertyViewPageLayout = ((children: any) => {
     )
 })
 
-const SetPropertyViewCardComp = ((children: any) => {
+const PropertyViewCardComp = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -232,4 +232,4 @@ const SetPropertyViewCardComp = ((children: any) => {
     )}
 )
 
-export {SetPropertyViewContainerComp, SetPropertyViewTextContainer, SetPropertyViewPageLayout, SetPropertyViewCardComp};
+export {PropertyViewContainerComp, PropertyViewTextContainer, PropertyViewPageLayout, PropertyViewCardComp};

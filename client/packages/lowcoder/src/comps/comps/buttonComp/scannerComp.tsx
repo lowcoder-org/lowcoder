@@ -23,7 +23,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewScannerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewScannerComp})))
+const PropertyViewScannerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewScannerComp})))
 
 const Error = styled.div`
   color: #f5222d;
@@ -212,7 +212,7 @@ const ScannerTmpComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewScannerComp {...children}></SetPropertyViewScannerComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewScannerComp {...children}></PropertyViewScannerComp>);
   }
   return builder
     .setExposeMethodConfigs(buttonRefMethods)

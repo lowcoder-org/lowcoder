@@ -17,7 +17,6 @@ import {PaddingControl} from "@lowcoder-ee/comps/controls/paddingControl";
 import styled from "styled-components";
 import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
-console.log("textComp");
 const typeOptions = [
     {
         label: "Markdown",

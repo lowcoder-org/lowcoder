@@ -2,7 +2,7 @@ import {useContext} from "react";
 import {EditorContext, hiddenPropertyView, Section, sectionNames} from "lowcoder-sdk";
 import {trans} from "@lowcoder-ee/i18n";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -122,4 +122,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn
+export default PropertyView

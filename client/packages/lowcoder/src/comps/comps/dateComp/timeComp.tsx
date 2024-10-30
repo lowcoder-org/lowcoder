@@ -41,8 +41,8 @@ import { TimePickerProps } from "antd/es/time-picker";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewTimeComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTimeComp1})))
-const SetPropertyViewTimeComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTimeComp2})))
+const PropertyViewTimeComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTimeComp1})))
+const PropertyViewTimeComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTimeComp2})))
 
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
@@ -188,7 +188,7 @@ export let timePickerControl = new UICompBuilder(childrenMap, (props) => {
   });
 })
 if (viewMode() === "edit") {
-  timePickerControl.setPropertyViewFn((children) => <SetPropertyViewTimeComp1 {...children}></SetPropertyViewTimeComp1>);
+  timePickerControl.setPropertyViewFn((children) => <PropertyViewTimeComp1 {...children}></PropertyViewTimeComp1>);
 }
 const timePickerControlBuilder = timePickerControl
     .setExposeMethodConfigs(dateRefMethods)
@@ -276,7 +276,7 @@ export let timeRangeControl = (function () {
     });
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewTimeComp2 {...children}></SetPropertyViewTimeComp2>);
+    builder.setPropertyViewFn((children) => <PropertyViewTimeComp2 {...children}></PropertyViewTimeComp2>);
   }
   return builder
       .build();

@@ -32,7 +32,7 @@ import { DropdownOptionControl } from "../controls/optionsControl";
 import React, { ReactElement, useContext } from "react";
 import { CompNameContext, EditorContext } from "../editorState";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatar"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/avatar"));
 
 const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, $style: AvatarStyleType }>`
   background: ${(props) => props.$style.background};
@@ -199,7 +199,7 @@ let AvatarBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return(<AvatarView {...props} />)})
     if (viewMode() === "edit") {
-        builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+        builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
       return builder
     .build();

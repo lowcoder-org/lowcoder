@@ -10,7 +10,7 @@ import {
 import {FormDataPropertyView} from "@lowcoder-ee/comps/comps/formComp/formDataConstants";
 import React from "react";
 
-const  SetPropertyViewFn = ((children: any) => {
+const  PropertyView = ((children: any) => {
     return (
         <>
             <Section>
@@ -82,4 +82,4 @@ const  SetPropertyViewFn = ((children: any) => {
 })
 
 
-export default SetPropertyViewFn
+export default PropertyView;

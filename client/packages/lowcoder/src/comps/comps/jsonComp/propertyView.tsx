@@ -5,7 +5,7 @@ import {useContext} from "react";
 import {EditorContext, hiddenPropertyView} from "lowcoder-sdk";
 
 
-const SetPropertyViewJsonEditor = ((children: any) => {
+const PropertyViewJsonEditor = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -41,7 +41,7 @@ const SetPropertyViewJsonEditor = ((children: any) => {
 });
 
 
-const SetPropertyViewJsonExplorer = ((children: any) => {
+const PropertyViewJsonExplorer = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -86,7 +86,7 @@ const SetPropertyViewJsonExplorer = ((children: any) => {
     );
 });
 
-const SetPropertyViewJsonLottie = ((children: any) => {
+const PropertyViewJsonLottie = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
 
     return (
@@ -122,5 +122,5 @@ const SetPropertyViewJsonLottie = ((children: any) => {
     );
 });
 
-export { SetPropertyViewJsonLottie, SetPropertyViewJsonExplorer, SetPropertyViewJsonEditor }
+export { PropertyViewJsonLottie, PropertyViewJsonExplorer, PropertyViewJsonEditor }
 

@@ -21,7 +21,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewCardComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewCardComp})))
+const PropertyViewCardComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewCardComp})))
 const { Meta } = Card;
 
 const Wrapper = styled.div<{
@@ -264,7 +264,7 @@ export const ContainerBaseComp = (function () {
     );
   })
   if (!(viewMode() === "admin")) {
-    builder.setPropertyViewFn((children) => <SetPropertyViewCardComp {...children}></SetPropertyViewCardComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewCardComp {...children}></PropertyViewCardComp>);
   }
   return builder
     .build();

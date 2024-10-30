@@ -9,7 +9,7 @@ import { trans } from "i18n";
 import log from "loglevel";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iframeComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iframeComp"));
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
   height: 100%;
@@ -66,7 +66,7 @@ let IFrameCompBase = new UICompBuilder(
 )
 
 if (viewMode() === "edit") {
-    IFrameCompBase.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    IFrameCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 
 const IFrameCompBaseBuilder =  IFrameCompBase.build();

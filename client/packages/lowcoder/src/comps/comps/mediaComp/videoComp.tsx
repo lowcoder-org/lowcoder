@@ -22,7 +22,7 @@ import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
 import styled from "styled-components";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewVideoComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewVideoComp})))
+const PropertyViewVideoComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewVideoComp})))
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -131,7 +131,7 @@ let VideoBasicComp = (function () {
     return <ContainerVideo {...props} />;
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewVideoComp {...children}></SetPropertyViewVideoComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewVideoComp {...children}></PropertyViewVideoComp>);
   }
       return builder
     .setExposeMethodConfigs(mediaMethods())

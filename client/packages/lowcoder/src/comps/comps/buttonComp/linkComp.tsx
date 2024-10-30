@@ -16,7 +16,7 @@ import { RefControl } from "comps/controls/refControl";
 
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewLinkComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewLinkComp})))
+const PropertyViewLinkComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewLinkComp})))
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -112,7 +112,7 @@ const LinkTmpComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewLinkComp {...children}></SetPropertyViewLinkComp>);
+    builder.setPropertyViewFn((children) => <PropertyViewLinkComp {...children}></PropertyViewLinkComp>);
   }
   return builder
     .setExposeMethodConfigs(buttonRefMethods)

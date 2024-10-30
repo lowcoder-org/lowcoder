@@ -3,7 +3,7 @@ import { trans } from "@lowcoder-ee/i18n";
 import React, { useContext } from "react";
 import {controlItem, disabledPropertyView, EditorContext, hiddenPropertyView } from "lowcoder-sdk";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (
         <>
@@ -82,4 +82,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 });
 
-export default SetPropertyViewFn;
+export default PropertyView;

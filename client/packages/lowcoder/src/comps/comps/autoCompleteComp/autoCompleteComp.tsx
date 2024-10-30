@@ -47,7 +47,7 @@ import {
   componentSize,
 } from "./autoCompleteConstants";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 const InputStyle = styled(Input) <{ $style: InputLikeStyleType }>`
 box-shadow: ${props=>`${props.$style?.boxShadow} ${props.$style?.boxShadowColor}`};
   ${(props) => css`
@@ -282,7 +282,7 @@ let AutoCompleteCompBase = (function () {
       });
     })
     if (viewMode() === "edit") {
-      builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+      builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
         return builder
       .setExposeMethodConfigs(autoCompleteRefMethods)

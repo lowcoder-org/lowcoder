@@ -19,7 +19,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React from "react";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewToggleButton =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewToggleButton})))
+const PropertyViewToggleButton =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewToggleButton})))
 
 const IconWrapper = styled.div`
   display: flex;
@@ -90,7 +90,7 @@ const ToggleTmpComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewToggleButton {...children}></SetPropertyViewToggleButton>);
+    builder.setPropertyViewFn((children) => <PropertyViewToggleButton {...children}></PropertyViewToggleButton>);
   }
   return builder
     .setExposeMethodConfigs(buttonRefMethods)

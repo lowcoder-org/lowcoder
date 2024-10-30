@@ -34,8 +34,8 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewDateComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDateComp1})));
-const SetPropertyViewDateComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewDateComp2})));
+const PropertyViewDateComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewDateComp1})));
+const PropertyViewDateComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewDateComp2})));
 
 
 
@@ -194,7 +194,7 @@ export let datePickerControl = new UICompBuilder(childrenMap, (props) => {
 })
 
 if (viewMode() === "edit") {
-  datePickerControl.setPropertyViewFn((children) => <SetPropertyViewDateComp1 {...children}></SetPropertyViewDateComp1>);
+  datePickerControl.setPropertyViewFn((children) => <PropertyViewDateComp1 {...children}></PropertyViewDateComp1>);
 }
 const datePickerControlBuilder = datePickerControl
     .setExposeMethodConfigs(dateRefMethods)
@@ -292,7 +292,7 @@ export const dateRangeControl = (function () {
   })
 
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewDateComp2 {...children}></SetPropertyViewDateComp2>);
+    builder.setPropertyViewFn((children) => <PropertyViewDateComp2 {...children}></PropertyViewDateComp2>);
   }
   return builder
       .build();

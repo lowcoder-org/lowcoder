@@ -11,7 +11,7 @@ import { trans } from "i18n";
 import {viewMode} from "@lowcoder-ee/util/editor";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import { BoolControl } from "../controls/boolControl";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/fileViewerComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/fileViewerComp"));
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -96,7 +96,7 @@ let FileViewerBasicComp = (function () {
     />;
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

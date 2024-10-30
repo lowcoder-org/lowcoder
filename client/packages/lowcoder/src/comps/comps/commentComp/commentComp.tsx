@@ -51,7 +51,7 @@ import dayjs from "dayjs";
 import { getInitialsAndColorCode } from "util/stringUtils";
 import { default as CloseOutlined } from "@ant-design/icons/CloseOutlined";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 dayjs.extend(relativeTime);
 // dayjs.locale("zh-cn");
@@ -359,7 +359,7 @@ let CommentBasicComp = (function () {
     <CommentCompBase {...props} dispatch={dispatch} />
   )})
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder
     .build();

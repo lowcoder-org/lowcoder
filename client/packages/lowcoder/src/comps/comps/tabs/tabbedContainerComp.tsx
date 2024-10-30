@@ -37,7 +37,7 @@ import { PositionControl } from "comps/controls/dropdownControl";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const EVENT_OPTIONS = [
   {
@@ -305,7 +305,7 @@ export const TabbedContainerBaseComp = (function () {
     );
   })
   if (!(viewMode() === "admin")) {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();

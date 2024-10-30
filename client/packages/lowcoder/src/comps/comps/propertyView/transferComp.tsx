@@ -2,7 +2,7 @@ import {Section, sectionNames} from "components/Section";
 import {trans} from "@lowcoder-ee/i18n";
 import {hiddenPropertyView} from "lowcoder-sdk";
 
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <>
             <Section name={sectionNames.basic}>
@@ -40,4 +40,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 })
 
-export default SetPropertyViewFn;
+export default PropertyView;

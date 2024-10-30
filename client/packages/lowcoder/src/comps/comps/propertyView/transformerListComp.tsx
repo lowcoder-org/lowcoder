@@ -3,7 +3,7 @@ import {trans} from "@lowcoder-ee/i18n";
 import {BottomResTypeEnum} from "@lowcoder-ee/types/bottomRes";
 import {DocLink, EditorContext, QueryTutorials, TacoMarkDown} from "lowcoder-sdk";
 import SupaDemoDisplay from "@lowcoder-ee/comps/utils/supademoDisplay";
-const SetPropertyViewFn = ((children: any) => {
+const PropertyView = ((children: any) => {
     return (
         <EditorContext.Consumer>
             {(editorState) => {
@@ -51,4 +51,4 @@ const SetPropertyViewFn = ((children: any) => {
     );
 })
 
-export default SetPropertyViewFn;
+export default PropertyView;

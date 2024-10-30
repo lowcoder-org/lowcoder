@@ -27,7 +27,7 @@ import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("./propertyView"));
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);
@@ -283,7 +283,7 @@ let FormBasicComp = (function () {
     );
   })
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder
     .build();

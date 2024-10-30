@@ -23,7 +23,7 @@ import React from "react";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
 
-const SetPropertyViewTextContainer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTextContainer})))
+const PropertyViewTextContainer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTextContainer})))
 const typeOptions = [
   {
     label: "Markdown",
@@ -68,7 +68,7 @@ export const ContainerBaseComp = (function () {
     return <TriContainer {...props} />;
   })
   if (!(viewMode() === "admin")) {
-    builder.setPropertyViewFn((children) => <SetPropertyViewTextContainer {...children}></SetPropertyViewTextContainer>);
+    builder.setPropertyViewFn((children) => <PropertyViewTextContainer {...children}></PropertyViewTextContainer>);
   }
   return builder
     .build();

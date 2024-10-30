@@ -16,7 +16,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transferComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transferComp"));
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
   width: 100%;
@@ -142,7 +142,7 @@ let TransferBasicComp = (function () {
     return (
     <TransferView {...props} dispatch={dispatch} />)})
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder
     .build();

@@ -2,7 +2,7 @@ import { Section, sectionNames } from "components/Section";
 import { trans } from "@lowcoder-ee/i18n";
 import React, {useContext} from "react";
 import {EditorContext, hiddenPropertyView} from "lowcoder-sdk";
-const SetPropertyViewAvatarGroup1 = ((children: any) => {
+const PropertyViewAvatarGroup1 = ((children: any) => {
     return (
         <>
             {children.src.propertyView({ label: trans("avatarComp.src"), placeholder: "", tooltip: trans("avatarComp.avatarCompTooltip") })}
@@ -22,7 +22,7 @@ const SetPropertyViewAvatarGroup1 = ((children: any) => {
     );
 });
 
-const SetPropertyViewAvatarGroup2 = ((children: any) => {
+const PropertyViewAvatarGroup2 = ((children: any) => {
     return (
         <>
             {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
@@ -64,5 +64,5 @@ const SetPropertyViewAvatarGroup2 = ((children: any) => {
     );
 });
 
-export { SetPropertyViewAvatarGroup1, SetPropertyViewAvatarGroup2 };
+export { PropertyViewAvatarGroup1, PropertyViewAvatarGroup2 };
 

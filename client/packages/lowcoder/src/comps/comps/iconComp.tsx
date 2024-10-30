@@ -25,7 +25,7 @@ import {
   eventHandlerControl,
 } from "../controls/eventHandlerControl";
 import {viewMode} from "@lowcoder-ee/util/editor";
-const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iconComp"));
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iconComp"));
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -111,7 +111,7 @@ let IconBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return(<IconView {...props} />)})
   if (viewMode() === "edit") {
-    builder.setPropertyViewFn((children) => <SetPropertyViewFn {...children}></SetPropertyViewFn>);
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder
     .build();
