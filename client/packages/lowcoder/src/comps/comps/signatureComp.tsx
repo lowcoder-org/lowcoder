@@ -26,6 +26,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { formDataChildren } from "./formComp/formDataConstants";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {viewMode} from "@lowcoder-ee/util/editor";
+import {UndoIcon} from "icons";
 const SetPropertyViewFn =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/signatureComp"));
 
 const Wrapper = styled.div<{ $style: SignatureStyleType; $isEmpty: boolean }>`
@@ -169,7 +170,7 @@ let SignatureTmpComp = (function () {
               <div className="footer">
                 {props.showUndo && (
                   <span className="anticon">
-                    <MultiIconDisplay identifier="/icon:svg/UndoIcon"
+                    <MultiIconDisplay identifier={UndoIcon}
                       onClick={() => {
                         const data = canvas?.toData();
                         if (data) {
