@@ -77,7 +77,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <ProductCardContainer
       hoverable
       loading={!checkoutLinkDataLoaded || loading}
-      cover={<img alt={title} src={image} />}
+      cover={
+        <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} />
+      }
       actions={[
         <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>Info</Button>,
         activeSubscription ? (

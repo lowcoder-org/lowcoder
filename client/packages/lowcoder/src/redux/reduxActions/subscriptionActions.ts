@@ -1,5 +1,5 @@
+import { Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import { ReduxActionErrorTypes, ReduxActionTypes } from "constants/reduxActionConstants";
-import { Subscription } from 'api/subscriptionApi';
 
 // Action Creators
 export const fetchSubscriptionsAction = () => ({

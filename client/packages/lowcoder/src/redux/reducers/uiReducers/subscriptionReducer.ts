@@ -1,10 +1,10 @@
+import { Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/reduxActionConstants";
 import { createReducer } from "util/reducerUtils";
-import { Subscription } from "api/subscriptionApi";
 
 const initialState: SubscriptionsReduxState = {
   subscriptions: [],

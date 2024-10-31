@@ -19,7 +19,7 @@ export enum SubscriptionProductsEnum {
   GITREPOS = 'git-repos',
 }
 
-export const SubscriptionProducts = [
+export const InitSubscriptionProducts = [
   {
     pricingType: "Monthly, per User",
     activeSubscription: false,
@@ -54,3 +54,101 @@ export const SubscriptionProducts = [
     quantity_entity: "singleItem",
   },
 ]
+
+export interface Subscription {
+  id: string;
+  collection_method: string;
+  current_period_end: number;
+  current_period_start: number;
+  product: string;
+  currency: string;
+  interval: string;
+  tiers_mode: string;
+  status: string;
+  start_date: number;
+  quantity: number;
+  billing_scheme: string;
+  price: string;
+}
+
+export interface SubscriptionProduct {
+  title?: string;
+  description?: string;
+  image?: string;
+  pricingType: string;
+  product: string;
+  activeSubscription: boolean;
+  accessLink: string;
+  subscriptionId: string;
+  checkoutLink: string;
+  checkoutLinkDataLoaded?: boolean;
+  type?: string;
+  quantity_entity?: string;
+}
+
+export interface CustomerAddress {
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  country: string;
+  postalCode: string;
+}
+
+export interface LowcoderNewCustomer {
+  hostname: string;
+  hostId: string;
+  email: string;
+  orgId: string;
+  userId: string;
+  userName: string;
+  type: string;
+  companyName: string;
+  address?: CustomerAddress;
+}
+
+export interface LowcoderSearchCustomer {
+  hostname: string;
+  hostId: string;
+  email: string;
+  orgId: string;
+  userId: string;
+}
+
+interface LowcoderMetadata {
+  lowcoder_host: string;
+  lowcoder_hostId: string;
+  lowcoder_orgId: string;
+  lowcoder_type: string;
+  lowcoder_userId: string;
+}
+
+export interface StripeCustomer {
+  id: string;
+  object: string;
+  address?: object | null;
+  balance: number;
+  created: number;
+  currency: string | null;
+  default_source: string | null;
+  delinquent: boolean;
+  description: string | null;
+  discount: string | null;
+  email: string;
+  invoice_prefix: string;
+  invoice_settings: object | null;
+  livemode: boolean;
+  metadata: LowcoderMetadata;
+  name: string;
+  phone: string | null;
+  preferred_locales: string[];
+  shipping: string | null;
+  tax_exempt: string;
+  test_clock: string | null;
+}
+
+export interface Pricing {
+  type: string;
+  amount: string;
+}
+

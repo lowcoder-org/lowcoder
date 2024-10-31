@@ -4,9 +4,8 @@ import { trans } from "i18n";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import { Flex, Card, Button, message } from 'antd';
 import { ProductCard } from "./productCard";
-import { InitializeSubscription } from "@lowcoder-ee/api/subscriptionApi";
-import { getProducts, getCustomerPortalSession }  from '@lowcoder-ee/api/subscriptionApi';
-import { useState, useEffect } from 'react';
+import { getCustomerPortalSession }  from '@lowcoder-ee/api/subscriptionApi';
+import { useSubscriptionContext } from "@lowcoder-ee/util/context/SubscriptionContext";
 
 const SubscriptionSettingContent = styled.div`
 
@@ -36,62 +35,42 @@ const ManageSubscriptionButton = styled(Button)`
   margin-top: 24px;
 `;
 
-
 export function SubscriptionSetting() {
   const {
+    admin,
     customer,
+    products,
+    subscriptionProducts,
     isCreatingCustomer,
     customerDataError,
-    products,
     subscriptionDataError,
     checkoutLinkDataError,
-    admin,
-  } = InitializeSubscription();
+    subscriptionProductsLoading,
+  } = useSubscriptionContext();
 
-  const [subscriptionProducts, setSubscriptionProducts] = useState<any>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const customerId = customer?.id; // Get the customer ID from subscription details
 
-
-    // Handle Customer Portal Session Redirect
-    const handleCustomerPortalRedirect = async () => {
-      try {
-        if (!customerId) {
-          message.error("Customer ID not available for the subscription.");
-          return;
-        }
-  
-        // Get the Customer Portal session URL
-        const portalSession = await getCustomerPortalSession(customerId);
-        if (portalSession && portalSession.url) {
-          // Redirect to the Stripe Customer Portal
-          window.open(portalSession.url, '_blank', 'noopener,noreferrer');
-        } else {
-          message.error("Failed to generate customer portal session link.");
-        }
-      } catch (error) {
-        console.error("Error redirecting to customer portal:", error);
-        message.error("An error occurred while redirecting to the customer portal.");
+  // Handle Customer Portal Session Redirect
+  const handleCustomerPortalRedirect = async () => {
+    try {
+      if (!customerId) {
+        message.error("Customer ID not available for the subscription.");
+        return;
       }
-    };
 
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productData = await getProducts();
-        setSubscriptionProducts(productData);
-        // console.log("productData", productData);
-      } catch (err) {
-        setError("Failed to fetch product.");
-        // console.error(err);
-      } finally {
-        setLoading(false);
+      // Get the Customer Portal session URL
+      const portalSession = await getCustomerPortalSession(customerId);
+      if (portalSession && portalSession.url) {
+        // Redirect to the Stripe Customer Portal
+        window.open(portalSession.url, '_blank', 'noopener,noreferrer');
+      } else {
+        message.error("Failed to generate customer portal session link.");
       }
-    };
-
-    fetchProducts();
-  }, []);
+    } catch (error) {
+      console.error("Error redirecting to customer portal:", error);
+      message.error("An error occurred while redirecting to the customer portal.");
+    }
+  };
 
   return (
     <Level1SettingPageContent>
@@ -110,7 +89,7 @@ export function SubscriptionSetting() {
               return true;
             })
             .map((product, index) => {
-              const productData = subscriptionProducts?.data.find((p: { id: string; }) => p.id === ("prod_" + product?.product));
+              const productData = subscriptionProducts?.find((p: { id: string; }) => p.id === ("prod_" + product?.product));
               const imageUrl = productData && productData.images.length > 0 ? productData.images[0] : null;
               return (
                 <ProductCard
@@ -122,7 +101,7 @@ export function SubscriptionSetting() {
                   activeSubscription={product.activeSubscription}
                   checkoutLink={product.checkoutLink}
                   checkoutLinkDataLoaded={product.checkoutLinkDataLoaded}
-                  loading={loading}
+                  loading={subscriptionProductsLoading}
                   subscriptionId={product.subscriptionId}
                   productId={product.product}
                 />
@@ -130,11 +109,11 @@ export function SubscriptionSetting() {
             } )}
           </Flex>
           {/* Manage Subscription Button */}
-        <CardWrapper title={trans("subscription.manageSubscription")}>
-          <ManageSubscriptionButton type="primary" onClick={handleCustomerPortalRedirect}>
-            {trans("subscription.manageSubscription")}
-          </ManageSubscriptionButton>
-        </CardWrapper>
+          <CardWrapper title={trans("subscription.manageSubscription")}>
+            <ManageSubscriptionButton type="primary" onClick={handleCustomerPortalRedirect}>
+              {trans("subscription.manageSubscription")}
+            </ManageSubscriptionButton>
+          </CardWrapper>
         </SubscriptionSettingContent>
       ) : (
         <div>Loading...</div>
