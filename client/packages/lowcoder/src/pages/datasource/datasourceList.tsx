@@ -16,6 +16,7 @@ import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -145,7 +146,10 @@ export const DatasourceList = () => {
         </HeaderWrapper>
         <BodyWrapper>
           <StyledTable
-            loading={!datasource.length}
+            loading={{
+              spinning: !datasource.length,
+              indicator: <LoadingOutlined spin />
+            }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
             scroll={{ x: "100%" }}

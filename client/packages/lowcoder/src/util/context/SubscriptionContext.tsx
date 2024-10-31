@@ -163,7 +163,7 @@ export const SubscriptionContextProvider = (props: {
       }
     };
 
-    if (!productsLoaded) {
+    if (!productsLoaded && customer) {
       prepareCheckout();
     }
   }, [subscriptionDataLoaded, customer, userCount]);
