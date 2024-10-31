@@ -8,6 +8,8 @@ import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { fetchOrgUsersAction } from "redux/reduxActions/orgActions";
 import { getOrgUsers } from "redux/selectors/orgSelectors";
 import { AppState } from "@lowcoder-ee/redux/reducers";
+import { SubscriptionProducts } from "@lowcoder-ee/constants/subscriptionConstants";
+import { getFetchSubscriptionsFinished, getSubscriptions, getSubscriptionsError } from "@lowcoder-ee/redux/selectors/subscriptionSelectors";
 
 // Interfaces
 export interface CustomerAddress {
@@ -384,51 +386,16 @@ export const InitializeSubscription = () => {
   const [customer, setCustomer] = useState<StripeCustomer | null>(null);
   const [isCreatingCustomer, setIsCreatingCustomer] = useState<boolean>(false);  // Track customer creation
   const [customerDataError, setCustomerDataError] = useState<boolean>(false);
-  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
-  const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
-  const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
   const [checkoutLinkDataLoaded, setCheckoutLinkDataLoaded] = useState<boolean>(false);
   const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
-  const [products, setProducts] = useState<Product[]>([
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1PhH38DDlQgecLSfSukEgIeV",
-      product: "QW8L3WPMiNjQjI",
-      subscriptionId: "",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      type: "org",
-      quantity_entity: "orgUser",
-    },
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1Pf65wDDlQgecLSf6OFlbsD5",
-      product: "QW8MpIBHxieKXd",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      subscriptionId: "",
-      type: "user",
-      quantity_entity: "singleItem",
-    },
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1PttHIDDlQgecLSf0XP27tXt",
-      product: "QlQ7cdOh8Lv4dy",
-      subscriptionId: "",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      type: "org",
-      quantity_entity: "singleItem",
-    },
-  ]);
-
+  const [products, setProducts] = useState<Product[]>(SubscriptionProducts);
 
   const user = useSelector(getUser);
   const currentUser = useSelector(getCurrentUser);
   const deploymentId = useSelector(getDeploymentId);
+  const subscriptions = useSelector(getSubscriptions);
+  const subscriptionDataLoaded = useSelector(getFetchSubscriptionsFinished);
+  const subscriptionDataError = useSelector(getSubscriptionsError)
   const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
   const orgID = user.currentOrgId;
   const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
@@ -480,22 +447,6 @@ export const InitializeSubscription = () => {
   }, [deploymentId]);
 
   useEffect(() => {
-    const fetchSubscriptions = async () => {
-      if (customer) {
-        try {
-          const subs = await searchSubscriptions(customer.id);
-          setSubscriptions(subs);
-          setSubscriptionDataLoaded(true);
-        } catch (error) {
-          setSubscriptionDataError(true);
-        }
-      }
-    };
-
-    fetchSubscriptions();
-  }, [customer]);
-
-  useEffect(() => {
     const prepareCheckout = async () => {
       if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
         try {
@@ -504,7 +455,7 @@ export const InitializeSubscription = () => {
           const updatedProducts = await Promise.all(
             products.map(async (product) => {
               const matchingSubscription = subscriptions.find(
-                (sub) => sub.plan.id === "price_" + product.accessLink
+                (sub) => sub.price === product.accessLink
               );
 
               if (matchingSubscription) {
@@ -512,7 +463,7 @@ export const InitializeSubscription = () => {
                   ...product,
                   activeSubscription: true,
                   checkoutLinkDataLoaded: true,
-                  subscriptionId: matchingSubscription.id.substring(4),
+                  subscriptionId: matchingSubscription.id,
                 };
               } else {
                 // Use the user count to set the quantity for checkout link
@@ -526,8 +477,8 @@ export const InitializeSubscription = () => {
               }
             })
           );
-
           setProducts(updatedProducts);
+          setCheckoutLinkDataError(true);
         } catch (error) {
           setCheckoutLinkDataError(true);
         }
@@ -535,7 +486,7 @@ export const InitializeSubscription = () => {
     };
 
     prepareCheckout();
-  }, [subscriptionDataLoaded, userCount]);
+  }, [subscriptionDataLoaded, customer, userCount]);
 
   return {
     customer,
@@ -548,75 +499,6 @@ export const InitializeSubscription = () => {
     checkoutLinkDataError,
     products,
     admin,
-  };
-};
-
-export enum SubscriptionProducts {
-  SUPPORT = "QW8L3WPMiNjQjI",
-  MEDIAPACKAGE = 'QW8MpIBHxieKXd',
-  AZUREAPIS = 'premium',
-  GOOGLEAPIS = 'enterprise',
-  AWSAPIS = 'enterprise-global',
-  PRIVATECLOUD = 'private-cloud',
-  MATRIXCLOUD = 'matrix-cloud',
-  AGORATOKENSERVER = 'agora-tokenserver',
-  SIGNALSERVER = 'signal-server',
-  DATABASE = 'database',
-  STORAGE = 'storage',
-  IOSAPP = 'ios-app',
-  ANDROIDAPP = 'android-app',
-  AUDITLOG = 'audit-log',
-  APPLOG = 'app-log',
-  ENVIRONMENTS = 'environments',
-  GITREPOS = 'git-repos',
-}
-
-export const CheckSubscriptions = () => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
-  const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const user = useSelector(getUser);
-  const currentUser = useSelector(getCurrentUser);
-  const deploymentId = useSelector(getDeploymentId);
-  const orgID = user.currentOrgId;
-  const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  
-  const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-    hostname: domain,
-    hostId: deploymentId,
-    email: currentUser.email,
-    orgId: orgID,
-    userId: user.id,
-  };
-
-  useEffect(() => {
-    const fetchCustomerAndSubscriptions = async () => {
-      try {
-        const subs = await searchCustomersSubscriptions(subscriptionSearchCustomer);
-        setSubscriptions(subs);
-        setSubscriptionDataLoaded(true);
-      } catch (error) {
-        setSubscriptionDataError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (
-      Boolean(currentUser.email)
-      && Boolean(orgID)
-      && Boolean(user.id)
-      && Boolean(deploymentId)
-    )
-    fetchCustomerAndSubscriptions();
-  }, [subscriptionSearchCustomer]);
-
-  return {
-    subscriptions,
-    subscriptionDataLoaded,
-    subscriptionDataError,
-    loading,
   };
 };
 
