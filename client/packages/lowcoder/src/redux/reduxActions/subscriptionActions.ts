@@ -1,4 +1,4 @@
-import { ReduxActionTypes } from "constants/reduxActionConstants";
+import { ReduxActionErrorTypes, ReduxActionTypes } from "constants/reduxActionConstants";
 import { Subscription } from 'api/subscriptionApi';
 
 // Action Creators
@@ -12,6 +12,6 @@ export const fetchSubscriptionsSuccess = (subscriptions: Subscription[]) => ({
 });
 
 export const fetchSubscriptionsError = (error: string) => ({
-  type: ReduxActionTypes.FETCH_SUBSCRIPTIONS_FAILURE,
+  type: ReduxActionErrorTypes.FETCH_SUBSCRIPTIONS_ERROR,
   payload: { error },
 });

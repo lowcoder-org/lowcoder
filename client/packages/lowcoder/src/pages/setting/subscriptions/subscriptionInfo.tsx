@@ -12,6 +12,7 @@ import { CheckCircleOutlined } from '@ant-design/icons';
 import { Level1SettingPageContent } from "../styled";
 import { TacoMarkDown } from "lowcoder-design";
 import ProductDescriptions, {Translations} from "./ProductDescriptions";
+import { SubscriptionProductsEnum } from "@lowcoder-ee/constants/subscriptionConstants";
 
 const { Meta } = Card;
 
@@ -66,10 +67,10 @@ const useMarkdown = (productId: string | null, userLanguage: string) => {
       let descriptionContent : Translations | false;
 
       switch (productId) {
-        case "QW8L3WPMiNjQjI": 
+        case SubscriptionProductsEnum.SUPPORT: 
           descriptionContent = ProductDescriptions["SupportProduct"];
           break;
-        case "QW8MpIBHxieKXd": 
+        case SubscriptionProductsEnum.MEDIAPACKAGE: 
           descriptionContent = ProductDescriptions["MediaPackageProduct"];
           break;
         default:

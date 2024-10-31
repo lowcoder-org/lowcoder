@@ -9,6 +9,10 @@ export const checkSubscriptionsLoading = (state: AppState) : boolean => {
     return state.ui.subscriptions.loadingStates.fetchingSubscriptions;
 };
 
-export const checkSubscriptionsError = (state: AppState) : string | null => {
+export const getFetchSubscriptionsFinished = (state: AppState) : boolean => {
+    return state.ui.subscriptions.loadingStates.fetchSubscriptionsFinished;
+};
+
+export const getSubscriptionsError = (state: AppState) : string | undefined => {
     return state.ui.subscriptions.error;
-}; 
+};
