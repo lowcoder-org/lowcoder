@@ -1,4 +1,6 @@
+import { en } from "./enEditor";
 export const pt = {
+    ...en,
     "orgSettings": {
         "newOrg": "Novo Espaço de Trabalho (Organização)",
         "title": "Espaço de Trabalho",
@@ -104,6 +106,7 @@ export const pt = {
         "integration": "Integração e Extensão"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "Gráfico",
         "chartCompDesc": "Um componente versátil para visualizar dados por meio de vários tipos de gráficos e diagramas.",
         "chartCompKeywords": "gráfico, diagrama, dados, visualização",
@@ -1007,6 +1010,7 @@ export const pt = {
         "mobileNavIconSize": "Tamanho do ícone"
     },
     "prop": {
+        ...en.prop,
         "manual": "Manual",
         "json": "JSON",
         "style": "Estilo",
@@ -1344,6 +1348,7 @@ export const pt = {
         "allData": "Todas as Tabelas"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px (Celular)",
         "800": "800px (Tablet)",
         "1440": "1440px (Notebook)",
@@ -1387,6 +1392,7 @@ export const pt = {
         "deleteMessage": "O Data Responder Foi Excluído com Sucesso. Você Pode Usar {undoKey} para Desfazer."
     },
     "home": {
+        ...en.home,
         "all": "Todos",
         "app": "Aplicativo",
         "module": "Módulo",
@@ -1470,6 +1476,7 @@ export const pt = {
         "click": "Clique"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "Disposição",
         "editorMode_layout_tooltip": "Personalize a aparência e o layout do componente, na janela direita. Ajuste sua aparência, estilo e animação.",
         "editorMode_logic": "Lógica",
@@ -1500,6 +1507,7 @@ export const pt = {
     },
     "finish": "Terminar",
     "profile": {
+        ...en.profile,
         "logout": "Sair",
         "createOrg": "Criar Espaço de Trabalho",
         "switchOrg": "Trocar Espaço de Trabalho",
@@ -2476,6 +2484,7 @@ export const pt = {
     "addItem": "Adicionar",
     "delete": "Remover",
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "Cor do Contêiner",
         "primary": "Cor da Marca",
         "canvas": "Cor do Fundo",
@@ -2789,6 +2798,7 @@ export const pt = {
     },
     "cancel": "Cancelar",
     "theme": {
+        ...en.theme,
         "defaultTheme": "Padrão",
         "yellow": "Amarelo",
         "green": "Verde",

@@ -1,4 +1,6 @@
+import { en } from "./en";
 export const it = {
+  ...en,
   "orgSettings": {
     "newOrg": "Nuovo spazio di lavoro (organizzazione)",
     "createOrg": "Crea spazio di lavoro (organizzazione)",
@@ -89,6 +91,7 @@ export const it = {
     "integration": "Integrazione ed estensione"
   },
   "uiComp": {
+    ...en.uiComp,
     "chartCompName": "Grafico",
     "chartCompDesc": "Un componente versatile per la visualizzazione dei dati attraverso vari tipi di grafici e diagrammi.",
     "chartCompKeywords": "grafico, grafico, dati, visualizzazione",
@@ -733,6 +736,7 @@ export const it = {
     "modeHorizontal": "Orizzontale"
   },
   "prop": {
+    ...en.prop,
     "manual": "Manuale",
     "json": "JSON",
     "style": "Stile",
@@ -979,6 +983,7 @@ export const it = {
     "noMetadata": "Nessun metadato disponibile"
   },
   "appSetting": {
+    ...en.appSetting,
     "450": "450px (Telefono)",
     "800": "800px (Tablet)",
     "1440": "1440px (Laptop)",
@@ -997,6 +1002,7 @@ export const it = {
     "dataDesc": "Dati dell'attuale risponditore dei dati"
   },
   "home": {
+    ...en.home,
     "all": "Tutti",
     "app": "App",
     "module": "Modulo",
@@ -1102,6 +1108,7 @@ export const it = {
     "timeoutLessThanMinError": "L'ingresso deve essere maggiore di {left}, l'ingresso corrente è: {value}"
   },
   "header": {
+    ...en.header,
     "editorMode_layout": "Layout",
     "editorMode_layout_tooltip": "Personalizzare l'aspetto e il layout del componente, nella finestra di destra. Regolate l'aspetto, gli stili e le animazioni.",
     "editorMode_logic": "Logica",
@@ -1143,6 +1150,7 @@ export const it = {
   },
   "finish": "Finitura",
   "profile": {
+    ...en.profile,
     "logout": "Disconnettersi",
     "createOrg": "Crea spazio di lavoro",
     "switchOrg": "Cambia spazio di lavoro",
@@ -1700,6 +1708,7 @@ export const it = {
     "menuViewPlayground": "Visualizza il parco giochi interattivo"
   },
   "themeDetail": {
+    ...en.themeDetail,
     "primarySurface": "Colore del contenitore",
     "primary": "Colore del marchio",
     "primaryDesc": "Colore primario predefinito utilizzato dalla maggior parte dei componenti",
@@ -1759,6 +1768,7 @@ export const it = {
   "addItem": "Aggiungi",
   "delete": "Cancellare",
   "theme": {
+    ...en.theme,
     "defaultTheme": "Predefinito",
     "yellow": "Giallo",
     "green": "Verde",

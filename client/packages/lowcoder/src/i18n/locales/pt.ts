@@ -1,4 +1,6 @@
+import { en } from "./en";
 export const pt = {
+  ...en,
   "orgSettings": {
     "newOrg": "Novo Espaço de Trabalho (Organização)",
     "createOrg": "Criar Espaço de Trabalho (Organização)",
@@ -89,6 +91,7 @@ export const pt = {
     "integration": "Integração e Extensão"
   },
   "uiComp": {
+    ...en.uiComp,
     "chartCompName": "Gráfico",
     "chartCompDesc": "Um componente versátil para visualizar dados por meio de vários tipos de gráficos e diagramas.",
     "chartCompKeywords": "gráfico, diagrama, dados, visualização",
@@ -733,6 +736,7 @@ export const pt = {
     "modeHorizontal": "Horizontal"
   },
   "prop": {
+    ...en.prop,
     "manual": "Manual",
     "json": "JSON",
     "style": "Estilo",
@@ -979,6 +983,7 @@ export const pt = {
     "noMetadata": "Nenhum Metadado Disponível"
   },
   "appSetting": {
+    ...en.appSetting,
     "450": "450px (Celular)",
     "800": "800px (Tablet)",
     "1440": "1440px (Notebook)",
@@ -997,6 +1002,7 @@ export const pt = {
     "dataDesc": "Dados do Data Responder Atual"
   },
   "home": {
+    ...en.home,
     "all": "Todos",
     "app": "Aplicativo",
     "module": "Módulo",
@@ -1102,6 +1108,7 @@ export const pt = {
     "timeoutLessThanMinError": "A entrada deve ser maior que {left}, o valor atual é: {value}"
   },
   "header": {
+    ...en.header,
     "editorMode_layout": "Disposição",
     "editorMode_layout_tooltip": "Personalize a aparência e o layout do componente, na janela direita. Ajuste sua aparência, estilo e animação.",
     "editorMode_logic": "Lógica",
@@ -1143,6 +1150,7 @@ export const pt = {
   },
   "finish": "Terminar",
   "profile": {
+    ...en.profile,
     "logout": "Sair",
     "createOrg": "Criar Espaço de Trabalho",
     "switchOrg": "Trocar Espaço de Trabalho",
@@ -1700,6 +1708,7 @@ export const pt = {
     "menuViewPlayground": "Ver Playground Interativo"
   },
   "themeDetail": {
+    ...en.themeDetail,
     "primarySurface": "Cor do Contêiner",
     "primary": "Cor da Marca",
     "primaryDesc": "Cor primária padrão usada pela maioria dos componentes",
@@ -1759,6 +1768,7 @@ export const pt = {
   "addItem": "Adicionar",
   "delete": "Remover",
   "theme": {
+    ...en.theme,
     "defaultTheme": "Padrão",
     "yellow": "Amarelo",
     "green": "Verde",

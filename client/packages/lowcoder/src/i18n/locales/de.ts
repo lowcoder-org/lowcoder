@@ -1,4 +1,6 @@
+import { en } from "./en";
 export const de = {
+  ...en,
   "orgSettings": {
     "newOrg": "Neuer Arbeitsbereich (Organisation)",
     "createOrg": "Arbeitsbereich erstellen (Organisation)",
@@ -89,6 +91,7 @@ export const de = {
     "integration": "Integration & Erweiterung"
   },
   "uiComp": {
+    ...en.uiComp,
     "chartCompName": "Diagramm",
     "chartCompDesc": "Eine vielseitige Komponente zur Visualisierung von Daten durch verschiedene Arten von Diagrammen und Graphen.",
     "chartCompKeywords": "Diagramm, Graph, Daten, Visualisierung",
@@ -733,6 +736,7 @@ export const de = {
     "modeHorizontal": "Horizontal"
   },
   "prop": {
+    ...en.prop,
     "manual": "Handbuch",
     "json": "JSON",
     "style": "Stil",
@@ -979,6 +983,7 @@ export const de = {
     "noMetadata": "Keine Metadaten verfügbar"
   },
   "appSetting": {
+    ...en.appSetting,
     "450": "450px (Mobile)",
     "800": "800px (Tablet)",
     "1440": "1440px (Laptop)",
@@ -997,6 +1002,7 @@ export const de = {
     "dataDesc": "Daten des aktuellen Data Responders"
   },
   "home": {
+    ...en.home,
     "all": "Alle",
     "app": "App",
     "module": "Modul",
@@ -1102,6 +1108,7 @@ export const de = {
     "timeoutLessThanMinError": "Die Eingabe muss größer sein als {left}, die aktuelle Eingabe ist: {value}"
   },
   "header": {
+    ...en,
     "editorMode_layout": "Layout",
     "editorMode_layout_tooltip": "Passen Sie im rechten Fenster das Erscheinungsbild und Layout der Komponente an. Passen Sie Aussehen, Stil und Animationen an.",
     "editorMode_logic": "Logik",
@@ -1143,6 +1150,7 @@ export const de = {
   },
   "finish": "Beenden",
   "profile": {
+    ...en.profile,
     "logout": "Abmelden",
     "createOrg": "Arbeitsbereich erstellen",
     "switchOrg": "Bereich wechseln",
@@ -1700,6 +1708,7 @@ export const de = {
     "menuViewPlayground": "Interaktiven Spielplatz ansehen"
   },
   "themeDetail": {
+    ...en.themeDetail,
     "primarySurface": "Container Farbe",
     "primary": "Primärfarbe",
     "primaryDesc": "Standard-Primärfarbe, die von den meisten Komponenten verwendet wird",
@@ -1759,6 +1768,7 @@ export const de = {
   "addItem": "Hinzufügen",
   "delete": "Löschen",
   "theme": {
+    ...en.theme,
     "defaultTheme": "Standard",
     "yellow": "Gelb",
     "green": "Grün",

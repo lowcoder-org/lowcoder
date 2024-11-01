@@ -1,4 +1,6 @@
+import { en } from "./enEditor";
 export const zh = {
+    ...en,
     "orgSettings": {
         "newOrg": "新工作空间",
         "title": "工作空间",
@@ -104,6 +106,7 @@ export const zh = {
         "integration": "整合与扩展"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "图表",
         "chartCompDesc": "图表组件",
         "chartCompKeywords": "",
@@ -1007,6 +1010,7 @@ export const zh = {
         "mobileNavIconSize": "Icon Size"
     },
     "prop": {
+        ...en.prop,
         "manual": "手动",
         "json": "JSON",
         "style": "样式",
@@ -1344,6 +1348,7 @@ export const zh = {
         "allData": "所有表"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px(手机)",
         "800": "800px(平板)",
         "1440": "1440px(笔记本电脑)",
@@ -1387,6 +1392,7 @@ export const zh = {
         "deleteMessage": "数据响应器已成功删除.您可以使用 {undoKey} 进行撤销."
     },
     "home": {
+        ...en.home,
         "all": "全部",
         "app": "应用",
         "module": "模块",
@@ -1470,6 +1476,7 @@ export const zh = {
         "click": "点击"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "应用程序布局",
         "editorMode_layout_tooltip": "在右侧窗口中自定义组件的外观和布局。调整它的外观、样式和动画。",
         "editorMode_logic": "应用程序逻辑",
@@ -1500,6 +1507,7 @@ export const zh = {
     },
     "finish": "完成",
     "profile": {
+        ...en.profile,
         "logout": "退出登录",
         "createOrg": "创建工作区",
         "switchOrg": "切换工作区",
@@ -2476,6 +2484,7 @@ export const zh = {
     "addItem": "添加",
     "delete": "删除",
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "容器颜色",
         "primary": "颜色主题",
         "canvas": "画布颜色",
@@ -2789,6 +2798,7 @@ export const zh = {
     },
     "cancel": "取消",
     "theme": {
+        ...en.theme,
         "defaultTheme": "默认",
         "yellow": "黄色",
         "green": "绿色",

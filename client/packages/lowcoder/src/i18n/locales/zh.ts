@@ -1,4 +1,6 @@
+import { en } from "./en";
 export const zh = {
+    ...en,
     "orgSettings": {
         "newOrg": "新工作空间",
         "createOrg": "创建工作空间",
@@ -89,6 +91,7 @@ export const zh = {
         "integration": "整合与扩展"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "图表",
         "chartCompDesc": "图表组件",
         "chartCompKeywords": "",
@@ -733,6 +736,7 @@ export const zh = {
         "modeHorizontal": "Horizontal"
     },
     "prop": {
+        ...en.prop,
         "manual": "手动",
         "json": "JSON",
         "style": "样式",
@@ -979,6 +983,7 @@ export const zh = {
         "noMetadata": "无元数据"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px(手机)",
         "800": "800px(平板)",
         "1440": "1440px(笔记本电脑)",
@@ -997,6 +1002,7 @@ export const zh = {
         "dataDesc": "当前数据响应器的数据"
     },
     "home": {
+        ...en.home,
         "all": "全部",
         "app": "应用",
         "module": "模块",
@@ -1102,6 +1108,7 @@ export const zh = {
         "timeoutLessThanMinError": "输入必须大于 {left},当前输入为:{value}"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "应用程序布局",
         "editorMode_layout_tooltip": "在右侧窗口中自定义组件的外观和布局。调整它的外观、样式和动画。",
         "editorMode_logic": "应用程序逻辑",
@@ -1143,6 +1150,7 @@ export const zh = {
     },
     "finish": "完成",
     "profile": {
+        ...en.profile,
         "logout": "退出登录",
         "createOrg": "创建工作区",
         "switchOrg": "切换工作区",
@@ -1700,6 +1708,7 @@ export const zh = {
         "menuViewPlayground": "查看组件游乐场"
     },
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "容器颜色",
         "primary": "颜色主题",
         "primaryDesc": "大多数组件使用默认的颜色主题",
@@ -1759,6 +1768,7 @@ export const zh = {
     "addItem": "添加",
     "delete": "删除",
     "theme": {
+        ...en.theme,
         "defaultTheme": "默认",
         "yellow": "黄色",
         "green": "绿色",

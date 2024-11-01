@@ -1,4 +1,6 @@
+import { en } from "./enEditor";
 export const es = {
+    ...en,
     "orgSettings": {
         "newOrg": "Nuevo espacio de trabajo (Organización)",
         "title": "Espacio de trabajo",
@@ -104,6 +106,7 @@ export const es = {
         "integration": "Integración y ampliación"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "Gráfico",
         "chartCompDesc": "Un componente versátil para visualizar datos a través de varios tipos de tablas y gráficos.",
         "chartCompKeywords": "tabla, gráfico, datos, visualización",
@@ -1007,6 +1010,7 @@ export const es = {
         "mobileNavIconSize": "Tamaño del icono"
     },
     "prop": {
+        ...en.prop,
         "manual": "Manual",
         "json": "JSON",
         "style": "Estilo",
@@ -1344,6 +1348,7 @@ export const es = {
         "allData": "Todas las mesas"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px (Teléfono)",
         "800": "800px (Tableta)",
         "1440": "1440px (portátil)",
@@ -1387,6 +1392,7 @@ export const es = {
         "deleteMessage": "El Data Responder se ha borrado correctamente. Puede utilizar {undoKey} para deshacer."
     },
     "home": {
+        ...en.home,
         "all": "Todos",
         "app": "Aplicación",
         "module": "Módulo",
@@ -1470,6 +1476,7 @@ export const es = {
         "click": "Haga clic en"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "Diseño",
         "editorMode_layout_tooltip": "Personalice la apariencia y el diseño del componente en la ventana derecha. Ajusta su aspecto, estilo y animación.",
         "editorMode_logic": "Lógica",
@@ -1500,6 +1507,7 @@ export const es = {
     },
     "finish": "Acabado",
     "profile": {
+        ...en.profile,
         "logout": "Cerrar sesión",
         "createOrg": "Crear espacio de trabajo",
         "switchOrg": "Cambiar de espacio de trabajo",
@@ -2476,6 +2484,7 @@ export const es = {
     "addItem": "Añadir",
     "delete": "Borrar",
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "Color del contenedor",
         "primary": "Color de la marca",
         "canvas": "Canvas Color",
@@ -2789,6 +2798,7 @@ export const es = {
     },
     "cancel": "Cancelar",
     "theme": {
+        ...en.theme,
         "defaultTheme": "Por defecto",
         "yellow": "Amarillo",
         "green": "Verde",

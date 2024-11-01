@@ -1,4 +1,6 @@
+import { en } from "./enEditor";
 export const de = {
+    ...en,
     "orgSettings": {
         "newOrg": "Neuer Arbeitsbereich (Organisation)",
         "title": "Arbeitsbereich",
@@ -104,6 +106,7 @@ export const de = {
         "integration": "Integration & Erweiterung"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "Diagramm",
         "chartCompDesc": "Eine vielseitige Komponente zur Visualisierung von Daten durch verschiedene Arten von Diagrammen und Graphen.",
         "chartCompKeywords": "Diagramm, Graph, Daten, Visualisierung",
@@ -1007,6 +1010,7 @@ export const de = {
         "mobileNavIconSize": "Icon Größe"
     },
     "prop": {
+        ...en.prop,
         "manual": "Handbuch",
         "json": "JSON",
         "style": "Stil",
@@ -1344,6 +1348,7 @@ export const de = {
         "allData": "Alle Daten"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px (Mobile)",
         "800": "800px (Tablet)",
         "1440": "1440px (Laptop)",
@@ -1387,6 +1392,7 @@ export const de = {
         "deleteMessage": "Der Data Responder wurde erfolgreich gelöscht. Du kannst {undoKey} zum Rückgängigmachen verwenden."
     },
     "home": {
+        ...en.home,
         "all": "Alle",
         "app": "App",
         "module": "Modul",
@@ -1470,6 +1476,7 @@ export const de = {
         "click": "Klick"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "Layout",
         "editorMode_layout_tooltip": "Passen Sie im rechten Fenster das Erscheinungsbild und Layout der Komponente an. Passen Sie Aussehen, Stil und Animationen an.",
         "editorMode_logic": "Logik",
@@ -1500,6 +1507,7 @@ export const de = {
     },
     "finish": "Beenden",
     "profile": {
+        ...en.profile,
         "logout": "Abmelden",
         "createOrg": "Arbeitsbereich erstellen",
         "switchOrg": "Bereich wechseln",
@@ -2476,6 +2484,7 @@ export const de = {
     "addItem": "Hinzufügen",
     "delete": "Löschen",
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "Container Farbe",
         "primary": "Primärfarbe",
         "canvas": "Canvas Farbe",
@@ -2789,6 +2798,7 @@ export const de = {
     },
     "cancel": "Abbrechen",
     "theme": {
+        ...en.theme,
         "defaultTheme": "Standard",
         "yellow": "Gelb",
         "green": "Grün",

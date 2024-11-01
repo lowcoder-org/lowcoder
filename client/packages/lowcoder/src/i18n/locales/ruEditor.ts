@@ -1,4 +1,6 @@
+import { en } from "./enEditor";
 export const ru = {
+    ...en,
     "orgSettings": {
         "newOrg": "Новое рабочее пространство (Организация)",
         "title": "Рабочее пространство",
@@ -104,6 +106,7 @@ export const ru = {
         "integration": "Интеграция и расширение"
     },
     "uiComp": {
+        ...en.uiComp,
         "chartCompName": "График",
         "chartCompDesc": "Универсальный компонент для визуализации данных с помощью различных типов графиков и диаграмм.",
         "chartCompKeywords": "диаграмма, график, данные, визуализация",
@@ -1007,6 +1010,7 @@ export const ru = {
         "mobileNavIconSize": "Размер значка"
     },
     "prop": {
+        ...en.prop,
         "manual": "Руководство",
         "json": "JSON",
         "style": "Стиль",
@@ -1344,6 +1348,7 @@ export const ru = {
         "allData": "Все столы"
     },
     "appSetting": {
+        ...en.appSetting,
         "450": "450px (Телефон)",
         "800": "800px (планшет)",
         "1440": "1440px (ноутбук)",
@@ -1387,6 +1392,7 @@ export const ru = {
         "deleteMessage": "Ответчик данных успешно удален. Вы можете использовать {undoKey} для отмены."
     },
     "home": {
+        ...en.home,
         "all": "Все",
         "app": "Приложение",
         "module": "Модуль",
@@ -1470,6 +1476,7 @@ export const ru = {
         "click": "Нажмите"
     },
     "header": {
+        ...en.header,
         "editorMode_layout": "Макет",
         "editorMode_layout_tooltip": "Настройте внешний вид и расположение компонента в правом окне. Настройте его внешний вид, стили и анимацию.",
         "editorMode_logic": "Логика",
@@ -1500,6 +1507,7 @@ export const ru = {
     },
     "finish": "Отделка",
     "profile": {
+        ...en.profile,
         "logout": "Выйти из системы",
         "createOrg": "Создать рабочее пространство",
         "switchOrg": "Переключение рабочего пространства",
@@ -2476,6 +2484,7 @@ export const ru = {
     "addItem": "Добавить",
     "delete": "Удалить",
     "themeDetail": {
+        ...en.themeDetail,
         "primarySurface": "Цвет контейнера",
         "primary": "Фирменный цвет",
         "canvas": "Цвет холста",
@@ -2789,6 +2798,7 @@ export const ru = {
     },
     "cancel": "Отмена",
     "theme": {
+        ...en.theme,
         "defaultTheme": "По умолчанию",
         "yellow": "Желтый",
         "green": "Зеленый",

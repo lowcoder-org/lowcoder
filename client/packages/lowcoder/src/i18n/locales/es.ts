@@ -1,4 +1,6 @@
+import { en } from "./en";
 export const es = {
+  ...en,
   "orgSettings": {
     "newOrg": "Nuevo espacio de trabajo (Organización)",
     "createOrg": "Crear espacio de trabajo (Organización)",
@@ -89,6 +91,7 @@ export const es = {
     "integration": "Integración y ampliación"
   },
   "uiComp": {
+    ...en.uiComp,
     "chartCompName": "Gráfico",
     "chartCompDesc": "Un componente versátil para visualizar datos a través de varios tipos de tablas y gráficos.",
     "chartCompKeywords": "tabla, gráfico, datos, visualización",
@@ -733,6 +736,7 @@ export const es = {
     "modeHorizontal": "Horizontal"
   },
   "prop": {
+    ...en.prop,
     "manual": "Manual",
     "json": "JSON",
     "style": "Estilo",
@@ -979,6 +983,7 @@ export const es = {
     "noMetadata": "No hay metadatos disponibles"
   },
   "appSetting": {
+    ...en.appSetting,
     "450": "450px (Teléfono)",
     "800": "800px (Tableta)",
     "1440": "1440px (portátil)",
@@ -997,6 +1002,7 @@ export const es = {
     "dataDesc": "Datos del respondedor de datos actual"
   },
   "home": {
+    ...en.home,
     "all": "Todos",
     "app": "Aplicación",
     "module": "Módulo",
@@ -1102,6 +1108,7 @@ export const es = {
     "timeoutLessThanMinError": "La entrada debe ser mayor que {left}, la entrada actual es: {value}"
   },
   "header": {
+    ...en.header,
     "editorMode_layout": "Diseño",
     "editorMode_layout_tooltip": "Personalice la apariencia y el diseño del componente en la ventana derecha. Ajusta su aspecto, estilo y animación.",
     "editorMode_logic": "Lógica",
@@ -1143,6 +1150,7 @@ export const es = {
   },
   "finish": "Acabado",
   "profile": {
+    ...en.profile,
     "logout": "Cerrar sesión",
     "createOrg": "Crear espacio de trabajo",
     "switchOrg": "Cambiar de espacio de trabajo",
@@ -1700,6 +1708,7 @@ export const es = {
     "menuViewPlayground": "Ver zona de juegos interactiva"
   },
   "themeDetail": {
+    ...en.themeDetail,
     "primarySurface": "Color del contenedor",
     "primary": "Color de la marca",
     "primaryDesc": "Color primario por defecto utilizado por la mayoría de los componentes",
@@ -1759,6 +1768,7 @@ export const es = {
   "addItem": "Añadir",
   "delete": "Borrar",
   "theme": {
+    ...en.theme,
     "defaultTheme": "Por defecto",
     "yellow": "Amarillo",
     "green": "Verde",
