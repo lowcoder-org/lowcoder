@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { trans } from "i18n";
 import { searchCustomerTickets, createTicket } from "@lowcoder-ee/api/supportApi";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from "react-helmet";
 import { useUserDetails } from "./useUserDetails";
 import StepModal from "components/StepModal";
@@ -14,6 +14,7 @@ import { Input } from "antd";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import { Spin } from "antd";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 
 
 const SupportWrapper = styled.div`
@@ -190,15 +191,16 @@ export function SupportOverview() {
     }
   };
 
-  const filteredTickets = supportTickets.filter((ticket: any) => {
-    if (searchValue) {
+  const filteredTickets = useMemo(() => {
+    if (!Boolean(searchValue)) return supportTickets;
+
+    return supportTickets.filter((ticket: any) => {
       return (
-        ticket.title.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchValue.trim().toLowerCase())
-      );
-    }
-    return true;
-  });
+        ticket.title?.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
+        ticket.description?.toLowerCase().includes(searchValue.trim().toLowerCase())
+      )
+    });
+  }, [searchValue, supportTickets]);
 
   const handleCreateTicket = async () => {
     if (summary.length > 150) {
@@ -273,8 +275,9 @@ export function SupportOverview() {
                       buttonType={summary ? "primary" : "normal"}
                       onClick={handleCreateTicket}
                       disabled={isSubmitting || !summary}
+                      loading={isSubmitting}
                     >
-                      {isSubmitting ? <Spin /> : trans("support.createTicketSubmit")}
+                      {trans("support.createTicketSubmit")}
                     </TacoButton>
                     <div>
                       <div style={{ margin: "20px 0 0 0" }}>{trans("support.createTicketInfoText")}</div>
@@ -304,7 +307,10 @@ export function SupportOverview() {
         </HeaderWrapper>
         <BodyWrapper>
             <StyledTable
-              loading={loading}
+              loading={{
+                spinning: loading,
+                indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
+              }}
               rowClassName="datasource-can-not-edit"
               tableLayout={"auto"}
               scroll={{ x: "100%" }}

@@ -148,7 +148,7 @@ export const DatasourceList = () => {
           <StyledTable
             loading={{
               spinning: !datasource.length,
-              indicator: <LoadingOutlined spin />
+              indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
             }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
