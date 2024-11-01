@@ -213,15 +213,15 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
    * @return {String} Container height in pixels.
    */
   containerHeight(): string {
-    const { margin, rowHeight, fixedRowCount } = this.props as Required<GridLayoutProps>;
+    const { margin, rowHeight, fixedRowCount, isCanvas } = this.props as Required<GridLayoutProps>;
     const { extraHeight, emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
-
     const { containerPadding } = positionParams;
     const layout = this.getUILayout(undefined, true);
+
     let nbRow = bottom(layout);
-    if (!_.isNil(emptyRows) && (_.size(layout) === 0 || fixedRowCount)) {
-      nbRow = emptyRows;// === Infinity ? 0 : emptyRows;
+    if (!_.isNil(emptyRows) && (_.size(layout) === 0 || (fixedRowCount && isCanvas))) {
+      nbRow = emptyRows;
     }
     const containerHeight = Math.max(
       nbRow * rowHeight + (nbRow - 1) * margin[1] + containerPadding[1] * 2

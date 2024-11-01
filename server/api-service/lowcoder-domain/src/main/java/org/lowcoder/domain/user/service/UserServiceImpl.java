@@ -226,6 +226,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Mono<User> saveUser(User user) {
+        return repository.save(user);
+    }
+
+    @Override
     public Mono<Void> deleteProfilePhoto(User visitor) {
         String userAvatar = visitor.getAvatar();
         visitor.setAvatar(null);

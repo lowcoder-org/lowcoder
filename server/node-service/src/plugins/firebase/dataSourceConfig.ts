@@ -25,7 +25,7 @@ const dataSourceConfig = {
       label: "Private Key",
       type: "password",
       tooltip:
-        "The [document](https://firebase.google.com/docs/admin/setup) on how to obtain the private key.",
+        "The JSON [document](https://firebase.google.com/docs/admin/setup) on how to obtain the private key.",
     },
     {
       label: "Spec Version",

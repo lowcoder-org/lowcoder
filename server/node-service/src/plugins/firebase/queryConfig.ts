@@ -108,6 +108,12 @@ const queryConfig = {
               type: "numberInput",
               defaultValue: 10,
             },
+            {
+              key: "startAt",
+              label: "Start at",
+              type: "textInput",
+              tooltip: "Start the query at a specific document.",
+            }
           ],
         },
         {
