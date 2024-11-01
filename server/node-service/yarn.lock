@@ -3801,7 +3801,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:*, @types/node@npm:>=13.7.0, @types/node@npm:^20.1.1":
+"@types/node@npm:*, @types/node@npm:>=13.7.0":
   version: 20.16.11
   resolution: "@types/node@npm:20.16.11"
   dependencies:
@@ -3816,6 +3816,15 @@ __metadata:
   dependencies:
     undici-types: ~6.19.2
   checksum: 1a8bbb504efaffcef7b8491074a428e5c0b5425b0c0ffb13e7262cb8462c275e8cc5eaf90a38d8fbf52a1eeda7c01ab3b940673c43fc2414140779c973e40ec6
+  languageName: node
+  linkType: hard
+
+"@types/node@npm:^22.8.6":
+  version: 22.8.6
+  resolution: "@types/node@npm:22.8.6"
+  dependencies:
+    undici-types: ~6.19.8
+  checksum: 3699b6582c433323ed0d6c2f3e9245f0848946e0b4b3b26b11a069ab2ac2c02d3300d544a17dbf4e28899c41afe89811843e41ef5945c98d28561e8abfeb40b1
   languageName: node
   linkType: hard
 
@@ -7732,7 +7741,7 @@ __metadata:
     "@types/jsonpath": ^0.2.0
     "@types/lodash": ^4.14.190
     "@types/morgan": ^1.9.3
-    "@types/node": ^20.1.1
+    "@types/node": ^22.8.6
     "@types/node-fetch": ^2.6.2
     ali-oss: ^6.20.0
     axios: ^1.7.7
@@ -10454,7 +10463,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"undici-types@npm:~6.19.2":
+"undici-types@npm:~6.19.2, undici-types@npm:~6.19.8":
   version: 6.19.8
   resolution: "undici-types@npm:6.19.8"
   checksum: de51f1b447d22571cf155dfe14ff6d12c5bdaec237c765085b439c38ca8518fc360e88c70f99469162bf2e14188a7b0bcb06e1ed2dc031042b984b0bb9544017
