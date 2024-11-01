@@ -5,7 +5,6 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils/nameGenerator";
-import { Section, sectionNames } from "lowcoder-design";
 import { oldContainerParamsToNew } from "../containerBase";
 import { toSimpleContainerData } from "../containerBase/simpleContainerComp";
 import { ShapeTriContainer } from "./shapeTriContainer";
@@ -15,22 +14,18 @@ import {
   ContainerChildren,
   ContainerCompBuilder,
 } from "../triContainerComp/triContainerCompBuilder";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import React, { useContext, useEffect, useState } from "react";
-import { EditorContext } from "comps/editorState";
-
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 export const ContainerBaseComp = (function () {
   const childrenMap = {
     disabled: BoolCodeControl,
     icon: withDefault(ShapeControl, ""),
   };
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new ContainerCompBuilder(childrenMap, (props, dispatch) => {
 
     
     return (
@@ -39,42 +34,10 @@ export const ContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.icon.propertyView({
-              label: trans("iconComp.icon"),
-              IconType: "All",
-            })}
-          </Section>
-          {(useContext(EditorContext).editorModeStatus === "logic" ||
-            useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" ||
-            useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.container.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.container.stylePropertyView()}
-              </Section>
-              {children.container.children.showBody.getView() && (
-                <Section name={"Body Style"}>
-                  {children.container.bodyStylePropertyView()}
-                </Section>
-              )}
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() !== "admin") {
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+  }
+  return builder
     .build();
 })();
 

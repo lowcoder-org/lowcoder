@@ -3,8 +3,6 @@ import { trans } from "@lowcoder-ee/i18n";
 import React, { useContext } from "react";
 import { disabledPropertyView, EditorContext, hiddenPropertyView } from "lowcoder-sdk";
 
-console.log("shape");
-
 const PropertyView = ((children: any) => {
     const editorModeStatus = useContext(EditorContext).editorModeStatus;
     return (

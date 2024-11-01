@@ -213,7 +213,7 @@ export class ShapeControl extends AbstractComp<
 
   propertyView(params: ControlParams) {
     const jsContent = (
-      <MultiIconDisplay identifier={SwitchJsIcon}
+      <SwitchJsIcon
         checked={this.useCodeEditor}
         onChange={() => this.dispatch(this.changeModeAction())}
       />
