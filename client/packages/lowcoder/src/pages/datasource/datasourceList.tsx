@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
+import { getDataSource, getDataSourceLoading, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
 import { isEmpty } from "lodash";
 import history from "../../util/history";
@@ -106,6 +106,7 @@ export const DatasourceList = () => {
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
   const datasource = useSelector(getDataSource);
+  const datasourceLoading = useSelector(getDataSourceLoading);
   const plugins = useSelector(getDataSourceTypesMap);
 
   return (
@@ -147,7 +148,7 @@ export const DatasourceList = () => {
         <BodyWrapper>
           <StyledTable
             loading={{
-              spinning: !datasource.length,
+              spinning: datasourceLoading,
               indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
             }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
