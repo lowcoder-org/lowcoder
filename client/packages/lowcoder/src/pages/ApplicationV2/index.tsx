@@ -74,7 +74,7 @@ import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
-import { SubscriptionContextProvider } from '@lowcoder-ee/util/context/SubscriptionContext';
+import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -224,7 +224,7 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
-      <SubscriptionContextProvider>
+      <SimpleSubscriptionContextProvider>
         <Layout
           sections={[
             {
@@ -364,7 +364,7 @@ export default function ApplicationHome() {
 
           ]}
         />
-      </SubscriptionContextProvider>
+      </SimpleSubscriptionContextProvider>
     </DivStyled>
   );
 }
