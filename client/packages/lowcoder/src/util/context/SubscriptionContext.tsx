@@ -121,7 +121,7 @@ export const SubscriptionContextProvider = (props: {
     if (Boolean(deploymentId) && !customer) {
       initializeCustomer();
     }
-  }, [deploymentId, customer]);
+  }, [deploymentId]);
 
   useEffect(() => {
     const prepareCheckout = async () => {

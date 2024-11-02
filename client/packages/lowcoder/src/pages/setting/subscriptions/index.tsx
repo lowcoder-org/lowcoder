@@ -11,15 +11,13 @@ import { SubscriptionContextProvider } from '@lowcoder-ee/util/context/Subscript
 
 export const Subscription = () => {
   return (
-    <SubscriptionContextProvider>
-      <Switch>
-        <Route path={SUBSCRIPTION_DETAIL} component={SubscriptionDetail} exact />
-        <Route path={SUBSCRIPTION_INFO} component={SubscriptionInfo} exact />
-        <Route path={SUBSCRIPTION_SUCCESS} component={SubscriptionSuccess} exact />
-        <Route path={SUBSCRIPTION_CANCEL} component={SubscriptionCancel} exact />
-        <Route path={SUBSCRIPTION_ERROR} component={SubscriptionError} exact />
-        <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />
-      </Switch>
-    </SubscriptionContextProvider>
+    <Switch>
+      <Route path={SUBSCRIPTION_DETAIL} component={SubscriptionDetail} exact />
+      <Route path={SUBSCRIPTION_INFO} component={SubscriptionInfo} exact />
+      <Route path={SUBSCRIPTION_SUCCESS} component={SubscriptionSuccess} exact />
+      <Route path={SUBSCRIPTION_CANCEL} component={SubscriptionCancel} exact />
+      <Route path={SUBSCRIPTION_ERROR} component={SubscriptionError} exact />
+      <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />
+    </Switch>
   );
 };

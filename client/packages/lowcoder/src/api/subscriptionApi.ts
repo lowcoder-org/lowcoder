@@ -65,7 +65,6 @@ class SubscriptionApi extends Api {
       response = await axiosInstance.request(requestConfig);
     } catch (error) {
       if (axios.isCancel(error)) {
-        console.warn("Request cancelled due to timeout:", error.message);
         // Retry once after timeout cancellation
         try {
           // Reset the cancel token and retry
@@ -81,11 +80,11 @@ class SubscriptionApi extends Api {
 
           clearTimeout(retryTimeoutId);
         } catch (retryError) {
-          console.error("Retry failed:", retryError);
+          console.warn("Error at Secure Flow Request. Retry failed:", retryError);
           throw retryError;
         }
       } else {
-        console.error("Error at Secure Flow Request:", error);
+        console.warn("Error at Secure Flow Request:", error);
         throw error;
       }
     } finally {
