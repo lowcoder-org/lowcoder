@@ -51,7 +51,7 @@ class SubscriptionApi extends Api {
     const source = axios.CancelToken.source();
     const timeoutId = setTimeout(() => {
       source.cancel("Request timed out.");
-    }, 5000);
+    }, 6000);
 
     // Request configuration with cancel token
     const requestConfig: AxiosRequestConfig = {

@@ -310,7 +310,7 @@ export default function ApplicationHome() {
               ],
             } : { items: [] },
 
-            supportSubscription ? {
+            supportSubscription && user.orgDev ? {
               items: [
                 {
                   text: <TabLabel>{trans("home.support")}</TabLabel>,
