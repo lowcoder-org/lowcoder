@@ -67,6 +67,14 @@ const AttachmentWrapper = styled.div`
   margin-bottom: 16px;
 `;
 
+const toolbarOptions = [
+  ['bold', 'italic', 'underline'], // Basic formatting options
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Lists
+  [{ 'header': [1, 2, 3, false] }], // Headers
+  ['link'], // Links
+  [{ 'align': [] }] // Text alignment
+];
+
 // Function to convert Jira syntax to Markdown
 const convertJiraToMarkdown = (content: string) => {
   // Normalize tabs to single spaces and reduce multiple spaces to a single space
@@ -450,6 +458,7 @@ export function SupportDetail() {
                 theme="snow"
                 value={newDescription}
                 onChange={setNewDescription}
+                modules={{ toolbar: toolbarOptions }}
                 style={{ marginBottom: '8px' }}
               />
               <Button 
@@ -469,7 +478,7 @@ export function SupportDetail() {
           ) : (
             <>
               {renderMarkdown(newDescription || trans("support.noDescription"))}
-              <Button onClick={() => setIsEditingDescription(true)} style={{ marginTop: '8px' }}>
+              <Button type="primary" onClick={() => setIsEditingDescription(true)} style={{ marginTop: '8px' }}>
                 {trans('support.edit')}
               </Button>
             </>

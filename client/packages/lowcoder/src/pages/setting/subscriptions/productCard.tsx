@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
 import { Card, Button } from 'antd';
-import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { SettingOutlined, CheckCircleOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
 
