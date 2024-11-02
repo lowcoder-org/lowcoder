@@ -64,9 +64,7 @@ export const SubscriptionContextProvider = (props: {
   const userCount = useOrgUserCount(orgID);
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-    hostname: domain,
     hostId: deploymentId,
-    email: currentUser.email,
     orgId: orgID,
     userId: user.id,
   };
@@ -128,7 +126,6 @@ export const SubscriptionContextProvider = (props: {
       if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
         try {
           console.log("Total Users in Organization:", userCount);
-
           const updatedProducts = await Promise.all(
             products.map(async (product) => {
               const matchingSubscription = subscriptions.find(

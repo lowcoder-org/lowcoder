@@ -62,9 +62,7 @@ export const SimpleSubscriptionContextProvider = (props: {
   const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
 
   const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-    hostname: domain,
     hostId: deploymentId,
-    email: currentUser.email,
     orgId: orgID,
     userId: user.id,
   };

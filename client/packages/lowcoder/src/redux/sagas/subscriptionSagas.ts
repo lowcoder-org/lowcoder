@@ -17,9 +17,7 @@ function* fetchSubscriptionsSaga(action: ReturnType<typeof fetchSubscriptionsAct
     const deploymentId: string = yield select(getDeploymentId);
 
     const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-      hostname: domain,
       hostId: deploymentId,
-      email: currentUser.email,
       orgId: orgID,
       userId: user.id,
     };

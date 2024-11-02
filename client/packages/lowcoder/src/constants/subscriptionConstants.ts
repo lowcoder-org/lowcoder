@@ -2,7 +2,7 @@
 export enum SubscriptionProductsEnum {
   SUPPORT = "QW8L3WPMiNjQjI",
   MEDIAPACKAGE = 'QW8MpIBHxieKXd',
-  AZUREAPIS = 'premium',
+  AZUREAPIS = 'QlQ7cdOh8Lv4dy',
   GOOGLEAPIS = 'enterprise',
   AWSAPIS = 'enterprise-global',
   PRIVATECLOUD = 'private-cloud',
@@ -69,6 +69,10 @@ export interface Subscription {
   quantity: number;
   billing_scheme: string;
   price: string;
+  histId?: string;
+  orgId?: string;
+  userId?: string;
+  customerId?: string;
 }
 
 export interface SubscriptionProduct {
@@ -108,9 +112,7 @@ export interface LowcoderNewCustomer {
 }
 
 export interface LowcoderSearchCustomer {
-  hostname: string;
   hostId: string;
-  email: string;
   orgId: string;
   userId: string;
 }
