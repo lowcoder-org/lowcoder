@@ -279,8 +279,9 @@ export function SupportDetail() {
       const ticketData = await getTicket(ticketId);
       if (ticketData && ticketData.length === 1) {
         setTicket(ticketData[0]);
-
-        setNewDescription(convertJiraToHtml(ticketData[0].fields.description) || '');
+        if (ticketData[0].fields.description) {
+          setNewDescription(convertJiraToHtml(ticketData[0].fields.description) || '');
+        }
       } else {
         setError(trans("support.ticketNotFound"));
       }

@@ -70,7 +70,7 @@ class SupportApi extends Api {
     const source = axios.CancelToken.source();
     const timeoutId = setTimeout(() => {
       source.cancel("Request timed out.");
-    }, 2000);
+    }, 10000);
 
     // Request configuration with cancel token
     const requestConfig: AxiosRequestConfig = {
@@ -91,7 +91,7 @@ class SupportApi extends Api {
           const retrySource = axios.CancelToken.source();
           const retryTimeoutId = setTimeout(() => {
             retrySource.cancel("Retry request timed out.");
-          }, 2000);
+          }, 15000);
 
           response = await axiosInstance.request({
             ...requestConfig,
@@ -128,7 +128,14 @@ export const searchCustomerTickets = async (orgID : string, currentUserId : stri
   };
   try {
     const result = await SupportApi.secureRequest(apiBody);
-    return result.data as TicketList;
+
+    if (!result || !result.data) {
+      return [];
+    }
+
+    const validEntries = result.data.filter((entry: any) => entry.success !== "false");
+
+    return validEntries as TicketList;
   } catch (error) {
     console.error("Error searching Support Tickets: ", error);
     throw error;

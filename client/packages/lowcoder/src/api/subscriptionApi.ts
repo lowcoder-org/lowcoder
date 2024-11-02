@@ -136,22 +136,30 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     method: "post",
     headers: lcHeaders
   };
+
   try {
     const result = await SubscriptionApi.secureRequest(apiBody);
 
-    if (result?.data?.data?.length > 0) {
-      return result?.data?.data;
-    }
-    else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
+    if (!result || !result.data) {
       return [];
     }
-    else if (result.data.success == "false" && result.data.reason == "userSubscriptionNotFound") {
-      return [];
-    }
-    else if (result.data.success == "false" && result.data.reason == "orgSubscriptionNotFound") {
-      return [];
-    }
-    return [];
+
+    // Filter out entries with `"success": "false"`
+    const validEntries = result.data.filter((entry: any) => entry.success !== "false");
+
+    // Flatten the data arrays and filter out duplicates by `id`
+    const uniqueSubscriptions = Object.values(
+      validEntries.reduce((acc: Record<string, any>, entry: any) => {
+        entry.data.forEach((subscription: any) => {
+          if (!acc[subscription.id]) {
+            acc[subscription.id] = subscription;
+          }
+        });
+        return acc;
+      }, {})
+    );
+
+    return uniqueSubscriptions;
   } catch (error) {
     console.error("Error searching customer:", error);
     throw error;
