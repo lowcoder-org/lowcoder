@@ -1,32 +1,20 @@
 import { call, put, select, takeLatest, all, take } from 'redux-saga/effects';
 import { fetchSubscriptionsAction } from 'redux/reduxActions/subscriptionActions';
-import { searchCustomersSubscriptions, Subscription } from 'api/subscriptionApi';
+import { searchCustomersSubscriptions } from 'api/subscriptionApi';
 import { fetchSubscriptionsSuccess, fetchSubscriptionsError } from 'redux/reduxActions/subscriptionActions';
-import { LowcoderSearchCustomer } from 'api/subscriptionApi';
 import { getUser, getCurrentUser } from 'redux/selectors/usersSelectors';
 import { getDeploymentId } from "redux/selectors/configSelectors";
 import { CurrentUser, User } from '@lowcoder-ee/constants/userConstants';
 import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
+import { Subscription, LowcoderSearchCustomer } from '@lowcoder-ee/constants/subscriptionConstants';
 
 function* fetchSubscriptionsSaga(action: ReturnType<typeof fetchSubscriptionsAction>) {
-
   try {
-
-    // wait for deploymentId to be available
-    yield take(ReduxActionTypes.FETCH_DEPLOYMENT_ID_SUCCESS);
-
     const user: User = yield select(getUser);
     const currentUser: CurrentUser = yield select(getCurrentUser); 
     const orgID = user.currentOrgId;
     const domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
-    
-    let hostIdenticator : string = yield select(getDeploymentId);
-
-    // Poll until deploymentId is available
-    while (!hostIdenticator) {
-      yield delay(100); // wait for 100ms
-      hostIdenticator = yield select(getDeploymentId);
-    }
+    const hostIdenticator: string = yield select(getDeploymentId);
 
     const subscriptionSearchCustomer: LowcoderSearchCustomer = {
       hostname: domain,

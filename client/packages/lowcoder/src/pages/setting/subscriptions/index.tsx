@@ -7,17 +7,19 @@ import SubscriptionCancel from './subscriptionCancel';
 import SubscriptionError from './subscriptionError';
 import SubscriptionDetail from './subscriptionDetail';
 import SubscriptionInfo from './subscriptionInfo';
+import { SubscriptionContextProvider } from '@lowcoder-ee/util/context/SubscriptionContext';
 
 export const Subscription = () => {
-
   return (
-    <Switch>
-      <Route path={SUBSCRIPTION_DETAIL} component={SubscriptionDetail} exact />
-      <Route path={SUBSCRIPTION_INFO} component={SubscriptionInfo} exact />
-      <Route path={SUBSCRIPTION_SUCCESS} component={SubscriptionSuccess} exact />
-      <Route path={SUBSCRIPTION_CANCEL} component={SubscriptionCancel} exact />
-      <Route path={SUBSCRIPTION_ERROR} component={SubscriptionError} exact />
-      <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />
-    </Switch>
+    <SubscriptionContextProvider>
+      <Switch>
+        <Route path={SUBSCRIPTION_DETAIL} component={SubscriptionDetail} exact />
+        <Route path={SUBSCRIPTION_INFO} component={SubscriptionInfo} exact />
+        <Route path={SUBSCRIPTION_SUCCESS} component={SubscriptionSuccess} exact />
+        <Route path={SUBSCRIPTION_CANCEL} component={SubscriptionCancel} exact />
+        <Route path={SUBSCRIPTION_ERROR} component={SubscriptionError} exact />
+        <Route path={SUBSCRIPTION_SETTING} component={SubscriptionSetting} exact />
+      </Switch>
+    </SubscriptionContextProvider>
   );
 };

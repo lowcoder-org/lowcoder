@@ -8,6 +8,7 @@ import history from "util/history";
 import { SUBSCRIPTION_SETTING } from "constants/routesURL";
 import { getProduct, getSubscriptionDetails, getInvoices } from "api/subscriptionApi";
 import { Skeleton, Timeline, Card, Descriptions, Table, Typography, Button } from "antd";
+import { useSubscriptionContext } from "@lowcoder-ee/util/context/SubscriptionContext";
 
 const { Text } = Typography;
 
@@ -43,14 +44,20 @@ export function SubscriptionDetail() {
   const [subscription, setSubscription] = useState<any>(null);
   const [invoices, setInvoices] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { subscriptionProducts } = useSubscriptionContext();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // Fetch product details
-        const productData = await getProduct(productId);
-        setProduct(productData);
+        // Fetch product details if not found
+        const product = subscriptionProducts.find(p => p.id === `prod_${productId}`);
+        if (Boolean(product)) {
+          setProduct(product);
+        } else {
+          const productData = await getProduct(productId);
+          setProduct(productData);
+        }
 
         // Fetch enriched subscription details, including usage records
         const subscriptionDetails = await getSubscriptionDetails(subscriptionId);

@@ -1,5 +1,5 @@
-import { ReduxActionTypes } from "constants/reduxActionConstants";
-import { Subscription } from 'api/subscriptionApi';
+import { Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
+import { ReduxActionErrorTypes, ReduxActionTypes } from "constants/reduxActionConstants";
 
 // Action Creators
 export const fetchSubscriptionsAction = () => ({
@@ -12,6 +12,6 @@ export const fetchSubscriptionsSuccess = (subscriptions: Subscription[]) => ({
 });
 
 export const fetchSubscriptionsError = (error: string) => ({
-  type: ReduxActionTypes.FETCH_SUBSCRIPTIONS_FAILURE,
+  type: ReduxActionErrorTypes.FETCH_SUBSCRIPTIONS_ERROR,
   payload: { error },
 });

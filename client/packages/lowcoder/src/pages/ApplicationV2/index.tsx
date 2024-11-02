@@ -34,7 +34,7 @@ import {
   EnterpriseIcon,
   UserIcon,
 } from "lowcoder-design";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
 import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
@@ -66,13 +66,14 @@ import { Support } from "pages/support";
 // import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
 import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
-import { SubscriptionProducts } from '@lowcoder-ee/api/subscriptionApi';
+import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
 import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -166,18 +167,28 @@ export default function ApplicationHome() {
   const orgHomeId = "root";
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const subscriptions = useSelector(getSubscriptions);
+  const deploymentId = useSelector(getDeploymentId);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     if (user.currentOrgId) {
-      dispatch(fetchSubscriptionsAction());
       dispatch(fetchDeploymentIdAction());
     }
     dispatch(fetchHomeData({}));
   }, [user.currentOrgId]);
 
-  const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT && sub.status === 'active');
+  useEffect(() => {
+    if(Boolean(deploymentId)) {
+      dispatch(fetchSubscriptionsAction())
+    }
+  }, [deploymentId]);
+
+  const supportSubscription = useMemo(() => {
+    return subscriptions.some(
+      sub => sub.product === SubscriptionProductsEnum.SUPPORT && sub.status === 'active'
+    );
+  }, [subscriptions])
 
   useEffect(() => {
     if (!org) {

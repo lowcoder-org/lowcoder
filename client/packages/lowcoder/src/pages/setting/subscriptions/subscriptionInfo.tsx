@@ -12,6 +12,8 @@ import { CheckCircleOutlined } from '@ant-design/icons';
 import { Level1SettingPageContent } from "../styled";
 import { TacoMarkDown } from "lowcoder-design";
 import ProductDescriptions, {Translations} from "./ProductDescriptions";
+import { SubscriptionProductsEnum } from "@lowcoder-ee/constants/subscriptionConstants";
+import { useSubscriptionContext } from "@lowcoder-ee/util/context/SubscriptionContext";
 
 const { Meta } = Card;
 
@@ -34,6 +36,7 @@ const useProduct = (productId: string) => {
   const [product, setProduct] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const { subscriptionProducts } = useSubscriptionContext();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -48,10 +51,15 @@ const useProduct = (productId: string) => {
       }
     };
 
-    if (productId) {
+    const product = subscriptionProducts.find(p => p.id === `prod_${productId}`);
+    if (Boolean(product)) {
+      setLoading(false);
+      setProduct(product);
+    }
+    else if (productId && !Boolean(product)) {
       fetchProduct();
     }
-  }, [productId]);
+  }, [productId, subscriptionProducts]);
 
   return { product, loading, error };
 };
@@ -66,10 +74,10 @@ const useMarkdown = (productId: string | null, userLanguage: string) => {
       let descriptionContent : Translations | false;
 
       switch (productId) {
-        case "QW8L3WPMiNjQjI": 
+        case SubscriptionProductsEnum.SUPPORT: 
           descriptionContent = ProductDescriptions["SupportProduct"];
           break;
-        case "QW8MpIBHxieKXd": 
+        case SubscriptionProductsEnum.MEDIAPACKAGE: 
           descriptionContent = ProductDescriptions["MediaPackageProduct"];
           break;
         default:
@@ -114,7 +122,9 @@ export function SubscriptionInfo() {
           <Card
             hoverable
             style={{ minWidth: "350px", width: "35%" }}
-            cover={<img alt={product.name} src={product.images[0]} />}
+            cover={
+              <img loading="lazy" alt={product.name} src={product.images[0]} style={{width: '100%', height: '375px', background: '#f2f2f2'}} />
+            }
             actions={[]}
           >
             <Meta
