@@ -15,7 +15,10 @@ import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import { Spin } from "antd";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
-
+import { useSimpleSubscriptionContext } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
+import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { useSelector } from "react-redux";
 
 const SupportWrapper = styled.div`
   display: flex;
@@ -129,7 +132,7 @@ const handleEditClick = (ticketId: string) => {
 };
 
 export function SupportOverview() {
-  const { orgID, currentUser, domain } = useUserDetails();
+  const { orgID, orgName, currentUser, domain } = useUserDetails();
   const [supportTickets, setSupportTickets] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -141,6 +144,12 @@ export function SupportOverview() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isReloadDisabled, setIsReloadDisabled] = useState<boolean>(false); // State to disable/enable reload button
   const [lastReloadTime, setLastReloadTime] = useState<number | null>(null);
+  const { subscriptions } = useSimpleSubscriptionContext();
+  const deploymentId = useSelector(getDeploymentId);
+
+  const SupportSubscription = subscriptions.filter(
+    sub => sub.product === SubscriptionProductsEnum.SUPPORT && sub.status === 'active'
+  );
 
   // Capture global errors using window.onerror
   useEffect(() => {
@@ -162,7 +171,7 @@ export function SupportOverview() {
   const fetchSupportTickets = async () => {
     setLoading(true); // Set loading to true while fetching data
     try {
-      const ticketData = await searchCustomerTickets(orgID, currentUser.id, domain);
+      const ticketData = await searchCustomerTickets(deploymentId, orgID, currentUser.id);
       setSupportTickets(ticketData);
     } catch (err) {
       setError("Failed to fetch support tickets.");
@@ -210,7 +219,7 @@ export function SupportOverview() {
 
     setIsSubmitting(true); 
     try {
-      const result = await createTicket(orgID, currentUser.id, 'subscription-id', domain, summary, description, capturedErrors.join("\n"));
+      const result = await createTicket(domain, deploymentId, orgID, orgName, currentUser.id, SupportSubscription[0]?.id, summary, description, capturedErrors.join("\n"));
       if (result) {
         showCreateForm(false);
         setSummary("");

@@ -67,11 +67,9 @@ import { Support } from "pages/support";
 import { isEE } from "util/envUtils";
 import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
 import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
-import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
-import { set } from "lodash";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';

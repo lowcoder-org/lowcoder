@@ -118,11 +118,15 @@ class SupportApi extends Api {
 
 // API Functions
 
-export const searchCustomerTickets = async (orgID : string, currentUserId : string, domain : string) => {
+export const searchCustomerTickets = async (
+  deploymentId : string,
+  orgID : string,
+  currentUserId : string
+) => {
 
   const apiBody = {
     path: "webhook/support/get-issues",
-    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId},
+    data: {"hostId" : deploymentId, "orgId" : orgID, "userId" : currentUserId},
     method: "post",
     headers: lcHeaders
   };
@@ -159,11 +163,20 @@ export const getTicket = async (ticketKey : string) => {
   }
 };
 
-export const createTicket = async (orgID : string, currentUserId : string, subscriptionId : string, domain : string, summary: string, description : string, errors : string) => {
+export const createTicket = async (
+  domain: string,
+  deploymentId : string,
+  orgID : string, 
+  orgName : string,
+  currentUserId : string, 
+  subscriptionId : string, 
+  summary: string, 
+  description : string, 
+  errors : string) => {
 
   const apiBody = {
     path: "webhook/support/create-ticket",
-    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId, "subscriptionId": subscriptionId, "summary" : summary, "description" : description, "errors" : errors},
+    data: {"domain" : domain, "hostId" : deploymentId, "orgId" : orgID, "orgName" : orgName, "userId" : currentUserId, "subscriptionId": subscriptionId, "summary" : summary, "description" : description, "errors" : errors},
     method: "post",
     headers: lcHeaders
   };
