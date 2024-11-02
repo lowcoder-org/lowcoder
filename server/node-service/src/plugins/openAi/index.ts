@@ -6,9 +6,12 @@ import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-const spec = readYaml(path.join(__dirname, "./openAi.yaml"));
+const spec_1_2_0 = readYaml(path.join(__dirname, "./openAi.yaml"));
+const spec_2_3_0 = readYaml(path.join(__dirname, "./openAI_v2.3.0.yaml"));
+
 const specs = {
-  "v1.0": spec,
+  "v1.2.0": spec_1_2_0,
+  "v2.3.0": spec_2_3_0,
 }
 
 const dataSourceConfig = {
