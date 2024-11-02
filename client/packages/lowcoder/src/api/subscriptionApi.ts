@@ -1,5 +1,5 @@
 import Api from "api/api";
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, CancelToken } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState} from "react";
 import { calculateFlowCode }  from "./apiUtils";
@@ -45,15 +45,53 @@ const getAxiosInstance = (clientSecret?: string) => {
 class SubscriptionApi extends Api {
   static async secureRequest(body: any): Promise<any> {
     let response;
+    const axiosInstance = getAxiosInstance();
+
+    // Create a cancel token and set timeout for cancellation
+    const source = axios.CancelToken.source();
+    const timeoutId = setTimeout(() => {
+      source.cancel("Request timed out.");
+    }, 5000);
+
+    // Request configuration with cancel token
+    const requestConfig: AxiosRequestConfig = {
+      method: "POST",
+      withCredentials: true,
+      data: body,
+      cancelToken: source.token, // Add cancel token
+    };
+
     try {
-      response = await getAxiosInstance().request({
-        method: "POST",
-        withCredentials: true,
-        data: body,
-      });
+      response = await axiosInstance.request(requestConfig);
     } catch (error) {
-      console.error("Error at Secure Flow Request:", error);
+      if (axios.isCancel(error)) {
+        console.warn("Request cancelled due to timeout:", error.message);
+        // Retry once after timeout cancellation
+        try {
+          // Reset the cancel token and retry
+          const retrySource = axios.CancelToken.source();
+          const retryTimeoutId = setTimeout(() => {
+            retrySource.cancel("Retry request timed out.");
+          }, 10000);
+
+          response = await axiosInstance.request({
+            ...requestConfig,
+            cancelToken: retrySource.token,
+          });
+
+          clearTimeout(retryTimeoutId);
+        } catch (retryError) {
+          console.error("Retry failed:", retryError);
+          throw retryError;
+        }
+      } else {
+        console.error("Error at Secure Flow Request:", error);
+        throw error;
+      }
+    } finally {
+      clearTimeout(timeoutId); // Clear the initial timeout
     }
+
     return response;
   }
 }

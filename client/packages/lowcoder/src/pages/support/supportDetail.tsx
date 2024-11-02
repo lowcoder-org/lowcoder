@@ -280,8 +280,6 @@ export function SupportDetail() {
       if (ticketData && ticketData.length === 1) {
         setTicket(ticketData[0]);
 
-        console.log("Description", ticketData[0].fields.description);
-
         setNewDescription(convertJiraToHtml(ticketData[0].fields.description) || '');
       } else {
         setError(trans("support.ticketNotFound"));
