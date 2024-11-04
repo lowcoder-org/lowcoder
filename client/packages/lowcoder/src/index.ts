@@ -8,7 +8,6 @@ import * as uuid from "uuid";
 import "regenerator-runtime/runtime";
 import { debug } from "loglevel";
 import "./index.less";
-import log from "loglevel";
 import "antd-mobile/es/global";
 import 'animate.css';
 import {initTranslator as initTranslatorDesign} from "i18n/design";
@@ -25,7 +24,7 @@ if (!window.ResizeObserver) {
   window.ResizeObserver = ResizeObserver;
 }
 
-function hideLoading() {
+export function hideLoading() {
   // hide loading
   const node = document.getElementById("loading");
   if (node) {
@@ -49,6 +48,5 @@ initTranslatorDesign().then(() => {
       const bootstrap = await import("./bootstrap/view/app").then(module => module.bootstrap);
       bootstrap();
     }
-    hideLoading();
   })
 })

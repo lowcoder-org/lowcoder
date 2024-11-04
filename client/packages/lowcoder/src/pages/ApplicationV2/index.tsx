@@ -68,6 +68,7 @@ import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {initTranslator as initTranslatorDesign} from "i18n/design";
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -218,6 +219,7 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
+      <LoadingBarHideTrigger />
       <Layout
         sections={[
           {

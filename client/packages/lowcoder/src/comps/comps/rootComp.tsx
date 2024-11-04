@@ -34,6 +34,7 @@ import { ExternalEditorContext } from "util/context/ExternalEditorContext";
 import { useUserViewMode } from "util/hooks";
 import React from "react";
 import { isEqual } from "lodash";
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
@@ -138,6 +139,7 @@ const RootView = React.memo((props: RootViewProps) => {
               <div key={key}>{comp.children.queries.children[key].getView()}</div>
             ))}
             <Suspense fallback={!readOnly || isUserViewMode ? SuspenseFallback : null}>
+              <LoadingBarHideTrigger />
               <EditorView uiComp={comp.children.ui} preloadComp={comp.children.preload} />
             </Suspense>
           </EditorContext.Provider>
