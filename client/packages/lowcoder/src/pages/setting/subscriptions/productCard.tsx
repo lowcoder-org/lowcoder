@@ -98,7 +98,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       <ProductTitle>{title}</ProductTitle>
       <ProductDescription>{description}</ProductDescription>
-      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> | Subscribed: </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
+      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> Subscribed </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
     </ProductCardContainer>
   );
 };

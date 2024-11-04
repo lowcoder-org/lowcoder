@@ -141,7 +141,7 @@ export const SubscriptionContextProvider = (props: {
                 };
               } else {
                 // Use the user count to set the quantity for checkout link
-                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, userCount);
+                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, product.quantity_entity == "orgUser" ? userCount : 1);
                 return {
                   ...product,
                   activeSubscription: false,

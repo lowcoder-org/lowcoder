@@ -123,7 +123,7 @@ export function SubscriptionInfo() {
             hoverable
             style={{ minWidth: "350px", width: "35%" }}
             cover={
-              <img loading="lazy" alt={product.name} src={product.images[0]} style={{width: '100%', height: '375px', background: '#f2f2f2'}} />
+              <img loading="lazy" alt={product.name} src={product.images[0]} style={{width: '100%', height: 'auto', background: '#f2f2f2'}} />
             }
             actions={[]}
           >

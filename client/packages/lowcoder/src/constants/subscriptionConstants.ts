@@ -21,7 +21,7 @@ export enum SubscriptionProductsEnum {
 
 export const InitSubscriptionProducts = [
   {
-    pricingType: "Monthly, per User",
+    pricingType: "For this Workspace, monthly, per User",
     activeSubscription: false,
     accessLink: "1PhH38DDlQgecLSfSukEgIeV",
     product: SubscriptionProductsEnum.SUPPORT,
@@ -32,7 +32,7 @@ export const InitSubscriptionProducts = [
     quantity_entity: "orgUser",
   },
   {
-    pricingType: "Monthly, per User",
+    pricingType: "For you in this Workspace, monthly",
     activeSubscription: false,
     accessLink: "1Pf65wDDlQgecLSf6OFlbsD5",
     product: SubscriptionProductsEnum.MEDIAPACKAGE,
@@ -43,7 +43,7 @@ export const InitSubscriptionProducts = [
     quantity_entity: "singleItem",
   },
   {
-    pricingType: "Monthly, per User",
+    pricingType: "For all in this Workspace, monthly",
     activeSubscription: false,
     accessLink: "1PttHIDDlQgecLSf0XP27tXt",
     product: "QlQ7cdOh8Lv4dy",
