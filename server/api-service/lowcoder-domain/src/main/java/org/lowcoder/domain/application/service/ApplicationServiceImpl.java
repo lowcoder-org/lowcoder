@@ -18,6 +18,9 @@ import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
+import org.lowcoder.domain.query.model.LibraryQuery;
+import org.lowcoder.domain.query.model.LibraryQueryRecord;
+import org.lowcoder.domain.query.service.LibraryQueryRecordService;
 import org.lowcoder.domain.user.repository.UserRepository;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
@@ -45,6 +48,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ResourcePermissionService resourcePermissionService;
     private final ApplicationRepository repository;
     private final UserRepository userRepository;
+    private final LibraryQueryRecordService applicationRecordService;
 
     @Override
     public Mono<Application> findById(String id) {
@@ -354,5 +358,13 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .doOnNext(application -> application.setEditingUserId(visitorId))
                 .flatMap(repository::save)
                 .hasElements();
+    }
+
+    @Override
+    public Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId) {
+        return applicationRecordService.getLatestRecordByLibraryQueryId(applicationId)
+                .map(LibraryQueryRecord::getLibraryQueryDSL)
+                .switchIfEmpty(findById(applicationId)
+                        .map(Application::getPublishedApplicationDSL));
     }
 }

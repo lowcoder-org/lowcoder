@@ -76,4 +76,5 @@ public interface ApplicationService {
     Flux<Application> findAll();
 
     Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId);
+    Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId);
 }
