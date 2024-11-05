@@ -30,6 +30,8 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.util.TupleUtils;
@@ -50,6 +52,8 @@ public class GroupApiServiceImpl implements GroupApiService {
     private final UserService userService;
     private final GroupService groupService;
     private final AbstractBizThresholdChecker bizThresholdChecker;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
 
     @Override
     public Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count) {
@@ -182,6 +186,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                     return sessionUserService.getVisitorOrgMemberCache()
                             .flatMap(orgMember -> {
                                 String orgId = orgMember.getOrgId();
+                                Mono<Integer> orgAdminCountMono = orgMemberService.getAllOrgAdmins(orgId).map(List::size);
                                 if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                                     MemberRole memberRole;
                                     if(orgMember.isAdmin()) {
@@ -193,16 +198,25 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             .sort()
                                             .flatMapSequential(group -> groupMemberService.getAllGroupAdmin(group.getId())
                                                 .zipWith(groupMemberService.getGroupMembers(group.getId(), 0, -1))
+                                                .zipWith(orgAdminCountMono, TupleUtils::merge)
                                                 .flatMap(tuple -> {
                                                     var adminMembers = tuple.getT1();
                                                     var users = tuple.getT2();
-                                                    return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size());
+                                                    var orgAdminCount = tuple.getT3();
+                                                    if(group.isAllUsersGroup()) {
+                                                        return GroupView.from(group, memberRole.getValue(), orgAdminCount, users.size());
+                                                    } else {
+                                                        return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size());
+                                                    }
                                                 })
                                             )
                                             .collectList();
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
-                                        .flatMap(groupMembers -> {
+                                        .zipWith(orgAdminCountMono)
+                                        .flatMap(tuple -> {
+                                            List<GroupMember> groupMembers = tuple.getT1();
+                                            int orgAdminCount = tuple.getT2();
                                             List<String> groupIds = collectList(groupMembers, GroupMember::getGroupId);
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
@@ -210,10 +224,17 @@ public class GroupApiServiceImpl implements GroupApiService {
                                                     .flatMapSequential(group -> {
                                                         var adminMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() == MemberRole.ADMIN).toList();
                                                         var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId())).toList();
-                                                        return GroupView.from(group,
-                                                                groupMemberMap.get(group.getId()).getRole().getValue(),
-                                                                allMembers.size(),
-                                                                adminMembers.size());
+                                                        if(group.isAllUsersGroup()) {
+                                                            return GroupView.from(group,
+                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
+                                                                    orgAdminCount,
+                                                                    allMembers.size());
+                                                        } else {
+                                                            return GroupView.from(group,
+                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
+                                                                    adminMembers.size(),
+                                                                    allMembers.size());
+                                                        }
                                                     })
                                                     .collectList();
                                         });
