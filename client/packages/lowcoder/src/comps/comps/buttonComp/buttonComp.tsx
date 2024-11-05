@@ -160,7 +160,7 @@ const ButtonTmpComp = (function () {
     )
   })
 
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewButtonComp {...children}></PropertyViewButtonComp>);
   }
 

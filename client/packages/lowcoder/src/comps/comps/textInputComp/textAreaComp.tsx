@@ -94,7 +94,7 @@ let TextAreaTmpComp = (function () {
       ...validateState,
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewTextAreaComp {...children}></SetPropertyViewTextAreaComp>);
   }
 

@@ -88,7 +88,7 @@ const RatingBasicComp = (function () {
       ),
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder

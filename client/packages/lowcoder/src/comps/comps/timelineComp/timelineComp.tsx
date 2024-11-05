@@ -170,7 +170,7 @@ let TimeLineBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props, dispatch) => (
     <TimelineComp {...props} dispatch={dispatch} />
   ))
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
     return builder

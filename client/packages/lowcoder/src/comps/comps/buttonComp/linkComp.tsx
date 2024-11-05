@@ -111,7 +111,7 @@ const LinkTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewLinkComp {...children}></PropertyViewLinkComp>);
   }
   return builder

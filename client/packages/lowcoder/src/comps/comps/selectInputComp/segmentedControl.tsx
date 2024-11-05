@@ -117,7 +117,7 @@ let SegmentedControlBasicComp = (function () {
       ...validateState,
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewSegmentedControl {...children}></SetPropertyViewSegmentedControl>);
   }
   return builder

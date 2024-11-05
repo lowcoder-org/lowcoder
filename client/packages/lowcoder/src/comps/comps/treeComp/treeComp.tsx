@@ -130,7 +130,7 @@ let TreeBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return(<TreeCompView {...props} />)}
 )
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewTreeComp {...children}></SetPropertyViewTreeComp>);
   }
       return builder

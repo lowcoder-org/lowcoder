@@ -141,7 +141,7 @@ let TransferBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
     <TransferView {...props} dispatch={dispatch} />)})
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder

@@ -19,7 +19,7 @@ let TemporaryStateItemCompBase = new MultiCompBuilder(
     },
     () => null
   )
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   TemporaryStateItemCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const TemporaryStateItemCompBasebuilder = TemporaryStateItemCompBase.build();

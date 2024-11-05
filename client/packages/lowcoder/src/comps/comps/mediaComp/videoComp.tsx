@@ -130,7 +130,7 @@ let VideoBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return <ContainerVideo {...props} />;
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewVideoComp {...children}></PropertyViewVideoComp>);
   }
       return builder

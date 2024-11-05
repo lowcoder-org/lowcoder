@@ -358,7 +358,7 @@ let CommentBasicComp = (function () {
     return (
     <CommentCompBase {...props} dispatch={dispatch} />
   )})
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder

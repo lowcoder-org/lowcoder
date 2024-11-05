@@ -141,7 +141,7 @@ let JsonEditorTmpComp = (function () {
       ),
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewJsonEditor {...children}></PropertyViewJsonEditor>);
   }
     return builder

@@ -15,7 +15,7 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import React from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import {viewMode} from "@lowcoder-ee/util/editor";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 const PropertyViewContainerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewContainerComp})))
 
 export const ContainerBaseComp = (function () {
@@ -31,7 +31,7 @@ export const ContainerBaseComp = (function () {
     );
   })
 
-  if (!(viewMode() === "admin")) {
+  if ((viewModeTriple() !== "admin")) {
     builder.setPropertyViewFn((children) => <PropertyViewContainerComp {...children}></PropertyViewContainerComp>);
   }
       return builder

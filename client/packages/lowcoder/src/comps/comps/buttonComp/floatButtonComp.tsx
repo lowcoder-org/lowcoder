@@ -135,7 +135,7 @@ let FloatButtonBasicComp = (function () {
       return(
         <FloatButtonView {...props} />
       )})
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyViewFloatButton {...children}></PropertyViewFloatButton>);
     }
       return builder

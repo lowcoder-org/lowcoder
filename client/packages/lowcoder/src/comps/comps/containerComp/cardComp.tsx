@@ -20,7 +20,7 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
-import {viewMode} from "@lowcoder-ee/util/editor";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 const PropertyViewCardComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewCardComp})))
 const { Meta } = Card;
 
@@ -263,7 +263,7 @@ export const ContainerBaseComp = (function () {
       </ReactResizeDetector>
     );
   })
-  if (!(viewMode() === "admin")) {
+  if ((viewModeTriple() !== "admin")) {
     builder.setPropertyViewFn((children) => <PropertyViewCardComp {...children}></PropertyViewCardComp>);
   }
   return builder

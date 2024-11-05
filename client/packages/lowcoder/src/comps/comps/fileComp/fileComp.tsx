@@ -613,7 +613,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
   )})
 
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
     FileTmpComp.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const FileTmpCompBuilder = FileTmpComp

@@ -76,7 +76,7 @@ let AudioBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return <ContainerAudio {...props} />;
   })
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyViewAudioComp {...children}></PropertyViewAudioComp>);
     }
       return builder

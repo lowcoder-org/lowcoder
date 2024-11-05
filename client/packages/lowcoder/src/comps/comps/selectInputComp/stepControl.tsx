@@ -211,7 +211,7 @@ let StepControlBasicComp = (function () {
   })
 })();
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   StepControlBasicComp.setPropertyViewFn((children) => <SetPropertyViewStepControl {...children}></SetPropertyViewStepControl>);
 }
 const StepControlBasicCompTmp = StepControlBasicComp

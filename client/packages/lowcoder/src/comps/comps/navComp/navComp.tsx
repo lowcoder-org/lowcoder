@@ -227,7 +227,7 @@ let NavCompBase = new UICompBuilder(childrenMap, (props) => {
     </Wrapper>
   );
 })
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   NavCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const NavCompTmp = NavCompBase.build();

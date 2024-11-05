@@ -74,7 +74,7 @@ let PasswordTmpComp = (function () {
       ...validateState,
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewPasswordComp {...children}></SetPropertyViewPasswordComp>);
   }
       return builder

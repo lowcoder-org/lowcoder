@@ -59,7 +59,7 @@ let DropdownOption = new MultiCompBuilder(
   },
   (props) => props
 )
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   DropdownOption.setPropertyViewFn((children) => <PropertyViewAvatarGroup1 {...children}></PropertyViewAvatarGroup1>);
 }
 const DropdownOptionBuilder = DropdownOption.build();
@@ -132,7 +132,7 @@ let AvatarGroupBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return( <AvatarGroupView {...props} dispatch={dispatch} />
 )})
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewAvatarGroup2 {...children}></PropertyViewAvatarGroup2>);
   }
       return builder

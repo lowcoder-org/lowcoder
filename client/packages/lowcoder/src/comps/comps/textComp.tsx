@@ -177,7 +177,7 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
 let TextTmpComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => <TextView {...props} />)
 
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <TextPropertyView children={children} />)
   }
 

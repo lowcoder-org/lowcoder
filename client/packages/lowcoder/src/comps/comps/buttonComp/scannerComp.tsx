@@ -211,7 +211,7 @@ const ScannerTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewScannerComp {...children}></PropertyViewScannerComp>);
   }
   return builder

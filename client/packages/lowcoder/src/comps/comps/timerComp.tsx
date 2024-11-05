@@ -222,7 +222,7 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
 
 let AvatarGroupBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props, dispatch) => <AvatarGroupView {...props} dispatch={dispatch} />)
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder

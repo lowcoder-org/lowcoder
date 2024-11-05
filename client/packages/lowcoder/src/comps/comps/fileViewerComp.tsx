@@ -95,7 +95,7 @@ let FileViewerBasicComp = (function () {
       showVerticalScrollbar={props.showVerticalScrollbar}
     />;
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder

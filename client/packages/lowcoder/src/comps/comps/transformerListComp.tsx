@@ -17,7 +17,7 @@ const TransformerItemCompBase = new MultiCompBuilder(
   },
   (props) => props
 )
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   TransformerItemCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const TransformerItemCompBaseBuilder = TransformerItemCompBase.build();

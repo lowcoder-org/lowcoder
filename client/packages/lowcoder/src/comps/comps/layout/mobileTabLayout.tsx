@@ -321,7 +321,7 @@ let MobileTabLayoutTmp = (function () {
   let builder = new MultiCompBuilder(childrenMap, (props, dispatch) => {
     return null;
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewMobileTabLayout {...children}></PropertyViewMobileTabLayout>);
   }
     return builder

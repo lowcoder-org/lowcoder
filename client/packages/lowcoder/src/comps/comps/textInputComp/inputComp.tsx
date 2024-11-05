@@ -74,7 +74,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
     ...validateState,
   });
 })
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   InputBasicComp.setPropertyViewFn((children) => <SetPropertyViewInputComp {...children}></SetPropertyViewInputComp>);
 }
 const InputBasicCompBuilder = InputBasicComp

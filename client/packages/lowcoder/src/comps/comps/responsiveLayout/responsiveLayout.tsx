@@ -200,7 +200,7 @@ export const ResponsiveLayoutBaseComp = (function () {
   })
 })();
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   ResponsiveLayoutBaseComp.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 

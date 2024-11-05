@@ -49,7 +49,7 @@ const RangeSliderBasicComp = (function () {
       ),
     });
   })
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyViewRangeSliderComp {...children}></PropertyViewRangeSliderComp>);
     }
     return builder

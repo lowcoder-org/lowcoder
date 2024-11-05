@@ -120,7 +120,7 @@ const DividerTempComp = migrateOldData(
     })
         .setPropertyViewFn((children) => {
             return (
-                 viewMode() === "edit" ? <PropertyView {...children}></PropertyView> : <></>
+                 viewMode() === "admin" ? <PropertyView {...children}></PropertyView> : <></>
         );
         })
         .setExposeStateConfigs([

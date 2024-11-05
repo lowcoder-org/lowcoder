@@ -65,7 +65,7 @@ let IFrameCompBase = new UICompBuilder(
   }
 )
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
     IFrameCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 

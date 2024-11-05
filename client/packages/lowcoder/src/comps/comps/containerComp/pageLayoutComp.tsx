@@ -17,7 +17,7 @@ import {
 import { PageLayout } from "../pageLayoutComp/pageLayout";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import {viewMode} from "@lowcoder-ee/util/editor";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 const PropertyViewPageLayout =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewPageLayout})))
 
 export const ContainerBaseComp = (function () {
@@ -36,7 +36,7 @@ export const ContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-  if (!(viewMode() === "admin")) {
+  if ((viewModeTriple() !== "admin")) {
     builder.setPropertyViewFn((children) => <PropertyViewPageLayout {...children}></PropertyViewPageLayout>);
   }
   return builder

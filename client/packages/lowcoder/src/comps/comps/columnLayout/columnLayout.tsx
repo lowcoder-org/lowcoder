@@ -191,7 +191,7 @@ export const ResponsiveLayoutBaseComp = (function () {
       <ColumnLayout {...props} dispatch={dispatch} />
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
     return builder

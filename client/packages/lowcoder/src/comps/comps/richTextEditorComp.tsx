@@ -302,7 +302,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
     />
   );
 })
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   RichTextEditorCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const RichTextEditorCompBuilder = RichTextEditorCompBase.build();

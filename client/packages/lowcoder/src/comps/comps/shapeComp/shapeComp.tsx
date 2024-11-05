@@ -18,7 +18,7 @@ import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import React from "react";
-import {viewMode} from "@lowcoder-ee/util/editor";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 const PropertyView =  React.lazy( async () => await import("./propertyView"));
 export const ContainerBaseComp = (function () {
   const childrenMap = {
@@ -34,7 +34,7 @@ export const ContainerBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-  if (viewMode() !== "admin") {
+  if (viewModeTriple() !== "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
   return builder

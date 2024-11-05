@@ -89,7 +89,7 @@ const ToggleTmpComp = (function () {
       </ButtonCompWrapperStyled>
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewToggleButton {...children}></PropertyViewToggleButton>);
   }
   return builder

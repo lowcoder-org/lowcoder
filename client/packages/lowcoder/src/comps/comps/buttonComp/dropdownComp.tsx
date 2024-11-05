@@ -150,7 +150,7 @@ const DropdownTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyViewDropDownComp {...children}></PropertyViewDropDownComp>);
     }
       return builder

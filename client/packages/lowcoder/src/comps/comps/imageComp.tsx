@@ -175,7 +175,7 @@ const childrenMap = {
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
   return <ContainerImg {...props} />;
 })
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   ImageBasicComp.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 const ImageBasicCompBuilder = ImageBasicComp.build();

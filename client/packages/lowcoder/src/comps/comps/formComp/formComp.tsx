@@ -54,7 +54,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { styled } from "styled-components";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
-import {viewMode} from "@lowcoder-ee/util/editor";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const FormWrapper = styled.div`
@@ -197,7 +197,7 @@ const FormBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-    if (!(viewMode() === "admin")) {
+    if ((viewModeTriple() !== "admin")) {
       builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
       return builder

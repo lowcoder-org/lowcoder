@@ -205,7 +205,7 @@ let NavTmpLayout = (function () {
   let builder =  new MultiCompBuilder(childrenMap, (props) => {
     return null;
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewNavLayout {...children}></PropertyViewNavLayout>);
   }
       return builder

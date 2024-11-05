@@ -139,7 +139,7 @@ let JsonLottieTmpComp = (function () {
       </div>
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewJsonLottie {...children}></PropertyViewJsonLottie>);
   }
       return builder

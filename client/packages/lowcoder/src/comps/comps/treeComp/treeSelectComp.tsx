@@ -138,7 +138,7 @@ let TreeBasicComp = (function () {
     return(
     <TreeCompView {...props} dispatch={dispatch} />
   )})
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewTreeSelectComp {...children}></SetPropertyViewTreeSelectComp>);
   }
       return builder

@@ -110,7 +110,7 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 let IconBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return(<IconView {...props} />)})
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
   }
       return builder

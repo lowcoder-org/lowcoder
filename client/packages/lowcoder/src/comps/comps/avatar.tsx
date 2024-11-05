@@ -198,7 +198,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
 let AvatarBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return(<AvatarView {...props} />)})
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
       return builder

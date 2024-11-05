@@ -387,7 +387,7 @@ let NumberInputTmpComp = (function () {
       ...validate(props),
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewNumberInputComp {...children}></PropertyViewNumberInputComp>);
   }
   return builder

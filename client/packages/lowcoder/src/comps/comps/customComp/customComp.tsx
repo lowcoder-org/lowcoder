@@ -235,7 +235,7 @@ let CustomCompBaseBuilder = new UICompBuilder(childrenMap, (props, dispatch) => 
   );
 })
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   CustomCompBaseBuilder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
 }
 

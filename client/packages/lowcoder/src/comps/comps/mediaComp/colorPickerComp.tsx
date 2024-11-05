@@ -95,7 +95,7 @@ let ColorPickerComps = new UICompBuilder(childrenMap, (props) => {
     });
 })
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
     ColorPickerComps.setPropertyViewFn((children) => <PropertyViewColorPicker {...children}></PropertyViewColorPicker>);
 }
 

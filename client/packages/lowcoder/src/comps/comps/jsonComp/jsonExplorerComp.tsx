@@ -78,7 +78,7 @@ let JsonExplorerTmpComp = (function () {
       </JsonExplorerContainer>
     );
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewJsonExplorer {...children}></PropertyViewJsonExplorer>);
   }
       return builder

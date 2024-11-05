@@ -193,7 +193,7 @@ export let datePickerControl = new UICompBuilder(childrenMap, (props) => {
   });
 })
 
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   datePickerControl.setPropertyViewFn((children) => <PropertyViewDateComp1 {...children}></PropertyViewDateComp1>);
 }
 const datePickerControlBuilder = datePickerControl
@@ -291,7 +291,7 @@ export const dateRangeControl = (function () {
     });
   })
 
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewDateComp2 {...children}></PropertyViewDateComp2>);
   }
   return builder

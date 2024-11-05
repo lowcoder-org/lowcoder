@@ -211,7 +211,7 @@ let MentionTmpComp = (function () {
       ...validateState,
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <SetPropertyViewMentionComp {...children}></SetPropertyViewMentionComp>);
   }
   return builder

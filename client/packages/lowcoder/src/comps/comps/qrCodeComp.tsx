@@ -79,7 +79,7 @@ let QRCodeBasicComp = (function () {
   let builder = new UICompBuilder(childrenMap, (props) => {
     return( <QRCodeView {...props} />)})
 
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
       return builder

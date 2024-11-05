@@ -50,7 +50,7 @@ const SliderBasicComp = (function () {
       ),
     });
   })
-    if (viewMode() === "edit") {
+    if (viewMode() === "admin") {
         builder.setPropertyViewFn((children) => <PropertyViewSliderComp {...children}></PropertyViewSliderComp>);
     }
       return builder

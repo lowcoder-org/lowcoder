@@ -187,7 +187,7 @@ export let timePickerControl = new UICompBuilder(childrenMap, (props) => {
     ...validate(props),
   });
 })
-if (viewMode() === "edit") {
+if (viewMode() === "admin") {
   timePickerControl.setPropertyViewFn((children) => <PropertyViewTimeComp1 {...children}></PropertyViewTimeComp1>);
 }
 const timePickerControlBuilder = timePickerControl
@@ -275,7 +275,7 @@ export let timeRangeControl = (function () {
               : startResult),
     });
   })
-  if (viewMode() === "edit") {
+  if (viewMode() === "admin") {
     builder.setPropertyViewFn((children) => <PropertyViewTimeComp2 {...children}></PropertyViewTimeComp2>);
   }
   return builder
