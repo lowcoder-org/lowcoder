@@ -23,8 +23,10 @@ public class GroupView {
     private String dynamicRule;
     private boolean isSyncGroup;
     private boolean isSyncDelete;
+    private int adminUserCount;
+    private int userCount;
 
-    public static Mono<GroupView> from(Group group, String memberRole) {
+    public static Mono<GroupView> from(Group group, String memberRole, int adminCount, int userCount) {
         return Mono.deferContextual(contextView -> {
             Locale locale = LocaleUtils.getLocale(contextView);
             GroupView groupView = GroupView.builder()
@@ -38,6 +40,8 @@ public class GroupView {
                     .dynamicRule(group.getDynamicRule())
                     .isSyncGroup(group.isSyncGroup())
                     .isSyncDelete(group.isSyncDeleted())
+                    .adminUserCount(adminCount)
+                    .userCount(userCount)
                     .build();
             return Mono.just(groupView);
         });

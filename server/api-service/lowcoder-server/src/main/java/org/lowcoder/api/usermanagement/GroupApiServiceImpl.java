@@ -12,6 +12,7 @@ import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.stereotype.Service;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -189,7 +191,14 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     }
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> GroupView.from(group, memberRole.getValue()))
+                                            .flatMapSequential(group -> groupMemberService.getAllGroupAdmin(group.getId())
+                                                .zipWith(groupMemberService.getGroupMembers(group.getId(), 0, -1))
+                                                .flatMap(tuple -> {
+                                                    var adminMembers = tuple.getT1();
+                                                    var users = tuple.getT2();
+                                                    return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size());
+                                                })
+                                            )
                                             .collectList();
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
@@ -198,8 +207,14 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
                                                     .sort()
-                                                    .flatMapSequential(group -> GroupView.from(group,
-                                                            groupMemberMap.get(group.getId()).getRole().getValue()))
+                                                    .flatMapSequential(group -> {
+                                                        var adminMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() == MemberRole.ADMIN).toList();
+                                                        var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId())).toList();
+                                                        return GroupView.from(group,
+                                                                groupMemberMap.get(group.getId()).getRole().getValue(),
+                                                                allMembers.size(),
+                                                                adminMembers.size());
+                                                    })
                                                     .collectList();
                                         });
                             });
