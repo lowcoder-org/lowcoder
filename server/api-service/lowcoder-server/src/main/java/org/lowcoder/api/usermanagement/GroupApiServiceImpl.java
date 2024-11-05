@@ -12,6 +12,7 @@ import static org.lowcoder.sdk.util.StreamUtils.collectMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +30,15 @@ import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.service.OrgMemberService;
+import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.stereotype.Service;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
@@ -48,6 +52,8 @@ public class GroupApiServiceImpl implements GroupApiService {
     private final UserService userService;
     private final GroupService groupService;
     private final AbstractBizThresholdChecker bizThresholdChecker;
+    private final OrganizationService organizationService;
+    private final OrgMemberService orgMemberService;
 
     @Override
     public Mono<GroupMemberAggregateView> getGroupMembers(String groupId, int page, int count) {
@@ -180,6 +186,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                     return sessionUserService.getVisitorOrgMemberCache()
                             .flatMap(orgMember -> {
                                 String orgId = orgMember.getOrgId();
+                                Mono<Integer> orgAdminCountMono = orgMemberService.getAllOrgAdmins(orgId).map(List::size);
                                 if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                                     MemberRole memberRole;
                                     if(orgMember.isAdmin()) {
@@ -189,17 +196,46 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     }
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> GroupView.from(group, memberRole.getValue()))
+                                            .flatMapSequential(group -> groupMemberService.getAllGroupAdmin(group.getId())
+                                                .zipWith(groupMemberService.getGroupMembers(group.getId(), 0, -1))
+                                                .zipWith(orgAdminCountMono, TupleUtils::merge)
+                                                .flatMap(tuple -> {
+                                                    var adminMembers = tuple.getT1();
+                                                    var users = tuple.getT2();
+                                                    var orgAdminCount = tuple.getT3();
+                                                    if(group.isAllUsersGroup()) {
+                                                        return GroupView.from(group, memberRole.getValue(), orgAdminCount, users.size());
+                                                    } else {
+                                                        return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size());
+                                                    }
+                                                })
+                                            )
                                             .collectList();
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
-                                        .flatMap(groupMembers -> {
+                                        .zipWith(orgAdminCountMono)
+                                        .flatMap(tuple -> {
+                                            List<GroupMember> groupMembers = tuple.getT1();
+                                            int orgAdminCount = tuple.getT2();
                                             List<String> groupIds = collectList(groupMembers, GroupMember::getGroupId);
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
                                                     .sort()
-                                                    .flatMapSequential(group -> GroupView.from(group,
-                                                            groupMemberMap.get(group.getId()).getRole().getValue()))
+                                                    .flatMapSequential(group -> {
+                                                        var adminMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() == MemberRole.ADMIN).toList();
+                                                        var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId())).toList();
+                                                        if(group.isAllUsersGroup()) {
+                                                            return GroupView.from(group,
+                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
+                                                                    orgAdminCount,
+                                                                    allMembers.size());
+                                                        } else {
+                                                            return GroupView.from(group,
+                                                                    groupMemberMap.get(group.getId()).getRole().getValue(),
+                                                                    adminMembers.size(),
+                                                                    allMembers.size());
+                                                        }
+                                                    })
                                                     .collectList();
                                         });
                             });
