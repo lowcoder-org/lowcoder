@@ -214,7 +214,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
    */
   containerHeight(): string {
     const { margin, rowHeight, fixedRowCount, isCanvas } = this.props as Required<GridLayoutProps>;
-    const { extraHeight, emptyRows } = this.props;
+    const { emptyRows } = this.props;
     const positionParams = genPositionParams(this.props);
     const { containerPadding } = positionParams;
     const layout = this.getUILayout(undefined, true);
@@ -227,9 +227,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
       nbRow * rowHeight + (nbRow - 1) * margin[1] + containerPadding[1] * 2
     );
     // log.debug("layout: containerHeigh=", containerHeight, " minHeight: ", this.props.minHeight);
-    const height = extraHeight
-      ? `calc(${containerHeight}px + ${extraHeight})`
-      : containerHeight + "px";
+    const height = `${containerHeight}px`;
     // log.log( "containerHeight. nbRow: ", nbRow, " containerPadding: ", containerPadding[1], " containerHeight: ", containerHeight, " height: ", height);
     return height;
   }
