@@ -51,7 +51,7 @@ public class GroupController implements GroupEndpoints
     public Mono<ResponseView<GroupView>> create(@Valid @RequestBody CreateGroupRequest newGroup) {
         return groupApiService.create(newGroup)
                 .delayUntil(group -> businessEventPublisher.publishGroupCreateEvent(group))
-                .flatMap(group -> GroupView.from(group, MemberRole.ADMIN.getValue(), 1, 1))
+                .flatMap(group -> GroupView.from(group, MemberRole.ADMIN.getValue(), 1, 1, List.of()))
                 .map(ResponseView::success);
     }
 

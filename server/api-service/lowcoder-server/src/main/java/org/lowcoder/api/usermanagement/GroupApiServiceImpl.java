@@ -186,7 +186,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                     return sessionUserService.getVisitorOrgMemberCache()
                             .flatMap(orgMember -> {
                                 String orgId = orgMember.getOrgId();
-                                Mono<Integer> orgAdminCountMono = orgMemberService.getAllOrgAdmins(orgId).map(List::size);
+                                Mono<List<OrgMember>> orgAdminsMono = orgMemberService.getAllOrgAdmins(orgId);
                                 if (orgMember.isAdmin() || orgMember.isSuperAdmin()) {
                                     MemberRole memberRole;
                                     if(orgMember.isAdmin()) {
@@ -196,44 +196,45 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     }
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> groupMemberService.getAllGroupAdmin(group.getId())
-                                                .zipWith(groupMemberService.getGroupMembers(group.getId(), 0, -1))
-                                                .zipWith(orgAdminCountMono, TupleUtils::merge)
+                                            .flatMapSequential(group -> groupMemberService.getGroupMembers(group.getId(), 0, -1)
+                                                .zipWith(orgAdminsMono)
                                                 .flatMap(tuple -> {
-                                                    var adminMembers = tuple.getT1();
-                                                    var users = tuple.getT2();
-                                                    var orgAdminCount = tuple.getT3();
+                                                    var users = tuple.getT1();
+                                                    var orgAdmins = tuple.getT2();
+                                                    var adminMembers = orgAdmins.stream().filter(orgAdmin -> users.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
                                                     if(group.isAllUsersGroup()) {
-                                                        return GroupView.from(group, memberRole.getValue(), orgAdminCount, users.size());
+                                                        return GroupView.from(group, memberRole.getValue(), orgAdmins.size(), users.size(), users.stream().map(GroupMember::getUserId).toList());
                                                     } else {
-                                                        return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size());
+                                                        return GroupView.from(group, memberRole.getValue(), adminMembers.size(), users.size(), users.stream().map(GroupMember::getUserId).toList());
                                                     }
                                                 })
                                             )
                                             .collectList();
                                 }
                                 return groupMemberService.getUserGroupMembersInOrg(orgId, orgMember.getUserId())
-                                        .zipWith(orgAdminCountMono)
+                                        .zipWith(orgAdminsMono)
                                         .flatMap(tuple -> {
                                             List<GroupMember> groupMembers = tuple.getT1();
-                                            int orgAdminCount = tuple.getT2();
+                                            List<OrgMember> orgAdmins = tuple.getT2();
                                             List<String> groupIds = collectList(groupMembers, GroupMember::getGroupId);
                                             Map<String, GroupMember> groupMemberMap = collectMap(groupMembers, GroupMember::getGroupId, it -> it);
                                             return groupService.getByIds(groupIds)
                                                     .sort()
                                                     .flatMapSequential(group -> {
-                                                        var adminMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() == MemberRole.ADMIN).toList();
                                                         var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId())).toList();
+                                                        var adminMembers = orgAdmins.stream().filter(orgAdmin -> allMembers.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
                                                         if(group.isAllUsersGroup()) {
                                                             return GroupView.from(group,
                                                                     groupMemberMap.get(group.getId()).getRole().getValue(),
-                                                                    orgAdminCount,
-                                                                    allMembers.size());
+                                                                    orgAdmins.size(),
+                                                                    allMembers.size(),
+                                                                    allMembers.stream().map(GroupMember::getUserId).toList());
                                                         } else {
                                                             return GroupView.from(group,
                                                                     groupMemberMap.get(group.getId()).getRole().getValue(),
                                                                     adminMembers.size(),
-                                                                    allMembers.size());
+                                                                    allMembers.size(),
+                                                                    allMembers.stream().map(GroupMember::getUserId).toList());
                                                         }
                                                     })
                                                     .collectList();
