@@ -31,7 +31,7 @@ export const ContainerBaseComp = (function () {
     );
   })
 
-  if ((viewModeTriple() !== "admin")) {
+  if ((viewModeTriple() === "edit")) {
     builder.setPropertyViewFn((children) => <PropertyViewContainerComp {...children}></PropertyViewContainerComp>);
   }
       return builder

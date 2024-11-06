@@ -67,7 +67,7 @@ export const ContainerBaseComp = (function () {
   let builder = new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return <TriContainer {...props} />;
   })
-  if ((viewModeTriple() !== "admin")) {
+  if ((viewModeTriple() === "edit")) {
     builder.setPropertyViewFn((children) => <PropertyViewTextContainer {...children}></PropertyViewTextContainer>);
   }
   return builder

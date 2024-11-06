@@ -49,9 +49,6 @@ export class ContainerCompBuilder<
     return this;
   }
   build() {
-    if (!this.propertyViewFn) {
-      throw new Error("no propertyViewFn provided");
-    }
     if (this.childrenMap.hasOwnProperty("container")) {
       throw new Error("already has container");
     }

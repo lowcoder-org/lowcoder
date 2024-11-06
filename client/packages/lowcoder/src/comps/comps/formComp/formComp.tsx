@@ -197,7 +197,7 @@ const FormBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-    if ((viewModeTriple() !== "admin")) {
+    if ((viewModeTriple() === "edit")) {
       builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
     }
       return builder
