@@ -41,12 +41,12 @@ debug(`REACT_APP_ENV:, ${REACT_APP_ENV}`);
 debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
 initTranslatorDesign().then(() => {
   initTranslator().then(async () => {
-    if (!window.location.href.includes("view")) {
-      const bootstrap = await import("./bootstrap/admin/app").then(module => module.bootstrap);
-      bootstrap();
+    let bootstrap;
+    if (REACT_APP_VIEW_MODE === "view") {
+      bootstrap = await import("./bootstrap/view/app").then(module => module.bootstrap);
     } else {
-      const bootstrap = await import("./bootstrap/view/app").then(module => module.bootstrap);
-      bootstrap();
+      bootstrap = await import("./bootstrap/admin/app").then(module => module.bootstrap);
     }
+    bootstrap();
   })
 })

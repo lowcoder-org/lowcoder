@@ -55,4 +55,8 @@ export const buildVars = [
     name: "REACT_APP_DISABLE_JS_SANDBOX",
     defaultValue: "",
   },
+  {
+    name: "REACT_APP_VIEW_MODE",
+    defaultValue: "admin",
+  },
 ];

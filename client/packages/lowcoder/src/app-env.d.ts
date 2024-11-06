@@ -33,6 +33,7 @@ declare var numbro: any;
 declare var uuid: any;
 declare var PUBLIC_URL: string;
 declare var REACT_APP_EDITION: string;
+declare var REACT_APP_VIEW_MODE: string;
 declare var REACT_APP_LANGUAGES: string;
 declare var REACT_APP_COMMIT_ID: string;
 declare var REACT_APP_API_SERVICE_URL: string;
