@@ -127,7 +127,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const fetchOrgsByEmail = () => {
     // if user is invited or using org's login url then avoid fetching workspaces
     // and skip workspace selection step
-    if (organizationId) {
+    if (Boolean(organizationId)) {
       setSkipWorkspaceStep(true);
       dispatch(fetchConfigAction(organizationId));
       setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
@@ -148,6 +148,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           }
           if (resp.data.data.length === 1) {
             setOrganizationId(resp.data.data[0].orgId);
+            dispatch(fetchConfigAction(resp.data.data[0].orgId));
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
             return;
           }
