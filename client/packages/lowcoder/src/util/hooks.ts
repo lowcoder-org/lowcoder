@@ -27,8 +27,8 @@ import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
 import { uniq } from "lodash";
 import { constantColors } from "components/colorSelect/colorUtils";
 import { AppState } from "@lowcoder-ee/redux/reducers";
-import { getOrgUsers } from "@lowcoder-ee/redux/selectors/orgSelectors";
-import { fetchOrgUsersAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
+import { getOrgGroups, getOrgUsers } from "@lowcoder-ee/redux/selectors/orgSelectors";
+import { fetchGroupsAction, fetchOrgUsersAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -263,22 +263,22 @@ export function useThemeColors(allowGradient?: boolean) {
 
 export const useOrgUserCount = (orgId: string) => {
   const dispatch = useDispatch();
-  const orgUsers = useSelector((state: AppState) => getOrgUsers(state)); // Use selector to get orgUsers from state
+  const orgGroups = useSelector((state: AppState) => getOrgGroups(state)); // Use selector to get orgUsers from state
   const [userCount, setUserCount] = useState<number>(0);
 
   useEffect(() => {
     // Dispatch action to fetch organization users
     if (orgId) {
-      dispatch(fetchOrgUsersAction(orgId));
+      dispatch(fetchGroupsAction(orgId));
     }
   }, [dispatch, orgId]);
 
   useEffect(() => {
     // Update user count when orgUsers state changes
-    if (orgUsers && orgUsers.length > 0) {
-      setUserCount(orgUsers.length);
+    if (orgGroups && orgGroups.length > 0) {
+      setUserCount(orgGroups.length);
     }
-  }, [orgUsers]);
+  }, [orgGroups]);
 
   return userCount;
 };
