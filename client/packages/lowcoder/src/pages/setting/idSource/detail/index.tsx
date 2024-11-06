@@ -324,16 +324,15 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             <Manual type={configDetail.authType} />
           </>
         )}
-        {configDetail.enable && (
-          <>
-            <Divider />
-            <DeleteConfig
-              id={configDetail.id}
-              allowDelete={configDetail.authType !== AuthType.Form}
-              allowDisable={!Boolean(totalEnabledConfigs)}
-            />
-          </>
-        )}
+        <>
+          <Divider />
+          <DeleteConfig
+            id={configDetail.id}
+            allowDelete={configDetail.authType !== AuthType.Form}
+            allowDisable={configDetail.enable}
+            isLastEnabledConfig={totalEnabledConfigs === 1 && configDetail.enable}
+          />
+        </>
       </Content>
     </DetailContainer>
   );

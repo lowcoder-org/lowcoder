@@ -15,6 +15,7 @@ export const DeleteConfig = (props: {
   id: string,
   allowDelete?: boolean,
   allowDisable?: boolean,
+  isLastEnabledConfig?: boolean,
 }) => {
   const [disableLoading, setDisableLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -50,12 +51,22 @@ export const DeleteConfig = (props: {
         type="warning"
         showIcon
       />
+      {props.isLastEnabledConfig && (
+        <Alert
+          className="danger-tip"
+          description={trans("idSource.lastEnabledConfig")}
+          type="warning"
+          showIcon
+        />
+      )}
       <Flex gap={8}>
-        <Button danger disabled={props.allowDisable} loading={disableLoading}  onClick={() => handleDelete()}>
-          {trans("idSource.disable")}
-        </Button>
+        {props.allowDisable && (
+          <Button danger disabled={props.isLastEnabledConfig} loading={disableLoading}  onClick={() => handleDelete()}>
+            {trans("idSource.disable")}
+          </Button>
+        )}
         {props.allowDelete && (
-          <Button type="primary" danger disabled={props.allowDisable} loading={deleteLoading} onClick={() => handleDelete(true)}>
+          <Button type="primary" danger disabled={props.isLastEnabledConfig} loading={deleteLoading} onClick={() => handleDelete(true)}>
             {trans("delete")}
           </Button>
         )}

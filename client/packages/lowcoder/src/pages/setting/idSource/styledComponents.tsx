@@ -262,7 +262,6 @@ export const DeleteWrapper = styled.div`
     padding: 8px 16px;
     margin: 5px 0 12px 0;
     border-radius: 4px;
-    display: inline-flex;
     align-items: center;
 
     svg {
