@@ -101,6 +101,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
   const authId = systemConfig?.form.id;
+  const isFormLoginEnabled = systemConfig?.form.enableLogin;
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgList, setOrgList] = useState<OrgItem[]>([]);
   const [currentStep, setCurrentStep] = useState<CurrentStepEnum>(CurrentStepEnum.EMAIL);
@@ -227,27 +228,35 @@ export default function FormLoginSteps(props: FormLoginProps) {
           if (skipWorkspaceStep) return setCurrentStep(CurrentStepEnum.EMAIL);
           setCurrentStep(CurrentStepEnum.WORKSPACES)
         }} />
-        <StepHeader title={trans("userAuth.enterPassword")} />
-        <PasswordInput
-          className="form-input password-input"
-          passInputConf={{
-            label: ' ',
-          }}
-          onChange={(value) => setPassword(value)}
-          valueCheck={() => [true, ""]}
+        <StepHeader
+          title={
+            isFormLoginEnabled ? trans("userAuth.enterPassword") : trans("userAuth.selectAuthProvider")
+          }
         />
-        <Flex justify="end" style={{margin: '10px 0'}}>
-          <Link to={{
-            pathname: AUTH_FORGOT_PASSWORD_URL,
-            state: location.state
-            }}
-          >
-            {`${trans("userAuth.forgotPassword")}?`}
-          </Link>
-        </Flex>
-        <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
-          {trans("userAuth.login")}
-        </ConfirmButton>
+        {isFormLoginEnabled && (
+          <>
+            <PasswordInput
+              className="form-input password-input"
+              passInputConf={{
+                label: ' ',
+              }}
+              onChange={(value) => setPassword(value)}
+              valueCheck={() => [true, ""]}
+            />
+            <Flex justify="end" style={{margin: '10px 0'}}>
+              <Link to={{
+                pathname: AUTH_FORGOT_PASSWORD_URL,
+                state: location.state
+                }}
+              >
+                {`${trans("userAuth.forgotPassword")}?`}
+              </Link>
+            </Flex>
+            <ConfirmButton loading={loading} disabled={!account || !password} onClick={onSubmit}>
+              {trans("userAuth.login")}
+            </ConfirmButton>
+          </>
+        )}
         {organizationId && (
           <ThirdPartyAuth
             invitationId={invitationId}
@@ -256,15 +265,19 @@ export default function FormLoginSteps(props: FormLoginProps) {
           />
         )}
       </AccountLoginWrapper>
-      <Divider/>
-      <AuthBottomView>
-        <StyledRouteLink to={{
-          pathname: AUTH_REGISTER_URL,
-          state: location.state
-        }}>
-          {trans("userAuth.register")}
-        </StyledRouteLink>
-      </AuthBottomView>
+      {isFormLoginEnabled && (
+        <>
+          <Divider/>
+          <AuthBottomView>
+            <StyledRouteLink to={{
+              pathname: AUTH_REGISTER_URL,
+              state: location.state
+            }}>
+              {trans("userAuth.register")}
+            </StyledRouteLink>
+          </AuthBottomView>
+        </>
+      )}
     </>
   );
 }

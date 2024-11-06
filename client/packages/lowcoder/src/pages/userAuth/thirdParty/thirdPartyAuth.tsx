@@ -111,6 +111,7 @@ export function ThirdPartyAuth(props: {
 }) {
   const systemConfigFetching = useSelector(getSystemConfigFetching);
   const systemConfig = useSelector(selectSystemConfig);
+  const isFormLoginEnabled = systemConfig?.form.enableLogin;
   
   if (systemConfigFetching) {
     return <Spin indicator={<LoadingOutlined style={{ fontSize: 15, marginTop: '16px' }} spin />} />;
@@ -139,7 +140,7 @@ export function ThirdPartyAuth(props: {
   });
   return (
     <ThirdPartyLoginButtonWrapper>
-      { Boolean(socialLoginButtons.length) && (
+      { isFormLoginEnabled && Boolean(socialLoginButtons.length) && (
         <Divider plain>
           <Text type="secondary">or</Text>
         </Divider>

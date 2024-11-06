@@ -3011,6 +3011,7 @@ export const en = {
     "poweredByLowcoder": "Powered by: Lowcoder.cloud",
     "continue": "Continue",
     "enterPassword": "Enter your password",
+    "selectAuthProvider": "Select Authentication Provider",
     "selectWorkspace": "Select your workspace",
   },
   "preLoad": {
@@ -3546,6 +3547,7 @@ export const en = {
     "saveSuccess": "Saved Successfully",
     "dangerLabel": "Danger Zone",
     "dangerTip": "Disabling or Deleting This ID Provider May Result in Some Users Being Unable to Log In. Proceed With Caution.",
+    "lastEnabledConfig": "You can't disable/delete config as this is the only enabled configuration.",
     "disable": "Disable",
     "disableSuccess": "Disabled Successfully",
     "encryptedServer": "-------- Encrypted on the Server Side --------",
