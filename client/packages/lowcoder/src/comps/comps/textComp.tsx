@@ -24,7 +24,7 @@ import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
-import { BoolControl } from "@lowcoder-ee/index.sdk";
+import { BoolControl } from "../controls/boolControl";
 
 const EventOptions = [clickEvent] as const;
 
