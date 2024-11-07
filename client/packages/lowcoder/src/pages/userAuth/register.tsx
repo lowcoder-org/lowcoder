@@ -26,6 +26,8 @@ import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import history from "util/history";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Spin from "antd/es/spin";
+import { useSelector } from "react-redux";
+import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -65,6 +67,21 @@ function UserRegister() {
 
   const authId = systemConfig?.form.id;
 
+  const serverSettings = useSelector(getServerSettings);
+
+  useEffect(() => {
+    const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
+    if(
+      serverSettings.hasOwnProperty('LOWCODER_EMAIL_SIGNUP_ENABLED')
+      && LOWCODER_EMAIL_SIGNUP_ENABLED === 'false'
+    ) {
+      history.push(
+        AUTH_LOGIN_URL,
+        {...location.state || {}, email: account},
+      )
+    };
+  }, [serverSettings]);
+  
   const { loading, onSubmit } = useAuthSubmit(
     () =>
       UserApi.formLogin({

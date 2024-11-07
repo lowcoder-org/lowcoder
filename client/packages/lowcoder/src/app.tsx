@@ -56,7 +56,7 @@ import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
-import { fetchHomeData } from "./redux/reduxActions/applicationActions";
+import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
 
@@ -95,6 +95,7 @@ type AppIndexProps = {
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   fetchLowcoderCompVersions: () => void;
   getCurrentUser: () => void;
+  fetchServerSettings: () => void;
   favicon: string;
   brandName: string;
   uiLanguage: string;
@@ -103,6 +104,7 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
+    this.props.fetchServerSettings();
     // if (!this.props.currentUserAnonymous) {
     //   this.props.fetchHomeData(this.props.currentUserAnonymous);
     // }
@@ -439,6 +441,9 @@ const mapDispatchToProps = (dispatch: any) => ({
       dispatch(setLowcoderCompsLoading(false));
     }
   },
+  fetchServerSettings: () => {
+    dispatch(fetchServerSettingsAction());
+  }
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);

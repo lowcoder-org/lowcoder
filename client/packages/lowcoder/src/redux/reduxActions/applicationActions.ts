@@ -181,3 +181,7 @@ export const setAppEditingState = (payload: SetAppEditingStatePayload) => ({
   type: ReduxActionTypes.SET_APP_EDITING_STATE,
   payload: payload,
 });
+
+export const fetchServerSettingsAction = () => ({
+  type: ReduxActionTypes.FETCH_SERVER_SETTINGS,
+});

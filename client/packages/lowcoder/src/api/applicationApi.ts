@@ -98,6 +98,7 @@ class ApplicationApi extends Api {
   static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
   static getMarketplaceAppURL = (applicationId: string) => `/applications/${applicationId}/view_marketplace`;
   static setAppEditingStateURL = (applicationId: string) => `/applications/editState/${applicationId}`;
+  static serverSettingsURL = () => `/serverSettings`;
 
   static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
@@ -239,6 +240,10 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.setAppEditingStateURL(applicationId), {
       editingFinished,
     });
+  }
+
+  static fetchServerSettings(): AxiosPromise<any> {
+    return Api.get(ApplicationApi.serverSettingsURL());
   }
 }
 

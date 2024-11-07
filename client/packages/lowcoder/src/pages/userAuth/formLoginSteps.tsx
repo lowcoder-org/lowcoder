@@ -6,7 +6,7 @@ import {
   LoginCardTitle,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -25,8 +25,10 @@ import { AccountLoginWrapper } from "./formLoginAdmin";
 import { default as Button } from "antd/es/button";
 import LeftOutlined from "@ant-design/icons/LeftOutlined";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import history from "util/history";
+import ApplicationApi from "@lowcoder-ee/api/applicationApi";
+import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -107,6 +109,16 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const [currentStep, setCurrentStep] = useState<CurrentStepEnum>(CurrentStepEnum.EMAIL);
   const [organizationId, setOrganizationId] = useState<string|undefined>(props.organizationId);
   const [skipWorkspaceStep, setSkipWorkspaceStep] = useState<boolean>(false);
+  const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
+  const serverSettings = useSelector(getServerSettings);
+
+  useEffect(() => {
+    const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
+    if (!LOWCODER_EMAIL_SIGNUP_ENABLED) {
+      return setSignupEnabled(true);
+    }
+    setSignupEnabled(LOWCODER_EMAIL_SIGNUP_ENABLED === 'true');
+  }, [serverSettings]);
 
   const { onSubmit, loading } = useAuthSubmit(
     () =>
@@ -185,15 +197,19 @@ export default function FormLoginSteps(props: FormLoginProps) {
             {trans("userAuth.continue")}
           </ConfirmButton>
         </AccountLoginWrapper>
-        <Divider/>
-        <AuthBottomView>
-          <StyledRouteLink to={{
-            pathname: AUTH_REGISTER_URL,
-            state: location.state
-          }}>
-            {trans("userAuth.register")}
-          </StyledRouteLink>
-        </AuthBottomView>
+        {signupEnabled && (
+          <>
+            <Divider/>
+            <AuthBottomView>
+              <StyledRouteLink to={{
+                pathname: AUTH_REGISTER_URL,
+                state: location.state
+              }}>
+                {trans("userAuth.register")}
+              </StyledRouteLink>
+            </AuthBottomView>
+          </>
+        )}
       </>
     )
   }
@@ -266,7 +282,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           />
         )}
       </AccountLoginWrapper>
-      {isFormLoginEnabled && (
+      {isFormLoginEnabled && signupEnabled && (
         <>
           <Divider/>
           <AuthBottomView>
