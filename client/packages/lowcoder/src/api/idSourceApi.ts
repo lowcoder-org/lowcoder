@@ -44,8 +44,8 @@ class IdSourceApi extends Api {
     return Api.post(IdSourceApi.saveConfigURL, request);
   }
 
-  static deleteConfig(id: string): AxiosPromise<ApiResponse> {
-    return Api.delete(IdSourceApi.deleteConfigURL(id));
+  static deleteConfig(id: string, deleteConfig?: boolean): AxiosPromise<ApiResponse> {
+    return Api.delete(IdSourceApi.deleteConfigURL(id), {delete: deleteConfig});
   }
 
   static syncManual(authType: string): AxiosPromise<ApiResponse> {

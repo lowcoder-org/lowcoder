@@ -3,12 +3,13 @@ import { AuthSearchParams } from "constants/authConstants";
 import { CommonTextLabel } from "components/Label";
 import { trans } from "i18n";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import FormLogin from "@lowcoder-ee/pages/userAuth/formLogin";
+import FormLogin from "@lowcoder-ee/pages/userAuth/formLoginAdmin";
 import { AuthContainer } from "pages/userAuth/authComponents";
 import React, { useContext, useMemo } from "react";
 import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "pages/userAuth/authHOC";
+import FormLoginSteps from "./formLoginSteps";
 
 const ThirdAuthWrapper = styled.div`
   display: flex;
@@ -87,7 +88,7 @@ function Login() {
   const invitationId = inviteInfo?.invitationId;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
-  const orgId = useParams<any>().orgId;
+  const { orgId } = useParams<{orgId?: string}>();
 
   const loginType = systemConfig?.authConfigs.find(
     (config) => config.sourceType === queryParams.get(AuthSearchParams.loginType)
@@ -143,7 +144,7 @@ function Login() {
         heading={loginHeading}
         subHeading={loginSubHeading}
       >
-        <FormLogin organizationId={organizationId} />
+        <FormLoginSteps organizationId={organizationId} />
       </AuthContainer>
     </>
   );
