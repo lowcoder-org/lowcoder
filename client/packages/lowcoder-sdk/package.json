@@ -29,7 +29,8 @@
   },
   "scripts": {
     "build": "NODE_OPTIONS=--max_old_space_size=6442 vite build",
-    "start": "NODE_OPTIONS=--max_old_space_size=2048 vite"
+    "start": "NODE_OPTIONS=--max_old_space_size=2048 vite",
+    "build:view": "REACT_APP_VIEW_MODE=view yarn build"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^22.0.2",

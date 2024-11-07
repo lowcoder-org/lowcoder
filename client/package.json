@@ -15,6 +15,7 @@
     "start:ee": "REACT_APP_EDITION=enterprise yarn workspace lowcoder start",
     "translate": "node --loader ts-node/esm ./scripts/translate.js",
     "build": "yarn node ./scripts/build.js",
+    "build:view": "REACT_APP_VIEW_MODE=view yarn workspace lowcoder build",
     "test": "jest && yarn workspace lowcoder-comps test",
     "prepare": "yarn workspace lowcoder prepare",
     "build:core": "yarn workspace lowcoder-core build",
