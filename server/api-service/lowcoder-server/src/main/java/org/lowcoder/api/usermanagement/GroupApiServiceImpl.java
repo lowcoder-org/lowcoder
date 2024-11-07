@@ -199,7 +199,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             .flatMapSequential(group -> groupMemberService.getGroupMembers(group.getId(), 0, -1)
                                                 .zipWith(orgAdminsMono)
                                                 .flatMap(tuple -> {
-                                                    var users = tuple.getT1();
+                                                    var users = tuple.getT1().stream().filter(user ->  user.getRole() != MemberRole.SUPER_ADMIN).toList();
                                                     var orgAdmins = tuple.getT2();
                                                     var adminMembers = orgAdmins.stream().filter(orgAdmin -> users.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
                                                     if(group.isAllUsersGroup()) {
@@ -221,7 +221,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                             return groupService.getByIds(groupIds)
                                                     .sort()
                                                     .flatMapSequential(group -> {
-                                                        var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId())).toList();
+                                                        var allMembers = groupMembers.stream().filter(groupMember -> groupMember.getGroupId().equals(group.getId()) && groupMember.getRole() != MemberRole.SUPER_ADMIN).toList();
                                                         var adminMembers = orgAdmins.stream().filter(orgAdmin -> allMembers.stream().anyMatch(member -> member.getUserId().equals(orgAdmin.getUserId()))).toList();
                                                         if(group.isAllUsersGroup()) {
                                                             return GroupView.from(group,

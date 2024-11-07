@@ -9,17 +9,15 @@ import jakarta.validation.Valid;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.api.usermanagement.view.AddMemberRequest;
-import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
-import org.lowcoder.api.usermanagement.view.GroupMemberAggregateView;
-import org.lowcoder.api.usermanagement.view.GroupView;
-import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
-import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.usermanagement.view.*;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
+import org.lowcoder.domain.group.model.GroupMember;
 import org.lowcoder.domain.group.service.GroupMemberService;
 import org.lowcoder.domain.group.service.GroupService;
 import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,6 +44,8 @@ public class GroupController implements GroupEndpoints
     private GroupService groupService;
     @Autowired
     private GidService gidService;
+    @Autowired
+    private OrgMemberService orgMemberService;
 
     @Override
     public Mono<ResponseView<GroupView>> create(@Valid @RequestBody CreateGroupRequest newGroup) {
@@ -75,9 +75,40 @@ public class GroupController implements GroupEndpoints
     }
 
     @Override
-    public Mono<ResponseView<List<GroupView>>> getOrgGroups() {
-        return groupApiService.getGroups()
-                .map(ResponseView::success);
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups() {
+        return groupApiService.getGroups().flatMap(groupList -> {
+            if(groupList.isEmpty()) return Mono.just(new GroupListResponseView<>(ResponseView.SUCCESS,
+                    "", List.of(), 0, 0, 0, 0));
+            return sessionUserService.getVisitorOrgMemberCache()
+                .map(OrgMember::getOrgId)
+                .flatMap(orgId -> orgMemberService.getOrganizationMembers(orgId)
+                    .collectList()
+                    .zipWith(groupService.getDevGroup(orgId).flatMap(devGroup -> groupMemberService.getGroupMembers(devGroup.getId(), 0, -1)))
+                    .map(tuple -> {
+                        List<OrgMember> orgMembers = tuple.getT1();
+                        List<GroupMember> devMembers = tuple.getT2();
+                        int totalAdmins = orgMembers.stream().filter(OrgMember::isAdmin).toList().size();
+                        int totalAdminsAndDevelopers = orgMembers.stream()
+                            .filter(orgMember -> orgMember.isAdmin() ||
+                                devMembers.stream().anyMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
+                        int totalDevelopersOnly = orgMembers.stream()
+                            .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
+                                devMembers.stream().anyMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
+                        int totalOtherMembers = orgMembers.stream()
+                            .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
+                                devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
+
+                        return new GroupListResponseView<>(ResponseView.SUCCESS,
+                            "",
+                            groupList,
+                            totalAdmins,
+                            totalAdminsAndDevelopers,
+                            totalDevelopersOnly,
+                            totalOtherMembers);
+                    })
+                );
+            }
+        );
     }
 
 
