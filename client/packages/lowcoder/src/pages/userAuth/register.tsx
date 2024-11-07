@@ -7,7 +7,7 @@ import {
   StyledRouteLinkLogin,
   TermsAndPrivacyInfo,
 } from "pages/userAuth/authComponents";
-import { CustomModal, FormInput, messageInstance, PasswordInput } from "lowcoder-design";
+import { FormInput, messageInstance, PasswordInput } from "lowcoder-design";
 import { AUTH_LOGIN_URL, ORG_AUTH_LOGIN_URL } from "constants/routesURL";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";

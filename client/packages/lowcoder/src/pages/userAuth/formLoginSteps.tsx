@@ -247,7 +247,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
             <Flex justify="end" style={{margin: '10px 0'}}>
               <Link to={{
                 pathname: AUTH_FORGOT_PASSWORD_URL,
-                state: location.state
+                state: {...location.state || {}, email: account}
                 }}
               >
                 {`${trans("userAuth.forgotPassword")}?`}
@@ -272,7 +272,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           <AuthBottomView>
             <StyledRouteLink to={{
               pathname: AUTH_REGISTER_URL,
-              state: location.state
+              state: {...location.state || {}, email: account}
             }}>
               {trans("userAuth.register")}
             </StyledRouteLink>
