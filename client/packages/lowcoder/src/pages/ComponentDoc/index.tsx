@@ -102,7 +102,7 @@ export default function ComponentDoc() {
   return (
     <ExampleContext.Provider value={{ name: params.name }}>
       <Helmet>
-        <meta key="iframely:title" property="iframely:title" content={"Lowcoder | " + (compManifest.enName ? compManifest.enName : params.name)} />,
+        <meta key="iframely:title" property="iframely:title" content={"OpenFlower | " + (compManifest.enName ? compManifest.enName : params.name)} />,
         <meta key="iframely:description" property="iframely:description" content={compManifest.description? compManifest.description.toString() : ""} />,
         <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
       </Helmet>

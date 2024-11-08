@@ -14,7 +14,7 @@ This image contains all services needed to run OpenFlower platform in one contai
 This is the default target and can be built by running following command from project root:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t flowerappengorg/openflower .
 ```
 
 ### Configuration
@@ -75,7 +75,7 @@ To enable secure Password Reset flow for the users, you need to configure your o
 | `LOWCODER_ADMIN_SMTP_SSL_ENABLED`         | Enable SSL encryption                                   | `false`              |
 | `LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED`    | Enable STARTTLS encryption                              | `true`               |
 | `LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED`   | Require STARTTLS encryption                             | `true`               |
-| `LOWCODER_LOST_PASSWORD_EMAIL_SENDER`     | "from" Email address of the password Reset Email Sender | `service@lowcoder.cloud` |
+| `LOWCODER_LOST_PASSWORD_EMAIL_SENDER`     | "from" Email address of the password Reset Email Sender | `service@yourhost.com` |
 
 
 ## Building api-service image
@@ -87,7 +87,7 @@ Standalone OpenFlower api-service image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t flowerappengorg/openflower-api-service --target openflower-api-service .
 ```
 
 ### Configuration
@@ -138,7 +138,7 @@ To enable secure Password Reset flow for the users, you need to configure your o
 | `LOWCODER_ADMIN_SMTP_SSL_ENABLED`         | Enable SSL encryption                                   | `false`              |
 | `LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED`    | Enable STARTTLS encryption                              | `true`               |
 | `LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED`   | Require STARTTLS encryption                             | `true`               |
-| `LOWCODER_LOST_PASSWORD_EMAIL_SENDER`     | "from" Email address of the password Reset Email Sender | `service@lowcoder.cloud` |
+| `LOWCODER_LOST_PASSWORD_EMAIL_SENDER`     | "from" Email address of the password Reset Email Sender | `service@yourhost.com` |
 
 ## Building node-service image
 
@@ -149,7 +149,7 @@ Standalone OpenFlower node-service (JS executor) image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t flowerappengorg/openflower-node-service --target openflower-node-service .
 ```
 
 ### Configuration
@@ -171,9 +171,9 @@ Standalone OpenFlower web frontend image.
 From project root run:
 
 ```
-DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
+DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t flowerappengorg/openflower-frontend:BETA3 --target openflower-frontend .
 ```
-
+docker tag flowerappengorg/openflower-frontend flowerappengorg/openflower-frontend:BETA1
 ### Configuration
 
 Image can be configured by setting environment variables.

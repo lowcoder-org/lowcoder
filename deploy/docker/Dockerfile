@@ -25,7 +25,7 @@ RUN chmod +x /lowcoder/api-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-api-service --target lowcoder-ce-api-service .
 ##
-FROM eclipse-temurin:17-jammy AS lowcoder-ce-api-service
+FROM eclipse-temurin:17-jammy AS openflower-api-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get install -y --no-install-recommends gosu \
@@ -80,7 +80,7 @@ RUN chmod +x /lowcoder/node-service/*.sh
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-node-service --target lowcoder-ce-node-service .
 ##
-FROM ubuntu:jammy AS lowcoder-ce-node-service
+FROM ubuntu:jammy AS openflower-node-service
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y curl ca-certificates gnupg
@@ -145,7 +145,7 @@ RUN yarn build
 ## To create a separate image out of it, build it with:
 ##   DOCKER_BUILDKIT=1 docker build -f deploy/docker/Dockerfile -t lowcoderorg/lowcoder-ce-frontend --target lowcoder-ce-frontend .
 ##
-FROM nginx:1.25.1 AS lowcoder-ce-frontend
+FROM nginx:1.25.1 AS openflower-frontend
 LABEL maintainer="lowcoder"
 
 # Change default nginx user into lowcoder user and remove default nginx config
@@ -186,7 +186,7 @@ EXPOSE 3443
 ##
 ## Build Lowcoder all-in-one image
 ##
-FROM lowcoder-ce-frontend
+FROM openflower-frontend
 LABEL maintainer="lowcoder"
 
 RUN apt-get update && apt-get upgrade -y \
@@ -220,11 +220,11 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
   && rm -rf /tmp/*
 
 # Add lowcoder api-service
-COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-api-service /lowcoder/api-service /lowcoder/api-service
+COPY --chown=lowcoder:lowcoder --from=openflower-api-service /lowcoder/api-service /lowcoder/api-service
 RUN mkdir -p /lowcoder/plugins/ && chown lowcoder:lowcoder /lowcoder/plugins/
 
 # Add lowcoder node-service
-COPY --chown=lowcoder:lowcoder --from=lowcoder-ce-node-service /lowcoder/node-service /lowcoder/node-service
+COPY --chown=lowcoder:lowcoder --from=openflower-node-service /lowcoder/node-service /lowcoder/node-service
 
 # Add services configuration
 COPY --chown=lowcoder:lowcoder deploy/docker/all-in-one/etc /lowcoder/etc

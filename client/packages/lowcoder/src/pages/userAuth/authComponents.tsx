@@ -153,7 +153,7 @@ export const AuthContainer = (props: {
       <AuthCard>{props.children}</AuthCard>
       { props.subHeading && (
         <AuthCardSubFooter>
-          {/* <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
+          {/* <img src={favicon} alt={"OpenFlower | " + trans("productDesc")} width="20px"/>
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
             {props.subHeading}
           </a> */}

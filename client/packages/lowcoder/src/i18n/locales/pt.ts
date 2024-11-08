@@ -3194,8 +3194,8 @@ export const pt: typeof en = {
 
     "componentDoc": {
         ...en.componentDoc,
-        "markdownDemoText": "**Lowcoder** | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
-        "demoText": "Lowcoder | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
+        "markdownDemoText": "**OpenFlower** | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
+        "demoText": "OpenFlower | Crie aplicativos de software para sua empresa e seus clientes com experiência mínima em codificação. Lowcoder é a melhor alternativa ao Retool, Appsmith ou Tooljet.",
         "submit": "Enviar",
         "style": "Estilo",
         "danger": "Perigo",
