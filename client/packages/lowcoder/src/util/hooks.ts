@@ -27,8 +27,8 @@ import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
 import { uniq } from "lodash";
 import { constantColors } from "components/colorSelect/colorUtils";
 import { AppState } from "@lowcoder-ee/redux/reducers";
-import { getOrgGroups, getOrgUsers } from "@lowcoder-ee/redux/selectors/orgSelectors";
-import { fetchGroupsAction, fetchOrgUsersAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
+import { getOrgUserStats } from "@lowcoder-ee/redux/selectors/orgSelectors";
+import { fetchGroupsAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -188,7 +188,7 @@ export function useMergeCompStyles(
   const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
   const { preventStyleOverwriting, appliedThemeId } = props;
 
-  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
+  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style') || key.toLowerCase().endsWith('styles'));
   const styleProps: Record<string, any> = {};
   styleKeys.forEach((key: string) => {
     styleProps[key] = (props as any)[key];
@@ -263,7 +263,7 @@ export function useThemeColors(allowGradient?: boolean) {
 
 export const useOrgUserCount = (orgId: string) => {
   const dispatch = useDispatch();
-  const orgGroups = useSelector((state: AppState) => getOrgGroups(state)); // Use selector to get orgUsers from state
+  const orgUserStats = useSelector((state: AppState) => getOrgUserStats(state)); // Use selector to get orgUsers from state
   const [userCount, setUserCount] = useState<number>(0);
 
   useEffect(() => {
@@ -275,10 +275,10 @@ export const useOrgUserCount = (orgId: string) => {
 
   useEffect(() => {
     // Update user count when orgUsers state changes
-    if (orgGroups && orgGroups.length > 0) {
-      setUserCount(orgGroups.length);
+    if (Object.values(orgUserStats).length && orgUserStats.hasOwnProperty('totalAdminsAndDevelopers')) {
+      setUserCount(orgUserStats.totalAdminsAndDevelopers);
     }
-  }, [orgGroups]);
+  }, [orgUserStats]);
 
   return userCount;
 };
