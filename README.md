@@ -1,5 +1,5 @@
 <p align="center">
-<h1 align="center">OpenFlower</h3>
+<h1 align="center"><a href="https://www.openflower.org/">OpenFlower</a></h3>
 
 <p align="center">An enterprise-grade application engine.</p>
 
@@ -7,8 +7,6 @@
 
 <p align="center"><a href="https://docs.openflower.org/">Read the Docs</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=bug%2Cneeds+triage&projects=&template=bug_report.yml">Report Bug</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md">Request Feature</a>
 </p>
-
-# About the Project
 
 ## Use OpenFlower in 3 steps
 1. Connect to any data sources or APIs.
@@ -19,8 +17,6 @@
 One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
-
-NewGen Lowcode Platforms like Retool and others are great for their simplicity and flexibility - like OpenFlower too, but they can also be limited in different ways, especially when it comes to "external" applications for everyone.
 
 OpenFlower is:
 - An all-in-one IDE to create internal or customer-facing (external) apps.
@@ -47,6 +43,18 @@ OpenFlower is:
 - **Self Hosting** to use OpenFlower in your internal company network, even behind the firewall. [Docs](https://docs.openflower.org/setup-and-run/self-hosting)
 - **Free Community Cloud** to start within a minute and build your first Apps. [Start here](https://prod-us1.openflower.org/)
 
+# Installation
+
+- <a href="https://docs.openflower.org/setup-and-run/self-hosting">Self-Hosting</a>
+
+# Development
+
+# Learning Resources
+- <a href="https://docs.openflower.org/">Documentation</a>
+- <a href="https://docs.openflower.org/readme/the-hello-world-walk">Tutorials</a>
+
+# Help
+
 ## 🏆 Comparisons
 See [COMPARISONS.md](COMPARISONS.md)
 
@@ -58,12 +66,12 @@ And we mean it... Day by day!
 
 🔎 Submit an issue here on [GitHub](https://github.com/flowerappeng-org/openflower/issues)
 
-## 💻 Deployment Options
+## Deployment Options
 
 You can access OpenFlower from [cloud-hosted demo version](https://prod-us1.openflower.org/) at any time, or use the following resources for self-host OpenFlower on different platforms:
 - [Docker](https://docs.openflower.org/setup-and-run/self-hosting)
 
-## 💪 Contributing
+## Contributing
 - Language support: If you have experience with a language that isn't currently supported by our product, send us a pull request.
 - Create and share components or demos: If you've created something that might be useful to others, add the link here.
 - [Contributing guide](https://docs.openflower.org/openflower-extension/opensource-contribution)

@@ -397,7 +397,7 @@ function EditorView(props: EditorViewProps) {
               <meta key="iframely:description" property="iframely:description" content={application.description} />,
             ]) : ([
               <meta key="iframely:title" property="iframely:title" content="Lowcoder 3" />,
-              <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+              <meta key="iframely:description" property="iframely:description" content="OpenFlower | We make building applications easy." />,
             ]),
             <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
             <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,
@@ -455,7 +455,7 @@ function EditorView(props: EditorViewProps) {
           <meta key="iframely:description" property="iframely:description" content={application.description} />,
         ]) : ([
           <meta key="iframely:title" property="iframely:title" content="Lowcoder 3" />,
-          <meta key="iframely:description" property="iframely:description" content="Lowcoder | rapid App & VideoMeeting builder for everyone." />,
+          <meta key="iframely:description" property="iframely:description" content="OpenFlower | We make building applications easy." />,
         ]),
         <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)" />,
         <link key="preconnect-googleapis" rel="preconnect" href="https://fonts.googleapis.com" />,

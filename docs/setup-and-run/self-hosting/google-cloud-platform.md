@@ -86,7 +86,7 @@ description: How to Setup Seperate Images on Google Cloud Platform
 1. In the Google Console go to Cloud Run
 2. Create a Service
 3. In the Container Image URL input: flowerappengorg/openflower-node-service
-   * This is from the lowcoder docker hub (https://hub.docker.com/r/flowerappengorg/openflower-ce-node-service)
+   * This is from the lowcoder docker hub (https://hub.docker.com/r/flowerappengorg/openflower-node-service)
 4. Select the Region, same as the region for the VPC Network
 5. CPU allocation and pricing: CPU is only allocated during request processing
 6. Ingress Control is set to Internal (this is necessary to not expose the Node Service to the rest of the internet)
