@@ -9,6 +9,7 @@ export const zh = {
         "orgNameCheckMsg": "工作空间名称不能为空"
     },
     "memberSettings": {
+        ...en.memberSettings,
         "superAdmin": "超级管理员",
         "adminGroupRoleInfo": "管理员可以管理群组成员和资源",
         "admin": "管理员",
@@ -1842,6 +1843,7 @@ export const zh = {
         "deleteSuccessMsg": "删除成功"
     },
     "idSource": {
+        ...en.idSource,
         "form": "电子邮件",
         "source": "Source",
         "sourceName": "Auth Provider Name",
@@ -1963,6 +1965,7 @@ export const zh = {
     "deletePermanently": "删除",
     "create": "创建",
     "userAuth": {
+        ...en.userAuth,
         "chooseAccount": "选择您的帐户",
         "userLogin": "用户登录",
         "poweredByLowcoder": "供电 Lowcoder.cloud",

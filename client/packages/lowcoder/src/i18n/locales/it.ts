@@ -9,6 +9,7 @@ export const it = {
     "orgNameCheckMsg": "Il nome dell'area di lavoro non può essere vuoto"
   },
   "memberSettings": {
+    ...en.memberSettings,
     "superAdmin": "Super amministratore",
     "adminGroupRoleInfo": "L'amministratore può gestire i membri e le risorse del gruppo",
     "admin": "Admin",
@@ -1842,6 +1843,7 @@ export const it = {
     "deleteSuccessMsg": "Cancellazione riuscita"
   },
   "idSource": {
+    ...en.idSource,
     "form": "Email",
     "source": "Fonte",
     "sourceName": "Nome del fornitore di autorizzazione",
@@ -1963,6 +1965,7 @@ export const it = {
   "deletePermanently": "Cancellare definitivamente",
   "create": "Creare",
   "userAuth": {
+    ...en.userAuth,
     "chooseAccount": "Scegliere il proprio account",
     "userLogin": "Accedi",
     "poweredByLowcoder": "Alimentato da: Lowcoder.cloud",

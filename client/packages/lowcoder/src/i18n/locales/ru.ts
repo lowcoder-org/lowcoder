@@ -9,6 +9,7 @@ export const ru = {
         "orgNameCheckMsg": "Имя рабочей области не может быть пустым"
     },
     "memberSettings": {
+        ...en.memberSettings,
         "superAdmin": "Суперадминистратор",
         "adminGroupRoleInfo": "Администратор может управлять членами группы и ресурсами",
         "admin": "Администратор",
@@ -1842,6 +1843,7 @@ export const ru = {
         "deleteSuccessMsg": "Удаление прошло успешно"
     },
     "idSource": {
+        ...en.idSource,
         "form": "Электронная почта",
         "source": "Источник",
         "sourceName": "Имя провайдера авторизации",
@@ -1963,6 +1965,7 @@ export const ru = {
     "deletePermanently": "Удалить навсегда",
     "create": "Создать",
     "userAuth": {
+        ...en.userAuth,
         "chooseAccount": "Выберите свой аккаунт",
         "userLogin": "Войти",
         "poweredByLowcoder": "Работает от: Lowcoder.cloud",

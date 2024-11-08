@@ -9,6 +9,7 @@ export const pt = {
     "orgNameCheckMsg": "O nome do espaço de trabalho não pode estar vazio"
   },
   "memberSettings": {
+    ...en.memberSettings,
     "superAdmin": "Superadministrador",
     "adminGroupRoleInfo": "O administrador pode gerenciar membros do grupo e recursos",
     "admin": "Administrador",
@@ -1842,6 +1843,7 @@ export const pt = {
     "deleteSuccessMsg": "Exclusão Bem-Sucedida"
   },
   "idSource": {
+    ...en.idSource,
     "form": "Correio eletrónico",
     "source": "Fonte",
     "sourceName": "Nome do fornecedor de autenticação",
@@ -1963,6 +1965,7 @@ export const pt = {
   "deletePermanently": "Remover Permanentemente",
   "create": "Crie",
   "userAuth": {
+    ...en.userAuth,
     "chooseAccount": "Escolha sua Conta",
     "userLogin": "Entrar",
     "poweredByLowcoder": "Desenvolvido por: Lowcoder.cloud",

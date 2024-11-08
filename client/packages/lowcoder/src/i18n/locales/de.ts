@@ -9,6 +9,7 @@ export const de = {
     "orgNameCheckMsg": "Der Name des Arbeitsbereichs darf nicht leer sein"
   },
   "memberSettings": {
+    ...en.memberSettings,
     "superAdmin": "Super Admin",
     "adminGroupRoleInfo": "Admin kann Gruppenmitglieder und Ressourcen verwalten",
     "admin": "Verwaltung",
@@ -1842,6 +1843,7 @@ export const de = {
     "deleteSuccessMsg": "Löschung Erfolglos"
   },
   "idSource": {
+    ...en.idSource,
     "form": "E-Mail",
     "source": "Quelle",
     "sourceName": "Auth Provider Name",
@@ -1963,6 +1965,7 @@ export const de = {
   "deletePermanently": "Dauerhaft löschen",
   "create": "Erstellen",
   "userAuth": {
+    ...en.userAuth,
     "chooseAccount": "Wähle dein Konto",
     "userLogin": "Anmelden",
     "poweredByLowcoder": "Powered by: Lowcoder.cloud",

@@ -1,19 +1,19 @@
-import {viewModeTriple} from "@lowcoder-ee/util/editor";
+const viewMode = () => window.location.href.includes("view") ? "view" : window.location.href.includes("edit") ? "edit" : "admin";
 
 interface LangJsonType {
     [key: string]: any;
 }
 
 export const setLanguageJson = (lang : string, langObj: any) => {
-    localStorage.setItem(`lowcoder_language_json_${lang}_${viewModeTriple()}`, JSON.stringify(langObj));
+    localStorage.setItem(`lowcoder_language_json_${lang}_${viewMode()}`, JSON.stringify(langObj));
 }
 
 export const setLanguageObjJson = (lang : string, langObj: any) => {
-    localStorage.setItem(`lowcoder_language_obj_json_${lang}_${viewModeTriple()}`, JSON.stringify(langObj));
+    localStorage.setItem(`lowcoder_language_obj_json_${lang}_${viewMode()}`, JSON.stringify(langObj));
 }
 
 export const getLanguageJson = (lang: string): LangJsonType | null => {
-    const item = localStorage.getItem(`lowcoder_language_json_${lang}_${viewModeTriple()}`);
+    const item = localStorage.getItem(`lowcoder_language_json_${lang}_${viewMode()}`);
 
     // Check if the item is null
     if (item === null) {
@@ -27,7 +27,7 @@ export const getLanguageJson = (lang: string): LangJsonType | null => {
 };
 
 export const getLanguageObjJson = (lang: string): LangJsonType | null => {
-    const item = localStorage.getItem(`lowcoder_language_obj_json_${lang}_${viewModeTriple()}`);
+    const item = localStorage.getItem(`lowcoder_language_obj_json_${lang}_${viewMode()}`);
 
     // Check if the item is null
     if (item === null) {

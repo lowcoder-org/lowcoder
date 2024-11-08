@@ -9,6 +9,7 @@ export const es = {
     "orgNameCheckMsg": "El nombre del espacio de trabajo no puede estar vacío"
   },
   "memberSettings": {
+    ...en.memberSettings,
     "superAdmin": "Súper administrador",
     "adminGroupRoleInfo": "El administrador puede gestionar los miembros y recursos del grupo",
     "admin": "Admin",
@@ -1842,6 +1843,7 @@ export const es = {
     "deleteSuccessMsg": "Supresión Efectuada"
   },
   "idSource": {
+    ...en.idSource,
     "form": "Correo electrónico",
     "source": "Fuente",
     "sourceName": "Nombre del proveedor de autenticación",
@@ -1963,6 +1965,7 @@ export const es = {
   "deletePermanently": "Borrar permanentemente",
   "create": "Cree",
   "userAuth": {
+    ...en.userAuth,
     "chooseAccount": "Elija su cuenta",
     "userLogin": "Iniciar sesión",
     "poweredByLowcoder": "Desarrollado por: Lowcoder.cloud",
