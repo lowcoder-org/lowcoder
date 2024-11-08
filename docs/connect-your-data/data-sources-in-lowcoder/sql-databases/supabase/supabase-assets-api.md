@@ -22,3 +22,40 @@ Follow the steps below :&#x20;
 Let's show you how we can use the Supabase Storage feature to Upload and Retrieve data to/from Supabase.&#x20;
 
 {% embed url="https://demos.lowcoder.cloud/demo/cm0p82k14000110hfpa1xr8da" %}
+
+All of the above functionalities can be accessed using Supabase SDK as well.&#x20;
+
+To create a bucket on Supabase Storage, use following code :&#x20;
+
+```
+const { data, error } = await supabase
+  .storage
+  .createBucket('avatars', {
+    public: false,
+    allowedMimeTypes: ['image/png'],
+    fileSizeLimit: 1024
+  })
+```
+
+To List all the buckets present on Supabase Storage, use following code :&#x20;
+
+```
+const { data, error } = await supabase
+  .storage
+  .getBucket('avatars')
+```
+
+To List all files in a specific Bucket, use following code :&#x20;
+
+```
+const { data, error } = await supabase
+  .storage
+  .from('avatars')
+  .list('folder', {
+    limit: 100,
+    offset: 0,
+    sortBy: { column: 'name', order: 'asc' },
+  })
+```
+
+More details can be found here : [https://supabase.com/docs/reference/javascript/storage-createbucket](https://supabase.com/docs/reference/javascript/storage-createbucket)

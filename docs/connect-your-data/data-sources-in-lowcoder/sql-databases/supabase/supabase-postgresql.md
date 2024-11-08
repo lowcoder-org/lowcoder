@@ -23,4 +23,22 @@ Follow the steps below:
 
 {% embed url="https://demos.lowcoder.cloud/demo/clzmno7d50b0prfaixv9i8nxc" %}
 
-\
+All of the above functionalities can be accessed using Supabase SDK as well.&#x20;
+
+To fetch data from DB, we can use the Select method on Supabase object.&#x20;
+
+```
+const { data, error } = await supabase
+  .from('countries')
+  .select()
+```
+
+To insert data into a Table, use following code.&#x20;
+
+```
+const { error } = await supabase
+  .from('countries')
+  .insert({ id: 1, name: 'Denmark' })
+```
+
+More details can be found here : [https://supabase.com/docs/reference/javascript/select](https://supabase.com/docs/reference/javascript/select)

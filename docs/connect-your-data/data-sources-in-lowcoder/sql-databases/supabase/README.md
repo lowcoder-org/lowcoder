@@ -20,4 +20,22 @@ Supabase is an open-source backend-as-a-service (BaaS) platform that provides de
 * Storing and managing media files like images, videos, or documents.
 * Rapidly building and scaling applications without setting up custom backend infrastructure.
 
+### Supabase SDK
+
+We have integrated Supabase SDK to Lowcoder, so that our App Users can directly use it in the apps to its full potential.
+
+Users can use all the functionalities provided by Supabase inside Lowcoder using "supabase" object. e.g. to interact with your Postgres database, listen to database changes, build login and user management functionality, and manage large files.
+
+### Initialising Supabase Client&#x20;
+
+Create a new client for use in the browser. You can initialize a new Supabase client using the `createClient()` method.
+
+The Supabase client is your entry point to the rest of the Supabase functionality and is the easiest way to interact with everything Supabase offers within its ecosystem.
+
+```
+const supabase_client = supabase.createClient('supabase-project-url', 'public-anon-key')
+```
+
+Now, using this "supabase\_client" created above, we will interact with PostgreSQL DB in Supabase, explore Supabase Assets/Storage feature, setup an OAuth and use Supabase RealTime feature. Let's explain these one by one.
+
 Let's explore some of the core features of Supabase, one by one.

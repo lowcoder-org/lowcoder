@@ -1,2 +1,0 @@
-# Supabase Management API
-
