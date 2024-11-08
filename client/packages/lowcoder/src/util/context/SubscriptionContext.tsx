@@ -1,10 +1,11 @@
-import { createCheckoutLink, createCustomer, getProducts, searchCustomer, useOrgUserCount } from "@lowcoder-ee/api/subscriptionApi";
+import { createCheckoutLink, createCustomer, getProducts, searchCustomer } from "@lowcoder-ee/api/subscriptionApi";
 import { StripeCustomer, SubscriptionProduct, InitSubscriptionProducts, LowcoderSearchCustomer, LowcoderNewCustomer, Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { getFetchSubscriptionsFinished, getSubscriptions, getSubscriptionsError } from "@lowcoder-ee/redux/selectors/subscriptionSelectors";
 import { getCurrentUser, getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
+import { useOrgUserCount } from "../hooks";
 
 export interface SubscriptionContextType {
   products: SubscriptionProduct[];

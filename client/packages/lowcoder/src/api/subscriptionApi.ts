@@ -3,7 +3,7 @@ import axios, { AxiosInstance, AxiosRequestConfig, CancelToken } from "axios";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState} from "react";
 import { calculateFlowCode }  from "./apiUtils";
-import { fetchOrgUsersAction } from "redux/reduxActions/orgActions";
+import { fetchGroupsAction, fetchOrgUsersAction } from "redux/reduxActions/orgActions";
 import { getOrgUsers } from "redux/selectors/orgSelectors";
 import { AppState } from "@lowcoder-ee/redux/reducers";
 import type {
@@ -287,30 +287,6 @@ export const getCustomerPortalSession = async (customerId: string) => {
     console.error("Error fetching invoices:", error);
     throw error;
   }
-};
-
-// Hooks
-
-export const useOrgUserCount = (orgId: string) => {
-  const dispatch = useDispatch();
-  const orgUsers = useSelector((state: AppState) => getOrgUsers(state)); // Use selector to get orgUsers from state
-  const [userCount, setUserCount] = useState<number>(0);
-
-  useEffect(() => {
-    // Dispatch action to fetch organization users
-    if (orgId) {
-      dispatch(fetchOrgUsersAction(orgId));
-    }
-  }, [dispatch, orgId]);
-
-  useEffect(() => {
-    // Update user count when orgUsers state changes
-    if (orgUsers && orgUsers.length > 0) {
-      setUserCount(orgUsers.length);
-    }
-  }, [orgUsers]);
-
-  return userCount;
 };
 
 export default SubscriptionApi;
