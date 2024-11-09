@@ -16,7 +16,7 @@
   * [Lowcoder Version Update](setup-and-run/self-hosting/lowcoder-version-update.md)
   * [Traefik loadbalancer](setup-and-run/self-hosting/traefik-loadbalancer.md)
   * [SMTP Server](setup-and-run/self-hosting/smtp-server.md)
-  * [Page 1](setup-and-run/self-hosting/page-1.md)
+  * [Easypanel](setup-and-run/self-hosting/easypanel.md)
 * [Security](setup-and-run/security.md)
 
 ## 🏨 Workspaces & Teamwork
