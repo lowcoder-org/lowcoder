@@ -135,11 +135,6 @@ export function SubscriptionInfo() {
               <Tag icon={<CheckCircleOutlined />} color="green">
                 {product.type.toUpperCase()}
               </Tag>
-              {product.active && (
-                <Tag icon={<CheckCircleOutlined />} color="blue">
-                  Active
-                </Tag>
-              )}
               <List
                 size="small"
                 header={<h3>What you get:</h3>}
