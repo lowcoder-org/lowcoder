@@ -241,7 +241,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             rel="apple-touch-startup-image"
             href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png"
           />
-
           <meta
             key="application-name"
             name="application-name"
@@ -297,12 +296,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               rel="stylesheet"
             />,
             // adding Clearbit Support for Analytics
-            <script
-              key="clearbit-script"
-              src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js"
-              referrerPolicy="strict-origin-when-cross-origin"
-              type="text/javascript"
-            ></script>,
           ]}
         </Helmet>
         <SystemWarning />
