@@ -7,16 +7,16 @@
 
 * [Cloud & Private Cloud](setup-and-run/cloud-and-private-cloud.md)
 * [Self-hosting](setup-and-run/self-hosting/README.md)
-  * [Access local database or API](setup-and-run/self-hosting/access-local-database-or-api.md)
   * [Google Cloud Platform](setup-and-run/self-hosting/google-cloud-platform.md)
+  * [Easypanel](setup-and-run/self-hosting/page-1.md)
   * [Heroku](setup-and-run/self-hosting/heroku.md)
   * [Raspberry Pi](setup-and-run/self-hosting/raspberry-pi.md)
-  * [Migration from Openblocks](setup-and-run/self-hosting/migration-from-openblocks.md)
+  * [Access local database or API](setup-and-run/self-hosting/access-local-database-or-api.md)
   * [Update MongoDB Versions](setup-and-run/self-hosting/update-mongodb-versions.md)
   * [Lowcoder Version Update](setup-and-run/self-hosting/lowcoder-version-update.md)
   * [Traefik loadbalancer](setup-and-run/self-hosting/traefik-loadbalancer.md)
   * [SMTP Server](setup-and-run/self-hosting/smtp-server.md)
-  * [Easypanel](setup-and-run/self-hosting/easypanel.md)
+  * [Migration from Openblocks](setup-and-run/self-hosting/migration-from-openblocks.md)
 * [Security](setup-and-run/security.md)
 
 ## 🏨 Workspaces & Teamwork

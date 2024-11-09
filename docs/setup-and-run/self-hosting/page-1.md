@@ -1,4 +1,4 @@
-# Page 1
+# Easypanel
 
 
 
