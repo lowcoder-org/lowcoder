@@ -157,9 +157,9 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <meta name="description" content={trans('productDesc')} />
           <meta
             name="keywords"
-            content="Lowcoder, Applications, App Builder, Internal Applications, Websites, Dashboards, Data Visualization, Customer Applications, CRM, ERP, eCommerce, VideoMeeting, Rapid Development"
+            content="OpenFlower, Applications, App Builder, Internal Applications, Websites, Dashboards, Data Visualization, Customer Applications, CRM, ERP, eCommerce, Rapid Development"
           />
-          <meta name="author" content="Lowcoder Software LTD" />
+          <meta name="author" content="OpenFlower" />
           <meta name="robots" content="index, follow" />
 
           <meta

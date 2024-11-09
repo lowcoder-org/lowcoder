@@ -1,6 +1,6 @@
 # Drawer
 
-In Lowcoder, **Drawer** is an overlay sidebar to display information or perform operations, without interrupting the workflow on the main window.
+In OpenFlower, **Drawer** is an overlay sidebar to display information or perform operations, without interrupting the workflow on the main window.
 
 The following example builds a shopping cart using a drawer.
 
@@ -28,7 +28,7 @@ The following sections guide you through how to open and close a drawer by click
 
 ### Trigger openDrawer
 
-Usually, in an app, you trigger opening a drawer by an event such as clicking a button. For example, in the [Online Shopping demo](https://cloud.lowcoder.dev/apps/63a422a344075b798fe3ae06/view), opening a drawer to display the shopping cart is implemented in the following steps.
+Usually, in an app, you trigger opening a drawer by an event such as clicking a button. For example, in the [Online Shopping demo](todo), opening a drawer to display the shopping cart is implemented in the following steps.
 
 1. Add a button and rename it as `gotoCart`.
 2. Set the event handler of the button. Select "Control component" as the **Action** and select the component "cart" and method "openDrawer". All these settings are auto-saved.
@@ -36,7 +36,7 @@ Usually, in an app, you trigger opening a drawer by an event such as clicking a 
 
 ### Trigger closeDrawer
 
-Triggerring "closeDrawer" is similar to triggering "openDrawer". When setting up the event handler, select the method "closeDrawer". For example, in the [Online Shopping demo](https://cloud.lowcoder.dev/apps/63a422a344075b798fe3ae06/view), closing a drawer that displays the shopping cart is implemented in the following steps.
+Triggerring "closeDrawer" is similar to triggering "openDrawer". When setting up the event handler, select the method "closeDrawer". For example, in the [Online Shopping demo]todo), closing a drawer that displays the shopping cart is implemented in the following steps.
 
 1. Add a button and rename it as `gobackShopping`.
 2. Set the event handler of the button. Select "Control component" as the **Action** and select the component "cart" and method "closeDrawer". All these settings are auto-saved.

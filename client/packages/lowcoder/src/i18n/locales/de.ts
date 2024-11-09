@@ -3038,7 +3038,7 @@ export const de = {
   },
   "preLoad": {
     ...en.preLoad,
-
+    
   "jsLibraryHelpText": "Füge JavaScript-Bibliotheken über URL-Adressen zu deiner aktuellen Anwendung hinzu. lodash, day.js, uuid, numbro sind zur sofortigen Verwendung in das System integriert. JavaScript-Bibliotheken werden geladen, bevor die Anwendung initialisiert wird, was sich auf die Leistung der Anwendung auswirken kann.",
   "exportedAs": "Exportiert als",
   "urlTooltip": "URL-Adresse der JavaScript-Bibliothek, [unpkg.com](https://unpkg.com/) oder [jsdelivr.net](https://www.jsdelivr.com/) wird empfohlen",
@@ -3320,6 +3320,7 @@ export const de = {
   "showBorder": "Grenze anzeigen",
   },
   "componentDoc": {
+
     ...en.componentDoc,
 
   "markdownDemoText": "**Lowcoder** | Erstelle Softwareanwendungen für dein Unternehmen und deine Kunden mit minimaler Programmiererfahrung. Lowcoder ist die beste Alternative zu Retool, Appsmith oder Tooljet.",
@@ -3531,6 +3532,7 @@ export const de = {
   "center": "Zentrum",
   "bottom": "Unten",
   "justify": "Beide Enden rechtfertigen",
+
   },
   "playground": {
     ...en.playground,

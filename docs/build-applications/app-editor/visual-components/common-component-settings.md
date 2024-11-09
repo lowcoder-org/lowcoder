@@ -1,6 +1,6 @@
 # Common Component Settings
 
-The visual Components of Lowcoder share some general Settings and Configurations. You may find nevertheless Components, for which these or that Setting may not apply - and so it's not shown in the Application Editor.
+The visual Components of OpenFlower share some general Settings and Configurations. You may find nevertheless Components, for which these or that Setting may not apply - and so it's not shown in the Application Editor.
 
 <figure><img src="../../../.gitbook/assets/App Editor  Show Component Settings.png" alt=""><figcaption><p>Click on any Component opens the Properties panel to show all Settings &#x26; Configurations.</p></figcaption></figure>
 
@@ -36,7 +36,7 @@ Many Components have the possibility to show Labels for the user, so it is cleal
 
 #### Internationalization
 
-Based on the language information of the browser, one can translate text in Lowcoder on the fly.&#x20;
+Based on the language information of the browser, one can translate text in OpenFlower on the fly.&#x20;
 
 <figure><img src="../../../.gitbook/assets/Internationalization  User Language.png" alt=""><figcaption><p>get the User-Language from the Browser</p></figcaption></figure>
 
@@ -119,12 +119,12 @@ You can now place other components in the same vertical place as the hidden Comp
 <figure><img src="../../../.gitbook/assets/App Editor  Hide Component placing 3.png" alt=""><figcaption><p>Components that are hidden can pe placed vertically at the same position.</p></figcaption></figure>
 
 {% hint style="info" %}
-In Lowcoder v2.0.0 the fields "Hidden" and "Disabled" are unfortunately at different places in the Properties Panel across the components. We will fix and order this in a future version.
+In OpenFlower v2.0.0 the fields "Hidden" and "Disabled" are unfortunately at different places in the Properties Panel across the components. We will fix and order this in a future version.
 {% endhint %}
 
 ### Event handlers
 
-One of the powerful concepts of Lowcoder are the Event handlers. Based on User interaction almost every Component can release Events, on which you can react with different actions.
+One of the powerful concepts of OpenFlower are the Event handlers. Based on User interaction almost every Component can release Events, on which you can react with different actions.
 
 <figure><img src="../../../.gitbook/assets/App Editor  Event Types.png" alt=""><figcaption><p>For each components a set of possible User interaction Events is accessible</p></figcaption></figure>
 
@@ -139,7 +139,7 @@ One of the powerful concepts of Lowcoder are the Event handlers. Based on User i
 * Switch Tab (for Tabbed containers)
 
 {% hint style="info" %}
-You can find a list of Event Handlers here: [https://app.lowcoder.cloud/apps/648cd237a0308d4efcc64571/view](https://app.lowcoder.cloud/apps/648cd237a0308d4efcc64571/view)
+You can find a list of Event Handlers here: [TODO list of event handlers)
 {% endhint %}
 
 When a Component supports User interaction Events, you can have one or multiple actions based on a single Event type or different Event types.
@@ -165,7 +165,7 @@ Each Event handler has an Action out of a list of possible Actions. Each action 
 #### Order of Event Actions
 
 {% hint style="info" %}
-In a future version of Lowcoder, we will make sure it is possible to change the order of the Event Handlers. As for now, it is not possible and you would need to plan the order of Event Actions if your App needs multiple Event Handlers for a single Component.
+In a future version of OpenFlower, we will make sure it is possible to change the order of the Event Handlers. As for now, it is not possible and you would need to plan the order of Event Actions if your App needs multiple Event Handlers for a single Component.
 {% endhint %}
 
 ### Style

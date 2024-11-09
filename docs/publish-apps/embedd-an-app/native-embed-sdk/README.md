@@ -1,16 +1,16 @@
 # Native embed SDK
 
-The key advantage for React developers using Lowcoder is the ease of embedding Lowcoder apps directly into the React component hierarchy. This native integration means that Lowcoder apps can be treated as part of the React tree, ensuring a smooth and cohesive user experience. Developers can place Lowcoder apps within their existing React components, maintaining the structural and stylistic consistency of their applications.
+The key advantage for React developers using OpenFlower is the ease of embedding OpenFlower apps directly into the React component hierarchy. This native integration means that OpenFlower apps can be treated as part of the React tree, ensuring a smooth and cohesive user experience. Developers can place OpenFlower apps within their existing React components, maintaining the structural and stylistic consistency of their applications.
 
-Moreover, the interaction between React components and Lowcoder apps is exceptionally fluid. React developers can directly manipulate the state of Lowcoder apps, invoke methods, and handle events, creating a highly interactive and responsive environment. This direct interaction is a game-changer, as it allows for real-time data exchange and dynamic behavior within the application.
+Moreover, the interaction between React components and OpenFlower apps is exceptionally fluid. React developers can directly manipulate the state of OpenFlower apps, invoke methods, and handle events, creating a highly interactive and responsive environment. This direct interaction is a game-changer, as it allows for real-time data exchange and dynamic behavior within the application.
 
-For instance, a React developer can easily update the state of a Lowcoder app based on user interactions or external data changes in their React components. This two-way communication ensures that the embedded Lowcoder apps are not just static elements but integral, interactive parts of the overall application.
+For instance, a React developer can easily update the state of a OpenFlower app based on user interactions or external data changes in their React components. This two-way communication ensures that the embedded OpenFlower apps are not just static elements but integral, interactive parts of the overall application.
 
-The ability to interact with Lowcoder apps through state management, method calls, and event handling in React also simplifies the development process. Developers can leverage their existing knowledge of React's ecosystem to control and customize Lowcoder apps, reducing the learning curve and accelerating development timelines.
+The ability to interact with OpenFlower apps through state management, method calls, and event handling in React also simplifies the development process. Developers can leverage their existing knowledge of React's ecosystem to control and customize OpenFlower apps, reducing the learning curve and accelerating development timelines.
 
-## Lowcoder SDK usable imports&#x20;
+## OpenFlower SDK usable imports&#x20;
 
-This is an overview list of exports available for developers using the Lowcoder SDK.&#x20;
+This is an overview list of exports available for developers using the OpenFlower SDK.&#x20;
 
 
 
@@ -328,7 +328,7 @@ so you can use it like "const YourDiv = styled.div`... {your CSS}`;
 
 ```plaintext
 appView/bootstrapAt - Bootstrap utility for application initialization.
-appView/LowcoderAppView - Main application view component.
+appView/OpenFlowerAppView - Main application view component.
 appView/AppViewInstance - Application view instance management.
 ide/CompIde - Component IDE for development.
 ide/CompPlayground - Component playground for testing.

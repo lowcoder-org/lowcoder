@@ -2,11 +2,11 @@ version: "3"
 services:
 
   ##
-  ## Start Lowcoder (all-in-one)
+  ## Start OpenFlower (all-in-one)
   ##
-  lowcoder-api-service:
-    image: lowcoderorg/lowcoder-ce:latest
-    container_name: lowcoder
+  openflower-api-service:
+    image: flowerappengorg/openflower:latest
+    container_name: openflower
     ports:
       - "3000:3000"
       - "3443:3443"
@@ -36,7 +36,7 @@ services:
       LOWCODER_MAX_APPS_PER_ORG: 1000
       LOWCODER_MAX_DEVELOPERS: 50
       #LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
-      LOWCODER_MONGODB_URL: "mongodb://localhost:27017/lowcoder?authSource=admin"
+      LOWCODER_MONGODB_URL: "mongodb://localhost:27017/openflower?authSource=admin"
       LOWCODER_REDIS_URL: "redis://localhost:6379"
       LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
       LOWCODER_EMAIL_AUTH_ENABLED: "true"
@@ -47,8 +47,8 @@ services:
       #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
       #    to encrypt sensitive data in database so it is important to change the defaults
       #
-      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
-      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
+      LOWCODER_DB_ENCRYPTION_PASSWORD: "openflower.org"
+      LOWCODER_DB_ENCRYPTION_SALT: "openflower.org"
       LOWCODER_CORS_DOMAINS: "*"
       #
       # API-KEY secret - should be a string of at least 32 random characters
@@ -81,7 +81,7 @@ services:
       # If left blank, a password will be generated and written into log (lowcoder-stacks/logs/api-service/api-service.log)
       LOWCODER_SUPERUSER_PASSWORD: 
     volumes:
-      - ./lowcoder-stacks:/lowcoder-stacks
-      - ./lowcoder-stacks/assets:/lowcoder/assets
+      - ./openflower-stacks:/lowcoder-stacks
+      - ./openflower-stacks/assets:/lowcoder/assets
     restart: unless-stopped
 

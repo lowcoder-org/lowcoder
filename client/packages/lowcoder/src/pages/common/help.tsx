@@ -179,7 +179,7 @@ const docHomeUrl = trans("docUrls.docHome");
 const changeLogDocUrl = trans("docUrls.changeLog");
 const introVideoUrl = trans("docUrls.introVideo");
 const issueUrl = trans("lowcoderUrl.createIssue");
-const discordUrl = trans("lowcoderUrl.discord");
+//const discordUrl = trans("lowcoderUrl.discord");
 
 function HelpDropdownComp(props: HelpDropdownProps) {
   const [showHelp, setShowHelp] = useState(true);
@@ -256,9 +256,9 @@ function HelpDropdownComp(props: HelpDropdownProps) {
         case "issue":
           window.open(issueUrl);
           return;
-        case "discord":
-          window.open(discordUrl);
-          return;
+        // case "discord":
+        //   window.open(discordUrl);
+        //   return;
         case "shortcutList":
           props.setShowShortcutList?.(true);
           return;
@@ -318,17 +318,17 @@ function HelpDropdownComp(props: HelpDropdownProps) {
               ),
             }
           : null,
-        discordUrl
-          ? {
-              key: "discord",
-              label: (
-                <ItemWrapper>
-                  <HelpDiscordIcon />
-                  <span>{trans("help.chat")}</span>
-                </ItemWrapper>
-              ),
-            }
-          : null,
+        // discordUrl
+        //   ? {
+        //       key: "discord",
+        //       label: (
+        //         <ItemWrapper>
+        //           <HelpDiscordIcon />
+        //           <span>{trans("help.chat")}</span>
+        //         </ItemWrapper>
+        //       ),
+        //     }
+        //   : null,
         {
           key: "editorTutorial",
           label: (

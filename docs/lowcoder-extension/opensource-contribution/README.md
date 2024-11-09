@@ -6,21 +6,21 @@ Here is a small guide on where to start and which style of development we prefer
 
 ## Core System
 
-Lowcoder has 3 main services, which are developed by the Community and us - the Lowcoder Team.
+OpenFlower has 3 main services, which are developed by the Community and us - the OpenFlower Team.
 
-* [Frontend App](https://github.com/lowcoder-org/lowcoder/tree/main/client) - JavaScript, TypeScript, React, ANTd
-* [API-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/api-service) - Java, Spring, Spring WebFlux - using MongoDB and Redis
-* [Node-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service) - Node.js, TypeScript
+* [Frontend App](https://github.com/flowerappeng-org/openflower/tree/main/client) - JavaScript, TypeScript, React, ANTd
+* [API-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/api-service) - Java, Spring, Spring WebFlux - using MongoDB and Redis
+* [Node-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/node-service) - Node.js, TypeScript
 
-These 3 services are the main deliverables and the codebase of Lowcoder. We are happy to work with you on your contribution and express that Frontend App and API-Service are fairly complex systems. You would need to reserve a bit of time to get to know it and understand the details.
+These 3 services are the main deliverables and the codebase of OpenFlower. We are happy to work with you on your contribution and express that Frontend App and API-Service are fairly complex systems. You would need to reserve a bit of time to get to know it and understand the details.
 
 ## Plugins and Extensions
 
-Extension of Lowcoder for and with the Community happens mainly by the Plugins and Extensions at defined Interfaces. Lowcoder has the following Plugin Systems:
+Extension of OpenFlower for and with the Community happens mainly by the Plugins and Extensions at defined Interfaces. OpenFlower has the following Plugin Systems:
 
-* [Visual Component Plugins](https://github.com/lowcoder-org/lowcoder-create-component-plugin)
+* [Visual Component Plugins](https://github.com/flowerappeng-org/openflower-create-component-plugin)
 * Plugin API of API Service
-* [Data-Source Plugins in the Node-Service](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service/src/plugins)
+* [Data-Source Plugins in the Node-Service](https://github.com/flowerappeng-org/openflower/tree/main/server/node-service/src/plugins)
 
 {% hint style="success" %}
 We suggest looking first into the development of these plugins, as they offer a good abstraction that speeds up development and offers a good and fast value for the community.
@@ -30,14 +30,14 @@ We suggest looking first into the development of these plugins, as they offer a 
 
 The main steps are:
 
-* Fork of [this Repository](https://github.com/lowcoder-org/lowcoder-create-component-plugin)
+* Fork of [this Repository](https://github.com/flowerappeng-org/openflower-create-component-plugin)
 * Local installation & preparation
 * Developing & preview the Components
 * Publish the Components to NPM
 
 1. Forking of the Repository
 
-To ensure you can develop your Component Plugin including as your repository, please fork (update) our lowcoder-org/lowcoder-create-component-plugin repository first.&#x20;
+To ensure you can develop your Component Plugin including as your repository, please fork (update) our Flowerappeng-org/openflower-create-component-plugin repository first.&#x20;
 
 Find here more information: [https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/working-with-forks/fork-a-repo)
 
@@ -46,22 +46,22 @@ Find here more information: [https://docs.github.com/en/pull-requests/collaborat
 Now you can clone your new repository to develop local.
 
 ```
-https://github.com/<your org>/lowcoder-create-component-plugin.git
+https://github.com/<your org>/openflower-create-component-plugin.git
 
 or 
 
-git@github.com:<your org>/lowcoder-create-component-plugin.git
+git@github.com:<your org>/openflower-create-component-plugin.git
 ```
 
 3. Local Development preparation
 
-Navigate your terminal or bash to your /root folder of the cloned repository to install general dependencies and the Lowcoder SDK
+Navigate your terminal or bash to your /root folder of the cloned repository to install general dependencies and the OpenFlower SDK
 
 ```bash
 yarn install
 ```
 
-Execute the Plugin Builder Script. Please name your plugin with the prefix **"lowcoder-comp-"** to make it easy for other users to find Lowcoder Component Pluins on NPM
+Execute the Plugin Builder Script. Please name your plugin with the prefix **"lowcoder-comp-"** to make it easy for other users to find OpenFlower Component Pluins on NPM
 
 ```bash
 npm create lowcoder-plugin lowcoder-comp-my-plugin
@@ -89,11 +89,11 @@ This will start the local development server and open a browser on [http://local
 
 #### Start developing
 
-After the preparation, a skeleton project for Lowcoder Component Plugin development was created and the SDK prepared. A new browser window should open at [http://localhost:9000](http://localhost:9000/) This is the Components Preview, which allows you to see your new component in action, as it would work in the Lowcoder Editor.
+After the preparation, a skeleton project for OpenFlower Component Plugin development was created and the SDK prepared. A new browser window should open at [http://localhost:9000](http://localhost:9000/) This is the Components Preview, which allows you to see your new component in action, as it would work in the OpenFlower Editor.
 
 Data, methods, and properties are visible and interactive, so you can test your Component during development. The view will automatically refresh.
 
-Find the /src folder in the new created project. Here are some demonstration files prepared. The Lowcoder Component Builder makes the development & publishing of multiple individual components as bundle possible. In the left navigation of the Components Preview you can switch between your components.
+Find the /src folder in the new created project. Here are some demonstration files prepared. The OpenFlower Component Builder makes the development & publishing of multiple individual components as bundle possible. In the left navigation of the Components Preview you can switch between your components.
 
 Before you publish, please cleanup all demonstration files like the "HelloWorldComp.tsx" and the references to HelloWorldComp.
 
@@ -106,7 +106,7 @@ Folder Structure:
 * └ src/
   * └ index.ts
 
-In "icons" you will place an SVG, which will later displayed to drag the component to the Lowcoder Editor Canvas. In "locales" you place translation files for all displayed texts of your components And in the "src" folder you place all code. Make sure, your Copmonent is referenced right in the index.ts file.
+In "icons" you will place an SVG, which will later displayed to drag the component to the OpenFlower Editor Canvas. In "locales" you place translation files for all displayed texts of your components And in the "src" folder you place all code. Make sure, your Copmonent is referenced right in the index.ts file.
 
 #### Publish a Component Plugin
 
@@ -116,25 +116,25 @@ With the following command you can publish the script to the NPM repository:
 yarn build --publish
 ```
 
-## Lowcoder Marketplace
+## OpenFlower Marketplace
 
-Next to this direct code development contribution, we also encourage you to contribute smart solutions and reusable Apps and Modules on the [Lowcoder Marketplace](https://app.lowcoder.cloud/marketplace) so other users can see solution patterns and Application Building Blocks.&#x20;
+Next to this direct code development contribution, we also encourage you to contribute smart solutions and reusable Apps and Modules on the [OpenFlower Marketplace](https://prod-us1.openflower.org/marketplace) so other users can see solution patterns and Application Building Blocks.&#x20;
 
 You can follow the [Guide for Apps & Modules to publish on the Marketplace](../../workspaces-and-teamwork/lowcoder-marketplace.md)
 
 ## Code Contribution to Core System
 
-We feel honored to work with you together on Lowcoder as a Platform! A good start and procedure that allows a smooth development process is like this:
+We feel honored to work with you together on OpenFlower as a Platform! A good start and procedure that allows a smooth development process is like this:
 
-1. [Fork the Repository](https://github.com/lowcoder-org/lowcoder/fork)
+1. [Fork the Repository](https://github.com/flowerappeng-org/openflower/fork)
 2. Clone it into your local environment / IDE
 3. Create a workable local Development Environment
 4. Create your Feature-Branch from **/main** branch to get the latest stable Environment
 5. **Develop your magic and enjoy the ride!**
-6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/lowcoder-org/lowcoder/tree/dev) of the Lowcoder Main Repository
+6. Raise a PR / Merge Request to [**/dev branch**](https://github.com/flowerappeng-org/openflower/tree/dev) of the OpenFlower Main Repository
 7. Follow up if / when we have questions at your Merge Request
 
-Please ask us directly for any related questions so we can help you the fastest way. We kindly ask you to use our [Discord Server](https://discord.gg/An6PgWpegg) for these questions. Here, especially the [#contribute channel](https://discord.gg/An6PgWpegg).
+Please ask us directly for any related questions so we can help you the fastest way. 
 
 ### Frontend App
 
@@ -143,7 +143,7 @@ Please ask us directly for any related questions so we can help you the fastest 
 Simply run the below command to start a local backend server. This is the fasted way. The Backend typically changes less frequent, so you can just run the latest version&#x20;
 
 ```bash
-docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
 
 For more information, view our [docs](../../setup-and-run/self-hosting/)
@@ -156,23 +156,23 @@ You also can build the image from the latest Source code or a special branch. Ho
 2. Use the command below to build a Docker image :
 
 ```bash
-docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
+docker build -f ./deploy/docker/Dockerfile -t openflower-dev .
 ```
 
 3. Start the fresh built Docker image
 
 ```bash
-docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoder-dev
+docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" openflower-dev
 ```
 
 #### Start developing
 
-As soon as the development server is ready you can access Lowcoder by [http://localhost:3000](http://localhost:3000). Now, you can start to develop locally.
+As soon as the development server is ready you can access OpenFlower by [http://localhost:3000](http://localhost:3000). Now, you can start to develop locally.
 
 1. Check out the source code.&#x20;
 
 ```bash
-git@github.com:your-org/lowcoder.git
+git@github.com:your-org/openflower.git
 ```
 
 1. Change to **/client** dir in the source dir.
@@ -253,7 +253,7 @@ Create a launch.json file in the .vscode folder of your newly opened workspace. 
             "name": "ServerApplication",
             "request": "launch",
             "mainClass": "org.lowcoder.api.ServerApplication",
-            "projectName": "Lowcoder API Service",
+            "projectName": "OpenFlower API Service",
             "vmArgs": "-Dpf4j.mode=development -Dpf4j.pluginsDir=./server/api-service/lowcoder-plugins -Dspring.profiles.active=lowcoder -XX:+AllowRedefinitionToAddDeleteMethods --add-opens java.base/java.nio=ALL-UNNAMED"
         }
     ],
@@ -292,7 +292,7 @@ cd server
 mvn clean package
 ```
 
-After Maven package runs successfully, you can start the Lowcoder server with IntelliJ IDEA.
+After Maven package runs successfully, you can start the OpenFlower server with IntelliJ IDEA.
 
 1. Check out the source code and change to source dir.
 2. Use the Terminal of your IDE to execute the following commands. First, change to the server directory.
@@ -332,7 +332,7 @@ If you run the Api-Service locally on Port 8080, remember the URL for the Fronte
 Please read more information in the following guides:
 
 1. [How to develop a DataSouce Plugin](develop-data-source-plugins.md)
-2. [Data Source Plugin Skeleton](https://github.com/lowcoder-org/lowcoder-datasource-plugin-skeleton)
+2. [Data Source Plugin Skeleton] - todo fix this.()
 
 #### Preparation
 

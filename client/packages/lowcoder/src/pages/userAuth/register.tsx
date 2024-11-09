@@ -107,7 +107,7 @@ function UserRegister() {
         >
           {trans("userAuth.register")}
         </ConfirmButton>
-        <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
+        {/* <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} /> */}
         {organizationId && (
           <ThirdPartyAuth
             invitationId={invitationId}

@@ -1,12 +1,12 @@
 ---
-description: Application Sharing in Lowcoder
+description: Application Sharing in OpenFlower
 ---
 
 # Share an App
 
 ## Overview
 
-Application sharing in Lowcoder allows Application Creators to share their applications with specific users, user groups, or the public. This functionality is accessible via the sharing dialogue and supports various sharing states and roles.
+Application sharing in OpenFlower allows Application Creators to share their applications with specific users, user groups, or the public. This functionality is accessible via the sharing dialogue and supports various sharing states and roles.
 
 ## Sharing States
 
@@ -39,14 +39,14 @@ There are three primary methods for sharing an application:
 
 ### Public to Marketplace
 
-"Public to Marketplace" is a special sharing case designed to showcase applications in a Lowcoder marketplace.&#x20;
+"Public to Marketplace" is a special sharing case designed to showcase applications in a OpenFlower marketplace.&#x20;
 
 <figure><img src="../.gitbook/assets/App  Share Marketplace.png" alt="" width="563"><figcaption></figcaption></figure>
 
 This feature supports two types of marketplaces:
 
-1. **Global Marketplace**: Accessible at app.lowcoder.cloud, where apps are available to everyone.
-2. **Local Marketplace**: Individual Lowcoder installations can host their own marketplaces, accessible only to their users.
+1. **Global Marketplace**: Accessible at https://prod-us1.openflower.org/, where apps are available to everyone.
+2. **Local Marketplace**: Individual OpenFlower installations can host their own marketplaces, accessible only to their users.
 
 The `LOWCODER_MARKETPLACE_PRIVATE_MODE` environment variable controls the visibility of apps on local marketplaces:
 

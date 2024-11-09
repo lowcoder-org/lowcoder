@@ -4,11 +4,11 @@
 
 Keyboard shortcuts are a powerful tool that can greatly improve productivity and efficiency when working on a computer. With the ability to assign custom keystrokes to frequently used commands, tasks can be completed quickly and with minimal effort. This is particularly useful for individuals who rely heavily on keyboard input, such as programmers, writers, or designers.
 
-Keyboard shortcuts have been around for decades, and most software applications come with a set of default shortcuts. Lowcoder offers built-in keyboard shortcuts to help you work on the interface faster and more efficiently with improved controlling precision.
+Keyboard shortcuts have been around for decades, and most software applications come with a set of default shortcuts. OpenFlower offers built-in keyboard shortcuts to help you work on the interface faster and more efficiently with improved controlling precision.
 
 ### Global
 
-Global keyboard shortcuts across Lowcoder interfaces.
+Global keyboard shortcuts across OpenFlower interfaces.
 
 | Shortcut | Description               |
 | -------- | ------------------------- |
@@ -67,5 +67,5 @@ Keyboard shortcuts in the Text editor.
 You can define custom keyboard shortcuts at app-level. Go to ⚙️ on the left side-bar > **App settings** > **Custom shortcuts**. Click **+ Add** to add new shortcuts for specific actions. Then, you can click a custom shortcut to midify it or click the three dots `···` to delete it.
 
 {% hint style="info" %}
-Lowcoder keyboard shortcuts are better set to avoid conflicts with the browser's keyboard shortcuts, in case they can not be successfully triggered.
+OpenFlower keyboard shortcuts are better set to avoid conflicts with the browser's keyboard shortcuts, in case they can not be successfully triggered.
 {% endhint %}

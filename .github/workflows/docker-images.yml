@@ -1,39 +1,38 @@
-name: Build lowcoder docker images
+name: Build OpenFlower docker images
 
 on:
   workflow_dispatch:
     inputs:
       imageTag:
         type: choice
-        description: 'Choose a tag for built docker image(s)'
+        description: "Choose a tag for built docker image(s)"
         required: true
-        default: 'latest'
+        default: "latest"
         options:
-        - latest
-        - test
-        - 2.4.6
+          - latest
+          - test
       build_allinone:
         type: boolean
-        description: 'Build the All-In-One image'
+        description: "Build the All-In-One image"
         default: true
       build_frontend:
         type: boolean
-        description: 'Build the Frontend image'
+        description: "Build the Frontend image"
         default: true
       build_nodeservice:
         type: boolean
-        description: 'Build the Node service image'
+        description: "Build the Node service image"
         default: true
       build_apiservice:
         type: boolean
-        description: 'Build the API service image'
+        description: "Build the API service image"
         default: true
   push:
     branches: dev
     paths:
-      - 'client/**'
-      - 'server/**'
-      - 'deploy/docker/**'
+      - "client/**"
+      - "server/**"
+      - "deploy/docker/**"
   release:
     types: [released]
 
@@ -46,20 +45,20 @@ jobs:
         run: |
           # Get the short SHA of last commit
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "${GITHUB_ENV}"
-          
+
           # Get branch name - we don't use github.ref_head_name since we don't build on PRs
           echo "BRANCH_NAME=${{ github.ref_name }}" >> "${GITHUB_ENV}"
-          
+
           # Set docker image tag
           echo "IMAGE_TAG=${{ inputs.imageTag || github.ref_name }}" >> "${GITHUB_ENV}"
-          
+
           # Control which images to build
           echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
 
-      - name: Checkout lowcoder source
+      - name: Checkout OpenFlower source
         uses: actions/checkout@v4
         with:
           ref: ${{ env.BRANCH_NAME }}
@@ -70,12 +69,12 @@ jobs:
           username: ${{ secrets.DOCKER_LOGIN }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Setup Docker Buildx with cloud driver
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "lowcoderorg/lowcoder-cloud-builder"
+      # - name: Setup Docker Buildx with cloud driver
+      #   uses: docker/setup-buildx-action@v3
+      #   with:
+      #     version: "lab:latest"
+      #     driver: cloud
+      #     endpoint: "flowerappengorg/openflower-cloud-builder"
 
       - name: Build and push the all-in-one image
         if: ${{ env.BUILD_ALLINONE == 'true' }}
@@ -87,11 +86,10 @@ jobs:
           build-args: |
             REACT_APP_ENV=production
             REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
+          #   linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce:${{ env.IMAGE_TAG }}
+          tags: flowerappengorg/openflower:${{ env.IMAGE_TAG }}
 
       - name: Build and push the frontend image
         if: ${{ env.BUILD_FRONTEND == 'true' }}
@@ -104,11 +102,10 @@ jobs:
           build-args: |
             REACT_APP_ENV=production
             REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
+          #       linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-frontend:${{ env.IMAGE_TAG }}
+          tags: flowerappengorg/openflower-frontend:${{ env.IMAGE_TAG }}
 
       - name: Build and push the node service image
         if: ${{ env.BUILD_NODESERVICE == 'true' }}
@@ -116,11 +113,10 @@ jobs:
         with:
           file: ./deploy/docker/Dockerfile
           target: lowcoder-ce-node-service
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
+          #        linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-node-service:${{ env.IMAGE_TAG }}
+          tags: flowerappengorg/openflower-node-service:${{ env.IMAGE_TAG }}
 
       - name: Build and push the API service image
         if: ${{ env.BUILD_APISERVICE == 'true' }}
@@ -128,9 +124,7 @@ jobs:
         with:
           file: ./deploy/docker/Dockerfile
           target: lowcoder-ce-api-service
-          platforms: |
-            linux/amd64
-            linux/arm64
+          platforms: linux/amd64
+          #          linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-api-service:${{ env.IMAGE_TAG }}
-
+          tags: flowerappengorg/openflower-api-service:${{ env.IMAGE_TAG }}

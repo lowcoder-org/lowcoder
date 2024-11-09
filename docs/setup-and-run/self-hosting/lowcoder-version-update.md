@@ -1,8 +1,8 @@
-# Lowcoder Version Update
+# OpenFlower Version Update
 
-## Lowcoder Versioning Scheme
+## OpenFlower Versioning Scheme
 
-We try to respect as good as possible the Semantic Versioning for Lowcoder Versions
+We try to respect as good as possible the Semantic Versioning for OpenFlower Versions
 
 v2.4.1 for example, means:
 
@@ -22,25 +22,25 @@ After a new Minor Version we deliver typically the next patch version quite fast
 The patch versions > 0 are typically seen as Stable Version. It should be ok to install these directly as update.
 {% endhint %}
 
-### Lowcoder SDK
+### OpenFlower SDK
 
 The SDK has an independent versioning - yet still following the Semantic Versioning Scheme.
 
-Since Lowcoder v2.4.0 we follow the principle, that the SDK will have the same Major and Minor Version as the Main Lowcoder Version - but it can have an independent Patch-Version.
+Since OpenFlower v2.4.0 we follow the principle, that the SDK will have the same Major and Minor Version as the Main OpenFlower Version - but it can have an independent Patch-Version.
 
 ### External Component Plugins
 
-Also external Component Plugins follow the Sematic Versioning Scheme with Major, Minor, and Patch versions. However, they are independent from the Lowcoder or Lowcoder SDK Versions.
+Also external Component Plugins follow the Sematic Versioning Scheme with Major, Minor, and Patch versions. However, they are independent from the OpenFlower or OpenFlower SDK Versions.
 
 ### Docker Images
 
-The provided Docker Images from Lowcoder-Org follow the Sematic Versioning of Lowcoder. For every Release of the Codebase with a new Version, we also offer the pre-built Docker Containers for the All-in-one and Multi-Docker installation.
+The provided Docker Images from OpenFlower-Org follow the Sematic Versioning of OpenFlower. For every Release of the Codebase with a new Version, we also offer the pre-built Docker Containers for the All-in-one and Multi-Docker installation.
 
-{% embed url="https://hub.docker.com/r/lowcoderorg/lowcoder-ce/tags" %}
-Lowcoder pre-built Docker Images on Docker Hub
+{% embed url="https://hub.docker.com/r/flowerappengorg/openflower/tags" %}
+OpenFlower pre-built Docker Images on Docker Hub
 {% endembed %}
 
-Next to the released Version Tags of Lowcoder there are 2 more tags with relevance:
+Next to the released Version Tags of OpenFlower there are 2 more tags with relevance:
 
 * /latest - These images contain typically a state of development which is somewhat stable - but not yet a released Patch Version. Critical Bugs, that we solved are fastest to get in the /latest tag. The /latest tag always based on the previous last published Patch Version.
 * /dev - these images can be seen like Nightly Builds. They contain evetually the latest stage of our development and are only for testing purposes.
@@ -50,26 +50,26 @@ Do not use a /dev tag image in production. These images are only to use in test 
 {% endhint %}
 
 {% hint style="info" %}
-We suggest only a Multi-Docker Image installation for Production use. The all-in-one image "lowcoderorg/lowcoder-ce" is suitable to test and introduce Lowcoder in an easy way.
+We suggest only a Multi-Docker Image installation for Production use. The all-in-one image "flowerappengorg/openflower" is suitable to test and introduce OpenFlower in an easy way.
 {% endhint %}
 
 ## Version Update
 
-To **update** from an older to a newer version or Lowcoder, please follow this guide:
+To **update** from an older to a newer version or OpenFlower, please follow this guide:
 
 {% hint style="warning" %}
 Please always make a Backup / Copy of your /lowcoder-stacks folder.
 {% endhint %}
 
-The magic behind an easy update is to make use of the /lowcoder-stacks mounted folder in the docker installations. That enables you to change the Versions of Lowcoder but not touch the Application Data. In the mounted /lowcoder-stacks folder, all MongoDB application data as also Logs and Assets are stored.&#x20;
+The magic behind an easy update is to make use of the /lowcoder-stacks mounted folder in the docker installations. That enables you to change the Versions of OpenFlower but not touch the Application Data. In the mounted /lowcoder-stacks folder, all MongoDB application data as also Logs and Assets are stored.&#x20;
 
-In other words, if you not use an external MongoDB Service, the Lowcoder MongoDB stores the Application Data of all your workspaces and Apps there, enabling you to exchange the docker without needing further backup and restore actions.
+In other words, if you not use an external MongoDB Service, the OpenFlower MongoDB stores the Application Data of all your workspaces and Apps there, enabling you to exchange the docker without needing further backup and restore actions.
 
-Based on the lowcoder-stacks folder, the data of a Lowcoder Installation can be transitioned without losses when you update to a new version of Lowcoder.&#x20;
+Based on the lowcoder-stacks folder, the data of a OpenFlower Installation can be transitioned without losses when you update to a new version of OpenFlower.&#x20;
 
 <figure><img src="../../.gitbook/assets/Deployment  Docker lowcoder-stacks.png" alt="" width="563"><figcaption><p>Mount local folder - f.e. in Docker Desktop</p></figcaption></figure>
 
-### 1) Stop your Lowcoder Docker Containers:
+### 1) Stop your OpenFlower Docker Containers:
 
 With Docker Compose
 
@@ -102,7 +102,7 @@ If you did follow the /lowcoder-stacks folder mounting, no data would be lost.
 
 Even if it should be never a problem, still we ask you kindly always to make a copy of the whole folder. Sometimes we have no other channce than to introduce breaking changes and we want to make sure you will never loss any data.
 
-### 3) Download the latest Lowcoder Docker images.
+### 3) Download the latest OpenFlower Docker images.
 
 #### With Docker Compose
 
@@ -120,16 +120,16 @@ If you use Docker Desktop, you can pull the /latest tag or a specific version ta
 For every Major Version, we likely introduce new ENV Variables. This is the reason to download the latest docker compose file. Naturally, you also can update your local copy with the new ENV Variables and other new config structures.
 {% endhint %}
 
-Edit the docker-compose file to your needs, but make sure to update only the settings. The following values must match your previous version to keep the Lowcoder MongoDB accessible for your stored Data Source Secrets.
+Edit the docker-compose file to your needs, but make sure to update only the settings. The following values must match your previous version to keep the OpenFlower MongoDB accessible for your stored Data Source Secrets.
 
 * LOWCODER\_DB\_ENCRYPTION\_PASSWORD
 * LOWCODER\_DB\_ENCRYPTION\_SALT
 
 {% hint style="info" %}
-If you lose or change the Encryption Password & Salt, the Lowcoder Database on MongoDB will work as expected - only the existing stored Credentials to Data Sources are "lost" / not accessible.
+If you lose or change the Encryption Password & Salt, the OpenFlower Database on MongoDB will work as expected - only the existing stored Credentials to Data Sources are "lost" / not accessible.
 {% endhint %}
 
-### 5) Run the new Lowcoder Docker-Image
+### 5) Run the new OpenFlower Docker-Image
 
 After the image is pulled, you can run the image (create a new container) and configure directly the Ports as well as the ENV Variables.&#x20;
 

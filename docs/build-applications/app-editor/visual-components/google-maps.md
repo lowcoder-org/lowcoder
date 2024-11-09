@@ -1,16 +1,16 @@
 # Google Maps
 
-Lowcoder offers an innovative approach to integrating Geomaps from Google with an advanced geo-data-based overlay of eCharts, providing a dynamic and interactive mapping solution. This integration is particularly powerful for applications requiring real-time data visualization on geographical maps.
+OpenFlower offers an innovative approach to integrating Geomaps from Google with an advanced geo-data-based overlay of eCharts, providing a dynamic and interactive mapping solution. This integration is particularly powerful for applications requiring real-time data visualization on geographical maps.
 
-The core feature of this integration is the seamless combination of Google Geomaps with eCharts overlays. Google Geomaps provides a robust and familiar mapping interface, known for its detailed and accurate geographical data. By overlaying eCharts, Lowcoder enables the addition of rich, interactive data visualizations directly onto these maps. This overlay capability is not just about static data representation; it supports dynamic, real-time data updates, making it ideal for applications that require up-to-the-minute information, such as traffic monitoring, weather updates, or tracking movements in logistics.
+The core feature of this integration is the seamless combination of Google Geomaps with eCharts overlays. Google Geomaps provides a robust and familiar mapping interface, known for its detailed and accurate geographical data. By overlaying eCharts, OpenFlower enables the addition of rich, interactive data visualizations directly onto these maps. This overlay capability is not just about static data representation; it supports dynamic, real-time data updates, making it ideal for applications that require up-to-the-minute information, such as traffic monitoring, weather updates, or tracking movements in logistics.
 
-<figure><img src="../../../.gitbook/assets/Screenshot 2023-10-27 at 22.07.19.png" alt=""><figcaption><p>Distribution of Lowcoder Users worldwide (10.2023)</p></figcaption></figure>
+<figure><img src="../../../.gitbook/assets/Screenshot 2023-10-27 at 22.07.19.png" alt=""><figcaption><p>Distribution of OpenFlower Users worldwide (10.2023)</p></figcaption></figure>
 
-Lowcoder ensures that the data displayed in the eCharts overlay is not only current but can also be updated in real-time with the [Stream Query](../../../connect-your-data/data-sources-in-lowcoder/websocket-datasource.md). This is crucial for scenarios where timely data is essential for decision-making. Users can see changes as they happen, providing an interactive and engaging experience.
+OpenFlower ensures that the data displayed in the eCharts overlay is not only current but can also be updated in real-time with the [Stream Query](../../../connect-your-data/data-sources-in-lowcoder/websocket-datasource.md). This is crucial for scenarios where timely data is essential for decision-making. Users can see changes as they happen, providing an interactive and engaging experience.
 
-The eCharts overlay on Google Geomaps in Lowcoder also offers a high degree of customization and interactivity. Users can zoom in and out, pan across different regions, and interact with the data points on the map. This interactivity is enhanced with tooltips, clickable elements, and various chart types like heatmaps, scatter plots, or line graphs, all geo-referenced and layered over the map.
+The eCharts overlay on Google Geomaps in OpenFlower also offers a high degree of customization and interactivity. Users can zoom in and out, pan across different regions, and interact with the data points on the map. This interactivity is enhanced with tooltips, clickable elements, and various chart types like heatmaps, scatter plots, or line graphs, all geo-referenced and layered over the map.
 
-### Using Geomap in Lowcoder
+### Using Geomap in OpenFlower
 
 As the first step, place a new Chart from the right Components panel on the canvas.
 
@@ -22,13 +22,13 @@ Now you can select in the Component Properties the type "Map"
 
 You can use the Properties "Zoomlevel, Longitude, and Latitude" to define the first impression of the GeoMap when the App is displayed.
 
-In Version Lowcoder 2.1.x the eCharts Map is configurable like other eCharts by the "Options JSON"&#x20;
+In Version OpenFlower 2.1.x the eCharts Map is configurable like other eCharts by the "Options JSON"&#x20;
 
 {% hint style="info" %}
 For more and deeper information check the eCharts documentation. [https://echarts.apache.org/en/api.html#echartsInstance.setOption](https://echarts.apache.org/en/api.html#echartsInstance.setOption)
 {% endhint %}
 
-As eCharts is already integrated into Lowcoder, you only need to prepare and set the Options-JSON Data. The configuration follows the standard eCharts notation.
+As eCharts is already integrated into OpenFlower, you only need to prepare and set the Options-JSON Data. The configuration follows the standard eCharts notation.
 
 In the data section, you have nevertheless the possibility not only to set chart data but also the geo-point (lat, long), where the chart data should be displayed. Each Object in the data array will be one chart element on the map.
 
@@ -78,7 +78,7 @@ The section "encode" helps to tell the eCharts Map, which entry (array index num
 
 ### Dynamic Data & Function binding
 
-As in other components of Lowcoder, you can bind data and functions dynamically to the map.
+As in other components of OpenFlower, you can bind data and functions dynamically to the map.
 
 ```javascript
 {

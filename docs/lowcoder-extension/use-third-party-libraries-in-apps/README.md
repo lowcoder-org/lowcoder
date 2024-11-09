@@ -1,10 +1,10 @@
 # Use third-party libraries in Apps
 
-Every developer learns one of the most important principles of software engineering early in their career: DRY (Don’t Repeat Yourself). Using third-party libraries can save you time as you do not need to develop the functionality that the library provides. Lowcoder provides some built-in third-party libraries for common uses, and you can manually import other libraries on demand.
+Every developer learns one of the most important principles of software engineering early in their career: DRY (Don’t Repeat Yourself). Using third-party libraries can save you time as you do not need to develop the functionality that the library provides. OpenFlower provides some built-in third-party libraries for common uses, and you can manually import other libraries on demand.
 
 ## Built-in libraries
 
-Lowcoder provides some JavaScript built-in libraries for use.
+OpenFlower provides some JavaScript built-in libraries for use.
 
 | Library   | What for                                                                                                              | Docs                                                                 | Version                    |
 | --------- | --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | -------------------------- |
@@ -35,14 +35,14 @@ return Papa.parse("name|age\nJohn Doe|30\nJane Doe|25", {delimiter: "|"})
 
 ## Import third-party libraries
 
-Lowcoder supports setting up preloaded JavaScript and libraries, which can either be imported for individual apps or the whole workspace.
+OpenFlower supports setting up preloaded JavaScript and libraries, which can either be imported for individual apps or the whole workspace.
 
 {% hint style="danger" %}
 Only libraries using the [UMD (Universal Module Definition)](https://github.com/umdjs/umd) approach are supported.&#x20;
 {% endhint %}
 
 {% hint style="success" %}
-As soon as imported/bound to an App or workspace, Lowcoder manages the pre-loading of these libraries automatically in the editor and app view.
+As soon as imported/bound to an App or workspace, OpenFlower manages the pre-loading of these libraries automatically in the editor and app view.
 {% endhint %}
 
 * **App-level** libraries get loaded only in the app where they were defined. This means a library imported to app A is not loaded for app B. The reverse is also true. A library imported for app B is not available to app A unless it is explicitly imported to app A as well.
@@ -107,7 +107,7 @@ You can check popular CDNs if they host your desired library as a minified packa
 
 ### Import / bind at the app level
 
-Navigate to the settings page and then click the plus sign **+** under the **JavaScript library** tab. Paste the **library** link and click **Add New**.  Lowcoder will now check, if the external library will be compatible and securely usable.
+Navigate to the settings page and then click the plus sign **+** under the **JavaScript library** tab. Paste the **library** link and click **Add New**.  OpenFlower will now check, if the external library will be compatible and securely usable.
 
 You can also click the download icon to quickly download any recommended JS library.
 
@@ -120,7 +120,7 @@ Now, you can create a JS query and insert code.
 ```
 
 return window.cowsay.say({
-    text : "Lowcoder is cool", e : "oO", T : "U "
+    text : "OpenFlower is cool", e : "oO", T : "U "
 })
 ```
 
@@ -140,6 +140,6 @@ window.cowsay.say(...) - does the job.
 
 ### Import/bind at the workspace level
 
-Go to [Lowcoder's homepage](https://www.lowcoder.cloud/), select **Settings** > **Advanced**, and click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to add any recommended JS library quickly. The installed libraries are accessible from any app within your workspace.
+Go to [OpenFlower's homepage](https://prod-us1.openflower.org/), select **Settings** > **Advanced**, and click **Add** under the **JavaScript library** tab. Paste the link of the third-party JS library and click **Add New** to add it to your workspace. You can also click the download icon to add any recommended JS library quickly. The installed libraries are accessible from any app within your workspace.
 
 <figure><img src="../../.gitbook/assets/Admin  external Libraries.png" alt=""><figcaption><p>Bind an external JS Library to all Apps of a Workspace</p></figcaption></figure>

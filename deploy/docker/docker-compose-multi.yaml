@@ -2,14 +2,14 @@ version: "3"
 services:
 
   ##
-  ## Start services required for Lowcoder (MongoDB and Redis)
+  ## Start services required for OpenFlower (MongoDB and Redis)
   ##
   mongodb:
     image: "mongo:7.0"
     container_name: mongodb
     environment:
-      MONGO_INITDB_DATABASE: lowcoder
-      MONGO_INITDB_ROOT_USERNAME: lowcoder
+      MONGO_INITDB_DATABASE: openflower
+      MONGO_INITDB_ROOT_USERNAME: openflower
       MONGO_INITDB_ROOT_PASSWORD: secret123
     volumes:
       - ./lowcoder-stacks/data/mongodb:/data/db
@@ -22,11 +22,11 @@ services:
 
 
   ##
-  ## Start Lowcoder backend services (api-service and node-service)
+  ## Start OpenFlower backend services (api-service and node-service)
   ##
-  lowcoder-api-service:
-    image: lowcoderorg/lowcoder-ce-api-service:latest
-    container_name: lowcoder-api-service
+  openflower-api-service:
+    image: flowerappengorg/openflower-api-service:latest
+    container_name: openflower-api-service
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "8080:8080"
@@ -34,9 +34,9 @@ services:
       LOWCODER_PUBLIC_URL: "http://localhost:3000/"
       LOWCODER_PUID: "9001"
       LOWCODER_PGID: "9001"
-      LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
+      LOWCODER_MONGODB_URL: "mongodb://openflower:secret123@mongodb/openflower?authSource=admin"
       LOWCODER_REDIS_URL: "redis://redis:6379"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+      LOWCODER_NODE_SERVICE_URL: "http://openflower-node-service:6060"
       LOWCODER_MAX_QUERY_TIMEOUT: 120
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_EMAIL_AUTH_ENABLED: "true"
@@ -48,8 +48,8 @@ services:
       #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
       #    to encrypt sensitive data in database so it is important to change the defaults
       #
-      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
-      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
+      LOWCODER_DB_ENCRYPTION_PASSWORD: "openflower.org"
+      LOWCODER_DB_ENCRYPTION_SALT: "openflower.org"
       LOWCODER_CORS_DOMAINS: "*"
       LOWCODER_MAX_ORGS_PER_USER: 100
       LOWCODER_MAX_MEMBERS_PER_ORG: 1000
@@ -89,26 +89,26 @@ services:
       - ./lowcoder-stacks/assets:/lowcoder/assets
 
 
-  lowcoder-node-service:
-    image: lowcoderorg/lowcoder-ce-node-service:latest
-    container_name: lowcoder-node-service
+  openflower-node-service:
+    image: flowerappengorg/openflower-node-service:latest
+    container_name: openflower-node-service
     # Enabled ports to be able to access backend from host
     # ports:
     #   - "6060:6060"
     environment:
       LOWCODER_PUID: "9001"
       LOWCODER_PGID: "9001"
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+      LOWCODER_API_SERVICE_URL: "http://openflower-api-service:8080"
     restart: unless-stopped
     depends_on:
-      - lowcoder-api-service
+      - openflower-api-service
 
   ##
-  ## Start Lowcoder web frontend
+  ## Start OpenFlower web frontend
   ##
-  lowcoder-frontend:
-    image: lowcoderorg/lowcoder-ce-frontend:latest
-    container_name: lowcoder-frontend
+  openflower-frontend:
+    image: flowerappengorg/openflower-frontend:latest
+    container_name: openflower-frontend
     ports:
       - "3000:3000"
     environment:
@@ -116,12 +116,16 @@ services:
       LOWCODER_PGID: "9001"
       LOWCODER_MAX_REQUEST_SIZE: 20m
       LOWCODER_MAX_QUERY_TIMEOUT: 120
-      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
-      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+      LOWCODER_API_SERVICE_URL: "http://openflower-api-service:8080"
+      LOWCODER_NODE_SERVICE_URL: "http://openflower-node-service:6060"
     restart: unless-stopped
     depends_on:
-      - lowcoder-node-service
-      - lowcoder-api-service
+      - openflower-node-service
+      - openflower-api-service
     volumes:
-      - ./lowcoder-stacks/assets:/lowcoder/assets
+      - ./openflower-stacks/assets:/lowcoder/assets
+    # Uncomment to serve local files as static assets
+    # volumes:
+    #   - ./static-assets:/openflower/assets
+
 

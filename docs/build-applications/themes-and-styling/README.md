@@ -1,6 +1,6 @@
 # Themes & Styling
 
-Good user interface (UI) improves user experience (UX) and increases user involvement. You can customize the style of each component in Lowcoder and use the theme feature to design the interface on a per-app or workspace basis. Features such as icon configuration and hint messages make the app interaction more user-friendly.
+Good user interface (UI) improves user experience (UX) and increases user involvement. You can customize the style of each component in OpenFlower and use the theme feature to design the interface on a per-app or workspace basis. Features such as icon configuration and hint messages make the app interaction more user-friendly.
 
 ## Component styles
 
@@ -12,11 +12,11 @@ You can also write JavaScript in the text box to conditionally control the style
 
 ## Themes
 
-The [theme feature](https://cloud.lowcoder.dev/setting/theme) helps you quickly set the styles of all your apps within a workspace, such as the primary color of the apps and the default background color of containers. Created Themes are available and in each app you would need to apply a Theme.
+The [theme feature](https://prod-us1.openflower.org/setting/theme) helps you quickly set the styles of all your apps within a workspace, such as the primary color of the apps and the default background color of containers. Created Themes are available and in each app you would need to apply a Theme.
 
 ### Create a theme
 
-Workspace admins have access to theme settings. On Lowcoder homepage, go to **Settings** > **Themes**, and click **+ Create theme**. Enter the theme name, and select one of the preset default themes as the starting point.
+Workspace admins have access to theme settings. On OpenFlower homepage, go to **Settings** > **Themes**, and click **+ Create theme**. Enter the theme name, and select one of the preset default themes as the starting point.
 
 Preview the real-time theme effect on the right.
 
@@ -26,7 +26,7 @@ For charts you can insert or modify the ECharts style JSON. Find a good way to c
 
 In the app editor, switch the theme by clicking ⚙️ on the left side-bar. Select a theme from **Theme setting**.
 
-You can also set the default theme for all your apps within a workspace in **Settings** > **Themes** on Lowcoder homepage.
+You can also set the default theme for all your apps within a workspace in **Settings** > **Themes** on OpenFlower homepage.
 
 ### Switching themes dynamically
 
@@ -39,7 +39,7 @@ You can access the global variable `theme` and call the method `theme.switchTo()
 
 #### Demo
 
-Combining Option lists and Events, end users can switch the theme within the app. For details, see [Change theme by code demo](https://cloud.lowcoder.dev/apps/63f84ca9f5f6f66102fedf3b/view).
+Combining Option lists and Events, end users can switch the theme within the app. For details, see [Change theme by code demo](todo).
 
 Follow the steps below to include this function in your app.
 
@@ -53,7 +53,7 @@ Follow the steps below to include this function in your app.
 
 ## Custom CSS
 
-Lowcoder provides a custom CSS feature for more flexible and customized UI styling.
+OpenFlower provides a custom CSS feature for more flexible and customized UI styling.
 
 ### App-level CSS
 
@@ -67,7 +67,7 @@ It is recommended to modify the component styles in **Properties** > **Style** b
 
 ### Preload CSS
 
-In Lowcoder, workspace admins can also set pre-loaded CSS styles for all apps within the workspace. Open the **Settings**, and click **Advanced** > **Preload CSS**.
+In OpenFlower, workspace admins can also set pre-loaded CSS styles for all apps within the workspace. Open the **Settings**, and click **Advanced** > **Preload CSS**.
 
 It is highly recommended to use CSS selectors as follows:
 
@@ -135,7 +135,7 @@ imageEditor
 scanner
 ```
 
-Avoid using class names that may change with iterations, such as `sc-dkiQaF bfTYCO`.Lowcoder supports [CSS pre-processor](https://stylis.js.org/), you can use CSS nesting to improve efficiency, for example:
+Avoid using class names that may change with iterations, such as `sc-dkiQaF bfTYCO`.OpenFlower supports [CSS pre-processor](https://stylis.js.org/), you can use CSS nesting to improve efficiency, for example:
 
 ```css
 .text1 {
@@ -182,7 +182,7 @@ To use custom font family, you need to define it first and then apply it. Insert
 
 ## User-friendly interaction
 
-Lowcoder always lives up to efficiency, security, and easy-to-use design.
+OpenFlower always lives up to efficiency, security, and easy-to-use design.
 
 ### Hide UI components
 
@@ -217,7 +217,7 @@ Notifications are messages directly sent to your users to remind them of the sta
 
 #### Global notifications
 
-Global notifications for certain user interactions give users timely feedback. Lowcoder offers four types of global notificaitons: **Information**, **Success**, **Warning** and **Error**.
+Global notifications for certain user interactions give users timely feedback. OpenFlower offers four types of global notificaitons: **Information**, **Success**, **Warning** and **Error**.
 
 You can set global notifications in three ways:
 

@@ -1,6 +1,6 @@
 # Table of contents
 
-* [Lowcoder overview](README.md)
+* [OpenFlower overview](README.md)
   * [The "Hello World" walk](lowcoder-overview/the-hello-world-walk.md)
 
 ## 🆕 Setup and run
@@ -10,10 +10,9 @@
   * [Access local database or API](setup-and-run/self-hosting/access-local-database-or-api.md)
   * [Google Cloud Platform](setup-and-run/self-hosting/google-cloud-platform.md)
   * [Heroku](setup-and-run/self-hosting/heroku.md)
-  * [Raspberry Pi](setup-and-run/self-hosting/raspberry-pi.md)
   * [Migration from Openblocks](setup-and-run/self-hosting/migration-from-openblocks.md)
   * [Update MongoDB Versions](setup-and-run/self-hosting/update-mongodb-versions.md)
-  * [Lowcoder Version Update](setup-and-run/self-hosting/lowcoder-version-update.md)
+  * [OpenFlower Version Update](setup-and-run/self-hosting/lowcoder-version-update.md)
   * [Traefik loadbalancer](setup-and-run/self-hosting/traefik-loadbalancer.md)
   * [SMTP Server](setup-and-run/self-hosting/smtp-server.md)
 * [Security](setup-and-run/security.md)
@@ -29,7 +28,7 @@
   * [GitHub](workspaces-and-teamwork/oauth/github.md)
   * [Generic OAuth Provider](workspaces-and-teamwork/oauth/generic-oauth-provider.md)
 * [Query library](workspaces-and-teamwork/query-library.md)
-* [Lowcoder Marketplace](workspaces-and-teamwork/lowcoder-marketplace.md)
+* [OpenFlower Marketplace](workspaces-and-teamwork/lowcoder-marketplace.md)
 
 ## ✨ Build Applications
 
@@ -62,13 +61,13 @@
   * [Design an efficient and user-friendly form](build-applications/themes-and-styling/design-an-efficient-and-user-friendly-form.md)
   * [Customize Styles](build-applications/themes-and-styling/customize-styles.md)
   * [Component Styling Possibilities](build-applications/themes-and-styling/component-styling-possibilities.md)
-* [Video Calls in Lowcoder](build-applications/video-calls-in-lowcoder.md)
+* [Video Calls in OpenFlower](build-applications/video-calls-in-lowcoder.md)
 
 ## 🚀 Connect your Data
 
 * [Data source basics](connect-your-data/data-source-basics/README.md)
   * [Configure IP allowlists](connect-your-data/data-source-basics/configure-ip-allowlists.md)
-* [Data sources in Lowcoder](connect-your-data/data-sources-in-lowcoder/README.md)
+* [Data sources in OpenFlower](connect-your-data/data-sources-in-lowcoder/README.md)
   * [APIs as Datasource](connect-your-data/data-sources-in-lowcoder/apis-as-datasource/README.md)
     * [REST API](connect-your-data/data-sources-in-lowcoder/apis-as-datasource/rest-api.md)
     * [GraphQL](connect-your-data/data-sources-in-lowcoder/apis-as-datasource/graphql.md)
@@ -121,7 +120,7 @@
   * [Native embed SDK](publish-apps/embedd-an-app/native-embed-sdk/README.md)
     * [Build the SDK from Source](publish-apps/embedd-an-app/native-embed-sdk/build-the-sdk-from-source.md)
 
-## 🔥 Lowcoder Extension
+## 🔥 OpenFlower Extension
 
 * [Opensource Contribution](lowcoder-extension/opensource-contribution/README.md)
   * [Develop UI components for Apps](lowcoder-extension/opensource-contribution/develop-ui-components-for-apps.md)
@@ -130,8 +129,5 @@
   * [Day.js Date handling](lowcoder-extension/use-third-party-libraries-in-apps/day.js-date-handling.md)
   * [Import your own JavaScript Library](lowcoder-extension/use-third-party-libraries-in-apps/import-your-own-javascript-library.md)
 * [Custom component](lowcoder-extension/custom-component.md)
-* [Lowcoder Open REST API](lowcoder-extension/lowcoder-open-rest-api.md)
+* [OpenFlower Open REST API](lowcoder-extension/lowcoder-open-rest-api.md)
 
-## Lowcoder for Enterprise
-
-* [Custom branding](lowcoder-for-enterprise/custom-branding.md)

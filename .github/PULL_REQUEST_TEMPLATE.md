@@ -3,7 +3,7 @@ Describe the big picture of your changes here to communicate to the maintainers 
 If it fixes a bug or resolves a feature request, be sure to link to that issue.
 
 ## Types of changes
-What types of changes does your code introduce to Lowcoder?  
+What types of changes does your code introduce to OpenFlower?  
 _Put an `x` in the boxes that apply._
 
 - [ ] Bugfix (non-breaking change which fixes an issue)

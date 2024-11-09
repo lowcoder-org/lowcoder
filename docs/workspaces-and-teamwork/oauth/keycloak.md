@@ -8,7 +8,7 @@ To use KeyCloak as an Auth Provider, you must install and maintain an own instal
 
 In KeyCloak you have to set up first a "Realm". This is a tenant within KeyCloak. Select (or create) your Realm with the top left corner menu.
 
-In your Realm, you can then create and configure a Client. We show here the most minimal configuration to enable Sign in and Sign up with KeyCloak for Lowcoder.
+In your Realm, you can then create and configure a Client. We show here the most minimal configuration to enable Sign in and Sign up with KeyCloak for OpenFlower.
 
 ### Setup a KeyCloak Client
 
@@ -20,25 +20,25 @@ Make sure the "Standard Flow" is activated, as also "Client authentication" and 
 
 <figure><img src="../../.gitbook/assets/KeyCloak Client setup 2.png" alt=""><figcaption></figcaption></figure>
 
-Configure the Lowcoder redirect URLs.
+Configure the OpenFlower redirect URLs.
 
 {% hint style="info" %}
-For the cloud, the "Valid redirect URI" is https://app.lowcoder.cloud
+For the cloud, the "Valid redirect URI" is https://prod-us1.openflower.org
 {% endhint %}
 
 <figure><img src="../../.gitbook/assets/KeyCloak Client Setup 3.png" alt=""><figcaption></figcaption></figure>
 
 After the setup, you can now look for the generated Client-Secret.
 
-<figure><img src="../../.gitbook/assets/KeyCloak Credencials Screen.png" alt=""><figcaption><p>copy the Client Secret for the setup of KeyCloak as Auth Provioder in Lowcoder</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/KeyCloak Credencials Screen.png" alt=""><figcaption><p>copy the Client Secret for the setup of KeyCloak as Auth Provioder in OpenFlower</p></figcaption></figure>
 
 Check the Settings to make sure the right capabilities are activated...
 
 <figure><img src="../../.gitbook/assets/KeyCloak Capabilities Screen.png" alt=""><figcaption></figcaption></figure>
 
-### KeyCloak as Lowcoder Auth Provider
+### KeyCloak as OpenFlower Auth Provider
 
-in Lowcoder, go to Settings > OAuth Provider and select "KeyCloak" in the "Add OAuth Provider Dialogue"
+in OpenFlower, go to Settings > OAuth Provider and select "KeyCloak" in the "Add OAuth Provider Dialogue"
 
 <figure><img src="../../.gitbook/assets/KeyCloak select Provider.png" alt=""><figcaption></figcaption></figure>
 

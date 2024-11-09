@@ -1,6 +1,6 @@
-# Data sources in Lowcoder
+# Data sources in OpenFlower
 
-Data sources offer a wide range of capabilities to empower your Lowcoder applications and enable various use cases, from data storage and analytics to communication and automation.
+Data sources offer a wide range of capabilities to empower your OpenFlower applications and enable various use cases, from data storage and analytics to communication and automation.
 
 As of 2023, you can use the following included Data sources:
 

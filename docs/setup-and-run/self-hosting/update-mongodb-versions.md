@@ -12,9 +12,9 @@ An incremental update procedure is possible without losing data. However, the ma
 
 Suppose you currently run v4 and want to update to v7- these are the necessary steps for the all-in-one docker image. If you operate a multi-image installation, adap the paths to your data location for your MongoDB and the database must be stopped before the process is started.
 
-### 1) Stop Lowcoder
+### 1) Stop OpenFlower
 
-Stop your Lowcoder instance and wait for it to completely stop the service.
+Stop your OpenFlower instance and wait for it to completely stop the service.
 
 ```bash
 docker-compose down

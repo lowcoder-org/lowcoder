@@ -1,8 +1,8 @@
 // import table from "./componentDocExtra/table.md?url";
 
 export const en = {
-  "productName": "Lowcoder",
-  "productDesc": "Create software applications for your company and customers with minimal coding experience. Lowcoder is an excellent alternative to Retool, Appsmith, and Tooljet.",
+  "productName": "OpenFlower",
+  "productDesc": "Create software applications for your company and customers with minimal coding experience.",
   "notSupportedBrowser": "Your current browser may have compatibility issues. For an optimal user experience, please use the latest version of Chrome.",
   "create": "Create",
   "move": "Move",
@@ -743,8 +743,8 @@ export const en = {
     "connectSuccessfully": "Connection Successful",
     "saveSuccessfully": "Saved Successfully",
     "database": "Database",
-    "cloudHosting": "Cloud-hosted Lowcoder cannot access local services using 127.0.0.1 or localhost. Try connecting to public network data sources or use a reverse proxy for private services.",
-    "notCloudHosting": "For docker-hosted deployment, Lowcoder uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To access local machine data sources, refer to",
+    "cloudHosting": "Cloud-hosted cannot access local services using 127.0.0.1 or localhost. Try connecting to public network data sources or use a reverse proxy for private services.",
+    "notCloudHosting": "For docker-hosted deployment, OpenFlower uses bridge networks, so 127.0.0.1 and localhost are invalid for host addresses. To access local machine data sources, refer to",
     "howToAccessHostDocLink": "How to Access Host API/DB",
     "returnList": "Return",
     "chooseDatasourceType": "Choose Data Source Type",
@@ -752,7 +752,7 @@ export const en = {
     "testConnection": "Test Connection",
     "save": "Save",
     "whitelist": "Allowlist",
-    "whitelistTooltip": "Add Lowcoder's IP addresses to your data source allowlist as needed.",
+    "whitelistTooltip": "Add OpenFlower's IP addresses to your data source allowlist as needed.",
     "address": "Address: ",
     "nameExists": "Name {name} already exists",
     "jsQueryDocLink": "About JavaScript Query",
@@ -1336,7 +1336,7 @@ export const en = {
     "text": "It's a Good Day.",
     "triggerQuery": "Trigger Query",
     "updateData": "Update Data",
-    "updateText": "I'm Also in a Good Mood to Develop now my own Custom Component with Lowcoder!",
+    "updateText": "I'm Also in a Good Mood to Develop now my own Custom Component!",
     "sdkGlobalVarName": "Lowcoder",
     "data": "Data you want to pass to the Custom Component",
     "code": "Code of your Custom Component",
@@ -2554,7 +2554,7 @@ export const en = {
     "phoneColumn": "Phone",
     "subTitle": "Title",
     "linkLabel": "Link",
-    "linkUrl": "app.lowcoder.cloud",
+    "linkUrl": "prod-us1.openflower.org",
     "progressLabel": "Progress",
     "sliderLabel": "Slider",
     "radioLabel": "Radio",
@@ -2764,7 +2764,7 @@ export const en = {
   "apiMessage": {
     "authenticationFail": "User Authentication Failed, Please Sign In Again",
     "verifyAccount": "Need to Verify Account",
-    "functionNotSupported": "The Current Version Does Not Support This Function. Please Contact the Lowcoder Business Team to Upgrade Your Account"
+    "functionNotSupported": "The Current Version Does Not Support This Function. Please Contact the OpenFlower Contributor Team to Upgrade Your Account"
   },
   "globalErrorMessage": {
     "createCompFail": "Create Component {comp} Failed",
@@ -3008,7 +3008,7 @@ export const en = {
     "resetSuccessDesc": "Password Reset Succeeded. The New Password is: {password}",
     "resetLostPasswordSuccess": "Password Reset Succeeded. Please login again.",
     "copyPassword": "Copy Password",
-    "poweredByLowcoder": "Powered by: Lowcoder.cloud"
+    "poweredByLowcoder": "Powered by: OpenFlower"
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -3023,7 +3023,7 @@ export const en = {
     "jsLibraryDownloadError": "JavaScript Library Download Error",
     "jsLibraryInstallSuccess": "JavaScript Library Installed Successfully",
     "jsLibraryInstallFailed": "JavaScript Library Installation Failed",
-    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://docs.openflower.org/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
     "jsLibraryInstallFailedHost": "{message}",
     "add": "Add New",
     "jsHelpText": "Add a Global Method or Variable to the Current Application.",
@@ -3287,8 +3287,8 @@ export const en = {
 
 
   "componentDoc": {
-    "markdownDemoText": "**Lowcoder** | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
-    "demoText": "Lowcoder | Create software applications for your Company and your Customers with minimal coding experience. Lowcoder is the best Retool, Appsmith or Tooljet Alternative.",
+    "markdownDemoText": "**OpenFlower** | Create software applications for your Company and your Customers with minimal coding experience.",
+    "demoText": "OpenFlower | Create software applications for your Company and your Customers with minimal coding experience.",
     "submit": "Submit",
     "style": "Style",
     "danger": "Danger",
@@ -3764,7 +3764,7 @@ export const en = {
       },
       description: {
         label: "Description",
-        placeholder: "Welcome to lowcoder!",
+        placeholder: "Welcome to OpenFlower!",
         tooltip: "The description of the step. Any HTML is valid here.",
       },
       mask: {
@@ -3829,21 +3829,21 @@ export const en = {
   },
 
   docUrls: {
-    docHome: "https://docs.lowcoder.cloud/",
-    apiDocHome: "https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/lowcoder-open-rest-api",
-    components: "https://app.lowcoder.cloud/components/{compType}",
-    module: "https://docs.lowcoder.cloud/lowcoder-documentation/build-applications/create-a-new-app/modules",
+    docHome: "https://docs.openflower.org/",
+    apiDocHome: "https://docs.openflower.org/openflower-extension/lowcoder-open-rest-api",
+    components: "https://prod-us1.openflower.org/components/{compType}",
+    module: "https://docs.openflower.org/build-applications/create-a-new-app/modules",
     optionList: "",
-    terms: "https://lowcoder.cloud/terms",
-    privacy: "https://lowcoder.cloud/privacy",
-    aboutUs: "https://lowcoder.cloud/about",
-    changeLog: "https://github.com/lowcoder-org/lowcoder/releases",
+    terms: "https://www.openflower.org/terms",
+    privacy: "https://www.openflower.org/privacy",
+    aboutUs: "https://www.openflower.org/about",
+    changeLog: "https://github.com/flowerappeng-org/openflower/releases",
     introVideo: "",
-    devNpmPlugin: "https://github.com/lowcoder-org/lowcoder-create-component-plugin",
+    devNpmPlugin: "https://github.com/Flowerappeng-org/openflower-create-component-plugin",
     devNpmPluginText: "How to develop npm plugin",
-    useHost: "https://docs.lowcoder.cloud/setup-and-run/self-hosting/access-local-database-or-api",
-    eventHandlerSlowdown: "https://docs.lowcoder.cloud/build-applications/app-interaction/event-handlers",
-    thirdLib: "https://docs.lowcoder.cloud/lowcoder-extension/use-third-party-libraries-in-apps",
+    useHost: "https://docs.openflower.org/setup-and-run/self-hosting/access-local-database-or-api",
+    eventHandlerSlowdown: "https://docs.openflower.org/build-applications/app-interaction/event-handlers",
+    thirdLib: "https://docs.openflower.org/lowcoder-extension/use-third-party-libraries-in-apps",
     thirdLibUrlText: "Use third-party libraries",
   },
   datasourceTutorial: {
@@ -3857,9 +3857,9 @@ export const en = {
   },
   queryTutorial: {
     js: "",
-    transformer: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/transformers",
-    tempState: "https://docs.lowcoder.cloud/business-logic-in-apps/write-javascript/temporary-state",
-    dataResponder: "https://docs.lowcoder.cloud/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
+    transformer: "https://docs.openflower.org/business-logic-in-apps/write-javascript/transformers",
+    tempState: "https://docs.openflower.org/business-logic-in-apps/write-javascript/temporary-state",
+    dataResponder: "https://docs.openflower.org/lowcoder-documentation/business-logic-in-apps/write-javascript/data-responder",
   },
   customComponent: {
     entryUrl: "https://sdk.lowcoder.cloud/custom_component.html",
@@ -3868,7 +3868,7 @@ export const en = {
     cloneUrl: "/apps/template-import/",
   },
   lowcoderUrl: {
-    createIssue: "https://github.com/lowcoder-org/lowcoder/issues",
+    createIssue: "https://github.com/flowerappeng-org/openflower/issues",
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 

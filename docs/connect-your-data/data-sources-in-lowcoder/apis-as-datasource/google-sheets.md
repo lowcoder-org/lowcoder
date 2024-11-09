@@ -34,11 +34,11 @@ Navigate back to to [Google Sheets](https://docs.google.com/spreadsheets), and f
 When you see the notification **Access updated**, you have authorized this service account to edit your sheet.
 {% endhint %}
 
-## Connect Google Sheets to Lowcoder
+## Connect Google Sheets to OpenFlower
 
 Follow the steps below:
 
-1. Click **Data Sources** on Lowcoder homepage.
+1. Click **Data Sources** on OpenFlower homepage.
 2. Click **New Data Source** on the top right. Note that this permission is restricted to workspace admins and developers.
 3. Select **Database** > **Google Sheets** as the type.
 4. Set its name and paste the whole content in the JSON flie of the key to **Service Account**.
