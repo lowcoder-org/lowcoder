@@ -13,7 +13,7 @@ import { EditorContext } from "comps/editorState";
 import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 /**
  * JsonExplorer Comp

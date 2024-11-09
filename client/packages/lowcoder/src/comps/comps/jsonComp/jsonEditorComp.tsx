@@ -20,7 +20,8 @@ import {
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
 import { EditorContext } from "comps/editorState";
-import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
+import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
 
 /**
  * JsonEditor Comp

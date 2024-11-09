@@ -18,8 +18,8 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 const sizeOptions = [
   {

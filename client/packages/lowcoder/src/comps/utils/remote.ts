@@ -39,7 +39,13 @@ export function parseCompType(compType: string) {
 }
 
 export async function getNpmPackageMeta(packageName: string) {
-  const res = await axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/none/${packageName}`);
+  const axiosInstance = axios.create({
+    baseURL: NPM_REGISTRY_URL,
+    withCredentials: true,
+  })
+  const res = await axiosInstance.get<NpmPackageMeta>(
+    `/none/${packageName}`,
+  );
   if (res.status >= 400) {
     return null;
   }

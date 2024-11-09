@@ -28,7 +28,7 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 

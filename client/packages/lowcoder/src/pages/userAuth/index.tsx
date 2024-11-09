@@ -1,4 +1,4 @@
-import { AUTH_LOGIN_URL, USER_AUTH_URL } from "constants/routesURL";
+import { ADMIN_AUTH_URL, AUTH_LOGIN_URL, USER_AUTH_URL } from "constants/routesURL";
 import { Redirect, Route, Switch, useLocation, useParams } from "react-router-dom";
 import React, { useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,6 +9,7 @@ import { AuthLocationState } from "constants/authConstants";
 import { ProductLoading } from "components/ProductLoading";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
+import LoginAdmin from "./loginAdmin";
 import _ from "lodash";
 
 export default function UserAuth() {
@@ -51,6 +52,7 @@ export default function UserAuth() {
     >
       <Switch location={location}>
         <Redirect exact from={USER_AUTH_URL} to={AUTH_LOGIN_URL} />
+        <Route exact path={ADMIN_AUTH_URL} component={LoginAdmin} />
         {AuthRoutes.map((route) => (
           <Route key={route.path} path={route.path} component={route.component} />
         ))}

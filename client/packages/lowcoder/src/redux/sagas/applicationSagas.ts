@@ -403,6 +403,23 @@ function* setAppEditingStateSaga(action: ReduxAction<SetAppEditingStatePayload>)
   }
 }
 
+export function* fetchServerSettingsSaga() {
+  try {
+    const response: AxiosResponse<GenericApiResponse<Record<string,string>>> = yield call(
+      ApplicationApi.fetchServerSettings
+    );
+    if (Boolean(response.data)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_SERVER_SETTINGS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error: any) {
+    log.debug("fetch server settings error: ", error);
+    messageInstance.error(error.message);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -429,5 +446,6 @@ export default function* applicationSagas() {
       fetchAllMarketplaceAppsSaga,
     ),
     takeLatest(ReduxActionTypes.SET_APP_EDITING_STATE, setAppEditingStateSaga),
+    takeLatest(ReduxActionTypes.FETCH_SERVER_SETTINGS, fetchServerSettingsSaga),
   ]);
 }
