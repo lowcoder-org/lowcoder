@@ -3099,7 +3099,7 @@ export const en = {
   "home": {
     "profile": "Your Profile",
     "news": "News",
-    "newsLoading": "It will load some seconds.",
+    "newsLoading": "news loading...",
     "orgHome" : "Homepage (Org)",
     "yourOrg": "Your Organization",
     "orgHomeTitle": "Organization Homepage",

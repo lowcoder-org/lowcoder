@@ -70,7 +70,7 @@ const StyleNewsContent = styled.div`
 `;
 
 const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-var newsLink = "https://app.lowcoder.cloud/apps/6637657e859baf650aebf1b1/view?template=1";
+var newsLink = "https://prod-us1.openflower.org/apps/672fff5647975653043ea551/view?template=1";
 const commitId = REACT_APP_COMMIT_ID;
 const buildId = REACT_APP_BUILD_ID;
 
@@ -90,7 +90,7 @@ export function NewsLayout() {
       <ContentWrapper>
         <NewsView>
           <StyleNewsCover>
-            <h1 style={{color: "#ffffff", marginTop : "12px"}}>Lowcoder {trans("home.news")}</h1>
+            <h1 style={{color: "#ffffff", marginTop : "12px"}}>OpenFlower {trans("home.news")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
             <h4>{trans("home.newsLoading")}</h4>
