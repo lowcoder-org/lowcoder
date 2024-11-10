@@ -5,6 +5,7 @@ import {
   CollectionReference,
   DocumentReference,
   getFirestore,
+  WhereFilterOp,
   OrderByDirection,
 } from "firebase-admin/firestore";
 import { DataSourceDataType } from "./dataSourceConfig";
@@ -83,37 +84,77 @@ export async function runFirebasePlugin(
       return collections.map((i) => i.id);
     }
 
-    if (actionName === "FS.QueryFireStore") {
+    if (actionName === "FS.ListFireStore") {
       const data = await withFirestoreCollection(async (ref) => {
-        let query;
+    
+        // Initialize query as a Query type, not CollectionReference
+        let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = ref;
+    
+        // Sorting
         if (actionData.orderBy) {
-          console.log("orderBy", actionData.orderBy);
-          query = ref.orderBy(
+          query = query.orderBy(
             actionData.orderBy,
             (actionData.orderDirection || "asc") as OrderByDirection
           );
         }
-        // Apply startAt if specified (for pagination)
-        if (actionData.startAt) {
-          if (Array.isArray(actionData.startAt)) {
-              // If startAt is an array, pass it as is
-              query = (query || ref).startAt(...actionData.startAt);
-          } else {
-              // If startAt is a single value, use it directly
-              query = (query || ref).startAt(actionData.startAt);
+    
+        // Get the total count using aggregate query
+        const totalCount = await query.count().get().then((snapshot) => snapshot.data().count);
+    
+        // Pagination
+        const pageSize = actionData.pageSize || 10;
+        const pageNumber = actionData.pageNumber || 1;
+        const offset = (pageNumber - 1) * pageSize;
+    
+        // Move to the starting point based on offset
+        if (offset > 0) {
+          const offsetSnapshot = await query.limit(offset).get();
+          const lastVisible = offsetSnapshot.docs[offsetSnapshot.docs.length - 1];
+    
+          // If we have a valid last document, use it to start the next page
+          if (lastVisible) {
+            query = query.startAfter(lastVisible);
           }
         }
-        if (actionData.limit > 0) {
-          query = (query || ref).limit(actionData.limit);
-        }
-        const snapshot = await (query || ref).get();
-        if (snapshot.empty) {
-          return [];
-        }
-        return snapshot.docs.map((i) => i.data());
+    
+        // Apply page size limit
+        query = query.limit(pageSize);
+    
+        // Execute the final query to get the page data
+        const snapshot = await query.get();
+        const documents = snapshot.empty ? [] : snapshot.docs.map((i) => i.data());
+    
+        // Return data object with totalCount and documents
+        return { totalCount, documents };
       });
       return data;
     }
+
+    if (actionName === "FS.QueryFireStore") {
+      const data = await withFirestoreCollection(async (ref) => {
+        let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = ref;
+
+        // Parse Query JSON from actionData.query
+        if (actionData.query) {
+          for (const condition of actionData.query) {
+            const { field, op, value } = condition;
+            if (!field || !op || value === undefined) {
+              throw badRequest("Invalid query condition: " + JSON.stringify(condition));
+            }
+            query = query.where(field, op as WhereFilterOp, value);
+          }
+        }
+
+        // Execute the query and retrieve results
+        const snapshot = await query.get();
+        if (snapshot.empty) {
+          return [];
+        }
+        return snapshot.docs.map((doc) => doc.data());
+      });
+      return data;
+    }
+    
 
     if (actionName === "FS.GetDocument") {
       return await withFirestoreDoc(async (ref) => (await ref.get()).data());
