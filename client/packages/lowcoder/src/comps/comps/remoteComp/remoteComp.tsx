@@ -8,11 +8,15 @@ import { WhiteLoading } from "lowcoder-design";
 import { useContext, useState } from "react";
 import { useMount } from "react-use";
 import styled from "styled-components";
-import { RemoteCompInfo, RemoteCompLoader } from "types/remoteComp";
+import { RemoteCompInfo, RemoteCompLoader, RemoteCompSource } from "types/remoteComp";
 import { loaders } from "./loaders"; 
 import { withErrorBoundary } from "comps/generators/withErrorBoundary";
 import { EditorContext } from "@lowcoder-ee/comps/editorState";
 import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
+import React from "react";
+import type { AppState } from "@lowcoder-ee/redux/reducers";
+import { useSelector } from "react-redux";
+import { useApplicationId } from "@lowcoder-ee/util/hooks";
 
 const ViewError = styled.div`
   display: flex;
@@ -48,22 +52,27 @@ interface RemoteCompReadyAction {
 
 interface RemoteCompViewProps {
   isLowcoderComp?: boolean;
-  loadComp: (packageVersion?: string) => Promise<void>;
+  loadComp: (packageVersion?: string, appId?: string) => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
+  source?: RemoteCompSource;
 }
 
-function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
-  const { loadComp, loadingElement, errorElement, isLowcoderComp } = props;
+const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompViewProps>) => {
+  const { loadComp, loadingElement, errorElement, isLowcoderComp, source } = props;
   const [error, setError] = useState<any>("");
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
+  const appId = useApplicationId();
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
+  const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 
   let packageVersion = 'latest';
   // lowcoder-comps's package version
-  if (isLowcoderComp) {
-    packageVersion = lowcoderCompPackageVersion;
+  if (isLowcoderComp && source !== 'bundle') {
+    packageVersion = lowcoderCompPackageVersion === 'latest' && Boolean(latestLowcoderCompsVersion)
+      ? latestLowcoderCompsVersion
+      : lowcoderCompPackageVersion;
   }
   // component plugin's package version
   else if (compState.comp?.comp?.version) {
@@ -72,7 +81,7 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
 
   useMount(() => {
     setError("");
-    loadComp(packageVersion).catch((e) => {
+    loadComp(packageVersion, appId).catch((e) => {
       setError(String(e));
     });
   });
@@ -93,11 +102,9 @@ function RemoteCompView(props: React.PropsWithChildren<RemoteCompViewProps>) {
   }
 
   return (
-    <ViewLoadingWrapper>
-      <WhiteLoading />
-    </ViewLoadingWrapper>
+    <WhiteLoading />
   );
-}
+});
 
 export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
   remoteInfo?: T,
@@ -112,7 +119,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
       this.compValue = params.value;
     }
 
-    private async load(packageVersion = 'latest') {
+    private async load(packageVersion = 'latest', appId = 'none') {
       if (!remoteInfo) {
         return;
       }
@@ -124,7 +131,7 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
         log.error("loader not found, remote info:", remoteInfo);
         return;
       }
-      const RemoteExportedComp = await finalLoader({...remoteInfo, packageVersion});
+      const RemoteExportedComp = await finalLoader({...remoteInfo, packageVersion, appId});
       if (!RemoteExportedComp) {
         return;
       }
@@ -154,8 +161,9 @@ export function remoteComp<T extends RemoteCompInfo = RemoteCompInfo>(
         <RemoteCompView
           key={key}
           isLowcoderComp={remoteInfo?.packageName === 'lowcoder-comps'}
-          loadComp={(packageVersion?: string) => this.load(packageVersion)}
+          loadComp={(packageVersion?: string, appId?: string) => this.load(packageVersion, appId)}
           loadingElement={loadingElement}
+          source={remoteInfo?.source}
         />
       );
     }

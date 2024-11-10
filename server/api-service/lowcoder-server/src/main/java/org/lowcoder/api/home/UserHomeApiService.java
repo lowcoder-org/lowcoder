@@ -24,7 +24,7 @@ public interface UserHomeApiService {
     Mono<UserHomepageView> getUserHomePageView(ApplicationType applicationType);
 
     Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                            @Nullable ApplicationStatus applicationStatus, boolean withContainerSize);
+                                                                            @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name);
 
     Flux<BundleInfoView> getAllAuthorisedBundles4CurrentOrgMember(@Nullable BundleStatus bundleStatus);
 

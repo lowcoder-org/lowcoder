@@ -16,8 +16,6 @@ import { PaddingControl } from "../../controls/paddingControl";
 import { MarginControl } from "../../controls/marginControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useContext, useEffect } from "react";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 let MultiSelectBasicComp = (function () {
   const childrenMap = {
@@ -32,8 +30,6 @@ let MultiSelectBasicComp = (function () {
     padding: PaddingControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
     const valueSet = new Set<any>(props.options.map((o) => o.value)); // Filter illegal default values entered by the user
     const [
       validateState,

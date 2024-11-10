@@ -45,6 +45,10 @@ common:
     private-mode: ${LOWCODER_MARKETPLACE_PRIVATE_MODE:true}
   lowcoder-public-url: ${LOWCODER_PUBLIC_URL:http://localhost:3000}
   notifications-email-sender: ${LOWCODER_EMAIL_NOTIFICATIONS_SENDER:info@localhost}
+  cookie:
+    max-age-in-hours: ${LOWCODER_COOKIE_MAX_AGE:24}
+  query:
+    app-snapshot-keep-duration: ${LOWCODER_APP_SNAPSHOT_RETENTIONTIME:30}
 
 debug: true
 
@@ -52,3 +56,6 @@ logging:
   level:
     root: debug
     org.lowcoder: debug
+
+default:
+  query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10s}

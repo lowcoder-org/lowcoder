@@ -42,12 +42,13 @@ import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
   $animationStyle: AnimationStyleType;
+  $showScrollbar:boolean
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -56,9 +57,12 @@ const RowWrapper = styled(Row)<{
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
-  background-color: ${(props) => props.$style.background};
-  overflow-x: auto;
   rotate: ${props=> props.$style.rotation}
+  overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
+   ::-webkit-scrollbar {
+    display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
+    }
+  ${props => getBackgroundStyle(props.$style)}
 `;
 
 const ColWrapper = styled(Col)<{
@@ -73,13 +77,13 @@ const ColWrapper = styled(Col)<{
 
   > div {
     height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
-    background-color: ${(props) => props.$style?.background} !important;
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth}px;
     border-color: ${(props) => props.$style?.border};
     border-style: ${(props) => props.$style?.borderStyle};
     margin: ${(props) => props.$style?.margin};
     padding: ${(props) => props.$style?.padding};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
 `;
 
@@ -96,6 +100,7 @@ const childrenMap = {
   matchColumnsHeight: withDefault(BoolControl, true),
   style: styleControl(ResponsiveLayoutRowStyle , 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
+  mainScrollbar: withDefault(BoolControl, false),
   animationStyle:styleControl(AnimationStyle , 'animationStyle'),
   columnPerRowLG: withDefault(NumberControl, 4),
   columnPerRowMD: withDefault(NumberControl, 2),
@@ -139,6 +144,8 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     horizontalSpacing,
     animationStyle,
     horizontalGridCells,
+    mainScrollbar,
+    autoHeight
   } = props;
 
   return (
@@ -148,6 +155,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
           <RowWrapper
             $style={style}
             $animationStyle={animationStyle}
+            $showScrollbar={mainScrollbar}
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
           >
@@ -189,8 +197,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
 };
 
 export const ResponsiveLayoutBaseComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
+  return new UICompBuilder(childrenMap, (props, dispatch) => {  
     return (
       <ResponsiveLayout {...props} dispatch={dispatch} />
     );
@@ -216,6 +223,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
+                label: trans("prop.mainScrollbar")
+              })}
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}

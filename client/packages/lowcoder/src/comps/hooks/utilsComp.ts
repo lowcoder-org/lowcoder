@@ -6,6 +6,8 @@ import copy from "copy-to-clipboard";
 import { saveDataAsFile } from "../../util/fileUtils";
 import { openApp, recordToSearchStr } from "../../util/appUtils";
 import { trans } from "i18n";
+import { logoutAction } from "redux/reduxActions/userActions";
+import StoreRegistry from "@lowcoder-ee/redux/store/storeRegistry";
 
 const UtilsCompBase = simpleMultiComp({});
 export let UtilsComp = withExposingConfigs(UtilsCompBase, []);
@@ -105,6 +107,18 @@ UtilsComp = withMethodExposing(UtilsComp, [
           dataType: dataType,
         });
       }
+    },
+  },
+  {
+    method: {
+      name: "logoutUser",
+      description: trans("utilsComp.logoutUser"),
+      params: [],
+    },
+    execute: (comp, params) => {
+      StoreRegistry.getStore().dispatch(
+        logoutAction({})
+      );
     },
   },
 ]);

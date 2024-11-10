@@ -35,8 +35,8 @@ import { checkIsMobile } from "util/commonUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { PositionControl } from "comps/controls/dropdownControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const EVENT_OPTIONS = [
   {
@@ -54,6 +54,7 @@ const childrenMap = {
     1: { layout: {}, items: {} },
   }),
   autoHeight: AutoHeightControl,
+  showVerticalScrollbar: withDefault(BoolControl, false),
   horizontalGridCells: SliderControl,
   scrollbars: withDefault(BoolControl, false),
   placement: withDefault(PositionControl, "top"),
@@ -82,25 +83,27 @@ const getStyle = (
       border: ${style.borderWidth} ${style.borderStyle} ${style.border};
       border-radius: ${style.radius};
       padding: ${style.padding};
-      background-color: ${style.background};
-      background-image: url(${style.backgroundImage});
-      background-repeat: ${style.backgroundImageRepeat};
-      background-size: ${style.backgroundImageSize};
-      background-position: ${style.backgroundImagePosition};
-      background-origin: ${style.backgroundImageOrigin};
+      ${getBackgroundStyle(style)}
 
       > .ant-tabs-content-holder > .ant-tabs-content > .ant-tabs-tabpane {
         height: 100%;
         .react-grid-layout {
           border-radius: 0;
-          background-color: ${bodyStyle.background || 'transparent'};
           padding: ${bodyStyle.containerBodyPadding};
+          ${getBackgroundStyle(bodyStyle)}
         }
       }
 
       > .ant-tabs-nav {
-        background-color: ${headerStyle.headerBackground || 'transparent'};
         padding: ${headerStyle.containerHeaderPadding};
+        ${getBackgroundStyle({
+          background: headerStyle.headerBackground,
+          backgroundImage: headerStyle.headerBackgroundImage,
+          backgroundImageSize: headerStyle.headerBackgroundImageSize,
+          backgroundImageRepeat: headerStyle.headerBackgroundImageRepeat,
+          backgroundImageOrigin: headerStyle.headerBackgroundImageOrigin,
+          backgroundImagePosition: headerStyle.headerBackgroundImagePosition,
+        })}
 
         .ant-tabs-tab {
           div {
@@ -159,7 +162,7 @@ const StyledTabs = styled(Tabs)<{
   .ant-tabs-nav {
     display: ${(props) => (props.$showHeader ? "block" : "none")};
     padding: 0 ${(props) => (props.$isMobile ? 16 : 24)}px;
-    background: white;
+    // background: white;
     margin: 0px;
   }
 
@@ -238,11 +241,11 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     );
     return {
       label,
-      key: tab.key,
+      key: tab.key,                                                                            
       forceRender: true,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
-          <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
+          <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
             <ContainerInTab
               layout={containerProps.layout.getView()}
               items={gridItemCompToGridItems(containerProps.items.getView())}
@@ -259,8 +262,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
   })
 
   return (
-    <ScrollBar style={{ height: props.autoHeight ? "100%" : "auto", margin: "0px", padding: "0px" }} hideScrollbar={!props.scrollbars}>
-      <div style={{padding: props.style.margin, height: props.autoHeight ? "100%" : "auto"}}>
+      <div style={{padding: props.style.margin, height: props.autoHeight ? "auto" : "100%"}}>
         <BackgroundColorContext.Provider value={headerStyle.headerBackground}>
           <StyledTabs
             $animationStyle={props.animationStyle}
@@ -276,7 +278,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
                   props.onEvent("change");
                 }
               }}
-              onTabClick={onTabClick}
+              // onTabClick={onTabClick}
               animated
               $isMobile={isMobile}
               items={tabItems}
@@ -286,15 +288,12 @@ const TabbedContainer = (props: TabbedContainerProps) => {
           </StyledTabs>
         </BackgroundColorContext.Provider>
       </div>
-    </ScrollBar>
   );
 };
 
 
 export const TabbedContainerBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-    
     return (
       <DisabledContext.Provider value={props.disabled}>
         <TabbedContainer {...props} dispatch={dispatch} />
@@ -332,8 +331,8 @@ export const TabbedContainerBaseComp = (function () {
                 })}
                 {children.autoHeight.getPropertyView()}
                 {!children.autoHeight.getView() && (
-                  children.scrollbars.propertyView({
-                    label: trans("prop.scrollbar"),
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
                   })
                 )}
               </Section>
@@ -468,3 +467,4 @@ export const TabbedContainerComp = withExposingConfigs(TabbedContainerImplComp, 
   new NameConfig("selectedTabKey", trans("tabbedContainer.selectedTabKeyDesc")),
   NameConfigHidden,
 ]);
+

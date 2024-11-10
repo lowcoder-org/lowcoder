@@ -24,6 +24,8 @@ import { useUserViewMode } from "../../util/hooks";
 import { QueryApi } from "api/queryApi";
 import { RootCompInstanceType } from "./useRootCompInstance";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
+import React from "react";
+import { isEqual } from "lodash";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -33,7 +35,8 @@ import { getCurrentUser } from "redux/selectors/usersSelectors";
 function useSaveComp(
   applicationId: string,
   readOnly: boolean,
-  rootCompInstance: RootCompInstanceType | undefined
+  rootCompInstance: RootCompInstanceType | undefined,
+  blockEditing?: boolean,
 ) {
   const originalComp = rootCompInstance?.comp;
   // throttle comp change
@@ -43,7 +46,7 @@ function useSaveComp(
   const [prevJsonStr, setPrevJsonStr] = useState<string>();
 
   useEffect(() => {
-    if (readOnly) {
+    if (readOnly || blockEditing) {
       return;
     }
     if (!comp || comp === prevComp) {
@@ -72,16 +75,18 @@ function useSaveComp(
 
 interface AppEditorInternalViewProps {
   readOnly: boolean;
+  blockEditing?: boolean;
   appInfo: AppSummaryInfo;
   loading: boolean;
   compInstance: RootCompInstanceType;
+  fetchApplication?: () => void;
 }
 
-export function AppEditorInternalView(props: AppEditorInternalViewProps) {
+export const AppEditorInternalView = React.memo((props: AppEditorInternalViewProps) => {
   const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
   const dispatch = useDispatch();
-  const { readOnly, appInfo, compInstance } = props;
+  const { readOnly, blockEditing, appInfo, compInstance, fetchApplication } = props;
 
   const [externalEditorState, setExternalEditorState] = useState<ExternalEditorContextState>({
     changeExternalState: (state: Partial<ExternalEditorContextState>) => {
@@ -90,8 +95,7 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
     applicationId: appInfo.id,
     appType: AppTypeEnum.Application,
   });
-  useSaveComp(appInfo.id, readOnly, compInstance);
-
+  
   useEffect(() => {
     setExternalEditorState((s) => ({
       ...s,
@@ -100,15 +104,26 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       appType: appInfo.appType,
       applicationId: appInfo.id,
       hideHeader: window.location.pathname.split("/")[3] === "admin",
+      blockEditing,
+      fetchApplication: fetchApplication,
       ...extraExternalEditorState,
     }));
-  }, [compInstance?.history, extraExternalEditorState, readOnly, appInfo.appType, appInfo.id]);
+  }, [
+    compInstance?.history,
+    extraExternalEditorState,
+    readOnly,
+    appInfo.appType, appInfo.id,
+    blockEditing,
+    fetchApplication,
+  ]);
 
   useEffect(() => {
     message.config({
       top: isUserViewMode ? 0 : 48,
     });
   }, [isUserViewMode]);
+
+  useSaveComp(appInfo.id, readOnly, compInstance, blockEditing);
 
   const loading =
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
@@ -125,4 +140,6 @@ export function AppEditorInternalView(props: AppEditorInternalViewProps) {
       </ExternalEditorContext.Provider>
     </ConfigProvider>
   );
-}
+}, (prevProps, nextProps) => {
+  return isEqual(prevProps, nextProps)
+});

@@ -95,6 +95,7 @@ public class SecurityConfig {
                         // used in public viewed apps
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, FLOW_URL), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONFIG_URL + "/deploymentId"), // system config
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/*/view"), // application view
@@ -109,6 +110,7 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GROUP_URL + "/list"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, QUERY_URL + "/execute"), // application view
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, DATASOURCE_URL + "/jsDatasourcePlugins"),
 
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, GITHUB_STAR),
@@ -124,6 +126,8 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.INVITATION_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.CUSTOM_AUTH + "/logout"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.SERVER_SETTING_URL), // system env
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.FLOW_URL),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.CONFIG_URL + "/deploymentId"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.HEAD, NewUrl.STATE_URL + "/healthCheck"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.PREFIX + "/status/**"),
@@ -139,7 +143,9 @@ public class SecurityConfig {
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, NewUrl.QUERY_URL + "/execute"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.MATERIAL_URL + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/*/datasourceTypes"), // datasource types
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.ORGANIZATION_URL + "/byuser/*"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.DATASOURCE_URL + "/jsDatasourcePlugins"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, NewUrl.NPM_REGISTRY + "/**"),
                         ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/api/docs/**")
                 )
                 .permitAll()

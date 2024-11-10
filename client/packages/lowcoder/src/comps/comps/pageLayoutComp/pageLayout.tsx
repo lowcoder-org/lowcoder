@@ -11,6 +11,7 @@ import { ConfigProvider, Layout } from 'antd';
 import { contrastBackground, contrastText } from "comps/controls/styleControlConstants";
 import { useRef, useState } from "react";
 import { LowcoderAppView } from "appView/LowcoderAppView";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const { Header, Content, Footer, Sider } = Layout;
 
@@ -30,16 +31,11 @@ const getStyle = (style: ContainerStyleType) => {
     border-radius: ${style.radius};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: url(${style.backgroundImage});`}
-    ${style.backgroundImageRepeat && `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize && `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition && `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin && `background-origin: ${style.backgroundImageOrigin};`}
+    ${style && getBackgroundStyle(style)}
   `;
 };
 
-const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType }>`
+const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:AnimationStyleType, $mainScrollbars: boolean }>`
   display: flex;
   flex-flow: column;
   height: 100%;
@@ -47,14 +43,34 @@ const Wrapper = styled.div<{ $style: ContainerStyleType,$animationStyle:Animatio
   border-radius: 4px;
   ${(props) => props.$style && getStyle(props.$style)}
   ${props=>props.$animationStyle}
+
+  #pageLayout::-webkit-scrollbar {
+    display: ${(props) => props.$mainScrollbars ? "block" : "none"};
+  }
+  
+  .ant-layout {
+    background: transparent;
+  }
 `;
 
 const HeaderInnerGrid = styled(InnerGrid)<{
-  $backgroundColor: string
+  $backgroundColor: string,
+  $headerBackgroundImage: string,
+  $headerBackgroundImageSize: string,
+  $headerBackgroundImageRepeat: string,
+  $headerBackgroundImageOrigin: string,
+  $headerBackgroundImagePosition: string,
  }>`
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$headerBackgroundImage,
+    backgroundImageSize: props.$headerBackgroundImageSize,
+    backgroundImageRepeat: props.$headerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$headerBackgroundImageOrigin,
+    backgroundImagePosition: props.$headerBackgroundImagePosition,
+  })}
 `;
 
 const SiderInnerGrid = styled(InnerGrid)<{
@@ -66,25 +82,40 @@ const SiderInnerGrid = styled(InnerGrid)<{
   $siderBackgroundImageOrigin: string;
  }>`
   overflow: auto;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$siderBackgroundImage && `background-image: url(${props.$siderBackgroundImage});`}
-  ${(props) => props.$siderBackgroundImageRepeat && `background-repeat: ${props.$siderBackgroundImageRepeat};`}
-  ${(props) => props.$siderBackgroundImageSize && `background-size: ${props.$siderBackgroundImageSize};`}
-  ${(props) => props.$siderBackgroundImagePosition && `background-position: ${props.$siderBackgroundImagePosition};`}
-  ${(props) => props.$siderBackgroundImageOrigin && `background-origin: ${props.$siderBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$siderBackgroundImage,
+    backgroundImageSize: props.$siderBackgroundImageSize,
+    backgroundImageRepeat: props.$siderBackgroundImageRepeat,
+    backgroundImageOrigin: props.$siderBackgroundImageOrigin,
+    backgroundImagePosition: props.$siderBackgroundImagePosition,
+  })}
 `;
 
 const BodyInnerGrid = styled(InnerGrid)<{
   $showBorder: boolean;
-  $backgroundColor: string;
   $borderColor: string;
   $borderWidth: string;
+  $backgroundColor: string;
+  $bodyBackgroundImage: string;
+  $bodyBackgroundImageRepeat: string;
+  $bodyBackgroundImageSize: string;
+  $bodyBackgroundImagePosition: string;
+  $bodyBackgroundImageOrigin: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
+
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$bodyBackgroundImage,
+    backgroundImageSize: props.$bodyBackgroundImageSize,
+    backgroundImageRepeat: props.$bodyBackgroundImageRepeat,
+    backgroundImageOrigin: props.$bodyBackgroundImageOrigin,
+    backgroundImagePosition: props.$bodyBackgroundImagePosition,
+  })}
 `;
 
 const FooterInnerGrid = styled(InnerGrid)<{
@@ -100,13 +131,15 @@ const FooterInnerGrid = styled(InnerGrid)<{
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   overflow: visible;
-  ${(props) => props.$backgroundColor && `background-color: ${props.$backgroundColor};`}
   border-radius: 0;
-  ${(props) => props.$footerBackgroundImage && `background-image: url(${props.$footerBackgroundImage});`}
-  ${(props) => props.$footerBackgroundImageRepeat && `background-repeat: ${props.$footerBackgroundImageRepeat};`}
-  ${(props) => props.$footerBackgroundImageSize && `background-size: ${props.$footerBackgroundImageSize};`}
-  ${(props) => props.$footerBackgroundImagePosition && `background-position: ${props.$footerBackgroundImagePosition};`}
-  ${(props) => props.$footerBackgroundImageOrigin && `background-origin: ${props.$footerBackgroundImageOrigin};`}
+  ${props => getBackgroundStyle({
+    background: props.$backgroundColor,
+    backgroundImage: props.$footerBackgroundImage,
+    backgroundImageSize: props.$footerBackgroundImageSize,
+    backgroundImageRepeat: props.$footerBackgroundImageRepeat,
+    backgroundImageOrigin: props.$footerBackgroundImageOrigin,
+    backgroundImagePosition: props.$footerBackgroundImagePosition,
+  })}
 `;
 
 export type LayoutProps = LayoutViewProps & {
@@ -142,7 +175,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
   }
 
   useEffect(() => {setSiderCollapsed(container.siderCollapsed)} , [container.siderCollapsed]);
-  
+
   return (
     <div style={{padding: style.margin, height: '100%'}}>
       <ConfigProvider
@@ -156,8 +189,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
             },
           }}
         >
-      <Wrapper $style={style} $animationStyle={animationStyle}>
-        <Layout style={{padding: "0px"}} hasSider={showSider && !container.innerSider}>
+      <Wrapper $style={style} $animationStyle={animationStyle} $mainScrollbars={container.mainScrollbars}>
+        <Layout id="pageLayout" style={{padding: "0px", overflowY: "scroll"}} hasSider={showSider && !container.innerSider}>
           {showSider && !container.innerSider && !container.siderRight && (
             <><BackgroundColorContext.Provider value={siderStyle?.siderBackground}>
               <Sider 
@@ -201,10 +234,15 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           horizontalGridCells={horizontalGridCells}
                           autoHeight={true}
                           emptyRows={5}
-                          minHeight="46px"
+                          minHeight="60px"
                           containerPadding={[0, 0]}
                           showName={{ bottom: showFooter ? 20 : 0 }}
                           $backgroundColor={headerStyle?.headerBackground || 'transparent'}
+                          $headerBackgroundImage={headerStyle?.headerBackgroundImage}
+                          $headerBackgroundImageRepeat={headerStyle?.headerBackgroundImageRepeat}
+                          $headerBackgroundImageSize={headerStyle?.headerBackgroundImageSize}
+                          $headerBackgroundImagePosition={headerStyle?.headerBackgroundImagePosition}
+                          $headerBackgroundImageOrigin={headerStyle?.headerBackgroundImageOrigin}
                           style={{ padding: headerStyle.containerHeaderPadding }} />
                       </Header>
                     </BackgroundColorContext.Provider>
@@ -267,6 +305,11 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               containerPadding={[0, 0]}
                               hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                               $backgroundColor={bodyStyle?.background || 'transparent'}
+                              $bodyBackgroundImage={bodyStyle?.backgroundImage}
+                              $bodyBackgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                              $bodyBackgroundImageSize={bodyStyle?.backgroundImageSize}
+                              $bodyBackgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                              $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                               $borderColor={style?.border}
                               $borderWidth={style?.borderWidth}
                               style={{ padding: bodyStyle.containerBodyPadding }} />
@@ -331,6 +374,11 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           containerPadding={[0, 0]}
                           hintPlaceholder={props.hintPlaceholder ?? HintPlaceHolder}
                           $backgroundColor={bodyStyle?.background || 'transparent'}
+                          $bodyBackgroundImage={bodyStyle?.backgroundImage}
+                          $bodyBackgroundImageRepeat={bodyStyle?.backgroundImageRepeat}
+                          $bodyBackgroundImageSize={bodyStyle?.backgroundImageSize}
+                          $bodyBackgroundImagePosition={bodyStyle?.backgroundImagePosition}
+                          $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                           $borderColor={style?.border}
                           $borderWidth={style?.borderWidth}
                           style={{ padding: bodyStyle.containerBodyPadding }} />

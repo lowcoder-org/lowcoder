@@ -7,9 +7,13 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
+import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
 import org.lowcoder.domain.datasource.model.TokenBasedConnection;
+import org.lowcoder.domain.folder.model.Folder;
 import org.lowcoder.domain.group.model.Group;
 import org.lowcoder.domain.group.model.QGroup;
 import org.lowcoder.domain.material.model.MaterialMeta;
@@ -25,9 +29,11 @@ import org.lowcoder.runner.migrations.job.AddPtmFieldsJob;
 import org.lowcoder.runner.migrations.job.AddSuperAdminUser;
 import org.lowcoder.runner.migrations.job.CompleteAuthType;
 import org.lowcoder.runner.migrations.job.MigrateAuthConfigJob;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
+import org.springframework.data.mongodb.core.CollectionOptions;
 import org.springframework.data.mongodb.core.DocumentCallbackHandler;
 import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
@@ -36,6 +42,9 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.Set;
 
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -194,7 +203,7 @@ public class DatabaseChangelog {
 
     @ChangeSet(order = "020", id = "add-super-admin-user", author = "")
     public void addSuperAdminUser(AddSuperAdminUser addSuperAdminUser) {
-        addSuperAdminUser.addSuperAdmin();
+        addSuperAdminUser.addOrUpdateSuperAdmin();
     }
 
     @ChangeSet(order = "021", id = "add-ptm-fields-to-applications", author = "")
@@ -243,6 +252,102 @@ public class DatabaseChangelog {
         });
     }
 
+    @ChangeSet(order = "024", id = "fill-create-at", author = "")
+    public void fillCreateAt(MongockTemplate mongoTemplate) {
+        // Create a query to match all documents
+        Query query = new Query();
+
+        // Use a DocumentCallbackHandler to iterate through each document
+        mongoTemplate.executeQuery(query, "folder", new DocumentCallbackHandler() {
+            @Override
+            public void processDocument(Document document) {
+                Object object = document.get("createdAt");
+                if (object != null) return;
+                // Create an update object to add the 'gid' field
+                Update update = new Update();
+                update.set("createdAt", Instant.now());
+
+                // Create a query to match the current document by its _id
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+
+                // Update the document with the new 'gid' field
+                mongoTemplate.updateFirst(idQuery, update, "folder");
+            }
+        });
+    }
+  
+    @ChangeSet(order = "025", id = "add-gid-indexes-unique", author = "")
+    public void addGidIndexesUnique(MongockTemplate mongoTemplate) {
+        // collections to add gid
+        String[] collectionNames = {"group", "organization", "application", "bundle", "datasource", "libraryQuery", "folder"};
+
+        // Get the list of existing collections
+        Set<String> existingCollections = mongoTemplate.getCollectionNames();
+
+        for (String collectionName : collectionNames) {
+            if (existingCollections.contains(collectionName)) {
+                addGidField(mongoTemplate, collectionName);
+            } else {
+                System.out.println("Collection " + collectionName + " does not exist.");
+            }
+        }
+
+        ensureIndexes(mongoTemplate, Application.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Datasource.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Bundle.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Folder.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Group.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, Organization.class, makeIndex("gid").unique());
+        ensureIndexes(mongoTemplate, LibraryQuery.class, makeIndex("gid").unique());
+    }
+
+    private int getMongoDBVersion(MongockTemplate mongoTemplate) {
+        Document buildInfo = mongoTemplate.executeCommand(new Document("buildInfo", 1));
+        String versionString = buildInfo.getString("version");
+        if(versionString == null) return -1;
+        String[] versionParts = versionString.split("\\.");
+        int majorVersion = Integer.parseInt(versionParts[0]);
+        return majorVersion;
+    }
+
+    @ChangeSet(order = "026", id = "add-time-series-snapshot-history", author = "")
+    public void addTimeSeriesSnapshotHistory(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        int mongoVersion = getMongoDBVersion(mongoTemplate);
+        if (mongoVersion < 5) {
+            log.warn("MongoDB version is below 5. Time-series collections are not supported. Upgrade the MongoDB version.");
+        }
+
+        // Create the time-series collection if it doesn't exist
+        if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
+            if(mongoVersion < 5) {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class);
+            } else {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
+            }
+        }
+        Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
+        List<ApplicationHistorySnapshot> snapshots = mongoTemplate.find(new Query().addCriteria(Criteria.where("createdAt").gte(thresholdDate)), ApplicationHistorySnapshot.class);
+        snapshots.forEach(snapshot -> {
+            ApplicationHistorySnapshotTS applicationHistorySnapshotTS = new ApplicationHistorySnapshotTS();
+            applicationHistorySnapshotTS.setApplicationId(snapshot.getApplicationId());
+            applicationHistorySnapshotTS.setDsl(snapshot.getDsl());
+            applicationHistorySnapshotTS.setContext(snapshot.getContext());
+            applicationHistorySnapshotTS.setCreatedAt(snapshot.getCreatedAt());
+            applicationHistorySnapshotTS.setCreatedBy(snapshot.getCreatedBy());
+            applicationHistorySnapshotTS.setModifiedBy(snapshot.getModifiedBy());
+            applicationHistorySnapshotTS.setUpdatedAt(snapshot.getUpdatedAt());
+            applicationHistorySnapshotTS.setId(snapshot.getId());
+            mongoTemplate.insert(applicationHistorySnapshotTS);
+            mongoTemplate.remove(snapshot);
+        });
+
+        // Ensure indexes if needed
+        ensureIndexes(mongoTemplate, ApplicationHistorySnapshotTS.class,
+                makeIndex("applicationId"),
+                makeIndex("createdAt")
+        );
+    }
+
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
         Query query = new Query();
@@ -262,7 +367,7 @@ public class DatabaseChangelog {
                 update.set("gid", uniqueGid);
 
                 // Create a query to match the current document by its _id
-                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")));
+                Query idQuery = new Query(Criteria.where("_id").is(document.getObjectId("_id")).andOperator(Criteria.where("gid").isNull()));
 
                 // Update the document with the new 'gid' field
                 mongoTemplate.updateFirst(idQuery, update, collectionName);

@@ -26,7 +26,6 @@ import { RichTextEditorStyle, RichTextEditorStyleType } from "comps/controls/sty
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const localizeStyle = css`
   & .ql-snow {
@@ -80,8 +79,12 @@ const localizeStyle = css`
   }
 `;
 
-const commonStyle = (style: RichTextEditorStyleType) => css`
+const commonStyle = (style: RichTextEditorStyleType, contentScrollBar: boolean) => css`
   height: 100%;
+
+  .ql-editor::-webkit-scrollbar {
+    display: ${contentScrollBar ? "block" : "none"};
+  }
 
   & .ql-editor {
     min-height: 85px;
@@ -95,7 +98,7 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
     &.ql-container,
     &.ql-toolbar {
       border-color: ${style.border};
-      background-color: ${style.background};
+      background: ${style.background};
       
     }
   }
@@ -105,7 +108,7 @@ const commonStyle = (style: RichTextEditorStyleType) => css`
   }
   & .ql-container {
     border-radius: 0 0 ${style.radius} ${style.radius};
-    background-color: ${style.background};
+    background: ${style.background};
     border-width: ${style.borderWidth ? style.borderWidth : "1px"};
   }
 `;
@@ -127,11 +130,12 @@ const hideToolbarStyle = (style: RichTextEditorStyleType) => css`
 interface Props {
   $hideToolbar: boolean;
   $style: RichTextEditorStyleType;
+  $contentScrollBar: boolean;
 }
 
 const AutoHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${(props) => commonStyle(props.$style)}
+  ${(props) => commonStyle(props.$style, props.$contentScrollBar)}
   & .ql-container .ql-editor {
     min-height: 125px;
   }
@@ -140,7 +144,7 @@ const AutoHeightReactQuill = styled.div<Props>`
 
 const FixHeightReactQuill = styled.div<Props>`
   ${localizeStyle}
-  ${(props) => commonStyle(props.$style)}
+  ${(props) => commonStyle(props.$style, props.$contentScrollBar)}
   & .quill {
     display: flex;
     flex-direction: column;
@@ -170,6 +174,7 @@ const childrenMap = {
   hideToolbar: BoolControl,
   readOnly: BoolControl,
   autoHeight: withDefault(AutoHeightControl, "fixed"),
+  contentScrollBar: withDefault(BoolControl, false),
   placeholder: withDefault(StringControl, trans("richTextEditor.placeholder")),
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
@@ -189,6 +194,7 @@ interface IProps {
   autoHeight: boolean;
   onChange: (value: string) => void;
   $style: RichTextEditorStyleType;
+  contentScrollBar: boolean;
 }
 
 const ReactQuillEditor = React.lazy(() => import("react-quill"));
@@ -206,13 +212,7 @@ function RichTextEditor(props: IProps) {
   originOnChangeRef.current = props.onChange;
 
   const onChangeRef = useRef(
-    debounce > 0
-      ? _.debounce((v: string) => {
-          window.clearTimeout(isTypingRef.current);
-          isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
-          originOnChangeRef.current?.(v);
-        })
-      : (v: string) => originOnChangeRef.current?.(v)
+    (v: string) => originOnChangeRef.current?.(v)
   );
 
   // react-quill will not take effect after the placeholder is updated
@@ -271,6 +271,7 @@ function RichTextEditor(props: IProps) {
       ref={wrapperRef}
       $hideToolbar={props.hideToolbar}
       $style={props.$style}
+      $contentScrollBar={props.contentScrollBar}
     >
       <Suspense fallback={<Skeleton />}>
         <ReactQuillEditor
@@ -291,10 +292,7 @@ function RichTextEditor(props: IProps) {
   );
 }
 
-const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
-  useMergeCompStyles(props as Record<string, any>, dispatch);    
-
-
+const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
   const handleChange = (v: string) => {
     props.value.onChange(v);
     props.onEvent("change");
@@ -310,6 +308,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props, dispatch) 
       placeholder={props.placeholder}
       onChange={handleChange}
       $style={props.style}
+      contentScrollBar={props.contentScrollBar}
     />
   );
 })
@@ -335,6 +334,9 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props, dispatch) 
           <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && children.contentScrollBar.propertyView({
+                label: trans("prop.textAreaScrollBar"),
+              })}
               {children.toolbar.propertyView({ label: trans("richTextEditor.toolbar"), tooltip: trans("richTextEditor.toolbarDescription") })}
               {children.hideToolbar.propertyView({ label: trans("richTextEditor.hideToolbar") })}
             </Section>

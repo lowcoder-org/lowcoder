@@ -110,6 +110,7 @@ import {
   PivotTableCompIcon,
   GraphChartCompIcon,
   GanttCompIcon,
+  KanbanCompIcon,
 
 } from "lowcoder-design";
 
@@ -118,7 +119,8 @@ type Registry = {
 };
 
 const builtInRemoteComps: Omit<RemoteCompInfo, "compName"> = {
-  source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  // source: !!REACT_APP_BUNDLE_BUILTIN_PLUGIN ? "bundle" : "npm",
+  source: "npm",
   isRemote: true,
   packageName: "lowcoder-comps",
 };
@@ -1242,6 +1244,26 @@ export var uiCompMap: Registry = {
       isRemote: true,
     }),
     compName: "lowcoder-comp-gantt-chart",
+    layoutInfo: {
+      w: 20,
+      h: 60,
+    },
+  },
+
+  kanban: {
+    name: trans("uiComp.kanbanCompName"),
+    enName: "Kanban",
+    description: trans("uiComp.kanbanCompDesc"),
+    categories: ["projectmanagement"],
+    icon: KanbanCompIcon,
+    keywords: trans("uiComp.kanbanCompKeywords"),
+    comp: remoteComp({
+      compName: "kanban",
+      packageName: "lowcoder-comp-kanban",
+      source: "npm",
+      isRemote: true,
+    }),
+    compName: "lowcoder-comp-kanban",
     layoutInfo: {
       w: 20,
       h: 60,

@@ -46,7 +46,7 @@ export type QueryExecuteResponse = {
 };
 
 export class QueryApi extends Api {
-  static url = "v1/query";
+  static url = "query";
 
   static queryExecuteCancelTokenSource: Record<string, CancelTokenSource> = {};
 

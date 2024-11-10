@@ -17,7 +17,6 @@ import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
 import { useContext, useEffect } from "react";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
@@ -38,7 +37,7 @@ const Wrapper = styled.div<{ $badgeStyle: BadgeStyleType, $style: FloatButtonSty
         inset-block-end: -8px;
     }
     .ant-float-btn-primary .ant-float-btn-body {
-    background-color: ${(props) => props.$style.background};
+    background: ${(props) => props.$style.background};
     border: ${(props) => props.$style.border};
     border-style: ${(props) => props.$style.borderStyle};
     border-width: ${(props) => props.$style.borderWidth};
@@ -133,8 +132,7 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
 };
 
 let FloatButtonBasicComp = (function () {
-    return new UICompBuilder(childrenMap, (props , dispatch) => {
-      useMergeCompStyles(props, dispatch);
+    return new UICompBuilder(childrenMap, (props) => {
       return(
         <FloatButtonView {...props} />
       )})

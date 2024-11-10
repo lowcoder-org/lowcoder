@@ -5,7 +5,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { SelectOptionControl } from "comps/controls/optionsControl";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
+import { AnimationStyle, LabelStyle, SegmentStyle, SegmentStyleType } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
@@ -27,8 +27,6 @@ import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
-
 
 const getStyle = (style: SegmentStyleType) => {
   return css`
@@ -46,7 +44,7 @@ const getStyle = (style: SegmentStyleType) => {
       }
       .ant-segmented-item-selected,
       .ant-segmented-thumb {
-        background-color: ${style.indicatorBackground};
+        background: ${style.indicatorBackground};
       }
     }
 
@@ -79,6 +77,7 @@ const SegmentChildrenMap = {
   onEvent: ChangeEventHandlerControl,
   options: SelectOptionControl,
   style: styleControl(SegmentStyle, 'style'),
+  labelStyle: styleControl(LabelStyle , 'labelStyle'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLDivElement>,
 
@@ -87,9 +86,7 @@ const SegmentChildrenMap = {
 };
 
 let SegmentedControlBasicComp = (function () {
-  return new UICompBuilder(SegmentChildrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-  
+  return new UICompBuilder(SegmentChildrenMap, (props) => {
     const [
       validateState,
       handleChange,
@@ -97,6 +94,7 @@ let SegmentedControlBasicComp = (function () {
     return props.label({
       required: props.required,
       style: props.style,
+      labelStyle: props.labelStyle,
       animationStyle: props.animationStyle,
       children: (
         <Segmented
@@ -106,7 +104,7 @@ let SegmentedControlBasicComp = (function () {
           value={props.value.value}
           $style={props.style}
           onChange={(value) => {
-            handleChange(value.toString());
+            handleChange(String(value));
           }}
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
@@ -146,6 +144,9 @@ let SegmentedControlBasicComp = (function () {
           <>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.labelStyle}>
+            {children.labelStyle.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}

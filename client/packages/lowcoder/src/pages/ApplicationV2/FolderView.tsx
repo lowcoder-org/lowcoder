@@ -38,7 +38,7 @@ export function FolderView() {
   const elements = useSelector(folderElementsSelector);
   const allFolders = useSelector(foldersSelector);
 
-  const folder = allFolders.filter((f) => f.folderId === folderId)[0];
+  const folder = allFolders.filter((f) => f.folderId === folderId)[0] || {};
   const breadcrumbs = getBreadcrumbs(folder, allFolders, [
     {
       text: folder.name,
@@ -47,7 +47,9 @@ export function FolderView() {
   ]);
 
   useEffect(() => {
-    dispatch(fetchFolderElements({ folderId: folderId }));
+    setTimeout(() => {
+      dispatch(fetchFolderElements({ folderId: folderId }));
+    }, 100);
   }, [folderId]);
 
   return (

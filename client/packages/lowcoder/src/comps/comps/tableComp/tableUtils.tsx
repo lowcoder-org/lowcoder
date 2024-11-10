@@ -20,6 +20,7 @@ import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListCom
 import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
 import Tooltip from "antd/es/tooltip";
 import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
+import { EMPTY_ROW_KEY } from "./tableCompView";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -294,6 +295,7 @@ export function columnsToAntdFormat(
   dynamicColumn: boolean,
   dynamicColumnConfig: Array<string>,
   columnsAggrData: ColumnsAggrData,
+  editMode: string,
   onTableEvent: (eventName: any) => void,
 ): Array<CustomColumnType<RecordType>> {
   const customColumns = columns.filter(col => col.isCustom).map(col => col.dataIndex);
@@ -315,7 +317,7 @@ export function columnsToAntdFormat(
     }
     return 0;
   });
-  return sortedColumns.flatMap((column) => {
+  return sortedColumns.flatMap((column, mIndex) => {
     if (
       columnHide({
         hide: column.hide,
@@ -340,6 +342,7 @@ export function columnsToAntdFormat(
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
    
     return {
+      key: `${column.dataIndex}-${mIndex}`,
       title: column.showTitle ? title : '',
       titleText: column.title,
       dataIndex: column.dataIndex,
@@ -380,7 +383,7 @@ export function columnsToAntdFormat(
           )
           .getView()
           .view({
-            editable: column.editable,
+            editable: record[OB_ROW_ORI_INDEX].startsWith(EMPTY_ROW_KEY) || column.editable,
             size,
             candidateTags: tags,
             candidateStatus: status,
@@ -390,6 +393,7 @@ export function columnsToAntdFormat(
               currentRow: row,
               currentIndex: index,
             }),
+            editMode,
             onTableEvent,
           });
       },
@@ -397,6 +401,7 @@ export function columnsToAntdFormat(
         ? {
             sorter: true,
             sortOrder: sortMap.get(column.dataIndex),
+            showSorterTooltip: false,
           }
         : {}),
     };
@@ -460,8 +465,8 @@ export function genSelectionParams(
   filterData: RecordType[],
   selection: string
 ): Record<string, unknown> | undefined {
-  const idx = filterData.findIndex((row) => row[OB_ROW_ORI_INDEX] === selection);
-  if (idx < 0) {
+  const idx = filterData?.findIndex((row) => row[OB_ROW_ORI_INDEX] === selection);
+  if (!Boolean(filterData) || idx < 0) {
     return undefined;
   }
   const currentRow = filterData[idx];

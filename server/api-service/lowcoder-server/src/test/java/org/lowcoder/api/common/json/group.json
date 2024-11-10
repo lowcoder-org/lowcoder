@@ -6,13 +6,15 @@
       "name": "Develops",
       "organizationId": "org01",
       "allUsersGroup": false,
-      "type": "dev"
+      "type": "dev",
+      "gid": "01916999-a508-7b61-bba9-e27f2427396a"
     },
     {
       "id": "group01",
       "name": "group01",
       "organizationId": "org01",
-      "allUsersGroup": false
+      "allUsersGroup": false,
+      "gid": "01916999-d8ee-786b-a00f-22b52fe59224"
     }
   ]
 }

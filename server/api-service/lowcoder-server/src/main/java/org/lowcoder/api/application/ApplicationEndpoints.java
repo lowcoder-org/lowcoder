@@ -71,7 +71,7 @@ public interface ApplicationEndpoints
 		    description = "List all the recycled Lowcoder Applications in the recycle bin where the authenticated or impersonated user has access."
 	)
     @GetMapping("/recycle/list")
-    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications();
+    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -139,6 +139,16 @@ public interface ApplicationEndpoints
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
+			operationId = "updateApplicationEditingState",
+			summary = "Update Application editing state",
+			description = "Update the editing state of a specific Lowcoder Application identified by its ID."
+	)
+	@PutMapping("/editState/{applicationId}")
+	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
+														@RequestBody UpdateEditStateRequest updateEditStateRequest);
+
+	@Operation(
+			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "getUserHomepageApplication",
 		    summary = "Get the homepage Application of current User",
 		    description = "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user."
@@ -155,7 +165,8 @@ public interface ApplicationEndpoints
     @GetMapping("/list")
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
-            @RequestParam(defaultValue = "true") boolean withContainerSize);
+            @RequestParam(defaultValue = "true") boolean withContainerSize,
+			@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -279,12 +290,13 @@ public interface ApplicationEndpoints
     }
 
     public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
-										   String gid,
                                            String name,
                                            Integer applicationType,
                                            Map<String, Object> publishedApplicationDSL,
                                            Map<String, Object> editingApplicationDSL,
                                            @Nullable String folderId) {
     }
+	public record UpdateEditStateRequest(Boolean editingFinished) {
+	}
 
 }

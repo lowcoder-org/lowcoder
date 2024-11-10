@@ -45,6 +45,7 @@ export const en = {
   "accessControl": "Access Control",
   "copySuccess": "Copied Successfully",
   "copyError": "Copy Error",
+  
   "api": {
     "publishSuccess": "Published Successfully",
     "recoverFailed": "Recovery Failed",
@@ -162,6 +163,7 @@ export const en = {
     "showSearch": "Searchable",
     "defaultValue": "Default Value",
     "required": "Required Field",
+    "showEmptyValidation": "Show Validation On Empty/Reset",
     "readOnly": "Read Only",
     "readOnlyTooltip": "Read-only components appear normal but cannot be modified.",
     "minimum": "Minimum",
@@ -199,7 +201,13 @@ export const en = {
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
     "scrollbar" : "Show Scrollbars",
+    "showVerticalScrollbar" : "Show Vertical Scrollbar",
+    "showHorizontalScrollbar" : "Show Horizontal Scrollbar",
     "siderScrollbar" : "Show Scrollbars in Sider",
+    "mainScrollbar": "Show Scrollbars in main content",
+    "modalScrollbar": "Show Scrollbars in Modal",
+    "drawerScrollbar": "Show Scrollbars in Drawer",
+    "textAreaScrollBar": "Show Scrollbars in Text Area",
     "siderRight" : "Show sider on the Right",
     "siderWidth" : "Sider Width",
     "siderWidthTooltip" : "Sider width supports percentages (%) and pixels (px).",
@@ -220,8 +228,7 @@ export const en = {
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
-    "showHorizontalScrollbar": "Show Horizontal Scrollbar",
-    "showVerticalScrollbar": "Show Vertical Scrollbar",
+    "timeZone": "TimeZone",
   },
   "autoHeightProp": {
     "auto": "Auto",
@@ -558,6 +565,7 @@ export const en = {
     "siderBackgroundImagePosition": "Sider Background Image Position",
     "siderBackgroundImageOrigin": "Sider Background Image Origin",
     "activeBackground": "Active Background Color",
+    "labelBackground": "Label Background Color",
 
   },
   "export": {
@@ -596,7 +604,11 @@ export const en = {
     "timeRangeEndDesc": "End time of the range",
     "timeRangeFormattedValueDesc": "Formatted time range",
     "timeRangeFormattedStartValueDesc": "Formatted start time",
-    "timeRangeFormattedEndValueDesc": "Formatted end time"
+    "timeRangeFormattedEndValueDesc": "Formatted end time",
+    "timeZone": "Time Zone",
+    "timeZoneDesc": "Timezone of the selected date",
+
+
   },
   "validationDesc": {
     "email": "Please enter a valid email address",
@@ -1243,6 +1255,10 @@ export const en = {
     "ganttChartCompDesc" : "A chart that illustrates a project schedule, showing the start and finish dates of elements and dependencies.",
     "ganttChartCompKeywords" : "gantt chart, project management, schedule",
 
+    "kanbanCompName" : "Kanban Board (preview!)",
+    "kanbanCompDesc" : "A board for visualizing workflow, with columns representing stages of work and cards representing tasks.",
+    "kanbanCompKeywords" : "kanban, board, workflow, tasks",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",
@@ -1854,7 +1870,7 @@ export const en = {
     "columnSeparatorTooltip": "Column Separator (\"delimiter\") in downloaded CSV file. \n\nRecommendations:\n- Comma (,)\n- Semicolon (;)\n- Pipe (|)\n- Tab (\\t)",
     "columnSetting": "Show Columns Visibility Button",
     "searchText": "Search Text",
-    "searchTextTooltip": "Search and Filter the Data Presented in the Table",
+    "searchTextTooltip": "Search and Filter the Data, which is currently Presented in the Table. This is a frontend-only Search and Does Not Affect the Data Source Query.)",
     "showQuickJumper": "Show Quick Jumper",
     "hideOnSinglePage": "Hide on Single Page",
     "showSizeChanger": "Show Size Changer Button",
@@ -1985,7 +2001,7 @@ export const en = {
     "dynamicColumnConfig": "Visible Columns",
     "dynamicColumnConfigDesc": "Dynamic Column Visibility. Accepts an Array of Column Names. All Columns Are Visible by Default. Example: [\"id\", \"name\"]",
     "position": "Position",
-    "showDataLoadSpinner": "Show Spinner During Data Loading",
+    "showDataLoadSpinner": "Show Loading Indicator",
     "showValue": "Show Value",
     "expandable": "Expandable",
     "configExpandedView": "Configure Expanded View",
@@ -1998,7 +2014,14 @@ export const en = {
     "iconNull": "Icon When Null",
     "allColumn": "All",
     "visibleColumn": "Visible",
-    "emptyColumns": "No Columns Are Currently Visible"
+    "emptyColumns": "No Columns Are Currently Visible",
+    "showSummary": "Show Summary Row(s)",
+    "totalSummaryRows": "Total Rows",
+    "inlineAddNewRow": "Inline Add New Row(s)",
+    "editMode": "Edit Mode",
+    "singleClick": "Single Click",
+    "doubleClick": "Double Click",
+    "showUpdateButtons": "Show Save/Cancel Buttons",
   },
 
 
@@ -2136,7 +2159,7 @@ export const en = {
     "single": "Single",
     "multiple": "Multiple",
     "close": "Close",
-    "mode": "Select Mode"
+    "mode": "Row Select Mode"
   },
   "container": {
     "title": "Displayed Container Title",
@@ -2241,6 +2264,7 @@ export const en = {
 
   "memberSettings": {
     "admin": "Admin",
+    "superAdmin": "Super Admin",
     "adminGroupRoleInfo": "Admin Can Manage Group Members and Resources",
     "adminOrgRoleInfo": "Admins Own All Resources and Can Manage Groups.",
     "member": "Member",
@@ -2361,6 +2385,8 @@ export const en = {
 
 
   "modalComp": {
+    "open": "Open",
+    "openDesc": "Triggered When the Modal Dialog Box is Opened",
     "close": "Close",
     "closeDesc": "Triggered When the Modal Dialog Box is Closed",
     "openModalDesc": "Open the Dialog Box",
@@ -2430,7 +2456,8 @@ export const en = {
     "openUrl": "Open URL",
     "openApp": "Open App",
     "copyToClipboard": "Copy to Clipboard",
-    "downloadFile": "Download File"
+    "downloadFile": "Download File",
+    "logoutUser" : "Logout User",
   },
   "messageComp": {
     "info": "Send a Notification",
@@ -2554,7 +2581,8 @@ export const en = {
     "chartClick": "Click",
     "chartVisit": "Visit",
     "chartQuery": "Query",
-    "chartBuy": "Buy"
+    "chartBuy": "Buy",
+    "canvas": "Canvas Settings",
   },
   "themeDetail": {
     "primary": "Brand Color",
@@ -2590,8 +2618,31 @@ export const en = {
     "paddingDesc": "Default padding typically used for most components",
     "containerHeaderPadding": "Header Padding",
     "containerheaderpaddingDesc": "Default header padding typically used for most components",
-    "gridColumns": "Canvas Grid Columns",
-    "gridColumnsDesc": "Default number of columns typically used for most containers"
+    "gridColumns": "Grid Columns",
+    "gridColumnsDesc": "Default number of columns typically used for most containers",
+    "loadingIndicators": "Loading Indicators",
+    "showComponentLoadingIndicators": "Show loading indicators when component load",
+    "showDataLoadingIndicators": "Show loading indicators when data load",
+    "background": "Background Styles",
+    "gridSettings": "Grid Settings",
+    "gridRowHeight": "Grid Row Height",
+    "gridRowHeightDesc": "Height of each row in grid",
+    "gridRowCount": "Grid Row Count",
+    "gridRowCountDesc": "Max. number of rows in grid",
+    "gridPaddingX": "Horizontal Padding",
+    "gridPaddingXDesc": "Canvas horizontal padding",
+    "gridPaddingY": "Vertical Padding",
+    "gridPaddingYDesc": "Canvas vertical padding",
+    "gridBgImage": "Background Image",
+    "gridBgImageDesc": "Canvas background image",
+    "gridBgImageRepeat": "Background Image Repeat",
+    "gridBgImageRepeatDesc": "Canvas background image repeat",
+    "gridBgImageSize": "Background Image Size",
+    "gridBgImageSizeDesc": "Canvas background image size",
+    "gridBgImagePosition": "Background Image Position",
+    "gridBgImagePositionDesc": "Canvas background image position",
+    "gridBgImageOrigin": "Background Image Origin",
+    "gridBgImageOriginDesc": "Canvas background image origin",
   },
   "pluginSetting": {
     "title": "Plugins",
@@ -2623,6 +2674,8 @@ export const en = {
     "APIConsumptionDescription": "Here you can see the API Consumption for All Apps in the Current Workspace.",
     "overallAPIConsumption": "Overall API Consumption in this Workspace till now",
     "lastMonthAPIConsumption": "Last Month API Consumption, in this Workspace",
+    "npmRegistryTitle": "Custom NPM Registry",
+    "npmRegistryHelp": "Setup a custom NPM Registry to enable fetching of plugins from a private NPM registry.",
     "showHeaderInPublicApps": "Show Header In Public View",
     "showHeaderInPublicAppsHelp": "Set visibility of header in public view for all apps",
   },
@@ -2753,7 +2806,18 @@ export const en = {
     "appTitle": "Title",
     "appDescription": "Description",
     "appCategory": "Category",
-    "showPublicHeader": "Show header in public view"
+    "showPublicHeader": "Show header in public view",
+    "canvas": "Canvas Settings",
+    "gridColumns": "Grid Columns",
+    "gridRowHeight": "Grid Row Height",
+    "gridRowCount": "Grid Row Count",
+    "gridPaddingX": "Canvas Horizontal Padding",
+    "gridPaddingY": "Canvas Vertical Padding",
+    "gridBgImage": "Background Image",
+    "gridBgImageRepeat": "Background Image Repeat",
+    "gridBgImageSize": "Background Image Size",
+    "gridBgImagePosition": "Background Image Position",
+    "gridBgImageOrigin": "Background Image Origin"
   },
   "customShortcut": {
     "title": "Custom Shortcuts",
@@ -2899,7 +2963,15 @@ export const en = {
     "clone": "Clone",
     "editorMode_layout": "Layout",
     "editorMode_logic": "Logic",
-    "editorMode_both": "Both"
+    "editorMode_both": "Both",
+    "editorMode_layout_tooltip": "Customise the component's appearance and layout, in the right window. Adjust how it looks, styles, and animates.",
+    "editorMode_logic_tooltip": "Set up how your component works and interacts, in the right window. Manage its content and interactive behaviours.",
+    "AppEditingBlocked": "App Editing Blocked for:",
+    "AppEditingBlockedHint": "Changes will not be saved while another user is editing this app.",
+    "AppEditingBlockedMessage": "Please wait before check the editing status of the App.",
+    "AppEditingBlockedCheckStatus": "Check App Status",
+    "AppEditingBlockedSomeone": "Someone",
+    "AppEditingBlockedMessageSnipped": "is editing this app",
   },
   "userAuth": {
     "registerByEmail": "Sign Up",
@@ -2988,6 +3060,20 @@ export const en = {
     "createAppContent": "Welcome! Click 'App' and Start to Create Your First Application.",
     "createAppTitle": "Create App"
   },
+  "npmRegistry": {
+    "npmRegistryEnable": "Enable custom NPM Registry",
+    "npmRegistryUrl": "NPM Registry Url",
+    "npmRegistryUrlRequired": "Please input the registry URL",
+    "npmRegistryUrlInvalid": "Please input a valid URL",
+    "npmRegistryScope": "Package Scope",
+    "npmRegistryPattern": "Pattern",
+    "npmRegistryPatternInvalid": "Please input a valid pattern (starting with @ for oragnizations).",
+    "npmRegistryAuth": "Authentication",
+    "npmRegistryAuthType": "Authentication Type",
+    "npmRegistryAuthCredentials": "Authentication Credentials",
+    "npmRegistryAuthCredentialsRequired": "Please input the registry credentials",
+    "npmRegistryAuthCredentialsHelp": "For basic auth provide the base64 encoded username and password in the format 'base64(username:password)', for token auth provide the token.",
+  },
 
 
   // nineteenth part
@@ -3020,7 +3106,7 @@ export const en = {
     "appMarketplace": "Application Marketplace",
     "allApplications": "Your Apps",
     "allModules": "Your Modules",
-    "allFolders": "All Folders",
+    "allFolders": "Your Folders",
     "yourFolders" : "Your Folders",
     "modules": "Modules",
     "module": "Module",
@@ -3109,13 +3195,65 @@ export const en = {
     "chooseNavType": "Please choose navigation type",
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
+    "support": "Support",
   },
+  
+  "support" : {
+    "supportTitle": "Lowcoder Support",
+    "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
+    "newSupportTicket": "New Support Ticket",
+    "ticketTitle": "Title",
+    "priority": "Priority",
+    "assignee": "Assignee",
+    "status": "Ticket Status",
+    "updatedTime": "Updated Time",
+    "active": "Active",
+    "inactive": "Inactive",
+    "noEmail": "No Email",
+    "details": "Details",
+    "reloadTickets": "Reload Tickets",
+    "createdDate": "Created Date",
+    "updatedDate": "Updated Date",
+    "description": "Issue Description",
+    "subtasks": "Subtasks",
+    "subtasksProgress": "Progress of all Subtasks",
+    "attachments": "Issue Attachments",
+    "comments": "Comments",
+    "addComment": "Add Comment",
+    "addAttachment": "Add Attachment",
+    "edit": "Edit Ticket Description",
+    "save": "Save Ticket Description",
+    "cancel": "Cancel",
+    "submitComment": "Submit Comment",
+    "upload": "Submit Attachment",
+    "selectFile": "Select File",
+    "ticketDescriptionUpdated": "Ticket description updated successfully!",
+    "ticketDescriptionUpdateFailed": "Failed to update ticket description.",
+    "writeComment": "Write a comment...",
+    "ticketCommentAdded": "Comment added successfully!",
+    "ticketCommentFailed": "Failed to add comment.",
+    "ticketCommentEmpty": "Please write a comment before submitting.",
+    "ticketAttachmentUploaded": "Attachment uploaded successfully!",
+    "ticketAttachmentFailed": "Failed to upload attachment.",
+    "ticketAttachmentEmpty": "Please select a file to upload.",
+    "ticketFetchError": "Failed to load the ticket.",
+    "ticketNotFound": "Ticket not found.",
+    "addAttachmentFileSize": "File must be smaller than 5MB!",
+    "goBack": "Go Back",
+    "noDescription": "No description available.",
+    "createTicket": "Create a new Support Ticket",
+    "createTicketTitlePlaceholder": "Enter Title (max 150 chars)",
+    "createTicketDescriptionTitle": "Describe your problem - the more details, the better:",
+    "createTicketDescriptionPlaceholder": "Describe the issue in detail, including: 1) Steps to reproduce the issue, 2) Expected behavior versus actual behavior, 3) Code snippets, if applicable, 4) Any specific components, APIs, or configurations affected",
+    "createTicketSubmit": "Submit Ticket",
+    "createTicketInfoText": "When your Ticket is created, you can then add Screenshots, Comments in the 'Details' section."
+  },
+
   "carousel": {
     "dotPosition": "Navigation Dots position",
     "autoPlay": "AutoPlay",
     "showDots": "Show Navigation Dots"
   },
-
 
   // twentieth part
 
@@ -3580,6 +3718,39 @@ export const en = {
     "mobileNavIconSize": "Icon Size",
   },
 
+"timeZone": {
+  "UTC-12:00": "(UTC-12:00) Int'l Date Line W",
+  "UTC-11:00": "(UTC-11:00) UTC-11",
+  "UTC-10:00": "(UTC-10:00) Hawaii",
+  "UTC-09:00": "(UTC-09:00) Alaska",
+  "UTC-08:00": "(UTC-08:00) Baja CA",
+  "UTC-07:00": "(UTC-07:00) Pacific Time (US)",
+  "UTC-06:00": "(UTC-06:00) Central Time (US)",
+  "UTC-05:00": "(UTC-05:00) Eastern Time (US)",
+  "UTC-04:00": "(UTC-04:00) Atlantic Time",
+  "UTC-03:00": "(UTC-03:00) Buenos Aires",
+  "UTC-02:00": "(UTC-02:00) UTC-02",
+  "UTC-01:00": "(UTC-01:00) Cape Verde",
+  "UTC+00:00": "(UTC 00:00) UTC",
+  "UTC+01:00": "(UTC+01:00) Berlin, Rome",
+  "UTC+02:00": "(UTC+02:00) Athens, Bucharest",
+  "UTC+03:00": "(UTC+03:00) Moscow",
+  "UTC+04:00": "(UTC+04:00) Dubai, Muscat",
+  "UTC+05:00": "(UTC+05:00) Karachi",
+  "UTC+05:30": "(UTC+05:30) New Delhi",
+  "UTC+05:45": "(UTC+05:45) Kathmandu",
+  "UTC+06:00": "(UTC+06:00) Dhaka",
+  "UTC+06:30": "(UTC+06:30) Yangon",
+  "UTC+07:00": "(UTC+07:00) Bangkok",
+  "UTC+08:00": "(UTC+08:00) Beijing, HK",
+  "UTC+09:00": "(UTC+09:00) Tokyo, Seoul",
+  "UTC+09:30": "(UTC+09:30) Adelaide, Darwin",
+  "UTC+10:00": "(UTC+10:00) Sydney",
+  "UTC+11:00": "(UTC+11:00) Solomon Islands, New Caledonia",
+  "UTC+12:00": "(UTC+12:00) Auckland, Fiji",
+  "UTC+13:00": "(UTC+13:00) Nuku'alofa, Samoa",
+  "UserChoice": "UserChoice"
+},
   tour: { 
     section1Title: "Steps",
     section1Subtitle: "Steps",

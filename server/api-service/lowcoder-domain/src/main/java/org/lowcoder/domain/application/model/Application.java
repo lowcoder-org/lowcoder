@@ -20,10 +20,8 @@ import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.time.Instant;
+import java.util.*;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.memoize;
@@ -52,6 +50,12 @@ public class Application extends HasIdAndAuditing {
     private Boolean publicToMarketplace;
     @Setter
     private Boolean agencyProfile;
+    @Getter
+    @Setter
+    private String editingUserId;
+    @Getter
+    @Setter
+    protected Instant lastEditedAt;
 
     public Application(
             @JsonProperty("orgId") String organizationId,
@@ -63,9 +67,11 @@ public class Application extends HasIdAndAuditing {
             @JsonProperty("editingApplicationDSL") Map<String, Object> editingApplicationDSL,
             @JsonProperty("publicToAll") Boolean publicToAll,
             @JsonProperty("publicToMarketplace") Boolean publicToMarketplace,
-            @JsonProperty("agencyProfile") Boolean agencyProfile
+            @JsonProperty("agencyProfile") Boolean agencyProfile,
+            @JsonProperty("editingUserId") String editingUserId,
+            @JsonProperty("lastEditedAt") Instant lastEditedAt
     ) {
-        this.gid = StringUtils.isEmpty(gid)?UuidCreator.getTimeOrderedEpoch().toString():gid;
+        this.gid = gid;
         this.organizationId = organizationId;
         this.name = name;
         this.applicationType = applicationType;
@@ -75,6 +81,8 @@ public class Application extends HasIdAndAuditing {
         this.publicToMarketplace = publicToMarketplace;
         this.agencyProfile = agencyProfile;
         this.editingApplicationDSL = editingApplicationDSL;
+        this.editingUserId = editingUserId;
+        this.lastEditedAt = lastEditedAt;
     }
 
     @Transient
@@ -144,7 +152,9 @@ public class Application extends HasIdAndAuditing {
     @Transient
     @JsonIgnore
     public Map<String, Object> getLiveApplicationDsl() {
-        return MapUtils.isEmpty(publishedApplicationDSL) ? editingApplicationDSL : publishedApplicationDSL;
+        var dsl = MapUtils.isEmpty(publishedApplicationDSL) ? editingApplicationDSL : publishedApplicationDSL;
+        if (dsl == null) dsl = new HashMap<>();
+        return dsl;
     }
 
     public String getOrganizationId() {
@@ -164,8 +174,12 @@ public class Application extends HasIdAndAuditing {
     }
 
     public Map<String, Object> getEditingApplicationDSL() {
-        return editingApplicationDSL;
+        var dsl = editingApplicationDSL;
+        if (dsl == null) dsl = new HashMap<>();
+        return dsl;
     }
+
+    public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
 
     public Object getLiveContainerSize() {
         return liveContainerSize.get();

@@ -8,7 +8,7 @@ import couchdbPlugin from "./couchdb";
 import wooCommercePlugin from "./woocommerce";
 import openAiPlugin from "./openAi";
 import athenaPlugin from "./athena";
-import duckdbPlugin from "./duckdb";
+// import duckdbPlugin from "./duckdb";
 import lambdaPlugin from "./lambda";
 import googleCloudStorage from "./googleCloudStorage";
 import stripePlugin from "./stripe";
@@ -32,20 +32,24 @@ import faunaPlugin from "./fauna";
 import huggingFaceInferencePlugin from "./huggingFaceInference";
 import didPlugin from "./did";
 import bigQueryPlugin from "./bigQuery";
+import ossPlugin from "./aliyunOss";
 import appConfigPlugin from "./appconfig";
 import tursoPlugin from "./turso";
 import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
+import firebirdsqlPlugin from "./firebirdsql";
+// import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Databases
   dynamoDBPlugin,
   couchdbPlugin,
-  duckdbPlugin,
+  // duckdbPlugin,
   faunaPlugin,
   tursoPlugin,
+  firebirdsqlPlugin,
 
   // Big Data
   athenaPlugin,
@@ -74,6 +78,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
+  // boomiPlugin,
 
   // Messaging
   twilioPlugin,
@@ -85,6 +90,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  ossPlugin,
   
   // Project Management
   asanaPlugin,

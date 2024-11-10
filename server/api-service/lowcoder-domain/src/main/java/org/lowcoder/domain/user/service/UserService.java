@@ -27,6 +27,7 @@ public interface UserService {
     Mono<Map<String, User>> getByIds(Collection<String> ids);
 
     Mono<User> findBySourceAndId(String connectionSource, String connectionSourceUuid);
+    Mono<User> findByEmailDeep(String email);
 
     Mono<Boolean> saveProfilePhoto(Part filePart, User t2);
 
@@ -36,13 +37,13 @@ public interface UserService {
 
     Mono<User> findByAuthUserRawId(AuthUser authUser);
 
-    Mono<User> createNewUserByAuthUser(AuthUser authUser);
+    Mono<User> createNewUserByAuthUser(AuthUser authUser, boolean isSuperAdmin);
 
     Mono<Void> getUserAvatar(ServerWebExchange exchange, String userId);
 
-    Mono<Boolean> addNewConnection(String userId, Connection connection);
-
     Mono<User> addNewConnectionAndReturnUser(String userId, AuthUser authUser);
+
+    Mono<User> saveUser(User user);
 
     Mono<Void> deleteProfilePhoto(User visitor);
 
@@ -55,6 +56,7 @@ public interface UserService {
     Mono<Boolean> resetLostPassword(String userEmail, String token, String newPassword);
 
     Mono<Boolean> setPassword(String userId, String password);
+    Mono<Boolean> markAsSuperAdmin(String userId);
 
     Mono<UserDetail> buildUserDetail(User user, boolean withoutDynamicGroups);
 

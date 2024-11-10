@@ -28,8 +28,8 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {
   header: SimpleContainerComp,
@@ -54,6 +54,7 @@ const childrenMap = {
   autoHeight: AutoHeightControl,
   siderScrollbars: withDefault(BoolControl, false),
   contentScrollbars: withDefault(BoolControl, false),
+  mainScrollbars: withDefault(BoolControl, false),
   style: styleControl(ContainerStyle , 'style'),
   headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
   siderStyle: styleControl(ContainerSiderStyle , 'siderStyle'),
@@ -66,7 +67,6 @@ const childrenMap = {
 const layoutBaseComp = migrateOldData(
   new MultiCompBuilder(childrenMap, (props, dispatch) => {
     useMergeCompStyles(props, dispatch);
-
     return { ...props, dispatch };
   }).build(),
   fixOldStyleData
@@ -160,8 +160,13 @@ export class PageLayoutComp extends layoutBaseComp implements IContainer {
   heightPropertyView() {
     return [
       this.children.autoHeight.getPropertyView(),
-      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar")}),
-      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.contentScrollbar") }),
+      this.children.siderScrollbars.propertyView({ label: trans("prop.siderScrollbar") }),
+      (!this.children.autoHeight.getView()) && this.children.contentScrollbars.propertyView({ label: trans("prop.showVerticalScrollbar") }),
+      (!this.children.autoHeight.getView()) && (
+        !this.children.siderScrollbars.getView() ||
+        !this.children.contentScrollbars.getView()
+       ) &&
+         this.children.mainScrollbars.propertyView({ label: trans("prop.mainScrollbar") }),
     ];
   }
 

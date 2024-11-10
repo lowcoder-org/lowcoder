@@ -57,7 +57,6 @@ import {
 import React, { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Wrapper = styled.div<{
   $style: InputLikeStyleType;
@@ -99,17 +98,12 @@ let MentionTmpComp = (function () {
     autoHeight: AutoHeightControl,
     style: styleControl(InputLikeStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
-    mentionList: jsonControl(checkMentionListData, {
-      "@": ["Li Lei", "Han Meimei"],
-      "#": ["123", "456", "789"],
-    }),
+    mentionList: jsonControl(checkMentionListData, {"@":["John Doe","Jane Doe","Michael Smith","Emily Davis","Robert Johnson","Patricia Brown","William Jones","Jennifer Miller","David Wilson","Linda Moore"],"#":["#lowcode","#automation","#appbuilder","#nocode","#workflow","#draganddrop","#rapiddevelopment","#digitaltransformation","#integration","#api"]}),
     onEvent: eventHandlerControl(EventOptions),
     invalid: booleanExposingStateControl("invalid"),
   };
 
-  return new UICompBuilder(childrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {  
     const { mentionList } = props;
     const [validateState, setvalidateState] = useState({});
     const [activationFlag, setActivationFlag] = useState(false);

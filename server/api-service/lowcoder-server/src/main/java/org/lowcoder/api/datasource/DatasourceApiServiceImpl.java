@@ -84,27 +84,33 @@ public class DatasourceApiServiceImpl implements DatasourceApiService {
     }
 
     @Override
-    public Flux<Datasource> listJsDatasourcePlugins(String applicationId) {
+    public Flux<Datasource> listJsDatasourcePlugins(String applicationId, String name, String type) {
         return applicationService.findById(applicationId)
                 .delayUntil(application -> applicationApiService.checkPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS))
                 .flatMapMany(application -> datasourceService.getByOrgId(application.getOrganizationId()))
                 .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL)
-                .filter(datasource -> datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType()))
-                .delayUntil(datasource -> jsDatasourceHelper.processDynamicQueryConfig(datasource))
+                .filter(datasource -> datasourceMetaInfoService.isJsDatasourcePlugin(datasource.getType()) &&
+                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
+                        (type == null || datasource.getType().equals(type))
+                )
+                .delayUntil(jsDatasourceHelper::processDynamicQueryConfig)
                 .doOnNext(datasource -> datasource.setDetailConfig(null));
     }
 
     @Override
-    public Flux<DatasourceView> listAppDataSources(String appId) {
+    public Flux<DatasourceView> listAppDataSources(String appId, String name, String type) {
         return applicationService.findById(appId)
-                .flatMapMany(application -> listOrgDataSources(application.getOrganizationId()));
+                .flatMapMany(application -> listOrgDataSources(application.getOrganizationId(), name, type));
     }
 
     @Override
-    public Flux<DatasourceView> listOrgDataSources(String orgId) {
+    public Flux<DatasourceView> listOrgDataSources(String orgId, String name, String type) {
         // get datasource
         Flux<Datasource> datasourceFlux = datasourceService.getByOrgId(orgId)
-                .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL)
+                .filter(datasource -> datasource.getDatasourceStatus() == DatasourceStatus.NORMAL &&
+                        (name == null || StringUtils.containsIgnoreCase(datasource.getName(), name)) &&
+                        (type == null || datasource.getType().equals(type))
+                )
                 .cache();
 
         // get user-datasource permissions

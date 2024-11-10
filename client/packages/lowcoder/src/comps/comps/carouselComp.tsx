@@ -17,7 +17,6 @@ import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/control
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 // TODO: dots at top position needs proper margin (should be the same as bottom position)
 
@@ -30,7 +29,7 @@ const Container = styled.div<{$bg: string; $animationStyle:AnimationStyleType}>`
   &,
   .ant-carousel {
     height: 100%;
-    background-color: ${(props) => props.$bg};
+    background: ${(props) => props.$bg};
     ${props=>props.$animationStyle}
   }
 `;
@@ -49,9 +48,7 @@ let CarouselBasicComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState(0);
     const onResize = () => {

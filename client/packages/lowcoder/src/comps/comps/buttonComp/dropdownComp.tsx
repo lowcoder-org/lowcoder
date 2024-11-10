@@ -22,7 +22,6 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
@@ -53,7 +52,7 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
       ${(props) => `text-transform: ${props.$buttonStyle.textTransform};`}
       ${(props) => `font-weight: ${props.$buttonStyle.textWeight};`}
     }
-    ${(props) => `background-color: ${props.$buttonStyle.background};`}
+    ${(props) => `background: ${props.$buttonStyle.background};`}
     ${(props) => `color: ${props.$buttonStyle.text};`}
     ${(props) => `padding: ${props.$buttonStyle.padding};`}
     ${(props) => `font-size: ${props.$buttonStyle.textSize};`}
@@ -90,9 +89,7 @@ const DropdownTmpComp = (function () {
     onEvent: ButtonEventHandlerControl,
     style: styleControl(DropdownStyle, 'style'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-   useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const hasIcon =
       props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
     const items = props.options
@@ -119,7 +116,7 @@ const DropdownTmpComp = (function () {
     );
 
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         {props.onlyMenu ? (
           <Dropdown
             disabled={props.disabled}

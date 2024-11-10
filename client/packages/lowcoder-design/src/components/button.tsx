@@ -1,4 +1,6 @@
 import Button, { ButtonProps } from "antd/es/button";
+import Spin from "antd/es/spin";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined"
 import styled, { css } from "styled-components";
 import { Loading } from "./Loading";
 import * as React from "react";
@@ -181,7 +183,7 @@ const TacoButton = forwardRef(
     props: Omit<ButtonProps, "type"> & {
       buttonType?: TacoButtonType;
     },
-    ref: React.Ref<HTMLElement>
+    ref: React.Ref<HTMLButtonElement>
   ) => {
     const { buttonType, ...restProps } = props;
     let loadingBackground;
@@ -206,10 +208,10 @@ const TacoButton = forwardRef(
               {props.icon}
               {props.children}
             </span>
-            <Loading
+            <Spin
+              size="small"
+              indicator={<LoadingOutlined spin style={{color: 'white'}} />}
               style={loadingStyle}
-              backgroundColor={loadingBackground}
-              color={loadingColor}
             />
           </>
         ) : (

@@ -21,10 +21,9 @@ import { trans } from "i18n";
 import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
-import type { ItemType } from "antd/es/menu/hooks/useItems";
+import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
 import { EditorContext } from "comps/editorState"; 
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Error = styled.div`
   color: #f5222d;
@@ -74,9 +73,7 @@ const ScannerTmpComp = (function () {
     style: styleControl(DropdownStyle, 'style'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
     const [errMessage, setErrMessage] = useState("");
     const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
@@ -137,7 +134,7 @@ const ScannerTmpComp = (function () {
     };
 
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         <Button100
           ref={props.viewRef}
           $buttonStyle={props.style}

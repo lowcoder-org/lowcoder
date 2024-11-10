@@ -27,7 +27,7 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
         font-style: ${buttonStyle.fontStyle};
         text-transform:${buttonStyle.textTransform};
         text-decoration:${buttonStyle.textDecoration};
-        background-color: ${buttonStyle.background};
+        background: ${buttonStyle.background};
         border-radius: ${buttonStyle.radius};
         margin: ${buttonStyle.margin};
         padding: ${buttonStyle.padding};
@@ -68,10 +68,12 @@ export const Button100 = styled(Button)<{ $buttonStyle?: ButtonStyleType }>`
   line-height:${(props) => props.$buttonStyle?.lineHeight}; 
 `;
 
-export const ButtonCompWrapper = styled.div<{ disabled: boolean }>`
+export const ButtonCompWrapper = styled.div<{ $disabled: boolean }>`
+  display: flex;
+
   // The button component is disabled but can respond to drag & select events
   ${(props) =>
-    props.disabled &&
+    props.$disabled &&
     `
     cursor: not-allowed;
     button:disabled {

@@ -1778,11 +1778,20 @@ var CodeNode = /** @class */ (function (_super) {
             var isFetching_1 = false;
             var ready_1 = true;
             topDepends.forEach(function (paths, depend) {
+                var pathsArr = Array.from(paths);
                 var value = depend.evaluate(exposingNodes);
                 if ((options === null || options === void 0 ? void 0 : options.ignoreManualDepReadyStatus) &&
                     ___default["default"].has(value, TRIGGER_TYPE_FIELD) &&
                     value.triggerType === "manual") {
                     return;
+                }
+                // if query is dependent on itself, mark as ready
+                if ((pathsArr === null || pathsArr === void 0 ? void 0 : pathsArr[0]) === (options === null || options === void 0 ? void 0 : options.queryName))
+                    return;
+                // wait for lazy loaded comps to load before executing query on page load
+                if (!Object.keys(value).length && paths.size) {
+                    isFetching_1 = true;
+                    ready_1 = false;
                 }
                 if (___default["default"].has(value, IS_FETCHING_FIELD)) {
                     isFetching_1 = isFetching_1 || value.isFetching === true;

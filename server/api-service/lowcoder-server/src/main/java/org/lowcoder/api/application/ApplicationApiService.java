@@ -17,7 +17,7 @@ import java.util.Set;
 public interface ApplicationApiService {
     Mono<ApplicationView> create(ApplicationEndpoints.CreateApplicationRequest createApplicationRequest);
 
-    Flux<ApplicationInfoView> getRecycledApplications();
+    Flux<ApplicationInfoView> getRecycledApplications(String name);
 
     Mono<ApplicationView> delete(String applicationId);
 
@@ -34,6 +34,8 @@ public interface ApplicationApiService {
     Mono<ApplicationView> update(String applicationId, Application application);
 
     Mono<ApplicationView> publish(String applicationId);
+
+    Mono<Boolean> updateEditState(String applicationId, ApplicationEndpoints.UpdateEditStateRequest updateEditStateRequest);
 
     Mono<Boolean> grantPermission(String applicationId,
                                   Set<String> userIds,

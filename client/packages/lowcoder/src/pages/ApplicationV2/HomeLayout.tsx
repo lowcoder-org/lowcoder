@@ -305,7 +305,6 @@ export interface HomeLayoutProps {
 
 export function HomeLayout(props: HomeLayoutProps) {
 
-
   const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [], mode } = props;
 
   const categoryOptions = [

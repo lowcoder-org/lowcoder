@@ -1,7 +1,8 @@
 import { default as Form } from "antd/es/form";
 import { default as Input } from "antd/es/input";
+import { default as ColorPicker } from "antd/es/color-picker";
 import { trans, getCalendarLocale } from "../../i18n/comps";
-import { createRef, useContext, useRef, useState, useEffect } from "react";
+import { createRef, useContext, useRef, useState, useEffect, useCallback, useMemo, Suspense } from "react";
 import dayjs from "dayjs";
 import FullCalendar from "@fullcalendar/react";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
@@ -17,6 +18,7 @@ import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
 import momentPlugin from "@fullcalendar/moment";
 
 import ErrorBoundary from "./errorBoundary";
+import { default as Tabs } from "antd/es/tabs";
 
 import {
   isValidColor,
@@ -45,9 +47,13 @@ import {
   jsonValueExposingStateControl,
   CalendarDeleteIcon,
   Tooltip,
-  useMergeCompStyles,
   EditorContext,
   CompNameContext,
+  AnimationStyle,
+  EventModalStyle,
+  migrateOldData,
+  controlItem,
+  depsConfig,
 } from 'lowcoder-sdk';
 
 import {
@@ -58,7 +64,7 @@ import {
   Event,
   Remove,
   EventType,
-  defaultData,
+  defaultEvents,
   ViewType,
   buttonText,
   headerToolbar,
@@ -69,18 +75,113 @@ import {
   viewClassNames,
   FormWrapper,
   resourcesDefaultData,
-  resourcesEventsDefaultData,
   resourceTimeLineHeaderToolbar,
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
+import { EventOptionControl } from "./eventOptionsControl";
+
+function fixOldData(oldData: any) {
+  if(!Boolean(oldData)) return;
+  let {events, resourcesEvents, ...data } = oldData;
+  let allEvents: any[] = [];
+  let isDynamicEventData = false;
+
+  if (events && typeof events === 'string') {
+    try {
+      let eventsList = JSON.parse(events);
+      if (eventsList && eventsList.length) {
+        eventsList = eventsList?.map(event => {
+          const {title, ...eventData} = event;
+          return {
+            ...eventData,
+            label: title, // replace title field with label
+          }
+        });
+        allEvents = allEvents.concat(eventsList);
+      }
+    } catch (_) {
+      isDynamicEventData = true;
+    }
+  }
+  if (resourcesEvents && typeof resourcesEvents === 'string') {
+    try {
+      let resourceEventsList = JSON.parse(resourcesEvents);
+      if (resourceEventsList && resourceEventsList.length) {
+        resourceEventsList = resourceEventsList?.map(event => {
+          const {title, ...eventData} = event;
+          return {
+            ...eventData,
+            label: title, // replace title field with label
+          }
+        });
+        allEvents = allEvents.concat(resourceEventsList);
+      }
+    } catch (_) {}
+  }
+  
+  if (isDynamicEventData) {
+    return {
+      ...data,
+      events: {
+        manual: {
+          manual: allEvents,
+        },
+        mapData: {
+          data: events,
+          mapData: {
+            id: "{{item.id}}",
+            label: "{{item.title}}",
+            detail: "{{item.detail}}",
+            start: "{{item.start}}",
+            end: "{{item.end}}",
+            color: "{{item.color}}",
+            allDay: "{{item.allDay}}",
+            groupId: "{{item.groupId}}",
+            resourceId: "{{item.resourceId}}",
+          }
+        },
+        optionType: "map",
+      },
+    };
+  }
+
+  if (allEvents.length) {
+    return {
+      ...data,
+      events: {
+        manual: {
+          manual: allEvents,
+        },
+        mapData: {
+          data: JSON.stringify(allEvents, null, 2),
+          mapData: {
+            id: "{{item.id}}",
+            label: "{{item.title}}",
+            detail: "{{item.detail}}",
+            start: "{{item.start}}",
+            end: "{{item.end}}",
+            color: "{{item.color}}",
+            allDay: "{{item.allDay}}",
+            groupId: "{{item.groupId}}",
+            resourceId: "{{item.resourceId}}",
+          }
+        },
+        optionType: "manual",
+      },
+    };
+  }
+
+  return {
+    ...data,
+    events,
+  };
+}
 
 let childrenMap: any = {
-  events: jsonValueExposingStateControl("events", defaultData),
-  resourcesEvents: jsonValueExposingStateControl("resourcesEvents", resourcesEventsDefaultData),
+  events: EventOptionControl,
   resources: jsonValueExposingStateControl("resources", resourcesDefaultData),
   resourceName: withDefault(StringControl, trans("calendar.resourcesDefault")),
-  onEvent: CalendarEventHandlerControl,
-  // onDropEvent: safeDragEventHandlerControl,
+  onEvent: CalendarEventHandlerControl ? CalendarEventHandlerControl : ChangeEventHandlerControl,
   editable: withDefault(BoolControl, true),
   showEventTime: withDefault(BoolControl, true),
   showWeekends: withDefault(BoolControl, true),
@@ -93,7 +194,10 @@ let childrenMap: any = {
   licenseKey: withDefault( StringControl, "" ),
   currentFreeView: dropdownControl(DefaultWithFreeViewOptions, "timeGridWeek"),
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  showVerticalScrollbar: withDefault(BoolControl, false),
 };
+
 // this should ensure backwards compatibility with older versions of the SDK
 if (DragEventHandlerControl) { 
   childrenMap = {
@@ -101,10 +205,16 @@ if (DragEventHandlerControl) {
     onDropEvent: DragEventHandlerControl,
   }
 }
+if (EventModalStyle) { 
+  childrenMap = {
+    ...childrenMap,
+    modalStyle:  styleControl(EventModalStyle),
+  }
+}
+
 let CalendarBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props: { 
     events: any; 
-    resourcesEvents: any; 
     resources: any; 
     resourceName : string
     onEvent?: any;
@@ -122,48 +232,89 @@ let CalendarBasicComp = (function () {
     licensed?: boolean;
     currentFreeView?: string; 
     currentPremiumView?: string; 
+    animationStyle?:any;
+    modalStyle?:any
+    showVerticalScrollbar?:boolean
   }, dispatch: any) => {
-  
-  const comp = useContext(EditorContext).getUICompByName(
-    useContext(CompNameContext)
+    const comp = useContext(EditorContext)?.getUICompByName(
+      useContext(CompNameContext)
     );
-    const onEventVal = comp?.toJsonValue().comp.onEvent;
-  
-
+    
     const theme = useContext(ThemeContext);
     const ref = createRef<HTMLDivElement>();
     const editEvent = useRef<EventType>();
     const [form] = Form.useForm(); 
     const [left, setLeft] = useState<number | undefined>(undefined);
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
-
-    useMergeCompStyles?.(props, dispatch);
-
+    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
+    
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
     }, [props.licenseKey]);
 
-    let currentView = licensed ? props.currentPremiumView : props.currentFreeView;
-    let currentEvents = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? props.resourcesEvents : props.events;
+    const onEventVal = useMemo(() => comp?.toJsonValue()?.comp?.onEvent, [comp]);
+
+    const initialDate = useMemo(() => {
+      let date = undefined;
+      try {
+        date = new Date(props.defaultDate || Date.now()).toISOString();
+      } catch (error) {
+        date = undefined;
+      }
+      return date;
+    }, [props.defaultDate]);
+
+    const currentView = useMemo(() => {
+      return licensed ? props.currentPremiumView : props.currentFreeView;
+    },[
+      licensed,
+      props.currentPremiumView,
+      props.currentFreeView,
+    ]);
+
+    const currentEvents = useMemo(() => {
+      return currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
+        ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
+        : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
+    }, [
+      currentView,
+      props.events,
+    ])
 
     // we use one central stack of events for all views
-    let events = Array.isArray(currentEvents.value) ? currentEvents.value.map((item: EventType) => {
-      return {
-        title: item.title,
-        id: item.id,
-        start: dayjs(item.start, DateParser).format(),
-        end: dayjs(item.end, DateParser).format(),
-        allDay: item.allDay,
-        resourceId: item.resourceId ? item.resourceId : null,
-        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
-        ...(item.groupId ? { groupId: item.groupId } : {}),
-      };
-    }) : [currentEvents.value];
+    const events = useMemo(() => {
+      return Array.isArray(currentEvents) ? currentEvents.map((item: EventType) => {
+        return {
+          title: item.label,
+          id: item.id,
+          start: dayjs(item.start, DateParser).format(),
+          end: dayjs(item.end, DateParser).format(),
+          allDay: item.allDay,
+          resourceId: item.resourceId ? item.resourceId : null,
+          groupId: item.groupId ? item.groupId : null,
+          backgroundColor: item.backgroundColor,
+          extendedProps: {
+            color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+          ...(item.groupId ? { groupId: item.groupId } : {}), // Ensure color is in extendedProps
+          detail: item.detail,
+          titleColor:item.titleColor,
+          detailColor:item.detailColor,
+          titleFontWeight:item.titleFontWeight,
+          titleFontStyle:item.titleFontStyle,
+          detailFontWeight:item.detailFontWeight,
+          detailFontStyle:item.detailFontStyle,
+          animation:item?.animation,
+          animationDelay:item?.animationDelay,
+          animationDuration:item?.animationDuration,
+          animationIterationCount:item?.animationIterationCount
+        }}
+      }) : [currentEvents];
+    }, [currentEvents, theme])
 
-    const resources = props.resources.value;
+    const resources = useMemo(() => props.resources.value, [props.resources.value]);
 
     // list all plugins for Fullcalendar
-    const plugins = [
+    const plugins = useMemo(() => [
       dayGridPlugin,
       timeGridPlugin,
       interactionPlugin,
@@ -173,34 +324,35 @@ let CalendarBasicComp = (function () {
       resourceTimeGridPlugin,
       adaptivePlugin,
       multiMonthPlugin,
-    ];
+    ], []);
 
     // filter out premium plugins if not licensed
-    const filteredPlugins = plugins.filter((plugin) => {
-      if (!licensed) {
-        return ![resourceTimelinePlugin, resourceTimeGridPlugin, adaptivePlugin].includes(plugin);
-      }
-      return true;
-    });
+    const filteredPlugins = useMemo(() => {
+      return plugins.filter((plugin) => {
+        if (!licensed) {
+          return ![resourceTimelinePlugin, resourceTimeGridPlugin, adaptivePlugin].includes(plugin);
+        }
+        return true;
+      });
+    }, [plugins, licensed]);
 
-    const toolBar = (defaultView: any) => {
-      switch (defaultView) {
+    const toolBar = useMemo(() => {
+      let toolBarPos: {left: string, right: string};
+      switch (currentView) {
         case "resourceTimelineDay":
-          return resourceTimeLineHeaderToolbar;
+          toolBarPos = resourceTimeLineHeaderToolbar;
           break;
         case "resourceTimeGridDay":
-          return resourceTimeGridHeaderToolbar;
+          toolBarPos = resourceTimeGridHeaderToolbar;
           break;
         default:
-          return headerToolbar;
+          toolBarPos = headerToolbar;
           break;
       }
-    };
+      return toolBarPos;
+    }, [currentView]);
 
-
-    const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
-
-    const handleDatesSet = (arg: { view: { type: any; }; }) => {
+    const handleDatesSet = useCallback((arg: { view: { type: any; }; }) => {
       switch (arg.view.type) {
         case "resourceTimelineDay":
           setCurrentSlotLabelFormat(slotLabelFormat);
@@ -215,30 +367,21 @@ let CalendarBasicComp = (function () {
           setCurrentSlotLabelFormat(slotLabelFormat);
           break;
       }
-    };
+    }, [slotLabelFormat, slotLabelFormatWeek, slotLabelFormatMonth]);
 
-    let initialDate: string | undefined;
+    const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
+      comp.children?.comp.children.events.children.manual.children.manual.dispatch(
+        comp.children?.comp.children.events.children.manual.children.manual.setChildrensAction(
+          data
+        )
+      );
+      comp.children?.comp.children.events.children.mapData.children.data.dispatchChangeValueAction(
+        JSON.stringify(data)
+      );
+      props.onEvent("change");
+    }, [comp, props.onEvent]);
 
-    try {
-      initialDate = new Date(props.defaultDate || Date.now()).toISOString();
-    } catch (error) {
-      initialDate = undefined;
-    }
-
-    let {
-      showEventTime,
-      showWeekends,
-      showAllDay,
-      dayMaxEvents,
-      eventMaxStack,
-      style,
-      firstDay,
-      editable,
-      licenseKey,
-      resourceName,
-    } = props;
-
-    function renderEventContent(eventInfo: EventContentArg) {
+    const renderEventContent = useCallback((eventInfo: EventContentArg) => {
       const isList = eventInfo.view.type === "listWeek";
       let sizeClass = "";
       if (
@@ -261,56 +404,332 @@ let CalendarBasicComp = (function () {
         (eventInfo.view.type as ViewType) !== ViewType.MONTH
           ? "past"
           : "";
-
       return (
-        <Event
-          className={`event ${sizeClass} ${stateClass}`}
-          $bg={eventInfo.backgroundColor}
-          theme={theme?.theme}
-          $isList={isList}
-          $allDay={Boolean(showAllDay)}
-          $style={props.style}
-        >
-          <div className="event-time">{eventInfo.timeText}</div>
-          <div className="event-title">{eventInfo.event.title}</div>
-          <Remove
+        <Suspense fallback={null}>
+          <Event
+            className={`event ${sizeClass} ${stateClass}`}
+            theme={theme?.theme}
             $isList={isList}
-            className="event-remove"
-            onClick={(e) => {
-              e.stopPropagation();
-              props.onEvent("change");
-              const event = events.filter(
-                (item: EventType) => item.id !== eventInfo.event.id
-              );
-              props.events.onChange(event);
-            }}
-            onMouseDown={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
+            $allDay={Boolean(props.showAllDay)}
+            $style={props.style}
+            $backgroundColor={eventInfo.backgroundColor}
+            $extendedProps={eventInfo?.event?.extendedProps}
           >
-            <CalendarDeleteIcon />
-          </Remove>
-        </Event>
+            <div className="event-time">{eventInfo?.timeText}</div>
+            <div className="event-title">{eventInfo?.event?.title}</div>
+            <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
+            <Remove
+              $isList={isList}
+              className="event-remove"
+              onClick={(e) => {
+                e.stopPropagation();
+                const events = props.events.filter(
+                  (item: EventType) => item.id !== eventInfo.event.id
+                );
+                handleEventDataChange(events);
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              <CalendarDeleteIcon />
+            </Remove>
+          </Event>
+        </Suspense>
       );
-    }
+    }, [
+      theme,
+      props.style,
+      props.events,
+      props.showAllDay,
+      handleEventDataChange,
+    ]);
 
-    const handleDbClick = () => {
-      const event = props.events.value.find(
+    const showModal = useCallback((event: EventType, ifEdit: boolean) => {
+      if (!modalInstance) return;
+
+      const modalTitle = ifEdit
+        ? trans("calendar.editEvent")
+        : trans("calendar.creatEvent");
+      form && form.setFieldsValue(event);
+      const eventId = editEvent.current?.id;
+
+      CustomModal.confirm({
+        title: modalTitle,
+        customStyles: {
+          backgroundColor:props?.modalStyle?.background,
+          animationStyle:props?.animationStyle,
+        },
+        width: "450px",
+        content: (
+          <Tabs defaultActiveKey="1">
+            <Tabs.TabPane tab={trans("calendar.general")} key="1">
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
+                <Form.Item
+                  label={
+                    <Tooltip title={trans("calendar.eventIdTooltip")}>
+                      {trans("calendar.eventId")}
+                    </Tooltip>
+                  }
+                  name="id"
+                  rules={[
+                    { required: true, message: trans("calendar.eventIdRequire") },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventName")}
+                  name="label"
+                  rules={[
+                    { required: true, message: trans("calendar.eventNameRequire") },
+                  ]}
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetail")}
+                  name="detail"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventGroupId")}
+                  name="groupId"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventResourceId")}
+                  name="resourceId"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.colorStyles")} key="2">
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
+                <Form.Item
+                  label={trans("calendar.eventTitleColor")}
+                  name="titleColor"
+                >
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('titleColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('titleColor', hex)}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailColor")}
+                  name="detailColor"
+                >
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('detailColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('detailColor', hex)}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventColor")}
+                  name="color"
+                >
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('color')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('color', hex)}
+                  />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventBackgroundColor")}
+                  name="backgroundColor"
+                >
+                  <ColorPicker
+                    getPopupContainer={(node: any) => node.parentNode}
+                    defaultValue={form.getFieldValue('backgroundColor')}
+                    showText
+                    allowClear
+                    format="hex"
+                    onChange={(_, hex) => form.setFieldValue('backgroundColor', hex)}
+                  />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.fontStyles")} key="3">
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
+                <Form.Item
+                  label={trans("calendar.eventTitleFontWeight")}
+                  name="titleFontWeight"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventTitleFontStyle")}
+                  name="titleFontStyle"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailFontWeight")}
+                  name="detailFontWeight"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.eventdetailFontStyle")}
+                  name="detailFontStyle"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+            <Tabs.TabPane tab={trans("calendar.animations")} key="4">
+              <FormWrapper form={form} $modalStyle={props.modalStyle}>
+                <Form.Item
+                  label={trans("calendar.animationType")}
+                  name="animation"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationDelay")}
+                  name="animationDelay"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationDuration")}
+                  name="animationDuration"
+                >
+                  <Input />
+                </Form.Item>
+                <Form.Item
+                  label={trans("calendar.animationIterationCount")}
+                  name="animationIterationCount"
+                >
+                  <Input />
+                </Form.Item>
+              </FormWrapper>
+            </Tabs.TabPane>
+          </Tabs>
+        ),
+        onConfirm: () => {
+          form.submit();
+          return form.validateFields().then(() => {
+            const {
+              id,
+              label = "",
+              detail,
+              groupId,
+              resourceId,
+              color,
+              backgroundColor,
+              titleColor,
+              detailColor,
+              titleFontWeight,
+              titleFontStyle,
+              detailFontWeight,
+              detailFontStyle,
+              animation,
+              animationDelay,
+              animationDuration,
+              animationIterationCount } = form.getFieldsValue();
+            const idExist = props.events.findIndex(
+              (item: EventType) => item.id === id
+            );
+            if (idExist > -1 && id !== eventId) {
+              form.setFields([
+                { name: "id", errors: [trans("calendar.eventIdExist")] },
+              ]);
+              throw new Error();
+            }
+            if (ifEdit) {
+              const changeEvents = props.events.map((item: EventType) => {
+                if (item.id === eventId) {
+                  return {
+                    ...item,
+                    label,
+                    detail,
+                    id,
+                    ...(groupId !== undefined ? { groupId } : null),
+                    ...(resourceId !== undefined ? { resourceId } : null),
+                    ...(color !== undefined ? { color } : null),
+                    ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                    ...(titleColor !== undefined ? { titleColor } : null),
+                    ...(detailColor !== undefined ? { detailColor } : null),
+                    ...(titleFontWeight !== undefined ? { titleFontWeight } : null),
+                    ...(titleFontStyle !== undefined ? { titleFontStyle } : null),
+                    ...(detailFontWeight !== undefined ? { detailFontWeight } : null),
+                    ...(detailFontStyle !== undefined ? { detailFontStyle } : null),
+                    ...(animation !== undefined ? { animation } : null),
+                    ...(animationDelay !== undefined ? { animationDelay } : null),
+                    ...(animationDuration !== undefined ? { animationDuration } : null),
+                    ...(animationIterationCount !== undefined ? { animationIterationCount } : null),
+                  };
+                } else {
+                  return item;
+                }
+              });
+              handleEventDataChange(changeEvents);
+            } else {
+              const createInfo = {
+                allDay: event.allDay,
+                start: event.start,
+                end: event.end,
+                id,
+                label,
+                detail,
+                titleFontWeight,
+                titleFontStyle,
+                detailFontWeight,
+                detailFontStyle,
+                animation,
+                animationDelay,
+                animationDuration,
+                animationIterationCount,
+                ...(groupId !== undefined ? { groupId } : null),
+                ...(resourceId !== undefined ? { resourceId } : null),
+                ...(color !== undefined ? { color } : null),
+                ...(backgroundColor !== undefined ? { backgroundColor } : null),
+                ...(titleColor !== undefined ? { titleColor } : null),
+                ...(detailColor !== undefined ? { detailColor } : null),
+              };
+              handleEventDataChange([...props.events, createInfo]);
+            }
+            form.resetFields();
+          }); //small change
+        },
+        onCancel: () => {
+          form.resetFields();
+        },
+      });
+    }, [
+      form,
+      editEvent,
+      props.events,
+      props?.modalStyle,
+      props?.animationStyle,
+      handleEventDataChange,
+    ]); 
+
+    const handleDbClick = useCallback(() => {
+      const event = props.events.find(
         (item: EventType) => item.id === editEvent.current?.id
       ) as EventType;
-      if (!editable || !editEvent.current) {
+      if (!props.editable || !editEvent.current) {
         return;
       }
       if (event) {
-        const { title, groupId, color, id } = event;
-        const eventInfo = {
-          title,
-          groupId,
-          color,
-          id,
-        };
-        showModal(eventInfo, true);
+        showModal(event, true);
       } else {
         if (onEventVal && onEventVal.some((e: any) => e.name === 'doubleClick')) {
           // Check if 'doubleClick' is included in the array
@@ -319,14 +738,20 @@ let CalendarBasicComp = (function () {
           showModal(editEvent.current as EventType, false);
         }
       }
-    };
+    }, [
+      editEvent,
+      props.events,
+      props.editable,
+      onEventVal,
+      showModal,
+    ]);
 
-    const handleCreate = (info: DateSelectArg) => {
+    const handleCreate = useCallback((info: DateSelectArg) => {
       const event = {
         allDay: info.allDay,
         start: info.startStr,
         end: info.endStr,
-      };
+      } as EventType;
       const view = info.view.type as ViewType;
       const duration = dayjs(info.end).diff(dayjs(info.start), "minutes");
       const singleClick =
@@ -341,118 +766,21 @@ let CalendarBasicComp = (function () {
         return;
       }
       showModal(event, false);
-    };
+    }, [editEvent, showModal]);
 
-    const showModal = (event: EventType, ifEdit: boolean) => {
-      if (!modalInstance) return;
-
-      const modalTitle = ifEdit
-        ? trans("calendar.editEvent")
-        : trans("calendar.creatEvent");
-      form && form.setFieldsValue(event);
-      const eventId = editEvent.current?.id;
-      CustomModal.confirm({
-        title: modalTitle,
-        content: (
-          <FormWrapper form={form}>
-            <Form.Item
-              label={
-                <Tooltip title={trans("calendar.eventIdTooltip")}>
-                  {trans("calendar.eventId")}
-                </Tooltip>
-              }
-              name="id"
-              rules={[
-                { required: true, message: trans("calendar.eventIdRequire") },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label={trans("calendar.eventName")}
-              name="title"
-              rules={[
-                { required: true, message: trans("calendar.eventNameRequire") },
-              ]}
-            >
-              <Input />
-            </Form.Item>
-            <Form.Item label={trans("calendar.eventColor")} name="color">
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label={
-                <Tooltip title={trans("calendar.groupIdTooltip")}>
-                  {trans("calendar.eventGroupId")}
-                </Tooltip>
-              }
-              name="groupId"
-            >
-              <Input />
-            </Form.Item>
-          </FormWrapper>
-        ),
-        onConfirm: () => {
-          form.submit();
-          return form.validateFields().then(() => {
-            const { id, groupId, color, title = "" } = form.getFieldsValue();
-            const idExist = props.events.value.findIndex(
-              (item: EventType) => item.id === id
-            );
-            if (idExist > -1 && id !== eventId) {
-              form.setFields([
-                { name: "id", errors: [trans("calendar.eventIdExist")] },
-              ]);
-              throw new Error();
-            }
-            if (ifEdit) {
-              const changeEvents = props.events.value.map((item: EventType) => {
-                if (item.id === eventId) {
-                  return {
-                    ...item,
-                    title,
-                    id,
-                    ...(groupId !== undefined ? { groupId } : null),
-                    ...(color !== undefined ? { color } : null),
-                  };
-                } else {
-                  return item;
-                }
-              });
-              props.events.onChange(changeEvents);
-            } else {
-              const createInfo = {
-                allDay: event.allDay,
-                start: event.start,
-                end: event.end,
-                id,
-                title,
-                ...(groupId !== undefined ? { groupId } : null),
-                ...(color !== undefined ? { color } : null),
-              };
-              props.events.onChange([...props.events.value, createInfo]);
-            }
-            props.onEvent("change");
-            form.resetFields();
-          }); //small change
-        },
-        onCancel: () => {
-          form.resetFields();
-        },
-      });
-    }; 
-
-    const handleDrop = () => {
+    const handleDrop = useCallback(() => {
       if (typeof props.onDropEvent === 'function') {
         props.onDropEvent("dropEvent");
       }
-    };
+    }, [props.onDropEvent]);
+    
     return (
       <Wrapper
         ref={ref}
-        $editable={editable}
-        $style={style}
+        $editable={props.editable}
+        $style={props.style}
         $theme={theme?.theme}
+        $showVerticalScrollbar={props.showVerticalScrollbar}
         onDoubleClick={handleDbClick}
         $left={left}
         key={initialDate ? currentView + initialDate : currentView}
@@ -469,29 +797,29 @@ let CalendarBasicComp = (function () {
             height={"100%"}
             locale={getCalendarLocale()}
             locales={allLocales}
-            firstDay={Number(firstDay)}
+            firstDay={Number(props.firstDay)}
             plugins={filteredPlugins}
-            headerToolbar={toolBar(currentView)}
-            resourceAreaHeaderContent={resourceName}
+            headerToolbar={toolBar}
+            resourceAreaHeaderContent={props.resourceName}
             buttonText={buttonText}
-            schedulerLicenseKey={licenseKey}
+            schedulerLicenseKey={props.licenseKey}
             views={views}
             resources={ currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay" ? resources : [] }
-            eventClassNames={() => (!showEventTime ? "no-time" : "")}
+            eventClassNames={() => (!props.showEventTime ? "no-time" : "")}
             slotLabelFormat={currentSlotLabelFormat}
             viewClassNames={viewClassNames}
             moreLinkText={trans("calendar.more")}
             initialDate={initialDate}
             initialView={currentView}
-            editable={editable}
-            selectable={editable}
+            editable={props.editable}
+            selectable={props.editable}
             datesSet={handleDatesSet}
             selectMirror={false}
-            displayEventTime={showEventTime}
-            dayMaxEvents={dayMaxEvents}
-            eventMaxStack={eventMaxStack || undefined}
-            weekends={showWeekends}
-            allDaySlot={showAllDay}
+            displayEventTime={props.showEventTime}
+            dayMaxEvents={props.dayMaxEvents}
+            eventMaxStack={props.eventMaxStack || undefined}
+            weekends={props.showWeekends}
+            allDaySlot={props.showAllDay}
             eventContent={renderEventContent}
             select={(info) => handleCreate(info)}
             eventClick={(info) => {
@@ -554,7 +882,7 @@ let CalendarBasicComp = (function () {
             }}
             eventDragStop={(info) => {
               if (info.view) {
-                handleDrop
+                handleDrop();
               }
             }}
           />
@@ -564,7 +892,6 @@ let CalendarBasicComp = (function () {
   })
     .setPropertyViewFn((children: { 
       events: { propertyView: (arg0: {}) => any; }; 
-      resourcesEvents: { propertyView: (arg0: {}) => any; };
       resources: { propertyView: (arg0: {}) => any; };
       resourceName: { propertyView: (arg0: {}) => any; };
       onEvent: { propertyView: ({title}?: {title?: string}) => any; }; 
@@ -580,22 +907,29 @@ let CalendarBasicComp = (function () {
       currentFreeView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       currentPremiumView: { propertyView: (arg0: { label: string; tooltip: string; }) => any; }; 
       style: { getPropertyView: () => any; };
+      animationStyle:  { getPropertyView: () => any; };
+      modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
+      showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
     }) => {
-
       const license = children.licenseKey.getView();
       
       return (
         <>
           <Section name={sectionNames.basic}>
             {children.defaultDate.propertyView({ label: trans("calendar.defaultDate"), tooltip: trans("calendar.defaultDateTooltip"), })}
-            {children.events.propertyView({label: trans("calendar.events")})}
-            {license == "" ? null : children.resourcesEvents.propertyView({label: trans("calendar.resourcesEvents")})}
+            {controlItem({filterText: 'events'}, (
+              <p style={{fontSize: '13px', marginTop: '10px'}}>{trans("calendar.events")}</p>
+            ))}
+            {children.events.propertyView({
+              title: "Events",
+              newOptionLabel: "Event",
+            })}
           </Section>
           { license != "" && 
             <Section name={trans("calendar.resources")}>
-              {children.resources.propertyView({label: trans("calendar.resources")})}
               {children.resourceName.propertyView({label: trans("calendar.resourcesName")})}
+              {children.resources.propertyView({label: trans("calendar.resources")})}
             </Section>
           }
           <Section name={sectionNames.interaction}>
@@ -621,10 +955,17 @@ let CalendarBasicComp = (function () {
               ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
               : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
             {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
+            {children.showVerticalScrollbar.propertyView({ label: trans("calendar.showVerticalScrollbar")})}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
           </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
+          {Boolean(children.modalStyle) && (
+            <Section name={sectionNames.modalStyle}>
+              {children.modalStyle.getPropertyView()}
+            </Section>
+          )}
         </>
       );
     })
@@ -637,11 +978,35 @@ CalendarBasicComp = class extends CalendarBasicComp {
   }
 };
 
+CalendarBasicComp = migrateOldData(CalendarBasicComp, fixOldData)
+
 const TmpCalendarComp = withExposingConfigs(CalendarBasicComp, [
-  new NameConfig("events", trans("calendar.events")),
-  new NameConfig("resourcesEvents", trans("calendar.resourcesEvents")),
-  new NameConfig("resources", trans("calendar.resources")),
   NameConfigHidden,
+  new NameConfig("resources", trans("calendar.resources")),
+  depsConfig({
+    name: "allEvents",
+    desc: trans("calendar.events"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events;
+    },
+  }),
+  depsConfig({
+    name: "events",
+    desc: trans("calendar.events"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events.filter(event => !Boolean(event.resourceId));
+    },
+  }),
+  depsConfig({
+    name: "resourcesEvents",
+    desc: trans("calendar.resourcesEvents"),
+    depKeys: ["events"],
+    func: (input: { events: any[]; }) => {
+      return input.events.filter(event => Boolean(event.resourceId));
+    },
+  }),
 ]);
 
 let CalendarComp = withMethodExposing(TmpCalendarComp, [
@@ -650,7 +1015,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
       {
           method: {
               name: "setCalendarView",
-              description: "Sets the view of the calendar to a specified type",
+              detail: "Sets the view of the calendar to a specified type",
               params: [{ name: "viewType", type: "string" }],
           },
           execute: (comp, values) => {
@@ -664,7 +1029,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setResourceTimeGridDayView",
-            description: "Switches the calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of a single day along the horizontal axis.",
+            detail: "Switches the calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of a single day along the horizontal axis.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -675,7 +1040,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setResourceTimelineDayView",
-            description: "Switches the calendar view to 'Resource Timeline Day', showing events against a timeline for a single day, segmented by resources.",
+            detail: "Switches the calendar view to 'Resource Timeline Day', showing events against a timeline for a single day, segmented by resources.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -686,7 +1051,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridWeekView",
-            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            detail: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -697,7 +1062,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setTimeGridWeekView",
-            description: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
+            detail: "Switches the calendar view to 'Day Grid Week', where the days of the week are displayed as columns and events are laid out in grid form.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -708,7 +1073,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setTimeGridDayView",
-            description: "Switches the calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a single day.",
+            detail: "Switches the calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a single day.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -719,7 +1084,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridDayView",
-            description: "Switches the calendar view to 'Day Grid Day', displaying a single day in a grid layout that includes all events for that day.",
+            detail: "Switches the calendar view to 'Day Grid Day', displaying a single day in a grid layout that includes all events for that day.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -730,7 +1095,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setListWeekView",
-            description: "Switches the calendar view to 'List Week', which provides a list-style overview of all events happening throughout the week.",
+            detail: "Switches the calendar view to 'List Week', which provides a list-style overview of all events happening throughout the week.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -741,7 +1106,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setDayGridMonthView",
-            description: "Switches the calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.",
+            detail: "Switches the calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -752,7 +1117,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
         {
           method: {
             name: "setMultiMonthYearView",
-            description: "Switches the calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.",
+            detail: "Switches the calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.",
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
@@ -764,3 +1129,4 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
 
 
 export { CalendarComp };
+

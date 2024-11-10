@@ -2,6 +2,7 @@ package org.lowcoder.api.framework.filter;
 
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.Triple;
 import org.lowcoder.api.authentication.request.AuthRequest;
 import org.lowcoder.api.authentication.request.AuthRequestFactory;
@@ -18,9 +19,14 @@ import org.lowcoder.sdk.util.CookieHelper;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.toAuthentication;
@@ -60,7 +66,7 @@ public class UserSessionPersistenceFilter implements WebFilter {
                 .map(user -> {
 
                     Connection activeConnection = null;
-                    String orgId = null;
+                    List<String> orgIds = List.of();
 
                     Optional<Connection> activeConnectionOptional = user.getConnections()
                             .stream()
@@ -68,27 +74,27 @@ public class UserSessionPersistenceFilter implements WebFilter {
                             .findFirst();
 
                     if(!activeConnectionOptional.isPresent()) {
-                        return Triple.of(user, activeConnection, orgId);
+                        return Triple.of(user, activeConnection, orgIds);
                     }
 
                     activeConnection = activeConnectionOptional.get();
 
                     if(!activeConnection.getAuthId().equals(DEFAULT_AUTH_CONFIG.getId())) {
                         if(activeConnection.getAuthConnectionAuthToken().getExpireAt() == 0) {
-                            return Triple.of(user, activeConnection, orgId);
+                            return Triple.of(user, activeConnection, orgIds);
                         }
                         boolean isAccessTokenExpired = (activeConnection.getAuthConnectionAuthToken().getExpireAt()*1000) < Instant.now().toEpochMilli();
                         if(isAccessTokenExpired) {
 
-                            Optional<String> orgIdOptional = activeConnection.getOrgIds().stream().findFirst();
-                            if(!orgIdOptional.isPresent()) {
-                                return Triple.of(user, activeConnection, orgId);
+                            List<String> activeOrgIds = activeConnection.getOrgIds().stream().toList();
+                            if(!activeOrgIds.isEmpty()) {
+                                return Triple.of(user, activeConnection, activeOrgIds);
                             }
-                            orgId = orgIdOptional.get();
+                            orgIds = activeOrgIds;
                         }
                     }
 
-                    return Triple.of(user, activeConnection, orgId);
+                    return Triple.of(user, activeConnection, orgIds);
 
                 }).flatMap(this::refreshOauthToken)
                 .flatMap(user -> chain.filter(exchange).contextWrite(withAuthentication(toAuthentication(user)))
@@ -96,49 +102,62 @@ public class UserSessionPersistenceFilter implements WebFilter {
                 );
     }
 
-    private Mono<User> refreshOauthToken(Triple<User, Connection, String> triple) {
+    private Mono<User> refreshOauthToken(Triple<User, Connection, List<String>> triple) {
 
         User user = triple.getLeft();
         Connection connection = triple.getMiddle();
-        String orgId = triple.getRight();
+        Collection<String> orgIds = triple.getRight();
 
-        if (connection == null || orgId == null) {
+        if (connection == null || orgIds == null || orgIds.isEmpty()) {
             return Mono.just(user);
         }
 
-        OAuth2RequestContext oAuth2RequestContext = new OAuth2RequestContext(triple.getRight(), null, null);
+        return Flux.fromIterable(orgIds).flatMap(orgId -> {
+            OAuth2RequestContext oAuth2RequestContext = new OAuth2RequestContext(orgId, null, null);
 
-        return authenticationService
-                .findAuthConfigByAuthId(orgId, connection.getAuthId())
-                .switchIfEmpty(Mono.empty())
-                .flatMap(findAuthConfig -> {
+            log.info("Refreshing token for user: [ name: {}, id: {} ], orgIds: {}, activeConnection: [ authId: {}, name: {}, orgIds: ({})]",
+                    user.getName(), user.getId(),
+                    orgIds,
+                    connection.getAuthId(), connection.getName(), StringUtils.join(connection.getOrgIds(), ", "));
 
-                    Mono<AuthRequest> authRequestMono = Mono.empty();
+            return authenticationService
+                    .findAllAuthConfigs(orgId, true)
+                    .onErrorResume(e -> Flux.empty())
+                    .filter(findAuthConfig -> findAuthConfig.authConfig().getId().equals(connection.getAuthId()))
+                    .switchIfEmpty(Mono.empty())
+                    .flatMap(findAuthConfig -> {
 
-                    if(findAuthConfig == null) {
-                        return authRequestMono;
-                    }
-                    oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
+                        Mono<AuthRequest> authRequestMono = Mono.empty();
 
-                    return authRequestFactory.build(oAuth2RequestContext);
-                }).flatMap(authRequest -> {
-                    if(authRequest == null) {
+                        if (findAuthConfig == null) {
+                            return authRequestMono;
+                        }
+                        oAuth2RequestContext.setAuthConfig(findAuthConfig.authConfig());
+
+                        return authRequestFactory.build(oAuth2RequestContext);
+                    })
+                    .publishOn(Schedulers.boundedElastic()).flatMap(authRequest -> {
+                        if (authRequest == null) {
+                            return Mono.just(user);
+                        }
+                        try {
+                            if (StringUtils.isEmpty(connection.getAuthConnectionAuthToken().getRefreshToken())) {
+                                log.error("Refresh token is empty");
+                                throw new Exception("Refresh token is empty");
+                            }
+                            AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
+                            authUser.setAuthContext(oAuth2RequestContext);
+                            authenticationApiService.updateConnection(authUser, user);
+                            return userService.update(user.getId(), user);
+                        } catch (Exception e) {
+                            log.error("Failed to refresh access token. Removing user sessions/tokens.");
+                            connection.getTokens().forEach(token -> {
+                                service.removeUserSession(token).block();
+                            });
+                        }
                         return Mono.just(user);
-                    }
-                    try {
-                        AuthUser authUser = authRequest.refresh(connection.getAuthConnectionAuthToken().getRefreshToken()).block();
-                        authUser.setAuthContext(oAuth2RequestContext);
-                        authenticationApiService.updateConnection(authUser, user);
-                        return userService.update(user.getId(), user);
-                    } catch (Exception e) {
-                        log.error("Failed to refresh access token. Removing user sessions/tokens.");
-                        connection.getTokens().forEach(token -> {
-                            service.removeUserSession(token).block();
-                        });
-                    }
-                    return Mono.just(user);
-                });
-
+                    });
+        }).next();
     }
 
 }

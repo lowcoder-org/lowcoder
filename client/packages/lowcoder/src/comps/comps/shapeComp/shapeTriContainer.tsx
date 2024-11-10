@@ -11,6 +11,7 @@ import {
 } from "../containerComp/containerView";
 import { TriContainerViewProps } from "../triContainerComp/triContainerCompBuilder";
 import { Coolshape } from "coolshapes-react";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const getStyle = (style: ContainerStyleType) => {
   return css`
@@ -19,16 +20,8 @@ const getStyle = (style: ContainerStyleType) => {
     border-radius: ${style.radius};
     overflow: hidden;
     padding: ${style.padding};
-    ${style.background && `background-color: ${style.background};`}
-    ${style.backgroundImage && `background-image: ${style.backgroundImage};`}
-    ${style.backgroundImageRepeat &&
-    `background-repeat: ${style.backgroundImageRepeat};`}
-    ${style.backgroundImageSize &&
-    `background-size: ${style.backgroundImageSize};`}
-    ${style.backgroundImagePosition &&
-    `background-position: ${style.backgroundImagePosition};`}
-    ${style.backgroundImageOrigin &&
-    `background-origin: ${style.backgroundImageOrigin};`}
+    
+    ${getBackgroundStyle(style)}
   `;
 };
 
@@ -88,7 +81,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
   // const { showHeader, showFooter } = container;
   // When the header and footer are not displayed, the body must be displayed
   const showBody = true;
-  const scrollbars = container.scrollbars;
+  const showVerticalScrollbar = container.showVerticalScrollbar;
 
   const { items: bodyItems, ...otherBodyProps } =
   container.body["0"].children.view.getView();
@@ -120,7 +113,7 @@ export function ShapeTriContainer(props: TriContainerProps) {
               margin: "0px",
               padding: "0px",
             }}
-            hideScrollbar={!scrollbars}
+            hideScrollbar={!showVerticalScrollbar}
           >
             <div style={{ position: "relative", height: "100%" }}>
               <StylesShape 

@@ -6,14 +6,13 @@ import { DocumentViewer } from "react-documents";
 import styled, { css } from "styled-components";
 import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
-import { UICompBuilder } from "../generators";
+import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
+import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -23,7 +22,7 @@ const getStyle = (style: FileViewerStyleType) => {
     padding: ${style.padding};
 
     overflow: hidden;
-    background-color: ${style.background};
+    background: ${style.background};
     border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
     border-radius: calc(min(${style.radius}, 20px));
   `;
@@ -43,12 +42,18 @@ const StyledDiv = styled.div<{$style: FileViewerStyleType;}>`
   ${(props) => props.$style && getStyle(props.$style)}
 `;
 
-const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,animationStyle:AnimationStyleType }) => {
+const DraggableFileViewer = (props: {
+  src: string;
+  style: FileViewerStyleType,
+  animationStyle:AnimationStyleType,
+  showVerticalScrollbar: boolean,
+}) => {
   const [isActive, setActive] = useState(false);
 
   return (
     <StyledDiv
       $style={props.style}
+      id="fileViewer"
       onClick={(e) => setActive(true)}
       onMouseLeave={(e) => setActive(false)}
     >
@@ -68,12 +73,12 @@ const DraggableFileViewer = (props: { src: string; style: FileViewerStyleType,an
 let FileViewerBasicComp = (function () {
   const childrenMap = {
     src: StringControl,
+    autoHeight: withDefault(AutoHeightControl,'auto'),
+    showVerticalScrollbar: withDefault(BoolControl, false),
     style: styleControl(FileViewerStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-    
+  return new UICompBuilder(childrenMap, (props) => {
     if (isEmpty(props.src)) {
       return (
         <ErrorWrapper
@@ -84,7 +89,12 @@ let FileViewerBasicComp = (function () {
         </ErrorWrapper>
       );
     }
-    return <DraggableFileViewer src={props.src} style={props.style} animationStyle={props.animationStyle}/>;
+    return <DraggableFileViewer
+      src={props.src}
+      style={props.style}
+      animationStyle={props.animationStyle}
+      showVerticalScrollbar={props.showVerticalScrollbar}
+    />;
   })
     .setPropertyViewFn((children) => {
       return (
@@ -103,6 +113,14 @@ let FileViewerBasicComp = (function () {
               {hiddenPropertyView(children)}
             </Section>
           )}
+          <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
+          </Section>
 
           {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <>
@@ -122,7 +140,7 @@ let FileViewerBasicComp = (function () {
 
 FileViewerBasicComp = class extends FileViewerBasicComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 

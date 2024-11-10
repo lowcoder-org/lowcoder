@@ -6,7 +6,6 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -16,7 +15,6 @@ const RangeSliderBasicComp = (function () {
     vertical: BoolControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -24,7 +22,7 @@ const RangeSliderBasicComp = (function () {
       animationStyle:props.animationStyle,
       children: (
         <SliderWrapper
-          vertical={props.vertical}
+          $vertical={Boolean(props.vertical)}
           onMouseDown={(e: any) => {
             e.stopPropagation();
             return false;
@@ -37,7 +35,7 @@ const RangeSliderBasicComp = (function () {
             value={[props.start.value, props.end.value]}
             $style={props.inputFieldStyle}
             style={{ margin: 0 }}
-            vertical={props.vertical || false}
+            $vertical={Boolean(props.vertical) || false}
             onChange={([start, end]) => {
               props.start.onChange(start);
               props.end.onChange(end);

@@ -37,7 +37,6 @@ import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
@@ -76,12 +75,12 @@ let TextAreaTmpComp = (function () {
     autoHeight: withDefault(AutoHeightControl, "fixed"),
     style: styleControl(InputFieldStyle, 'style') , 
     labelStyle: styleControl(LabelStyle ,'labelStyle' ),
+    textAreaScrollBar: withDefault(BoolControl, false),
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle')
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  return new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
-    useMergeCompStyles(props as Record<string, any>, dispatch);
 
     return props.label({
       required: props.required,
@@ -100,6 +99,7 @@ let TextAreaTmpComp = (function () {
       style: props.style,
       labelStyle: props.labelStyle,
       animationStyle: props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })
@@ -116,6 +116,10 @@ let TextAreaTmpComp = (function () {
           <><TextInputInteractionSection {...children} />
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() &&
+                children.textAreaScrollBar.propertyView({
+                  label: trans("prop.textAreaScrollBar"),
+                })}
               {hiddenPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>

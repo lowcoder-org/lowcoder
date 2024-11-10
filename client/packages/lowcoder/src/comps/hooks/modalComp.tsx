@@ -23,30 +23,31 @@ import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "comps/generators";
 import SliderControl from "../controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const EventOptions = [
+  { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
   { label: trans("modalComp.close"), value: "close", description: trans("modalComp.closeDesc") },
 ] as const;
 
-const getStyle = (style: ModalStyleType) => {
+const getStyle = (style: ModalStyleType, modalScrollbar: boolean) => {
   return css`
     .ant-modal-content {
       border-radius: ${style.radius};
       border: ${style.borderWidth} solid ${style.border};
       overflow: hidden;
-      background-color: ${style.background};
-      ${style.backgroundImage ? `background-image: url(${style.backgroundImage}) !important; ` : ';'}
-      ${style.backgroundImageRepeat ? `background-repeat: ${style.backgroundImageRepeat};` : 'no-repeat;'}
-      ${style.backgroundImageSize ? `background-size: ${style.backgroundImageSize};` : 'cover'}
-      ${style.backgroundImagePosition ? `background-position: ${style.backgroundImagePosition};` : 'center;'}
-      ${style.backgroundImageOrigin ? `background-origin: ${style.backgroundImageOrigin};` : 'padding-box;'}
       margin: ${style.margin};
+      ${getBackgroundStyle(style)}
+      
       .ant-modal-body > .react-resizable > .react-grid-layout {
         background-color: ${style.background};
       }
       > .ant-modal-body {
         background-color: ${style.background};
       }
+    }
+    div.ant-modal-body div.react-grid-layout::-webkit-scrollbar {
+      display: ${modalScrollbar ? "block" : "none"};
     }
     .ant-modal-close {
       inset-inline-end: 10px !important;
@@ -79,8 +80,8 @@ function extractMarginValues(style: ModalStyleType) {
   return valuesarray;
 }
 
-const ModalStyled = styled.div<{ $style: ModalStyleType }>`
-  ${(props) => props.$style && getStyle(props.$style)}
+const ModalStyled = styled.div<{ $style: ModalStyleType, $modalScrollbar: boolean }>`
+  ${(props) => props.$style && getStyle(props.$style, props.$modalScrollbar)}
 `;
 
 const ModalWrapper = styled.div`
@@ -104,6 +105,7 @@ let TmpModalComp = (function () {
       autoHeight: AutoHeightControl,
       title: StringControl,
       titleAlign: HorizontalAlignmentControl,
+      modalScrollbar: withDefault(BoolControl, false),
       style: styleControl(ModalStyle),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
@@ -169,8 +171,11 @@ let TmpModalComp = (function () {
               afterClose={() => {
                 props.toggleClose&&props.onEvent("close");
               }}
+              afterOpenChange={(open: boolean) => {
+                if (open) props.onEvent("open");
+              }}
               zIndex={Layers.modal}
-              modalRender={(node) => <ModalStyled $style={props.style}>{node}</ModalStyled>}
+              modalRender={(node) => <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>{node}</ModalStyled>}
               mask={props.showMask}
               className={props.className as string}
               data-testid={props.dataTestId as string}
@@ -199,6 +204,10 @@ let TmpModalComp = (function () {
             label: trans('prop.horizontalGridCells'),
           })}
           {children.autoHeight.getPropertyView()}
+          {!children.autoHeight.getView() && 
+            children.modalScrollbar.propertyView({
+              label: trans("prop.modalScrollbar")
+            })}
           {!children.autoHeight.getView() &&
             children.height.propertyView({
               label: trans("modalComp.modalHeight"),

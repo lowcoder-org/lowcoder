@@ -1,5 +1,5 @@
 import { ConfigProvider, Steps} from "antd";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, RadiusControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { stringExposingStateControl, numberExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
@@ -10,7 +10,7 @@ import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { selectDivRefMethods, } from "./selectInputConstants";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { hasIcon } from "comps/utils";
@@ -18,7 +18,8 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const sizeOptions = [
   {
@@ -77,6 +78,7 @@ const statusOptions = [
 ]
 
 const StepsChildrenMap = {
+  autoHeight: AutoHeightControl,
   initialValue: numberExposingStateControl("1"),
   value: stringExposingStateControl("value"),
   stepStatus : stringExposingStateControl("process"),
@@ -93,16 +95,17 @@ const StepsChildrenMap = {
   options: StepOptionControl,
   style: styleControl(StepsStyle , 'style'),
   viewRef: RefControl<HTMLDivElement>,
-  animationStyle: styleControl(AnimationStyle ,'animationStyle' )
+  animationStyle: styleControl(AnimationStyle ,'animationStyle' ),
+  showScrollBars: withDefault(BoolControl, false),
+  minHorizontalWidth: withDefault(RadiusControl, ''),
 };
 
 let StepControlBasicComp = (function () {
-  return new UICompBuilder(StepsChildrenMap, (props , dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
-
+  return new UICompBuilder(StepsChildrenMap, (props) => {
     const StyledWrapper = styled.div<{ style: StepsStyleType, $animationStyle: AnimationStyleType }>`
     ${props=>props.$animationStyle}
+      height: 100%;
+      overflow-y: scroll;
       min-height: 24px;
       max-width: ${widthCalculator(props.style.margin)};
       max-height: ${heightCalculator(props.style.margin)};
@@ -118,14 +121,9 @@ let StepControlBasicComp = (function () {
       margin: ${props.style.margin};
       rotate: ${props.style.rotation};
       padding: ${props.style.padding};
-      background-color: ${props.style.background};
       border: ${props.style.borderWidth} solid ${props.style.border};
       border-radius: ${props.style.radius};
-      background-image: url(${props.style.backgroundImage});
-      background-repeat: ${props.style.backgroundImageRepeat};
-      background-size: ${props.style.backgroundImageSize};
-      background-position: ${props.style.backgroundImagePosition};
-      background-origin: ${props.style.backgroundImageOrigin};
+      ${getBackgroundStyle(props.style)}
       .ant-steps-item { padding-top: 5px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-small .ant-steps-item-icon { margin-top: 17px !important; }
       .ant-steps.ant-steps-label-vertical.ant-steps-default .ant-steps-item-icon { margin-top: 12px !important; }
@@ -172,6 +170,15 @@ let StepControlBasicComp = (function () {
             }}
           >
           <StyledWrapper style={props.style} $animationStyle={props.animationStyle}>
+          <ScrollBar
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              minWidth: props.minHorizontalWidth,
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow="scroll"
+            hideScrollbar={!props.showScrollBars}>
             <Steps 
               initial={props.initialValue.value -1}
               current={current}
@@ -186,6 +193,7 @@ let StepControlBasicComp = (function () {
             >
               {props.options.map((option, index) => (
                 <Steps.Step 
+                  style={{minWidth:props.minHorizontalWidth || '100%'}}
                   key={index}
                   title={option.label}
                   subTitle={option.subTitle}
@@ -195,6 +203,7 @@ let StepControlBasicComp = (function () {
                 />
               ))}
             </Steps>
+            </ScrollBar>
           </StyledWrapper>
         </ConfigProvider>
     );
@@ -221,6 +230,7 @@ let StepControlBasicComp = (function () {
 
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <Section name={sectionNames.layout}>
+            {children.autoHeight.getPropertyView()}
             {children.size.propertyView({
               label: trans("step.size"),
               radioButton: true,
@@ -239,6 +249,17 @@ let StepControlBasicComp = (function () {
                 radioButton: true,
               })
             }
+            {children.direction.getView() == "horizontal" && (
+              children.minHorizontalWidth.propertyView({
+                label: trans("prop.minHorizontalWidth"),
+                  placeholder: '100px',
+              })
+            )}
+            {!children.autoHeight.getView() && (
+              children.showScrollBars.propertyView({
+              label: trans("prop.scrollbar"),
+            })
+            )}
             { children.displayType.getView() != "inline" && !children.showIcons.getView() && (
               children.showDots.propertyView({label: trans("step.showDots")}
             ))}
@@ -263,6 +284,12 @@ let StepControlBasicComp = (function () {
     .setExposeMethodConfigs(selectDivRefMethods)
     .build();
 })();
+
+StepControlBasicComp = class extends StepControlBasicComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
 
 export const StepComp = withExposingConfigs(StepControlBasicComp, [
   new NameConfig("value", trans("step.valueDesc")),

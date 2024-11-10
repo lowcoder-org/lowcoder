@@ -1,22 +1,21 @@
-import { getUser } from "redux/selectors/usersSelectors";
-import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { GreyTextColor } from "constants/style";
 import { trans } from "i18n";
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
 import { Flex } from 'antd';
 import { ProductCard } from "./productCard";
-import SubscriptionApi, {Customer} from "@lowcoder-ee/api/subscriptionApi";
+import { InitializeSubscription } from "@lowcoder-ee/api/subscriptionApi";
+import { getProducts }  from '@lowcoder-ee/api/subscriptionApi';
+import { useState, useEffect } from 'react';
 
 const SubscriptionSettingContent = styled.div`
-  max-width: 840px;
 
   .section-title {
     font-size: 14px;
     font-weight: 500;
     margin-bottom: 8px;
-  }
-
+  } 
+ 
   .section-content {
     margin-bottom: 28px;
   }
@@ -26,113 +25,91 @@ const SubscriptionSettingContent = styled.div`
     margin-bottom: 14px;
     font-size: 13px;
   }
-
 `;
-
-interface Pricing {
-  type: string;
-  amount: string;
-}
-
-interface Product {
-  title: string;
-  description: string;
-  image: string;
-  pricingType: string;
-  pricing: Pricing[];
-  activeSubscription: boolean;
-  accessLink: string;
-}
 
 
 export function SubscriptionSetting() {
-  const user = useSelector(getUser);
-  const userId = user.id;
-  const orgID = user.currentOrgId;
-  const domain = window.location.hostname;
-  const admin = user.orgDev;
+  const {
+    customer,
+    isCreatingCustomer,
+    customerDataError,
+    products,
+    subscriptionDataError,
+    checkoutLinkDataError,
+    admin,
+  } = InitializeSubscription();
 
-  const subscriptionCustomer: Customer = {
-    hostname: domain,
-    email: "contact@example.com",
-    orgId: orgID,
-    userId: userId,
-    userName: user.username,
-    type: "org",
-    companyName: "Example Company",
-    address: {
-      line1: "123 Example Street",
-      line2: "Suite 456",
-      city: "Malaga",
-      state: "Andalusia",
-      country: "Spain",
-      postalCode: "12345"
-    }
-  };
+  const [subscriptionProducts, setSubscriptionProducts] = useState<any>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const createCustomer = async () => {
-    console.log("createCustomerTry", subscriptionCustomer);
-
-    try {
-      const result = await SubscriptionApi.createCustomer(subscriptionCustomer);
-      if (result) {
-        console.log("createCustomer", result);
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const productData = await getProducts();
+        setSubscriptionProducts(productData);
+        console.log("productData", productData);
+      } catch (err) {
+        setError("Failed to fetch product.");
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    } catch(error) {
-      console.error(error);
-    }
-  }
+    };
 
-  const products: Product[] = [
-    {
-      title: "Support Subscription",
-      description: "Support Ticket System and SLAs to guarantee response time and your project success.",
-      image: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png",
-      pricingType: "Monthly, per User",
-      pricing: [
-        { type: "User", amount: "$3.49 (user, month)" },
-        { type: "> 10 Users", amount: "$2.49 (user, month)" },
-        { type: "> 100 Users", amount: "$1.49 (user, month)" }
-      ],
-      activeSubscription: true,
-      accessLink: "QW8L3WPMiNjQjI",
-    },
-    {
-      title: "Azure API Package Subscription",
-      description: "Access to all features.",
-      image: "https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png",
-      pricingType: "Monthly, per User",
-      pricing: [
-        { type: "Volume Price", amount: "$20/month" },
-        { type: "Single Price", amount: "$25/month" }
-      ],
-      activeSubscription: false,
-      accessLink: "QW8OwsM2Gm8mVF",
-    }
-  ];
+    fetchProducts();
+  }, []);
 
   return (
     <Level1SettingPageContent>
       <Level1SettingPageTitle>
         {trans("settings.subscription")}
       </Level1SettingPageTitle>
-      <SubscriptionSettingContent>
-      <a onClick={createCustomer}>Create Customer</a>
-        <Flex wrap='wrap' gap="large">
-          {products.map((product, index) => (
-            <ProductCard
-              key={index}
-              title={product.title}
-              description={product.description}
-              image={product.image}
-              pricingType={product.pricingType}
-              pricing={product.pricing}
-              activeSubscription={product.activeSubscription}
-              accessLink={product.accessLink}
-            />
-          ))}
-        </Flex>
-      </SubscriptionSettingContent>
+      {customer != null ? (
+        <SubscriptionSettingContent>
+          {customer && <h3>Your Customer Number: {customer?.id.substring(4)} {admin && "| you are Subscriptions-Admin of this Workspace"}</h3>}
+          <Flex wrap='wrap' gap="large" style={{marginTop: "40px"}}>
+            {products
+            .filter((product) => {
+              if (product.type === "org") { 
+                return admin === "admin";
+              }
+              return true;
+            })
+            .map((product, index) => {
+              const productData = subscriptionProducts?.data.find((p: { id: string; }) => p.id === ("prod_" + product?.product));
+              const imageUrl = productData && productData.images.length > 0 ? productData.images[0] : null;
+              return (
+                <ProductCard
+                  key={index}
+                  title={productData?.name}
+                  description={productData?.description}
+                  image={imageUrl}
+                  pricingType={product.pricingType}
+                  activeSubscription={product.activeSubscription}
+                  checkoutLink={product.checkoutLink}
+                  checkoutLinkDataLoaded={product.checkoutLinkDataLoaded}
+                  loading={loading}
+                  subscriptionId={product.subscriptionId}
+                  productId={product.product}
+                />
+              );
+            } )}
+          </Flex>
+        </SubscriptionSettingContent>
+      ) : (
+        <div>Loading...</div>
+      )}
+      {isCreatingCustomer && <div><br/>Checking your customer account, please wait...</div>}
+      {customerDataError && 
+        <h3>There was an error retrieving your customer data.</h3>
+      }
+      {subscriptionDataError && 
+        <h3>There was an error retrieving your subscription data.</h3>
+      }
+      {checkoutLinkDataError && 
+        <h3>There was an error generating checkout links.</h3>
+      }
     </Level1SettingPageContent>
   );
 }

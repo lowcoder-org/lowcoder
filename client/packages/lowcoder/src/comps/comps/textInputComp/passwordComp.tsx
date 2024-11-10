@@ -42,7 +42,6 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
@@ -67,7 +66,6 @@ let PasswordTmpComp = (function () {
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
 
     return props.label({
       required: props.required,
@@ -84,6 +82,7 @@ let PasswordTmpComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validateState,
     });
   })
@@ -108,6 +107,7 @@ let PasswordTmpComp = (function () {
                 {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
               </Section><Section name={sectionNames.validation}>
                 {requiredPropertyView(children)}
+                {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
                 {regexPropertyView(children)}
                 {minLengthPropertyView(children)}
                 {maxLengthPropertyView(children)}

@@ -35,7 +35,6 @@ import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
 
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 /**
  * Input Comp
@@ -60,10 +59,8 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
 };
 
-let InputBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
+let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
   const [inputProps, validateState] = useTextInputProps(props);
-  useMergeCompStyles(props as Record<string, any>, dispatch);
-
   return props.label({
     required: props.required,
     children: (
@@ -81,6 +78,7 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props, dispatch) => {
     labelStyle: props.labelStyle,
     inputFieldStyle:props.inputFieldStyle,
     animationStyle:props.animationStyle,
+    showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validateState,
   });
 })

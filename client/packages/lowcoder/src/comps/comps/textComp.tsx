@@ -1,7 +1,7 @@
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { Section, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, sectionNames } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { AlignCenter } from "lowcoder-design";
 import { AlignLeft } from "lowcoder-design";
@@ -21,7 +21,10 @@ import { PaddingControl } from "../controls/paddingControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import { NewChildren } from "../generators/uiCompBuilder";
+import { RecordConstructorToComp } from "lowcoder-core";
+import { ToViewReturn } from "../generators/multi";
+import { BoolControl } from "@lowcoder-ee/index.sdk";
 
 const EventOptions = [clickEvent] as const;
 
@@ -32,7 +35,7 @@ const getStyle = (style: TextStyleType) => {
     color: ${style.text};
     text-transform:${style.textTransform} !important;
     text-decoration:${style.textDecoration} !important;
-    background-color: ${style.background};
+    background: ${style.background};
     .markdown-body a {
       color: ${style.links};
     }
@@ -131,92 +134,102 @@ const VerticalAlignmentOptions = [
   { label: <AlignVerticalCenter />, value: "center" },
   { label: <AlignBottom />, value: "flex-end" },
 ] as const;
+const childrenMap = {
+  text: stringExposingStateControl(
+    "text",
+    trans("textShow.text", { name: "{{currentUser.name}}" })
+  ),
+  onEvent: eventHandlerControl(EventOptions),
+  autoHeight: AutoHeightControl,
+  type: dropdownControl(typeOptions, "markdown"),
+  horizontalAlignment: alignWithJustifyControl(),
+  contentScrollBar: withDefault(BoolControl, true),
+  verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
+  style: styleControl(TextStyle, 'style'),
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  margin: MarginControl,
+  padding: PaddingControl,
+};
 
-let TextTmpComp = (function () {
-  const childrenMap = {
-    text: stringExposingStateControl(
-      "text",
-      trans("textShow.text", { name: "{{currentUser.name}}" })
-    ),
-    onEvent: eventHandlerControl(EventOptions),
-    autoHeight: AutoHeightControl,
-    type: dropdownControl(typeOptions, "markdown"),
-    horizontalAlignment: alignWithJustifyControl(),
-    verticalAlignment: dropdownControl(VerticalAlignmentOptions, "center"),
-    style: styleControl(TextStyle, 'style'),
-    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-    margin: MarginControl,
-    padding: PaddingControl,
-  };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    const value = props.text.value;
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
 
-    useMergeCompStyles(
-      props as Record<string, any>,
-      dispatch
-    );
-  
-    return (
-      <TextContainer
-        $animationStyle={props.animationStyle}
-        $type={props.type}
-        $styleConfig={props.style}
-        style={{
-          justifyContent: props.horizontalAlignment,
-          alignItems: props.autoHeight ? "center" : props.verticalAlignment,
-          textAlign: props.horizontalAlignment,
-          rotate: props.style.rotation
-        }}
-        onClick={() => props.onEvent("click")}
-      >
-        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
-      </TextContainer>
-    );
-  })
-    .setPropertyViewFn((children) => {
-      return (
+const TextPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  return (
+    <>
+      <Section name={sectionNames.basic}>
+        {props.children.type.propertyView({
+          label: trans("value"),
+          tooltip: trans("textShow.valueTooltip"),
+          radioButton: true,
+        })}
+        {props.children.text.propertyView({})}
+      </Section>
+
+      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+        <Section name={sectionNames.interaction}>
+          {hiddenPropertyView(props.children)}
+          {props.children.onEvent.getPropertyView()}
+        </Section>
+      )}
+
+      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
         <>
-          <Section name={sectionNames.basic}>
-            {children.type.propertyView({
-              label: trans("value"),
-              tooltip: trans("textShow.valueTooltip"),
+          <Section name={sectionNames.layout}>
+            {props.children.autoHeight.getPropertyView()}
+            {!props.children.autoHeight.getView() &&
+              props.children.contentScrollBar.propertyView({
+                label: trans("prop.contentScrollbar"),
+              })}
+            {!props.children.autoHeight.getView() &&
+              props.children.verticalAlignment.propertyView({
+                label: trans("textShow.verticalAlignment"),
+                radioButton: true,
+              })}
+            {props.children.horizontalAlignment.propertyView({
+              label: trans("textShow.horizontalAlignment"),
               radioButton: true,
             })}
-            {children.text.propertyView({})}
           </Section>
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.onEvent.getPropertyView()}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.autoHeight.getPropertyView()}
-                {!children.autoHeight.getView() &&
-                  children.verticalAlignment.propertyView({
-                    label: trans("textShow.verticalAlignment"),
-                    radioButton: true,
-                  })}
-                {children.horizontalAlignment.propertyView({
-                  label: trans("textShow.horizontalAlignment"),
-                  radioButton: true,
-                })}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
+          <Section name={sectionNames.style}>
+            {props.children.style.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.animationStyle} hasTooltip={true}>
+            {props.children.animationStyle.getPropertyView()}
+          </Section>
         </>
-      );
-    })
+      )}
+    </>
+  );
+})
+
+const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
+  const value = props.text.value;
+
+  return (
+    <TextContainer
+      $animationStyle={props.animationStyle}
+      $type={props.type}
+      $styleConfig={props.style}
+      style={{
+        justifyContent: props.horizontalAlignment,
+        alignItems: props.autoHeight ? "center" : props.verticalAlignment,
+        textAlign: props.horizontalAlignment,
+        rotate: props.style.rotation
+      }}
+      onClick={() => props.onEvent("click")}
+    >
+      <ScrollBar hideScrollbar={!props.contentScrollBar}>
+        {props.type === "markdown" ? <TacoMarkDown>{value}</TacoMarkDown> : value}
+      </ScrollBar>
+    </TextContainer>
+  );
+}, (prev, next) => JSON.stringify(prev) === JSON.stringify(next));
+
+let TextTmpComp = (function () {
+  return new UICompBuilder(childrenMap, (props) => <TextView {...props} />)
+    .setPropertyViewFn((children) => <TextPropertyView children={children} />)
     .build();
 })();
 

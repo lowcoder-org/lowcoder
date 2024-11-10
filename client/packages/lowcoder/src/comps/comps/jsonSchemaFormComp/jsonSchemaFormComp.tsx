@@ -1,7 +1,6 @@
 import { withTheme } from '@rjsf/core';
 import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
-// import Ajv from "@rjsf/validator-ajv8";
 import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
 import { jsonObjectExposingStateControl } from "comps/controls/codeStateControl";
@@ -14,18 +13,21 @@ import { i18nObjs, trans } from "i18n";
 import type { JSONSchema7 } from "json-schema";
 import styled from "styled-components";
 import { toBoolean, toNumber, toString } from "util/convertUtils";
-import { Section, sectionNames } from "lowcoder-design";
+import { Section, sectionNames, ScrollBar } from "lowcoder-design";
 import { jsonObjectControl } from "../../controls/codeControl";
 import { eventHandlerControl, submitEvent } from "../../controls/eventHandlerControl";
-import { UICompBuilder } from "../../generators";
+import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
-
+import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
+import ObjectFieldTemplate from './ObjectFieldTemplate';
+import ArrayFieldTemplate from './ArrayFieldTemplate';
+import { Select } from 'antd';
+import Title from 'antd/es/typography/Title';
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -48,6 +50,11 @@ const Container = styled.div<{
 
   label[for="root-title"] {
     font-size: 18px;
+  }
+
+  .ant-row {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
   }
 
   #root-description {
@@ -173,6 +180,30 @@ function ErrorList(props: ErrorListProps) {
   );
 }
 
+const SearchableSelectWidget = (props : any) => {
+  const { options, value, required, disabled, readonly, autofocus, onChange } = props;
+  const { enumOptions } = options;
+
+  return (
+    <Select
+      showSearch
+      optionFilterProp="children"
+      value={value || undefined}
+      disabled={disabled || readonly}
+      autoFocus={autofocus}
+      onChange={(val) => onChange(val)}
+      style={{ width: '100%' }}
+      placeholder={props.placeholder}
+    >
+      {enumOptions.map((option : any) => (
+        <Select.Option key={option.value} value={option.value}>
+          {option.label}
+        </Select.Option>
+      ))}
+    </Select>
+  );
+};
+
 function onSubmit(props: {
   resetAfterSubmit: boolean;
   data: { reset: () => void };
@@ -189,23 +220,37 @@ let FormBasicComp = (function () {
   const childrenMap = {
     resetAfterSubmit: BoolControl,
     schema: jsonObjectControl(i18nObjs.jsonForm.defaultSchema),
+    showVerticalScrollbar: withDefault(BoolControl, false),
     uiSchema: jsonObjectControl(i18nObjs.jsonForm.defaultUiSchema),
+    autoHeight: AutoHeightControl,
     data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
     style: styleControl(JsonSchemaFormStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[
       "ui:submitButtonOptions"
     ] as UISchemaSubmitButtonOptions;
 
+    const schema = props.schema;
+
     return (
       <Container $style={props.style} $animationStyle={props.animationStyle}>
+        <ScrollBar
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow={"hidden"}
+            hideScrollbar={!props.showVerticalScrollbar}
+          >
         <ErrorBoundary>
+          <Title level={2} style={{ marginBottom: '24px' }}>
+            {schema.title as string | number}
+          </Title>
           <Form
             validator={validator}
             schema={props.schema}
@@ -214,6 +259,11 @@ let FormBasicComp = (function () {
             onSubmit={() => onSubmit(props)}
             onChange={(e) => props.data.onChange(e.formData)}
             transformErrors={(errors) => transformErrors(errors)}
+            templates={{
+              ObjectFieldTemplate: ObjectFieldTemplate,
+              ArrayFieldTemplate: ArrayFieldTemplate,
+            }}
+            widgets={{ searchableSelect: SearchableSelectWidget }}
             // ErrorList={ErrorList}
             children={
               <Button
@@ -229,6 +279,7 @@ let FormBasicComp = (function () {
             }
           />
         </ErrorBoundary>
+        </ScrollBar>
       </Container>
     );
   })
@@ -269,7 +320,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      JSON schema
+                      JSON Schema
                     </a>
                   </>
                 ),
@@ -307,7 +358,7 @@ let FormBasicComp = (function () {
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      UI schema
+                      UI Schema
                     </a>
                   </>
                 ),
@@ -328,9 +379,16 @@ let FormBasicComp = (function () {
               })}
             </Section>
           )}
-
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
+             <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {!children.autoHeight.getView() && (
+                  children.showVerticalScrollbar.propertyView({
+                    label: trans("prop.showVerticalScrollbar"),
+                  })
+                )}
+              </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
               </Section>
@@ -345,6 +403,13 @@ let FormBasicComp = (function () {
     })
     .build();
 })();
+
+FormBasicComp = class extends FormBasicComp {
+  override autoHeight(): boolean {
+    return this.children.autoHeight.getView();
+  }
+};
+
 
 let FormTmpComp = withExposingConfigs(FormBasicComp, [
   depsConfig({

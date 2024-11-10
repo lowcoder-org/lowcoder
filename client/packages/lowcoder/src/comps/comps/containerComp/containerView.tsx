@@ -22,9 +22,10 @@ import {
   calcRowCount,
   calcRowHeight,
   DEFAULT_GRID_COLUMNS,
+  DEFAULT_ROW_COUNT,
   DEFAULT_ROW_HEIGHT,
 } from "layout/calculateUtils";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import {
   ActionExtraInfo,
   changeChildAction,
@@ -313,7 +314,7 @@ const ItemWrapper = styled.div<{ $disableInteract?: boolean }>`
   pointer-events: ${(props) => (props.$disableInteract ? "none" : "unset")};
 `;
 
-const GridItemWrapper = React.forwardRef(
+const GridItemWrapper = React.memo(React.forwardRef(
   (
     props: React.PropsWithChildren<HTMLAttributes<HTMLDivElement>>,
     ref: React.ForwardedRef<HTMLDivElement>
@@ -326,11 +327,11 @@ const GridItemWrapper = React.forwardRef(
       </ItemWrapper>
     );
   }
-);
+));
 
 type GirdItemViewRecord = Record<string, GridItem>;
 
-export function InnerGrid(props: ViewPropsWithSelect) {
+export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const {
     positionParams,
     rowCount = Infinity,
@@ -342,18 +343,20 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const horizontalGridCells = props.horizontalGridCells ? String(props.horizontalGridCells) : undefined;
   const currentTheme = useContext(ThemeContext)?.theme;
   const [currentRowCount, setRowCount] = useState(rowCount || Infinity);
-  const [currentRowHeight, setRowHeight] = useState(DEFAULT_ROW_HEIGHT);
+  const [currentRowHeight, setRowHeight] = useState(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
   const editorState = useContext(EditorContext);
   const { readOnly } = useContext(ExternalEditorContext);
+  const appSettingsComp = editorState.getAppSettingsComp().getView();
+
+  const maxWidth = useMemo(() => appSettingsComp.maxWidth, [appSettingsComp.maxWidth]);
 
   // Falk: TODO: Here we can define the inner grid columns dynamically
-  //Added By Aqib Mirza
-  const defaultGrid =
-    horizontalGridCells ||
-    currentTheme?.gridColumns ||
-    defaultTheme?.gridColumns ||
-    "12";
-  /////////////////////
+  const defaultGrid = useMemo(() => {
+    return horizontalGridCells
+      || String(positionParams.cols)
+      || String(DEFAULT_GRID_COLUMNS);
+  }, [horizontalGridCells, positionParams.cols]);
+
   const isDroppable =
     useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
   const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
@@ -385,7 +388,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
 
   const canAddSelect = useMemo(
     () => _.size(containerSelectNames) === _.size(editorState.selectedCompNames),
-    [containerSelectNames, editorState]
+    [containerSelectNames, editorState.selectedCompNames]
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
@@ -432,16 +435,21 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       onPositionParamsChange,
       onRowCountChange,
       positionParams,
-      props,
+      props.dispatch,
+      props.containerPadding,
     ]
   );
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
       editorState.setSelectedCompNames(names);
     },
-    [editorState]
+    [editorState.setSelectedCompNames]
   );
-  const { width, ref } = useResizeDetector({ onResize, handleHeight: isRowCountLocked });
+
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+  });
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -464,20 +472,19 @@ export function InnerGrid(props: ViewPropsWithSelect) {
   const clickItem = useCallback(
     (
       e: React.MouseEvent<HTMLDivElement,
-      globalThis.MouseEvent>, name: string
+      globalThis.MouseEvent>,
+      name: string,
     ) => selectItem(e, name, canAddSelect, containerSelectNames, setSelectedNames),
-    [canAddSelect, containerSelectNames, setSelectedNames]
+    [selectItem, canAddSelect, containerSelectNames, setSelectedNames]
   );
 
   useEffect(() => {
     if (!isRowCountLocked) {
-      setRowHeight(DEFAULT_ROW_HEIGHT);
+      setRowHeight(positionParams.rowHeight || DEFAULT_ROW_HEIGHT);
       setRowCount(Infinity);
       onRowCountChange?.(0);
     }
   }, [isRowCountLocked, onRowCountChange]);
-
-  const maxWidth = editorState.getAppSettings().maxWidth;
 
   // log.info("rowCount:", currentRowCount, "rowHeight:", currentRowHeight);
 
@@ -535,6 +542,7 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       onResizeStop={() => editorState.setDragging(false)}
       margin={[0, 0]}
       containerPadding={props.containerPadding}
+      fixedRowCount={props.emptyRows !== DEFAULT_ROW_COUNT}
       emptyRows={props.emptyRows}
       maxRows={currentRowCount}
       rowHeight={currentRowHeight}
@@ -555,7 +563,9 @@ export function InnerGrid(props: ViewPropsWithSelect) {
       {itemViews}
     </ReactGridLayout>
   );
-}
+}, (prevProps, newProps) => {
+  return isEqual(prevProps, newProps);
+});
 
 function selectItem(
   e: MouseEvent<HTMLDivElement>,

@@ -5,6 +5,7 @@ import { RowColorViewType, RowHeightViewType, TableEventOptionValues } from "com
 import {
   COL_MIN_WIDTH,
   COLUMN_CHILDREN_KEY,
+  ColumnsAggrData,
   columnsToAntdFormat,
   CustomColumnType,
   OB_ROW_ORI_INDEX,
@@ -28,11 +29,11 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { PrimaryColor } from "constants/style";
 import { trans } from "i18n";
 import _ from "lodash";
-import { darkenColor, isDarkColor, ScrollBar } from "lowcoder-design";
+import { darkenColor, isDarkColor, isValidColor, ScrollBar } from "lowcoder-design";
 import React, { Children, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Resizable } from "react-resizable";
 import styled, { css } from "styled-components";
-import { useUserViewMode } from "util/hooks";
+import { useMergeCompStyles, useUserViewMode } from "util/hooks";
 import { TableImplComp } from "./tableComp";
 import { useResizeDetector } from "react-resize-detector";
 import { SlotConfigContext } from "comps/controls/slotControl";
@@ -41,13 +42,17 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { ReactRef, ResizeHandleAxis } from "layout/gridLayoutPropTypes";
 import { CellColorViewType } from "./column/tableColumnComp";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { getVerticalMargin } from "@lowcoder-ee/util/cssUtil";
+import { TableSummary } from "./tableSummaryComp";
+import Skeleton from "antd/es/skeleton";
+import { SkeletonButtonProps } from "antd/es/skeleton/Button";
+import { ThemeContext } from "@lowcoder-ee/comps/utils/themeContext";
 
+export const EMPTY_ROW_KEY = 'empty_row';
 
 function genLinerGradient(color: string) {
-  return `linear-gradient(${color}, ${color})`;
+  return isValidColor(color) ? `linear-gradient(${color}, ${color})` : color;
 }
 
 const getStyle = (
@@ -67,62 +72,53 @@ const getStyle = (
     }
     .ant-table-tbody {
       > tr:nth-of-type(2n + 1) {
-        &,
-        > td {
-          background: ${genLinerGradient(rowStyle.background)};
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
+        background: ${genLinerGradient(rowStyle.background)};
       }
 
       > tr:nth-of-type(2n) {
-        &,
-        > td {
-          background: ${alternateBackground};
-          // border-bottom:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-          // border-right:${rowStyle.borderWidth} ${rowStyle.borderStyle} ${rowStyle.border} !important;
-        }
+        background: ${alternateBackground};
       }
 
       // selected row
       > tr:nth-of-type(2n + 1).ant-table-row-selected {
-        > td {
-          background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        background: ${selectedRowBackground}, ${rowStyle.background} !important;
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${rowStyle.background} !important;
         }
       }
 
       > tr:nth-of-type(2n).ant-table-row-selected {
-        > td {
-          background: ${selectedRowBackground}, ${alternateBackground} !important;
+        background: ${selectedRowBackground}, ${alternateBackground} !important;
+        > td.ant-table-cell {
+          background: transparent !important;
         }
 
-        > td.ant-table-cell-row-hover,
-        &:hover > td {
+        // > td.ant-table-cell-row-hover,
+        &:hover {
           background: ${hoverRowBackground}, ${selectedRowBackground}, ${alternateBackground} !important;
         }
       }
 
       // hover row
-      > tr:nth-of-type(2n + 1) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${rowStyle.background} !important;
+      > tr:nth-of-type(2n + 1):hover {
+        background: ${hoverRowBackground}, ${rowStyle.background} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
+        }
+      }
+      > tr:nth-of-type(2n):hover {
+        background: ${hoverRowBackground}, ${alternateBackground} !important;
+        > td.ant-table-cell-row-hover {
+          background: transparent;
         }
       }
 
-      > tr:nth-of-type(2n) > td.ant-table-cell-row-hover {
-        &,
-        > div:nth-of-type(2) {
-          background: ${hoverRowBackground}, ${alternateBackground} !important;
-        }
-      }
-
-      > tr.ant-table-expanded-row > td {
+      > tr.ant-table-expanded-row {
         background: ${background};
       }
     }
@@ -155,7 +151,7 @@ const BackgroundWrapper = styled.div<{
   border-style: ${(props) => props.$style.borderStyle} !important;
   border-width: ${(props) => `${props.$style.borderWidth} !important`};
   border-color: ${(props) => `${props.$style.border} !important`};
-  height: calc(100% - ${(props) => getVerticalMargin(props.$style.margin.split(' '))});
+  height: calc(100% - ${(props) => props.$style.margin && getVerticalMargin(props.$style.margin.split(' '))});
   overflow: hidden;
 
   > div.table-scrollbar-wrapper {
@@ -250,9 +246,11 @@ const TableWrapper = styled.div<{
               z-index: 99;
             `
           }
+          > tr {
+            background: ${(props) => props.$headerStyle.headerBackground}; 
+          }
           > tr > th {
-            background-color: ${(props) => props.$headerStyle.headerBackground};
-           
+            background: transparent;
             border-color: ${(props) => props.$headerStyle.border};
             border-width: ${(props) => props.$headerStyle.borderWidth};
             color: ${(props) => props.$headerStyle.headerText};
@@ -323,15 +321,6 @@ const TableWrapper = styled.div<{
             border-top-right-radius: 0px;
           }
         }
-
-        // hide the bottom border of the last row
-        ${(props) =>
-    props.$toolbarPosition !== "below" &&
-    `
-            tbody > tr:last-child > td {
-              border-bottom: unset;
-            }
-        `}
       }
 
       .ant-table-expanded-row-fixed:after {
@@ -378,8 +367,11 @@ const TableTd = styled.td<{
   border-radius: ${(props) => props.$style.radius};
   padding: 0 !important;
 
-  > div {
-    margin: ${(props) => props.$style.margin};
+  > div:not(.editing-border, .editing-wrapper),
+  .editing-wrapper .ant-input,
+  .editing-wrapper .ant-input-number,
+  .editing-wrapper .ant-picker {
+    margin: ${(props) => props.$isEditing ? '0px' : props.$style.margin};
     color: ${(props) => props.$style.text};
     font-weight: ${(props) => props.$style.textWeight};
     font-family: ${(props) => props.$style.fontFamily};
@@ -387,7 +379,7 @@ const TableTd = styled.td<{
     ${(props) => props.$tableSize === 'small' && `
       padding: 1px 8px;
       font-size: ${props.$defaultThemeDetail.textSize == props.$style.textSize ? '14px !important' : props.$style.textSize + ' !important'};
-    font-style:${props.$style.fontStyle} !important;
+      font-style:${props.$style.fontStyle} !important;
       min-height: ${props.$style.rowHeight || '14px'};
       line-height: 20px;
       ${!props.$autoHeight && `
@@ -442,6 +434,27 @@ const TableTd = styled.td<{
   }
 `;
 
+const TableTdLoading = styled(Skeleton.Button)<SkeletonButtonProps & {
+  $tableSize?: string;
+}>`
+  width: 90% !important;
+  display: table !important;
+
+  .ant-skeleton-button {
+    min-width: auto !important;
+    display: block !important;
+    ${(props) => props.$tableSize === 'small' && `
+      height: 20px !important;
+    `}
+    ${(props) => props.$tableSize === 'middle' && `
+      height: 24px !important;
+    `}
+    ${(props) => props.$tableSize === 'large' && `
+      height: 28px !important;
+    `}
+  }
+`;
+
 const ResizeableTitle = (props: any) => {
   const { onResize, onResizeStop, width, viewModeResizable, ...restProps } = props;
   const [widthChild, setWidthChild] = useState(0);
@@ -493,7 +506,7 @@ const ResizeableTitle = (props: any) => {
         />
       )}
     >
-      <TableTh ref={elementRef} {...restProps} />
+      <TableTh ref={elementRef} {...restProps} title="" />
     </Resizable>
   );
 };
@@ -507,6 +520,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   columnsStyle: TableColumnStyleType;
   size?: string;
   rowAutoHeight?: boolean;
+  customLoading?: boolean;
   onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
@@ -523,6 +537,7 @@ function TableCellView(props: {
   linkStyle: TableColumnLinkStyleType;
   tableSize?: string;
   autoHeight?: boolean;
+  loading?: boolean;
 }) {
   const {
     record,
@@ -537,6 +552,7 @@ function TableCellView(props: {
     linkStyle,
     tableSize,
     autoHeight,
+    loading,
     ...restProps
   } = props;
 
@@ -577,12 +593,10 @@ function TableCellView(props: {
       rowHeight: rowHeight,
     }
     let { background } = style;
-    if (rowContext.selected) {
-      background = genLinerGradient(handleToSelectedRow(background)) + "," + background;
-    }
     if (rowContext.hover) {
-      background = genLinerGradient(handleToHoverRow(background)) + "," + background;
+      background = 'transparent';
     }
+
     tdView = (
       <TableTd
         {...restProps}
@@ -594,11 +608,14 @@ function TableCellView(props: {
         $tableSize={tableSize}
         $autoHeight={autoHeight}
       >
-        {children}
+        {loading
+          ? <TableTdLoading block active $tableSize={tableSize} />
+          : children
+        }
       </TableTd>
     );
   }
- 
+
   return (
     <TableCellContext.Provider value={{ isEditing: editing, setIsEditing: setEditing }}>
       {tdView}
@@ -632,6 +649,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     width: -1,
   });
   let allColumnFixed = true;
+  const { customLoading } = props;
+
   const columns = props.columns.map((col, index) => {
     const { width, style, linkStyle, cellColorFn, ...restCol } = col;
     const resizeWidth = (resizeData.index === index ? resizeData.width : col.width) ?? 0;
@@ -665,7 +684,8 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
         autoHeight: props.rowAutoHeight,
         onClick: () => {
           props.onCellClick(col.titleText, String(col.dataIndex));
-        }
+        },
+        loading: customLoading,
       }),
       onHeaderCell: () => ({
         width: resizeWidth,
@@ -716,12 +736,28 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
 
 ResizeableTable.whyDidYouRender = true;
 
+const createNewEmptyRow = (
+  rowIndex: number,
+  columnsAggrData: ColumnsAggrData,
+) => {
+  const emptyRowData: RecordType = {
+    [OB_ROW_ORI_INDEX]: `${EMPTY_ROW_KEY}_${rowIndex}`,
+  };
+  Object.keys(columnsAggrData).forEach(columnKey => {
+    emptyRowData[columnKey] = '';
+  });
+  return emptyRowData;
+}
+
 export function TableCompView(props: {
   comp: InstanceType<typeof TableImplComp>;
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
 }) {
+  const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
+  const currentTheme = useContext(ThemeContext)?.theme;
+  const showDataLoadingIndicators = currentTheme?.showDataLoadingIndicators;
   const { width, ref } = useResizeDetector({
     refreshMode: "debounce",
     refreshRate: 600,
@@ -743,15 +779,21 @@ export function TableCompView(props: {
   const visibleResizables = compChildren.visibleResizables.getView();
   const showHRowGridBorder = compChildren.showHRowGridBorder.getView();
   const columnsStyle = compChildren.columnsStyle.getView();
+  const summaryRowStyle = compChildren.summaryRowStyle.getView();
   const changeSet = useMemo(() => compChildren.columns.getChangeSet(), [compChildren.columns]);
-  const hasChange = useMemo(() => !_.isEmpty(changeSet), [changeSet]);
+  const insertSet = useMemo(() => compChildren.columns.getChangeSet(true), [compChildren.columns]);
+  const hasChange = useMemo(() => !_.isEmpty(changeSet) || !_.isEmpty(insertSet), [changeSet, insertSet]);
   const columns = useMemo(() => compChildren.columns.getView(), [compChildren.columns]);
   const columnViews = useMemo(() => columns.map((c) => c.getView()), [columns]);
   const data = comp.filterData;
   const sort = useMemo(() => compChildren.sort.getView(), [compChildren.sort]);
   const toolbar = useMemo(() => compChildren.toolbar.getView(), [compChildren.toolbar]);
+  const showSummary = useMemo(() => compChildren.showSummary.getView(), [compChildren.showSummary]);
+  const summaryRows = useMemo(() => compChildren.summaryRows.getView(), [compChildren.summaryRows]);
+  const inlineAddNewRow = useMemo(() => compChildren.inlineAddNewRow.getView(), [compChildren.inlineAddNewRow]);
   const pagination = useMemo(() => compChildren.pagination.getView(), [compChildren.pagination]);
   const size = useMemo(() => compChildren.size.getView(), [compChildren.size]);
+  const editModeClicks = useMemo(() => compChildren.editModeClicks.getView(), [compChildren.editModeClicks]);
   const onEvent = useMemo(() => compChildren.onEvent.getView(), [compChildren.onEvent]);
   const dynamicColumn = compChildren.dynamicColumn.getView();
   const dynamicColumnConfig = useMemo(
@@ -770,6 +812,7 @@ export function TableCompView(props: {
         dynamicColumn,
         dynamicColumnConfig,
         columnsAggrData,
+        editModeClicks,
         onEvent,
       ),
     [
@@ -780,12 +823,76 @@ export function TableCompView(props: {
       dynamicColumn,
       dynamicColumnConfig,
       columnsAggrData,
+      editModeClicks,
     ]
   );
+
   const supportChildren = useMemo(
     () => supportChildrenTree(compChildren.data.getView()),
     [compChildren.data]
   );
+
+  const updateEmptyRows = useCallback(() => {
+    if (!inlineAddNewRow) {
+      setEmptyRowsMap({})
+      setTimeout(() => compChildren.columns.dispatchClearInsertSet());
+      return;
+    }
+
+    let emptyRows: Record<string, RecordType> = {...emptyRowsMap};
+    const existingRowsKeys = Object.keys(emptyRows);
+    const existingRowsCount = existingRowsKeys.length;
+    const updatedRowsKeys = Object.keys(insertSet).filter(
+      key => key.startsWith(EMPTY_ROW_KEY)
+    );
+    const updatedRowsCount = updatedRowsKeys.length;
+    const removedRowsKeys = existingRowsKeys.filter(
+      x => !updatedRowsKeys.includes(x)
+    );
+
+    if (removedRowsKeys.length === existingRowsCount) {
+      const newRowIndex = 0;
+      const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+      setEmptyRowsMap({
+        [newRowKey]: createNewEmptyRow(newRowIndex, columnsAggrData)
+      });
+      const ele = document.querySelector<HTMLElement>(`[data-row-key=${newRowKey}]`);
+      if (ele) {
+        ele.style.display = '';
+      }
+      return;
+    }
+
+    removedRowsKeys.forEach(rowKey => {
+      if (
+        rowKey === existingRowsKeys[existingRowsCount - 1]
+        || rowKey === existingRowsKeys[existingRowsCount - 2]
+      ) {
+        delete emptyRows[rowKey];
+      } else {
+        const ele = document.querySelector<HTMLElement>(`[data-row-key=${rowKey}]`);
+        if (ele) {
+          ele.style.display = 'none';
+        }
+      }
+    })
+    const lastRowKey = updatedRowsCount ? updatedRowsKeys[updatedRowsCount - 1] : '';
+    const lastRowIndex = lastRowKey ? parseInt(lastRowKey.replace(`${EMPTY_ROW_KEY}_`, '')) : -1;
+
+    const newRowIndex = lastRowIndex + 1;
+    const newRowKey = `${EMPTY_ROW_KEY}_${newRowIndex}`;
+    emptyRows[newRowKey] = createNewEmptyRow(newRowIndex, columnsAggrData);
+    setEmptyRowsMap(emptyRows);
+  }, [
+    inlineAddNewRow,
+    JSON.stringify(insertSet),
+    setEmptyRowsMap,
+    createNewEmptyRow,
+  ]);
+
+  useEffect(() => {
+    updateEmptyRows();
+  }, [updateEmptyRows]);
 
   const pageDataInfo = useMemo(() => {
     // Data pagination
@@ -801,6 +908,7 @@ export function TableCompView(props: {
       }
       pagedData = pagedData.slice(offset, offset + pagination.pageSize);
     }
+
     return {
       total: total,
       current: current,
@@ -809,8 +917,11 @@ export function TableCompView(props: {
   }, [pagination, data]);
 
   const childrenProps = childrenToProps(comp.children);
-  
-  useMergeCompStyles(childrenProps, comp.dispatch)
+
+  useMergeCompStyles(
+    childrenProps as Record<string, any>,
+    comp.dispatch
+  );
 
   const handleChangeEvent = useCallback(
     (eventName: TableEventOptionValues) => {
@@ -846,16 +957,42 @@ export function TableCompView(props: {
       }}
       hasChange={hasChange}
       onSaveChanges={() => handleChangeEvent("saveChanges")}
-      onCancelChanges={() => handleChangeEvent("cancelChanges")}
+      onCancelChanges={() => {
+        handleChangeEvent("cancelChanges");
+        if (inlineAddNewRow) {
+          setEmptyRowsMap({});
+        }
+      }}
       onEvent={onEvent}
     />
   );
+
+  const summaryView = () => {
+    if (!showSummary) return undefined;
+    return (
+      <TableSummary
+        tableSize={size}
+        istoolbarPositionBelow={toolbar.position === "below"}
+        multiSelectEnabled={compChildren.selection.children.mode.value === 'multiple'}
+        expandableRows={Boolean(expansion.expandModalView)}
+        summaryRows={parseInt(summaryRows)}
+        columns={columns}
+        summaryRowStyle={summaryRowStyle}
+      />
+    );
+  }
 
   if (antdColumns.length === 0) {
     return <EmptyContent text={trans("table.emptyColumns")} />;
   }
 
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
+  const showTableLoading = loading ||
+    // fixme isLoading type
+    ((showDataLoadingIndicators || compChildren.showDataLoadSpinner.getView()) &&
+      (compChildren.data as any).isLoading()) ||
+    compChildren.loading.getView();
+
   return (
     <BackgroundColorContext.Provider value={style.background} >
       <BackgroundWrapper
@@ -900,6 +1037,7 @@ export function TableCompView(props: {
                   }
                 }
               }}
+              // rowKey={OB_ROW_ORI_INDEX}
               rowColorFn={compChildren.rowColor.getView() as any}
               rowHeightFn={compChildren.rowHeight.getView() as any}
               {...compChildren.selection.getView()(onEvent)}
@@ -912,25 +1050,19 @@ export function TableCompView(props: {
               columnsStyle={columnsStyle}
               viewModeResizable={compChildren.viewModeResizable.getView()}
               visibleResizables={compChildren.visibleResizables.getView()}
-              dataSource={pageDataInfo.data}
+              dataSource={pageDataInfo.data.concat(Object.values(emptyRowsMap))}
               size={compChildren.size.getView()}
               rowAutoHeight={rowAutoHeight}
               tableLayout="fixed"
-              loading={
-                loading ||
-                // fixme isLoading type
-                (compChildren.showDataLoadSpinner.getView() &&
-                  (compChildren.data as any).isLoading()) ||
-                compChildren.loading.getView()
-              }
+              customLoading={showTableLoading}
               onCellClick={(columnName: string, dataIndex: string) => {
                 comp.children.selectedCell.dispatchChangeValueAction({
                   name: columnName,
                   dataIndex: dataIndex,
                 });
               }}
+              summary={summaryView}
             />
-
             <SlotConfigContext.Provider value={{ modalWidth: width && Math.max(width, 300) }}>
               {expansion.expandModalView}
             </SlotConfigContext.Provider>

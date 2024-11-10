@@ -12,7 +12,6 @@ import log from "loglevel";
 
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
@@ -31,7 +30,7 @@ ${props=>props.$animationStyle}
     width: 100%;
     height: 100%;
     display: block;
-    background-color: ${(props) => props.$style.background};
+    background: ${(props) => props.$style.background};
   }
 `;
 
@@ -49,9 +48,7 @@ let IFrameCompBase = new UICompBuilder(
     style: styleControl(IframeStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   },
-  (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  (props) => {
     const sandbox = ["allow-scripts", "allow-same-origin"];
     props.allowSubmitForm && sandbox.push("allow-forms");
     props.allowDownload && sandbox.push("allow-downloads");

@@ -54,7 +54,6 @@ import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const getStyle = (style: InputLikeStyleType) => {
   return css`
@@ -269,6 +268,7 @@ const childrenMap = {
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
   // validation
   required: BoolControl,
+  showValidationWhenEmpty: BoolControl,
   min: UndefinedNumberControl,
   max: UndefinedNumberControl,
   customRule: CustomRuleControl,
@@ -382,9 +382,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
 };
 
 let NumberInputTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       required: props.required,
       children: <CustomInputNumber {...props} />,
@@ -392,6 +390,7 @@ let NumberInputTmpComp = (function () {
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       animationStyle:props.animationStyle,
+      showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...validate(props),
     });
   })
@@ -408,6 +407,7 @@ let NumberInputTmpComp = (function () {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <><Section name={sectionNames.validation}>
             {requiredPropertyView(children)}
+            {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}
             {children.min.propertyView({ label: trans("prop.minimum") })}
             {children.max.propertyView({ label: trans("prop.maximum") })}
             {children.customRule.propertyView({})}

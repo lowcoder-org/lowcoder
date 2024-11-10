@@ -199,13 +199,13 @@ export const ThemeCompPanel = (props: any) => {
 
       if (newComp) {
         const compChildrens = newComp.children;
-        let styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style'));
+        let styleChildrenKeys = Object.keys(compChildrens).filter(child => child.toLowerCase().endsWith('style' || 'styles'));
         let styleChildrens: Record<string, any> = {};
         styleChildrenKeys.forEach((childKey: string) => {
           styleChildrens[childKey] = compChildrens[childKey];
         })
         if (compChildrens.container) {
-          styleChildrenKeys = Object.keys(compChildrens.container.children).filter(child => child.toLowerCase().endsWith('style'));
+          styleChildrenKeys = Object.keys(compChildrens.container.children).filter(child => child.toLowerCase().endsWith('style' || 'styles'));
           styleChildrenKeys.forEach((childKey: string) => {
             styleChildrens[childKey] = compChildrens.container.children[childKey];
           })

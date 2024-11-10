@@ -7,7 +7,6 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const SliderBasicComp = (function () {
   /**
@@ -19,9 +18,7 @@ const SliderBasicComp = (function () {
     vertical: BoolControl,
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);
-
+  return new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -29,7 +26,7 @@ const SliderBasicComp = (function () {
       animationStyle:props.animationStyle,
       children: (
         <SliderWrapper
-          vertical={props.vertical}
+          $vertical={Boolean(props.vertical)}
           onMouseDown={(e: any) => {
             e.stopPropagation();
             return false;
@@ -41,7 +38,7 @@ const SliderBasicComp = (function () {
             value={props.value.value}
             $style={props.inputFieldStyle}
             style={{margin: 0}}
-            vertical={props.vertical || false}
+            $vertical={Boolean(props.vertical) || false}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");

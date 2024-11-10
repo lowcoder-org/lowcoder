@@ -22,7 +22,6 @@ import { RefControl } from "comps/controls/refControl";
 
 import { EditorContext } from "comps/editorState";
 import React, { useContext, useEffect } from "react";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const Link = styled(Button)<{
   $style: LinkStyleType;
@@ -42,7 +41,7 @@ const Link = styled(Button)<{
     border-radius:${props.$style.radius ? props.$style.radius:'0px'};
     text-transform:${props.$style.textTransform ? props.$style.textTransform:''};
     text-decoration:${props.$style.textDecoration ? props.$style.textDecoration:''} !important;
-    background-color: ${props.$style.background};
+    background: ${props.$style.background};
     &:hover {
       color: ${props.$style.hoverText} !important;
     }
@@ -92,14 +91,11 @@ const LinkTmpComp = (function () {
     suffixIcon: IconControl,
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
-
+  return new UICompBuilder(childrenMap, (props) => {  
     // chrome86 bug: button children should not contain only empty span
     const hasChildren = hasIcon(props.prefixIcon) || !!props.text || hasIcon(props.suffixIcon);
     return (
-      <ButtonCompWrapper disabled={props.disabled}>
+      <ButtonCompWrapper $disabled={props.disabled}>
         <Link
           $animationStyle={props.animationStyle}
           ref={props.viewRef}

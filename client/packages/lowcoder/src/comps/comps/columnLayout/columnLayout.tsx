@@ -17,7 +17,7 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, controlItem, sectionNames } from "lowcoder-design";
+import { ScrollBar, Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
 import styled from "styled-components";
@@ -40,8 +40,8 @@ import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -58,13 +58,13 @@ const ContainWrapper = styled.div<{
   column-gap: ${(props) => props.$style?.columnGap};
   row-gap: ${(props) => props.$style?.rowGap};
 
-  background-color: ${(props) => props.$style?.background} !important;
   border-radius: ${(props) => props.$style?.radius};
   border-width: ${(props) => props.$style?.borderWidth};
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   margin: ${(props) => props.$style?.margin};
   padding: ${(props) => props.$style?.padding};
+  ${props => props.$style && getBackgroundStyle(props.$style)}
 `;
 
 const ColWrapper = styled(Col)<{
@@ -74,13 +74,13 @@ const ColWrapper = styled(Col)<{
 }>`
   > div {
     height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
-    background-color: ${(props) => props.$style?.background} !important;
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth};
     border-color: ${(props) => props.$style?.border};
     border-style: ${(props) => props.$style?.borderStyle};
     margin: ${(props) => props.$style?.margin};
     padding: ${(props) => props.$style?.padding};
+    ${props => props.$style && getBackgroundStyle(props.$style)}
   }
 `;
 
@@ -97,6 +97,7 @@ const childrenMap = {
   templateRows: withDefault(StringControl, "1fr"),
   rowGap: withDefault(StringControl, "20px"),
   templateColumns: withDefault(StringControl, "1fr 1fr"),
+  mainScrollbar: withDefault(BoolControl, false),
   columnGap: withDefault(StringControl, "20px"),
   style: styleControl(ContainerStyle, 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle')
@@ -134,48 +135,53 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
     columnGap,
     columnStyle,
     horizontalGridCells,
+    mainScrollbar
   } = props;
 
   return (
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
-        <ContainWrapper $style={{
-          ...props.style,
-          display: "grid",
-          gridTemplateColumns: templateColumns,
-          columnGap,
-          gridTemplateRows: templateRows,
-          rowGap,
-        }}>
-          {columns.map(column => {
-            const id = String(column.id);
-            const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-            if(!containers[id]) return null
-            const containerProps = containers[id].children;
-            const noOfColumns = columns.length;
-            return (
-              <BackgroundColorContext.Provider value={props.columnStyle.background}>
-                <ColWrapper
-                  key={id}
-                  $style={props.columnStyle}
-                  $minWidth={column.minWidth}
-                  $matchColumnsHeight={matchColumnsHeight}
-                >
-                  <ColumnContainer
-                    layout={containerProps.layout.getView()}
-                    items={gridItemCompToGridItems(containerProps.items.getView())}
-                    horizontalGridCells={horizontalGridCells}
-                    positionParams={containerProps.positionParams.getView()}
-                    dispatch={childDispatch}
-                    autoHeight={props.autoHeight}
-                    style={columnStyle}
-                  />
-                </ColWrapper>
-              </BackgroundColorContext.Provider>
-            )
-            })
-          }
-        </ContainWrapper>
+        <div style={{ height: "inherit", overflow: "auto"}}>
+        <ScrollBar style={{ margin: "0px", padding: "0px" }} overflow="scroll" hideScrollbar={!mainScrollbar}>
+          <ContainWrapper $style={{
+            ...props.style,
+            display: "grid",
+            gridTemplateColumns: templateColumns,
+            columnGap,
+            gridTemplateRows: templateRows,
+            rowGap,
+          }}>
+            {columns.map(column => {
+              const id = String(column.id);
+              const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
+              if(!containers[id]) return null
+              const containerProps = containers[id].children;
+              const noOfColumns = columns.length;
+              return (
+                <BackgroundColorContext.Provider value={props.columnStyle.background}>
+                  <ColWrapper
+                    key={id}
+                    $style={props.columnStyle}
+                    $minWidth={column.minWidth}
+                    $matchColumnsHeight={matchColumnsHeight}
+                  >
+                    <ColumnContainer
+                      layout={containerProps.layout.getView()}
+                      items={gridItemCompToGridItems(containerProps.items.getView())}
+                      horizontalGridCells={horizontalGridCells}
+                      positionParams={containerProps.positionParams.getView()}
+                      dispatch={childDispatch}
+                      autoHeight={props.autoHeight}
+                      style={columnStyle}
+                    />
+                  </ColWrapper>
+                </BackgroundColorContext.Provider>
+              )
+              })
+            }
+          </ContainWrapper>
+        </ScrollBar>
+        </div>
       </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
   );
@@ -183,8 +189,6 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    useMergeCompStyles(props as Record<string, any>, dispatch);    
-
     return (
       <ColumnLayout {...props} dispatch={dispatch} />
     );
@@ -210,6 +214,9 @@ export const ResponsiveLayoutBaseComp = (function () {
             <>
             <Section name={sectionNames.layout}>
               {children.autoHeight.getPropertyView()}
+              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
+                label: trans("prop.mainScrollbar")
+              })}
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}

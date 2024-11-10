@@ -11,14 +11,7 @@ import org.lowcoder.api.query.view.LibraryQueryRecordMetaView;
 import org.lowcoder.api.query.view.LibraryQueryView;
 import org.lowcoder.api.query.view.UpsertLibraryQueryRequest;
 import org.lowcoder.domain.query.model.LibraryQuery;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import reactor.core.publisher.Mono;
@@ -36,7 +29,7 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve Library Queries in a dropdown format within Lowcoder, suitable for selection in user interfaces."
 	)
     @GetMapping("/dropDownList")
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList();
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
@@ -45,7 +38,7 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve a list of Library Queries for a specific Organization within Lowcoder."
 	)
     @GetMapping("/listByOrg")
-    public Mono<ResponseView<List<LibraryQueryView>>> list();
+    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false) String name);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,

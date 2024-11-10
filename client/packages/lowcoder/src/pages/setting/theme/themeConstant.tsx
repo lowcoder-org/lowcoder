@@ -32,6 +32,8 @@ export const themeTemplateList = [
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
       padding: "3px",
+      showComponentLoadingIndicators: true,
+      showDataLoadingIndicators: true,
     },
   },
   {
@@ -49,6 +51,8 @@ export const themeTemplateList = [
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
       padding: "3px",
+      showComponentLoadingIndicators: true,
+      showDataLoadingIndicators: true,
     },
   },
   {
@@ -66,6 +70,8 @@ export const themeTemplateList = [
       gridColumns: "24", //Added By Aqib Mirza
       margin: "3px",
       padding: "3px",
+      showComponentLoadingIndicators: true,
+      showDataLoadingIndicators: true,
     },
   },
 ];
