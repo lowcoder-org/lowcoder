@@ -216,7 +216,7 @@ const childrenMap = {
   lowcoderCompVersion: withDefault(StringControl, 'latest'),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   gridColumns: RangeControl.closed(8, 48, 24),
-  gridRowHeight: RangeControl.closed(6, 20, 8),
+  gridRowHeight: RangeControl.closed(4, 100, 8),
   gridRowCount: withDefault(NumberControl, DEFAULT_ROW_COUNT),
   gridPaddingX: withDefault(NumberControl, 20),
   gridPaddingY: withDefault(NumberControl, 20),

@@ -484,7 +484,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       setRowCount(Infinity);
       onRowCountChange?.(0);
     }
-  }, [isRowCountLocked, onRowCountChange]);
+  }, [isRowCountLocked, positionParams.rowHeight, onRowCountChange]);
 
   // log.info("rowCount:", currentRowCount, "rowHeight:", currentRowHeight);
 

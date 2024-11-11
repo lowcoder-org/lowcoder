@@ -576,8 +576,8 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
 
           <Slider 
             style={{ width: "90%", margin: "8px 5% 0 5%"}}
-            min={6}  // Define the minimum value for the slider
-            max={20} // Define the maximum value for the slider
+            min={4}  // Define the minimum value for the slider
+            max={100} // Define the maximum value for the slider
             value={parseInt(gridRowHeight || "8")}
             onChange={(value) => setGridRowHeight(value.toString())}
             onChangeComplete={(value) => gridSizeInputBlur(value.toString())}
