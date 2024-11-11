@@ -29,7 +29,7 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve Library Queries in a dropdown format within Lowcoder, suitable for selection in user interfaces."
 	)
     @GetMapping("/dropDownList")
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false) String name);
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false, defaultValue = "") String name);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
@@ -38,7 +38,7 @@ public interface LibraryQueryEndpoints
 		    description = "Retrieve a list of Library Queries for a specific Organization within Lowcoder."
 	)
     @GetMapping("/listByOrg")
-    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false) String name);
+    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false, defaultValue = "") String name);
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,

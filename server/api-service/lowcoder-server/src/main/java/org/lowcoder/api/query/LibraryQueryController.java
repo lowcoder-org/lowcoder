@@ -35,13 +35,13 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     private GidService gidService;
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false) String name) {
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false, defaultValue = "") String name) {
         return libraryQueryApiService.dropDownList(name)
                 .map(ResponseView::success);
     }
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false) String name) {
+    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false, defaultValue = "") String name) {
         return libraryQueryApiService.listLibraryQueries(name)
                 .map(ResponseView::success);
     }
