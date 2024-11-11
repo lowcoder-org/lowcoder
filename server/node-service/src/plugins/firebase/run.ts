@@ -11,6 +11,59 @@ import {
 import { DataSourceDataType } from "./dataSourceConfig";
 import { ActionDataType } from "./queryConfig";
 
+function applyFieldFilter(
+  query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
+  fieldPath: string,
+  operator: string,
+  value: any
+): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
+  let firestoreOp: FirebaseFirestore.WhereFilterOp;
+  switch (operator) {
+    case "EQUAL": firestoreOp = "=="; break;
+    case "GREATER_THAN": firestoreOp = ">"; break;
+    case "LESS_THAN": firestoreOp = "<"; break;
+    case "GREATER_THAN_OR_EQUAL": firestoreOp = ">="; break;
+    case "LESS_THAN_OR_EQUAL": firestoreOp = "<="; break;
+    case "ARRAY_CONTAINS": firestoreOp = "array-contains"; break; 
+    case "ARRAY_CONTAINS_ANY": firestoreOp = "array-contains-any"; break;
+    default:
+      throw badRequest(`Unsupported operator: ${operator}`);
+  }
+
+  const actualValue = value.integerValue ?? value.stringValue ?? value.booleanValue ?? value.doubleValue;
+  if (actualValue === undefined) {
+    throw badRequest("Unsupported value type in structuredQuery");
+  }
+
+  return query.where(fieldPath, firestoreOp, actualValue);
+}
+
+// Helper function to apply a unary filter
+function applyUnaryFilter(
+  query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData>,
+  fieldPath: string,
+  operator: string
+): FirebaseFirestore.Query<FirebaseFirestore.DocumentData> {
+  let firestoreOp: FirebaseFirestore.WhereFilterOp;
+  switch (operator) {
+    case "IS_NAN": firestoreOp = "=="; break;
+    case "IS_NULL": firestoreOp = "=="; break;
+    case "IS_NOT_NAN": firestoreOp = "!="; break;
+    case "IS_NOT_NULL": firestoreOp = "!="; break;
+    default:
+      throw badRequest(`Unsupported unary operator: ${operator}`);
+  }
+
+  return query.where(fieldPath, firestoreOp, null);
+}
+
+// Helper function to extract cursor values
+function extractCursorValues(values: any[]): any[] {
+  return values.map((v: { integerValue?: any; stringValue?: any; booleanValue?: any; doubleValue?: any; }) =>
+    v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue ?? v.booleanValue
+  ).filter(value => value !== undefined);
+}
+
 export async function runFirebasePlugin(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType
@@ -139,59 +192,61 @@ export async function runFirebasePlugin(
         
         let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = ref;
     
-        // Apply `where` filters
-        if (structuredQuery.where && structuredQuery.where.fieldFilter) {
-          const fieldFilter = structuredQuery.where.fieldFilter;
-          const fieldPath = fieldFilter.field?.fieldPath;
-          const operator = fieldFilter.op;
-          const value = fieldFilter.value;
-    
-          if (!fieldPath || !operator || value === undefined) {
-            throw badRequest("Invalid fieldFilter in where clause");
-          }
-    
-          let firestoreOp: FirebaseFirestore.WhereFilterOp;
-          switch (operator) {
-            case "EQUAL":
-              firestoreOp = "==";
-              break;
-            case "GREATER_THAN":
-              firestoreOp = ">";
-              break;
-            case "LESS_THAN":
-              firestoreOp = "<";
-              break;
-            case "GREATER_THAN_OR_EQUAL":
-              firestoreOp = ">=";
-              break;
-            case "LESS_THAN_OR_EQUAL":
-              firestoreOp = "<=";
-              break;
-            case "ARRAY_CONTAINS":
-              firestoreOp = "array-contains";
-              break;
-            default:
-              throw badRequest(`Unsupported operator: ${operator}`);
-          }
-    
-          const actualValue = value.integerValue ?? value.stringValue ?? value.booleanValue ?? value.doubleValue;
-          if (actualValue === undefined) {
-            throw badRequest("Unsupported value type in structuredQuery");
-          }
-
-          query = query.where(fieldPath, firestoreOp, actualValue);
+        // Apply `select` fields projection if provided
+        if (structuredQuery.select && structuredQuery.select.fields) {
+          const selectedFields = structuredQuery.select.fields.map((field: { fieldPath: string }) => field.fieldPath);
+          query = query.select(...selectedFields);
         }
+    
+        // Apply `where` filters
+        if (structuredQuery.where) {
+          if (structuredQuery.where.compositeFilter) {
+            // Composite Filter (AND, OR)
+            const compositeFilter = structuredQuery.where.compositeFilter;
+            const filters = compositeFilter.filters;
+            const operator = compositeFilter.op;
+    
+            if (operator !== "AND") {
+              throw badRequest("Only 'AND' composite filters are currently supported.");
+            }
+    
+            filters.forEach((filter: any) => {
+              if (filter.fieldFilter) {
+                const fieldFilter = filter.fieldFilter;
+                const fieldPath = fieldFilter.field.fieldPath;
+                const operator = fieldFilter.op;
+                const value = fieldFilter.value;
+                query = applyFieldFilter(query, fieldPath, operator, value);
+              } else if (filter.unaryFilter) {
+                const unaryFilter = filter.unaryFilter;
+                const fieldPath = unaryFilter.field.fieldPath;
+                const operator = unaryFilter.op;
+                query = applyUnaryFilter(query, fieldPath, operator);
+              }
+            });
+          } else if (structuredQuery.where.fieldFilter) {
+            // Single Field Filter
+            const fieldFilter = structuredQuery.where.fieldFilter;
+            const fieldPath = fieldFilter.field.fieldPath;
+            const operator = fieldFilter.op;
+            const value = fieldFilter.value;
+            query = applyFieldFilter(query, fieldPath, operator, value);
+          }
+        }
+
+        // Get the total count using aggregate query before applying pagination
+        const totalCount = await query.count().get().then((snapshot) => snapshot.data().count);
     
         // Apply `orderBy`
         if (structuredQuery.orderBy && Array.isArray(structuredQuery.orderBy)) {
-          for (const order of structuredQuery.orderBy) {
+          structuredQuery.orderBy.forEach((order: { field: { fieldPath: string | FirebaseFirestore.FieldPath; }; direction: any; }) => {
             if (order.field && order.field.fieldPath) {
               query = query.orderBy(
                 order.field.fieldPath,
-                (order.direction || "asc") as FirebaseFirestore.OrderByDirection
+                (order.direction || "asc").toLowerCase() as FirebaseFirestore.OrderByDirection
               );
             }
-          }
+          });
         }
     
         // Apply `limit`
@@ -199,7 +254,7 @@ export async function runFirebasePlugin(
           query = query.limit(structuredQuery.limit);
         }
     
-        // Apply `offset` (Firestore SDK doesn't support offset directly; simulate it with startAfter)
+        // Apply `offset` (simulate it using startAfter since Firestore SDK doesn't support offset directly)
         if (structuredQuery.offset) {
           const offsetSnapshot = await query.limit(structuredQuery.offset).get();
           const lastVisible = offsetSnapshot.docs[offsetSnapshot.docs.length - 1];
@@ -208,16 +263,15 @@ export async function runFirebasePlugin(
           }
         }
     
-        // Apply `startAt` and `endAt` cursors, checking for undefined values
+        // Apply `startAt` and `endAt` cursors
         if (structuredQuery.startAt && structuredQuery.startAt.values) {
-          const startAtValues = structuredQuery.startAt.values.map((v: { integerValue: any; stringValue: any; booleanValue: any; doubleValue: any; }) => v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue).filter((value: any) => value !== undefined);
+          const startAtValues = extractCursorValues(structuredQuery.startAt.values);
           if (startAtValues.length > 0) {
             query = query.startAt(...startAtValues);
           }
         }
-    
         if (structuredQuery.endAt && structuredQuery.endAt.values) {
-          const endAtValues = structuredQuery.endAt.values.map((v: { integerValue: any; stringValue: any; booleanValue: any; doubleValue: any; }) => v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue).filter((value: any) => value !== undefined);
+          const endAtValues = extractCursorValues(structuredQuery.endAt.values);
           if (endAtValues.length > 0) {
             query = query.endAt(...endAtValues);
           }
@@ -225,11 +279,11 @@ export async function runFirebasePlugin(
     
         // Execute the query
         const snapshot = await query.get();
-
         if (snapshot.empty) {
           return [];
         }
-        return snapshot.docs.map((doc) => doc.data());
+        const documents = snapshot.empty ? [] : snapshot.docs.map((doc) => doc.data());
+        return { totalCount, documents };
       });
       return data;
     }
