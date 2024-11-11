@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.21",
+  "version": "0.0.22",
   "type": "module",
   "scripts": {
     "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
