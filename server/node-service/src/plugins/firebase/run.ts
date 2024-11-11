@@ -132,21 +132,100 @@ export async function runFirebasePlugin(
 
     if (actionName === "FS.QueryFireStore") {
       const data = await withFirestoreCollection(async (ref) => {
+        const structuredQuery = actionData.query;
+        if (!structuredQuery) {
+          throw badRequest("Missing structuredQuery in action data");
+        }
+        
         let query: FirebaseFirestore.Query<FirebaseFirestore.DocumentData> = ref;
+    
+        // Apply `where` filters
+        if (structuredQuery.where && structuredQuery.where.fieldFilter) {
+          const fieldFilter = structuredQuery.where.fieldFilter;
+          const fieldPath = fieldFilter.field?.fieldPath;
+          const operator = fieldFilter.op;
+          const value = fieldFilter.value;
+    
+          if (!fieldPath || !operator || value === undefined) {
+            throw badRequest("Invalid fieldFilter in where clause");
+          }
+    
+          let firestoreOp: FirebaseFirestore.WhereFilterOp;
+          switch (operator) {
+            case "EQUAL":
+              firestoreOp = "==";
+              break;
+            case "GREATER_THAN":
+              firestoreOp = ">";
+              break;
+            case "LESS_THAN":
+              firestoreOp = "<";
+              break;
+            case "GREATER_THAN_OR_EQUAL":
+              firestoreOp = ">=";
+              break;
+            case "LESS_THAN_OR_EQUAL":
+              firestoreOp = "<=";
+              break;
+            case "ARRAY_CONTAINS":
+              firestoreOp = "array-contains";
+              break;
+            default:
+              throw badRequest(`Unsupported operator: ${operator}`);
+          }
+    
+          const actualValue = value.integerValue ?? value.stringValue ?? value.booleanValue ?? value.doubleValue;
+          if (actualValue === undefined) {
+            throw badRequest("Unsupported value type in structuredQuery");
+          }
 
-        // Parse Query JSON from actionData.query
-        if (actionData.query) {
-          for (const condition of actionData.query) {
-            const { field, op, value } = condition;
-            if (!field || !op || value === undefined) {
-              throw badRequest("Invalid query condition: " + JSON.stringify(condition));
+          query = query.where(fieldPath, firestoreOp, actualValue);
+        }
+    
+        // Apply `orderBy`
+        if (structuredQuery.orderBy && Array.isArray(structuredQuery.orderBy)) {
+          for (const order of structuredQuery.orderBy) {
+            if (order.field && order.field.fieldPath) {
+              query = query.orderBy(
+                order.field.fieldPath,
+                (order.direction || "asc") as FirebaseFirestore.OrderByDirection
+              );
             }
-            query = query.where(field, op as WhereFilterOp, value);
           }
         }
-
-        // Execute the query and retrieve results
+    
+        // Apply `limit`
+        if (structuredQuery.limit) {
+          query = query.limit(structuredQuery.limit);
+        }
+    
+        // Apply `offset` (Firestore SDK doesn't support offset directly; simulate it with startAfter)
+        if (structuredQuery.offset) {
+          const offsetSnapshot = await query.limit(structuredQuery.offset).get();
+          const lastVisible = offsetSnapshot.docs[offsetSnapshot.docs.length - 1];
+          if (lastVisible) {
+            query = query.startAfter(lastVisible);
+          }
+        }
+    
+        // Apply `startAt` and `endAt` cursors, checking for undefined values
+        if (structuredQuery.startAt && structuredQuery.startAt.values) {
+          const startAtValues = structuredQuery.startAt.values.map((v: { integerValue: any; stringValue: any; booleanValue: any; doubleValue: any; }) => v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue).filter((value: any) => value !== undefined);
+          if (startAtValues.length > 0) {
+            query = query.startAt(...startAtValues);
+          }
+        }
+    
+        if (structuredQuery.endAt && structuredQuery.endAt.values) {
+          const endAtValues = structuredQuery.endAt.values.map((v: { integerValue: any; stringValue: any; booleanValue: any; doubleValue: any; }) => v.integerValue ?? v.stringValue ?? v.booleanValue ?? v.doubleValue).filter((value: any) => value !== undefined);
+          if (endAtValues.length > 0) {
+            query = query.endAt(...endAtValues);
+          }
+        }
+    
+        // Execute the query
         const snapshot = await query.get();
+
         if (snapshot.empty) {
           return [];
         }

@@ -8,7 +8,7 @@ import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 const spec = readYaml(path.join(__dirname, "./openAi.yaml"));
 const specs = {
-  "v1.0": spec,
+  "v1.0": spec as OpenAPIV3.Document,
 }
 
 const dataSourceConfig = {
