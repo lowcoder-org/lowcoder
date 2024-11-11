@@ -69,19 +69,14 @@ const StyleNewsContent = styled.div`
     }
 `;
 
-const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-var newsLink = "https://prod-us1.openflower.org/apps/672fff5647975653043ea551/view?template=1";
-const commitId = REACT_APP_COMMIT_ID;
+var devNetLink = "https://prod-us1.openflower.org/apps/67321bec4671ef070cff80d7/view?template=1";
 const buildId = REACT_APP_BUILD_ID;
 
 if (buildId) {
-  newsLink += `&b=${buildId}`;
-}
-if (isSelfHost) {  
-  newsLink +=  `&v=${commitId}`;
+  devNetLink += `&b=${buildId}`;
 }
 
-export function NewsLayout() {
+export function DeveloperNetworkLayout() {
 
   return (
     <Wrapper>
@@ -90,16 +85,16 @@ export function NewsLayout() {
       <ContentWrapper>
         <NewsView>
           <StyleNewsCover>
-            <h1 style={{color: "#ffffff", marginTop : "12px"}}>OpenFlower {trans("home.news")}</h1>
+            <h1 style={{color: "#ffffff", marginTop : "12px"}}>OpenFlower {trans("home.developerNetwork")}</h1>
           </StyleNewsCover>
           <Card style={{ marginBottom: "20px", minHeight : "800px" }}>
             <h4>{trans("home.newsLoading")}</h4>
             <iframe
               style={{ border: "none" }}
-              title="OpenFlower News"
+              title="OpenFlower Developer Network"
               width="100%"
               height="800px"
-              src={newsLink}
+              src={devNetLink}
             />
             <Divider />
 

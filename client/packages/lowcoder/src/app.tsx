@@ -28,6 +28,7 @@ import {
   ADMIN_APP_URL,
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
+  DEVELOPER_NETWORK_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -320,6 +321,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 path={[
                   USER_PROFILE_URL,
                   NEWS_URL,
+                  DEVELOPER_NETWORK_URL,
                   ORG_HOME_URL,
                   ALL_APPLICATIONS_URL,
                   DATASOURCE_CREATE_URL,

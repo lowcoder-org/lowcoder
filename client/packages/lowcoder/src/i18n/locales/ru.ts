@@ -3,7 +3,7 @@ import { en } from "./en";
 export const ru = {
     ...en,
     
-  "productName": "Lowcoder",
+  "productName": "OpenFlower",
   "productDesc": "Создавайте программные приложения для своей компании и клиентов с минимальным опытом кодирования. Lowcoder - отличная альтернатива Retool, Appsmith и Tooljet.",
   "notSupportedBrowser": "Ваш текущий браузер может иметь проблемы с совместимостью. Для оптимальной работы используйте последнюю версию браузера Chrome.",
   "create": "Создать",
@@ -3134,7 +3134,8 @@ export const ru = {
 
   "profile": "Ваш профиль",
   "news": "Новости",
-  "newsLoading": "Он будет загружаться несколько секунд.",
+  "newsLoading": "загрузка...",
+  "developerNetwork": "Сеть разработчиков",
   "orgHome": "Домашняя страница (Org)",
   "yourOrg": "Ваша организация",
   "orgHomeTitle": "Домашняя страница организации",

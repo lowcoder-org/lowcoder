@@ -3,7 +3,7 @@ import { en } from "./en";
 
 export const zh: typeof en = {
     ...en,
-    productName: "Lowcoder",
+    productName: "OpenFlower",
     productDesc: "快速构建内部工具,无任何限制",
     notSupportedBrowser: "您当前使用的浏览器可能存在兼容性问题.为了获得更好的用户体验,建议使用最新版本的Chrome浏览器",
     create: "创建",
