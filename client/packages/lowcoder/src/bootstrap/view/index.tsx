@@ -8,7 +8,6 @@ import { RemoteCompInfo } from "../../types/remoteComp";
 
 import {TableComp} from "../../comps/comps/tableComp";
 import {TextComp} from "../../comps/comps/textComp";
-import {ModuleComp} from "../../comps/comps/moduleComp/moduleComp";
 import {InputComp} from "../../comps/comps/textInputComp/inputComp";
 import {TextAreaComp} from "../../comps/comps/textInputComp/textAreaComp";
 import {ButtonComp} from "../../comps/comps/buttonComp/buttonComp";
@@ -1607,9 +1606,8 @@ export var uiCompMap: Registry = {
     description: "",
     categories: [],
     keywords: "",
-    lazyLoad: false,
+    lazyLoad: true,
     compName: "ModuleComp",
-    comp: ModuleComp,
     compPath: "comps/moduleComp/moduleComp",
     layoutInfo: {
       w: 12,
