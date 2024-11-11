@@ -35,8 +35,8 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
     private final ApplicationServiceImpl applicationServiceImpl;
 
     @Override
-    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String name) {
-        return forwardToNodeService(applicationId, name, NPM_REGISTRY_METADATA);
+    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String path) {
+        return forwardToNodeService(applicationId, path, NPM_REGISTRY_METADATA);
     }
 
     @Override
