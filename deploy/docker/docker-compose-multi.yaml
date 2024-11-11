@@ -12,7 +12,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: openflower
       MONGO_INITDB_ROOT_PASSWORD: secret123
     volumes:
-      - ./lowcoder-stacks/data/mongodb:/data/db
+      - ./openflower-stacks/data/mongodb:/data/db
     restart: unless-stopped
 
   redis:
@@ -85,8 +85,8 @@ services:
       - mongodb
       - redis
     volumes:
-      - ./lowcoder-stacks:/lowcoder-stacks
-      - ./lowcoder-stacks/assets:/lowcoder/assets
+      - ./openflower-stacks:/lowcoder-stacks
+      - ./openflower-stacks/assets:/lowcoder/assets
 
 
   openflower-node-service:
