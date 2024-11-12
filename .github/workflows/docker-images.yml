@@ -98,7 +98,7 @@ jobs:
           NODE_ENV: production
         with:
           file: ./deploy/docker/Dockerfile
-          target: lowcoder-ce-frontend
+          target: opwnflower-frontend
           build-args: |
             REACT_APP_ENV=production
             REACT_APP_COMMIT_ID="dev #${{ env.SHORT_SHA }}"
@@ -112,7 +112,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./deploy/docker/Dockerfile
-          target: lowcoder-ce-node-service
+          target: opwnflower-node-service
           platforms: linux/amd64
           #        linux/arm64
           push: true
@@ -123,7 +123,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           file: ./deploy/docker/Dockerfile
-          target: lowcoder-ce-api-service
+          target: opwnflower-api-service
           platforms: linux/amd64
           #          linux/arm64
           push: true
