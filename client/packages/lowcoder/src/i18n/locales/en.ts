@@ -3099,7 +3099,8 @@ export const en = {
   "home": {
     "profile": "Your Profile",
     "news": "News",
-    "newsLoading": "news loading...",
+    "newsLoading": "loading...",
+    "developerNetwork": "Developer Network",
     "orgHome" : "Homepage (Org)",
     "yourOrg": "Your Organization",
     "orgHomeTitle": "Organization Homepage",

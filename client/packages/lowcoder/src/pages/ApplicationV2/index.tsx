@@ -13,6 +13,7 @@ import {
   TRASH_URL,
   NEWS_URL,
   ORG_HOME_URL,
+  DEVELOPER_NETWORK_URL,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,7 +28,7 @@ import {
   HomeQueryLibraryIcon,
   HomeSettingIcon,
   SupportIcon,
-  // PlusIcon,
+  PlusIcon,
   // PointIcon,
   RecyclerIcon,
   MarketplaceIcon,
@@ -73,6 +74,7 @@ import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
+import { DeveloperNetworkView } from "./DeveloperNetworkView";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -226,6 +228,13 @@ export default function ApplicationHome() {
                 icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 style: { color: "red" },
+              },
+              {
+                text: <TabLabel>{trans("home.developerNetwork")}</TabLabel>,
+                routePath: DEVELOPER_NETWORK_URL,
+                routeComp: DeveloperNetworkView,
+                icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
               },
               {
                 text: <TabLabel>{trans("home.orgHome")}</TabLabel>,

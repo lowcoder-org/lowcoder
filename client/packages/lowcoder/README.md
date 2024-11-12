@@ -1,3 +1,3 @@
-# lowcoder
+# OpenFlower
 
-The main app of lowcoder.
+The main app of OpenFlower.

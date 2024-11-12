@@ -1,4 +1,4 @@
-# Lowcoder frontend
+# OpenFlower frontend
 
 ## How to contribute
 
@@ -9,10 +9,10 @@
 Simply run the below command to start a backend server.
 
 ```bash
-docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoderorg/lowcoder-ce
+docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/openflower-stacks" flowerappengorg/openflower
 ```
 
-For more information, view our [docs](https://docs.openflower.org/lowcoder-documentation/setup-and-run/self-hosting)
+For more information, view our [docs](https://docs.openflower.org/setup-and-run/self-hosting)
 
 #### Build Docker image from source
 
@@ -20,13 +20,13 @@ For more information, view our [docs](https://docs.openflower.org/lowcoder-docum
 2. Use the command below to build a Docker image :
 
 ```bash
-docker build -f ./deploy/docker/Dockerfile -t lowcoder-dev .
+docker build -f ./deploy/docker/Dockerfile -t openflower-dev .
 ```
 
 3. Start
 
 ```bash
-docker run -d --name lowcoder-dev -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" lowcoder-dev
+docker run -d --name openflower-dev -p 3000:3000 -v "$PWD/stacks:/openflower-stacks" openflower-dev
 ```
 
 ### Start develop
@@ -92,8 +92,8 @@ yarn start
 ```
 
 After executing yarn start, the browser is automatically opened and you enter the component development environment.
-Please find more information in our [docs](https://docs.openflower.org/lowcoder-documentation/lowcoder-extension/develop-ui-components-for-apps)
-
+Please find more information in our [docs](https://docs.openflower.org/openflower-extension/opensource-contribution/develop-ui-components-for-apps)
+                                           
 2. Export components
 
 To export all the components, use src/index.ts, for example:
@@ -116,4 +116,4 @@ When you finish developing and testing the plugin, you can publish it into the n
 yarn build --publish
 ```
 
-You can check a code demo here:  [Code Demo on Github](https://github.com/lowcoder-org/lowcoder/tree/main/client/packages/lowcoder-plugin-demo)
+You can check a code demo here:  [Code Demo on Github](https://github.com/Flowerappeng-org/openflower/tree/main/client/packages/lowcoder-plugin-demo)
