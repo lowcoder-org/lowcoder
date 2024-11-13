@@ -27,7 +27,7 @@ public interface FolderApiService {
 
     Mono<Void> upsertLastViewTime(@Nullable String folderId);
 
-    Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name);
+    Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name, Integer pageNum, Integer pageSize);
 
     Mono<Void> grantPermission(String folderId, Set<String> userIds, Set<String> groupIds, ResourceRole role);
 
