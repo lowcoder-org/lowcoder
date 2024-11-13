@@ -1,6 +1,6 @@
 # Develop Data Source Plugins
 
-This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [OpenFlower](https://github.com/OpenFlower-dev/OpenFlower)--the open source project.
+This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [OpenFlower](https://github.com/flowerappeng-org/OpenFlower)--the open source project.
 
 ## Basics
 
