@@ -5312,23 +5312,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"duckdb-async@npm:^0.10.0":
-  version: 0.10.2
-  resolution: "duckdb-async@npm:0.10.2"
+"duckdb-async@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "duckdb-async@npm:1.1.1"
   dependencies:
-    duckdb: 0.10.2
-  checksum: 965fdba9b92a9fcb1fdea263b846c11145a515af4afe806afd8f3908113467f756624b59fa3351ed6d4893dc1c81410b763abb44d08619d4ace5e6407e4136be
+    duckdb: 1.1.1
+  checksum: 03b4bfbff90349fa536c8b15210959cafdc0bcb06bdbd43ed24eb7ad5fcb1597b3131b42a22c6fbbd5d9a219e478036df558ac1f21654e8084dae03ea4ef5886
   languageName: node
   linkType: hard
 
-"duckdb@npm:0.10.2":
-  version: 0.10.2
-  resolution: "duckdb@npm:0.10.2"
+"duckdb@npm:1.1.1":
+  version: 1.1.1
+  resolution: "duckdb@npm:1.1.1"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
     node-addon-api: ^7.0.0
     node-gyp: ^9.3.0
-  checksum: 5d55c4a2e79fec84de8d590c275daac69f7d3e556802c13ad2909bb05cc91cf2603cf84c9ad8d7fe102a8f094a37808a9c9d2bbcef15404e2c5f906134bda797
+  checksum: eb3bb8eaca38a901b1933bd6d6285fe360bf0b77366acde4b7389a85dcae8cb3156952f4b3a5ea77a73a0bf0f240a1559b7583612ea539218dac18c17adc25b8
   languageName: node
   linkType: hard
 
@@ -7751,7 +7751,7 @@ __metadata:
     bluebird: ^3.7.2
     commander: ^10.0.0
     copyfiles: ^2.4.1
-    duckdb-async: ^0.10.0
+    duckdb-async: ^1.1.1
     dynamodb-data-types: ^4.0.1
     express: ^4.21.0
     express-async-errors: ^3.1.1
