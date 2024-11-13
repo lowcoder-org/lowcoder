@@ -3,7 +3,7 @@
 ## Deploy
 
 1. [Sign up](https://signup.heroku.com/) for a new Heroku account, or [log in](https://id.heroku.com/login) to get started.
-2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/OpenFlower-dev/OpenFlower).
+2. Click to start Heroku [one-click deployment](https://heroku.com/deploy?template=https://github.com/flowerappeng-org/OpenFlower).
 3. Set the **App name** which will be part of the app URL later, and choose a region.
 4. (Not required) Fill in the **Config Vars** according to the descriptions. These are all optional variables used for environment-specific configuration. You can skip this step and manage environment variables later.
 5. Click the **Deploy app** button.
