@@ -2,15 +2,37 @@ import express from "express";
 import * as pluginControllers from "../controllers/plugins";
 import jsControllers from "../controllers/runJavascript";
 import * as npmControllers from "../controllers/npm";
+import querystring from "querystring";
+import { ParsedQs } from 'qs';
 
 const apiRouter = express.Router();
 
 // In-memory cache object
 const cache: { [key: string]: any } = {};
 
+// Helper function to flatten Request Query object
+function flatQuery(query: ParsedQs) {
+    let result: {[key: string]: string | number | boolean | string[] | null} = {};
+
+    for (let key in query) {
+        if (typeof query[key] === 'object' && !Array.isArray(query[key])) {
+            result[key] = JSON.stringify(query[key]);
+        } else {
+            result[key] = query[key] as any;
+        }
+    }
+
+    return result;
+}
+
 // Middleware to cache responses for specific routes
 function cacheMiddleware(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const cacheKey = req.originalUrl;
+
+    let cacheKey = req.path + "?" + querystring.stringify(flatQuery(req.query));
+
+    if (req.method === "POST" && req.is("application/json") && req.body) {
+        cacheKey += JSON.stringify(req.body);
+    }
 
     // Check if the response is already cached
     if (cache[cacheKey]) {
