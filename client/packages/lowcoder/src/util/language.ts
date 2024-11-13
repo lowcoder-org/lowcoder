@@ -1,4 +1,4 @@
-const viewMode = () => window.location.href.includes("view") ? "view" : window.location.href.includes("edit") ? "edit" : "admin";
+import {viewMode} from "@lowcoder-ee/util/editor";
 
 interface LangJsonType {
     [key: string]: any;
