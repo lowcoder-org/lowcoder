@@ -6,7 +6,7 @@ All Data Queries in OpenFlower will always return JSON Data. When you call your 
 
 ## Connect to a data source
 
-You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data sources in OpenFlower](../data-sources-in-lowcoder/).
+You can connect to a data source that was already in your data source library or create a new one. For detailed information, see [Data sources in OpenFlower](../data-sources-in-openflower/).
 
 ## Create a query
 

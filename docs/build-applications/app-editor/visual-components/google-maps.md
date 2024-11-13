@@ -6,7 +6,7 @@ The core feature of this integration is the seamless combination of Google Geoma
 
 <figure><img src="../../../.gitbook/assets/Screenshot 2023-10-27 at 22.07.19.png" alt=""><figcaption><p>Distribution of OpenFlower Users worldwide (10.2023)</p></figcaption></figure>
 
-OpenFlower ensures that the data displayed in the eCharts overlay is not only current but can also be updated in real-time with the [Stream Query](../../../connect-your-data/data-sources-in-lowcoder/websocket-datasource.md). This is crucial for scenarios where timely data is essential for decision-making. Users can see changes as they happen, providing an interactive and engaging experience.
+OpenFlower ensures that the data displayed in the eCharts overlay is not only current but can also be updated in real-time with the [Stream Query](../../../connect-your-data/data-sources-in-openflower/websocket-datasource.md). This is crucial for scenarios where timely data is essential for decision-making. Users can see changes as they happen, providing an interactive and engaging experience.
 
 The eCharts overlay on Google Geomaps in OpenFlower also offers a high degree of customization and interactivity. Users can zoom in and out, pan across different regions, and interact with the data points on the map. This interactivity is enhanced with tooltips, clickable elements, and various chart types like heatmaps, scatter plots, or line graphs, all geo-referenced and layered over the map.
 

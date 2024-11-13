@@ -5,7 +5,7 @@ services:
   ## Start services required for OpenFlower (MongoDB and Redis)
   ##
   mongodb:
-    image: "mongo:7.0"
+    image: "mongo:4.4"
     container_name: mongodb
     environment:
       MONGO_INITDB_DATABASE: openflower

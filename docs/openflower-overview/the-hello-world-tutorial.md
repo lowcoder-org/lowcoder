@@ -1,8 +1,8 @@
 ---
-description: A short tutorial walk through OpenFlower
+description: A OpenFlower tutorial
 ---
 
-# The "Hello World" walk
+# The "Hello World" tutorial
 
 At your first contact with OpenFlower you will see the Login Screen.&#x20;
 
@@ -14,7 +14,7 @@ If you haven't created your account yet, you can register a new account with the
 
 When you create a User without Invite-Link, this User will automatically get the role of an Administrator with own Workspace(s).
 
-The fist Screen of the Admin Panel of OpenFlower shows the overview of all Apps (in the current selected Workplace). For new Installations & logins, the Workplace is named by the eMail of the logged in User.
+The first Screen of the Admin Panel of OpenFlower shows the overview of all Apps (in the current selected Workplace). For new Installations & logins, the Workplace is named by the eMail of the logged in User.
 
 <figure><img src="../.gitbook/assets/Admin  Apps.png" alt=""><figcaption><p>App overview as welcome screen</p></figcaption></figure>
 
@@ -26,10 +26,10 @@ In OpenFlower you can create and find the building blocks of applications:
 * Modules
 * Folder
 
-All this building Blocks are displayed on the home screen. \
+All these building blocks are displayed on the home screen. \
 You can order these building blocks by folders.
 
-Currently only a flat list of Folders are supported. But in future versions we aim to support a full hierarchy for the application building blocks.
+Currently only a list of Folders are supported. 
 
 <figure><img src="../.gitbook/assets/Admin  Folders for Apps.png" alt=""><figcaption><p>Folder for Application building blocks</p></figcaption></figure>
 
@@ -39,7 +39,7 @@ With the help of the blue "New" Button you can select and create a fresh, empty 
 
 The main screen is divided into 4 sections. To create an App typically starts to place any component from the red section to the app-space, yellow in the middle of the screen.
 
-Components can get placed next to each other. In future versions we aim to support Layers, so components can visually overlap. As for now, only next by next components are possible.
+Components can get placed next to each other or through Layers, so components can visually overlap. 
 
 The green area helps you to gather and prepare Data for your App. Here data queries for multiple datasources as also data transformations and even javascript functions can get managed.
 
