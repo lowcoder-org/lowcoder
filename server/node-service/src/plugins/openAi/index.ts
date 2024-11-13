@@ -10,15 +10,23 @@ const spec_1_2_0 = readYaml(path.join(__dirname, "./openAI_v1.2.0.yaml"));
 const spec_2_3_0 = readYaml(path.join(__dirname, "./openAI_v2.3.0.yaml"));
 
 const specs = {
-  "v1.2.0": spec_1_2_0,
-  "v2.3.0": spec_2_3_0,
+  "v1.0": spec_1_2_0,
+  "v2.3": spec_2_3_0,
 }
 
 const dataSourceConfig = {
   type: "dataSource",
   params: [
     {
-      key: "ApiKey.value",
+      key: "serverURL",
+      type: "textInput",
+      label: "Service URL",
+      rules: [{ required: true }],
+      placeholder: "https://<your-cloud-instance>",
+      tooltip: "Input the Service url of your OpenAI or compatible instance. For OpenAI, it is https://api.openai.com/v1",
+    },
+    {
+      key: "apiKey",
       type: "password",
       label: "API Key",
       rules: [{ required: true }],
@@ -64,10 +72,13 @@ const openAiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
+    const { serverURL, apiKey } = dataSourceConfig;
     const runApiDsConfig = {
       url: "",
-      serverURL: "",
-      dynamicParamsConfig: dataSourceConfig,
+      serverURL: serverURL,
+      dynamicParamsConfig: {
+        "ApiKeyAuth.value": apiKey,
+      },
       specVersion: dataSourceConfig.specVersion,
     };
     return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
