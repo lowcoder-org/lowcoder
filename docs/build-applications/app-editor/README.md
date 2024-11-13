@@ -1,6 +1,6 @@
 # App Editor
 
-In OpenFlower, the app editor is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
+In OpenFlower, the Application Designer is where you assemble components, create queries to interact with data, and publish your apps. It consists of five areas:
 
 1. Toolbar on top
 2. Canvas (yellow)
@@ -36,7 +36,7 @@ On the top bar, you can:
 On the left sidebar, you can:
 
 * Show or hide the **Data Browser**
-* Start tutorial for app editor
+* Start tutorial for application designer
 
 ## Canvas
 

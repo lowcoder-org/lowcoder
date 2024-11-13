@@ -1,7 +1,7 @@
 # Table of contents
 
 * [OpenFlower overview](README.md)
-  * [The "Hello World" walk](openflower-overview/the-hello-world-walk.md)
+  * [The "Hello World" tutorial](openflower-overview/the-hello-world-tutorial.md)
 
 ## 🆕 Setup and run
 

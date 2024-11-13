@@ -8,18 +8,20 @@
 <p align="center"><a href="https://docs.openflower.org/">Read the Docs</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=bug%2Cneeds+triage&projects=&template=bug_report.yml">Report Bug</a> · <a href="https://github.com/Flowerappeng-org/openflower/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.md">Request Feature</a>
 </p>
 
-## Use OpenFlower in 3 steps
-1. Connect to any data sources or APIs.
-2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
-3. Share with colleagues and customers.
+## Use OpenFlower in 5 steps
+1. Quickly and securely connect to your data sources, including PostgreSQL, MongoDB, and online APIs.
+2. Create Data queries visually or by SQL or set up request parameters to connect APIs.
+3. Use our 100+ UI components to build your app UI and bind and display query data with UI components like Tables, Charts, and Lists.
+4. Set up event handlers to trigger queries, control components, or other actions in reaction to user interactions.
+5. Preview and share your app with others.
 
 # OpenFlower Value Proposition
 One platform for everything instead so many different softwares. (like Website Builders, CMS, CRM, POS, ERP, Dashboards & Data Story Visualization, Collaboration Tools).
 
-It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
+It can be cumbersome to create a single app. You design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
 
 OpenFlower is:
-- An all-in-one IDE to create internal or customer-facing (external) apps.
+- An all-in-one IDE to create customer-facing Saas (external) applications.
 - A place to create, build and share building blocks of web applications and whole websites.
 - The tool and community to support your business, and lower the cost and time to develop interactive applications.
 - The only platform to embed OpenFlower/Lowcoder Apps natively in Websites (no iFrame!)
@@ -27,8 +29,8 @@ OpenFlower is:
 - The only platform which has extensibility plugin architecture 
 
 ## 🪄 Features
-- **Visual UI builder** with 100+ built-in components. Save 90% of time to build apps.
-- **Modules** for reusable (!) embedable component sets in the UI builder.
+- **Visual UI builder** with 100+ built-in components. Save 90% of time to build applications.
+- **Modules** for reusable embedable component sets in the UI builder.
 - **Embed OpenFlower Apps as native parts of any Website** instead of iFrame (!). [Docs](https://docs.openflower.org/publish-apps/embedd-an-app/native-embed-sdk)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
 - **Query Library** for reusable data queries of your data sources.
@@ -60,7 +62,6 @@ See [COMPARISONS.md](COMPARISONS.md)
 
 ## 👐 Support and Community
 If you have any questions, please feel free to contact us or share them with our community. Our team is here ready to help.
-And we mean it... Day by day!
 
 📑 Search for solutions in our [Documentation](https://docs.openflower.org/)
 
