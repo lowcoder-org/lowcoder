@@ -2,9 +2,9 @@
 
 ## What is OpenFlower?
 
-OpenFlower is an easy-to-use open-source low-code platform to build internal & customer-facing, embeddable apps within minutes.
+OpenFlower is an easy-to-use open-source low-code platform to build customer-facing, embeddable Saas applications within minutes.
 
-Traditionally, building an app requires complex frontend and backend interactions with hundreds and thousands of lines of code, not to mention work on packaging, integration, and deployment. OpenFlower significantly reduces the work you need to do to build and publish an app.
+Traditionally, building an application requires complex frontend and backend interactions with hundreds and thousands of lines of code, not to mention work on packaging, integration, and deployment. OpenFlower significantly reduces the work you need to do to build and publish an application.
 
 In OpenFlower, all you need to do is drag and drop pre-built or self-customized components onto the What-You-See-Is-What-You-Get (WYSIWYG) canvas, along with ready-to-connect databases and APIs, OpenFlower helps you build an app quickly and focus on business logic.
 
@@ -22,10 +22,10 @@ In OpenFlower, all you need to do is drag and drop pre-built or self-customized 
 
 ## How to build Apps in OpenFlower?
 
-Building an app [takes 5 steps](OpenFlower-overview/the-hello-world-walk.md):
+Building an app [Hello World Tutorial](OpenFlower-overview/the-hello-world-tutorial.md):
 
-1. Quickly and securely connect to your data sources, including PostgreSQL, MongoDB, and online APIs.
-2. Create Data queries visually or by SQL or set up request parameters to connect APIs.
-3. Use our ready or self-customized UI components to build your app UI and bind and display query data with UI components like Tables, Charts, and Lists.
-4. Set up event handlers to trigger queries, control components, or other actions in reaction to user interactions.
-5. Preview and share your app with others.
+- Quickly and securely connect to your data sources, including PostgreSQL, MongoDB, and online APIs.
+- Create Data queries visually or by SQL or set up request parameters to connect APIs.
+- Use our 100+ UI components to build your app UI and bind and display query data with UI components like Tables, Charts, and Lists.
+- Set up event handlers to trigger queries, control components, or other actions in reaction to user interactions.
+- Preview and share your app with others.
