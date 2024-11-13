@@ -170,7 +170,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Flux<ApplicationInfoView> getRecycledApplications(String name) {
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name);
+        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name, 0, 0);
     }
 
     private Mono<Void> checkCurrentUserApplicationPermission(String applicationId, ResourceAction action) {

@@ -189,7 +189,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name, Integer pageNum, Integer pageSize) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -207,7 +207,9 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                     && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name)))
                             .cache()
                             .collectList()
-                            .flatMapIterable(Function.identity());
+                            .flatMapIterable(Function.identity())
+                            .skip((long) pageNum * pageSize);
+                    if(pageSize > 0) applicationFlux = applicationFlux.take(pageSize);
 
                     // last view time
                     Mono<Map<String, Instant>> applicationLastViewTimeMapMono = userApplicationInteractionService.findByUserId(visitorId)
