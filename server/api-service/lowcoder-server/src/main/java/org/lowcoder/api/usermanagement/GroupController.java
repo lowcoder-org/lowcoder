@@ -75,10 +75,11 @@ public class GroupController implements GroupEndpoints
     }
 
     @Override
-    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups() {
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         return groupApiService.getGroups().flatMap(groupList -> {
             if(groupList.isEmpty()) return Mono.just(new GroupListResponseView<>(ResponseView.SUCCESS,
-                    "", List.of(), 0, 0, 0, 0));
+                    "", List.of(), 0, 0, 0, 0, 0, pageNum, pageSize));
             return sessionUserService.getVisitorOrgMemberCache()
                 .map(OrgMember::getOrgId)
                 .flatMap(orgId -> orgMemberService.getOrganizationMembers(orgId)
@@ -98,13 +99,17 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
+                        var subList = groupList.subList(pageNum * pageSize, pageSize <= 0?(groupList.size() + 1):pageNum * pageSize + pageSize);
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
-                            groupList,
+                            subList,
                             totalAdmins,
                             totalAdminsAndDevelopers,
                             totalDevelopersOnly,
-                            totalOtherMembers);
+                            totalOtherMembers,
+                            subList.size(),
+                            pageNum,
+                            pageSize);
                     })
                 );
             }
