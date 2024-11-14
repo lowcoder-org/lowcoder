@@ -12,11 +12,17 @@ public class GroupListResponseView<T> extends ResponseView<T> {
     private final int totalDevelopersOnly;
     private final int totalAdmins;
     private final int totalOtherMembers;
-    public GroupListResponseView(int code, String message, T data, int totalAdmins, int totalAdminsAndDevelopers, int totalDevelopersOnly, int totalOtherMembers) {
+    private final int total;
+    private final int pageNum;
+    private final int pageSize;
+    public GroupListResponseView(int code, String message, T data, int totalAdmins, int totalAdminsAndDevelopers, int totalDevelopersOnly, int totalOtherMembers, int total, int pageNum, int pageSize) {
         super(code, message, data);
         this.totalAdmins = totalAdmins;
         this.totalDevelopersOnly = totalDevelopersOnly;
         this.totalAdminsAndDevelopers = totalAdminsAndDevelopers;
         this.totalOtherMembers = totalOtherMembers;
+        this.total = total;
+        this.pageNum = pageNum;
+        this.pageSize = pageSize;
     }
 }
