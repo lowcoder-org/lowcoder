@@ -35,6 +35,7 @@ import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { Pagination } from 'antd';
 
 const Wrapper = styled.div`
   display: flex;
@@ -199,6 +200,12 @@ const EmptyView = styled.div`
     }
   }
 `;
+const PaginationLayout = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 40px;
+  margin-bottom: 20px;  
+`
 
 const LayoutSwitcher = styled.div`
   position: absolute;
@@ -307,6 +314,8 @@ export function HomeLayout(props: HomeLayoutProps) {
 
   const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [], mode } = props;
 
+  console.log("folder", elements);
+
   const categoryOptions = [
     { label: <FilterMenuItem>{trans("home.allCategories")}</FilterMenuItem>, value: 'All' },
     ...Object.entries(ApplicationCategoriesEnum).map(([key, value]) => ({
@@ -325,6 +334,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
   const [searchValue, setSearchValue] = useState("");
+  const [visibility, setVisibility] = useState(true);
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
@@ -414,6 +424,8 @@ export function HomeLayout(props: HomeLayoutProps) {
             isLocalMarketplace: e.isLocalMarketplace,
           }
     );
+
+  console.log(resList);
 
   const getFilterMenuItem = (type: HomeResTypeEnum) => {
     const Icon = HomeResInfo[type].icon;
@@ -603,7 +615,12 @@ export function HomeLayout(props: HomeLayoutProps) {
                 </>
               )}
             </ContentWrapper>
-
+            {visibility ? <div>
+              <Divider />
+              <PaginationLayout>
+                <Pagination total={50} showSizeChanger />
+              </PaginationLayout>
+            </div> : null}
           </Card>  
           
         </HomeView> 
