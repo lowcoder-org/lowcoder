@@ -85,7 +85,7 @@ const childrenMap = {
   events: eventHandlerControl(),
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
-  loadInDomWhenHide: withDefault(BoolControl, true),
+  loadModuleInDomWhenHide: withDefault(BoolControl, true),
 };
 
 type DataType = ToDataType<ToInstanceType<typeof childrenMap>>;
@@ -128,7 +128,7 @@ class ModuleTmpComp extends ModuleCompBase {
             label: trans("prop.scrollbar"),
           })}
           {hiddenPropertyView(this.children)}
-          {this.children.hidden.getView() && this.children.loadInDomWhenHide.propertyView({
+          {this.children.hidden.getView() && this.children.loadModuleInDomWhenHide.propertyView({
             label: "Load module in DOM when hidden",
           })}
         </Section>
@@ -529,7 +529,7 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
   if (error) {
     return <Placeholder>{error}</Placeholder>;
   }
-  if (comp.children.hidden.getView() && !comp.children.loadInDomWhenHide.getView()) {
+  if (comp.children.hidden.getView() && !comp.children.loadModuleInDomWhenHide.getView()) {
     return null;
   }
 
