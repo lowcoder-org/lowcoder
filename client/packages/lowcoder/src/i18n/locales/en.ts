@@ -2339,6 +2339,7 @@ export const en = {
     "gutter" : "Gap",
     "gutterTooltip" : "The distance between tabs in px",
     "tabsCentered" : "Centered Tabs",
+    "destroyInactiveTab": "Destroy Inactive TabPane"
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",
