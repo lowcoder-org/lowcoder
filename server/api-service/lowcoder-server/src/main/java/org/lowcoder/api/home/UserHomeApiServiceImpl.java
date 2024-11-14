@@ -157,7 +157,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                     }
 
                     return organizationService.getById(currentOrgId)
-                            .zipWith(folderApiService.getElements(null, applicationType, null, 0, 0).collectList())
+                            .zipWith(folderApiService.getElements(null, applicationType, null).collectList())
                             .map(tuple2 -> {
                                 Organization organization = tuple2.getT1();
                                 List<?> list = tuple2.getT2();
@@ -189,7 +189,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     @Override
     public Flux<ApplicationInfoView> getAllAuthorisedApplications4CurrentOrgMember(@Nullable ApplicationType applicationType,
-                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name, Integer pageNum, Integer pageSize) {
+                                                                                   @Nullable ApplicationStatus applicationStatus, boolean withContainerSize, @Nullable String name) {
 
         return sessionUserService.getVisitorOrgMemberCache()
                 .flatMapMany(orgMember -> {
@@ -207,9 +207,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                     && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name)))
                             .cache()
                             .collectList()
-                            .flatMapIterable(Function.identity())
-                            .skip((long) pageNum * pageSize);
-                    if(pageSize > 0) applicationFlux = applicationFlux.take(pageSize);
+                            .flatMapIterable(Function.identity());
 
                     // last view time
                     Mono<Map<String, Instant>> applicationLastViewTimeMapMono = userApplicationInteractionService.findByUserId(visitorId)

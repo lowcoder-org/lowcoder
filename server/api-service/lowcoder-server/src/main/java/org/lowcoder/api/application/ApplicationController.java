@@ -17,6 +17,7 @@ import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 // should we not have a AgencyApplicationInfoView
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
@@ -164,9 +165,12 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestParam(required = false, defaultValue = "0") Integer pageNum,
             @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name, pageNum, pageSize)
-                .collectList()
-                .map(ResponseView::success);
+        var flux = userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name).cache();
+        Mono<Long> countMono = flux.count();
+        var flux1 = flux.skip((long) pageNum * pageSize);
+        if(pageSize > 0) flux1 = flux1.take(pageSize);
+        return flux1.collectList().zipWith(countMono)
+                .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
     }
 
     @Override
