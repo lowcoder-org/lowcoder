@@ -141,7 +141,8 @@ export const en = {
     "searchNotFound": "Can't find the right component?",
     "emptyPlugins": "No Plugins Added",
     "contactUs": "Contact Us",
-    "issueHere": "here."
+    "issueHere": "here.",
+    "folderListTitle": "Folders"
   },
   "prop": {
     "expand": "Expand",
