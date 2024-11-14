@@ -115,7 +115,7 @@
 * [Share an App](publish-apps/share-an-app.md)
 * [Publish an App](publish-apps/publish-an-app.md)
 * [Embedd an App](publish-apps/embedd-an-app/README.md)
-  * [Embed App in HTML Pages](publish-apps/embedd-an-app/embed-app-in-html-pages.md)
+  <!-- * [Embed App in HTML Pages](publish-apps/embedd-an-app/embed-app-in-html-pages.md) -->
   * [Embed Apps in React](publish-apps/embedd-an-app/embed-apps-in-react.md)
   * [Native embed SDK](publish-apps/embedd-an-app/native-embed-sdk/README.md)
     * [Build the SDK from Source](publish-apps/embedd-an-app/native-embed-sdk/build-the-sdk-from-source.md)

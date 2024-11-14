@@ -12,8 +12,6 @@ The ability to interact with OpenFlower apps through state management, method ca
 
 This is an overview list of exports available for developers using the OpenFlower SDK.&#x20;
 
-
-
 {% hint style="warning" %}
 It is important to keep in mind, that this List was build during a reverse engineering attempt. We cannot guarantee the completeness. Also you will find at many Items that the description was guessed (by ChatGPT). \
 \
