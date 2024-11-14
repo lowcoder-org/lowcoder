@@ -38,7 +38,7 @@
     "@types/react-virtualized": "^9.21.21",
     "animate.css": "^4.1.1",
     "antd": "^5.20.0",
-    "axios": "^1.7.4",
+    "axios": "^1.7.7",
     "buffer": "^6.0.3",
     "clsx": "^2.0.0",
     "cnchar": "^3.2.4",
