@@ -326,7 +326,7 @@ export class TableImplComp extends TableInitComp implements IContainer {
         [OB_ROW_ORI_INDEX]: index + "",
       }));
       const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
-      const sortedData = sortData(originalData, sortColumns, sort);
+      const sortedData = sortData(data, sortColumns, sort);
       // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
       return sortedData;
     });
