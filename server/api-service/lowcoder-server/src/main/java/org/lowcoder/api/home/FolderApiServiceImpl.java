@@ -233,8 +233,8 @@ public class FolderApiServiceImpl implements FolderApiService {
      * @return flux of {@link ApplicationInfoView} or {@link FolderInfoView}
      */
     @Override
-    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name) {
-        return buildApplicationInfoViewTree(applicationType, name)
+    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name, Integer pageNum, Integer pageSize) {
+        var retMono = buildApplicationInfoViewTree(applicationType, name)
                 .flatMap(tree -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> folderNode = tree.get(folderId);
                     if (folderNode == null) {
@@ -264,7 +264,9 @@ public class FolderApiServiceImpl implements FolderApiService {
                     });
                 })
                 .flatMapIterable(tuple -> tuple.getT1().getChildren())
-                .map(node -> {
+                .skip(pageNum * pageSize);
+        if(pageSize > 0) retMono = retMono.take(pageSize);
+        return retMono.map(node -> {
                     if (node instanceof ElementNode<ApplicationInfoView, FolderInfoView> elementNode) {
                         return elementNode.getSelf();
                     }
@@ -284,7 +286,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .cache();
 
         Flux<ApplicationInfoView> applicationInfoViewFlux =
-                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, null)
+                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, null, 0, 0)
                         .cache();
 
         Mono<Map<String, String>> application2FolderMapMono = applicationInfoViewFlux

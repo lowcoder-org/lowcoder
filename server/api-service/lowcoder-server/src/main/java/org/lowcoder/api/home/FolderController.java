@@ -70,9 +70,11 @@ public class FolderController implements FolderEndpoints
     @Override
     public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
             @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
-            @RequestParam(required = false) String name) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         String objectId = gidService.convertFolderIdToObjectId(folderId);
-        return folderApiService.getElements(objectId, applicationType, name)
+        return folderApiService.getElements(objectId, applicationType, name, pageNum, pageSize)
                 .collectList()
                 .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
                 .map(ResponseView::success);

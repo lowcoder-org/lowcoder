@@ -160,9 +160,11 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(defaultValue = "true") boolean withContainerSize,
-            @RequestParam(required = false) String name) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name)
+        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name, pageNum, pageSize)
                 .collectList()
                 .map(ResponseView::success);
     }
