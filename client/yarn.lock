@@ -14077,6 +14077,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-sortable-hoc: ^2.0.0
     react-test-renderer: ^18.1.0
     react-use: ^17.3.2
+    react-webcam: ^7.2.0
     really-relaxed-json: ^0.3.2
     redux-devtools-extension: ^2.13.9
     redux-saga: ^1.1.3
@@ -18098,6 +18099,16 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ">=15.3.0"
     react-dom: ">=15.3.0"
   checksum: 75c5872caeda009e7cb3b80a1e8312fe7e64be166c1dd7cf07f5e72813c892542d5f6f83b74ab40b8859034fbdd66801e53721c726487b43099d771580cb974e
+  languageName: node
+  linkType: hard
+
+"react-webcam@npm:^7.2.0":
+  version: 7.2.0
+  resolution: "react-webcam@npm:7.2.0"
+  peerDependencies:
+    react: ">=16.2.0"
+    react-dom: ">=16.2.0"
+  checksum: 55aecc9e33ea711525f9b68a7c14c9cf4089777b9edd6d9c93813568d701a101f3da09ffd7df04b64eca8c9783a37830522376049589699c6015555ec8d7ccd8
   languageName: node
   linkType: hard
 
