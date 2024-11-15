@@ -16,6 +16,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
+import { fixOldInputCompData } from "./textInputComp/textInputConstants";
 
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
@@ -88,6 +89,7 @@ function fixOldData(oldData: any) {
  */
 let SwitchTmpComp = (function () {
   const childrenMap = {
+    defaultValue: booleanExposingStateControl("defaultValue"),
     value: booleanExposingStateControl("value"),
     label: LabelControl,
     onEvent: eventHandlerControl(EventOptions),
@@ -105,6 +107,13 @@ let SwitchTmpComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const defaultValue = { ...props.defaultValue }.value;
+    const value = { ...props.value }.value;
+
+    useEffect(() => {
+      props.value.onChange(defaultValue);
+    }, [defaultValue]);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -113,7 +122,7 @@ let SwitchTmpComp = (function () {
       children: (
         <SwitchWrapper disabled={props.disabled} $style={props.inputFieldStyle}>
           <Switch
-            checked={props.value.value}
+            checked={value}
             disabled={props.disabled}
             ref={props.viewRef}
             onChange={(checked) => {
@@ -130,7 +139,7 @@ let SwitchTmpComp = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("switchComp.defaultValue") })}
+            {children.defaultValue.propertyView({ label: trans("switchComp.defaultValue") })}
           </Section>
 
           <FormDataPropertyView {...children} />
@@ -169,6 +178,8 @@ let SwitchTmpComp = (function () {
     .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
     .build();
 })();
+
+SwitchTmpComp = migrateOldData(SwitchTmpComp, fixOldInputCompData);
 
 export const SwitchComp = withExposingConfigs(SwitchTmpComp, [
   new NameConfig("value", trans("switchComp.valueDesc")),
