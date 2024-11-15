@@ -53,6 +53,23 @@ export default function PasswordExample() {
           }}
           compFactory={PasswordComp}
         />
+        <Example
+          title="Tooltip"
+          config={{
+            label: { text: trans("componentDoc.password"), tooltip:"This is a Tooltip" },
+            placeholder: trans("componentDoc.pleaseInputPassword"),
+          }}
+          compFactory={PasswordComp}
+        />
+          <Example
+          title="Visibility Toggle"
+          config={{
+            label: { text: trans("componentDoc.password")},
+            placeholder: trans("componentDoc.pleaseInputPassword"),
+            visibilityToggle: true,
+          }}
+          compFactory={PasswordComp}
+        />
       </ExampleGroup>
       <ExampleGroup title={trans("componentDoc.validation")} description="">
         <Example
@@ -73,6 +90,17 @@ export default function PasswordExample() {
             placeholder: trans("componentDoc.pleaseInputPassword"),
             minLength: 3,
             maxLength: 6,
+          }}
+          compFactory={PasswordComp}
+        />
+        <Example
+          title="Show Clear Button & Show Validation on Empty/Reset"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.password")},
+            placeholder: trans("componentDoc.pleaseInputPassword"),
+            required: true,
+            showValidationWhenEmpty: true,
           }}
           compFactory={PasswordComp}
         />

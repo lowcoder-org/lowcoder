@@ -29,6 +29,7 @@ export default function TimeExample() {
           config={{
             value: trans("componentDoc.noValue"),
             format: "hh:mm:ss",
+            placeholder: "Select Time",
             disabled: false,
             label: {
               text: trans("componentDoc.time"),
@@ -51,6 +52,7 @@ export default function TimeExample() {
           compFactory={TimePickerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
           title={trans("componentDoc.leftLeftAlign")}
@@ -101,6 +103,7 @@ export default function TimeExample() {
           compFactory={TimePickerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.required")}
@@ -122,6 +125,35 @@ export default function TimeExample() {
             },
             minTime: "11:00:00",
             maxTime: "12:00:00",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TimePickerComp}
+        />
+        <Example
+          title="Time Steps"
+          config={{
+            required: true,
+            hourStep: "2",
+            minuteStep: "10",
+            secondStep: "30",
+            label: {
+              text: trans("componentDoc.time"),
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TimePickerComp}
+        />
+        <Example
+          title= "Show Time ( 12 Hours format )"
+          config={{
+            required: true,
+            hourStep: "2",
+            minuteStep: "10",
+            secondStep: "30",
+            use12Hours: true,
+            label: {
+              text: trans("componentDoc.time"),
+            },
           }}
           blackListConfig={blackListConfig}
           compFactory={TimePickerComp}
