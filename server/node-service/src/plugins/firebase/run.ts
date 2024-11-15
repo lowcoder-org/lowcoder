@@ -1,5 +1,5 @@
 import { badRequest } from "../../common/error";
-import { initializeApp, deleteApp, cert } from "firebase-admin/app";
+import { getApps, initializeApp, deleteApp, cert, App } from "firebase-admin/app";
 import { getDatabase, Reference } from "firebase-admin/database";
 import {
   CollectionReference,
@@ -64,6 +64,23 @@ function extractCursorValues(values: any[]): any[] {
   ).filter(value => value !== undefined);
 }
 
+const appCache: { [firestoreId: string]: any } = {}; // A cache for storing initialized apps by firestoreId
+
+function getOrInitializeApp(serviceAccount: any, databaseUrl: string, firestoreId: string): App {
+  const existingApp = getApps().find((app) => app.name === firestoreId);
+  
+  if (existingApp) {
+    return existingApp; // Return the existing app
+  }
+
+  // Initialize a new app with the given name
+  return initializeApp({
+    credential: cert(serviceAccount),
+    databaseURL: databaseUrl,
+    projectId: firestoreId,
+  }, firestoreId);
+}
+
 export async function runFirebasePlugin(
   actionData: ActionDataType,
   dataSourceConfig: DataSourceDataType
@@ -72,17 +89,13 @@ export async function runFirebasePlugin(
   const { privateKey, databaseUrl, firestoreId } = dataSourceConfig;
   const serviceAccount = JSON.parse(privateKey);
 
-  const app = initializeApp({
-    credential: cert(serviceAccount),
-    databaseURL: databaseUrl,
-    projectId: firestoreId,
-  });
+  const app = getOrInitializeApp(serviceAccount, databaseUrl, firestoreId);
 
   const witDbRef = <T>(fn: (ref: Reference) => T): T => {
     if (!("databaseRef" in actionData)) {
       throw badRequest("not a realtime database action:" + actionName);
     }
-    const ref = getDatabase().ref(actionData.databaseRef);
+    const ref = getDatabase(app).ref(actionData.databaseRef);
     return fn(ref);
   };
 
@@ -90,7 +103,7 @@ export async function runFirebasePlugin(
     if (!("collection" in actionData)) {
       throw badRequest("not a firestore action with collection:" + actionName);
     }
-    const ref = getFirestore().collection(actionData.collection);
+    const ref = getFirestore(app).collection(actionData.collection);
     return fn(ref);
   };
 
@@ -98,7 +111,7 @@ export async function runFirebasePlugin(
     if (!("collection" in actionData) || !("documentId" in actionData)) {
       throw badRequest("not a firestore action with collection and documentId:" + actionName);
     }
-    const ref = getFirestore().collection(actionData.collection).doc(actionData.documentId);
+    const ref = getFirestore(app).collection(actionData.collection).doc(actionData.documentId);
     return fn(ref);
   };
 
@@ -130,9 +143,9 @@ export async function runFirebasePlugin(
     if (actionName === "FS.GetCollections") {
       let collections;
       if (actionData.parentDocumentId) {
-        collections = await getFirestore().doc(actionData.parentDocumentId).listCollections();
+        collections = await getFirestore(app).doc(actionData.parentDocumentId).listCollections();
       } else {
-        collections = await getFirestore().listCollections();
+        collections = await getFirestore(app).listCollections();
       }
       return collections.map((i) => i.id);
     }
@@ -317,7 +330,8 @@ export async function runFirebasePlugin(
         return successResult;
       });
     }
-  } finally {
-    deleteApp(app);
+  } catch (error) {
+    console.error(`Error in action ${actionData.actionName}:`, error);
+    throw error;
   }
 }
