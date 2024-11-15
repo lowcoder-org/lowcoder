@@ -2345,6 +2345,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scarf/scarf@npm:=1.4.0":
+  version: 1.4.0
+  resolution: "@scarf/scarf@npm:1.4.0"
+  checksum: def62aa403f7e63165ccb219efd2c420fc0b7357b0ba43397f635e4aa813ace1cdf3855a93fc559b4619bcc0469ae4767b8cb72af30ea5c0522bf4a2ecb18198
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8
   resolution: "@sinclair/typebox@npm:0.27.8"
@@ -7760,11 +7767,11 @@ __metadata:
     proxy-agent: ^5.0.0
     stylis: ^4.3.0
     svgo: ^3.0.2
-    swagger-client: ^3.29.3
+    swagger-client: ^3.31.0
     ts-jest: ^29.0.3
     ts-node: ^10.9.1
     typescript: ^4.9.3
-    yaml: ^2.2.2
+    yaml: ^2.6.0
   languageName: unknown
   linkType: soft
 
@@ -10015,11 +10022,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-client@npm:^3.29.3":
-  version: 3.29.4
-  resolution: "swagger-client@npm:3.29.4"
+"swagger-client@npm:^3.31.0":
+  version: 3.31.0
+  resolution: "swagger-client@npm:3.31.0"
   dependencies:
     "@babel/runtime-corejs3": ^7.22.15
+    "@scarf/scarf": =1.4.0
     "@swagger-api/apidom-core": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-error": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-json-pointer": ">=1.0.0-alpha.9 <1.0.0-beta.0"
@@ -10036,7 +10044,7 @@ __metadata:
     openapi-server-url-templating: ^1.0.0
     ramda: ^0.30.1
     ramda-adjunct: ^5.0.0
-  checksum: 62fba05a225901b01fa9ce767efa623a95d0bdb79753214f533476682644788e4629aa88d3e0cf4d86696fc6e14784095156a214ddfeeb82b940c2325a3c2a51
+  checksum: 86b414dda317d5e9ca6efac8c04355016106e9e637b9b0bfb7a27c43f4b14e18a18c93ac108798ecc0e00c1937036f79fe103b98f551ef1e24fd54e0c3b756b0
   languageName: node
   linkType: hard
 
@@ -10869,12 +10877,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yaml@npm:^2.2.2":
-  version: 2.5.1
-  resolution: "yaml@npm:2.5.1"
+"yaml@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "yaml@npm:2.6.0"
   bin:
     yaml: bin.mjs
-  checksum: 31275223863fbd0b47ba9d2b248fbdf085db8d899e4ca43fff8a3a009497c5741084da6871d11f40e555d61360951c4c910b98216c1325d2c94753c0036d8172
+  checksum: e5e74fd75e01bde2c09333d529af9fbb5928c5f7f01bfdefdcb2bf753d4ef489a45cab4deac01c9448f55ca27e691612b81fe3c3a59bb8cb5b0069da0f92cf0b
   languageName: node
   linkType: hard
 
