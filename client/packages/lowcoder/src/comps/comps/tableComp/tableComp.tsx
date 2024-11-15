@@ -325,10 +325,21 @@ export class TableImplComp extends TableInitComp implements IContainer {
         ...row,
         [OB_ROW_ORI_INDEX]: index + "",
       }));
+      const updatedDataMap: Record<string, RecordType> = {};
+      updatedData.forEach((row) => {
+        updatedDataMap[row[OB_ROW_ORI_INDEX]] = row;
+      })
       const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
-      const sortedData = sortData(data, sortColumns, sort);
+      const sortedData = sortData(originalData, sortColumns, sort);
+
       // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
-      return sortedData;
+      const newData = sortedData.map(row => {
+        return {
+          ...row,
+          ...updatedDataMap[row[OB_ROW_ORI_INDEX]],
+        }
+      });
+      return newData;
     });
     return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
