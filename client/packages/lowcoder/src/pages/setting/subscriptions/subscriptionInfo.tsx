@@ -1,4 +1,3 @@
-import { ArrowIcon } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { useParams } from "react-router-dom";
@@ -10,6 +9,8 @@ import { useState, useEffect } from 'react';
 import { Card, Tag, List, Button } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {ArrowIcon} from "icons";
 
 const { Meta } = Card;
 
@@ -65,7 +66,7 @@ export function SubscriptionInfo() {
     <Wrapper>
       <HeaderBack>
         <span onClick={() => history.push(SUBSCRIPTION_SETTING)}> {trans("settings.subscription")} </span>
-        <ArrowIcon />
+        <MultiIconDisplay identifier={ArrowIcon} />
         <span>{product.name}</span>
       </HeaderBack>
       <Level1SettingPageContent>

@@ -1,14 +1,10 @@
 import { HomeResTypeEnum, NavigationType, NavigationTypes } from "../../types/homeRes";
 import { AppImport } from "./components/AppImport";
 import {
-  CommonGrayLabel,
-  CommonTextLabel,
-  CustomModal,
-  ImportIconV2,
-  MobileNavIcon,
-  PackUpIcon,
-  PcNavIcon,
-  TacoButton,
+    CommonGrayLabel,
+    CommonTextLabel,
+    CustomModal, ImportIconV2, MobileNavIcon, PackUpIcon, PcNavIcon,
+    TacoButton,
 } from "lowcoder-design";
 import React, { FunctionComponent, useState } from "react";
 import type { ItemType } from "antd/es/menu/interface";
@@ -23,6 +19,7 @@ import { getUser } from "../../redux/selectors/usersSelectors";
 import { useCreateHomeRes } from "./useCreateHomeRes";
 import { trans } from "../../i18n";
 import { ActiveTextColor } from "constants/style";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Dropdown = styled(AntdDropdown)`
   &:not(.ant-dropdown-open) > svg {
@@ -140,8 +137,8 @@ const LayoutItemWrapper = styled.div`
 `;
 
 const NavigationTypeInfo: Record<NavigationType, FunctionComponent<any>> = {
-  [HomeResTypeEnum.MobileTabLayout]: MobileNavIcon,
-  [HomeResTypeEnum.NavLayout]: PcNavIcon,
+  [HomeResTypeEnum.MobileTabLayout]: MultiIcon(MobileNavIcon),
+  [HomeResTypeEnum.NavLayout]: MultiIcon(PcNavIcon),
 };
 
 function NavLayoutPickModal(props: {
@@ -256,7 +253,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
                     label: (
                       <AppImport orgId={user.currentOrgId}>
                         <CreateMenuItem>
-                          <ImportIconV2 width="16px" height="16px" style={{ marginRight: "4px" }} />
+                          <MultiIconDisplay identifier={ImportIconV2} width="16px" height="16px" style={{ marginRight: "4px" }} />
                           {trans("home.import")}
                         </CreateMenuItem>
                       </AppImport>
@@ -271,7 +268,7 @@ export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayo
       >
         <CreateBtn buttonType={"primary"}>
           {isCreating ? trans("home.creating") : trans("newItem")}
-          <PackUpIcon />
+          <MultiIconDisplay identifier={PackUpIcon} />
         </CreateBtn>
       </Dropdown>
     </>

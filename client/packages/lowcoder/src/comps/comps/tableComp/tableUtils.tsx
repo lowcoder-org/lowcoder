@@ -12,15 +12,15 @@ import { TableFilter, tableFilterOperatorMap } from "comps/comps/tableComp/table
 import { SortValue, TableOnEventView } from "comps/comps/tableComp/tableTypes";
 import _ from "lodash";
 import { changeChildAction, CompAction, NodeToValue } from "lowcoder-core";
-import { EditableIcon } from "lowcoder-design";
 import { tryToNumber } from "util/convertUtils";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import { StatusType } from "./column/columnTypeComps/columnStatusComp";
 import { ColumnListComp, tableDataRowExample } from "./column/tableColumnListComp";
 import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/styleControlConstants";
 import Tooltip from "antd/es/tooltip";
-import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
 import { EMPTY_ROW_KEY } from "./tableCompView";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {EditableIcon} from "icons";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -252,7 +252,7 @@ function renderTitle(props: { title: string; tooltip: string; editable: boolean 
           {title}
         </span>
       </Tooltip>
-      {editable && <EditableIcon style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
+      {editable && <MultiIconDisplay identifier={EditableIcon} style={{ verticalAlign: "baseline", marginLeft: "4px" }} />}
     </div>
   );
 }

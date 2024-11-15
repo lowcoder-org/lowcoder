@@ -1,11 +1,13 @@
 import { trans } from "i18n";
-import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
+import { SliderChildren, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewRangeSliderComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewRangeSliderComp})))
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -14,7 +16,7 @@ const RangeSliderBasicComp = (function () {
     end: numberExposingStateControl("end", 60),
     vertical: BoolControl,
   };
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -47,26 +49,11 @@ const RangeSliderBasicComp = (function () {
       ),
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.start.propertyView({ label: trans("rangeSlider.start") })}
-            {children.end.propertyView({ label: trans("rangeSlider.end") })}
-            {children.max.propertyView({ label: trans("prop.maximum") })}
-            {children.min.propertyView({ label: trans("prop.minimum") })}
-            {children.step.propertyView({
-              label: trans("rangeSlider.step"),
-              tooltip: trans("rangeSlider.stepTooltip"),
-            })}
-            {children.vertical.propertyView({ label: trans("slider.vertical") })}
-          </Section>
-
-          <SliderPropertyView {...children} />
-        </>
-      );
-    })
-    .build();
+    if (viewMode() === "admin") {
+        builder.setPropertyViewFn((children) => <PropertyViewRangeSliderComp {...children}></PropertyViewRangeSliderComp>);
+    }
+    return builder
+        .build();
 })();
 
 export const RangeSliderComp = withExposingConfigs(RangeSliderBasicComp, [

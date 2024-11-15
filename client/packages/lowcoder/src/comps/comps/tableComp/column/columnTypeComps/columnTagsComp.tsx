@@ -13,9 +13,10 @@ import _ from "lodash";
 import { ReactNode, useContext, useState } from "react";
 import { toJson } from "really-relaxed-json";
 import { hashToNum } from "util/stringUtils";
-import { CustomSelect, PackUpIcon } from "lowcoder-design";
+import {CustomSelect, PackUpIcon} from "lowcoder-design";
 import { ScrollBar } from "lowcoder-design";
 import { ColoredTagOptionControl } from "comps/controls/optionsControl";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const colors = PresetStatusColorTypes;
 
@@ -212,7 +213,7 @@ const TagEdit = (props: TagEditPropsType) => {
         style={{ width: "100%" }}
         open={open}
         allowClear={true}
-        suffixIcon={<PackUpIcon />}
+        suffixIcon={<MultiIconDisplay identifier={PackUpIcon} />}
         onSearch={(value: string) => {
           if (defaultTags.findIndex((item) => item.includes(value)) < 0) {
             setTags([...defaultTags, value]);

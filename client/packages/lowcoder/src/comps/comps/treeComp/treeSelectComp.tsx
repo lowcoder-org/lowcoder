@@ -3,40 +3,28 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
 import { default as TreeSelect } from "antd/es/tree-select";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import styled from "styled-components";
 import { styleControl } from "comps/controls/styleControl";
 import {  InputFieldStyle, LabelStyle, TreeSelectStyle, TreeSelectStyleType } from "comps/controls/styleControlConstants";
 import { LabelControl } from "comps/controls/labelControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
-  advancedSection,
-  expandSection,
-  formSection,
   treeCommonChildren,
-  treeDataPropertyView,
   TreeNameConfigs,
   useTree,
-  valuePropertyView,
 } from "./treeUtils";
 import { baseSelectRefMethods, getStyle } from "../selectInputComp/selectCompConstants";
 import { useSelectInputValidate, SelectInputValidationSection } from "../selectInputComp/selectInputConstants";
 import { StringControl } from "comps/controls/codeControl";
 import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { selectInputValidate } from "../selectInputComp/selectInputConstants";
 import { BoolControl } from "comps/controls/boolControl";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
 import { trans } from "i18n";
-import {
-  allowClearPropertyView,
-  placeholderPropertyView,
-  showSearchPropertyView,
-} from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
 import { RefControl } from "comps/controls/refControl";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewTreeSelectComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTreeSelectComp})))
 const StyledTreeSelect = styled(TreeSelect)<{ $style: TreeSelectStyleType }>`
   width: 100%;
   ${(props) => props.$style && getStyle(props.$style)}
@@ -146,54 +134,14 @@ const TreeCompView = (
 };
 
 let TreeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return(
     <TreeCompView {...props} dispatch={dispatch} />
   )})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {treeDataPropertyView(children)}
-          {placeholderPropertyView(children)}
-        </Section>
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><SelectInputValidationSection {...children} />
-            {formSection(children)}
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {children.hidden.propertyView({ label: trans("prop.hide") })}
-              {children.disabled.propertyView({ label: trans("prop.disabled") })}
-              {children.selectType.propertyView({ label: trans("tree.selectType") })}
-              {valuePropertyView(children)}
-              {children.selectType.getView() === "check" &&
-                children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
-              {allowClearPropertyView(children)}
-              {showSearchPropertyView(children)}
-            </Section>
-          </>
-        )}
-      
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.layout}>
-            {children.expanded.propertyView({ label: trans("tree.expanded") })}
-            {children.defaultExpandAll.propertyView({ label: trans("tree.defaultExpandAll") })}
-            {children.showLine.propertyView({ label: trans("tree.showLine") })}
-            {children.showLine.getView() && children.showLeafIcon.propertyView({ label: trans("tree.showLeafIcon") })}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && ( children.label.getPropertyView() )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-          <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-          <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-          </>
-        )}
-      </>
-    ))
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewTreeSelectComp {...children}></SetPropertyViewTreeSelectComp>);
+  }
+      return builder
     .setExposeMethodConfigs(baseSelectRefMethods)
     .build();
 })();

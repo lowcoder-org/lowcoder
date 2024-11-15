@@ -1,8 +1,9 @@
 import React, { useEffect, useRef } from "react";
 import { default as Modal } from "antd/es/modal";
-import { CloseIcon } from "lowcoder-design";
 import styled from "styled-components";
 import { Layers } from "constants/Layers";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CloseIcon} from "icons";
 
 const VideoModalWrapper = styled.div`
   display: flex;
@@ -64,7 +65,7 @@ function VideoDialog(props: {
                 setVisible(false);
               }}
             >
-              <CloseIcon />
+              <MultiIconDisplay identifier={CloseIcon} />
             </VideoModalHeader>
             <video
               ref={videoRef}

@@ -25,6 +25,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { AuthSearchParams } from "constants/authConstants";
 import { saveAuthSearchParams } from "pages/userAuth/authUtils";
 import { initTranslator } from "i18n";
+import {getLanguage} from "lowcoder/src/util/editor";
 
 function validResponseData(response: AxiosResponse<ApiResponse>) {
   return response && response.data && response.data.data;
@@ -87,12 +88,15 @@ export function* getCurrentUserSaga() {
   try {
     const response: AxiosResponse<GetCurrentUserResponse> = yield call(UserApi.getCurrentUser);
     if (validateResponse(response)) {
+      localStorage.setItem('lowcoder_uiLanguage', response.data.data.uiLanguage);
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_USER_SUCCESS,
         payload: response.data.data,
       });
-      const { uiLanguage } = response.data.data;
-      initTranslator(uiLanguage);
+
+      // persisting the language in local storage
+      initTranslator(response.data.data.uiLanguage);
+
     }
   } catch (error: any) {
     yield put({

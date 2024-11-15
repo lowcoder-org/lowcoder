@@ -1,16 +1,10 @@
-import {
-  AllTypesIcon,
-  ApplicationDocIcon,
-  FolderIcon,
-  MobileAppIcon,
-  ModuleDocIcon,
-  NavDocIcon,
-} from "lowcoder-design";
 import { HomeResTypeEnum } from "../types/homeRes";
 import { APPLICATION_VIEW_URL, APPLICATION_MARKETPLACE_VIEW_URL, buildFolderUrl } from "../constants/routesURL";
 import history from "./history";
 import { trans } from "../i18n";
 import { FunctionComponent } from "react";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AllTypesIcon, ApplicationDocIcon, FolderIcon, ModuleDocIcon, NavDocIcon} from "icons";
 
 export const HomeResInfo: Record<
   HomeResTypeEnum,
@@ -18,32 +12,32 @@ export const HomeResInfo: Record<
 > = {
   [HomeResTypeEnum.All]: {
     name: trans("home.all"),
-    icon: AllTypesIcon,
+    icon: MultiIcon(AllTypesIcon),
   },
   [HomeResTypeEnum.Application]: {
     name: trans("home.app"),
-    icon: ApplicationDocIcon,
+    icon: MultiIcon(ApplicationDocIcon),
   },
   [HomeResTypeEnum.Module]: {
     name: trans("home.module"),
-    icon: ModuleDocIcon,
+    icon: MultiIcon(ModuleDocIcon),
   },
   [HomeResTypeEnum.Navigation]: {
     name: trans("home.navigation"),
-    icon: NavDocIcon,
+    icon: MultiIcon(NavDocIcon),
   },
   [HomeResTypeEnum.NavLayout]: {
     name: trans("home.navLayout"),
-    icon: NavDocIcon,
+    icon: MultiIcon(NavDocIcon),
     desc: trans("home.navLayoutDesc"),
   },
   [HomeResTypeEnum.Folder]: {
     name: trans("home.folder"),
-    icon: FolderIcon,
+    icon: MultiIcon(FolderIcon),
   },
   [HomeResTypeEnum.MobileTabLayout]: {
     name: trans("home.mobileTabLayout"),
-    icon: NavDocIcon,
+    icon: MultiIcon(NavDocIcon),
     desc: trans("home.mobileTabLayoutDesc"),
   },
 };

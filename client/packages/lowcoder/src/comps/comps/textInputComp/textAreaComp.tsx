@@ -12,11 +12,8 @@ import { FormDataPropertyView } from "../formComp/formDataConstants";
 import {
   fixOldInputCompData,
   getStyle,
-  TextInputBasicSection,
   textInputChildren,
   TextInputConfigs,
-  TextInputInteractionSection,
-  TextInputValidationSection,
   useTextInputProps,
 } from "./textInputConstants";
 import { withMethodExposing, refMethods } from "../../generators/withMethodExposing";
@@ -24,20 +21,14 @@ import { styleControl } from "comps/controls/styleControl";
 import styled from "styled-components";
 import {  AnimationStyle, InputFieldStyle, InputLikeStyle, InputLikeStyleType, LabelStyle } from "comps/controls/styleControlConstants";
 import { TextArea } from "components/TextArea";
-import {
-  allowClearPropertyView,
-  hiddenPropertyView,
-  readOnlyPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { TextAreaRef } from "antd/es/input/TextArea";
 import { blurMethod, focusWithOptions } from "comps/utils/methodUtils";
-
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const SetPropertyViewTextAreaComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.SetPropertyViewTextAreaComp})))
 const TextAreaStyled = styled(TextArea)<{
   $style: InputLikeStyleType;
 }>`
@@ -79,7 +70,7 @@ let TextAreaTmpComp = (function () {
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle')
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const [inputProps, validateState] = useTextInputProps(props);
 
     return props.label({
@@ -103,42 +94,11 @@ let TextAreaTmpComp = (function () {
       ...validateState,
     });
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <TextInputBasicSection {...children} />
-        <FormDataPropertyView {...children} />
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <SetPropertyViewTextAreaComp {...children}></SetPropertyViewTextAreaComp>);
+  }
 
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          children.label.getPropertyView()
-        )}
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><TextInputInteractionSection {...children} />
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() &&
-                children.textAreaScrollBar.propertyView({
-                  label: trans("prop.textAreaScrollBar"),
-                })}
-              {hiddenPropertyView(children)}
-            </Section>
-            <Section name={sectionNames.advanced}>
-              {allowClearPropertyView(children)}
-              {readOnlyPropertyView(children)}
-            </Section>
-            <TextInputValidationSection {...children} /></>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-            <Section name={sectionNames.labelStyle}>{children.labelStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.inputFieldStyle}>{children.inputFieldStyle.getPropertyView()}</Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-          </>
-        )}
-      </>
-    ))
+      return builder
     .build();
 })();
 

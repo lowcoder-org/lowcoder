@@ -17,23 +17,16 @@ import {
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  AppsIcon,
   // EditPopover,
-  EllipsisTextCss,
+  EllipsisTextCss, EnterpriseIcon,
   FolderIcon,
   HomeDataSourceIcon,
-  NewsIcon,
-  WorkspacesIcon,
-  // HomeModuleIcon,
-  HomeQueryLibraryIcon,
-  HomeSettingIcon,
-  SupportIcon,
-  // PlusIcon,
-  // PointIcon,
-  RecyclerIcon,
+  HomeQueryLibraryIcon, HomeSettingIcon,
   MarketplaceIcon,
-  AppsIcon,
-  EnterpriseIcon,
+  NewsIcon, RecyclerIcon,
   UserIcon,
+  WorkspacesIcon
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -59,7 +52,7 @@ import { RootFolderListView } from "./RootFolderListView";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 // import { ModuleView } from "./ModuleView";
 // import { useCreateFolder } from "./useCreateFolder";
-import { trans } from "../../i18n";
+import {initTranslator, trans} from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { Support } from "pages/support";
@@ -73,6 +66,9 @@ import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
 import { set } from "lodash";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {initTranslator as initTranslatorDesign} from "i18n/design";
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 
 const TabLabel = styled.div`
   font-weight: 500;
@@ -153,7 +149,17 @@ const DivStyled = styled.div`
   }
 `;
 
+const initialize = async () => {
+  try {
+    await initTranslatorDesign();
+    await initTranslator();
+  } catch (error) {
+    console.error('Initialization failed:', error);
+  }
+};
+
 export default function ApplicationHome() {
+  const [isInitialized, setIsInitialized] = useState(false);
   const dispatch = useDispatch();
   const [isPreloadCompleted, setIsPreloadCompleted] = useState(false);
   const fetchingUser = useSelector(isFetchingUser);
@@ -168,6 +174,10 @@ export default function ApplicationHome() {
   const subscriptions = useSelector(getSubscriptions);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
+
+  useEffect(() => {
+    initialize().then(() => setIsInitialized(true));
+  }, []);
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
@@ -203,12 +213,13 @@ export default function ApplicationHome() {
     user.currentOrgId && dispatch(fetchFolderElements({}));
   }, [dispatch, allFoldersCount, user.currentOrgId]);
 
-  if (fetchingUser || !isPreloadCompleted) {
+  if (!isInitialized || fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
   }
 
   return (
     <DivStyled>
+      <LoadingBarHideTrigger />
       <Layout
         sections={[
           {
@@ -217,13 +228,13 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.profile")}</TabLabel>,
                 routePath: USER_PROFILE_URL,
                 routeComp: UserProfileView,
-                icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={UserIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={UserIcon} {...otherProps} width={"24px"}/>,
               },
               {
                 text: <TabLabel>{trans("home.news")}</TabLabel>,
                 routePath: NEWS_URL,
                 routeComp: NewsView,
-                icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={NewsIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={NewsIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 style: { color: "red" },
               },
@@ -232,7 +243,7 @@ export default function ApplicationHome() {
                 routePath: ORG_HOME_URL,
                 routePathExact: false,
                 routeComp: OrgView,
-                icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"}/> : <WorkspacesIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={WorkspacesIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={WorkspacesIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => !user.orgDev,
               },
               {
@@ -240,7 +251,7 @@ export default function ApplicationHome() {
                 routePath: MARKETPLACE_URL,
                 routePathExact: false,
                 routeComp: MarketplaceView,
-                icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={MarketplaceIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={MarketplaceIcon} {...otherProps} width={"24px"}/>,
               },
             ]
           },
@@ -251,13 +262,13 @@ export default function ApplicationHome() {
                 text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
                 routePath: FOLDERS_URL,
                 routeComp: RootFolderListView,
-                icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={FolderIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={FolderIcon} {...otherProps} width={"24px"}/>,
               },
               {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,
                 routeComp: HomeView,
-                icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={AppsIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={AppsIcon} {...otherProps} width={"24px"}/>,
               },
             ],
           },
@@ -269,7 +280,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
                 routePath: QUERY_LIBRARY_URL,
                 routeComp: QueryLibraryEditor,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={HomeQueryLibraryIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={HomeQueryLibraryIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
               {
@@ -277,7 +288,7 @@ export default function ApplicationHome() {
                 routePath: DATASOURCE_URL,
                 routePathExact: false,
                 routeComp: DatasourceHome,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={HomeDataSourceIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={HomeDataSourceIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
               },
@@ -290,7 +301,7 @@ export default function ApplicationHome() {
                 routePath: "/ee/6600ae8724a23f365ba2ed4c/admin",
                 routePathExact: false,
                 routeComp: AppEditor,
-                icon: ({ selected, ...otherProps }) => selected ? ( <EnterpriseIcon {...otherProps} width={"24px"}/> ) : ( <EnterpriseIcon {...otherProps} width={"24px"}/> ),
+                icon: ({ selected, ...otherProps }) => selected ? ( <MultiIconDisplay identifier={EnterpriseIcon} {...otherProps} width={"24px"}/> ) : ( <MultiIconDisplay identifier={EnterpriseIcon} {...otherProps} width={"24px"}/> ),
                 visible: ({ user }) => user.orgDev,
               },
             ],
@@ -315,7 +326,7 @@ export default function ApplicationHome() {
                 routePath: SETTING_URL,
                 routePathExact: false,
                 routeComp: Setting,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={HomeSettingIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={HomeSettingIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
               }
@@ -328,7 +339,7 @@ export default function ApplicationHome() {
                 text: <TabLabel>{trans("home.trash")}</TabLabel>,
                 routePath: TRASH_URL,
                 routeComp: TrashView,
-                icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
+                icon: ({ selected, ...otherProps }) => selected ? <MultiIconDisplay identifier={RecyclerIcon} {...otherProps} width={"24px"}/> : <MultiIconDisplay identifier={RecyclerIcon} {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
               },
             ],

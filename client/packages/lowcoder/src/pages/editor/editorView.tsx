@@ -57,6 +57,7 @@ import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
@@ -267,34 +268,34 @@ enum SiderKey {
 const standardSiderItems = [
   {
     key: SiderKey.State,
-    icon: <LeftStateIcon />,
+    icon: <MultiIconDisplay identifier={LeftStateIcon} />,
   },
   {
     key: SiderKey.Setting,
-    icon: <LeftSettingIcon />,
+    icon: <MultiIconDisplay identifier={LeftSettingIcon} />,
   },
   {
     key: SiderKey.Canvas,
-    icon: <LeftColorPaletteIcon />,
+    icon: <MultiIconDisplay identifier={LeftColorPaletteIcon} />,
   },
   {
     key: SiderKey.JS,
-    icon: <LeftJSSettingIcon />,
+    icon: <MultiIconDisplay identifier={LeftJSSettingIcon} />,
   },
   {
     key: SiderKey.Layout,
-    icon: <LeftLayersIcon />,
+    icon: <MultiIconDisplay identifier={LeftLayersIcon} />,
   },
 ];
 
 const aggregationSiderItems = [
   {
     key: SiderKey.State,
-    icon: <LeftStateIcon />,
+    icon: <MultiIconDisplay identifier={LeftStateIcon} />,
   },
   {
     key: SiderKey.Setting,
-    icon: <LeftSettingIcon />,
+    icon: <MultiIconDisplay identifier={LeftSettingIcon} />,
   }
 ];
 
@@ -592,10 +593,10 @@ function EditorView(props: EditorViewProps) {
                           })
                         )}
                       >
-                        <LeftPreloadIcon />
+                        <MultiIconDisplay identifier={LeftPreloadIcon} />
                         {trans("leftPanel.toolbarPreload")}
                       </PreloadDiv>
-                      
+
                       {props.preloadComp.getJSLibraryPropertyView()}
                     </>
                   )}

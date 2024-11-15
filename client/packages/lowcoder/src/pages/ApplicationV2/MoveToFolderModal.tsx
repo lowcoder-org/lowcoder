@@ -4,17 +4,17 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import {
-  CustomModal,
-  DatasourceForm,
-  FolderIcon,
-  FormSection,
-  FormSelectItem,
-  TacoButton,
+    CustomModal,
+    DatasourceForm, FolderIcon,
+    FormSection,
+    FormSelectItem,
+    TacoButton,
 } from "lowcoder-design";
 import { moveToFolder } from "../../redux/reduxActions/folderActions";
 import styled from "styled-components";
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const MoveLabel = styled.div`
   font-size: 13px;
@@ -107,7 +107,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                     {
                       label: (
                         <FolderSelectLabel>
-                          <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
+                          <MultiIconDisplay identifier={FolderIcon} style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
                           {trans("home.rootFolder")} 
                         </FolderSelectLabel>
                       ),
@@ -120,7 +120,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                 .map((f) => ({
                   label: (
                     <FolderSelectLabel>
-                      <FolderIcon style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
+                      <MultiIconDisplay identifier={FolderIcon} style={{ marginRight: "8px", width: "24px", flexShrink: 0 }} />
                       {f.name}
                     </FolderSelectLabel>
                   ),

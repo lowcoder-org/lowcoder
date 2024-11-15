@@ -1,8 +1,7 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled, { css } from "styled-components";
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import _ from "lodash";
 import {
   AnimationStyle,
   AnimationStyleType,
@@ -17,9 +16,6 @@ import {
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
-import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
 import ReactResizeDetector from "react-resize-detector";
@@ -28,8 +24,8 @@ import {
   clickEvent,
   eventHandlerControl,
 } from "../controls/eventHandlerControl";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iconComp"));
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -112,45 +108,12 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let IconBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return(<IconView {...props} />)})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.icon.propertyView({
-            label: trans("iconComp.icon"),
-            IconType: "All",
-          })}
-          
-        </Section> 
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.layout}>
-            {children.autoHeight.propertyView({
-            label: trans("iconComp.autoSize"),
-          })}
-            {!children.autoHeight.getView() &&
-            children.iconSize.propertyView({
-              label: trans("iconComp.iconSize"),
-            })}
-          </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+  }
+      return builder
     .build();
 })();
 

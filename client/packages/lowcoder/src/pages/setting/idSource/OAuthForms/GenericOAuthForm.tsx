@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { messageInstance, CloseEyeIcon, CustomSelect } from "lowcoder-design";
+import {messageInstance, CustomSelect, CloseEyeIcon} from "lowcoder-design";
 import { i18nObjs, trans } from "i18n";
 import {
   FormStyled,
@@ -18,6 +18,7 @@ import Button from "antd/es/button";
 import axios from "axios";
 import { IconPicker } from "@lowcoder-ee/comps/controls/iconControl";
 import Switch from "antd/es/switch";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const sourceMappingKeys = [
   'uid',
@@ -243,7 +244,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
                   isPassword ? (
                     <PasswordLabel>
                       <span>{label}:</span>
-                      <CloseEyeIcon />
+                      <MultiIconDisplay identifier={CloseEyeIcon} />
                     </PasswordLabel>
                   ) : (
                     <Tooltip title={tip}>

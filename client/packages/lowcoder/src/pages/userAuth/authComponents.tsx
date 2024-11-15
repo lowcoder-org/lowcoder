@@ -1,12 +1,13 @@
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import React, { CSSProperties, useRef } from "react";
-import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
+import {CheckBox, PackUpIcon, TacoButton} from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import ReactHotkeys from "util/hotkeys";
 import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { favicon } from "assets/images";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const AuthCardContainer = styled.div`
   display: flex;
@@ -372,7 +373,7 @@ const BackNavLink = styled.a`
   }
 `;
 
-const StyledPackUpIcon = styled(PackUpIcon)`
+const StyledPackUpIcon = styled(MultiIcon(PackUpIcon))`
   transform: rotate(-90deg);
   width: 24px;
   height: 24px;

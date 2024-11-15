@@ -1,32 +1,30 @@
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import {AlignCenter, AlignLeft, AlignRight, ScrollBar, Section, sectionNames} from "lowcoder-design";
 import styled, { css } from "styled-components";
-import { AlignCenter } from "lowcoder-design";
-import { AlignLeft } from "lowcoder-design";
-import { AlignRight } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
 
-import React, { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
 import { NewChildren } from "../generators/uiCompBuilder";
 import { RecordConstructorToComp } from "lowcoder-core";
 import { ToViewReturn } from "../generators/multi";
 import { BoolControl } from "../controls/boolControl";
-
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const TextPropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/textComp"));
 const EventOptions = [clickEvent] as const;
+
 
 const getStyle = (style: TextStyleType) => {
   return css`
@@ -108,13 +106,13 @@ const TextContainer = styled.div<{
     overflow-wrap: anywhere;
   }
 `;
-const AlignTop = styled(AlignLeft)`
+const AlignTop = styled(MultiIcon(AlignLeft))`
   transform: rotate(90deg);
 `;
-const AlignBottom = styled(AlignRight)`
+const AlignBottom = styled(MultiIcon(AlignRight))`
   transform: rotate(90deg);
 `;
-const AlignVerticalCenter = styled(AlignCenter)`
+const AlignVerticalCenter = styled(MultiIcon(AlignCenter))`
   transform: rotate(90deg);
 `;
 
@@ -153,57 +151,6 @@ const childrenMap = {
 
 type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
 
-const TextPropertyView = React.memo((props: {
-  children: ChildrenType
-}) => {
-  return (
-    <>
-      <Section name={sectionNames.basic}>
-        {props.children.type.propertyView({
-          label: trans("value"),
-          tooltip: trans("textShow.valueTooltip"),
-          radioButton: true,
-        })}
-        {props.children.text.propertyView({})}
-      </Section>
-
-      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <Section name={sectionNames.interaction}>
-          {hiddenPropertyView(props.children)}
-          {props.children.onEvent.getPropertyView()}
-        </Section>
-      )}
-
-      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <>
-          <Section name={sectionNames.layout}>
-            {props.children.autoHeight.getPropertyView()}
-            {!props.children.autoHeight.getView() &&
-              props.children.contentScrollBar.propertyView({
-                label: trans("prop.contentScrollbar"),
-              })}
-            {!props.children.autoHeight.getView() &&
-              props.children.verticalAlignment.propertyView({
-                label: trans("textShow.verticalAlignment"),
-                radioButton: true,
-              })}
-            {props.children.horizontalAlignment.propertyView({
-              label: trans("textShow.horizontalAlignment"),
-              radioButton: true,
-            })}
-          </Section>
-          <Section name={sectionNames.style}>
-            {props.children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {props.children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      )}
-    </>
-  );
-})
-
 const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const value = props.text.value;
 
@@ -228,8 +175,13 @@ const TextView = React.memo((props: ToViewReturn<ChildrenType>) => {
 }, (prev, next) => JSON.stringify(prev) === JSON.stringify(next));
 
 let TextTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => <TextView {...props} />)
-    .setPropertyViewFn((children) => <TextPropertyView children={children} />)
+  let builder = new UICompBuilder(childrenMap, (props) => <TextView {...props} />)
+
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <TextPropertyView children={children} />)
+  }
+
+  return builder
     .build();
 })();
 

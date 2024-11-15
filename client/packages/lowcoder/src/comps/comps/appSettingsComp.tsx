@@ -22,6 +22,7 @@ import { BoolControl } from "../controls/boolControl";
 import { getNpmPackageMeta } from "../utils/remote";
 import { getPromiseAfterDispatch } from "@lowcoder-ee/util/promiseUtils";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import { ColorControl } from "../controls/colorControl";
 import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 import { AppSettingContext } from "../utils/appSettingContext";
@@ -156,7 +157,7 @@ const DivStyled = styled.div`
   }
 `;
 
-const StyledAddIcon = styled(AddIcon)`
+const StyledAddIcon = styled(MultiIcon(AddIcon))`
   height: 16px;
   width: 16px;
   margin-right: 4px;
@@ -243,7 +244,7 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
     showHeaderInPublic,
     lowcoderCompVersion,
   } = props;
-  
+
   useEffect(() => {
     setLowcoderCompVersions([
       'latest',

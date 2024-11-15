@@ -13,17 +13,17 @@ import { styleControl } from "comps/controls/styleControl";
 import { DropdownStyle } from "comps/controls/styleControlConstants";
 import { withDefault } from "comps/generators";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
-import { CustomModal, Section, sectionNames } from "lowcoder-design";
+import { CustomModal } from "lowcoder-design";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { BoolControl } from "comps/controls/boolControl";
 import type { ItemType } from "antd/es/menu/interface";
 import { RefControl } from "comps/controls/refControl";
-import { EditorContext } from "comps/editorState"; 
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewScannerComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewScannerComp})))
 
 const Error = styled.div`
   color: #f5222d;
@@ -73,7 +73,7 @@ const ScannerTmpComp = (function () {
     style: styleControl(DropdownStyle, 'style'),
     viewRef: RefControl<HTMLElement>,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const [showModal, setShowModal] = useState(false);
     const [errMessage, setErrMessage] = useState("");
     const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
@@ -211,34 +211,10 @@ const ScannerTmpComp = (function () {
       </ButtonCompWrapper>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.text.propertyView({ label: trans("text") })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {disabledPropertyView(children)}
-                {hiddenPropertyView(children)}
-              </Section>
-              <Section name={sectionNames.advanced}>
-              {children.continuous.propertyView({ label: trans("scanner.continuous") })}
-              {children.continuous.getView() &&
-              children.uniqueData.propertyView({ label: trans("scanner.uniqueData") })}
-              {children.maskClosable.propertyView({ label: trans("scanner.maskClosable") })}
-            </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.style}>{children.style.getPropertyView()}</Section></>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewScannerComp {...children}></PropertyViewScannerComp>);
+  }
+  return builder
     .setExposeMethodConfigs(buttonRefMethods)
     .build();
 })();

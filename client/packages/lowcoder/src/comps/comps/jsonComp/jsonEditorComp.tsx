@@ -1,28 +1,27 @@
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 import { UICompBuilder } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { formDataChildren } from "../formComp/formDataConstants";
 import { AnimationStyle, JsonEditorStyle } from "comps/controls/styleControlConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { migrateOldData, withDefault } from "comps/generators/simpleGenerators";
-import { useRef, useEffect, useContext } from "react";
+import React, { useRef, useEffect } from "react";
 import {
   EditorState,
   EditorView,
   type EditorView as EditorViewType,
 } from "base/codeEditor/codeMirror";
 import { useExtensions } from "base/codeEditor/extensions";
-import { EditorContext } from "comps/editorState";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import { BoolControl } from "@lowcoder-ee/comps/controls/boolControl";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewJsonEditor =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewJsonEditor})))
 /**
  * JsonEditor Comp
  */
@@ -75,7 +74,7 @@ const childrenMap = {
 };
 
 let JsonEditorTmpComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     const wrapperRef = useRef<HTMLDivElement>(null);
     const view = useRef<EditorViewType | null>(null);
     const initialized = useRef(false);
@@ -142,39 +141,10 @@ let JsonEditorTmpComp = (function () {
       ),
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
-          </Section>
-
-          <FormDataPropertyView {...children} />
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-          <Section name={trans('prop.height')}>
-            {children.autoHeight.propertyView({ label: trans('prop.height') })}
-          </Section>
-          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
-  {children.showVerticalScrollbar.propertyView({label: trans('prop.showVerticalScrollbar')})}
-  
-</Section>}
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>{children.animationStyle.getPropertyView()}</Section>
-              </>
-          )}
-
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewJsonEditor {...children}></PropertyViewJsonEditor>);
+  }
+    return builder
     .build();
 })();
 

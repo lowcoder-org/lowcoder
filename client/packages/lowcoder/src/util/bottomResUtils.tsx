@@ -1,40 +1,22 @@
 import styled from "styled-components";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
+import { BottomResTypeEnum } from "types/bottomRes";
+import { HttpMethod } from "api/api";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {
   ClickHouseIcon,
   DataResponderIcon,
-  DeleteApiIcon,
-  EsIcon,
-  FileFolderIcon,
-  GetApiIcon,
-  GoogleSheetsIcon,
-  GraphqlIcon,
-  HeadApiIcon,
-  JSIcon,
-  MariaDBIcon,
-  MongoIcon,
-  MSSQLIcon,
-  MysqlIcon,
-  LowcoderQueryIcon,
-  OptionsApiIcon,
-  OracleIcon,
+  DeleteApiIcon, EsIcon, FileFolderIcon,
+  GetApiIcon, GoogleSheetsIcon, GraphqlIcon,
+  HeadApiIcon, JSIcon, LowcoderQueryIcon, MariaDBIcon, MongoIcon, MSSQLIcon, MysqlIcon,
+  OptionsApiIcon, OracleIcon,
   PatchApiIcon,
-  PostApiIcon,
-  PostgresIcon,
+  PostApiIcon, PostgresIcon,
   PutApiIcon,
-  QueryLibraryIcon,
-  RedisIcon,
-  RestApiIcon,
-  SMTPIcon,
-  SnowflakeIcon,
-  TempStateIcon,
-  TraceApiIcon,
-  TransformerIcon,
-} from "lowcoder-design";
-import { BottomResTypeEnum } from "types/bottomRes";
-import { HttpMethod } from "api/api";
+  QueryLibraryIcon, RedisIcon, RestApiIcon, SMTPIcon, SnowflakeIcon, TempStateIcon, TraceApiIcon, TransformerIcon
+} from "icons";
 
-const QueryLibrary = styled(QueryLibraryIcon)`
+const QueryLibrary = styled(MultiIcon(QueryLibraryIcon))`
   g g g {
     stroke: #222222;
   }
@@ -77,14 +59,14 @@ export type BottomResType =
   | BottomResTypeEnum.DateResponder;
 
 const HttpMethodIcon = {
-  DELETE: <DeleteApiIcon />,
-  GET: <GetApiIcon />,
-  PATCH: <PatchApiIcon />,
-  POST: <PostApiIcon />,
-  PUT: <PutApiIcon />,
-  HEAD: <HeadApiIcon />,
-  OPTIONS: <OptionsApiIcon />,
-  TRACE: <TraceApiIcon />,
+  DELETE: <MultiIconDisplay identifier={DeleteApiIcon} />,
+  GET: <MultiIconDisplay identifier={GetApiIcon} />,
+  PATCH: <MultiIconDisplay identifier={PatchApiIcon} />,
+  POST: <MultiIconDisplay identifier={PostApiIcon} />,
+  PUT: <MultiIconDisplay identifier={PutApiIcon} />,
+  HEAD: <MultiIconDisplay identifier={HeadApiIcon} />,
+  OPTIONS: <MultiIconDisplay identifier={OptionsApiIcon} />,
+  TRACE: <MultiIconDisplay identifier={TraceApiIcon} />,
 };
 
 export const getBottomResIcon = (
@@ -96,52 +78,52 @@ export const getBottomResIcon = (
   const getIcon = () => {
     switch (type) {
       case BottomResTypeEnum.TempState:
-        return <TempStateIcon />;
+        return <MultiIconDisplay identifier={TempStateIcon} />;
       case BottomResTypeEnum.Transformer:
-        return <TransformerIcon />;
+        return <MultiIconDisplay identifier={TransformerIcon} />;
       case BottomResTypeEnum.DateResponder:
-        return <DataResponderIcon />;
+        return <MultiIconDisplay identifier={DataResponderIcon} />;
       case BottomResTypeEnum.Folder:
-        return <FileFolderIcon />;
+        return <MultiIconDisplay identifier={FileFolderIcon} />;
       case "mysql":
-        return <MysqlIcon />;
+        return <MultiIconDisplay identifier={MysqlIcon} />;
       case "mongodb":
-        return <MongoIcon />;
+        return <MultiIconDisplay identifier={MongoIcon} />;
       case "restApi":
-        return httpMethod ? HttpMethodIcon[httpMethod] : <RestApiIcon />;
+        return httpMethod ? HttpMethodIcon[httpMethod] : <MultiIconDisplay identifier={RestApiIcon} />;
       case "postgres":
-        return <PostgresIcon />;
+        return <MultiIconDisplay identifier={PostgresIcon} />;
       case "js":
-        return <JSIcon />;
+        return <MultiIconDisplay identifier={JSIcon} />;
       case "redis":
-        return <RedisIcon />;
+        return <MultiIconDisplay identifier={RedisIcon} />;
       case "es":
-        return <EsIcon />;
+        return <MultiIconDisplay identifier={EsIcon} />;
       case "mssql":
-        return <MSSQLIcon />;
+        return <MultiIconDisplay identifier={MSSQLIcon} />;
       case "smtp":
-        return <SMTPIcon />;
+        return <MultiIconDisplay identifier={SMTPIcon} />;
       case "oracle":
-        return <OracleIcon />;
+        return <MultiIconDisplay identifier={OracleIcon} />;
       case "clickHouse":
-        return <ClickHouseIcon />;
+        return <MultiIconDisplay identifier={ClickHouseIcon} />;
       case "libraryQuery":
-        return <QueryLibrary />;
+        return <MultiIconDisplay identifier={QueryLibrary} />;
       case "googleSheets":
-        return <GoogleSheetsIcon />;
+        return <MultiIconDisplay identifier={GoogleSheetsIcon} />;
       case "graphql":
-        return <GraphqlIcon />;
+        return <MultiIconDisplay identifier={GraphqlIcon} />;
       case "lowcoderApi":
-        return <LowcoderQueryIcon />;
+        return <MultiIconDisplay identifier={LowcoderQueryIcon} />;
       case "snowflake":
-        return <SnowflakeIcon />;
+        return <MultiIconDisplay identifier={SnowflakeIcon} />;
       case "mariadb":
-        return <MariaDBIcon />;
+        return <MultiIconDisplay identifier={MariaDBIcon} />;
       default:
         if (defaultIconUrl) {
           return getBottomResIconInnerByUrl(type, defaultIconUrl);
         }
-        return <RestApiIcon />;
+        return <MultiIconDisplay identifier={RestApiIcon} />;
     }
   };
   const isRestApi = type === "restApi" && !!httpMethod;

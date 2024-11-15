@@ -6,19 +6,18 @@ import { LabelControl } from "comps/controls/labelControl";
 import { styleControl } from "comps/controls/styleControl";
 import { SwitchStyle, SwitchStyleType, LabelStyle,  InputFieldStyle, AnimationStyle } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { Section, lightenColor, sectionNames } from "lowcoder-design";
+import { lightenColor } from "lowcoder-design";
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { formDataChildren } from "./formComp/formDataConstants";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
-
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
+import React from "react";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/switchComp"));
 
 const EventOptions = [
   changeEvent,
@@ -104,7 +103,7 @@ let SwitchTmpComp = (function () {
     inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
     ...formDataChildren,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -126,46 +125,10 @@ let SwitchTmpComp = (function () {
       ),
     });
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.value.propertyView({ label: trans("switchComp.defaultValue") })}
-          </Section>
-
-          <FormDataPropertyView {...children} />
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            children.label.getPropertyView()
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.labelStyle}>
-                {children.labelStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.inputFieldStyle}>
-                {children.inputFieldStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+  }
+    return builder
     .setExposeMethodConfigs(refMethods([focusWithOptions, blurMethod, clickMethod]))
     .build();
 })();

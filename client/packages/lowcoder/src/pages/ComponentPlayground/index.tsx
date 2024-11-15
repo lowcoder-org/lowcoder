@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import "comps";
+import "bootstrap/admin";
 import { UICompType, UICompManifest, uiCompRegistry, UICompCategory } from "comps/uiCompRegistry";
 import { CompPlayground } from "ide/CompPlayground";
 import { Comp } from "lowcoder-core";

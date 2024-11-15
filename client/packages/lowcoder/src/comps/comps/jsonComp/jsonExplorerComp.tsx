@@ -1,4 +1,4 @@
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
+import { ScrollBar } from "lowcoder-design";
 import { UICompBuilder, withDefault } from "../../generators";
 import { NameConfigHidden, NameConfig, withExposingConfigs } from "../../generators/withExposing";
 import ReactJson, { type ThemeKeys } from "react-json-view";
@@ -7,14 +7,13 @@ import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { EditorContext } from "comps/editorState";
-import { useContext, useEffect } from "react";
+import React from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewJsonExplorer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewJsonExplorer})))
 /**
  * JsonExplorer Comp
  */
@@ -60,7 +59,7 @@ let JsonExplorerTmpComp = (function () {
     theme: dropdownControl(themeOptions, 'shapeshifter:inverted'),
     animationStyle:styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return (
       <JsonExplorerContainer
         $theme={props.theme as keyof typeof bgColorMap}
@@ -79,49 +78,10 @@ let JsonExplorerTmpComp = (function () {
       </JsonExplorerContainer>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-             {children.value.propertyView({ label: trans("export.jsonEditorDesc") })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
-            </Section>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.advanced}>
-              {children.indent.propertyView({ label: trans("jsonExplorer.indent") })}
-            </Section>
-          )}
-          <Section name={trans('prop.height')}>
-            {children.autoHeight.propertyView({label: trans('prop.height')})}
-          </Section>
-          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
-            {children.showVerticalScrollbar.propertyView({
-              label: trans('prop.showVerticalScrollbar'),
-            })}
-          </Section>}
-          {(useContext(EditorContext).editorModeStatus === 'layout' ||
-            useContext(EditorContext).editorModeStatus === 'both') && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.theme.propertyView({
-                  label: trans('jsonExplorer.theme'),
-                })}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewJsonExplorer {...children}></PropertyViewJsonExplorer>);
+  }
+      return builder
     .build();
 })();
 

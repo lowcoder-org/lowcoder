@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import styled from "styled-components";
 import dayjs from "dayjs";
 import { default as AntdBreadcrumb } from "antd/es/breadcrumb";
-import { ArrowIcon } from "lowcoder-design";
 
 import { getUser } from "../../redux/selectors/usersSelectors";
 import { getCurrentUser } from "../../redux/selectors/usersSelectors";
@@ -21,16 +20,13 @@ import { Avatar, Button, Card, Col, Row, Space, Typography, Select, Tooltip } fr
 import { fullAvatarUrl } from "util/urlUtils";
 
 import {
-  BlurFinishInput,
-  OtpFormInput, // maybe to use
-  PasswordInput, // maybe to use
+    ApplicationDocIcon,
+    ArrowIcon, AvatarGroupCompIcon,
+    BlurFinishInput, ModuleDocIcon,
+    OtpFormInput, // maybe to use
+    PasswordInput, // maybe to use
 } from "lowcoder-design";
 
-import {
-  ApplicationDocIcon,
-  ModuleDocIcon,
-  AvatarGroupCompIcon,
-} from "lowcoder-design";
 
 import { useDispatch } from "react-redux";
 import { beforeImgUpload, getBase64 } from "util/fileUtils";
@@ -39,6 +35,7 @@ import { default as Upload, UploadChangeParam } from "antd/es/upload";
 import { USER_HEAD_UPLOAD_URL } from "constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import UserApiKeysCard from './components/UserApiKeysCard';
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const { Text, Title, Link } = Typography;
 const { Option } = Select;
@@ -226,7 +223,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
     <Wrapper>
       <HeaderWrapper>
         <Breadcrumb
-          separator={<ArrowIcon />}
+          separator={<MultiIconDisplay identifier={ArrowIcon} />}
           items={breadcrumbItems}
           itemRender={(item) => (
             <BreadcrumbItem
@@ -362,7 +359,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <ApplicationDocIcon width={"42px"}/>
+                              <MultiIconDisplay identifier={ApplicationDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -384,7 +381,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <ModuleDocIcon width={"42px"}/>
+                                <MultiIconDisplay identifier={ModuleDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -407,7 +404,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <ApplicationDocIcon width={"42px"}/>
+                              <MultiIconDisplay identifier={ApplicationDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -429,7 +426,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </div>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <ModuleDocIcon width={"42px"}/>
+                                <MultiIconDisplay identifier={ModuleDocIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>
@@ -449,7 +446,7 @@ export function UserProfileLayout(props: UserProfileLayoutProps) {
                                 </h4>
                             </div>
                             <BgSuccess style={{ padding: '6px', width: '48px', height: '48px', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <AvatarGroupCompIcon width={"42px"}/>
+                              <MultiIconDisplay identifier={AvatarGroupCompIcon} width={"42px"}/>
                             </BgSuccess>
                         </div>
                     </Card>

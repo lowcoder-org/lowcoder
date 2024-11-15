@@ -6,10 +6,8 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils/nameGenerator";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { CompParams } from "lowcoder-core";
-import { Section, sectionNames } from "lowcoder-design";
 import { oldContainerParamsToNew } from "../containerBase";
 import { toSimpleContainerData } from "../containerBase/simpleContainerComp";
 import {
@@ -21,10 +19,11 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { withDefault } from "comps/generators/simpleGenerators";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, TextContainerStyle } from "comps/controls/styleControlConstants";
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
 
+const PropertyViewTextContainer =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTextContainer})))
 const typeOptions = [
   {
     label: "Markdown",
@@ -65,63 +64,13 @@ export const ContainerBaseComp = (function () {
     style: styleControl(TextContainerStyle),
     animationStyle: styleControl(AnimationStyle),
   };
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return <TriContainer {...props} />;
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.type.propertyView({label: trans("value"), tooltip: trans("textShow.valueTooltip"), radioButton: true,})}
-            {children.text.propertyView({})}
-          </Section>
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.container.getPropertyView()}
-                {children.width.propertyView({label: trans("container.flowWidth")})}
-                {children.float.propertyView({ label: trans("container.floatType"), radioButton: true,
-                })}
-                {children.horizontalAlignment.propertyView({
-                  label: trans("textShow.horizontalAlignment"),
-                  radioButton: true,
-                })}
-              </Section>
-              <Section name={"Floating Text Style"}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-              <Section name={"Container Style"}>
-                {children.container.stylePropertyView()}
-              </Section>
-              {children.container.children.showHeader.getView() && (
-                <Section name={"Header Style"}>
-                  { children.container.headerStylePropertyView() }
-                </Section>
-              )}
-              {children.container.children.showBody.getView() && (
-                <Section name={"Body Style"}>
-                  { children.container.bodyStylePropertyView() }
-                </Section>
-              )}
-              {children.container.children.showFooter.getView() && (
-                <Section name={"Footer Style"}>
-                  { children.container.footerStylePropertyView() }
-                </Section>
-              )}
-            </>
-          )}
-        </>
-      );
-    })
+  if ((viewModeTriple() === "edit")) {
+    builder.setPropertyViewFn((children) => <PropertyViewTextContainer {...children}></PropertyViewTextContainer>);
+  }
+  return builder
     .build();
 })();
 

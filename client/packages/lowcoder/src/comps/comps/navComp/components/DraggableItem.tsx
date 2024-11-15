@@ -1,7 +1,9 @@
-import { DragIcon } from "lowcoder-design";
+
 import React, { Ref } from "react";
 import { HTMLAttributes, ReactNode } from "react";
 import styled from "styled-components";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {DragIcon} from "icons";
 
 const Wrapper = styled.div<{ $dragging: boolean; $isOver: boolean; $dropInAsSub: boolean }>`
   position: relative;
@@ -95,7 +97,7 @@ function DraggableItem(props: IProps, ref: Ref<HTMLDivElement>) {
   return (
     <Wrapper $isOver={isOver} $dragging={dragging} $dropInAsSub={dropInAsSub} ref={ref} {...divProps}>
       <div className="draggable-handle-icon">
-        <DragIcon {...dragListeners} />
+        <MultiIconDisplay identifier={DragIcon} {...dragListeners} />
       </div>
       <div className="draggable-text">{text}</div>
       <div className="draggable-extra-icon">{extra}</div>

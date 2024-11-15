@@ -1,6 +1,6 @@
 import _ from "lodash";
 import dayjs from "dayjs";
-import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
+import { RecordConstructorToView } from "lowcoder-core";
 import {
   BoolCodeControl,
   CustomRuleControl,
@@ -23,37 +23,26 @@ import {
   NameConfig,
   withExposingConfigs,
 } from "../../generators/withExposing";
-import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
+import { formDataChildren } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
-import {
-  disabledPropertyView,
-  formatPropertyView,
-  hiddenPropertyView,
-  hourStepPropertyView,
-  maxTimePropertyView,
-  minTimePropertyView,
-  minuteStepPropertyView,
-  requiredPropertyView,
-  SecondStepPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
-import React, { ReactNode, useContext, useEffect, useState } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
-import { Section, sectionNames } from "components/Section";
 import { CommonPickerMethods, dateRefMethods, disabledTime, handleDateChange } from "comps/comps/dateComp/dateCompUtil";
 import { TimeUIView } from "./timeUIView";
 import { TimeRangeUIView } from "comps/comps/dateComp/timeRangeUIView";
 import { RefControl } from "comps/controls/refControl";
-// import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { TimePickerProps } from "antd/es/time-picker";
 
-import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewTimeComp1 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTimeComp1})))
+const PropertyViewTimeComp2 =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewTimeComp2})))
 
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
@@ -80,8 +69,8 @@ const commonChildren = {
   style: styleControl(InputFieldStyle, 'style'),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   labelStyle: styleControl(
-    LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
-    'labelStyle',
+      LabelStyle.filter((style) => ['accent', 'validate'].includes(style.name) === false),
+      'labelStyle',
   ),
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
@@ -91,23 +80,19 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
+    _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
 
 /* const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),
   children.use12Hours.propertyView({ label: trans("prop.use12Hours") }),
 ]; */
 
-const commonAdvanceSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
-  hourStepPropertyView(children),
-  minuteStepPropertyView(children),
-  SecondStepPropertyView(children),
-];
+
 
 function validate(
-  props: RecordConstructorToView<typeof validationChildren> & {
-    value: { value: string };
-  }
+    props: RecordConstructorToView<typeof validationChildren> & {
+      value: { value: string };
+    }
 ): {
   validateStatus: "success" | "warning" | "error";
   help?: string;
@@ -135,10 +120,10 @@ type minuteStepType =  TimePickerProps['minuteStep'];
 type secondStepType =  TimePickerProps['secondStep'];
 
 export type TimeCompViewProps = Pick<
-  RecordConstructorToView<typeof childrenMap>,
-  "disabled" | "use12Hours" | "format" | "viewRef"
+    RecordConstructorToView<typeof childrenMap>,
+    "disabled" | "use12Hours" | "format" | "viewRef"
 > & Pick<
-  TimePickerProps, "hourStep" | "minuteStep" | "secondStep"
+    TimePickerProps, "hourStep" | "minuteStep" | "secondStep"
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -149,12 +134,12 @@ export type TimeCompViewProps = Pick<
   timeZone:string
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+export let timePickerControl = new UICompBuilder(childrenMap, (props) => {
   let time: dayjs.Dayjs | null = null;
   if(props.value.value !== '') {
     time = dayjs(props.value.value, TimeParser);
   }
-  
+
   const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
   useEffect(() => {
@@ -174,103 +159,42 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
     animationStyle:props.animationStyle,
     onMouseDown: (e) => e.stopPropagation(),
     children: (
-      <TimeUIView
-        handleTimeZoneChange={handleTimeZoneChange}
-        timeZone={props?.timeZone} 
-        viewRef={props.viewRef}
-        $style={props.inputFieldStyle}
-        disabled={props.disabled}
-        value={tempValue?.isValid() ? tempValue : null}
-        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-        {...timePickerComps(props)}
-        hourStep={props.hourStep as hourStepType}
-        minuteStep={props.minuteStep as minuteStepType}
-        secondStep={props.secondStep as secondStepType}
-        placeholder={props.placeholder}
-        onChange={(time) => {
-          handleDateChange(
-            time && time.isValid() ? time.format(TIME_FORMAT) : "",
-            props.value.onChange,
-            props.onEvent
-          );
-        }}
-        onFocus={() => props.onEvent("focus")}
-        onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
+        <TimeUIView
+            handleTimeZoneChange={handleTimeZoneChange}
+            timeZone={props?.timeZone}
+            viewRef={props.viewRef}
+            $style={props.inputFieldStyle}
+            disabled={props.disabled}
+            value={tempValue?.isValid() ? tempValue : null}
+            disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+            {...timePickerComps(props)}
+            hourStep={props.hourStep as hourStepType}
+            minuteStep={props.minuteStep as minuteStepType}
+            secondStep={props.secondStep as secondStepType}
+            placeholder={props.placeholder}
+            onChange={(time) => {
+              handleDateChange(
+                  time && time.isValid() ? time.format(TIME_FORMAT) : "",
+                  props.value.onChange,
+                  props.onEvent
+              );
+            }}
+            onFocus={() => props.onEvent("focus")}
+            onBlur={() => props.onEvent("blur")}
+            suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
     ),
     showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validate(props),
   });
 })
-  .setPropertyViewFn((children) => (
-    <>
-      <Section name={sectionNames.basic}>
-        {children.value.propertyView({
-          label: trans("prop.defaultValue"),
-          tooltip: trans("time.formatTip"),
-        })}
-        {children.timeZone.propertyView({
-            label: trans("prop.timeZone")
-        })}
-      </Section>
+if (viewMode() === "admin") {
+  timePickerControl.setPropertyViewFn((children) => <PropertyViewTimeComp1 {...children}></PropertyViewTimeComp1>);
+}
+const timePickerControlBuilder = timePickerControl
+    .setExposeMethodConfigs(dateRefMethods)
+    .build();
 
-      <FormDataPropertyView {...children} />
-
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-        <><Section name={sectionNames.validation}>
-          {requiredPropertyView(children)}
-          {children.showValidationWhenEmpty.propertyView({
-            label: trans("prop.showEmptyValidation")
-          })}
-          {minTimePropertyView(children)}
-          {maxTimePropertyView(children)}
-          {children.customRule.propertyView({})}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.getPropertyView()}
-          {disabledPropertyView(children)}
-          {hiddenPropertyView(children)}
-        </Section></>
-      )}
-
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <Section name={sectionNames.layout}>
-          {children.format.propertyView({ label: trans("time.format") })}
-          {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
-        </Section>
-      )}
-
-      {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-        <Section name={sectionNames.advanced}>
-          {commonAdvanceSection(children)}
-          {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
-          {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-        </Section>
-      )}
-
-      {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-        <>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.labelStyle}>
-            {children.labelStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.inputFieldStyle}>
-            {children.inputFieldStyle.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      )}
-    </>
-  ))
-  .setExposeMethodConfigs(dateRefMethods)
-  .build();
-
-export const timeRangeControl = (function () {
+export let timeRangeControl = (function () {
   const childrenMap = {
     start: stringExposingStateControl("start"),
     end: stringExposingStateControl("end"),
@@ -279,7 +203,7 @@ export const timeRangeControl = (function () {
     ...commonChildren,
   };
 
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     let start: dayjs.Dayjs | null = null;
     if(props.start.value !== '') {
       start = dayjs(props.start.value, TimeParser);
@@ -305,31 +229,31 @@ export const timeRangeControl = (function () {
     const handleTimeRangeZoneChange = (newTimeZone: any) => {
       props.userRangeTimeZone.onChange(newTimeZone)
     }
-    
+
     const children = (
-      <TimeRangeUIView
-        handleTimeRangeZoneChange={handleTimeRangeZoneChange}
-        timeZone={props?.timeZone} 
-        viewRef={props.viewRef}
-        $style={props.inputFieldStyle}
-        disabled={props.disabled}
-        start={tempStartValue?.isValid() ? tempStartValue : null}
-        end={tempEndValue?.isValid() ? tempEndValue : null}
-        disabledTime={() => disabledTime(props.minTime, props.maxTime)}
-        {...timePickerComps(props)}
-        hourStep={props.hourStep as hourStepType}
-        minuteStep={props.minuteStep as minuteStepType}
-        secondStep={props.secondStep as secondStepType}
-        placeholder={[props.placeholder, props.placeholder]}
-        onChange={(start, end) => {
-          props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
-          props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
-          props.onEvent("change");
-        }}
-        onFocus={() => props.onEvent("focus")}
-        onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
-      />
+        <TimeRangeUIView
+            handleTimeRangeZoneChange={handleTimeRangeZoneChange}
+            timeZone={props?.timeZone}
+            viewRef={props.viewRef}
+            $style={props.inputFieldStyle}
+            disabled={props.disabled}
+            start={tempStartValue?.isValid() ? tempStartValue : null}
+            end={tempEndValue?.isValid() ? tempEndValue : null}
+            disabledTime={() => disabledTime(props.minTime, props.maxTime)}
+            {...timePickerComps(props)}
+            hourStep={props.hourStep as hourStepType}
+            minuteStep={props.minuteStep as minuteStepType}
+            secondStep={props.secondStep as secondStepType}
+            placeholder={[props.placeholder, props.placeholder]}
+            onChange={(start, end) => {
+              props.start.onChange(start && start.isValid() ? start.format(TIME_FORMAT) : "");
+              props.end.onChange(end && end.isValid() ? end.format(TIME_FORMAT) : "");
+              props.onEvent("change");
+            }}
+            onFocus={() => props.onEvent("focus")}
+            onBlur={() => props.onEvent("blur")}
+            suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+        />
     );
 
     const startResult = validate({ ...props, value: props.start });
@@ -345,118 +269,53 @@ export const timeRangeControl = (function () {
       onMouseDown: (e) => e.stopPropagation(),
       showValidationWhenEmpty: props.showValidationWhenEmpty,
       ...(startResult.validateStatus !== "success"
-        ? startResult
-        : endResult.validateStatus !== "success"
-        ? endResult
-        : startResult),
+          ? startResult
+          : endResult.validateStatus !== "success"
+              ? endResult
+              : startResult),
     });
   })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.start.propertyView({
-            label: trans("time.start"),
-            tooltip: trans("time.formatTip"),
-          })}
-          {children.end.propertyView({
-            label: trans("time.end"),
-            tooltip: trans("time.formatTip"),
-          })}
-          {children.timeZone.propertyView({
-            label: trans("prop.timeZone")
-            })}
-        </Section>
-        
-        <FormDataPropertyView {...children} />
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.validation}>
-            {requiredPropertyView(children)}
-            {children.showValidationWhenEmpty.propertyView({
-              label: trans("prop.showEmptyValidation")
-            })}
-            {minTimePropertyView(children)}
-            {maxTimePropertyView(children)}
-            {children.customRule.propertyView({})}
-          </Section>
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {disabledPropertyView(children)}
-            {hiddenPropertyView(children)}
-          </Section></>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.layout}>
-            {children.format.propertyView({ label: trans("time.format") })}
-            {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.advanced}>
-            {commonAdvanceSection(children)}
-            {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
-            {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.labelStyle}>
-              {children.labelStyle.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.inputFieldStyle}>
-              {children.inputFieldStyle.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
-    .build();
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewTimeComp2 {...children}></PropertyViewTimeComp2>);
+  }
+  return builder
+      .build();
 })();
 
 const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
   const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
-  
+
   const dateInTz = dayjs().tz(tz);
   const offset = dateInTz.format('Z');
   const timeZoneName = new Intl.DateTimeFormat('en-US', { timeZone: tz, timeZoneName: 'short' })
-    .formatToParts().find(part => part.type === 'timeZoneName')?.value;
+      .formatToParts().find(part => part.type === 'timeZoneName')?.value;
 
   return { TimeZone: tz, Offset: offset, Name: timeZoneName };
 };
 
-export const TimePickerComp = withExposingConfigs(timePickerControl, [
+export const TimePickerComp = withExposingConfigs(timePickerControlBuilder, [
   new NameConfig("value", trans("export.timePickerValueDesc")),
 
   depsConfig({
     name: "formattedValue",
     desc: trans("export.timePickerFormattedValueDesc"),
-    depKeys: ["value", "format", "timeZone", "userTimeZone"], 
+    depKeys: ["value", "format", "timeZone", "userTimeZone"],
     func: (input) => {
       const mom = Boolean(input.value) ? dayjs(input.value, TimeParser) : null;
-      const tz = input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone; // Get the selected timezone  
-      const timeInTz = mom?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
+      const tz = input.timeZone === 'UserChoice' ? input.userTimeZone : input.timeZone; // Get the selected timezone
+      const timeInTz = mom?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)
       const formattedTimeWithoffset = timeInTz?.format(input?.format);
       return mom?.isValid() ?  (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
-      ? formattedTimeWithoffset  // Return formattedDateWithoffset if format includes 'Z' or is not available
-      : mom.format(input.format) // Otherwise, return mom.format(input.format)
-    : "";   
+              ? formattedTimeWithoffset  // Return formattedDateWithoffset if format includes 'Z' or is not available
+              : mom.format(input.format) // Otherwise, return mom.format(input.format)
+          : "";
     },
   }),
 
   depsConfig({
-    name: "timeZone", 
-    desc: trans("export.timeZoneDesc"), 
-    depKeys: ["timeZone", "userTimeZone"], 
+    name: "timeZone",
+    desc: trans("export.timeZoneDesc"),
+    depKeys: ["timeZone", "userTimeZone"],
     func: (input: { timeZone: any; userTimeZone: any; }) => getTimeZoneInfo(input.timeZone, input.userTimeZone)
   }),
   depsConfig({
@@ -464,10 +323,10 @@ export const TimePickerComp = withExposingConfigs(timePickerControl, [
     desc: trans("export.invalidDesc"),
     depKeys: ["value", "required", "minTime", "maxTime", "customRule"],
     func: (input) =>
-      validate({
-        ...input,
-        value: { value: input.value },
-      } as any).validateStatus !== "success",
+        validate({
+          ...input,
+          value: { value: input.value },
+        } as any).validateStatus !== "success",
   }),
   ...CommonNameConfig,
 ]);
@@ -482,19 +341,19 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     func: (input) => {
       const start = Boolean(input.start) ? dayjs(input.start, TimeParser) : null;
       const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; // Get the selected timezone  
-      const startTimeInTz = start?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)  
-      const endTimeInTz = end?.clone().tz(tz, true); 
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; // Get the selected timezone
+      const startTimeInTz = start?.clone().tz(tz, true); // Apply the selected timezone without altering the time itself (do not convert the time)
+      const endTimeInTz = end?.clone().tz(tz, true);
       return [
         start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))  // Check if format is not available or contains 'Z'
-        ? startTimeInTz?.format(input?.format)  // Return formattedTimeWithoffset if format includes 'Z' or is not available
-        :  start?.format(input.format),
-        end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z')) 
-        ? endTimeInTz?.format(input?.format) 
-        :  end?.format(input.format) ,
+            ? startTimeInTz?.format(input?.format)  // Return formattedTimeWithoffset if format includes 'Z' or is not available
+            :  start?.format(input.format),
+        end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))
+            ? endTimeInTz?.format(input?.format)
+            :  end?.format(input.format) ,
       ]
-        .filter((item) => item)
-        .join(" - ");
+          .filter((item) => item)
+          .join(" - ");
     },
   }),
   depsConfig({
@@ -506,9 +365,9 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
       const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone;
       const startTimeInTz = start?.clone().tz(tz, true);
       const formattedDate = startTimeInTz?.format(input?.format);
-      return start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z')) 
-      ? formattedDate
-      : start?.format(input.format);
+      return start?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))
+          ? formattedDate
+          : start?.format(input.format);
     },
   }),
   depsConfig({
@@ -517,17 +376,17 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     depKeys: ["end", "format", "timeZone", "userRangeTimeZone"],
     func: (input) => {
       const end = Boolean(input.end) ? dayjs(input.end, TimeParser) : null;
-      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone; 
+      const tz = input.timeZone === 'UserChoice' ? input.userRangeTimeZone : input.timeZone;
       const endTimeInTz = end?.clone().tz(tz, true);
       return end?.isValid() && (!input.format || input.format.includes('Z') || input.format.includes('z'))
-      ? endTimeInTz?.format(input?.format)  
-      : end?.format(input.format);
+          ? endTimeInTz?.format(input?.format)
+          : end?.format(input.format);
     },
   }),
   depsConfig({
-    name: "timeZone", 
-    desc: trans("export.timeZoneDesc"), 
-    depKeys: ["timeZone", "userRangeTimeZone"], 
+    name: "timeZone",
+    desc: trans("export.timeZoneDesc"),
+    depKeys: ["timeZone", "userRangeTimeZone"],
     func: (input:any) => getTimeZoneInfo(input.timeZone, input.userRangeTimeZone)
 
   }),
@@ -536,14 +395,14 @@ export let TimeRangeComp = withExposingConfigs(timeRangeControl, [
     desc: trans("export.invalidDesc"),
     depKeys: ["start", "end", "required", "minTime", "maxTime", "customRule"],
     func: (input) =>
-      validate({
-        ...input,
-        value: { value: input.start },
-      }).validateStatus !== "success" ||
-      validate({
-        ...input,
-        value: { value: input.end },
-      }).validateStatus !== "success",
+        validate({
+          ...input,
+          value: { value: input.start },
+        }).validateStatus !== "success" ||
+        validate({
+          ...input,
+          value: { value: input.end },
+        }).validateStatus !== "success",
   }),
   ...CommonNameConfig,
 ]);

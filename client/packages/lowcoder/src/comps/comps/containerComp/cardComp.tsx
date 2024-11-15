@@ -1,6 +1,5 @@
 import ReactResizeDetector from "react-resize-detector";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import { TriContainer } from "../triContainerComp/triContainer";
 import {
   ContainerCompBuilder,
@@ -9,8 +8,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { trans } from "i18n";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
-import { useContext, useEffect, useRef, useState } from "react";
-import { EditorContext } from "comps/editorState";
+import React, { useEffect, useRef, useState } from "react";
 import { Card } from "antd";
 import styled from "styled-components";
 import { AnimationStyle, AnimationStyleType, CardHeaderStyle, CardHeaderStyleType, CardStyle, CardStyleType } from "comps/controls/styleControlConstants";
@@ -22,6 +20,8 @@ import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
+const PropertyViewCardComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewCardComp})))
 const { Meta } = Card;
 
 const Wrapper = styled.div<{
@@ -194,7 +194,7 @@ export const ContainerBaseComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
 
-  return new ContainerCompBuilder(childrenMap, (props) => {    
+  let builder = new ContainerCompBuilder(childrenMap, (props) => {
     props.container.showHeader = false;
     // 注入容器参数
     props.container.style = Object.assign(props.container.style, {
@@ -263,92 +263,10 @@ export const ContainerBaseComp = (function () {
       </ReactResizeDetector>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.basic}>
-                {children.size.propertyView({
-                  label: trans("card.titleSize"),
-                  radioButton: true,
-                })}
-                {children.showTitle.propertyView({ label: trans('card.showTitle') })}
-                {children.showTitle.getView() && children.title.propertyView({ label: trans('card.title') })}
-                {children.showTitle.getView() && children.extraTitle.propertyView({ label: trans('card.extraTitle') })}
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.CoverImg.propertyView({ label: trans('card.CoverImg') })
-                }
-
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.CoverImg.getView() &&
-                  children.imgSrc.propertyView({ label: trans('card.imgSrc') })
-                }
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.CoverImg.getView() &&
-                  children.imgHeight.propertyView({ label: trans('card.imgHeight') })
-                }
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.showMeta.propertyView({ label: trans('card.showMeta') })
-                }
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.showMeta.getView() &&
-                  children.metaTitle.propertyView({ label: trans('card.metaTitle') })
-                }
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.showMeta.getView() &&
-                  children.metaDesc.propertyView({ label: trans('card.metaDesc') })
-                }
-
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.showActionIcon.propertyView({ label: trans('card.showActionIcon') })
-                }
-                {
-                  children.cardType.getView() == 'common' &&
-                  children.showActionIcon.getView() &&
-                  children.actionOptions.propertyView({ title: trans('card.actionOptions') })
-                }
-
-              </Section>
-              <Section name={sectionNames.interaction}>
-                {hiddenPropertyView(children)}
-                {children.onEvent.getPropertyView()}
-              </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.cardType.propertyView({
-                  label: trans("card.cardType"),
-                  radioButton: true,
-                })}
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.headerStyle}>
-                {children.headerStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.bodyStyle}>
-                {children.bodyStyle.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if ((viewModeTriple() === "edit")) {
+    builder.setPropertyViewFn((children) => <PropertyViewCardComp {...children}></PropertyViewCardComp>);
+  }
+  return builder
     .build();
 })();
 

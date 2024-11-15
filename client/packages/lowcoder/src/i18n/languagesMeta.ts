@@ -1,63 +1,48 @@
-import {
-    Flag_de, 
-    Flag_gb, 
-    Flag_it, 
-    Flag_cn,
-    Flag_fr,
-    Flag_ru,
-    Flag_cz,
-    Flag_pl,
-    Flag_es,
-    Flag_vi,
-    Flag_id,
-    Flag_tr,
-    Flag_th,
-    Flag_ar,
-    Flag_pt,
-    Flag_br
-  } from "lowcoder-design";
+
 import { es, ru } from "./locales";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {Flag_br, Flag_cn, Flag_de, Flag_es, Flag_gb, Flag_it, Flag_ru} from "icons";
+
 
 // Define the structure for a single language's metadata
 export interface LanguageMeta {
-    languageName: string;
-    flag: React.FC<React.SVGProps<SVGSVGElement>>;
-  }
-  
-  // Define the structure for the container of all language metadatas
-  export interface LanguagesMetadata {
-    [key: string]: LanguageMeta;
-  }
-  
-  // Example metadata object
-  export const languagesMetadata: LanguagesMetadata = {
+  languageName: string;
+  flag: React.FC<React.SVGProps<SVGSVGElement>>;
+}
+export let languagesMetadata : LanguagesMetadata = {};
+// Define the structure for the container of all language metadatas
+export interface LanguagesMetadata {
+  [key: string]: LanguageMeta;
+}
+export const initlanguageMeta = async () => {
+  languagesMetadata = {
     en: {
       languageName: "English",
-      flag: Flag_gb
+      flag: MultiIcon(Flag_gb)
     },
     zh: {
       languageName: "中文",
-      flag: Flag_cn
+      flag: MultiIcon(Flag_cn)
     },
     de: {
       languageName: "Deutsch",
-      flag: Flag_de
+      flag: MultiIcon(Flag_de)
     },
     pt: {
-        languageName: "Português",
-        flag: Flag_br
+      languageName: "Português",
+      flag: MultiIcon(Flag_br)
     },
     it: {
       languageName: "Italiano",
-      flag: Flag_it
+      flag: MultiIcon(Flag_it)
     },
     es: {
       languageName: "Español",
-      flag: Flag_es
+      flag: MultiIcon(Flag_es)
     },
     ru: {
       languageName: "Русский",
-      flag: Flag_ru
+      flag: MultiIcon(Flag_ru)
     },
   };
-  
+}

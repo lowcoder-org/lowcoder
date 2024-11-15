@@ -1,20 +1,15 @@
 import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { codeControl, TransformerCodeControl } from "comps/controls/codeControl";
-import { EditorContext } from "comps/editorState";
 import { MultiCompBuilder } from "comps/generators";
 import { bottomResListComp } from "comps/generators/bottomResList";
 import { withExposingRaw } from "comps/generators/withExposing";
 import { trans } from "i18n";
 import { fromRecord } from "lowcoder-core";
-import { DocLink } from "lowcoder-design";
-import { BottomTabs } from "pages/editor/bottom/BottomTabs";
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { BottomResComp, BottomResCompResult, BottomResTypeEnum } from "types/bottomRes";
-import { QueryTutorials } from "util/tutorialUtils";
 import { SimpleNameComp } from "./simpleNameComp";
-import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
-import SupaDemoDisplay from "comps/utils/supademoDisplay";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transformerListComp"));
 const TransformerItemCompBase = new MultiCompBuilder(
   {
     name: SimpleNameComp,
@@ -22,56 +17,12 @@ const TransformerItemCompBase = new MultiCompBuilder(
   },
   (props) => props
 )
-  .setPropertyViewFn((children) => {
-    return (
-      <EditorContext.Consumer>
-        {(editorState) => {
-          return (
-            <BottomTabs
-              runButtonText={trans("transformer.preview")}
-              type={BottomResTypeEnum.Transformer}
-              tabsConfig={[
-                {
-                  key: "general",
-                  title: trans("query.generalTab"),
-                  children: (
-                    <div>
-                      {children.script.propertyView({
-                        placement: "bottom",
-                        styleName: "medium",
-                        width: "100%",
-                      })}
-                      {QueryTutorials.transformer && (
-                        <><br/><TacoMarkDown>{trans("transformer.documentationText")}</TacoMarkDown>
-                        <DocLink style={{ marginTop: 8 }} href={QueryTutorials.transformer} title={trans("transformer.documentationText")}>
-                          {trans("transformer.docLink")}
-                        </DocLink><br/><br/>
+if (viewMode() === "admin") {
+  TransformerItemCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+}
+const TransformerItemCompBaseBuilder = TransformerItemCompBase.build();
 
-                        <SupaDemoDisplay
-                          url={trans("supademos.transformer")}
-                          modalWidth="80%"
-                          modalTop="20px"
-                        />
-
-                        </>
-                      )}
-                    </div>
-                  ),
-                },
-              ]}
-              tabTitle={children.name.getView()}
-              onRunBtnClick={() => {
-                editorState.setShowResultCompName(children.name.getView());
-              }}
-            />
-          );
-        }}
-      </EditorContext.Consumer>
-    );
-  })
-  .build();
-
-class TransformerAsBottomRes extends TransformerItemCompBase implements BottomResComp {
+class TransformerAsBottomRes extends TransformerItemCompBaseBuilder implements BottomResComp {
   result(): BottomResCompResult | null {
     const scriptCtrl = this.children.script as InstanceType<ReturnType<typeof codeControl>>;
     const valueAndMsg = scriptCtrl.getValueAndMsg();

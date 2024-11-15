@@ -1,13 +1,7 @@
 import { CompInfo, EditorContext } from "comps/editorState";
 import {
-  BaseSection,
-  CollapseLabel as Label,
-  CollapseTitle as Title,
-  FoldedIcon,
-  LeftCommon,
-  ScrollBar,
-  UnfoldIcon,
-  LeftShow,
+  BaseSection, FoldedIcon, LeftCommon, LeftShow,
+  ScrollBar, UnfoldIcon,
 } from "lowcoder-design";
 import React, { useCallback, useContext, useMemo, useState, useEffect, useRef } from "react";
 import _, { get, set } from "lodash";
@@ -40,6 +34,7 @@ import {
 } from "util/localStorageUtil";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
 import ThemeSettingsSelector from "components/ThemeSettingsSelector";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type DisabledCollisionStatus = "true" | "false"; // "true" means collision is not enabled - Layering works, "false" means collision is enabled - Layering does not work
 export type ToggleCollisionStatus = (collisionStatus?: DisabledCollisionStatus) => void;
@@ -49,7 +44,7 @@ interface LeftLayersContentProps {
 }
 
 const DropdownLeftShow = () => (
-  <LeftShow viewBox="0 0 256 256" /> // Setting custom viewBox
+  <MultiIconDisplay identifier={LeftShow} viewBox="0 0 256 256" /> // Setting custom viewBox
 );
 
 type NodeItem = {
@@ -526,10 +521,10 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           treeData={componentTreeData}
           icon={(props: any) => props.type && (
             <div style={{ margin: '3px 4px 0 -4px'}}> 
-              {CompStateIcon[props.type as UICompType] || <LeftCommon />}
+              {CompStateIcon[props.type as UICompType] || <MultiIconDisplay identifier={LeftCommon} />}
             </div>
           )}
-          switcherIcon={(props: any) => props.expanded ? <FoldedIcon /> : <UnfoldIcon />}
+          switcherIcon={(props: any) => props.expanded ? <MultiIconDisplay identifier={FoldedIcon} /> : <MultiIconDisplay identifier={UnfoldIcon} />}
           expandedKeys={expandedKeys}
           onExpand={(keys) => setExpandedKeys(keys)}
           titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}

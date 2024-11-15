@@ -4,8 +4,7 @@ import {
   PopupCard,
   QueryAlert,
   ScrollBar,
-  TacoButton,
-  UnfoldWhiteIcon,
+  TacoButton, UnfoldWhiteIcon,
 } from "lowcoder-design";
 import React, { ReactNode, useContext, useEffect, useState } from "react";
 import styled from "styled-components";
@@ -16,6 +15,7 @@ import { useSelector } from "react-redux";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { trans } from "i18n";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Span = styled.span<{ $border: boolean }>`
   ${labelCss};
@@ -172,7 +172,7 @@ const ButtonLabel = styled.span`
   text-align: center;
   line-height: 24px;
 `;
-const RunIcon = styled(UnfoldWhiteIcon)`
+const RunIcon = styled(MultiIcon(UnfoldWhiteIcon))`
   transform: rotate(-90deg);
   display: inline-block;
   padding-right: 2px;

@@ -1,4 +1,3 @@
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
@@ -8,8 +7,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
-import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy, useEffect } from "react";  
+import React, { lazy } from "react";
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -17,8 +15,8 @@ import {
   withExposingConfigs,
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
-import { EditorContext } from "comps/editorState";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewJsonLottie =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewJsonLottie})))
 const Player = lazy(
   () => import('@lottiefiles/react-lottie-player')
     .then(module => ({default: module.Player}))
@@ -99,7 +97,7 @@ let JsonLottieTmpComp = (function () {
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return (
       <div
         style={{
@@ -141,39 +139,10 @@ let JsonLottieTmpComp = (function () {
       </div>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.value.propertyView({
-              label: trans("jsonLottie.lottieJson"),
-            })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.interaction}>
-                {children.speed.propertyView({ label: trans("jsonLottie.speed")})}
-                {children.loop.propertyView({ label: trans("jsonLottie.loop")})}
-                {children.animationStart.propertyView({ label: trans("jsonLottie.animationStart")})}
-                 {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
-                {hiddenPropertyView(children)}
-              </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.container.getPropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewJsonLottie {...children}></PropertyViewJsonLottie>);
+  }
+      return builder
     .build();
 })();
 JsonLottieTmpComp = class extends JsonLottieTmpComp {

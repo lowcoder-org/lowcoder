@@ -4,8 +4,7 @@ import {
   BluePlusIcon,
   CustomModal,
   EditPopover,
-  EllipsisTextCss,
-  PointIcon,
+  EllipsisTextCss, PointIcon,
   ScrollBar,
   Search,
   TacoButton,
@@ -21,6 +20,7 @@ import { trans } from "i18n";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const Wrapper = styled.div<{ $readOnly?: boolean }>`
   display: flex;
@@ -45,7 +45,7 @@ const Header = styled.div`
   height: 64px;
 `;
 
-const AddIcon = styled(BluePlusIcon)`
+const AddIcon = styled(MultiIcon(BluePlusIcon))`
   height: 12px;
   width: 12px;
   margin-right: 2px;
@@ -133,7 +133,7 @@ const QueryTime = styled.div`
   line-height: 13px;
 `;
 
-const PopoverIcon = styled(PointIcon)`
+const PopoverIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
 

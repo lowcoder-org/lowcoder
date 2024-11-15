@@ -1,9 +1,10 @@
-import { FunctionComponent, ReactNode } from "react";
+import {FC, FunctionComponent, ReactNode} from "react";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "./utils/nameGenerator";
 import { JSONValue } from "util/jsonTypes";
 import { EditorState } from "./editorState";
 import { trans } from "i18n";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type ExposingMultiCompConstructor = ReturnType<
   typeof withExposingConfigs
@@ -38,12 +39,12 @@ export const uiCompCategoryNames = {
 export type UICompCategory = keyof typeof uiCompCategoryNames;
 
 export interface UICompManifest {
-  name: string;
+  name: string | "";
   enName: string;
   description?: ReactNode;
   categories: readonly UICompCategory[]; // Set to empty to hide from insertion panel
-  keywords: string;
-  icon: FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  keywords: string | "";
+  icon: FunctionComponent<React.SVGProps<SVGSVGElement>> | null;
   comp?: ExposingMultiCompConstructor;
   layoutInfo?: UICompLayoutInfo;
   withoutLoading?: boolean;

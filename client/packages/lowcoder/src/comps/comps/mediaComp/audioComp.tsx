@@ -1,20 +1,19 @@
 import styled from "styled-components";
-import { Section, sectionNames } from "lowcoder-design";
 import { eventHandlerControl } from "../../controls/eventHandlerControl";
 import { StringStateControl } from "../../controls/codeStateControl";
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, AnimationStyleType, AudioStyle, ImageStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, AnimationStyleType, AudioStyle } from "comps/controls/styleControlConstants";
 import { TacoAudio } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewAudioComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewAudioComp})))
 
 const Container = styled.div<{ $style: any; $animationStyle: AnimationStyleType }>`
 ${props => props.$style};
@@ -74,40 +73,13 @@ const childrenMap = {
 };
 
 let AudioBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return <ContainerAudio {...props} />;
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.src.propertyView({
-              label: trans("audio.src"), 
-              tooltip: trans("audio.srcDesc"),
-            })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {children.onEvent.getPropertyView()}
-              {hiddenPropertyView(children)}
-              {children.autoPlay.propertyView({
-                label: trans("audio.autoPlay"),
-              })}
-              {children.loop.propertyView({
-                label: trans("audio.loop"),
-              })}
-            </Section>
-          )}
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      );
-    })
+    if (viewMode() === "admin") {
+        builder.setPropertyViewFn((children) => <PropertyViewAudioComp {...children}></PropertyViewAudioComp>);
+    }
+      return builder
     .setExposeMethodConfigs(mediaMethods())
     .build();
 })();

@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from "react";
 import styled, { css } from "styled-components";
-import { NofileIcon } from "lowcoder-design";
 import { EmptyTab } from "./BottomTabs";
 import { CompNameContext, EditorContext } from "comps/editorState";
 import { BottomSidebar } from "./BottomSidebar";
@@ -14,6 +13,8 @@ import { trans } from "i18n";
 import { getDataSource } from "redux/selectors/datasourceSelectors";
 import { useMetaData } from "util/hooks";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {NofileIcon} from "icons";
 
 const Container = styled.div`
   width: 100%;
@@ -239,7 +240,7 @@ export const EmptyQuery = (
     {EmptyTab}
     <EmptyDiv>
       <PicDiv>
-        <NofileIcon />
+        <MultiIconDisplay identifier={NofileIcon} />
         <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
       </PicDiv>
     </EmptyDiv>
@@ -249,7 +250,7 @@ export const EmptyQuery = (
 export const EmptyQueryWithoutTab = (
   <EmptyDiv>
     <PicDiv>
-      <NofileIcon />
+      <MultiIconDisplay identifier={NofileIcon} />
       <EmptyLabel>{trans("bottomPanel.noSelectedQuery")}</EmptyLabel>
     </PicDiv>
   </EmptyDiv>

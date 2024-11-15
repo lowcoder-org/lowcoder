@@ -24,17 +24,17 @@ import FreeLimitTag from "pages/common/freeLimitTag";
 import history from "util/history";
 import { OAUTH_PROVIDER_DETAIL } from "constants/routesURL";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { default as Badge } from "antd/es/badge";
 import { validateResponse } from "api/apiUtils";
 import { ServerAuthTypeInfo } from "@lowcoder-ee/constants/authConstants";
 import { GeneralLoginIcon } from "assets/icons";
 import { FreeTypes } from "pages/setting/idSource/idSourceConstants";
-import { messageInstance, AddIcon } from "lowcoder-design";
+import {AddIcon, messageInstance} from "lowcoder-design";
 import { currentOrgAdmin } from "../../../util/permissionUtils";
 import CreateModal from "./createModal";
 import { HelpText } from "components/HelpText";
 import { IconControlView } from "@lowcoder-ee/comps/controls/iconControl";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const IdSourceList = (props: any) => {
   const user = useSelector(getUser);
@@ -97,7 +97,7 @@ export const IdSourceList = (props: any) => {
             {currentOrgAdmin(user) && (
               <CreateButton
                 type="primary"
-                icon={<AddIcon />}
+                icon={<MultiIconDisplay identifier={AddIcon} />}
                 onClick={() =>
                   setModalVisible(true)
                 }

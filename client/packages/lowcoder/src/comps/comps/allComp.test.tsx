@@ -1,5 +1,5 @@
 import { QueryMap } from "@lowcoder-ee/constants/queryConstants";
-import { loadComps } from "comps";
+import { loadComps } from "bootstrap/admin";
 import { ColumnComp, RenderComp } from "comps/comps/tableComp/column/tableColumnComp";
 import { InputComp } from "comps/comps/textInputComp/inputComp";
 import { BoolControl } from "comps/controls/boolControl";

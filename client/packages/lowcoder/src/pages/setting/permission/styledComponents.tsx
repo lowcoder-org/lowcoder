@@ -1,16 +1,10 @@
 import { default as Popover } from "antd/es/popover";
 import { default as AntdTable } from "antd/es/table";
 import {
-  CustomModal,
-  LockIcon,
-  ManualIcon,
-  PointIcon,
-  QuestionIcon,
-  SuspensionBox,
-  TacoButton,
-  Tooltip,
-  WarnIcon,
-  WhiteLoading,
+    CustomModal, LockIcon, ManualIcon, PointIcon, QuestionIcon,
+    TacoButton,
+    Tooltip, WarnIcon,
+    WhiteLoading,
 } from "lowcoder-design";
 import styled from "styled-components";
 import React, { useEffect, useState } from "react";
@@ -23,6 +17,7 @@ import { StyledLink } from "pages/common/styledComponent";
 import _ from "lodash";
 import { Avatar, Card, List } from "antd";
 import { fullAvatarUrl } from "util/urlUtils";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export const StyledTable = styled(AntdTable)`
   .ant-table-cell {
@@ -226,17 +221,17 @@ export function GroupNameView(props: {
   return (
     <GroupNameWrapper>
       {props.name}
-      {props.lock && <LockIcon />}
+      {props.lock && <MultiIconDisplay identifier={LockIcon} />}
       {props.toolTip && <QuestionTooltip title={props.toolTip} />}
       {props.suffix}
       {props.warn && (
         <Tooltip title={trans("memberSettings.syncDeleteTip")}>
-          <WarnIcon />
+          <MultiIconDisplay identifier={WarnIcon} />
         </Tooltip>
       )}
       {props.syncGroup && !props.warn && (
         <Tooltip title={trans("memberSettings.syncGroupTip")}>
-          <ManualIcon />
+          <MultiIconDisplay identifier={ManualIcon} />
         </Tooltip>
       )}
     </GroupNameWrapper>
@@ -248,7 +243,7 @@ export const LAST_ADMIN_QUIT = trans("memberSettings.lastAdminQuit");
 export const QuestionTooltip = (props: { title: string }) => {
   return (
     <Tooltip title={props.title}>
-      <QuestionIcon style={{ marginLeft: "2px" }} />
+      <MultiIconDisplay identifier={QuestionIcon} style={{ marginLeft: "2px" }} />
     </Tooltip>
   );
 };
@@ -289,7 +284,7 @@ export const EditBtn = styled(TacoButton)`
   margin-right: 52px;
 `;
 
-export const PopoverIcon = styled(PointIcon)`
+export const PopoverIcon = styled(MultiIcon(PointIcon))`
   cursor: pointer;
   flex-shrink: 0;
 

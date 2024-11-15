@@ -5,14 +5,15 @@ import { isValidColor, isValidGradient, toHex } from "components/colorSelect/col
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
 import { Slider, Switch } from "antd";
-import { 
-  ExpandIcon, 
+import {
+  ExpandIcon,
   CompressIcon,
   BorderRadiusIcon,
   BorderWidthIcon,
   BorderStyleIcon,
   TableCellsIcon,
- } from "lowcoder-design/src/icons";
+} from "lowcoder-design/src/icons";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 export type configChangeParams = {
   themeSettingKey: string;
@@ -110,16 +111,16 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [fontFamily, setFontFamily] = useState(defaultFontFamily);
   const [showComponentLoaders, setComponentLoaders] = useState(defaultShowComponentLoaders);
   const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
-  const [gridColumns, setGridColumns] = useState(defaultGridColumns); 
-  const [gridRowHeight, setGridRowHeight] = useState(defaultGridRowHeight); 
-  const [gridRowCount, setGridRowCount] = useState(defaultGridRowCount); 
-  const [gridPaddingX, setGridPaddingX] = useState(defaultGridPaddingX); 
-  const [gridPaddingY, setGridPaddingY] = useState(defaultGridPaddingY); 
-  const [gridBgImage, setGridBgImage] = useState(defaultGridBgImage); 
-  const [gridBgImageRepeat, setGridBgImageRepeat] = useState(defaultGridBgImageRepeat); 
-  const [gridBgImageSize, setGridBgImageSize] = useState(defaultGridBgImageSize); 
-  const [gridBgImagePosition, setGridBgImagePosition] = useState(defaultGridBgImagePosition); 
-  const [gridBgImageOrigin, setGridBgImageOrigin] = useState(defaultGridBgImageOrigin); 
+  const [gridColumns, setGridColumns] = useState(defaultGridColumns);
+  const [gridRowHeight, setGridRowHeight] = useState(defaultGridRowHeight);
+  const [gridRowCount, setGridRowCount] = useState(defaultGridRowCount);
+  const [gridPaddingX, setGridPaddingX] = useState(defaultGridPaddingX);
+  const [gridPaddingY, setGridPaddingY] = useState(defaultGridPaddingY);
+  const [gridBgImage, setGridBgImage] = useState(defaultGridBgImage);
+  const [gridBgImageRepeat, setGridBgImageRepeat] = useState(defaultGridBgImageRepeat);
+  const [gridBgImageSize, setGridBgImageSize] = useState(defaultGridBgImageSize);
+  const [gridBgImagePosition, setGridBgImagePosition] = useState(defaultGridBgImagePosition);
+  const [gridBgImageOrigin, setGridBgImageOrigin] = useState(defaultGridBgImageOrigin);
 
   const varName = `(${themeSettingKey})`;
 
@@ -239,29 +240,29 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     configChange({ themeSettingKey, gridColumns: result });
   };
 
-  const gridRowCountInputBlur = (value: string) => {  
+  const gridRowCountInputBlur = (value: string) => {
     let result = Infinity;
     if (value !== '') {
       result = Number(value);
     }
 
-    setGridRowCount(result);  
+    setGridRowCount(result);
     configChange({ themeSettingKey, gridRowCount: result });
   };
 
-  const gridPaddingInputBlur = (padding: string) => { 
-    let result = 20;  
-    if (padding !== '') {  
-      result = Number(padding);  
+  const gridPaddingInputBlur = (padding: string) => {
+    let result = 20;
+    if (padding !== '') {
+      result = Number(padding);
     }
 
     if (themeSettingKey === 'gridPaddingX') {
-      setGridPaddingX(result);  
+      setGridPaddingX(result);
       configChange({ themeSettingKey, gridPaddingX: result });
       return;
     }
     if (themeSettingKey === 'gridPaddingY') {
-      setGridPaddingY(result);  
+      setGridPaddingY(result);
       configChange({ themeSettingKey, gridPaddingY: result });
       return;
     }
@@ -369,7 +370,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       
       {themeSettingKey !== "radius" &&  
         themeSettingKey !== "margin" &&  
-        themeSettingKey !== "padding" && 
+        themeSettingKey !== "padding" &&
         themeSettingKey !== "borderStyle" &&
         themeSettingKey !== "borderWidth" &&
         themeSettingKey !== "fontFamily" && 
@@ -425,7 +426,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <Radius $radius={defaultRadius || "0"}>
             <div>
-              <BorderRadiusIcon style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderRadiusIcon} style={{width: "16px", margin: "-2px 0 2px -2px", padding: "0px"}}/>
             </div>
           </Radius>
           <TacoInput
@@ -440,7 +441,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderStyle $borderStyle={defaultBorderStyle || "solid"}>
             <div>
-              <BorderStyleIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderStyleIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderStyle>
           <TacoInput
@@ -455,7 +456,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">
           <BorderWidth $borderWidth={defaultBorderWidth || "1px"}>
             <div>
-              <BorderWidthIcon style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
+              <MultiIconDisplay identifier={BorderWidthIcon} style={{width: "16px", margin: "2px 0 0 2px", padding: "0px"}}/>
             </div>
           </BorderWidth>
           <TacoInput
@@ -471,7 +472,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Margin $margin={defaultMargin || "4px"}>  
             <div>  
-              <ExpandIcon title="" />  
+              <MultiIconDisplay identifier={ExpandIcon} title="" />
             </div>  
           </Margin>  
           <TacoInput  
@@ -490,7 +491,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         <div className="config-input">  
           <Padding $padding={defaultPadding || "4px"}>  
             <div>  
-              <CompressIcon title="" />
+              <MultiIconDisplay identifier={CompressIcon} title="" />
             </div>  
           </Padding>  
           <TacoInput  
@@ -554,10 +555,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridColumns" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
-          <Slider 
+          <Slider
             style={{ width: "90%", margin: "8px 5% 0 5%"}}
             min={8}  // Define the minimum value for the slider
             max={48} // Define the maximum value for the slider
@@ -571,10 +572,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridRowHeight" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
-          <Slider 
+          <Slider
             style={{ width: "90%", margin: "8px 5% 0 5%"}}
             min={4}  // Define the minimum value for the slider
             max={100} // Define the maximum value for the slider
@@ -588,7 +589,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridRowCount" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
-            <div><TableCellsIcon title="" /></div>
+            <div><TableCellsIcon identifier={CompressIcon} title="" /></div>
           </GridColumns>
 
           <TacoInput
@@ -597,7 +598,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             value={gridRowCount}
             onChange={(e) => {
               if (e.target.value === '') {
-                return setGridRowCount(Infinity);  
+                return setGridRowCount(Infinity);
               }
               setGridRowCount(Number(e.target.value))
             }}
@@ -613,7 +614,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridPaddingX" && (
         <div className="config-input">
           <Padding $padding={"3px"}>
-            <div><CompressIcon title="" /></div>
+            <div><MultiIconDisplay identifier={CompressIcon} title="" /></div>
           </Padding>
           <TacoInput
             type="number"
@@ -621,7 +622,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             value={gridPaddingX}
             onChange={(e) => {
               if (e.target.value === '') {
-                return setGridPaddingX(undefined);  
+                return setGridPaddingX(undefined);
               }
               setGridPaddingX(Number(e.target.value))
             }}
@@ -637,7 +638,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
       {themeSettingKey === "gridPaddingY" && (
         <div className="config-input">
           <Padding $padding={"3px"}>
-            <div><CompressIcon title="" /></div>
+            <div><MultiIconDisplay identifier={CompressIcon} title="" /></div>
           </Padding>
           <TacoInput
             type="number"
@@ -645,7 +646,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
             value={gridPaddingY}
             onChange={(e) => {
               if (e.target.value === '') {
-                return setGridPaddingY(undefined); 
+                return setGridPaddingY(undefined);
               }
               setGridPaddingY(Number(e.target.value))
             }}

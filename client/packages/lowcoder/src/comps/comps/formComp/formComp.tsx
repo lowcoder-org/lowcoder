@@ -4,7 +4,6 @@ import {
   NameConfig,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import { genQueryId } from "comps/utils/idGenerator";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
@@ -25,7 +24,7 @@ import { NameGenerator } from "comps/utils";
 import _ from "lodash";
 import { CreateData, CreateForm } from "./createForm";
 import { defaultLayout, GridItemComp } from "../gridItemComp";
-import { ReactNode, useContext } from "react";
+import React, { ReactNode, useContext } from "react";
 import { pushAction } from "comps/generators/list";
 import { FullColumnInfo } from "./generate/dataSourceCommon";
 import { eventHandlerControl, submitEvent } from "comps/controls/eventHandlerControl";
@@ -47,11 +46,6 @@ import { BoolCodeControl, JSONObjectControl } from "comps/controls/codeControl";
 import { JSONObject } from "util/jsonTypes";
 import { EvalParamType } from "comps/controls/actionSelector/executeCompTypes";
 import { LayoutItem } from "layout/utils";
-import {
-  disabledPropertyView,
-  hiddenPropertyView,
-  loadingPropertyView,
-} from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
@@ -60,6 +54,8 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { styled } from "styled-components";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import {viewMode, viewModeTriple} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -183,7 +179,7 @@ const BodyPlaceholder = (props: FormProps) => {
 const loadingIcon = <LoadingOutlined spin />;
 
 const FormBaseComp = (function () {
-  return new ContainerCompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new ContainerCompBuilder(childrenMap, (props, dispatch) => {
     return (
       <DisabledContext.Provider value={props.disabled}>
         <FormWrapper>
@@ -201,67 +197,10 @@ const FormBaseComp = (function () {
       </DisabledContext.Provider>
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.resetAfterSubmit.propertyView({ label: trans("formComp.resetAfterSubmit") })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <><Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {disabledPropertyView(children)}
-                {children.disableSubmit.propertyView({ label: trans("formComp.disableSubmit") })}
-                {hiddenPropertyView(children)}
-                {loadingPropertyView(children)}
-              </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.layout}>
-                {children.container.getPropertyView()}
-              </Section>
-            </>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.advanced}>
-              {children.initialData.propertyView({ label: trans("formComp.initialData") })}
-            </Section>
-          )}
-
-          {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-            <>
-              <Section name={sectionNames.style}>
-                {children.container.stylePropertyView()}
-              </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section>
-              {children.container.children.showHeader.getView() && (
-                <Section name={"Header Style"}>
-                  { children.container.headerStylePropertyView() }
-                </Section>
-              )}
-              {children.container.children.showBody.getView() && (
-                <Section name={"Body Style"}>
-                  { children.container.bodyStylePropertyView() }
-                </Section>
-              )}
-              {children.container.children.showFooter.getView() && (
-                <Section name={"Footer Style"}>
-                  { children.container.footerStylePropertyView() }
-                </Section>
-              )}
-            </>
-          )}
-          
-        </>
-      );
-    })
+    if ((viewModeTriple() === "edit")) {
+      builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+    }
+      return builder
     .build();
 })();
 

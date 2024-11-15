@@ -74,7 +74,7 @@ import { AutoCompleteComp } from "./comps/autoCompleteComp/autoCompleteComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { ResponsiveLayoutComp } from "./comps/responsiveLayout";
 import { ControlButton } from "./comps/meetingComp/controlButton";
-
+import { MultiIcon } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 import {
   AudioCompIcon,
   ButtonCompIcon,
@@ -158,7 +158,7 @@ var uiCompMap: Registry = {
     enName: "Chart",
     description: trans("uiComp.chartCompDesc"),
     categories: ["dashboards"],
-    icon: ChartCompIcon,
+    icon: MultiIcon(ChartCompIcon),
     comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
     keywords: trans("uiComp.chartCompKeywords"),
     layoutInfo: {
@@ -171,7 +171,7 @@ var uiCompMap: Registry = {
     enName: "Sharing",
     description: trans("meeting.sharingCompName"),
     categories: ["collaboration"],
-    icon: VideoCompIcon,
+    icon: MultiIcon(VideoCompIcon),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoSharingStreamComp,
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingSharing" }),
@@ -186,7 +186,7 @@ var uiCompMap: Registry = {
     enName: "Video",
     description: trans("meeting.videoCompName"),
     categories: ["collaboration"],
-    icon: VideoCompIcon,
+    icon: MultiIcon(VideoCompIcon),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoMeetingStreamComp,
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingStream" }),
@@ -202,7 +202,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "meetingController" }),
     description: trans("meeting.meetingCompDesc"),
     categories: ["collaboration"],
-    icon: DrawerCompIcon,
+    icon: MultiIcon(DrawerCompIcon),
     keywords: trans("meeting.meetingCompKeywords"),
     // comp: VideoMeetingControllerComp,
     withoutLoading: true,
@@ -213,7 +213,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "mermaid" }),
     description: trans("uiComp.mermaidCompDesc"),
     categories: ["dashboards"],
-    icon: MermaidCompIcon,
+    icon: MultiIcon(MermaidCompIcon),
     keywords: trans("uiComp.mermaidCompKeywords"),
     layoutInfo: {
       w: 12,
@@ -225,7 +225,7 @@ var uiCompMap: Registry = {
     enName: "timeline",
     description: trans("uiComp.timelineCompDesc"),
     categories: ["dashboards"],
-    icon: TimeLineCompIcon,
+    icon: MultiIcon(TimeLineCompIcon),
     keywords: trans("uiComp.timelineCompKeywords"),
     comp: TimeLineComp,
     layoutInfo: {
@@ -238,7 +238,7 @@ var uiCompMap: Registry = {
     enName: "Table",
     description: trans("uiComp.tableCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon: TableCompIcon,
+    icon:MultiIcon(TableCompIcon),
     keywords: trans("uiComp.tableCompKeywords"),
     comp: TableComp,
     layoutInfo: {
@@ -253,7 +253,7 @@ var uiCompMap: Registry = {
     enName: "Slider",
     description: trans("uiComp.sliderCompDesc"),
     categories: ["dashboards"],
-    icon: SliderCompIcon,
+    icon: MultiIcon(SliderCompIcon),
     keywords: trans("uiComp.sliderCompKeywords"),
     comp: SliderComp,
     layoutInfo: {
@@ -266,7 +266,7 @@ var uiCompMap: Registry = {
     enName: "Range Slider",
     description: trans("uiComp.rangeSliderCompDesc"),
     categories: ["dashboards"],
-    icon: RangeSliderCompIcon,
+    icon: MultiIcon(RangeSliderCompIcon),
     keywords: trans("uiComp.rangeSliderCompKeywords"),
     comp: RangeSliderComp,
     layoutInfo: {
@@ -282,7 +282,7 @@ var uiCompMap: Registry = {
     enName: "Responsive Layout",
     description: trans("uiComp.responsiveLayoutCompDesc"),
     categories: ["layout"],
-    icon: ResponsiveLayoutCompIcon,
+    icon: MultiIcon(ResponsiveLayoutCompIcon),
     keywords: trans("uiComp.responsiveLayoutCompKeywords"),
     comp: ResponsiveLayoutComp,
     withoutLoading: true,
@@ -297,7 +297,7 @@ var uiCompMap: Registry = {
     enName: "Container",
     description: trans("uiComp.containerCompDesc"),
     categories: ["layout"],
-    icon: ContainerCompIcon,
+    icon: MultiIcon(ContainerCompIcon),
     keywords: trans("uiComp.containerCompKeywords"),
     comp: ContainerComp,
     withoutLoading: true,
@@ -314,7 +314,7 @@ var uiCompMap: Registry = {
     enName: "Tabbed Container",
     description: trans("uiComp.tabbedContainerCompDesc"),
     categories: ["layout"],
-    icon: TabbedContainerCompIcon,
+    icon: MultiIcon(TabbedContainerCompIcon),
     keywords: trans("uiComp.tabbedContainerCompKeywords"),
     comp: TabbedContainerComp,
     withoutLoading: true,
@@ -330,7 +330,7 @@ var uiCompMap: Registry = {
     enName: "Collapsible Container",
     description: trans("uiComp.collapsibleContainerCompDesc"),
     categories: ["layout"],
-    icon: CollapsibleContainerCompIcon,
+    icon: MultiIcon(CollapsibleContainerCompIcon),
     keywords: trans("uiComp.collapsibleContainerCompKeywords"),
     comp: ContainerComp,
     withoutLoading: true,
@@ -345,7 +345,7 @@ var uiCompMap: Registry = {
   listView: {
     name: trans("uiComp.listViewCompName"),
     enName: "List View",
-    icon: ListViewCompIcon,
+    icon: MultiIcon(ListViewCompIcon),
     description: trans("uiComp.listViewCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.listViewCompKeywords"),
@@ -360,7 +360,7 @@ var uiCompMap: Registry = {
   grid: {
     name: trans("uiComp.gridCompName"),
     enName: "Grid",
-    icon: GridCompIcon,
+    icon: MultiIcon(GridCompIcon),
     description: trans("uiComp.gridCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.gridCompKeywords"),
@@ -375,7 +375,7 @@ var uiCompMap: Registry = {
   modal: {
     name: trans("uiComp.modalCompName"),
     enName: "Modal",
-    icon: ModalCompIcon,
+    icon: MultiIcon(ModalCompIcon),
     description: trans("uiComp.modalCompDesc"),
     categories: ["layout"],
     keywords: trans("uiComp.modalCompKeywords"),
@@ -387,7 +387,7 @@ var uiCompMap: Registry = {
     enName: "Drawer",
     description: trans("uiComp.drawerCompDesc"),
     categories: ["layout"],
-    icon: DrawerCompIcon,
+    icon: MultiIcon(DrawerCompIcon),
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: DrawerComp,
     withoutLoading: true,
@@ -396,7 +396,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.navigationCompName"),
     enName: "Navigation",
     description: trans("uiComp.navigationCompDesc"),
-    icon: NavComIcon,
+    icon: MultiIcon(NavComIcon),
     categories: ["layout"],
     keywords: trans("uiComp.navigationCompKeywords"),
     comp: NavComp,
@@ -410,7 +410,7 @@ var uiCompMap: Registry = {
     enName: "Cascader",
     description: trans("uiComp.cascaderCompDesc"),
     categories: ["layout"],
-    icon: CascaderCompIcon,
+    icon: MultiIcon(CascaderCompIcon),
     keywords: trans("uiComp.cascaderCompKeywords"),
     comp: CascaderWithDefault,
     layoutInfo: {
@@ -423,7 +423,7 @@ var uiCompMap: Registry = {
     enName: "Link",
     description: trans("uiComp.linkCompDesc"),
     categories: ["layout"],
-    icon: LinkCompIcon,
+    icon: MultiIcon(LinkCompIcon),
     keywords: trans("uiComp.linkCompKeywords"),
     comp: LinkComp,
     layoutInfo: {
@@ -436,7 +436,7 @@ var uiCompMap: Registry = {
     enName: "Divider",
     description: trans("uiComp.dividerCompDesc"),
     categories: ["layout"],
-    icon: DividerCompIcon,
+    icon: MultiIcon(DividerCompIcon),
     keywords: trans("uiComp.dividerCompKeywords"),
     comp: DividerComp,
     layoutInfo: {
@@ -452,7 +452,7 @@ var uiCompMap: Registry = {
     enName: "Calendar",
     description: trans("uiComp.calendarCompDesc"),
     categories: ["scheduling", "projectmanagement"],
-    icon: CalendarCompIcon,
+    icon: MultiIcon(CalendarCompIcon),
     keywords: trans("uiComp.calendarCompKeywords"),
     comp: remoteComp({ ...builtInRemoteComps, compName: "calendar" }),
     layoutInfo: {
@@ -468,7 +468,7 @@ var uiCompMap: Registry = {
   //   enName: "Sharing",
   //   description: trans("meeting.sharingCompName"),
   //   categories: ["collaboration"],
-  //   icon: VideoCompIcon,
+  //   icon: MultiIcon(VideoCompIcon),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoSharingStreamComp,
   //   withoutLoading: true,
@@ -482,7 +482,7 @@ var uiCompMap: Registry = {
   //   enName: "Video",
   //   description: trans("meeting.videoCompName"),
   //   categories: ["collaboration"],
-  //   icon: VideoCompIcon,
+  //   icon: MultiIcon(VideoCompIcon),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoMeetingStreamComp,
   //   withoutLoading: true,
@@ -496,7 +496,7 @@ var uiCompMap: Registry = {
   //   enName: "Drawer",
   //   description: trans("meeting.meetingCompDesc"),
   //   categories: ["collaboration"],
-  //   icon: DrawerCompIcon,
+  //   icon: MultiIcon(DrawerCompIcon),
   //   keywords: trans("meeting.meetingCompKeywords"),
   //   comp: VideoMeetingControllerComp,
   //   withoutLoading: true,
@@ -506,7 +506,7 @@ var uiCompMap: Registry = {
     enName: "comment",
     description: trans("uiComp.commentCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: CommentCompIcon,
+    icon: MultiIcon(CommentCompIcon),
     keywords: trans("uiComp.commentCompKeywords"),
     comp: CommentComp,
     layoutInfo: {
@@ -519,7 +519,7 @@ var uiCompMap: Registry = {
     enName: "mention",
     description: trans("uiComp.mentionCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: MentionCompIcon,
+    icon: MultiIcon(MentionCompIcon),
     keywords: trans("uiComp.mentionCompKeywords"),
     comp: MentionComp,
   },
@@ -531,7 +531,7 @@ var uiCompMap: Registry = {
     enName: "Form",
     description: trans("uiComp.formCompDesc"),
     categories: ["forms"],
-    icon: FormCompIcon,
+    icon: MultiIcon(FormCompIcon),
     keywords: trans("uiComp.formCompKeywords"),
     comp: FormComp,
     withoutLoading: true,
@@ -548,7 +548,7 @@ var uiCompMap: Registry = {
     enName: "JSON Schema Form",
     description: trans("uiComp.jsonSchemaFormCompDesc"),
     categories: ["forms"],
-    icon: JsonFormCompIcon,
+    icon: MultiIcon(JsonFormCompIcon),
     keywords: trans("uiComp.jsonSchemaFormCompKeywords"),
     comp: JsonSchemaFormComp,
     layoutInfo: {
@@ -561,7 +561,7 @@ var uiCompMap: Registry = {
     enName: "JSON Editor",
     description: trans("uiComp.jsonEditorCompDesc"),
     categories: ["forms"],
-    icon: JsonEditorCompIcon,
+    icon: MultiIcon(JsonEditorCompIcon),
     keywords: trans("uiComp.jsonEditorCompKeywords"),
     comp: JsonEditorComp,
     layoutInfo: {
@@ -574,7 +574,7 @@ var uiCompMap: Registry = {
     enName: "JSON Explorer",
     description: trans("uiComp.jsonExplorerCompDesc"),
     categories: ["forms"],
-    icon: JsonExplorerCompIcon,
+    icon: MultiIcon(JsonExplorerCompIcon),
     keywords: trans("uiComp.jsonExplorerCompKeywords"),
     comp: JsonExplorerComp,
     layoutInfo: {
@@ -587,7 +587,7 @@ var uiCompMap: Registry = {
     enName: "Rich Text Editor",
     categories: ["forms"],
     description: trans("uiComp.richTextEditorCompDesc"),
-    icon: RichTextEditorCompIcon,
+    icon: MultiIcon(RichTextEditorCompIcon),
     keywords: trans("uiComp.richTextEditorCompKeywords"),
     comp: RichTextEditorComp,
     layoutInfo: {
@@ -600,7 +600,7 @@ var uiCompMap: Registry = {
     enName: "Input",
     description: trans("uiComp.inputCompDesc"),
     categories: ["forms"],
-    icon: InputCompIcon,
+    icon: MultiIcon(InputCompIcon),
     keywords: trans("uiComp.inputCompKeywords"),
     comp: InputComp,
     layoutInfo: {
@@ -613,7 +613,7 @@ var uiCompMap: Registry = {
     enName: "Password",
     description: trans("uiComp.passwordCompDesc"),
     categories: ["forms"],
-    icon: PasswordCompIcon,
+    icon: MultiIcon(PasswordCompIcon),
     keywords: trans("uiComp.passwordCompKeywords"),
     comp: PasswordComp,
     layoutInfo: {
@@ -626,7 +626,7 @@ var uiCompMap: Registry = {
     enName: "Number Input",
     description: trans("uiComp.numberInputCompDesc"),
     categories: ["forms"],
-    icon: NumberInputCompIcon,
+    icon: MultiIcon(NumberInputCompIcon),
     keywords: trans("uiComp.numberInputCompKeywords"),
     comp: NumberInputComp,
     layoutInfo: {
@@ -639,7 +639,7 @@ var uiCompMap: Registry = {
     enName: "Text Area",
     description: trans("uiComp.textAreaCompDesc"),
     categories: ["forms"],
-    icon: TextAreaCompIcon,
+    icon: MultiIcon(TextAreaCompIcon),
     keywords: trans("uiComp.textAreaCompKeywords"),
     comp: TextAreaComp,
     layoutInfo: {
@@ -652,7 +652,7 @@ var uiCompMap: Registry = {
     enName: "Switch",
     description: trans("uiComp.switchCompDesc"),
     categories: ["forms"],
-    icon: SwitchCompIcon,
+    icon: MultiIcon(SwitchCompIcon),
     keywords: trans("uiComp.switchCompKeywords"),
     comp: SwitchComp,
     layoutInfo: {
@@ -665,7 +665,7 @@ var uiCompMap: Registry = {
     enName: "Checkbox",
     description: trans("uiComp.checkboxCompDesc"),
     categories: ["forms"],
-    icon: CheckboxCompIcon,
+    icon: MultiIcon(CheckboxCompIcon),
     keywords: trans("uiComp.checkboxCompKeywords"),
     comp: CheckboxComp,
     layoutInfo: {
@@ -678,7 +678,7 @@ var uiCompMap: Registry = {
     enName: "Radio",
     description: trans("uiComp.radioCompDesc"),
     categories: ["forms"],
-    icon: RadioCompIcon,
+    icon: MultiIcon(RadioCompIcon),
     keywords: trans("uiComp.radioCompKeywords"),
     comp: RadioComp,
     layoutInfo: {
@@ -691,7 +691,7 @@ var uiCompMap: Registry = {
     enName: "Date",
     description: trans("uiComp.dateCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: DateCompIcon,
+    icon: MultiIcon(DateCompIcon),
     keywords: trans("uiComp.dateCompKeywords"),
     comp: DatePickerComp,
     layoutInfo: {
@@ -704,7 +704,7 @@ var uiCompMap: Registry = {
     enName: "Date Range",
     description: trans("uiComp.dateRangeCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: DateRangeCompIcon,
+    icon: MultiIcon(DateRangeCompIcon),
     keywords: trans("uiComp.dateRangeCompKeywords"),
     comp: DateRangeComp,
     layoutInfo: {
@@ -717,7 +717,7 @@ var uiCompMap: Registry = {
     enName: "Time",
     description: trans("uiComp.timeCompDesc"),
     categories: ["forms", "scheduling"],
-    icon: TimeCompIcon,
+    icon: MultiIcon(TimeCompIcon),
     keywords: trans("uiComp.timeCompKeywords"),
     comp: TimePickerComp,
     layoutInfo: {
@@ -730,7 +730,7 @@ var uiCompMap: Registry = {
     enName: "Time Range",
     categories: ["forms", "scheduling"],
     description: trans("uiComp.timeRangeCompDesc"),
-    icon: TimeRangeCompIcon,
+    icon: MultiIcon(TimeRangeCompIcon),
     keywords: trans("uiComp.timeRangeCompKeywords"),
     comp: TimeRangeComp,
     layoutInfo: {
@@ -743,7 +743,7 @@ var uiCompMap: Registry = {
     enName: "Button",
     description: trans("uiComp.buttonCompDesc"),
     categories: ["forms"],
-    icon: ButtonCompIcon,
+    icon: MultiIcon(ButtonCompIcon),
     keywords: trans("uiComp.buttonCompKeywords"),
     comp: ButtonComp,
     layoutInfo: {
@@ -757,7 +757,7 @@ var uiCompMap: Registry = {
     enName: "Controls",
     description: trans("meeting.meetingCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: ButtonCompIcon,
+    icon: MultiIcon(ButtonCompIcon),
     keywords: trans("meeting.meetingCompKeywords"),
     comp: ControlButton,
     withoutLoading: true,
@@ -771,7 +771,7 @@ var uiCompMap: Registry = {
     enName: "Dropdown",
     description: trans("uiComp.dropdownCompDesc"),
     categories: ["forms"],
-    icon: DropdownCompIcon,
+    icon: MultiIcon(DropdownCompIcon),
     keywords: trans("uiComp.dropdownCompKeywords"),
     comp: DropdownComp,
     layoutInfo: {
@@ -784,7 +784,7 @@ var uiCompMap: Registry = {
     enName: "Toggle Button",
     description: trans("uiComp.toggleButtonCompDesc"),
     categories: ["forms"],
-    icon: ToggleButtonCompIcon,
+    icon: MultiIcon(ToggleButtonCompIcon),
     keywords: trans("uiComp.toggleButtonCompKeywords"),
     comp: ToggleButtonComp,
     layoutInfo: {
@@ -797,7 +797,7 @@ var uiCompMap: Registry = {
     enName: "Segmented Control",
     description: trans("uiComp.segmentedControlCompDesc"),
     categories: ["forms"],
-    icon: SegmentedCompIcon,
+    icon: MultiIcon(SegmentedCompIcon),
     keywords: trans("uiComp.segmentedControlCompKeywords"),
     comp: SegmentedControlComp,
     layoutInfo: {
@@ -810,7 +810,7 @@ var uiCompMap: Registry = {
     enName: "Rating",
     description: trans("uiComp.ratingCompDesc"),
     categories: ["forms"],
-    icon: RatingCompIcon,
+    icon: MultiIcon(RatingCompIcon),
     keywords: trans("uiComp.ratingCompKeywords"),
     comp: RatingComp,
     layoutInfo: {
@@ -823,10 +823,10 @@ var uiCompMap: Registry = {
     enName: "autoComplete",
     description: trans("uiComp.autoCompleteCompDesc"),
     categories: ["forms", "collaboration"],
-    icon: AutoCompleteCompIcon,
+    icon: MultiIcon(AutoCompleteCompIcon),
     keywords: cnchar
-      .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
-      .toString(),
+        .spell(trans("uiComp.autoCompleteCompName"), "first", "low")
+        .toString(),
     comp: AutoCompleteComp,
     layoutInfo: {
       w: 6,
@@ -841,7 +841,7 @@ var uiCompMap: Registry = {
     enName: "Progress",
     description: trans("uiComp.progressCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon: ProgressCompIcon,
+    icon: MultiIcon(ProgressCompIcon),
     keywords: trans("uiComp.progressCompKeywords"),
     comp: ProgressComp,
     layoutInfo: {
@@ -854,7 +854,7 @@ var uiCompMap: Registry = {
     enName: "Process Circle",
     description: trans("uiComp.progressCircleCompDesc"),
     categories: ["dashboards", "projectmanagement"],
-    icon: ProcessCircleCompIcon,
+    icon: MultiIcon(ProcessCircleCompIcon),
     keywords: trans("uiComp.progressCircleCompKeywords"),
     comp: ProgressCircleComp,
     layoutInfo: {
@@ -870,7 +870,7 @@ var uiCompMap: Registry = {
     enName: "File Upload",
     description: trans("uiComp.fileUploadCompDesc"),
     categories: ["documents"],
-    icon: UploadCompIcon,
+    icon: MultiIcon(UploadCompIcon),
     keywords: trans("uiComp.fileUploadCompKeywords"),
     comp: FileComp,
     layoutInfo: {
@@ -883,7 +883,7 @@ var uiCompMap: Registry = {
     enName: "File Viewer",
     description: trans("uiComp.fileViewerCompDesc"),
     categories: ["documents"],
-    icon: FileViewerCompIcon,
+    icon: MultiIcon(FileViewerCompIcon),
     keywords: trans("uiComp.fileViewerCompKeywords"),
     comp: FileViewerComp,
     layoutInfo: {
@@ -899,7 +899,7 @@ var uiCompMap: Registry = {
     enName: "Image",
     description: trans("uiComp.imageCompDesc"),
     categories: ["multimedia"],
-    icon: ImageCompIcon,
+    icon: MultiIcon(ImageCompIcon),
     keywords: trans("uiComp.imageCompKeywords"),
     comp: ImageComp,
     layoutInfo: {
@@ -912,7 +912,7 @@ var uiCompMap: Registry = {
     enName: "Carousel",
     description: trans("uiComp.carouselCompDesc"),
     categories: ["multimedia"],
-    icon: CarouselCompIcon,
+    icon: MultiIcon(CarouselCompIcon),
     keywords: trans("uiComp.drawerCompKeywords"),
     comp: CarouselComp,
     withoutLoading: true,
@@ -926,7 +926,7 @@ var uiCompMap: Registry = {
     enName: "Audio",
     description: trans("uiComp.audioCompDesc"),
     categories: ["multimedia"],
-    icon: AudioCompIcon,
+    icon: MultiIcon(AudioCompIcon),
     keywords: trans("uiComp.audioCompKeywords"),
     comp: AudioComp,
     layoutInfo: {
@@ -939,7 +939,7 @@ var uiCompMap: Registry = {
     enName: "Video",
     description: trans("uiComp.videoCompDesc"),
     categories: ["multimedia"],
-    icon: VideoCompIcon,
+    icon: MultiIcon(VideoCompIcon),
     keywords: trans("uiComp.videoCompKeywords"),
     comp: VideoComp,
     layoutInfo: {
@@ -952,7 +952,7 @@ var uiCompMap: Registry = {
     enName: "Lottie Animation",
     description: trans("uiComp.jsonLottieCompDesc"),
     categories: ["multimedia"],
-    icon: LottieAnimationCompIcon,
+    icon: MultiIcon(LottieAnimationCompIcon),
     keywords: trans("uiComp.jsonLottieCompKeywords"),
     comp: JsonLottieComp,
     layoutInfo: {
@@ -966,7 +966,7 @@ var uiCompMap: Registry = {
     comp: remoteComp({ ...builtInRemoteComps, compName: "imageEditor" }),
     description: trans("uiComp.imageEditorCompDesc"),
     categories: ["multimedia"],
-    icon: ImageEditorCompIcon,
+    icon: MultiIcon(ImageEditorCompIcon),
     keywords: trans("uiComp.imageEditorCompKeywords"),
     layoutInfo: {
       w: 12,
@@ -981,7 +981,7 @@ var uiCompMap: Registry = {
     enName: "QR Code",
     description: trans("uiComp.qrCodeCompDesc"),
     categories: ["itemHandling", "documents"],
-    icon: QRCodeCompIcon,
+    icon: MultiIcon(QRCodeCompIcon),
     keywords: trans("uiComp.qrCodeCompKeywords"),
     comp: QRCodeComp,
     layoutInfo: {
@@ -994,7 +994,7 @@ var uiCompMap: Registry = {
     enName: "Scanner",
     description: trans("uiComp.scannerCompDesc"),
     categories: ["itemHandling"],
-    icon: ScannerCompIcon,
+    icon: MultiIcon(ScannerCompIcon),
     keywords: trans("uiComp.scannerCompKeywords"),
     comp: ScannerComp,
     layoutInfo: {
@@ -1007,7 +1007,7 @@ var uiCompMap: Registry = {
     enName: "Signature",
     description: trans("uiComp.signatureCompDesc"),
     categories: ["itemHandling"],
-    icon: SignatureCompIcon,
+    icon: MultiIcon(SignatureCompIcon),
     keywords: trans("uiComp.signatureCompKeywords"),
     comp: SignatureComp,
     layoutInfo: {
@@ -1020,7 +1020,7 @@ var uiCompMap: Registry = {
     enName: "Select",
     description: trans("uiComp.selectCompDesc"),
     categories: ["forms", "itemHandling"],
-    icon: SelectCompIcon,
+    icon: MultiIcon(SelectCompIcon),
     keywords: trans("uiComp.selectCompKeywords"),
     comp: SelectComp,
     layoutInfo: {
@@ -1033,7 +1033,7 @@ var uiCompMap: Registry = {
     enName: "Multiselect",
     description: trans("uiComp.multiSelectCompDesc"),
     categories: ["forms", "itemHandling"],
-    icon: MultiSelectCompIcon,
+    icon: MultiIcon(MultiSelectCompIcon),
     keywords: trans("uiComp.multiSelectCompKeywords"),
     comp: MultiSelectComp,
     layoutInfo: {
@@ -1046,7 +1046,7 @@ var uiCompMap: Registry = {
     enName: "Tree",
     description: trans("uiComp.treeCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: TreeDisplayCompIcon,
+    icon: MultiIcon(TreeDisplayCompIcon),
     keywords: trans("uiComp.treeCompKeywords"),
     comp: TreeComp,
     layoutInfo: {
@@ -1059,7 +1059,7 @@ var uiCompMap: Registry = {
     enName: "Tree Select",
     description: trans("uiComp.treeSelectCompDesc"),
     categories: ["layout", "itemHandling", "documents"],
-    icon: TreeSelectCompIcon,
+    icon: MultiIcon(TreeSelectCompIcon),
     keywords: trans("uiComp.treeSelectCompKeywords"),
     comp: TreeSelectComp,
     layoutInfo: {
@@ -1074,7 +1074,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.iframeCompName"),
     enName: "IFrame",
     description: trans("uiComp.iframeCompDesc"),
-    icon: IFrameCompIcon,
+    icon: MultiIcon(IFrameCompIcon),
     categories: ["integration"],
     keywords: trans("uiComp.iframeCompKeywords"),
     comp: IFrameComp,
@@ -1087,7 +1087,7 @@ var uiCompMap: Registry = {
     name: trans("uiComp.customCompName"),
     enName: "Custom Component",
     description: trans("uiComp.customCompDesc"),
-    icon: CustomCompIcon,
+    icon: MultiIcon(CustomCompIcon),
     categories: ["integration"],
     keywords: trans("uiComp.customCompKeywords"),
     comp: CustomComp,
@@ -1099,7 +1099,7 @@ var uiCompMap: Registry = {
   module: {
     name: trans("uiComp.moduleCompName"),
     enName: "Module",
-    icon: CustomCompIcon,
+    icon: MultiIcon(CustomCompIcon),
     description: trans("uiComp.moduleCompDesc"),
     categories: [],
     keywords: trans("uiComp.moduleCompKeywords"),
@@ -1117,7 +1117,7 @@ var uiCompMap: Registry = {
     enName: "Text",
     description: trans("uiComp.textCompDesc"),
     categories: ["dashboards", "layout", "multimedia"],
-    icon: TextCompIcon,
+    icon: MultiIcon(TextCompIcon),
     keywords: trans("uiComp.textCompKeywords"),
     comp: TextComp,
     layoutInfo: {

@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { serialize, compile, middleware, prefixer, stringify } from 'stylis';
+import {viewMode} from "lowcoder/src/util/editor";
 
 /******************************************************************************
 Copyright (c) Microsoft Corporation.
@@ -10254,7 +10255,7 @@ var fromCodePoint = hasNativeFromCodePoint
             }
             return elements;
         };
-var fromEntries = 
+var fromEntries =
 // native
 hasNativeFromEntries
     ? Object.fromEntries
@@ -11641,7 +11642,7 @@ function isFormatXMLElementFn(el) {
     return typeof el === 'function';
 }
 // TODO(skeleton): add skeleton support
-function formatToParts(els, locales, formatters, formats, values, currentPluralValue, 
+function formatToParts(els, locales, formatters, formats, values, currentPluralValue,
 // For debugging
 originalMessage) {
     // Hot path for straight simple msg translations
@@ -12148,8 +12149,8 @@ var Translator = /** @class */ (function () {
         }
         // If still not found, return a default message or the key itself
         if (message === undefined) {
-            console.warn("Translation missing for key: ".concat(key));
             message = "oups! ".concat(key);
+            viewMode() !== "view" ? console.warn("Translation missing for key: ".concat(key)) : null;
         }
         return message;
     };

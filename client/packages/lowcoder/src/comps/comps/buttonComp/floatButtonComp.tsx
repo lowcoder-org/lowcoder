@@ -6,8 +6,6 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, BadgeStyle, BadgeStyleType, FloatButtonStyle, FloatButtonStyleType } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { FloatButton } from 'antd';
@@ -16,8 +14,9 @@ import { IconControl } from "comps/controls/iconControl";
 import styled from "styled-components";
 import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { manualOptionsControl } from "comps/controls/optionsControl";
-import { useContext, useEffect } from "react";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+import React from "react";
+const PropertyViewFloatButton =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewFloatButton})))
 const StyledFloatButton = styled(FloatButton)<{
   $animationStyle: AnimationStyleType;
 }>`
@@ -132,31 +131,14 @@ const FloatButtonView = (props: RecordConstructorToView<typeof childrenMap>) => 
 };
 
 let FloatButtonBasicComp = (function () {
-    return new UICompBuilder(childrenMap, (props) => {
+    let builder = new UICompBuilder(childrenMap, (props) => {
       return(
         <FloatButtonView {...props} />
       )})
-      .setPropertyViewFn((children) => (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.buttons.propertyView({})}
-            {children.icon.propertyView({ label: trans("icon") })}
-            {children.shape.propertyView({ label: trans("floatButton.buttonShape"), radioButton: true })}
-            {children.buttonTheme.propertyView({ label: trans("floatButton.buttonTheme"), radioButton: true })}
-            {children.dot.propertyView({ label: trans("floatButton.dot") })}
-          </Section>
-          <Section name={sectionNames.layout}>
-            {hiddenPropertyView(children)}
-          </Section>
-          <Section name={sectionNames.badgeStyle}>{children.badgeStyle.getPropertyView()}</Section>
-          <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-          </Section>
-          <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      ))
+    if (viewMode() === "admin") {
+        builder.setPropertyViewFn((children) => <PropertyViewFloatButton {...children}></PropertyViewFloatButton>);
+    }
+      return builder
       .build();
 })();
 

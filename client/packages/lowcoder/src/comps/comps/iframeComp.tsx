@@ -1,18 +1,15 @@
 import { UICompBuilder, withDefault } from "../generators";
-import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { BoolControl } from "../controls/boolControl";
 import styled from "styled-components";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/iframeComp"));
 const Wrapper = styled.div<{$style: IframeStyleType; $animationStyle:AnimationStyleType}>`
   width: 100%;
   height: 100%;
@@ -67,44 +64,20 @@ let IFrameCompBase = new UICompBuilder(
     );
   }
 )
-  .setPropertyViewFn((children) => (
-    <>
-      <Section name={sectionNames.basic}>
-        {children.url.propertyView({ label: "Source URL", placeholder: "https://example.com", tooltip: trans("iframe.URLDesc") })}
-      </Section>
 
-      {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <Section name={sectionNames.interaction}>
-          {hiddenPropertyView(children)}
-          {children.allowDownload.propertyView({ label: trans("iframe.allowDownload") })}
-          {children.allowSubmitForm.propertyView({ label: trans("iframe.allowSubmitForm") })}
-          {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
-          {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
-          {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
-        </Section>
-      )}
+if (viewMode() === "admin") {
+    IFrameCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+}
 
-      {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-        <>
-        <Section name={sectionNames.style}>
-          {children.style.getPropertyView()}
-        </Section>
-        <Section name={sectionNames.animationStyle} hasTooltip={true}>
-          {children.animationStyle.getPropertyView()}
-          </Section>
-        </>
-      )}
-    </>
-  ))
-  .build();
+const IFrameCompBaseBuilder =  IFrameCompBase.build();
 
-IFrameCompBase = class extends IFrameCompBase {
+const IFrameCompBaseTmp = class extends IFrameCompBaseBuilder {
   override autoHeight(): boolean {
     return false;
   }
 };
 
-export const IFrameComp = withExposingConfigs(IFrameCompBase, [
+export const IFrameComp = withExposingConfigs(IFrameCompBaseTmp, [
   new NameConfig("url", trans("iframe.URLDesc")),
   NameConfigHidden,
 ]);

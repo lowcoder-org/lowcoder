@@ -1,12 +1,10 @@
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { UICompBuilder, withDefault } from "comps/generators";
-import { Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { clickEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { StringControl } from "comps/controls/codeControl";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 import { navListComp } from "./navItemComp";
-import { menuPropertyView } from "./components/MenuItemList";
 import { default as DownOutlined } from "@ant-design/icons/DownOutlined";
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Menu, MenuProps } from "antd/es/menu";
@@ -17,12 +15,10 @@ import {
   AnimationStyleType,
   NavigationStyle,
 } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+import React from "react";
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 type IProps = {
   $justify: boolean;
   $bgColor: string;
@@ -144,7 +140,7 @@ const childrenMap = {
   ]),
 };
 
-const NavCompBase = new UICompBuilder(childrenMap, (props) => {
+let NavCompBase = new UICompBuilder(childrenMap, (props) => {
   const data = props.items;
   const items = (
     <>
@@ -231,53 +227,12 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
     </Wrapper>
   );
 })
-  .setPropertyViewFn((children) => {
-    return (
-      <>
-        <Section name={sectionNames.basic}>
-          {menuPropertyView(children.items)}
-        </Section>
+if (viewMode() === "admin") {
+  NavCompBase.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+}
+const NavCompTmp = NavCompBase.build();
 
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.interaction}>
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.layout}>
-            {children.horizontalAlignment.propertyView({
-              label: trans("navigation.horizontalAlignment"),
-              radioButton: true,
-            })}
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <Section name={sectionNames.advanced}>
-            {children.logoUrl.propertyView({ label: trans("navigation.logoURL"), tooltip: trans("navigation.logoURLDesc") })}
-            {children.logoUrl.getView() && children.logoEvent.propertyView({ inline: true })}
-          </Section>
-        )}
-
-        {(useContext(EditorContext).editorModeStatus === "layout" ||
-          useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    );
-  })
-  .build();
-
-export const NavComp = withExposingConfigs(NavCompBase, [
+export const NavComp = withExposingConfigs(NavCompTmp, [
   new NameConfig("logoUrl", trans("navigation.logoURLDesc")),
   NameConfigHidden,
   new NameConfig("items", trans("navigation.itemsDesc")),

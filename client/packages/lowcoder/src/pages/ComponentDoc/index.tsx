@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import styled from "styled-components";
 import PageContent from "./common/PageContent";
-import "comps";
+import "bootstrap/admin";
 import {
   UICompType,
   UICompManifest,

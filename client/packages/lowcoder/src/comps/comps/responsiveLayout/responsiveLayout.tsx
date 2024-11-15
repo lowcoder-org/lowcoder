@@ -18,10 +18,9 @@ import { sameTypeMap, UICompBuilder, withDefault } from "comps/generators";
 import { addMapChildAction } from "comps/generators/sameTypeMap";
 import { NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { NameGenerator } from "comps/utils";
-import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useEffect } from "react";
+import React from "react";
 import styled from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -36,14 +35,11 @@ import { trans } from "i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
@@ -202,87 +198,15 @@ export const ResponsiveLayoutBaseComp = (function () {
       <ResponsiveLayout {...props} dispatch={dispatch} />
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.columns.propertyView({
-              title: trans("responsiveLayout.column"),
-              newOptionLabel: "Column",
-            })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-            <Section name={sectionNames.interaction}>
-              {disabledPropertyView(children)}
-              {hiddenPropertyView(children)}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-            <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {(!children.autoHeight.getView()) && children.mainScrollbar.propertyView({
-                label: trans("prop.mainScrollbar")
-              })}
-              {children.horizontalGridCells.propertyView({
-                label: trans('prop.horizontalGridCells'),
-              })}
-            </Section>
-            <Section name={trans("responsiveLayout.rowLayout")}>
-              {children.rowBreak.propertyView({
-                label: trans("responsiveLayout.rowBreak")
-              })}
-              {controlItem({}, (
-                <div style={{ marginTop: '8px' }}>
-                  {trans("responsiveLayout.columnsPerRow")}
-                </div>
-              ))}
-              {children.columnPerRowLG.propertyView({
-                label: trans("responsiveLayout.desktop")
-              })}
-              {children.columnPerRowMD.propertyView({
-                label: trans("responsiveLayout.tablet")
-              })}
-              {children.columnPerRowSM.propertyView({
-                label: trans("responsiveLayout.mobile")
-              })}
-            </Section>
-            <Section name={trans("responsiveLayout.columnsLayout")}>
-              {children.matchColumnsHeight.propertyView({
-                label: trans("responsiveLayout.matchColumnsHeight")
-              })}
-              {controlItem({}, (
-                <div style={{ marginTop: '8px' }}>
-                  {trans("responsiveLayout.columnsSpacing")}
-                </div>
-              ))}
-              {children.horizontalSpacing.propertyView({
-                label: trans("responsiveLayout.horizontal")
-              })}
-              {children.verticalSpacing.propertyView({
-                label: trans("responsiveLayout.vertical")
-              })}
-            </Section>
-            <Section name={trans("responsiveLayout.rowStyle")}>
-              {children.style.getPropertyView()}
-            </Section>
-            <Section name={trans("responsiveLayout.columnStyle")}>
-              {children.columnStyle.getPropertyView()}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-            </Section>
-            </>
-          )}
-        </>
-      );
-    })
-    .build();
 })();
 
-class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseComp implements IContainer {
+if (viewMode() === "admin") {
+  ResponsiveLayoutBaseComp.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+}
+
+const ResponsiveLayoutBaseCompTmp = ResponsiveLayoutBaseComp.build();
+
+class ResponsiveLayoutImplComp extends ResponsiveLayoutBaseCompTmp implements IContainer {
   private syncContainers(): this {
     const columns = this.children.columns.getView();
     const ids: Set<string> = new Set(columns.map((column) => String(column.id)));

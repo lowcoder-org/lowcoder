@@ -1,5 +1,4 @@
 import { default as Progress } from "antd/es/progress";
-import { Section, sectionNames } from "lowcoder-design";
 import { numberExposingStateControl } from "../controls/codeStateControl";
 import { BoolControl } from "../controls/boolControl";
 import { UICompBuilder } from "../generators";
@@ -7,11 +6,10 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, ProgressStyle, ProgressStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import styled, { css } from "styled-components";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/progressComp"));
 
 const getStyle = (style: ProgressStyleType) => {
   return css`
@@ -56,7 +54,7 @@ const ProgressBasicComp = (function () {
     style: styleControl(ProgressStyle, 'style'),
     animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   };
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return (
       <ProgressStyled
         percent={Math.round(props.value.value)}
@@ -66,38 +64,10 @@ const ProgressBasicComp = (function () {
       />
     );
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.value.propertyView({
-              label: trans("progress.value"),
-              tooltip: trans("progress.valueTooltip"),
-            })}
-          </Section>
-
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-              {children.showInfo.propertyView({
-                label: trans("progress.showInfo"),
-              })}
-            </Section>
-          )}
-
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-            <>
-              <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-              <Section name={sectionNames.animationStyle} hasTooltip={true}>
-              {children.animationStyle.getPropertyView()}
-            </Section>
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+  }
+      return builder
     .build();
 })();
 

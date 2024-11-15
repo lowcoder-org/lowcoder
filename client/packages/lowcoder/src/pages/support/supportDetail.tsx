@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useState } from "react";
-import { ArrowIcon } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { useParams } from "react-router-dom";
@@ -10,9 +9,10 @@ import { getTicket, updateTicketDescription, addComment, uploadAttachment } from
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../setting/styled";
 import { HeaderBack } from "../setting/permission/styledComponents";
 import { SUPPORT_URL } from "constants/routesURL";
-import { TacoMarkDown } from "lowcoder-design";
+import {ArrowIcon, TacoMarkDown} from "lowcoder-design";
 import remarkGfm from 'remark-gfm';
 import { contrastColor } from "comps/controls/styleControlConstants";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -337,7 +337,7 @@ export function SupportDetail() {
       <Level1SettingPageTitle>
         <HeaderBack>
           <span onClick={() => history.push(SUPPORT_URL)}>{trans("support.supportTitle")}</span>
-          <ArrowIcon />
+          <MultiIconDisplay identifier={ArrowIcon} />
           <span>{ticket.fields.summary}</span>
         </HeaderBack>
       </Level1SettingPageTitle>

@@ -11,17 +11,18 @@ import { trans } from "i18n";
 import { isNumber } from "lodash";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { CalendarCompIconSmall, PrevIcon, SuperPrevIcon } from "lowcoder-design";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { DateParser, DATE_FORMAT } from "util/dateTimeUtils";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {CalendarCompIconSmall, PrevIcon, SuperPrevIcon} from "icons";
 
 dayjs.extend(utc)
 
-const IconNext = styled(PrevIcon)`
+const IconNext = styled(MultiIcon(PrevIcon))`
   transform: rotate(180deg);
 `;
-const IconSuperNext = styled(SuperPrevIcon)`
+const IconSuperNext = styled(MultiIcon(SuperPrevIcon))`
   transform: rotate(180deg);
 `;
 
@@ -178,11 +179,11 @@ export const DateEdit = (props: DateEditProps) => {
       <DatePickerStyled
         ref={pickerRef}
         $open={panelOpen}
-        suffixIcon={<CalendarCompIconSmall />}
-        prevIcon={<PrevIcon />}
-        nextIcon={<IconNext />}
+        suffixIcon={<MultiIconDisplay identifier={CalendarCompIconSmall} />}
+        prevIcon={<MultiIconDisplay identifier={PrevIcon} />}
+        nextIcon={<MultiIconDisplay identifier={IconNext} />}
         superNextIcon={<IconSuperNext />}
-        superPrevIcon={<SuperPrevIcon />}
+        superPrevIcon={<MultiIconDisplay identifier={SuperPrevIcon} />}
         allowClear={true}
         variant="borderless"
         autoFocus

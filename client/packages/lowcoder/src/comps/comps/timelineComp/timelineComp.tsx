@@ -2,29 +2,18 @@ import React, { useEffect, useState, useContext } from "react";
 import { default as Button } from "antd/es/button";
 import {
   changeChildAction,
-  DispatchType,
   CompAction,
   RecordConstructorToView,
 } from "lowcoder-core";
 import { trans } from "i18n";
 import { UICompBuilder, withDefault } from "../../generators";
-import { ScrollBar, Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { ScrollBar } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
-import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { styleControl } from "comps/controls/styleControl";
-import { alignControl } from "comps/controls/alignControl";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
-import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import {
-  ArrayStringControl,
-  BoolCodeControl,
-  CodeControlJSONType,
   jsonControl,
-  jsonObjectControl,
-  jsonValueControl,
-  NumberControl,
   StringControl,
 } from "comps/controls/codeControl";
 import {
@@ -35,20 +24,20 @@ import {
   TimeLineStyle,
   heightCalculator,
   widthCalculator,
-  marginCalculator,
   TimeLineStyleType,
 } from "comps/controls/styleControlConstants";
-import { stateComp, valueComp } from "comps/generators/simpleGenerators";
+import { valueComp } from "comps/generators/simpleGenerators";
 import {
   NameConfig,
   NameConfigHidden,
   withExposingConfigs,
 } from "comps/generators/withExposing";
-import { timelineDate, timelineNode, TimelineDataTooltip } from "./timelineConstants";
+import { timelineDate, timelineNode } from "./timelineConstants";
 import { convertTimeLineData } from "./timelineUtils";
 import { default as Timeline } from "antd/es/timeline";
-import { EditorContext } from "comps/editorState";
+import {viewMode} from "@lowcoder-ee/util/editor";
 import { styled } from "styled-components";
+
 
 const TimelineWrapper = styled.div<{
   $style: TimeLineStyleType
@@ -67,6 +56,7 @@ const TimelineWrapper = styled.div<{
   }
 `;
 
+const PropertyView =  React.lazy( async () => await import("./propertyView"));
 const EventOptions = [
   clickEvent,
 ] as const;
@@ -177,53 +167,14 @@ const TimelineComp = (
 };
 
 let TimeLineBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => (
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => (
     <TimelineComp {...props} dispatch={dispatch} />
   ))
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({
-            label: trans("timeLine.value"),
-            tooltip: TimelineDataTooltip,
-            placeholder: "[]",
-          })}
-        </Section>
-
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <Section name={sectionNames.interaction}>
-            {children.onEvent.getPropertyView()}
-            {hiddenPropertyView(children)}
-          </Section>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && 
-                children.verticalScrollbar.propertyView({
-                  label: trans("prop.showVerticalScrollbar")
-                })}
-              {children.mode.propertyView({
-                label: trans("timeLine.mode"),
-                tooltip: trans("timeLine.modeTooltip"),
-              })}
-              {children.pending.propertyView({
-                label: trans("timeLine.pending"),
-                tooltip: trans("timeLine.pendingDescription"),
-              })}
-              {children.reverse.propertyView({
-                label: trans("timeLine.reverse"),
-              })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
-    .build();
+    if (viewMode() === "admin") {
+        builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+    }
+    return builder
+        .build();
 })();
 
 TimeLineBasicComp = class extends TimeLineBasicComp {

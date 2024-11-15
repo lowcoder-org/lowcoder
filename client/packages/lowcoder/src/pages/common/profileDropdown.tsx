@@ -10,9 +10,7 @@ import {
   CommonTextLabel,
   CommonTextLabel2,
   DropdownMenu,
-  DropDownSubMenu,
-  EditIcon,
-  PackUpIcon,
+  DropDownSubMenu, EditIcon, PackUpIcon,
 } from "lowcoder-design";
 import ProfileSettingModal from "pages/setting/profile";
 import React, { useMemo } from "react";
@@ -28,6 +26,7 @@ import { showSwitchOrg } from "@lowcoder-ee/pages/common/customerService";
 import { checkIsMobile } from "util/commonUtils";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
 import type { ItemType } from "antd/es/menu/interface";
+import {MultiIcon, MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const { Item } = Menu;
 
@@ -65,7 +64,7 @@ const StyledDropdown = styled(Dropdown)`
   align-items: end;
 `;
 
-const StyledPackUpIcon = styled(PackUpIcon)`
+const StyledPackUpIcon = styled(MultiIcon(PackUpIcon))`
   width: 20px;
   height: 20px;
   transform: rotate(90deg);
@@ -171,7 +170,7 @@ export default function ProfileDropdown(props: DropDownProps) {
           <ProfileImage source={avatarUrl} userName={username} side={48} />
           <StyledNameLabel>
             <CommonTextLabel2 title={username}>{username}</CommonTextLabel2>
-            {!checkIsMobile(window.innerWidth) && <EditIcon />}
+            {!checkIsMobile(window.innerWidth) && <MultiIconDisplay identifier={EditIcon} />}
           </StyledNameLabel>
           {currentOrg && (
             <CommonGrayLabel
@@ -199,7 +198,7 @@ export default function ProfileDropdown(props: DropDownProps) {
   if(orgs && orgs.length > 0 && showSwitchOrg(props.user, sysConfig)) {
     const switchOrgSubMenu = orgs.map((org: Org) => ({
       key: org.id,
-      icon: currentOrgId === org.id && <CheckoutIcon />,
+      icon: currentOrgId === org.id && <MultiIconDisplay identifier={CheckoutIcon} />,
       label: org.name
     }))
 
@@ -209,7 +208,7 @@ export default function ProfileDropdown(props: DropDownProps) {
         { type: 'divider'},
         {
           key: 'newOrganization',
-          icon: <AddIcon />,
+          icon: <MultiIconDisplay identifier={AddIcon} />,
           label: trans("profile.createOrg")
         }
       ]

@@ -4,7 +4,7 @@ import { StringStateControl, numberExposingStateControl } from "../../controls/c
 import { UICompBuilder } from "../../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../../generators/withExposing";
 import { RecordConstructorToView } from "lowcoder-core";
-import { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -15,15 +15,14 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { playIcon } from "lowcoder-design";
 import { RangeControl } from "../../controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
 import type ReactPlayer from "react-player";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 
-import { useContext } from "react";
-import { EditorContext } from "comps/editorState";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyViewVideoComp =  React.lazy( async () => await import("./propertyView").then(module => ({default: module.PropertyViewVideoComp})))
 
 const EventOptions = [
   { label: trans("video.play"), value: "play", description: trans("video.playDesc") },
@@ -128,62 +127,13 @@ const childrenMap = {
 };
  
 let VideoBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return <ContainerVideo {...props} />;
   })
-    .setPropertyViewFn((children) => {
-      return (
-        <>
-          <Section name={sectionNames.basic}>
-            {children.src.propertyView({
-              label: trans("video.src"),
-              tooltip: trans("video.srcDesc"),
-            })}
-          </Section>
-
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-
-            <><Section name={sectionNames.interaction}>
-                {children.onEvent.getPropertyView()}
-                {hiddenPropertyView(children)}
-              </Section>
-              <Section name={sectionNames.advanced}>
-                {children.poster.propertyView({
-                  label: trans("video.poster"),
-                  tooltip: trans("video.posterTooltip"),
-                })}
-                {children.volume.propertyView({
-                  label: trans("video.volume"),
-                  tooltip: trans("video.volumeTooltip"),
-                })}
-                {children.playbackRate.propertyView({
-                  label: trans("video.playbackRate"),
-                  tooltip: trans("video.playbackRateTooltip"),
-                })}
-                {children.autoPlay.propertyView({
-                  label: trans("video.autoPlay"),
-                  tooltip: trans("video.autoPlayTooltip"),
-                })}
-                {children.loop.propertyView({
-                  label: trans("video.loop"),
-                })}
-                {children.controls.propertyView({
-                  label: trans("video.controls"),
-                  tooltip: trans("video.controlsTooltip"),
-                })}
-
-              </Section>
-              <Section name={sectionNames.style}>
-                {children.style.getPropertyView()}
-              </Section>
-              {/* <Section name={sectionNames.animationStyle} hasTooltip={true}>
-                {children.animationStyle.getPropertyView()}
-              </Section> */}
-            </>
-          )}
-        </>
-      );
-    })
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyViewVideoComp {...children}></PropertyViewVideoComp>);
+  }
+      return builder
     .setExposeMethodConfigs(mediaMethods())
     .build();
 })();

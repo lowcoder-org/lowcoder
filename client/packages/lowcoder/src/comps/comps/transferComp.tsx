@@ -5,8 +5,6 @@ import { styleControl } from "comps/controls/styleControl";
 import { TransferStyle, TransferStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { default as Transfer } from "antd/es/transfer";
@@ -14,10 +12,11 @@ import type { TransferKey } from "antd/es/transfer/interface";
 import ReactResizeDetector from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
-import { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
-
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/transferComp"));
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
   width: 100%;
@@ -139,44 +138,13 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
 };
 
 let TransferBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props, dispatch) => {
+  let builder = new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
     <TransferView {...props} dispatch={dispatch} />)})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.items.propertyView({
-            label: trans("transfer.items"),
-          })}
-          {children.targetKeys.propertyView({
-            label: trans("transfer.targetKeys"),
-          })}
-          {children.sourceTitle.propertyView({
-            label: trans("transfer.sourceTitle"),
-          })}
-          {children.targetTitle.propertyView({
-            label: trans("transfer.targetTitle"),
-          })}
-          {children.showSearch.propertyView({
-            label: trans("transfer.allowSearch"),
-          })}
-          {children.oneWay.propertyView({
-            label: trans("transfer.oneWay"),
-          })}
-          {children.pagination.propertyView({
-            label: trans("transfer.pagination"),
-          })}
-          {children.pagination.getView() && children.pageSize.propertyView({
-            label: trans("transfer.pageSize"),
-          })}
-        </Section>
-        <Section name={sectionNames.layout}>
-          {children.onEvent.propertyView()}
-          {hiddenPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-      </>
-    ))
+  if (viewMode() === "admin") {
+    builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+  }
+  return builder
     .build();
 })();
 

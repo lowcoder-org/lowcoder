@@ -1,9 +1,8 @@
 import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { PointIcon, SearchOutlinedIcon } from "lowcoder-design/src/icons";
 import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
 import { Search } from 'lowcoder-design/src/components/Search';
-import { EditPopover } from "lowcoder-design";
+import {EditPopover, PointIcon, SearchOutlinedIcon} from "lowcoder-design";
 import { EditorContext } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
 import { PopupCard } from "lowcoder-design/src/components/popupCard";
@@ -15,6 +14,7 @@ import { trans } from "i18n";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
 import { getComponentPlaygroundUrl } from "comps/utils/compDocUtil";
 import { parseCompType } from "comps/utils/remote";
+import {MultiIcon} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?: boolean }>`
   width: ${(props) => (props.$width ? props.$width : 312)}px;
@@ -49,7 +49,7 @@ const CompDiv = styled.div<{ $width?: number; $hasSearch?: boolean; $showSearch?
     }
   }
 `;
-const Icon = styled(PointIcon)`
+const Icon = styled(MultiIcon(PointIcon))`
   margin-right: 16px;
   cursor: pointer;
   color: ${GreyTextColor};
@@ -59,7 +59,7 @@ const Icon = styled(PointIcon)`
   }
 `;
 
-const SearchIcon = styled(SearchOutlinedIcon)`
+const SearchIcon = styled(MultiIcon(SearchOutlinedIcon))`
   font-size: 20px;
   margin-left: 6px;
   margin-right: 16px;

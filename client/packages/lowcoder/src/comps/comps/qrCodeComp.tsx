@@ -6,15 +6,13 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, QRCodeStyle, heightCalculator,	widthCalculator } from "comps/controls/styleControlConstants";
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
-import { Section, sectionNames } from "lowcoder-design";
 import { QRCodeSVG } from "qrcode.react";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { StringControl } from "comps/controls/codeControl";
-
-import { useContext, useEffect } from "react";
-import { EditorContext } from "comps/editorState";
 import { withDefault } from "../generators";
+import React from "react";
+import {viewMode} from "@lowcoder-ee/util/editor";
+const PropertyView =  React.lazy( async () => await import("@lowcoder-ee/comps/comps/propertyView/qtCodeComp"));
 
 // TODO: add styling for image (size)
 // TODO: add styling for bouding box (individual backround)
@@ -78,48 +76,13 @@ const QRCodeView = (props: RecordConstructorToView<typeof childrenMap>) => {
 };
 
 let QRCodeBasicComp = (function () {
-  return new UICompBuilder(childrenMap, (props) => {
+  let builder = new UICompBuilder(childrenMap, (props) => {
     return( <QRCodeView {...props} />)})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.value.propertyView({
-            label: trans("QRCode.value"),
-            tooltip: trans("QRCode.valueTooltip"),
-            placeholder: "https://example.com",
-          })}
-        </Section>
 
-        {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <><Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
-            </Section>
-            <Section name={sectionNames.advanced}>
-              {children.level.propertyView({
-                label: trans("QRCode.level"),
-                tooltip: trans("QRCode.levelTooltip"),
-              })}
-              {children.image.propertyView({
-                label: trans("QRCode.image"),
-                placeholder: "http://logo.jpg",
-              })}
-            </Section>
-          </>
-        )}
-
-        {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
-          <>
-            <Section name={sectionNames.style}>
-            {children.style.getPropertyView()}
-            {children.includeMargin.propertyView({ label: trans("QRCode.includeMargin") })}
-            </Section>
-            <Section name={sectionNames.animationStyle} hasTooltip={true}>
-            {children.animationStyle.getPropertyView()}
-            </Section>
-          </>
-        )}
-      </>
-    ))
+    if (viewMode() === "admin") {
+        builder.setPropertyViewFn((children) => <PropertyView {...children}></PropertyView>);
+    }
+      return builder
     .build();
 })();
 

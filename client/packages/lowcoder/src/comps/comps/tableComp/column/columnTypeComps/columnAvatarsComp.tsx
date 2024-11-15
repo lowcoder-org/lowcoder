@@ -6,7 +6,6 @@ import styled from "styled-components";
 import { LightActiveTextColor, PrimaryColor } from "constants/style";
 import { styleControl } from "comps/controls/styleControl";
 import { avatarGroupStyle, AvatarGroupStyleType } from "comps/controls/styleControlConstants";
-import { AlignCenter, AlignLeft, AlignRight } from "lowcoder-design";
 import { NumberControl } from "comps/controls/codeControl";
 import { Avatar, Tooltip } from "antd";
 import { clickEvent, eventHandlerControl, refreshEvent } from "comps/controls/eventHandlerControl";
@@ -17,6 +16,8 @@ import { optionsControl } from "comps/controls/optionsControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { JSONObject } from "util/jsonTypes";
+import { MultiIconDisplay } from "@lowcoder-ee/comps/comps/multiIconDisplay";
+import {AlignCenter, AlignLeft, AlignRight} from "icons";
 
 const MenuLinkWrapper = styled.div`
   > a {
@@ -81,9 +82,9 @@ const DropdownOption = new MultiCompBuilder(
 const EventOptions = [clickEvent, refreshEvent] as const;
 
 export const alignOptions = [
-  { label: <AlignLeft />, value: "flex-start" },
-  { label: <AlignCenter />, value: "center" },
-  { label: <AlignRight />, value: "flex-end" },
+  { label: <MultiIconDisplay identifier={AlignLeft} />, value: "flex-start" },
+  { label: <MultiIconDisplay identifier={AlignCenter} />, value: "center" },
+  { label: <MultiIconDisplay identifier={AlignRight} />, value: "flex-end" },
 ] as const;
 
 export const ColumnAvatarsComp = (function () {

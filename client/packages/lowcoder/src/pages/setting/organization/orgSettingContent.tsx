@@ -1,5 +1,5 @@
 import { Org } from "constants/orgConstants";
-import { ArrowIcon, BlurFinishInput } from "lowcoder-design";
+import {ArrowIcon, BlurFinishInput} from "lowcoder-design";
 import { useDispatch, useSelector } from "react-redux";
 import { updateOrgAction } from "redux/reduxActions/orgActions";
 import styled from "styled-components";
@@ -9,6 +9,7 @@ import { getUser } from "redux/selectors/usersSelectors";
 import { HeaderBack } from "../permission/styledComponents";
 import history from "util/history";
 import { ORGANIZATION_SETTING } from "constants/routesURL";
+import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
 
 const FieldWrapper = styled.div`
   margin-bottom: 32px;
@@ -34,7 +35,7 @@ export function OrgSettingContent(props: { org: Org | undefined }) {
         <span onClick={() => history.push(ORGANIZATION_SETTING)}>
           {trans("settings.organization")}
         </span>
-        <ArrowIcon />
+        <MultiIconDisplay identifier={ArrowIcon} />
         <span>{org.name}</span>
       </HeaderBack>
       <FieldWrapper>
