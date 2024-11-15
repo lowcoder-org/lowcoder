@@ -23,7 +23,6 @@ import { modulesSelector } from "../../../redux/selectors/applicationSelector";
 import { ComListTitle, ExtensionContentWrapper } from "./styledComponent";
 import { foldersSelector } from "@lowcoder-ee/redux/selectors/folderSelector";
 import {MultiIconDisplay} from "@lowcoder-ee/comps/comps/multiIconDisplay";
-import {ModuleDocIcon} from "icons";
 
 const ItemWrapper = styled.div`
   display: flex;
