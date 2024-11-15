@@ -74,7 +74,7 @@ public interface GroupEndpoints
 	)
     @GetMapping("/{groupId}/members")
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "100") int count);
 
 	@Operation(

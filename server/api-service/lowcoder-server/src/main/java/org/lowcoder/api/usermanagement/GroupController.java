@@ -84,7 +84,7 @@ public class GroupController implements GroupEndpoints
                 .map(OrgMember::getOrgId)
                 .flatMap(orgId -> orgMemberService.getOrganizationMembers(orgId)
                     .collectList()
-                    .zipWith(groupService.getDevGroup(orgId).flatMap(devGroup -> groupMemberService.getGroupMembers(devGroup.getId(), 0, -1)))
+                    .zipWith(groupService.getDevGroup(orgId).flatMap(devGroup -> groupMemberService.getGroupMembers(devGroup.getId())))
                     .map(tuple -> {
                         List<OrgMember> orgMembers = tuple.getT1();
                         List<GroupMember> devMembers = tuple.getT2();
@@ -119,7 +119,7 @@ public class GroupController implements GroupEndpoints
 
     @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
             @RequestParam(name = "count", required = false, defaultValue = "100") int count) {
         String objectId = gidService.convertGroupIdToObjectId(groupId);
         return groupApiService.getGroupMembers(objectId, page, count)
