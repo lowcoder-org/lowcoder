@@ -4,10 +4,10 @@ import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
-import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
+import { parseOpenApi, parseMultiOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-const spec_1_2_0 = readYaml(path.join(__dirname, "./openAI_v1.2.0.yaml"));
-const spec_2_3_0 = readYaml(path.join(__dirname, "./openAI_v2.3.0.yaml"));
+import spec_1_2_0 from "./openAI_v1.2.0.json";
+import spec_2_3_0 from "./openAI_v2.3.0.json";
 
 const specs = {
   "v1.0": spec_1_2_0,
@@ -46,8 +46,14 @@ const dataSourceConfig = {
 } as const;
 
 const parseOptions: ParseOpenApiOptions = {
-  actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
+  /* actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
     return _.upperFirst(operation.operationId || "");
+  }, */
+  actionLabel: (method: string, path: string, operation: OpenAPI.Operation) => {
+    return _.upperFirst(operation.operationId) || operation.summary || "";
+  },
+  actionDescription(method, path, operation) {
+    return operation.description || "";
   },
 };
 
