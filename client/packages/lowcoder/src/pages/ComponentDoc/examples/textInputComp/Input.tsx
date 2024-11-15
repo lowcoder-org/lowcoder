@@ -19,6 +19,15 @@ export default function InputExample() {
           compFactory={InputComp}
         />
         <Example
+          title="Default Value"
+          config={{
+            placeholder: trans("componentDoc.pleaseInputName"),
+            disabled: false,
+            defaultValue: "Default Text",
+          }}
+          compFactory={InputComp}
+        />
+        <Example
           title={trans("componentDoc.disabled")}
           config={{
             placeholder: trans("componentDoc.pleaseInputName"),
@@ -54,6 +63,14 @@ export default function InputExample() {
           compFactory={InputComp}
         />
         <Example
+          title="Tooltip"
+          config={{
+            label: { text: trans("componentDoc.userName"), align: "right", tooltip:"This is a Tooltip" },
+            placeholder: trans("componentDoc.pleaseInputName"),
+          }}
+          compFactory={InputComp}
+        />
+        <Example
           title={trans("componentDoc.workCount")}
           config={{
             showCount: "true",
@@ -81,6 +98,66 @@ export default function InputExample() {
             placeholder: trans("componentDoc.pleaseInputName"),
             minLength: 3,
             maxLength: 6,
+          }}
+          compFactory={InputComp}
+        />
+         <Example
+          title="Show Clear Button & Show Validation on Empty/Reset"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            defaultValue: "Default Text",
+            required: true,
+            allowClear: true,
+            showValidationWhenEmpty: true,
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Custom Rule"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            placeholder: trans("componentDoc.pleaseInputName"),
+            customRule: "{{Number(input1.value) <= 0 ? 'Value can't be less than or equal to 0' : ''}}",
+            validationType: "Text",
+          }}
+          compFactory={InputComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title="Input Type">
+        <Example
+          title="Email"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            placeholder: trans("componentDoc.pleaseInputName"),
+            required: true,
+            validationType: "Email",
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="URL"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            placeholder: trans("componentDoc.pleaseInputName"),
+            required: true,
+            validationType: "URL",
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Regex"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            placeholder: trans("componentDoc.pleaseInputName"),
+            required: true,
+            validationType: "Regex",
+            regex: "^[A-Z]{3}\\d[a-z]{3}\\d[A-Z]{3}\\d$"
           }}
           compFactory={InputComp}
         />

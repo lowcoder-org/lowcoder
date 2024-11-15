@@ -16,7 +16,13 @@ export default function DividerExample() {
         title={trans("componentDoc.basicUsage")}
         description={trans("componentDoc.basicDemoDescription")}
       >
-        <Example title="" hideSettings={true} config={{}} compFactory={DividerComp} />
+      <Example 
+        title="" 
+        config={{
+          style: {borderWidth: "2px"},
+        }} 
+        compFactory={DividerComp} 
+      />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.titleAlign")}>
@@ -27,6 +33,7 @@ export default function DividerExample() {
             title: trans("componentDoc.imADivider"),
             align: "left",
             color: "#222222",
+            style: {border: "#000", borderWidth: "2px"},
           }}
           compFactory={DividerComp}
         />
@@ -51,6 +58,7 @@ export default function DividerExample() {
           compFactory={DividerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.style")}>
         <Example
           title={trans("componentDoc.dashed")}
