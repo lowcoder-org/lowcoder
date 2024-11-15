@@ -369,6 +369,7 @@ export const CompSelectionWrapper = React.memo((props: {
         {!needResizeDetector && props.children}
         {needResizeDetector && (
           <ReactResizeDetector
+            skipOnMount
             onResize={props.onInnerResize}
             observerOptions={{ box: "border-box" }}
           >
