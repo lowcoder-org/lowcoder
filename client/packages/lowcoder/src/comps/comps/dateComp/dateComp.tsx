@@ -50,6 +50,8 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 
 
@@ -142,6 +144,7 @@ function validate(
 }
 
 const childrenMap = {
+  defaultValue: stringExposingStateControl("defaultValue"),
   value: stringExposingStateControl("value"),
   userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
   ...commonChildren,
@@ -170,18 +173,25 @@ export type DateCompViewProps = Pick<
   placeholder?: string | [string, string];
 };
 
-export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
+const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
+  const defaultValue = { ...props.defaultValue }.value;
+  const value = { ...props.value }.value;
+    
   let time: dayjs.Dayjs | null = null;
-  if (props.value.value !== '') {
-    time = dayjs(props.value.value, DateParser);
+  if (value !== '') {
+    time = dayjs(value, DateParser);
   }
   
   const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
   useEffect(() => {
-    const value = props.value.value ? dayjs(props.value.value, DateParser) : null;
-    setTempValue(value);
-  }, [props.value.value])
+    props.value.onChange(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
+    const newValue = value ? dayjs(value, DateParser) : null;
+    setTempValue(newValue);
+  }, [value])
 
   const handleDateZoneChange = (newTimeZone: any) => {
     props.userTimeZone.onChange(newTimeZone)
@@ -234,7 +244,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({
+          {children.defaultValue.propertyView({
             label: trans("prop.defaultValue"),
             placeholder: "2022-04-07 21:39:59",
             tooltip: trans("date.formatTip")
@@ -304,9 +314,33 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   .setExposeMethodConfigs(dateRefMethods)
   .build();
 
-export const dateRangeControl = (function () {
+export const datePickerControl = migrateOldData(DatePickerTmpCmp, fixOldInputCompData);
+
+export function fixOldDateOrTimeRangeData(oldData: any) {
+  if (!oldData) return oldData;
+
+  let {defaultStart, defaultEnd} = oldData
+  if (Boolean(oldData.start) && !Boolean(oldData.defaultStart)) {
+    defaultStart = oldData.start;
+  }
+  if (Boolean(oldData.end) && !Boolean(oldData.defaultEnd)) {
+    defaultEnd = oldData.end;
+  }
+  return {
+    ...oldData,
+    defaultStart,
+    defaultEnd,
+    start: '',
+    end: '',
+  };
+  // return oldData;
+}
+
+let DateRangeTmpCmp = (function () {
   const childrenMap = {
+    defaultStart: stringExposingStateControl("defaultStart"),
     start: stringExposingStateControl("start"),
+    defaultEnd: stringExposingStateControl("defaultEnd"),
     end: stringExposingStateControl("end"),
     userRangeTimeZone: stringExposingStateControl("userRangeTimeZone" , Intl.DateTimeFormat().resolvedOptions().timeZone),
     ...formDataChildren,
@@ -314,28 +348,42 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
+    const defaultStart = { ...props.defaultStart }.value;
+    const startValue = { ...props.start }.value;
+
+    const defaultEnd = { ...props.defaultEnd }.value;
+    const endValue = { ...props.end }.value;
+
     let start: dayjs.Dayjs | null = null;
-    if (props.start.value !== '') {
-      start = dayjs(props.start.value, DateParser);
+    if (startValue !== '') {
+      start = dayjs(startValue, DateParser);
     }
     
     let end: dayjs.Dayjs | null = null;
-    if (props.end.value !== '') {
-      end = dayjs(props.end.value, DateParser);
+    if (endValue !== '') {
+      end = dayjs(endValue, DateParser);
     }
 
     const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
     const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
 
     useEffect(() => {
-      const value = props.start.value ? dayjs(props.start.value, DateParser) : null;
-      setTempStartValue(value);
-    }, [props.start.value])
+      props.start.onChange(defaultStart);
+    }, [defaultStart]);
 
     useEffect(() => {
-      const value = props.end.value ? dayjs(props.end.value, DateParser) : null;
+      props.end.onChange(defaultEnd);
+    }, [defaultEnd]);
+
+    useEffect(() => {
+      const value = startValue ? dayjs(startValue, DateParser) : null;
+      setTempStartValue(value);
+    }, [startValue])
+
+    useEffect(() => {
+      const value = endValue ? dayjs(endValue, DateParser) : null;
       setTempEndValue(value);
-    }, [props.end.value])
+    }, [endValue])
 
 
     const handleDateRangeZoneChange = (newTimeZone: any) => {
@@ -399,12 +447,12 @@ export const dateRangeControl = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.start.propertyView({
+            {children.defaultStart.propertyView({
               label: trans("date.start"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
             })}
-            {children.end.propertyView({
+            {children.defaultEnd.propertyView({
               label: trans("date.end"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
@@ -470,6 +518,8 @@ export const dateRangeControl = (function () {
     })
     .build();
 })();
+
+export const dateRangeControl = migrateOldData(DateRangeTmpCmp, fixOldDateOrTimeRangeData);
 
 const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
   const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;
