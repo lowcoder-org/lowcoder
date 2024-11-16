@@ -5689,8 +5689,7 @@
             "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.\n\nWe generally recommend altering this or temperature but not both.\n"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         },
         "required": [
@@ -6282,11 +6281,9 @@
             ]
           },
           "session": {
-            "type": "object",
             "$ref": "#/components/schemas/AuditLogActorSession"
           },
           "api_key": {
-            "type": "object",
             "$ref": "#/components/schemas/AuditLogActorApiKey"
           }
         }
@@ -7778,8 +7775,7 @@
             "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.\n\nWe generally recommend altering this or temperature but not both.\n"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         },
         "required": [
@@ -9981,19 +9977,16 @@
             "minimum": 256
           },
           "truncation_strategy": {
-            "$ref": "#/components/schemas/TruncationObject",
-            "nullable": true
+            "$ref": "#/components/schemas/TruncationObject"
           },
           "tool_choice": {
-            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption"
           },
           "parallel_tool_calls": {
             "$ref": "#/components/schemas/ParallelToolCalls"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         },
         "required": [
@@ -10073,8 +10066,7 @@
             "type": "string"
           },
           "thread": {
-            "$ref": "#/components/schemas/CreateThreadRequest",
-            "description": "If no thread is provided, an empty thread will be created."
+            "$ref": "#/components/schemas/CreateThreadRequest"
           },
           "model": {
             "description": "The ID of the [Model](/docs/api-reference/models) to be used to execute this run. If a value is provided here, it will override the model associated with the assistant. If not, the model associated with the assistant will be used.",
@@ -10216,19 +10208,16 @@
             "minimum": 256
           },
           "truncation_strategy": {
-            "$ref": "#/components/schemas/TruncationObject",
-            "nullable": true
+            "$ref": "#/components/schemas/TruncationObject"
           },
           "tool_choice": {
-            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption"
           },
           "parallel_tool_calls": {
             "$ref": "#/components/schemas/ParallelToolCalls"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         },
         "required": [
@@ -13062,8 +13051,7 @@
             "description": "An alternative to sampling with temperature, called nucleus sampling, where the model considers the results of the tokens with top_p probability mass. So 0.1 means only the tokens comprising the top 10% probability mass are considered.\n\nWe generally recommend altering this or temperature but not both.\n"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         }
       },
@@ -16152,19 +16140,16 @@
             "minimum": 256
           },
           "truncation_strategy": {
-            "$ref": "#/components/schemas/TruncationObject",
-            "nullable": true
+            "$ref": "#/components/schemas/TruncationObject"
           },
           "tool_choice": {
-            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiToolChoiceOption"
           },
           "parallel_tool_calls": {
             "$ref": "#/components/schemas/ParallelToolCalls"
           },
           "response_format": {
-            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption",
-            "nullable": true
+            "$ref": "#/components/schemas/AssistantsApiResponseFormatOption"
           }
         },
         "required": [
@@ -17725,8 +17710,7 @@
             "nullable": true
           },
           "expires_after": {
-            "$ref": "#/components/schemas/VectorStoreExpirationAfter",
-            "nullable": true
+            "$ref": "#/components/schemas/VectorStoreExpirationAfter"
           },
           "metadata": {
             "description": "Set of 16 key-value pairs that can be attached to an object. This can be useful for storing additional information about the object in a structured format. Keys can be a maximum of 64 characters long and values can be a maximum of 512 characters long.\n",
@@ -17783,9 +17767,7 @@
             ]
           },
           "file": {
-            "$ref": "#/components/schemas/OpenAIFile",
-            "nullable": true,
-            "description": "The ready File object after the Upload is completed."
+            "$ref": "#/components/schemas/OpenAIFile"
           }
         },
         "required": [
