@@ -3594,15 +3594,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/axios@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@types/axios@npm:0.14.0"
-  dependencies:
-    axios: "*"
-  checksum: 12a230b9404055d81804cb57fe4739b2317111b28a39e2477b2513250e8b85725e6f6ce509fc2a9494a6da60facb8d80df875fcd747f62f6c3abebc7db60ae66
-  languageName: node
-  linkType: hard
-
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -4278,7 +4269,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:*, axios@npm:^1.4.0, axios@npm:^1.7.7":
+"axios@npm:^1.4.0, axios@npm:^1.7.7":
   version: 1.7.7
   resolution: "axios@npm:1.7.7"
   dependencies:
@@ -7727,7 +7718,6 @@ __metadata:
     "@google-cloud/storage": ^6.10.1
     "@supabase/supabase-js": ^2.26.0
     "@types/ali-oss": ^6.16.11
-    "@types/axios": ^0.14.0
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.4
     "@types/jsonpath": ^0.2.0
