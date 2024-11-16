@@ -6,6 +6,7 @@ import { getCurrentUser, getUser } from "@lowcoder-ee/redux/selectors/usersSelec
 import { createContext, ReactNode, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { useOrgUserCount } from "../hooks";
+import { useSimpleSubscriptionContext } from "./SimpleSubscriptionContext";
 
 export interface SubscriptionContextType {
   products: SubscriptionProduct[];
@@ -40,14 +41,21 @@ const SubscriptionContext = createContext<SubscriptionContextType>({
 export const SubscriptionContextProvider = (props: {
   children: ReactNode,
 }) => {
-  const [customer, setCustomer] = useState<StripeCustomer>();
-  const [isCreatingCustomer, setIsCreatingCustomer] = useState<boolean>(false);  // Track customer creation
+
+  const {
+    customer: existingCustomer,
+    subscriptionProducts: existingProducts,
+    productsLoaded,
+    isCustomerInitializationComplete,
+  } = useSimpleSubscriptionContext();
+
+  const [customer, setCustomer] = useState<StripeCustomer | undefined>(existingCustomer);
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState<boolean>(false);  
   const [customerDataError, setCustomerDataError] = useState<boolean>(false);
   const [checkoutLinkDataLoaded, setCheckoutLinkDataLoaded] = useState<boolean>(false);
   const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
   const [products, setProducts] = useState<SubscriptionProduct[]>(InitSubscriptionProducts);
-  const [productsLoaded, setProductsLoaded] = useState<boolean>(false);
-  const [subscriptionProducts, setSubscriptionProducts] = useState<any[]>([]);
+  const [subscriptionProducts, setSubscriptionProducts] = useState<any[]>(existingProducts || []);
   const [subscriptionProductsLoading, setSubscriptionProductsLoading] = useState<boolean>(false);
 
   const user = useSelector(getUser);
@@ -82,29 +90,32 @@ export const SubscriptionContextProvider = (props: {
   };
 
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const productData = await getProducts();
-        setSubscriptionProducts(productData);
-      } catch (err) {
-        // setError("Failed to fetch product.");
-        console.error("Failed to fetch product.", err);
-      } finally {
-        setSubscriptionProductsLoading(false);
+    // If products are already loaded in the outer context, reuse them
+    if (productsLoaded) {
+      if (!subscriptionProducts.length) {
+        setSubscriptionProducts(existingProducts);
       }
-    };
-
-    if (!Boolean(subscriptionProducts.length)) {
-      fetchProducts();
+      // Ensure no fetching happens in this case
+      return;
     }
-  }, [subscriptionProducts]);
+  }, [productsLoaded, existingProducts, subscriptionProducts, subscriptionProductsLoading]);
 
   useEffect(() => {
     const initializeCustomer = async () => {
-      try {
+      if (existingCustomer) {
+        setCustomer(existingCustomer);
+        return;
+      }
+
+      /* try {
         setIsCreatingCustomer(true);
+        const subscriptionSearchCustomer: LowcoderSearchCustomer = {
+          hostId: deploymentId,
+          orgId: orgID,
+          userId: user.id,
+        };
         const existingCustomer = await searchCustomer(subscriptionSearchCustomer);
-        if (existingCustomer != null) {
+        if (existingCustomer) {
           setCustomer(existingCustomer);
         } else {
           const newCustomer = await createCustomer(subscriptionNewCustomer);
@@ -114,19 +125,18 @@ export const SubscriptionContextProvider = (props: {
         setCustomerDataError(true);
       } finally {
         setIsCreatingCustomer(false);
-      }
+      } */
     };
 
-    if (Boolean(deploymentId) && !customer) {
+    if (!customer && isCustomerInitializationComplete) {
       initializeCustomer();
     }
-  }, [deploymentId]);
+  }, [customer, existingCustomer, isCustomerInitializationComplete, deploymentId]);
 
   useEffect(() => {
     const prepareCheckout = async () => {
       if (subscriptionDataLoaded && userCount > 0) { // Ensure user count is available
         try {
-          console.log("Total Users in Organization:", userCount);
           const updatedProducts = await Promise.all(
             products.map(async (product) => {
               const matchingSubscription = subscriptions.find(
@@ -153,7 +163,6 @@ export const SubscriptionContextProvider = (props: {
             })
           );
           setProducts(updatedProducts);
-          setProductsLoaded(true);
           setCheckoutLinkDataError(false);
         } catch (error) {
           setCheckoutLinkDataError(true);
@@ -161,7 +170,7 @@ export const SubscriptionContextProvider = (props: {
       }
     };
 
-    if (!productsLoaded && customer) {
+    if (productsLoaded && customer) {
       prepareCheckout();
     }
   }, [subscriptionDataLoaded, customer, userCount]);

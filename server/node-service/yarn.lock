@@ -2345,6 +2345,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scarf/scarf@npm:=1.4.0":
+  version: 1.4.0
+  resolution: "@scarf/scarf@npm:1.4.0"
+  checksum: def62aa403f7e63165ccb219efd2c420fc0b7357b0ba43397f635e4aa813ace1cdf3855a93fc559b4619bcc0469ae4767b8cb72af30ea5c0522bf4a2ecb18198
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8
   resolution: "@sinclair/typebox@npm:0.27.8"
@@ -3587,15 +3594,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/axios@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@types/axios@npm:0.14.0"
-  dependencies:
-    axios: "*"
-  checksum: 12a230b9404055d81804cb57fe4739b2317111b28a39e2477b2513250e8b85725e6f6ce509fc2a9494a6da60facb8d80df875fcd747f62f6c3abebc7db60ae66
-  languageName: node
-  linkType: hard
-
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -4271,7 +4269,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:*, axios@npm:^1.4.0, axios@npm:^1.7.7":
+"axios@npm:^1.4.0, axios@npm:^1.7.7":
   version: 1.7.7
   resolution: "axios@npm:1.7.7"
   dependencies:
@@ -7737,7 +7735,6 @@ __metadata:
     "@google-cloud/storage": ^6.10.1
     "@supabase/supabase-js": ^2.26.0
     "@types/ali-oss": ^6.16.11
-    "@types/axios": ^0.14.0
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.4
     "@types/jsonpath": ^0.2.0
@@ -10047,10 +10044,11 @@ __metadata:
   linkType: hard
 
 "swagger-client@npm:^3.29.3":
-  version: 3.29.4
-  resolution: "swagger-client@npm:3.29.4"
+  version: 3.31.0
+  resolution: "swagger-client@npm:3.31.0"
   dependencies:
     "@babel/runtime-corejs3": ^7.22.15
+    "@scarf/scarf": =1.4.0
     "@swagger-api/apidom-core": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-error": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-json-pointer": ">=1.0.0-alpha.9 <1.0.0-beta.0"
@@ -10067,7 +10065,7 @@ __metadata:
     openapi-server-url-templating: ^1.0.0
     ramda: ^0.30.1
     ramda-adjunct: ^5.0.0
-  checksum: 62fba05a225901b01fa9ce767efa623a95d0bdb79753214f533476682644788e4629aa88d3e0cf4d86696fc6e14784095156a214ddfeeb82b940c2325a3c2a51
+  checksum: 86b414dda317d5e9ca6efac8c04355016106e9e637b9b0bfb7a27c43f4b14e18a18c93ac108798ecc0e00c1937036f79fe103b98f551ef1e24fd54e0c3b756b0
   languageName: node
   linkType: hard
 
@@ -10901,11 +10899,11 @@ __metadata:
   linkType: hard
 
 "yaml@npm:^2.2.2":
-  version: 2.5.1
-  resolution: "yaml@npm:2.5.1"
+  version: 2.6.0
+  resolution: "yaml@npm:2.6.0"
   bin:
     yaml: bin.mjs
-  checksum: 31275223863fbd0b47ba9d2b248fbdf085db8d899e4ca43fff8a3a009497c5741084da6871d11f40e555d61360951c4c910b98216c1325d2c94753c0036d8172
+  checksum: e5e74fd75e01bde2c09333d529af9fbb5928c5f7f01bfdefdcb2bf753d4ef489a45cab4deac01c9448f55ca27e691612b81fe3c3a59bb8cb5b0069da0f92cf0b
   languageName: node
   linkType: hard
 

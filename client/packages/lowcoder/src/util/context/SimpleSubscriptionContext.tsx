@@ -8,9 +8,11 @@ import { useSelector } from "react-redux";
 
 export interface SubscriptionContextType {
   products: SubscriptionProduct[];
+  productsLoaded: boolean;
   subscriptionProducts: any[],
   customer?: StripeCustomer;
   isCreatingCustomer: boolean;
+  isCustomerInitializationComplete: boolean,
   customerDataError: boolean;
   subscriptionDataError?: string;
   checkoutLinkDataError: boolean;
@@ -23,9 +25,11 @@ export interface SubscriptionContextType {
 
 const SimpleSubscriptionContext = createContext<SubscriptionContextType>({
   products: [],
+  productsLoaded: false,
   subscriptionProducts: [],
   customer: undefined,
   isCreatingCustomer: false,
+  isCustomerInitializationComplete: false, // Add this flag
   customerDataError: false,
   subscriptionDataError: undefined,
   checkoutLinkDataError: false,
@@ -84,17 +88,19 @@ export const SimpleSubscriptionContextProvider = (props: {
         const productData = await getProducts();
         setSubscriptionProducts(productData);
       } catch (err) {
-        // setError("Failed to fetch product.");
-        console.error("Failed to fetch product.", err);
+        console.error("Failed to fetch products:", err);
       } finally {
+        setProductsLoaded(true);
         setSubscriptionProductsLoading(false);
       }
     };
-
-    if (!Boolean(subscriptionProducts.length)) {
+  
+    if (!productsLoaded && !subscriptionProductsLoading) {
+      console.log("Outer context: Fetching products...");
+      setSubscriptionProductsLoading(true);
       fetchProducts();
     }
-  }, [subscriptionProducts]);
+  }, [productsLoaded, subscriptionProductsLoading]);
 
   useEffect(() => {
     const initializeCustomer = async () => {
@@ -119,13 +125,17 @@ export const SimpleSubscriptionContextProvider = (props: {
     }
   }, [deploymentId]);
 
+  const isCustomerInitializationComplete = !isCreatingCustomer && Boolean(customer);
+
   return (
     <SimpleSubscriptionContext.Provider value={{
       admin,
       customer,
       products,
+      productsLoaded,
       subscriptionProducts,
       isCreatingCustomer,
+      isCustomerInitializationComplete,
       customerDataError,
       subscriptions,
       subscriptionDataLoaded,

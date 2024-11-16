@@ -43,7 +43,7 @@ const getAxiosInstance = (clientSecret?: string) => {
 };
 
 class SubscriptionApi extends Api {
-  static async secureRequest(body: any): Promise<any> {
+  static async secureRequest(body: any, timeout: number = 6000): Promise<any> {
     let response;
     const axiosInstance = getAxiosInstance();
 
@@ -51,7 +51,7 @@ class SubscriptionApi extends Api {
     const source = axios.CancelToken.source();
     const timeoutId = setTimeout(() => {
       source.cancel("Request timed out.");
-    }, 6000);
+    }, timeout);
 
     // Request configuration with cancel token
     const requestConfig: AxiosRequestConfig = {
@@ -174,7 +174,7 @@ export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) 
     headers: lcHeaders
   };
   try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
+    const result = await SubscriptionApi.secureRequest(apiBody, 15000);
     return result?.data as StripeCustomer;
   } catch (error) {
     console.error("Error creating customer:", error);
