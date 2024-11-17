@@ -70,11 +70,11 @@ export function SubscriptionSuccess() {
       <SuccessCard bordered>
         <SubscriptionSuccessContent>
           <Title level={2}>{trans("subscription.successTitle")}</Title>
-          <Paragraph>{trans("subscription.successThankYou")}</Paragraph>
+          <Paragraph style={{whiteSpace: 'pre-line'}}>{trans("subscription.successThankYou")}</Paragraph>
           
           {/* Success Image */}
           <ImageWrapper>
-            <img src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Lowcoder%20Team.jpg" alt={trans("subscription.successImageAlt")} />
+            <img loading="lazy" src="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/refs/heads/main/images/Lowcoder%20Team.jpg" alt={trans("subscription.successImageAlt")} />
           </ImageWrapper>
 
           <Paragraph>{trans("subscription.successLowcoderTeam")}</Paragraph>
