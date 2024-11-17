@@ -26,7 +26,6 @@ import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
-// import { LayoutFieldTemplate } from "./LayoutFieldTemplate";
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 
@@ -83,8 +82,6 @@ const Container = styled.div<{
   .help-block {
     margin-bottom: 0px;
   }
-
-
 `;
 
 function convertData(schema?: JSONSchema7, data?: any) {
@@ -265,7 +262,6 @@ let FormBasicComp = (function () {
             templates={{
               ObjectFieldTemplate: ObjectFieldTemplate,
               ArrayFieldTemplate: ArrayFieldTemplate,
-              // FieldTemplate: LayoutFieldTemplate,
             }}
             widgets={{ searchableSelect: SearchableSelectWidget }}
             // ErrorList={ErrorList}
