@@ -124,11 +124,14 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         const mapComps = this.getMap();
         if (mapComps.hasOwnProperty(key) && !paramsEqual(params, mapComps[key].getParams())) {
           // refresh the item, since params changed
-          this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
+          // this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
+          this.dispatch(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key])));
+          comp = this.getOriginalComp();
+        } else {
+          comp = this.getOriginalComp()
+            .setParams(params)
+            .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
         }
-        comp = this.getOriginalComp()
-          .setParams(params)
-          .changeDispatch(wrapDispatch(wrapDispatch(this.dispatch, MAP_KEY), key));
       }
       return comp;
     }
