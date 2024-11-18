@@ -32,7 +32,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -663,6 +663,41 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method: {
+      name: "setMultiSort",
+      description: "",
+      params: [
+        { name: "sortColumns", type: "arrayObject"},
+      ],
+    },
+    execute: (comp, values) => {
+      const sortColumns = values[0];
+      if (!isArray(sortColumns)) {
+        return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
+      }
+      if (sortColumns && isArray(sortColumns)) {
+        comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
+      }
+    },
+  },
+  {
+    method: {
+      name: "getMultiSort",
+      description: "",
+      params: [],
+    },
+    execute: (comp) => {
+      // const sortColumns = values[0];
+      // if (!isArray(sortColumns)) {
+      //   return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
+      // }
+      // if (sortColumns && isArray(sortColumns)) {
+      //   comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
+      // }
+      return Promise.resolve(comp.children.sort.getView());
+    },
+  },
+  {
+    method: {
       name: "resetSelections",
       description: "",
       params: [],
@@ -844,6 +879,18 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       } else {
         return sortIndex;
       }
+    },
+    trans("table.sortColumnDesc")
+  ),
+  new DepsConfig(
+    "sortColumns",
+    (children) => {
+      return {
+        sort: children.sort.node(),
+      };
+    },
+    (input) => {
+      return input.sort;
     },
     trans("table.sortColumnDesc")
   ),
