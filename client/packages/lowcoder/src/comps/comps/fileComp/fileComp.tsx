@@ -600,7 +600,7 @@ const Upload = (
             status: 'done' as UploadFileStatus,
             originFileObj: file as RcFile,
           };
-          handleOnChange({file: uploadFile, fileList: [uploadFile]})
+          handleOnChange({file: uploadFile, fileList: [...fileList, uploadFile]})
         }}
       />
     </>
