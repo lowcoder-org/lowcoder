@@ -15,7 +15,7 @@ export default function ImageExample() {
           width={100}
           height={100}
           config={{
-            src: "https://majiang-files.oss-cn-hangzhou.aliyuncs.com/cat_1",
+            src: "https://github.com/lowcoder-org/lowcoder-media-assets/blob/main/icons/favicon_io/android-chrome-512x512.png?raw=true",
           }}
           compFactory={ImageComp}
         />

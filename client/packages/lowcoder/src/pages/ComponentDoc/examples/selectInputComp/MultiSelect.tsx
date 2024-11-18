@@ -192,6 +192,20 @@ export default function MultiSelectExample() {
           blackListConfig={blackListConfig}
           compFactory={MultiSelectComp}
         />
+        <Example
+          title="Not Search-able"
+          config={{
+            value: trans("componentDoc.noValue"),
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            allowClear: true,
+            showSearch: false,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={MultiSelectComp}
+        />
       </ExampleGroup>
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example

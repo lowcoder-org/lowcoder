@@ -4,9 +4,8 @@ import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
-import java.util.List;
-
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
@@ -68,14 +67,20 @@ public class FolderController implements FolderEndpoints
      * get all files under folder
      */
     @Override
-    public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
-            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
-            @RequestParam(required = false) String name) {
+    public Mono<PageResponseView<?>> getElements(@RequestParam(value = "id", required = false) String folderId,
+                                                 @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
+                                                 @RequestParam(required = false) String name,
+                                                 @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                 @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         String objectId = gidService.convertFolderIdToObjectId(folderId);
-        return folderApiService.getElements(objectId, applicationType, name)
-                .collectList()
-                .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
-                .map(ResponseView::success);
+        var flux = folderApiService.getElements(objectId, applicationType, name).cache();
+        var countMono = flux.count();
+        var flux1 = flux.skip((long) pageNum * pageSize);
+        if(pageSize > 0) flux1 = flux1.take(pageSize);
+        return flux1.collectList()
+            .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
+            .zipWith(countMono)
+            .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
     }
 
     @Override

@@ -22,7 +22,7 @@ const Wrapper = styled.div`
   left: 50%;
   border-radius: 8px;
   background: #ffffff;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  box-shadow: 0 0 10px 5px rgba(0, 0, 0, 0.2);
 `;
 const HeaderWrapper = styled.div`
   height: 40px;

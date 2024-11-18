@@ -29,7 +29,7 @@ public class GroupMemberServiceImpl implements GroupMemberService {
     private final MongoUpsertHelper mongoUpsertHelper;
 
     @Override
-    public Mono<List<GroupMember>> getGroupMembers(String groupId, int page, int count) {
+    public Mono<List<GroupMember>> getGroupMembers(String groupId) {
         return biRelationService.getBySourceId(GROUP_MEMBER, groupId)
                 .map(GroupMember::from)
                 .collectList();

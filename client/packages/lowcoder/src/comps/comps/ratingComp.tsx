@@ -78,7 +78,7 @@ const RatingBasicComp = (function () {
       children: (
         <RateStyled
           count={props.max}
-          value={props.value.value}
+          value={value}
           onChange={(e) => {
             props.value.onChange(e);
             changeRef.current = true;

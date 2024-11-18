@@ -19,7 +19,7 @@ type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
 
 Object.entries(uiCompRegistry).forEach(([key, comp]) => {
-  const cat = comp.categories.find((c) => c !== "dashboards");
+  const cat = comp.categories[0];
   if (cat === undefined) {
     return;
   }
@@ -99,6 +99,8 @@ export default function ComponentDoc() {
     );
   }, [params.name]);
 
+  console.log("uiCompCategoryNames", uiCompCategoryNames);
+
   return (
     <ExampleContext.Provider value={{ name: params.name }}>
       <Helmet>
@@ -126,7 +128,7 @@ export default function ComponentDoc() {
               return (
                 <div className="nav-group" key={key}>
                   <div className="nav-group-title">
-                    {uiCompCategoryNames[key as UICompCategory]}
+                    {uiCompCategoryNames[key as UICompCategory]} 
                   </div>
                   <div>
                     {children.map((n) => (

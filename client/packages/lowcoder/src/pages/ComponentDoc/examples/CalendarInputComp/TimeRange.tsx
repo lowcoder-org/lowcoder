@@ -37,6 +37,7 @@ export default function TimeRangeExample() {
           title={trans("componentDoc.noDefaultValue")}
           config={{
             format: "hh:mm:ss",
+            placeholder: "Select Time",
             disabled: false,
             label: {
               text: trans("componentDoc.time"),
@@ -64,6 +65,7 @@ export default function TimeRangeExample() {
           compFactory={TimeRangeComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
           title={trans("componentDoc.leftLeftAlign")}
@@ -120,6 +122,7 @@ export default function TimeRangeExample() {
           compFactory={TimeRangeComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.required")}
@@ -146,6 +149,29 @@ export default function TimeRangeExample() {
             },
             minTime: "11:00:00",
             maxTime: "12:00:00",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TimeRangeComp}
+        />
+        <Example
+          title="Time Steps"
+          config={{
+            required: true,
+            hourStep: "2",
+            minuteStep: "5",
+            secondStep: "15",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TimeRangeComp}
+        />
+        <Example
+          title="Show Time ( 12 hours format )"
+          config={{
+            required: true,
+            hourStep: "2",
+            minuteStep: "5",
+            secondStep: "15",
+            use12Hours: true,
           }}
           blackListConfig={blackListConfig}
           compFactory={TimeRangeComp}

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
@@ -77,16 +78,16 @@ public class GroupApiServiceImpl implements GroupApiService {
         return groupAndOrgMemberInfo
                 .filter(this::hasReadPermission)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, NOT_AUTHORIZED))
-                .flatMap(groupMember -> groupMemberService.getGroupMembers(groupId, page, count))
-                .<List<GroupMemberView>> flatMap(members -> {
+                .flatMap(groupMember -> groupMemberService.getGroupMembers(groupId))
+                .<Pair<List<GroupMemberView>, Integer>> flatMap(members -> {
                     if (members.isEmpty()) {
-                        return Mono.just(emptyList());
+                        return Mono.just(Pair.of(emptyList(), 0));
                     }
 
                     List<String> userIds = collectList(members, GroupMember::getUserId);
                     Mono<Map<String, User>> userMapMono = userService.getByIds(userIds);
-                    return userMapMono.map(map ->
-                            members.stream()
+                    return userMapMono.map(map -> {
+                            var list = members.stream()
                                     .map(orgMember -> {
                                         User user = map.get(orgMember.getUserId());
                                         if (user == null) {
@@ -95,13 +96,20 @@ public class GroupApiServiceImpl implements GroupApiService {
                                         return new GroupMemberView(orgMember, user);
                                     })
                                     .filter(Objects::nonNull)
-                                    .toList());
+                                    .toList();
+                            var pageTotal = list.size();
+                            list = list.subList(page * count, Math.min(page * count + count, pageTotal));
+                            return Pair.of(list, pageTotal);
+                    });
                 })
                 .zipWith(visitorRoleMono)
                 .map(tuple -> {
-                    List<GroupMemberView> t1 = tuple.getT1();
+                    Pair<List<GroupMemberView>, Integer> t1 = tuple.getT1();
                     return GroupMemberAggregateView.builder()
-                            .members(t1)
+                            .members(t1.getLeft())
+                            .total(t1.getRight())
+                            .pageNum(page)
+                            .pageSize(count)
                             .visitorRole(tuple.getT2().getValue())
                             .build();
                 });
@@ -196,7 +204,7 @@ public class GroupApiServiceImpl implements GroupApiService {
                                     }
                                     return groupService.getByOrgId(orgId)
                                             .sort()
-                                            .flatMapSequential(group -> groupMemberService.getGroupMembers(group.getId(), 0, -1)
+                                            .flatMapSequential(group -> groupMemberService.getGroupMembers(group.getId())
                                                 .zipWith(orgAdminsMono)
                                                 .flatMap(tuple -> {
                                                     var users = tuple.getT1().stream().filter(user ->  user.getRole() != MemberRole.SUPER_ADMIN).toList();

@@ -141,7 +141,8 @@ export const en = {
     "searchNotFound": "Can't find the right component?",
     "emptyPlugins": "No Plugins Added",
     "contactUs": "Contact Us",
-    "issueHere": "here."
+    "issueHere": "here.",
+    "folderListTitle": "Folders"
   },
   "prop": {
     "expand": "Expand",
@@ -1781,7 +1782,12 @@ export const en = {
     "clearValueDesc": "Clear All Files",
     "parseFiles": "Parse Files",
     "parsedValueTooltip1": "If parseFiles Is True, Upload Files Will Parse to Object, Array, or String. Parsed Data Can Be Accessed via the parsedValue Array.",
-    "parsedValueTooltip2": "Supports Excel, JSON, CSV, and Text Files. Other Formats Will Return Null."
+    "parsedValueTooltip2": "Supports Excel, JSON, CSV, and Text Files. Other Formats Will Return Null.",
+    "forceCapture": "Force Capture",
+    "forceCaptureTooltip": "Instead of upload, capture image from camera",
+    "usePhoto": "Use Photo",
+    "retakePhoto": "Retake Photo",
+    "capture": "Capture",
   },
   "date": {
     "format": "Format",
@@ -2395,6 +2401,7 @@ export const en = {
     "gutter" : "Gap",
     "gutterTooltip" : "The distance between tabs in px",
     "tabsCentered" : "Centered Tabs",
+    "destroyInactiveTab": "Destroy Inactive TabPane"
   },
   "formComp": {
     "containerPlaceholder": "Drag Components from the Right Pane or",

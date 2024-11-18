@@ -35,7 +35,7 @@ const SupaDemoDisplay = ({ url, modalWidth = '75%', modalTop = '6%', showText = 
         style={{ top: modalTop }}
         okButtonProps={{ style: { display: 'none' } }}
         cancelButtonProps={{ style: { display: 'none' } }}
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: {padding: 0} }}
       >
         <div style={{ position: 'relative', boxSizing: 'content-box', maxHeight: '80vh', width: '100%', aspectRatio: '1.7712177121771218', padding: '40px 0' }}>
           <iframe

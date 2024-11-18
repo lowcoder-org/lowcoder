@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.util.BusinessEventPublisher;
@@ -29,6 +30,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
 import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
@@ -116,11 +118,11 @@ public class DatasourceController implements DatasourceEndpoints
      * name, type... and the plugin definition of it, excluding the detail configs such as the connection uri, password...
      */
     @Override
-    public Mono<ResponseView<List<Datasource>>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
+    public Mono<PageResponseView<?>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
+                                                             @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                             @RequestParam(required = false, defaultValue = "0") int pageSize) {
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
-        return datasourceApiService.listJsDatasourcePlugins(objectId, name, type)
-                .collectList()
-                .map(ResponseView::success);
+        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listJsDatasourcePlugins(objectId, name, type));
     }
 
     /**
@@ -139,26 +141,26 @@ public class DatasourceController implements DatasourceEndpoints
 
     @SneakyThrows
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
+    public Mono<PageResponseView<?>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
+                                                        @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                        @RequestParam(required = false, defaultValue = "0") int pageSize) {
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
         String objectId = gidService.convertOrganizationIdToObjectId(orgId);
-        return datasourceApiService.listOrgDataSources(objectId, name, type)
-                .collectList()
-                .map(ResponseView::success);
+        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listOrgDataSources(objectId, name, type));
     }
 
     @Override
-    public Mono<ResponseView<List<DatasourceView>>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type) {
+    public Mono<PageResponseView<?>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
+                                                        @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                        @RequestParam(required = false, defaultValue = "0") int pageSize) {
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
 
-        return datasourceApiService.listAppDataSources(objectId, name, type)
-                .collectList()
-                .map(ResponseView::success);
+        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listAppDataSources(objectId, name, type));
     }
 
     @Override

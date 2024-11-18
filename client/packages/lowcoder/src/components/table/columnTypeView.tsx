@@ -38,7 +38,7 @@ const ColumnTypeHoverView = styled.div<{
   max-height: 150px;
   max-width: 300px;
   overflow: auto;
-  background: inherit;
+  background: #fafafa;
   z-index: 3;
   padding: ${(props) => props.$padding};
   top: ${(props) => `${props.$adjustTop || 0}px`};
