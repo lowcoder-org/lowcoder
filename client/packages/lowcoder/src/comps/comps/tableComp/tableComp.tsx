@@ -681,23 +681,6 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method: {
-      name: "getMultiSort",
-      description: "",
-      params: [],
-    },
-    execute: (comp) => {
-      // const sortColumns = values[0];
-      // if (!isArray(sortColumns)) {
-      //   return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
-      // }
-      // if (sortColumns && isArray(sortColumns)) {
-      //   comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
-      // }
-      return Promise.resolve(comp.children.sort.getView());
-    },
-  },
-  {
-    method: {
       name: "resetSelections",
       description: "",
       params: [],
