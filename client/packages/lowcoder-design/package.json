@@ -9,10 +9,10 @@
   "dependencies": {
     "colord": "^2.9.3",
     "react-fontawesome": "^0.2.0",
-    "react-markdown": "^8.0.0",
+    "react-markdown": "^9.0.1",
     "react-virtualized": "^9.22.3",
-    "rehype-raw": "^6.1.1",
-    "rehype-sanitize": "^5.0.1",
+    "rehype-raw": "^7.0.0",
+    "rehype-sanitize": "^6.0.0",
     "remark-gfm": "^4.0.0",
     "simplebar": "^6.2.5",
     "simplebar-react": "^3.2.4"
