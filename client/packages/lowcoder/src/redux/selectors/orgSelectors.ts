@@ -8,6 +8,10 @@ export const getOrgGroups = (state: AppState) => {
   return state.ui.org.orgGroups;
 };
 
+export const getOrgUserStats = (state: AppState) => {
+  return state.ui.org.orgUserStats;
+};
+
 export const getFetchOrgGroupsFinished = (state: AppState) => {
   return state.ui.org.fetchOrgGroupsFinished;
 };

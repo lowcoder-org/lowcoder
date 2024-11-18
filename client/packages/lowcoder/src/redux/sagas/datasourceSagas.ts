@@ -1,5 +1,6 @@
 import {
   EvaluationReduxAction,
+  ReduxActionErrorTypes,
   ReduxActionTypes,
   ReduxActionWithCallbacks,
 } from "constants/reduxActionConstants";
@@ -33,6 +34,9 @@ export function* fetchDatasourceSaga(action: EvaluationReduxAction<FetchDatasour
   } catch (error: any) {
     log.error("fetch datasource error: ", error);
     messageInstance.error(error.message);
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_DATASOURCE_ERROR,
+    });
   }
 }
 

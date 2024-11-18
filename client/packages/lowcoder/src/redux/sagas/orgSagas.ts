@@ -1,6 +1,6 @@
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
-import { ApiResponse, GenericApiResponse } from "api/apiResponses";
+import { ApiResponse, FetchGroupApiResponse, GenericApiResponse } from "api/apiResponses";
 import OrgApi, { CreateOrgResponse, GroupUsersResponse, OrgAPIUsageResponse, OrgUsersResponse } from "api/orgApi";
 import { AxiosResponse } from "axios";
 import { OrgGroup } from "constants/orgConstants";
@@ -49,7 +49,7 @@ export function* updateGroupSaga(action: ReduxAction<UpdateGroupActionPayload>) 
 
 export function* fetchGroupsSaga(action: ReduxAction<{ orgId: string }>) {
   try {
-    const response: AxiosResponse<GenericApiResponse<OrgGroup[]>> = yield call(OrgApi.fetchGroup);
+    const response: AxiosResponse<FetchGroupApiResponse<OrgGroup[]>> = yield call(OrgApi.fetchGroup);
     const isValidResponse: boolean = validateResponse(response);
     if (isValidResponse) {
       const groups = response.data.data;
@@ -57,6 +57,12 @@ export function* fetchGroupsSaga(action: ReduxAction<{ orgId: string }>) {
         type: ReduxActionTypes.FETCH_ORG_GROUPS_SUCCESS,
         payload: {
           orgGroups: groups,
+          orgUserStats: {
+            totalAdmins: response.data.totalAdmins,
+            totalAdminsAndDevelopers: response.data.totalAdminsAndDevelopers,
+            totalDevelopersOnly: response.data.totalDevelopersOnly,
+            totalOtherMembers: response.data.totalOtherMembers,
+          }
         },
       });
     }

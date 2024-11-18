@@ -1,121 +1,16 @@
 import Api from "api/api";
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
-import { useSelector } from "react-redux";
-import { getUser, getCurrentUser } from "redux/selectors/usersSelectors";
-import { useEffect, useState } from "react";
+import axios, { AxiosInstance, AxiosRequestConfig, CancelToken } from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState} from "react";
 import { calculateFlowCode }  from "./apiUtils";
-
-// Interfaces
-export interface CustomerAddress {
-  line1: string;
-  line2: string;
-  city: string;
-  state: string;
-  country: string;
-  postalCode: string;
-}
-
-export interface LowcoderNewCustomer {
-  hostname: string;
-  email: string;
-  orgId: string;
-  userId: string;
-  userName: string;
-  type: string;
-  companyName: string;
-  address?: CustomerAddress;
-}
-
-export interface LowcoderSearchCustomer {
-  hostname: string;
-  email: string;
-  orgId: string;
-  userId: string;
-}
-
-interface LowcoderMetadata {
-  lowcoder_host: string;
-  lowcoder_orgId: string;
-  lowcoder_type: string;
-  lowcoder_userId: string;
-}
-
-export interface StripeCustomer {
-  id: string;
-  object: string;
-  address?: object | null;
-  balance: number;
-  created: number;
-  currency: string | null;
-  default_source: string | null;
-  delinquent: boolean;
-  description: string | null;
-  discount: string | null;
-  email: string;
-  invoice_prefix: string;
-  invoice_settings: object | null;
-  livemode: boolean;
-  metadata: LowcoderMetadata;
-  name: string;
-  phone: string | null;
-  preferred_locales: string[];
-  shipping: string | null;
-  tax_exempt: string;
-  test_clock: string | null;
-}
-
-export interface Pricing {
-  type: string;
-  amount: string;
-}
-
-export interface Product {
-  title?: string;
-  description?: string;
-  image?: string;
-  pricingType: string;
-  product: string;
-  activeSubscription: boolean;
-  accessLink: string;
-  subscriptionId: string;
-  checkoutLink: string;
-  checkoutLinkDataLoaded?: boolean;
-  type?: string;
-  quantity_entity?: string;
-}
-
-export interface SubscriptionItem {
-  id: string;
-  object: string;
-  plan: {
-    id: string;
-    product: string;
-  };
-  quantity: number;
-}
-
-export interface Subscription {
-  id: string;
-  collection_method: string;
-  current_period_end: number;
-  current_period_start: number;
-  product: string;
-  currency: string;
-  interval: string;
-  tiers_mode: string;
-  status: string;
-  start_date: number;
-  quantity: number;
-  billing_scheme: string;
-  price: string;
-}
-
-export interface SubscriptionsData {
-  subscriptions: Subscription[];
-  subscriptionDataLoaded: boolean;
-  subscriptionDataError: boolean;
-  loading: boolean;
-}
+import { fetchGroupsAction, fetchOrgUsersAction } from "redux/reduxActions/orgActions";
+import { getOrgUsers } from "redux/selectors/orgSelectors";
+import { AppState } from "@lowcoder-ee/redux/reducers";
+import type {
+  LowcoderNewCustomer,
+  LowcoderSearchCustomer,
+  StripeCustomer,
+} from "@lowcoder-ee/constants/subscriptionConstants";
 
 export type ResponseType = {
   response: any;
@@ -148,17 +43,54 @@ const getAxiosInstance = (clientSecret?: string) => {
 };
 
 class SubscriptionApi extends Api {
-  static async secureRequest(body: any): Promise<any> {
+  static async secureRequest(body: any, timeout: number = 6000): Promise<any> {
     let response;
+    const axiosInstance = getAxiosInstance();
+
+    // Create a cancel token and set timeout for cancellation
+    const source = axios.CancelToken.source();
+    const timeoutId = setTimeout(() => {
+      source.cancel("Request timed out.");
+    }, timeout);
+
+    // Request configuration with cancel token
+    const requestConfig: AxiosRequestConfig = {
+      method: "POST",
+      withCredentials: true,
+      data: body,
+      cancelToken: source.token, // Add cancel token
+    };
+
     try {
-      response = await getAxiosInstance().request({
-        method: "POST",
-        withCredentials: true,
-        data: body,
-      });
+      response = await axiosInstance.request(requestConfig);
     } catch (error) {
-      console.error("Error at Secure Flow Request:", error);
+      if (axios.isCancel(error)) {
+        // Retry once after timeout cancellation
+        try {
+          // Reset the cancel token and retry
+          const retrySource = axios.CancelToken.source();
+          const retryTimeoutId = setTimeout(() => {
+            retrySource.cancel("Retry request timed out.");
+          }, 10000);
+
+          response = await axiosInstance.request({
+            ...requestConfig,
+            cancelToken: retrySource.token,
+          });
+
+          clearTimeout(retryTimeoutId);
+        } catch (retryError) {
+          console.warn("Error at Secure Flow Request. Retry failed:", retryError);
+          throw retryError;
+        }
+      } else {
+        console.warn("Error at Secure Flow Request:", error);
+        throw error;
+      }
+    } finally {
+      clearTimeout(timeoutId); // Clear the initial timeout
     }
+
     return response;
   }
 }
@@ -204,15 +136,30 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     method: "post",
     headers: lcHeaders
   };
+
   try {
     const result = await SubscriptionApi.secureRequest(apiBody);
 
-    if (result?.data?.data?.length > 0) {
-      return result?.data?.data;
-    }
-    else if (result.data.success == "false" && result.data.reason == "customerNotFound") {
+    if (!result || !result.data) {
       return [];
     }
+
+    // Filter out entries with `"success": "false"`
+    const validEntries = result.data.filter((entry: any) => entry.success !== "false");
+
+    // Flatten the data arrays and filter out duplicates by `id`
+    const uniqueSubscriptions = Object.values(
+      validEntries.reduce((acc: Record<string, any>, entry: any) => {
+        entry.data.forEach((subscription: any) => {
+          if (!acc[subscription.id]) {
+            acc[subscription.id] = subscription;
+          }
+        });
+        return acc;
+      }, {})
+    );
+
+    return uniqueSubscriptions;
   } catch (error) {
     console.error("Error searching customer:", error);
     throw error;
@@ -227,7 +174,7 @@ export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) 
     headers: lcHeaders
   };
   try {
-    const result = await SubscriptionApi.secureRequest(apiBody);
+    const result = await SubscriptionApi.secureRequest(apiBody, 15000);
     return result?.data as StripeCustomer;
   } catch (error) {
     console.error("Error creating customer:", error);
@@ -260,7 +207,7 @@ export const getProducts = async () => {
   };
   try {
     const result = await SubscriptionApi.secureRequest(apiBody);
-    return result?.data as any;
+    return result?.data?.data as any[];
   } catch (error) {
     console.error("Error fetching product:", error);
     throw error;
@@ -291,226 +238,55 @@ export const createCheckoutLink = async (customer: StripeCustomer, priceId: stri
   }
 };
 
-// Hooks
-
-export const InitializeSubscription = () => {
-  const [customer, setCustomer] = useState<StripeCustomer | null>(null);
-  const [isCreatingCustomer, setIsCreatingCustomer] = useState<boolean>(false);  // Track customer creation
-  const [customerDataError, setCustomerDataError] = useState<boolean>(false);
-  const [subscriptions, setSubscriptions] = useState<SubscriptionItem[]>([]);
-  const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
-  const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
-  const [checkoutLinkDataLoaded, setCheckoutLinkDataLoaded] = useState<boolean>(false);
-  const [checkoutLinkDataError, setCheckoutLinkDataError] = useState<boolean>(false);
-  const [products, setProducts] = useState<Product[]>([
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1PhH38DDlQgecLSfSukEgIeV",
-      product: "QW8L3WPMiNjQjI",
-      subscriptionId: "",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      type: "org",
-      quantity_entity: "orgUser",
-    },
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1Pf65wDDlQgecLSf6OFlbsD5",
-      product: "QW8MpIBHxieKXd",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      subscriptionId: "",
-      type: "user",
-      quantity_entity: "singleItem",
-    },
-    {
-      pricingType: "Monthly, per User",
-      activeSubscription: false,
-      accessLink: "1PttHIDDlQgecLSf0XP27tXt",
-      product: "QlQ7cdOh8Lv4dy",
-      subscriptionId: "",
-      checkoutLink: "",
-      checkoutLinkDataLoaded: false,
-      type: "org",
-      quantity_entity: "singleItem",
-    },
-  ]);
-
-  const user = useSelector(getUser);
-  const currentUser = useSelector(getCurrentUser);
-  const currentOrg = user.orgs.find(org => org.id === user.currentOrgId);
-  const orgID = user.currentOrgId;
-  const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-  const admin = user.orgRoleMap.get(orgID) === "admin" ? "admin" : "member";
-
-  const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-    hostname: domain,
-    email: currentUser.email,
-    orgId: orgID,
-    userId: user.id,
+// Function to get subscription details from Stripe
+export const getSubscriptionDetails = async (subscriptionId: string) => {
+  const apiBody = {
+    path: "webhook/secure/get-subscription-details",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
   };
-
-  const subscriptionNewCustomer: LowcoderNewCustomer = {
-    hostname: domain,
-    email: currentUser.email,
-    orgId: orgID,
-    userId: user.id,
-    userName: user.username,
-    type: admin,
-    companyName: currentOrg?.name || "Unknown",
-  };
-
-  useEffect(() => {
-    const initializeCustomer = async () => {
-      try {
-        setIsCreatingCustomer(true);
-        const existingCustomer = await searchCustomer(subscriptionSearchCustomer);
-        if (existingCustomer != null) {
-          setCustomer(existingCustomer);
-        } else {
-          const newCustomer = await createCustomer(subscriptionNewCustomer);
-          setCustomer(newCustomer);
-        }
-      } catch (error) {
-        setCustomerDataError(true);
-      } finally {
-        setIsCreatingCustomer(false);
-      }
-    };
-
-    initializeCustomer();
-  }, []);
-
-  useEffect(() => {
-    const fetchSubscriptions = async () => {
-      if (customer) {
-        try {
-          const subs = await searchSubscriptions(customer.id);
-          setSubscriptions(subs);
-          setSubscriptionDataLoaded(true);
-        } catch (error) {
-          setSubscriptionDataError(true);
-        }
-      }
-    };
-
-    fetchSubscriptions();
-  }, [customer]);
-
-  useEffect(() => {
-    const prepareCheckout = async () => {
-      if (subscriptionDataLoaded) {
-        try {
-          const updatedProducts = await Promise.all(
-            products.map(async (product) => {
-              const matchingSubscription = subscriptions.find(
-                (sub) => sub.plan.id === "price_" + product.accessLink
-              );
-
-              if (matchingSubscription) {
-                return {
-                  ...product,
-                  activeSubscription: true,
-                  checkoutLinkDataLoaded: true,
-                  subscriptionId: matchingSubscription.id.substring(4),
-                };
-              } else {
-                const checkoutLink = await createCheckoutLink(customer!, product.accessLink, 1);
-                return {
-                  ...product,
-                  activeSubscription: false,
-                  checkoutLink: checkoutLink ? checkoutLink.url : "",
-                  checkoutLinkDataLoaded: true,
-                };
-              }
-            })
-          );
-
-          setProducts(updatedProducts);
-        } catch (error) {
-          setCheckoutLinkDataError(true);
-        }
-      }
-    };
-
-    prepareCheckout();
-  }, [subscriptionDataLoaded]);
-
-  return {
-    customer,
-    isCreatingCustomer,
-    customerDataError,
-    subscriptions,
-    subscriptionDataLoaded,
-    subscriptionDataError,
-    checkoutLinkDataLoaded,
-    checkoutLinkDataError,
-    products,
-    admin,
-  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching subscription details:", error);
+    throw error;
+  }
 };
 
-export enum SubscriptionProducts {
-  SUPPORT = "QW8L3WPMiNjQjI",
-  MEDIAPACKAGE = 'QW8MpIBHxieKXd',
-  AZUREAPIS = 'premium',
-  GOOGLEAPIS = 'enterprise',
-  AWSAPIS = 'enterprise-global',
-  PRIVATECLOUD = 'private-cloud',
-  MATRIXCLOUD = 'matrix-cloud',
-  AGORATOKENSERVER = 'agora-tokenserver',
-  SIGNALSERVER = 'signal-server',
-  DATABASE = 'database',
-  STORAGE = 'storage',
-  IOSAPP = 'ios-app',
-  ANDROIDAPP = 'android-app',
-  AUDITLOG = 'audit-log',
-  APPLOG = 'app-log',
-  ENVIRONMENTS = 'environments',
-  GITREPOS = 'git-repos',
-}
-
-export const CheckSubscriptions = () => {
-  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
-  const [subscriptionDataLoaded, setSubscriptionDataLoaded] = useState<boolean>(false);
-  const [subscriptionDataError, setSubscriptionDataError] = useState<boolean>(false);
-  const [loading, setLoading] = useState<boolean>(true);
-
-  const user = useSelector(getUser);
-  const currentUser = useSelector(getCurrentUser);
-  const orgID = user.currentOrgId;
-  const domain = window.location.protocol + "//" + window.location.hostname + (window.location.port ? ':' + window.location.port : '');
-
-  const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-    hostname: domain,
-    email: currentUser.email,
-    orgId: orgID,
-    userId: user.id,
+// Function to get invoice documents from Stripe
+export const getInvoices = async (subscriptionId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/get-subscription-invoices",
+    method: "post",
+    data: { "subscriptionId": subscriptionId },
+    headers: lcHeaders,
   };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data?.data ?? [];
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
+};
 
-  useEffect(() => {
-    const fetchCustomerAndSubscriptions = async () => {
-      try {
-        const subs = await searchCustomersSubscriptions(subscriptionSearchCustomer);
-        setSubscriptions(subs);
-        setSubscriptionDataLoaded(true);
-      } catch (error) {
-        setSubscriptionDataError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchCustomerAndSubscriptions();
-  }, [subscriptionSearchCustomer]);
-
-  return {
-    subscriptions,
-    subscriptionDataLoaded,
-    subscriptionDataError,
-    loading,
+// Function to get a customer Portal Session from Stripe
+export const getCustomerPortalSession = async (customerId: string) => { 
+  const apiBody = {
+    path: "webhook/secure/create-customer-portal-session",
+    method: "post",
+    data: { "customerId": customerId },
+    headers: lcHeaders,
   };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody);
+    return result?.data;
+  } catch (error) {
+    console.error("Error fetching invoices:", error);
+    throw error;
+  }
 };
 
 export default SubscriptionApi;

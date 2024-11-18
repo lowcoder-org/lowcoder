@@ -1,10 +1,10 @@
+import { Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import {
   ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "constants/reduxActionConstants";
 import { createReducer } from "util/reducerUtils";
-import { Subscription } from "api/subscriptionApi";
 
 const initialState: SubscriptionsReduxState = {
   subscriptions: [],
@@ -12,7 +12,7 @@ const initialState: SubscriptionsReduxState = {
     fetchingSubscriptions: false,
     fetchSubscriptionsFinished: false,
   },
-  error: "",
+  error: undefined,
 };
 
 const subscriptionReducer = createReducer(initialState, {
@@ -22,6 +22,7 @@ const subscriptionReducer = createReducer(initialState, {
       ...state.loadingStates,
       fetchingSubscriptions: true,
     },
+    error: undefined,
   }),
   
   [ReduxActionTypes.FETCH_SUBSCRIPTIONS_SUCCESS]: (
@@ -35,6 +36,7 @@ const subscriptionReducer = createReducer(initialState, {
       fetchingSubscriptions: false,
       fetchSubscriptionsFinished: true,
     },
+    error: undefined,
   }),
   
   [ReduxActionErrorTypes.FETCH_SUBSCRIPTIONS_ERROR]: (
@@ -57,7 +59,7 @@ export interface SubscriptionsReduxState {
     fetchingSubscriptions: boolean;
     fetchSubscriptionsFinished: boolean;
   };
-  error: string;
+  error?: string;
 }
 
 export default subscriptionReducer;

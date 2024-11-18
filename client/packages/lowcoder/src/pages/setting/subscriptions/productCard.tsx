@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import { GreyTextColor } from 'constants/style';
 import { Card, Button } from 'antd';
-import { SettingOutlined, CheckCircleOutlined, PlusSquareOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
+import { SettingOutlined, CheckCircleOutlined, LoadingOutlined, InfoCircleOutlined } from '@ant-design/icons';
 import { buildSubscriptionSettingsLink, buildSubscriptionInfoLink } from "constants/routesURL";
 import history from "util/history";
 
@@ -77,7 +77,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     <ProductCardContainer
       hoverable
       loading={!checkoutLinkDataLoaded || loading}
-      cover={<img alt={title} src={image} />}
+      cover={
+        <img loading="lazy" alt={title} src={image} style={{width: '300px', height: '300px', background: '#f2f2f2'}} />
+      }
       actions={[
         <Button type="default" block onClick={goToSubscriptionInformation} style={{width:"90%"}} icon={<InfoCircleOutlined />}>Info</Button>,
         activeSubscription ? (
@@ -96,7 +98,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
     >
       <ProductTitle>{title}</ProductTitle>
       <ProductDescription>{description}</ProductDescription>
-      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> | Subscribed: </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
+      <PricingTypeDescription>{pricingType} {activeSubscription && <><span> Subscribed </span><CheckCircleOutlined key="check" style={{ color: 'green' }} /></>}</PricingTypeDescription>
     </ProductCardContainer>
   );
 };
