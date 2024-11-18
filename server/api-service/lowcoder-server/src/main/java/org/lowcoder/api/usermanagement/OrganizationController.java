@@ -90,10 +90,10 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "1000") int count) {
+            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1000") int pageSize) {
         String id = gidService.convertOrganizationIdToObjectId(orgId);
-        return orgApiService.getOrganizationMembers(id, page, count)
+        return orgApiService.getOrganizationMembers(id, pageNum, pageSize)
                 .map(ResponseView::success);
     }
 
