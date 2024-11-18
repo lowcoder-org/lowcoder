@@ -75,15 +75,16 @@ public class GroupController implements GroupEndpoints
     }
 
     @Override
-    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups() {
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         return groupApiService.getGroups().flatMap(groupList -> {
             if(groupList.isEmpty()) return Mono.just(new GroupListResponseView<>(ResponseView.SUCCESS,
-                    "", List.of(), 0, 0, 0, 0));
+                    "", List.of(), 0, 0, 0, 0, 0, pageNum, pageSize));
             return sessionUserService.getVisitorOrgMemberCache()
                 .map(OrgMember::getOrgId)
                 .flatMap(orgId -> orgMemberService.getOrganizationMembers(orgId)
                     .collectList()
-                    .zipWith(groupService.getDevGroup(orgId).flatMap(devGroup -> groupMemberService.getGroupMembers(devGroup.getId(), 0, -1)))
+                    .zipWith(groupService.getDevGroup(orgId).flatMap(devGroup -> groupMemberService.getGroupMembers(devGroup.getId())))
                     .map(tuple -> {
                         List<OrgMember> orgMembers = tuple.getT1();
                         List<GroupMember> devMembers = tuple.getT2();
@@ -98,13 +99,17 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
+                        var subList = groupList.subList(pageNum * pageSize, pageSize <= 0?groupList.size():pageNum * pageSize + pageSize);
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
-                            groupList,
+                            subList,
                             totalAdmins,
                             totalAdminsAndDevelopers,
                             totalDevelopersOnly,
-                            totalOtherMembers);
+                            totalOtherMembers,
+                            subList.size(),
+                            pageNum,
+                            pageSize);
                     })
                 );
             }
@@ -114,10 +119,10 @@ public class GroupController implements GroupEndpoints
 
     @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "100") int count) {
+            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "100") int pageSize) {
         String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupApiService.getGroupMembers(objectId, page, count)
+        return groupApiService.getGroupMembers(objectId, pageNum, pageSize)
                 .map(ResponseView::success);
     }
 

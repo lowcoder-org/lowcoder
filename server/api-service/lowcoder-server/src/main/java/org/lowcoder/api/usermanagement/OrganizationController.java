@@ -4,6 +4,7 @@ import com.github.f4b6a3.uuid.UuidCreator;
 import jakarta.validation.Valid;
 import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.OrgView;
@@ -26,6 +27,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
+
 @RestController
 public class OrganizationController implements OrganizationEndpoints
 {
@@ -46,12 +49,13 @@ public class OrganizationController implements OrganizationEndpoints
     private UserService userService;
 
     @Override
-    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String email) {
-        return userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
+    public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
+                                                           @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                           @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
+        var flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(OrgView::new)
-                .collectList()
-                .map(ResponseView::success);
+                .map(OrgView::new).cache();
+        return fluxToPageResponseView(pageNum, pageSize, flux);
     }
 
     @Override
@@ -86,10 +90,10 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "1000") int count) {
+            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1000") int pageSize) {
         String id = gidService.convertOrganizationIdToObjectId(orgId);
-        return orgApiService.getOrganizationMembers(id, page, count)
+        return orgApiService.getOrganizationMembers(id, pageNum, pageSize)
                 .map(ResponseView::success);
     }
 

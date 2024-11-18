@@ -24,9 +24,6 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     registry,
   } = props;
   const containerWidth = useContainerWidth();
-
-  // console.log("ObjectFieldTemplate Props", props);
-
   const uiOptions = getUiOptions(uiSchema);
   const TitleFieldTemplate = getTemplate('TitleFieldTemplate', registry, uiOptions);
   const DescriptionFieldTemplate = getTemplate('DescriptionFieldTemplate', registry, uiOptions);

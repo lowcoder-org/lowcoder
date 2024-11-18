@@ -26,7 +26,6 @@ import { useContext, useEffect, useRef, useState, createContext } from "react";
 import { EditorContext } from "comps/editorState";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
-// import { LayoutFieldTemplate } from "./LayoutFieldTemplate";
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 
@@ -90,8 +89,6 @@ const Container = styled.div<{
   .help-block {
     margin-bottom: 0px;
   }
-
-
 `;
 
 function convertData(schema?: JSONSchema7, data?: any) {
@@ -324,6 +321,7 @@ let FormBasicComp = (function () {
           </ScrollBar>
         </Container>
       </ContainerWidthContext.Provider>
+
     );
   })
     .setPropertyViewFn((children) => {
@@ -482,6 +480,5 @@ FormTmpComp = withMethodExposing(FormTmpComp, [
       }),
   },
 ]);
-
 export const JsonSchemaFormComp = FormTmpComp;
 export { FormTmpComp, useContainerWidth };
