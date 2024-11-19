@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Row, Col } from 'antd';
+import { Row, Col, Tabs } from 'antd';
 import { ObjectFieldTemplateProps, getTemplate, getUiOptions, descriptionId, titleId, canExpand } from '@rjsf/utils';
 import { ConfigConsumer } from 'antd/es/config-provider/context';
 import { useContainerWidth } from "./jsonSchemaFormComp";
 import styled from "styled-components";
+import TabPane from "antd/es/tabs/TabPane";
+import { is } from "core-js/core/object";
 
 const DESCRIPTION_COL_STYLE = {
   paddingBottom: '8px',
@@ -98,6 +100,67 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     return fieldName ? registry.fields[fieldName] : undefined;
   };
   
+  const renderSingleLevel = (level : number) => {
+    return (
+      <Row gutter={rowGutter}>
+        {properties.map((prop) => {
+          const isArray = prop.content.props.schema.type === "array";
+          const colSpan = isArray
+            ? { span: 24 }
+            : calculateResponsiveColSpan(uiSchema?.[prop.name] || {});
+  
+          return (
+            <Col key={prop.name} {...colSpan}>
+              {/* Render legend for array fields */}
+              {isArray && (
+                <><br /><legend style={getLegendStyle(level)}>
+                  {prop.content.props.schema.title}
+                </legend></>
+              )}
+              {/* Render field content */}
+              {prop.content}
+            </Col>
+          );
+        })}
+      </Row>
+    );
+  };
+
+  const renderCategorization = (elements: any[]) => {
+    return (
+      <Tabs>
+        {elements.map((category, index) => (
+          <TabPane tab={category.label || `Category ${index + 1}`} key={category.label || index}>
+            {category.elements.map((element: any, elementIndex: number) => {
+              if (element.type === "HorizontalLayout") {
+                return (
+                  <Row key={elementIndex} gutter={rowGutter}>
+                    {element.elements.map((field: any, fieldIndex: number) => {
+                      const colSpan = calculateResponsiveColSpan(field.uiSchema);
+                      return (
+                        <Col key={fieldIndex} {...colSpan}>
+                          {properties.find((prop) => prop.name === field.scope.replace("#/properties/", ""))
+                            ?.content}
+                        </Col>
+                      );
+                    })}
+                  </Row>
+                );
+              }
+
+              if (element.type === "Control") {
+                return properties.find((prop) => prop.name === element.scope.replace("#/properties/", ""))
+                  ?.content;
+              }
+
+              return null;
+            })}
+          </TabPane>
+        ))}
+      </Tabs>
+    );
+  };
+
   const renderFieldsFromSection = (section: any, level: number = 0) => {
     const { formData, schema, uiSchema } = section.content.props;
   
@@ -192,31 +255,38 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
   };  
 
   const renderSections = (properties: any[], level: number) => {
+
+    const isMultiLevel = properties.some(
+      (prop) => prop.content.props.schema?.type === "object" && prop.content.props.schema?.properties
+    );
+
+    if (!isMultiLevel) {
+      return renderSingleLevel(level);
+    }
+
     return properties.map((section) => {
         const schema = section.content.props.schema;
         const isArray = typeof section.content.props.index === 'number';
         const sectionTitle = schema.title || section.name;
 
-        console.log("Section", sectionTitle, isArray, section);
-
         return (
-            <Row
-                key={section.name}
-                gutter={rowGutter}
-                style={{ marginBottom: "16px", width: "100%" }}
-            >
-                <Col span={24}>
-                    <fieldset>
-                        {/* Always render the legend for the section itself */}
-                        {level === 0 && !isArray ? (
-                            <legend style={getLegendStyle(level)}>{sectionTitle}</legend>
-                        ) : null}
+          <Row
+              key={section.name}
+              gutter={rowGutter}
+              style={{ marginBottom: "16px", width: "100%" }}
+          >
+            <Col span={24}>
+              <fieldset>
+                {/* Always render the legend for the section itself */}
+                {level === 0 && !isArray ? (
+                    <legend style={getLegendStyle(level)}>{sectionTitle}</legend>
+                ) : null}
 
-                        {/* Render the section content */}
-                        {renderFieldsFromSection(section, level + 1)}
-                    </fieldset>
-                </Col>
-            </Row>
+                {/* Render the section content */}
+                {renderFieldsFromSection(section, level + 1)}
+              </fieldset>
+            </Col>
+          </Row>
         );
     });
   };
