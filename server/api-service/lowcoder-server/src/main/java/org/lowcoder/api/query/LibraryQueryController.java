@@ -2,6 +2,7 @@ package org.lowcoder.api.query;
 
 import java.util.List;
 
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.query.view.LibraryQueryAggregateView;
 import org.lowcoder.api.query.view.LibraryQueryPublishRequest;
@@ -19,7 +20,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
 
 @RestController
 public class LibraryQueryController implements LibraryQueryEndpoints
@@ -35,15 +39,18 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     private GidService gidService;
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false) String name) {
+    public Mono<ResponseView<List<LibraryQueryAggregateView>>> dropDownList(@RequestParam(required = false, defaultValue = "") String name) {
         return libraryQueryApiService.dropDownList(name)
                 .map(ResponseView::success);
     }
 
     @Override
-    public Mono<ResponseView<List<LibraryQueryView>>> list(@RequestParam(required = false) String name) {
-        return libraryQueryApiService.listLibraryQueries(name)
-                .map(ResponseView::success);
+    public Mono<PageResponseView<?>> list(@RequestParam(required = false, defaultValue = "") String name,
+                                                               @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                               @RequestParam(required = false, defaultValue = "100") int pageSize) {
+        var flux = libraryQueryApiService.listLibraryQueries(name)
+                .flatMapMany(Flux::fromIterable);
+        return fluxToPageResponseView(pageNum, pageSize, flux);
     }
 
     @Override

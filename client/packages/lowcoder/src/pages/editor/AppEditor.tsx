@@ -36,6 +36,7 @@ import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import { notificationInstance } from "components/GlobalInstances";
 import { AppState } from "@lowcoder-ee/redux/reducers";
+import { resetIconDictionary } from "@lowcoder-ee/constants/iconConstants";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -188,6 +189,7 @@ const AppEditor = React.memo(() => {
   useEffect(() => {
     if(!isLowcoderCompLoading) {
       fetchApplication();
+      resetIconDictionary();
     }
   }, [isLowcoderCompLoading, fetchApplication]);
 

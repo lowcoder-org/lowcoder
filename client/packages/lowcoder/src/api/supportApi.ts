@@ -1,5 +1,5 @@
 import Api from "api/api";
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, CancelToken } from "axios";
 import { calculateFlowCode }  from "./apiUtils";
 
 export type ResponseType = {
@@ -64,15 +64,53 @@ class SupportApi extends Api {
 
   static async secureRequest(body: any): Promise<any> {
     let response;
+    const axiosInstance = getAxiosInstance();
+
+    // Create a cancel token and set timeout for cancellation
+    const source = axios.CancelToken.source();
+    const timeoutId = setTimeout(() => {
+      source.cancel("Request timed out.");
+    }, 10000);
+
+    // Request configuration with cancel token
+    const requestConfig: AxiosRequestConfig = {
+      method: "POST",
+      withCredentials: true,
+      data: body,
+      cancelToken: source.token, // Add cancel token
+    };
+
     try {
-      response = await getAxiosInstance().request({
-        method: "POST",
-        withCredentials: true,
-        data: body,
-      });
+      response = await axiosInstance.request(requestConfig);
     } catch (error) {
-      console.error("Error at Support Flow Request:", error);
+      if (axios.isCancel(error)) {
+        console.warn("Request cancelled due to timeout:", error.message);
+        // Retry once after timeout cancellation
+        try {
+          // Reset the cancel token and retry
+          const retrySource = axios.CancelToken.source();
+          const retryTimeoutId = setTimeout(() => {
+            retrySource.cancel("Retry request timed out.");
+          }, 15000);
+
+          response = await axiosInstance.request({
+            ...requestConfig,
+            cancelToken: retrySource.token,
+          });
+
+          clearTimeout(retryTimeoutId);
+        } catch (retryError) {
+          console.error("Retry failed:", retryError);
+          throw retryError;
+        }
+      } else {
+        console.error("Error at Support Flow Request:", error);
+        throw error;
+      }
+    } finally {
+      clearTimeout(timeoutId); // Clear the initial timeout
     }
+
     return response;
   }
 
@@ -80,17 +118,28 @@ class SupportApi extends Api {
 
 // API Functions
 
-export const searchCustomerTickets = async (orgID : string, currentUserId : string, domain : string) => {
+export const searchCustomerTickets = async (
+  deploymentId : string,
+  orgID : string,
+  currentUserId : string
+) => {
 
   const apiBody = {
     path: "webhook/support/get-issues",
-    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId},
+    data: {"hostId" : deploymentId, "orgId" : orgID, "userId" : currentUserId},
     method: "post",
     headers: lcHeaders
   };
   try {
     const result = await SupportApi.secureRequest(apiBody);
-    return result.data as TicketList;
+
+    if (!result || !result.data) {
+      return [];
+    }
+
+    const validEntries = result.data.filter((entry: any) => entry.success !== "false");
+
+    return validEntries as TicketList;
   } catch (error) {
     console.error("Error searching Support Tickets: ", error);
     throw error;
@@ -114,11 +163,20 @@ export const getTicket = async (ticketKey : string) => {
   }
 };
 
-export const createTicket = async (orgID : string, currentUserId : string, subscriptionId : string, domain : string, summary: string, description : string, errors : string) => {
+export const createTicket = async (
+  domain: string,
+  deploymentId : string,
+  orgID : string, 
+  orgName : string,
+  currentUserId : string, 
+  subscriptionId : string, 
+  summary: string, 
+  description : string, 
+  errors : string) => {
 
   const apiBody = {
     path: "webhook/support/create-ticket",
-    data: {"host" : domain, "orgId" : orgID, "userId" : currentUserId, "subscriptionId": subscriptionId, "summary" : summary, "description" : description, "errors" : errors},
+    data: {"domain" : domain, "hostId" : deploymentId, "orgId" : orgID, "orgName" : orgName, "userId" : currentUserId, "subscriptionId": subscriptionId, "summary" : summary, "description" : description, "errors" : errors},
     method: "post",
     headers: lcHeaders
   };

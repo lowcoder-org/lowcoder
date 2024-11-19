@@ -17,6 +17,10 @@ class ConfigApi extends Api {
     }
     return Api.get(authConfigURL);
   }
+
+  static fetchDeploymentId(): AxiosPromise<ConfigResponse> {
+    return Api.get(`${ConfigApi.configURL}/deploymentId`);
+  }
 }
 
 export default ConfigApi;

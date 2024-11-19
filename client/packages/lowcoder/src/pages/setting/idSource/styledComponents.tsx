@@ -258,34 +258,15 @@ export const DeleteWrapper = styled.div`
   line-height: 19px;
 
   .danger-tip {
-    height: 32px;
-    padding: 0 16px 0 8px;
-    margin: 5px 0 8px 0;
-    background: #fff3f1;
+    max-width: 440px;
+    padding: 8px 16px;
+    margin: 5px 0 12px 0;
     border-radius: 4px;
-    display: inline-flex;
     align-items: center;
 
     svg {
       margin-right: 8px;
     }
-  }
-
-  .ant-btn {
-    min-width: 84px;
-    display: block;
-    padding: 4px 8px;
-    background: #fef4f4;
-    border: 1px solid #fccdcd;
-    font-size: 13px;
-    color: #f73131;
-
-    &:hover,
-    &.ant-btn-loading {
-      background: #feecec;
-    }
-
-    ${btnLoadingCss}
   }
 `;
 

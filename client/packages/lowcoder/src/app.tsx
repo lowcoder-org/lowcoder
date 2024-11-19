@@ -28,6 +28,7 @@ import {
   ADMIN_APP_URL,
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
+  ADMIN_AUTH_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -55,7 +56,7 @@ import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
-import { fetchHomeData } from "./redux/reduxActions/applicationActions";
+import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
 
@@ -94,6 +95,7 @@ type AppIndexProps = {
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   fetchLowcoderCompVersions: () => void;
   getCurrentUser: () => void;
+  fetchServerSettings: () => void;
   favicon: string;
   brandName: string;
   uiLanguage: string;
@@ -102,6 +104,7 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
+    this.props.fetchServerSettings();
     // if (!this.props.currentUserAnonymous) {
     //   this.props.fetchHomeData(this.props.currentUserAnonymous);
     // }
@@ -238,7 +241,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             rel="apple-touch-startup-image"
             href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png"
           />
-
           <meta
             key="application-name"
             name="application-name"
@@ -294,12 +296,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               rel="stylesheet"
             />,
             // adding Clearbit Support for Analytics
-            <script
-              key="clearbit-script"
-              src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js"
-              referrerPolicy="strict-origin-when-cross-origin"
-              type="text/javascript"
-            ></script>,
           ]}
         </Helmet>
         <SystemWarning />
@@ -337,6 +333,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 // component={ApplicationListPage}
                 component={LazyApplicationHome}
               />
+              <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute
                 path={ORG_AUTH_LOGIN_URL}
@@ -437,6 +434,9 @@ const mapDispatchToProps = (dispatch: any) => ({
       dispatch(setLowcoderCompsLoading(false));
     }
   },
+  fetchServerSettings: () => {
+    dispatch(fetchServerSettingsAction());
+  }
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);

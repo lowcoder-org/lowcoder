@@ -105,17 +105,17 @@ export class AppViewInstance<I = any, O = any> {
         });
       
       await DatasourceApi.fetchJsDatasourceByApp(this.appId).then((res) => {
-        res.data.data.forEach((i) => {
+        res.data?.data?.forEach((i) => {
           registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
         });
       });
 
       setGlobalSettings({
-        orgCommonSettings: data.data.orgCommonSettings,
+        orgCommonSettings: data?.data?.orgCommonSettings,
       });
 
-      finalAppDsl = data.data.applicationDSL;
-      finalModuleDslMap = data.data.moduleDSL;
+      finalAppDsl = data?.data?.applicationDSL || {};
+      finalModuleDslMap = data?.data?.moduleDSL || {};
     }
 
     if (this.options.moduleInputs && this.isModuleDSL(finalAppDsl)) {

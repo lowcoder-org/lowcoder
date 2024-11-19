@@ -11,7 +11,7 @@ import { BackgroundColorContext } from "comps/utils/backgroundColorContext";
 import { trans } from "i18n";
 import _ from "lodash";
 import { ConstructorToView, wrapChildAction } from "lowcoder-core";
-import { useContext } from "react";
+import { createContext, useContext } from "react";
 import { tryToNumber } from "util/convertUtils";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
 import { OB_ROW_ORI_INDEX, RecordType } from "./tableUtils";
@@ -19,6 +19,7 @@ import { NameGenerator } from "comps/utils";
 import { JSONValue } from "util/jsonTypes";
 
 const ContextSlotControl = withSelectedMultiContext(SlotControl);
+export const ExpandViewContext = createContext(false);
 
 const ContainerView = (props: ContainerBaseProps) => {
   return <InnerGrid {...props} emptyRows={15} autoHeight />;
@@ -85,7 +86,11 @@ export class ExpansionControl extends ExpansionControlTmp {
             String(record[OB_ROW_ORI_INDEX])
           );
           const containerProps = slotControl.children.container.getView();
-          return <ExpandView key={record[OB_ROW_ORI_INDEX]} containerProps={containerProps} />;
+          return (
+            <ExpandViewContext.Provider value={true}>
+              <ExpandView key={record[OB_ROW_ORI_INDEX]} containerProps={containerProps} />
+            </ExpandViewContext.Provider>
+          );
         },
       },
       expandModalView: selectedContainer.getView(),

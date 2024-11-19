@@ -1,6 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types'
-import { Runtime, Inspector } from '@observablehq/runtime';
+import { Runtime } from '@observablehq/runtime';
+import { Inspector } from "@observablehq/inspector";
+import { Library } from "@observablehq/stdlib";
+
+const library = new Library();
 
 function Chart(props) {
   const [chartRef, setChartRef] = React.useState();
@@ -16,21 +20,20 @@ function Chart(props) {
     main.variable().define('translateXtoY', function() {
       return x => 50 * Math.sin((Math.PI / 50) * x - (1 / 2) * Math.PI) + 50;
     });
-    main.variable().define('d3', ['require'], function(require) {
-      return require('https://d3js.org/d3.v5.min.js');
+    main.variable().define('d3', [], function() {
+      return Library.require('https://d3js.org/d3.v5.min.js');
     });
 
     // Define the HillChart class
-    main.variable().define('HillChart', ['d3', 'DOM', 'translateXtoY'], function(d3, DOM, translateXtoY) {
+    main.variable().define('HillChart', ['d3', 'translateXtoY'], function(d3, translateXtoY) {
       return class HillChart {
         constructor(chart_height, chart_width, items) {
           this.chart_height = chart_height;
           this.chart_width = chart_width;
           this.items = items;
-      
-          this.svg = d3.select(DOM.svg(this.chart_width, this.chart_height)).attr('viewBox', `-20 -20 ${this.chart_width + 80} ${this.chart_height + 20}`);
+
+          this.svg = d3.select(library.DOM.svg(this.chart_width, this.chart_height)).attr('viewBox', `-20 -20 ${this.chart_width + 80} ${this.chart_height + 20}`);
         }
-        
       
         render() {
           const xScale = d3

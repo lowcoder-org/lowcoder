@@ -340,7 +340,7 @@ export function columnsToAntdFormat(
       status: StatusType;
     }[];
     const title = renderTitle({ title: column.title, tooltip: column.titleTooltip, editable: column.editable });
-   
+
     return {
       key: `${column.dataIndex}-${mIndex}`,
       title: column.showTitle ? title : '',
@@ -399,7 +399,7 @@ export function columnsToAntdFormat(
       },
       ...(column.sortable
         ? {
-            sorter: true,
+            sorter: { multiple: (sortedColumns.length - mIndex) + 1 },
             sortOrder: sortMap.get(column.dataIndex),
             showSorterTooltip: false,
           }

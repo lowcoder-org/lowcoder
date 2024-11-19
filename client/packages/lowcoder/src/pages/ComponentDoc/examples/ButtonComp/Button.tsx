@@ -29,6 +29,7 @@ export default function ButtonExample() {
           compFactory={ButtonComp}
         />
       </ExampleGroup>
+      
       <ExampleGroup title={trans("componentDoc.style")}>
         <Example
           title={trans("componentDoc.danger")}

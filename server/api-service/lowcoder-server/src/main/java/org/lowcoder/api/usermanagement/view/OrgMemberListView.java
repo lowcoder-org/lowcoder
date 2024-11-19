@@ -13,6 +13,9 @@ public class OrgMemberListView {
 
     private String visitorRole;
     private List<OrgMemberView> members;
+    private Integer total;
+    private Integer pageNum;
+    private Integer pageSize;
 
     @Getter
     @SuperBuilder

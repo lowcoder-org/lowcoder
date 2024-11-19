@@ -43,3 +43,7 @@ export const isApplicationPublishing = (state: AppState): boolean => {
 export const getTemplateId = (state: AppState): any => {
   return state.ui.application.templateId;
 };
+
+export const getServerSettings = (state: AppState): Record<string,string> => {
+  return state.ui.application.serverSettings || {};
+}

@@ -337,6 +337,13 @@ const usersReducer = createReducer(initialState, {
       fetchingAppDetail: false,
     },
   }),
+  [ReduxActionTypes.FETCH_SERVER_SETTINGS_SUCCESS]: (
+    state: ApplicationReduxState,
+    action: ReduxAction<Record<string,string>>
+  ): ApplicationReduxState => ({
+    ...state,
+    serverSettings: action.payload,
+  }),
 });
 
 export interface ApplicationReduxState {
@@ -348,6 +355,7 @@ export interface ApplicationReduxState {
   appPermissionInfo?: AppPermissionInfo;
   currentApplication?: ApplicationMeta;
   templateId?: string;
+  serverSettings?: Record<string,string>;
   loadingStatus: {
     deletingApplication: boolean;
     isFetchingHomeData: boolean; // fetching app list

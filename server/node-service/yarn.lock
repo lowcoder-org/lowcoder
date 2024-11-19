@@ -2345,6 +2345,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@scarf/scarf@npm:=1.4.0":
+  version: 1.4.0
+  resolution: "@scarf/scarf@npm:1.4.0"
+  checksum: def62aa403f7e63165ccb219efd2c420fc0b7357b0ba43397f635e4aa813ace1cdf3855a93fc559b4619bcc0469ae4767b8cb72af30ea5c0522bf4a2ecb18198
+  languageName: node
+  linkType: hard
+
 "@sinclair/typebox@npm:^0.27.8":
   version: 0.27.8
   resolution: "@sinclair/typebox@npm:0.27.8"
@@ -3587,15 +3594,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/axios@npm:^0.14.0":
-  version: 0.14.0
-  resolution: "@types/axios@npm:0.14.0"
-  dependencies:
-    axios: "*"
-  checksum: 12a230b9404055d81804cb57fe4739b2317111b28a39e2477b2513250e8b85725e6f6ce509fc2a9494a6da60facb8d80df875fcd747f62f6c3abebc7db60ae66
-  languageName: node
-  linkType: hard
-
 "@types/babel__core@npm:^7.1.14":
   version: 7.20.5
   resolution: "@types/babel__core@npm:7.20.5"
@@ -4271,7 +4269,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:*, axios@npm:^1.4.0, axios@npm:^1.7.7":
+"axios@npm:^1.4.0, axios@npm:^1.7.7":
   version: 1.7.7
   resolution: "axios@npm:1.7.7"
   dependencies:
@@ -4566,16 +4564,6 @@ __metadata:
     base64-js: ^1.3.1
     ieee754: ^1.1.13
   checksum: e2cf8429e1c4c7b8cbd30834ac09bd61da46ce35f5c22a78e6c2f04497d6d25541b16881e30a019c6fd3154150650ccee27a308eff3e26229d788bbdeb08ab84
-  languageName: node
-  linkType: hard
-
-"buffer@npm:^6.0.3":
-  version: 6.0.3
-  resolution: "buffer@npm:6.0.3"
-  dependencies:
-    base64-js: ^1.3.1
-    ieee754: ^1.2.1
-  checksum: 5ad23293d9a731e4318e420025800b42bf0d264004c0286c8cc010af7a270c7a0f6522e84f54b9ad65cbd6db20b8badbfd8d2ebf4f80fa03dab093b89e68c3f9
   languageName: node
   linkType: hard
 
@@ -5022,7 +5010,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"cross-spawn@npm:^7.0.0, cross-spawn@npm:^7.0.3":
+"cross-spawn@npm:^7.0.0":
+  version: 7.0.6
+  resolution: "cross-spawn@npm:7.0.6"
+  dependencies:
+    path-key: ^3.1.0
+    shebang-command: ^2.0.0
+    which: ^2.0.1
+  checksum: 8d306efacaf6f3f60e0224c287664093fa9185680b2d195852ba9a863f85d02dcc737094c6e512175f8ee0161f9b87c73c6826034c2422e39de7d6569cf4503b
+  languageName: node
+  linkType: hard
+
+"cross-spawn@npm:^7.0.3":
   version: 7.0.3
   resolution: "cross-spawn@npm:7.0.3"
   dependencies:
@@ -5301,23 +5300,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"duckdb-async@npm:^0.10.0":
-  version: 0.10.2
-  resolution: "duckdb-async@npm:0.10.2"
+"duckdb-async@npm:^1.1.3":
+  version: 1.1.3
+  resolution: "duckdb-async@npm:1.1.3"
   dependencies:
-    duckdb: 0.10.2
-  checksum: 965fdba9b92a9fcb1fdea263b846c11145a515af4afe806afd8f3908113467f756624b59fa3351ed6d4893dc1c81410b763abb44d08619d4ace5e6407e4136be
+    duckdb: 1.1.3
+  checksum: f4fe4854811a1818c177540dab36ff95d59f0de4065bdcd8b1a02c609ab52bbf5648f86011af6078db1a07d47f277884d073b7211990ba3d1f6bbf39d17153fe
   languageName: node
   linkType: hard
 
-"duckdb@npm:0.10.2":
-  version: 0.10.2
-  resolution: "duckdb@npm:0.10.2"
+"duckdb@npm:1.1.3":
+  version: 1.1.3
+  resolution: "duckdb@npm:1.1.3"
   dependencies:
     "@mapbox/node-pre-gyp": ^1.0.0
     node-addon-api: ^7.0.0
     node-gyp: ^9.3.0
-  checksum: 5d55c4a2e79fec84de8d590c275daac69f7d3e556802c13ad2909bb05cc91cf2603cf84c9ad8d7fe102a8f094a37808a9c9d2bbcef15404e2c5f906134bda797
+  checksum: 026ed420f1884fec5909b334e055dd85e86c3edda4f3e3aab599048fdc81903ddc060837bd04a41de2857959f7a6cba52183a4c39c23b947d3c86113ab9dcd98
   languageName: node
   linkType: hard
 
@@ -5600,13 +5599,6 @@ __metadata:
   version: 5.0.1
   resolution: "event-target-shim@npm:5.0.1"
   checksum: 1ffe3bb22a6d51bdeb6bf6f7cf97d2ff4a74b017ad12284cc9e6a279e727dc30a5de6bb613e5596ff4dc3e517841339ad09a7eec44266eccb1aa201a30448166
-  languageName: node
-  linkType: hard
-
-"events@npm:^3.3.0":
-  version: 3.3.0
-  resolution: "events@npm:3.3.0"
-  checksum: f6f487ad2198aa41d878fa31452f1a3c00958f46e9019286ff4787c84aac329332ab45c9cdc8c445928fc6d7ded294b9e005a7fce9426488518017831b272780
   languageName: node
   linkType: hard
 
@@ -6552,7 +6544,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ieee754@npm:^1.1.13, ieee754@npm:^1.2.1":
+"ieee754@npm:^1.1.13":
   version: 1.2.1
   resolution: "ieee754@npm:1.2.1"
   checksum: 5144c0c9815e54ada181d80a0b810221a253562422e7c6c3a60b1901154184f49326ec239d618c416c1c5945a2e197107aee8d986a3dd836b53dffefd99b5e7e
@@ -7726,7 +7718,6 @@ __metadata:
     "@google-cloud/storage": ^6.10.1
     "@supabase/supabase-js": ^2.26.0
     "@types/ali-oss": ^6.16.11
-    "@types/axios": ^0.14.0
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.4
     "@types/jsonpath": ^0.2.0
@@ -7740,7 +7731,7 @@ __metadata:
     bluebird: ^3.7.2
     commander: ^10.0.0
     copyfiles: ^2.4.1
-    duckdb-async: ^0.10.0
+    duckdb-async: ^1.1.3
     dynamodb-data-types: ^4.0.1
     express: ^4.21.0
     express-async-errors: ^3.1.1
@@ -7760,17 +7751,17 @@ __metadata:
     node-firebird: ^1.1.9
     nodemon: ^2.0.22
     openapi-types: ^12.1.3
-    pino: ^8.14.1
+    pino: ^9.5.0
     postman-to-openapi: ^3.0.1
     prom-client: ^14.2.0
     proxy-agent: ^5.0.0
     stylis: ^4.3.0
     svgo: ^3.0.2
-    swagger-client: ^3.29.3
+    swagger-client: ^3.31.0
     ts-jest: ^29.0.3
     ts-node: ^10.9.1
     typescript: ^4.9.3
-    yaml: ^2.2.2
+    yaml: ^2.6.0
   languageName: unknown
   linkType: soft
 
@@ -8888,41 +8879,40 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pino-abstract-transport@npm:^1.2.0":
-  version: 1.2.0
-  resolution: "pino-abstract-transport@npm:1.2.0"
+"pino-abstract-transport@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "pino-abstract-transport@npm:2.0.0"
   dependencies:
-    readable-stream: ^4.0.0
     split2: ^4.0.0
-  checksum: 3336c51fb91ced5ef8a4bfd70a96e41eb6deb905698e83350dc71eedffb34795db1286d2d992ce1da2f6cd330a68be3f7e2748775a6b8a2ee3416796070238d6
+  checksum: 4db0cd8a1a7b6d13e76dbb58e6adc057c39e4591c70f601f4a427c030d57dff748ab53954e1ecd3aa6e21c1a22dd38de96432606c6d906a7b9f610543bf1d6e2
   languageName: node
   linkType: hard
 
-"pino-std-serializers@npm:^6.0.0":
-  version: 6.2.2
-  resolution: "pino-std-serializers@npm:6.2.2"
-  checksum: aeb0662edc46ec926de9961ed4780a4f0586bb7c37d212cd469c069639e7816887a62c5093bc93f260a4e0900322f44fc8ab1343b5a9fa2864a888acccdb22a4
+"pino-std-serializers@npm:^7.0.0":
+  version: 7.0.0
+  resolution: "pino-std-serializers@npm:7.0.0"
+  checksum: 08cd1d7b7adc4cfca39e42c2d5fd21bcf4513153734e7b8fa278b0e9e9f62df78c4c202886343fe882a462539c931cb8110b661775ad7f7217c96856795b5a86
   languageName: node
   linkType: hard
 
-"pino@npm:^8.14.1":
-  version: 8.21.0
-  resolution: "pino@npm:8.21.0"
+"pino@npm:^9.5.0":
+  version: 9.5.0
+  resolution: "pino@npm:9.5.0"
   dependencies:
     atomic-sleep: ^1.0.0
     fast-redact: ^3.1.1
     on-exit-leak-free: ^2.1.0
-    pino-abstract-transport: ^1.2.0
-    pino-std-serializers: ^6.0.0
-    process-warning: ^3.0.0
+    pino-abstract-transport: ^2.0.0
+    pino-std-serializers: ^7.0.0
+    process-warning: ^4.0.0
     quick-format-unescaped: ^4.0.3
     real-require: ^0.2.0
     safe-stable-stringify: ^2.3.1
-    sonic-boom: ^3.7.0
-    thread-stream: ^2.6.0
+    sonic-boom: ^4.0.1
+    thread-stream: ^3.0.0
   bin:
     pino: bin.js
-  checksum: d895c37cfcb7ade33ad7ac4ca54c0497ab719ec726e42b7c7b9697e07572a09a7c7de18d751440769c3ea5ecbac2075fdac720cf182720a4764defe3de8a1411
+  checksum: 650c3087619a619e92948641f0d9acc60cca594175b02fe1ce9c0923a8d07a8d120866f50b0848c26a5898837b8c1ae086adf67066180f686ea21e6e515a8558
   languageName: node
   linkType: hard
 
@@ -9019,10 +9009,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"process-warning@npm:^3.0.0":
-  version: 3.0.0
-  resolution: "process-warning@npm:3.0.0"
-  checksum: 1fc2eb4524041de3c18423334cc8b4e36bec5ad5472640ca1a936122c6e01da0864c1a4025858ef89aea93eabe7e77db93ccea225b10858617821cb6a8719efe
+"process-warning@npm:^4.0.0":
+  version: 4.0.0
+  resolution: "process-warning@npm:4.0.0"
+  checksum: 39d5cee53649132f12479965857cb01793d62ee1a702f06d079ee8aceee935cd0f79c250faab60e86705d8a5226856a61c419778d48ac67f72e160cceb60a1e5
   languageName: node
   linkType: hard
 
@@ -9276,19 +9266,6 @@ __metadata:
     string_decoder: ^1.1.1
     util-deprecate: ^1.0.1
   checksum: bdcbe6c22e846b6af075e32cf8f4751c2576238c5043169a1c221c92ee2878458a816a4ea33f4c67623c0b6827c8a400409bfb3cf0bf3381392d0b1dfb52ac8d
-  languageName: node
-  linkType: hard
-
-"readable-stream@npm:^4.0.0":
-  version: 4.5.2
-  resolution: "readable-stream@npm:4.5.2"
-  dependencies:
-    abort-controller: ^3.0.0
-    buffer: ^6.0.3
-    events: ^3.3.0
-    process: ^0.11.10
-    string_decoder: ^1.3.0
-  checksum: c4030ccff010b83e4f33289c535f7830190773e274b3fcb6e2541475070bdfd69c98001c3b0cb78763fc00c8b62f514d96c2b10a8bd35d5ce45203a25fa1d33a
   languageName: node
   linkType: hard
 
@@ -9720,12 +9697,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"sonic-boom@npm:^3.7.0":
-  version: 3.8.1
-  resolution: "sonic-boom@npm:3.8.1"
+"sonic-boom@npm:^4.0.1":
+  version: 4.2.0
+  resolution: "sonic-boom@npm:4.2.0"
   dependencies:
     atomic-sleep: ^1.0.0
-  checksum: 79c90d7a2f928489fd3d4b68d8f8d747a426ca6ccf83c3b102b36f899d4524463dd310982ab7ab6d6bcfd34b7c7c281ad25e495ad71fbff8fd6fa86d6273fc6b
+  checksum: e5e1ffdd3bcb0dee3bf6f7b2ff50dd3ffa2df864dc9d53463f33e225021a28601e91d0ec7e932739824bafd6f4ff3b7090939ac3e34ab1022e01692b41f7e8a3
   languageName: node
   linkType: hard
 
@@ -9892,7 +9869,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"string_decoder@npm:^1.1.1, string_decoder@npm:^1.3.0":
+"string_decoder@npm:^1.1.1":
   version: 1.3.0
   resolution: "string_decoder@npm:1.3.0"
   dependencies:
@@ -10035,11 +10012,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"swagger-client@npm:^3.29.3":
-  version: 3.29.4
-  resolution: "swagger-client@npm:3.29.4"
+"swagger-client@npm:^3.31.0":
+  version: 3.31.0
+  resolution: "swagger-client@npm:3.31.0"
   dependencies:
     "@babel/runtime-corejs3": ^7.22.15
+    "@scarf/scarf": =1.4.0
     "@swagger-api/apidom-core": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-error": ">=1.0.0-alpha.9 <1.0.0-beta.0"
     "@swagger-api/apidom-json-pointer": ">=1.0.0-alpha.9 <1.0.0-beta.0"
@@ -10056,7 +10034,7 @@ __metadata:
     openapi-server-url-templating: ^1.0.0
     ramda: ^0.30.1
     ramda-adjunct: ^5.0.0
-  checksum: 62fba05a225901b01fa9ce767efa623a95d0bdb79753214f533476682644788e4629aa88d3e0cf4d86696fc6e14784095156a214ddfeeb82b940c2325a3c2a51
+  checksum: 86b414dda317d5e9ca6efac8c04355016106e9e637b9b0bfb7a27c43f4b14e18a18c93ac108798ecc0e00c1937036f79fe103b98f551ef1e24fd54e0c3b756b0
   languageName: node
   linkType: hard
 
@@ -10163,12 +10141,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"thread-stream@npm:^2.6.0":
-  version: 2.7.0
-  resolution: "thread-stream@npm:2.7.0"
+"thread-stream@npm:^3.0.0":
+  version: 3.1.0
+  resolution: "thread-stream@npm:3.1.0"
   dependencies:
     real-require: ^0.2.0
-  checksum: 75ab019cda628344c7779e5f5a88f7759764efd29d320327ad2e6c2622778b5f1c43a3966d76a9ee5744086d61c680b413548f5521030f9e9055487684436165
+  checksum: 3c5b494ce776f832dfd696792cc865f78c1e850db93e07979349bbc1a5845857cd447aea95808892906cc0178a2fd3233907329f3376e7fc9951e2833f5b7896
   languageName: node
   linkType: hard
 
@@ -10889,12 +10867,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"yaml@npm:^2.2.2":
-  version: 2.5.1
-  resolution: "yaml@npm:2.5.1"
+"yaml@npm:^2.6.0":
+  version: 2.6.0
+  resolution: "yaml@npm:2.6.0"
   bin:
     yaml: bin.mjs
-  checksum: 31275223863fbd0b47ba9d2b248fbdf085db8d899e4ca43fff8a3a009497c5741084da6871d11f40e555d61360951c4c910b98216c1325d2c94753c0036d8172
+  checksum: e5e74fd75e01bde2c09333d529af9fbb5928c5f7f01bfdefdcb2bf753d4ef489a45cab4deac01c9448f55ca27e691612b81fe3c3a59bb8cb5b0069da0f92cf0b
   languageName: node
   linkType: hard
 

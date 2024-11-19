@@ -7,15 +7,20 @@ import { WhiteLoading } from "lowcoder-design";
 import history from "util/history";
 import { LoginLogoStyle, LoginLabelStyle, StyledLoginButton } from "pages/userAuth/authComponents";
 import { useSelector } from "react-redux";
-import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { getSystemConfigFetching, selectSystemConfig } from "redux/selectors/configSelectors";
 import React from "react";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { geneAuthStateAndSaveParam, getAuthUrl, getRedirectUrl } from "pages/userAuth/authUtils";
 import { default as Divider } from "antd/es/divider";
+import { default as Typography } from "antd/es/typography";
 import { useRedirectUrl } from "util/hooks";
 import { MultiIconDisplay } from "../../../comps/comps/multiIconDisplay";
+import Spin from "antd/es/spin";
+import { LoadingOutlined } from "@ant-design/icons";
+
+const { Text } = Typography;
 
 const ThirdPartyLoginButtonWrapper = styled.div`
   button{
@@ -104,7 +109,14 @@ export function ThirdPartyAuth(props: {
   authGoal: ThirdPartyAuthGoal;
   labelFormatter?: (name: string) => string;
 }) {
+  const systemConfigFetching = useSelector(getSystemConfigFetching);
   const systemConfig = useSelector(selectSystemConfig);
+  const isFormLoginEnabled = systemConfig?.form.enableLogin;
+  
+  if (systemConfigFetching) {
+    return <Spin indicator={<LoadingOutlined style={{ fontSize: 15, marginTop: '16px' }} spin />} />;
+  }
+
   if (!systemConfig) {
     return null;
   }
@@ -128,7 +140,11 @@ export function ThirdPartyAuth(props: {
   });
   return (
     <ThirdPartyLoginButtonWrapper>
-      { Boolean(socialLoginButtons.length) && <Divider /> }
+      { isFormLoginEnabled && Boolean(socialLoginButtons.length) && (
+        <Divider plain>
+          <Text type="secondary">or</Text>
+        </Divider>
+      )}
       {socialLoginButtons}
     </ThirdPartyLoginButtonWrapper>
   );

@@ -9,7 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { shallowEqual, useSelector } from "react-redux";
+import { shallowEqual, useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { DATASOURCE_URL, QUERY_LIBRARY_URL } from "../constants/routesURL";
 import { AuthSearchParams } from "constants/authConstants";
@@ -26,6 +26,9 @@ import { CompAction, changeChildAction } from "lowcoder-core";
 import { ThemeDetail } from "@lowcoder-ee/api/commonSettingApi";
 import { uniq } from "lodash";
 import { constantColors } from "components/colorSelect/colorUtils";
+import { AppState } from "@lowcoder-ee/redux/reducers";
+import { getOrgUserStats } from "@lowcoder-ee/redux/selectors/orgSelectors";
+import { fetchGroupsAction } from "@lowcoder-ee/redux/reduxActions/orgActions";
 
 export const ForceViewModeContext = React.createContext<boolean>(false);
 
@@ -185,7 +188,7 @@ export function useMergeCompStyles(
   const preventAppStylesOverwriting = appSettingsComp?.getView()?.preventAppStylesOverwriting;
   const { preventStyleOverwriting, appliedThemeId } = props;
 
-  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style' || 'styles'));
+  const styleKeys = Object.keys(props).filter(key => key.toLowerCase().endsWith('style') || key.toLowerCase().endsWith('styles'));
   const styleProps: Record<string, any> = {};
   styleKeys.forEach((key: string) => {
     styleProps[key] = (props as any)[key];
@@ -257,3 +260,25 @@ export function useThemeColors(allowGradient?: boolean) {
     defaultTheme,
   ]);
 }
+
+export const useOrgUserCount = (orgId: string) => {
+  const dispatch = useDispatch();
+  const orgUserStats = useSelector((state: AppState) => getOrgUserStats(state)); // Use selector to get orgUsers from state
+  const [userCount, setUserCount] = useState<number>(0);
+
+  useEffect(() => {
+    // Dispatch action to fetch organization users
+    if (orgId) {
+      dispatch(fetchGroupsAction(orgId));
+    }
+  }, [dispatch, orgId]);
+
+  useEffect(() => {
+    // Update user count when orgUsers state changes
+    if (Object.values(orgUserStats).length && orgUserStats.hasOwnProperty('totalAdminsAndDevelopers')) {
+      setUserCount(orgUserStats.totalAdminsAndDevelopers);
+    }
+  }, [orgUserStats]);
+
+  return userCount;
+};

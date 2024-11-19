@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
+import { getDataSource, getDataSourceLoading, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
 import { isEmpty } from "lodash";
 import history from "../../util/history";
@@ -16,6 +16,7 @@ import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -105,6 +106,7 @@ export const DatasourceList = () => {
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
   const datasource = useSelector(getDataSource);
+  const datasourceLoading = useSelector(getDataSourceLoading);
   const plugins = useSelector(getDataSourceTypesMap);
 
   return (
@@ -145,7 +147,10 @@ export const DatasourceList = () => {
         </HeaderWrapper>
         <BodyWrapper>
           <StyledTable
-            loading={!datasource.length}
+            loading={{
+              spinning: datasourceLoading,
+              indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
+            }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
             scroll={{ x: "100%" }}

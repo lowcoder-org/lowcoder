@@ -10,9 +10,10 @@ import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { hiddenPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AutoHeightControl } from "../controls/autoHeightControl";
+import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`

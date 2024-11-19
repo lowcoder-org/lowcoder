@@ -54,6 +54,7 @@ export default function NumberInputExample() {
           compFactory={NumberInputComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.format")} description="">
         <Example
           title={trans("componentDoc.percent")}
@@ -79,7 +80,25 @@ export default function NumberInputExample() {
           }}
           compFactory={NumberInputComp}
         />
+        <Example
+          title="Step"
+          config={{
+            value: "1",
+            step: "10",
+          }}
+          compFactory={NumberInputComp}
+        />
+        <Example
+          title="Hide Increment/Decrement buttons"
+          config={{
+            value: "1",
+            step: "10",
+            controls: false,
+          }}
+          compFactory={NumberInputComp}
+        />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.mostValue")}

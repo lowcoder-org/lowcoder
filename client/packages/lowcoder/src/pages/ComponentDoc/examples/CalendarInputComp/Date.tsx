@@ -29,6 +29,7 @@ export default function DateExample() {
           config={{
             value: trans("componentDoc.noValue"),
             format: "YYYY-MM-DD",
+            placeholder: "Select Date",
             disabled: false,
             label: {
               text: trans("componentDoc.date"),
@@ -51,6 +52,7 @@ export default function DateExample() {
           compFactory={DatePickerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
           title={trans("componentDoc.leftLeftAlign")}
@@ -101,6 +103,7 @@ export default function DateExample() {
           compFactory={DatePickerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.required")}

@@ -4,7 +4,7 @@ import { lazy } from "react";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import type { ReactMarkdownOptions } from "react-markdown/lib/react-markdown";
+import type { Options as ReactMarkdownOptions } from "react-markdown/lib";
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 

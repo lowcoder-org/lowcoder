@@ -32,7 +32,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { MAP_KEY } from "comps/generators/withMultiContext";
 import { NameGenerator } from "comps/utils";
 import { trans } from "i18n";
-import _ from "lodash";
+import _, { isArray } from "lodash";
 import {
   changeChildAction,
   CompAction,
@@ -46,6 +46,7 @@ import {
   RecordNode,
   RecordNodeToValue,
   routeByNameAction,
+  ValueAndMsg,
   withFunction,
   wrapChildAction,
 } from "lowcoder-core";
@@ -55,7 +56,7 @@ import { lastValueIfEqual, shallowEqual } from "util/objectUtils";
 import { IContainer } from "../containerBase";
 import { getSelectedRowKeys } from "./selectionControl";
 import { compTablePropertyView } from "./tablePropertyView";
-import { RowColorComp, RowHeightComp, TableChildrenView, TableInitComp } from "./tableTypes";
+import { RowColorComp, RowHeightComp, SortValue, TableChildrenView, TableInitComp } from "./tableTypes";
 
 import { useContext, useState } from "react";
 import { EditorContext } from "comps/editorState";
@@ -295,21 +296,50 @@ export class TableImplComp extends TableInitComp implements IContainer {
 
   // handle sort: data -> sortedData
   sortDataNode() {
-    const nodes = {
+    const nodes: {
+      data: Node<JSONObject[]>;
+      sort: Node<SortValue[]>;
+      dataIndexes: RecordNode<Record<string, Node<string>>>;
+      sortables: RecordNode<Record<string, Node<ValueAndMsg<boolean>>>>;
+      withParams: RecordNode<_.Dictionary<any>>,
+  } = {
       data: this.children.data.exposingNode(),
       sort: this.children.sort.node(),
       dataIndexes: this.children.columns.getColumnsNode("dataIndex"),
       sortables: this.children.columns.getColumnsNode("sortable"),
+      withParams: this.children.columns.withParamsNode(),
     };
     const sortedDataNode = withFunction(fromRecord(nodes), (input) => {
       const { data, sort, dataIndexes, sortables } = input;
-      const columns = _(dataIndexes)
+      const sortColumns = _(dataIndexes)
         .mapValues((dataIndex, idx) => ({ sortable: !!sortables[idx] }))
         .mapKeys((sortable, idx) => dataIndexes[idx])
         .value();
-      const sortedData = sortData(data, columns, sort);
+      const dataColumns = _(dataIndexes)
+        .mapValues((dataIndex, idx) => ({
+          dataIndex,
+          render: input.withParams[idx] as any,
+        }))
+        .value();
+      const updatedData: Array<RecordType> = data.map((row, index) => ({
+        ...row,
+        [OB_ROW_ORI_INDEX]: index + "",
+      }));
+      const updatedDataMap: Record<string, RecordType> = {};
+      updatedData.forEach((row) => {
+        updatedDataMap[row[OB_ROW_ORI_INDEX]] = row;
+      })
+      const originalData = getOriDisplayData(updatedData, 1000, Object.values(dataColumns))
+      const sortedData = sortData(originalData, sortColumns, sort);
+
       // console.info( "sortNode. data: ", data, " sort: ", sort, " columns: ", columns, " sortedData: ", sortedData);
-      return sortedData;
+      const newData = sortedData.map(row => {
+        return {
+          ...row,
+          ...updatedDataMap[row[OB_ROW_ORI_INDEX]],
+        }
+      });
+      return newData;
     });
     return lastValueIfEqual(this, "sortedDataNode", [sortedDataNode, nodes] as const, (a, b) =>
       shallowEqual(a[1], b[1])
@@ -633,6 +663,24 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method: {
+      name: "setMultiSort",
+      description: "",
+      params: [
+        { name: "sortColumns", type: "arrayObject"},
+      ],
+    },
+    execute: (comp, values) => {
+      const sortColumns = values[0];
+      if (!isArray(sortColumns)) {
+        return Promise.reject("setMultiSort function only accepts array of sort objects i.e. [{column: column_name, desc: boolean}]")
+      }
+      if (sortColumns && isArray(sortColumns)) {
+        comp.children.sort.dispatchChangeValueAction(sortColumns as SortValue[]);
+      }
+    },
+  },
+  {
+    method: {
       name: "resetSelections",
       description: "",
       params: [],
@@ -814,6 +862,18 @@ export const TableComp = withExposingConfigs(TableTmpComp, [
       } else {
         return sortIndex;
       }
+    },
+    trans("table.sortColumnDesc")
+  ),
+  new DepsConfig(
+    "sortColumns",
+    (children) => {
+      return {
+        sort: children.sort.node(),
+      };
+    },
+    (input) => {
+      return input.sort;
     },
     trans("table.sortColumnDesc")
   ),

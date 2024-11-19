@@ -166,7 +166,9 @@ public interface ApplicationEndpoints
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(defaultValue = "true") boolean withContainerSize,
-			@RequestParam(required = false) String name);
+			@RequestParam(required = false) String name,
+			@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,

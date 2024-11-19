@@ -1,9 +1,11 @@
 package org.lowcoder.api.bundle;
 
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.util.BusinessEventPublisher;
@@ -18,10 +20,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -100,12 +104,13 @@ public class BundleController implements BundleEndpoints
      * get all files under bundle
      */
     @Override
-    public Mono<ResponseView<List<?>>> getElements(@PathVariable String bundleId,
-            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType) {
+    public Mono<PageResponseView<?>> getElements(@PathVariable String bundleId,
+                                                   @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
+                                                   @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                   @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         String objectId = gidService.convertBundleIdToObjectId(bundleId);
-        return bundleApiService.getElements(objectId, applicationType)
-                .collectList()
-                .map(ResponseView::success);
+        var flux = bundleApiService.getElements(objectId, applicationType).cache();
+        return fluxToPageResponseView(pageNum, pageSize, flux);
     }
 
     @Override
