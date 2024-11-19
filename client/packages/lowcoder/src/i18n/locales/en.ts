@@ -198,6 +198,7 @@ export const en = {
     "innerSider" : "Inner Sider",
     "showFooter": "Show Footer",
     "maskClosable": "Click Outside to Close",
+    "escapeClose": "Enable Close on Escape key",
     "toggleClose": "Enable Close Button",
     "showMask": "Show Mask",
     "textOverflow": "Text Overflow",
