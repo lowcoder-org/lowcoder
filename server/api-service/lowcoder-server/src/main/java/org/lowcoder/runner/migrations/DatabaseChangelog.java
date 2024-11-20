@@ -44,6 +44,7 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 
@@ -319,34 +320,42 @@ public class DatabaseChangelog {
 
         // Create the time-series collection if it doesn't exist
         if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
-            if(mongoVersion < 5) {
+            if (mongoVersion < 5) {
                 mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class);
             } else {
                 mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
             }
         }
-        Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
-        List<ApplicationHistorySnapshot> snapshots = mongoTemplate.find(new Query().addCriteria(Criteria.where("createdAt").gte(thresholdDate)), ApplicationHistorySnapshot.class);
-        snapshots.forEach(snapshot -> {
-            ApplicationHistorySnapshotTS applicationHistorySnapshotTS = new ApplicationHistorySnapshotTS();
-            applicationHistorySnapshotTS.setApplicationId(snapshot.getApplicationId());
-            applicationHistorySnapshotTS.setDsl(snapshot.getDsl());
-            applicationHistorySnapshotTS.setContext(snapshot.getContext());
-            applicationHistorySnapshotTS.setCreatedAt(snapshot.getCreatedAt());
-            applicationHistorySnapshotTS.setCreatedBy(snapshot.getCreatedBy());
-            applicationHistorySnapshotTS.setModifiedBy(snapshot.getModifiedBy());
-            applicationHistorySnapshotTS.setUpdatedAt(snapshot.getUpdatedAt());
-            applicationHistorySnapshotTS.setId(snapshot.getId());
-            mongoTemplate.insert(applicationHistorySnapshotTS);
-            mongoTemplate.remove(snapshot);
-        });
 
-        // Ensure indexes if needed
+        Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
+
+        // Use aggregation to move and transform data
+        Document match = new Document("$match",
+                new Document("createdAt", new Document("$gte", thresholdDate)));
+
+        Document project = new Document("$project", new Document()
+                .append("applicationId", 1)
+                .append("dsl", 1)
+                .append("context", 1)
+                .append("createdAt", 1)
+                .append("createdBy", 1)
+                .append("modifiedBy", 1)
+                .append("updatedAt", 1)
+                .append("id", "$_id")); // Map MongoDB's default `_id` to `id` if needed.
+
+        Document out = new Document("$out", "applicationHistorySnapshotTS"); // Target collection name
+
+        // Execute the aggregation pipeline
+        mongoTemplate.getDb()
+                .getCollection("applicationHistorySnapshot") // Original collection name
+                .aggregate(Arrays.asList(match, project, out))
+                .toCollection();
+
         ensureIndexes(mongoTemplate, ApplicationHistorySnapshotTS.class,
                 makeIndex("applicationId"),
-                makeIndex("createdAt")
-        );
+                makeIndex("createdAt"));
     }
+
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
