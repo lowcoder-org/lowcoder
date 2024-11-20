@@ -4,6 +4,8 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.mongodb.client.MongoCollection;
+import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -315,47 +317,80 @@ public class DatabaseChangelog {
     @ChangeSet(order = "026", id = "add-time-series-snapshot-history", author = "")
     public void addTimeSeriesSnapshotHistory(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
         int mongoVersion = getMongoDBVersion(mongoTemplate);
-        if (mongoVersion < 5) {
-            log.warn("MongoDB version is below 5. Time-series collections are not supported. Upgrade the MongoDB version.");
-        }
-
-        // Create the time-series collection if it doesn't exist
-        if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
-            if (mongoVersion < 5) {
-                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class);
-            } else {
-                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class, CollectionOptions.empty().timeSeries("createdAt"));
-            }
-        }
 
         Instant thresholdDate = Instant.now().minus(commonConfig.getQuery().getAppSnapshotKeepDuration(), ChronoUnit.DAYS);
 
-        // Use aggregation to move and transform data
-        Document match = new Document("$match",
-                new Document("createdAt", new Document("$gte", thresholdDate)));
+        if (mongoVersion >= 5) {
+            // MongoDB version >= 5: Use manual insert query
+            if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class,
+                        CollectionOptions.empty().timeSeries("createdAt"));
+            }
 
-        Document project = new Document("$project", new Document()
-                .append("applicationId", 1)
-                .append("dsl", 1)
-                .append("context", 1)
-                .append("createdAt", 1)
-                .append("createdBy", 1)
-                .append("modifiedBy", 1)
-                .append("updatedAt", 1)
-                .append("id", "$_id")); // Map MongoDB's default `_id` to `id` if needed.
+            // Aggregation pipeline to fetch the records
+            List<Document> aggregationPipeline = Arrays.asList(
+                    new Document("$match", new Document("createdAt", new Document("$gte", thresholdDate))),
+                    new Document("$project", new Document()
+                            .append("applicationId", 1)
+                            .append("dsl", 1)
+                            .append("context", 1)
+                            .append("createdAt", 1)
+                            .append("createdBy", 1)
+                            .append("modifiedBy", 1)
+                            .append("updatedAt", 1)
+                            .append("id", "$_id")) // Map `_id` to `id` if needed
+            );
 
-        Document out = new Document("$out", "applicationHistorySnapshotTS"); // Target collection name
+            MongoCollection<Document> sourceCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshot");
+            MongoCollection<Document> targetCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshotTS");
 
-        // Execute the aggregation pipeline
-        mongoTemplate.getDb()
-                .getCollection("applicationHistorySnapshot") // Original collection name
-                .aggregate(Arrays.asList(match, project, out))
-                .toCollection();
+            // Fetch results and insert them into the time-series collection
+            try (MongoCursor<Document> cursor = sourceCollection.aggregate(aggregationPipeline).iterator()) {
+                while (cursor.hasNext()) {
+                    Document document = cursor.next();
+                    targetCollection.insertOne(document); // Insert into the time-series collection
+                }
+            }
 
-        // Delete the migrated records
-        Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
-        DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
+            // Delete the migrated records
+            Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
+            DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
 
+            log.info("Deleted {} records from the source collection.", deleteResult.getDeletedCount());
+        } else {
+            // MongoDB version < 5: Use aggregation with $out
+            if (!mongoTemplate.collectionExists(ApplicationHistorySnapshotTS.class)) {
+                mongoTemplate.createCollection(ApplicationHistorySnapshotTS.class); // Create a regular collection
+            }
+
+            // Aggregation pipeline with $out
+            List<Document> aggregationPipeline = Arrays.asList(
+                    new Document("$match", new Document("createdAt", new Document("$gte", thresholdDate))),
+                    new Document("$project", new Document()
+                            .append("applicationId", 1)
+                            .append("dsl", 1)
+                            .append("context", 1)
+                            .append("createdAt", 1)
+                            .append("createdBy", 1)
+                            .append("modifiedBy", 1)
+                            .append("updatedAt", 1)
+                            .append("id", "$_id")), // Map `_id` to `id` if needed
+                    new Document("$out", "applicationHistorySnapshotTS") // Write directly to the target collection
+            );
+
+            mongoTemplate.getDb()
+                    .getCollection("applicationHistorySnapshot")
+                    .aggregate(aggregationPipeline)
+                    .toCollection();
+
+            // Delete the migrated records
+            Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
+            DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
+
+            log.info("Deleted {} records from the source collection.", deleteResult.getDeletedCount());
+        }
+
+        // Ensure indexes on the new collection
         ensureIndexes(mongoTemplate, ApplicationHistorySnapshotTS.class,
                 makeIndex("applicationId"),
                 makeIndex("createdAt"));
