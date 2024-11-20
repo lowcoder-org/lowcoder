@@ -4,6 +4,7 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.lowcoder.domain.application.model.Application;
@@ -350,6 +351,10 @@ public class DatabaseChangelog {
                 .getCollection("applicationHistorySnapshot") // Original collection name
                 .aggregate(Arrays.asList(match, project, out))
                 .toCollection();
+
+        // Delete the migrated records
+        Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
+        DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
 
         ensureIndexes(mongoTemplate, ApplicationHistorySnapshotTS.class,
                 makeIndex("applicationId"),
