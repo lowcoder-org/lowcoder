@@ -107,7 +107,7 @@ export const folderReducer = createReducer(initialState, {
     state: FolderReduxState,
     action: ReduxAction<MoveToFolderPayload>
   ): FolderReduxState => {
-    const elements = { ...state.folderElements };
+    let elements = { ...state.folderElements };
     elements[action.payload.sourceFolderId ?? ""] = elements[
       action.payload.sourceFolderId ?? ""
     ]?.filter(
@@ -115,6 +115,44 @@ export const folderReducer = createReducer(initialState, {
         (e.folder && e.folderId !== action.payload.sourceId) ||
         (!e.folder && e.applicationId !== action.payload.sourceId)
     );
+    return {
+      ...state,
+      folderElements: elements,
+    };
+  },
+  [ReduxActionTypes.MOVE_TO_FOLDER2_SUCCESS]: (
+      state: FolderReduxState,
+      action: ReduxAction<MoveToFolderPayload>
+  ): FolderReduxState => {
+    let elements = { ...state.folderElements };
+    let tempIndex: number | undefined;
+    let tempNode: any;
+    let temp = elements[""].map((item, index) => {
+      if (item.folderId === action.payload.sourceFolderId && item.folder) {
+
+        const tempSubApplications = item.subApplications?.filter(e =>
+            (e.folder && e.folderId !== action.payload.sourceId) ||
+            (!e.folder && e.applicationId !== action.payload.sourceId)
+        );
+        tempNode = item.subApplications?.filter(e =>
+            (e.folder && e.folderId === action.payload.sourceId) ||
+            (!e.folder && e.applicationId === action.payload.sourceId)
+        );
+        return { ...item, subApplications: tempSubApplications };
+      }
+      if (item.folderId === action.payload.folderId && item.folder) {
+        tempIndex = index;
+        return item;
+      }
+      return item;
+    });
+    if (tempIndex !== undefined) {
+      const targetItem = temp[tempIndex];
+      if (targetItem.folder && Array.isArray(targetItem.subApplications)) {
+        targetItem.subApplications.push(tempNode[0]);
+      }
+    }
+    elements[""] = temp;
     return {
       ...state,
       folderElements: elements,
