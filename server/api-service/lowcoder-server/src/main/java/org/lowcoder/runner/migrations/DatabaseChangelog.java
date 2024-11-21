@@ -329,7 +329,7 @@ public class DatabaseChangelog {
 
             // Aggregation pipeline to fetch the records
             List<Document> aggregationPipeline = Arrays.asList(
-                    new Document("$match", new Document("createdAt", new Document("$gte", thresholdDate))),
+                    new Document("$match", new Document("createdAt", new Document("$lte", thresholdDate))),
                     new Document("$project", new Document()
                             .append("applicationId", 1)
                             .append("dsl", 1)
@@ -365,7 +365,7 @@ public class DatabaseChangelog {
 
             // Aggregation pipeline with $out
             List<Document> aggregationPipeline = Arrays.asList(
-                    new Document("$match", new Document("createdAt", new Document("$gte", thresholdDate))),
+                    new Document("$match", new Document("createdAt", new Document("$lte", thresholdDate))),
                     new Document("$project", new Document()
                             .append("applicationId", 1)
                             .append("dsl", 1)
