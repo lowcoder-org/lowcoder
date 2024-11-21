@@ -37,10 +37,24 @@ export const folderReducer = createReducer(initialState, {
     state: FolderReduxState,
     action: ReduxAction<RecycleApplicationPayload>
   ): FolderReduxState => {
+    const deleteArray : number[] = [];
     const elements = { ...state.folderElements };
-    elements[action.payload.folderId ?? ""] = elements[action.payload.folderId ?? ""]?.filter(
-      (e) => e.folder || (!e.folder && e.applicationId !== action.payload.applicationId)
-    );
+    elements[""] = elements[""].map((item, index) => {
+      if(item.folder) {
+        const tempSubApplications = item.subApplications?.filter(e => e.applicationId !== action.payload.applicationId);
+        return {  ...item, subApplications: tempSubApplications };
+      } else {
+         if (item.applicationId !== action.payload.applicationId)
+           return item;
+         else {
+           deleteArray.push(index);
+           return item;
+         }
+      }
+    });
+    deleteArray.map(item => {
+      elements[""].splice(item, 1);
+    })
     return {
       ...state,
       folderElements: elements,

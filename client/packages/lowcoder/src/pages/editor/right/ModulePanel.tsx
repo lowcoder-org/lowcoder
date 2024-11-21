@@ -13,13 +13,13 @@ import {
     PointIcon,
     PopupCard,
     UnfoldIcon,
-    FileFolderIcon
+    FileFolderIcon, messageInstance, CustomModal
 } from "lowcoder-design";
-import { trans } from "i18n";
+import {trans, transToNode} from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
-import {CSSProperties, useContext, useEffect, useState} from "react";
+import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchAllModules } from "redux/reduxActions/applicationActions";
+import {fetchAllModules, recycleApplication} from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
 import CreateAppButton from "components/CreateAppButton";
 import { TransparentImg } from "util/commonUtils";
@@ -31,11 +31,19 @@ import {showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotS
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
 import RefTreeComp from "@lowcoder-ee/comps/comps/refTreeComp";
 import { EmptyContent } from "components/EmptyContent";
+import {moveToFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
+import {HomeResInfo} from "@lowcoder-ee/util/homeResUtils";
 const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
   &:last-child {
     margin-bottom: 0;
+  }
+  .module-container {
+      //width: 70px;
+      display: flex;
+      justify-content: space-between;
+      text-align: left;
   }
   .module-icon {
       
@@ -52,6 +60,8 @@ const ItemWrapper = styled.div`
     overflow: hidden;
   }
   .module-name {
+    //flex-grow: 1;
+    //margin-right: 8px;
     line-height: 1.5;
     font-size: 13px;
     overflow: hidden;
@@ -77,8 +87,8 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
     const elements = elementRecord[""];
     const elementMap: Record<string, NodeType> = {};
     let rootNode: NodeType = {
-        name: "",
-        id: "",
+        name: "root",
+        id: "root",
         isFolder: true,
         children: [],
         rename: val => rootNode.name = val,
@@ -99,7 +109,7 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
 
             // Process subapplications inside the folder
             for (const app of element.subApplications || []) {
-                if (app.applicationType === AppTypeEnum.Module) {
+                if (!!app && app.applicationType === AppTypeEnum.Module) {
                     const appNode: NodeType = {
                         name: app.name,
                         id: app.applicationId,
@@ -142,7 +152,7 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
             rootNode.children.push(elementMap[element.applicationId]);
         }
     }
-    console.log(rootNode.children.sort((a, b) => {
+    rootNode.children.sort((a, b) => {
         if (a.isFolder && !b.isFolder) {
             return -1; // a is a isFolder and should come first
         } else if (!a.isFolder && b.isFolder) {
@@ -150,7 +160,7 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
         } else {
             return 0; // both are folders or both are not, keep original order
         }
-    }));
+    });
     return rootNode;
 }
 
@@ -168,6 +178,7 @@ function ModuleItem(props: ModuleItemProps) {
             draggable
             onDragStart={(e) => {
                 console.log(meta);
+                e.stopPropagation();
                 e.dataTransfer.setData("compType", compType);
                 e.dataTransfer.setDragImage(TransparentImg, 0, 0);
                 draggingUtils.setData("compType", compType);
@@ -183,11 +194,13 @@ function ModuleItem(props: ModuleItemProps) {
                 props.onDrag(compType);
             }}
         >
-            <div className="module-icon">
-                <ModuleDocIcon width="19px" height="19px"/>
-            </div>
-            <div className="module-content">
-                <div className="module-name">{props.meta.name}</div>
+            <div className="module-container" >
+                <div className="module-icon">
+                    <ModuleDocIcon width="19px" height="19px"/>
+                </div>
+                <div className="module-content">
+                    <div className="module-name">{props.meta.name}</div>
+                </div>
             </div>
         </ItemWrapper>
     );
@@ -372,28 +385,29 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
         <ColumnDiv onClick={handleClickItem} $color={isSelected} $isOverlay={isOverlay}>
             <HighlightBorder $active={isOver && isFolder} $level={level} $foldable={isFolder}>
                 {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
-                {isFolder ?
-                    <>
-                    <FileFolderIcon />
-                    <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
-                        <EditText
-                            text={name}
-                            forceClickIcon={isFolder}
-                            disabled={!isSelected || readOnly || isOverlay}
-                            onFinish={handleFinishRename}
-                            onChange={handleNameChange}
-                            onEditStateChange={(editing) => setEditing(editing)}
-                        />
-                        <PopupCard
-                            editorFocus={!!error && editing}
-                            title={error ? trans("error") : ""}
-                            content={error}
-                            hasError={!!error}
-                        />
-                    </div></> : <ModuleItem onDrag={onDrag} key={id} meta={resComp.module!} />
-            }
+                        { isFolder ?
+                            <>
+                                <FileFolderIcon />
+                                    <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
+                                        <EditText
+                                            text={name}
+                                            forceClickIcon={isFolder}
+                                            disabled={!isSelected || readOnly || isOverlay}
+                                            onFinish={handleFinishRename}
+                                            onChange={handleNameChange}
+                                            onEditStateChange={(editing) => setEditing(editing)}
+                                        />
+                                        <PopupCard
+                                            editorFocus={!!error && editing}
+                                            title={error ? trans("error") : ""}
+                                            content={error}
+                                            hasError={!!error}
+                                        />
+                                    </div>
+                            </> :
+                            <ModuleItem onDrag={onDrag} key={id} meta={resComp.module!} /> }
                 {!readOnly && !isOverlay && (
-                    <EditPopover copy={!isFolder ? onCopy : undefined} del={onDelete}>
+                    <EditPopover copy={!isFolder ? onCopy : undefined} del={() => onDelete()}>
                         <Icon tabIndex={-1} />
                     </EditPopover>
                 )}
@@ -404,9 +418,10 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
 
 export default function ModulePanel() {
   const dispatch = useDispatch();
-  const elements = useSelector(folderElementsSelector);
+  let elements = useSelector(folderElementsSelector);
+  // const reload = () => elements = useSelector(folderElementsSelector);
   const { onDrag, searchValue } = useContext(RightContext);
-
+  const [deleteFlag, setDeleteFlag] = useState(false);
   useEffect(() => {
     dispatch(fetchAllModules({}));
   }, [dispatch]);
@@ -433,9 +448,12 @@ export default function ModulePanel() {
     }
 
     const getById = (id: string): NodeType | undefined => getByIdFromNode(tree, id);
+    let popedItem : DraggableTreeNode<any>[] = [];
+    let popedItemSourceId = ""
     const convertRefTree = (treeNode: NodeType) => {
         const moduleResComp = getById(treeNode.id);
         const currentNodeType = moduleResComp?.isFolder;
+
         const childrenItems = treeNode.children
             .map((i) => convertRefTree(i as NodeType))
             .filter((i): i is DraggableTreeNode<NodeType> => !!i);
@@ -473,21 +491,73 @@ export default function ModulePanel() {
             data: moduleResComp,
             addSubItem(value) {
                 console.log("addSubItem", node.id, value, node);
+                // node.items.push(value)
                 // const pushAction = node.items.pushAction({ value: value.id() });
                 // node.items.dispatch(pushAction);
             },
             deleteItem(index) {
-                console.log("deleteItem", node.id, index);
+                console.log("deleteItem", node, index);
+                popedItemSourceId = node.id!;
+                if(!deleteFlag){
+                    popedItem = node.items.splice(index, 1);
+                    console.log(popedItem);
+                }
+
                 // const deleteAction = node.children.items.deleteAction(index);
                 // node.children.items.dispatch(deleteAction);
             },
             addItem(value) {
-                console.log("addItem", node.id, value);
+                console.log("additem", "value",  value, node);
+                node.items.push(popedItem[0])
+                popedItem = [];
                 // const pushAction = node.children.items.pushAction({ value: value.id() });
                 // node.children.items.dispatch(pushAction);
+                // if (popedItem[0]){
+                //     dispatch(
+                //         moveToFolder(
+                //             {
+                //                 sourceFolderId: popedItemSourceId,
+                //                 sourceId: popedItem[0].id!,
+                //                 folderId: node.id!,
+                //                 moveFlag: true
+                //             },
+                //             () => {
+                //
+                //
+                //             },
+                //             () => {}
+                //         )
+                //     );
+                //     node.items.push(popedItem[0]);
+                //     popedItemSourceId = "";
+                //     popedItem = [];
+                // }
             },
             moveItem(from, to) {
-                console.log("node", node);
+                console.log("moveItem", node, from, to, node.id);
+                if (popedItem[0]){
+                    node.items.push(popedItem[0]);
+
+                    dispatch(
+                        moveToFolder(
+                            {
+                                sourceFolderId: popedItemSourceId,
+                                sourceId: popedItem[0].id!,
+                                folderId: node.id!,
+                                moveFlag: true
+                            },
+                            () => {
+
+
+                            },
+                            () => {}
+                        )
+                    );
+                    popedItemSourceId = "";
+                    popedItem = [];
+
+                }
+                // popedItem = [];
                 // const moveAction = node.children.items.arrayMoveAction(from, to);
                 // node.children.items.dispatch(moveAction);
             },
@@ -505,18 +575,51 @@ export default function ModulePanel() {
     };
 
     const node = convertRefTree(tree);
-
+    console.log("started!!!!", node)
     function onCopy(type: boolean, id: string) {
         console.log("onCopy", type, id);
     }
 
     function onSelect(type: boolean, id: string, meta: any) {
         console.log("onSelect", type, id, meta)
-        return <ModuleItem onDrag={onDrag} key={id} meta={meta} />
+        // return <ModuleItem onDrag={onDrag} key={id} meta={meta} />
     }
 
     function onDelete(type: boolean, id: string) {
-        console.log("onDelete", type, id);
+        setDeleteFlag(true);
+        console.log("1111111111111111111111111", type, id, node);
+        if (type) {
+            alert(1);
+        }
+        else {
+            CustomModal.confirm({
+                title: trans("home.moveToTrash"),
+                content: transToNode("home.moveToTrashSubTitle", {
+                    type: "",
+                    name: "This file",
+                }),
+                onConfirm: () => {
+                    dispatch(
+                        recycleApplication(
+                            {
+                                applicationId: id,
+                                folderId: popedItemSourceId,
+                            },
+                            () => {
+                                messageInstance.success(trans("success"))
+
+                            },
+                            () => {
+                            }
+                        )
+                    )
+                    setDeleteFlag(false)
+                },
+                confirmBtnType: "delete",
+                okText: trans("home.moveToTrash"),
+                onCancel: () => setDeleteFlag(false)
+            });
+        }
         return true;
     }
 
