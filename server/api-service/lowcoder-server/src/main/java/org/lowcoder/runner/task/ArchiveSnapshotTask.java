@@ -46,8 +46,8 @@ public class ArchiveSnapshotTask {
     private void archiveForVersion5AndAbove(Instant thresholdDate) {
         log.info("Running archival for MongoDB version >= 5");
 
-        MongoCollection<Document> sourceCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshotTS");
-        MongoCollection<Document> targetCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshot");
+        MongoCollection<Document> sourceCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshot");
+        MongoCollection<Document> targetCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshotTS");
 
         long totalDocuments = sourceCollection.countDocuments(Filters.lte("createdAt", thresholdDate));
         log.info("Total documents to archive: {}", totalDocuments);
@@ -91,7 +91,7 @@ public class ArchiveSnapshotTask {
     private void archiveForVersionBelow5(Instant thresholdDate) {
         log.info("Running archival for MongoDB version < 5");
 
-        MongoCollection<Document> sourceCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshotTS");
+        MongoCollection<Document> sourceCollection = mongoTemplate.getDb().getCollection("applicationHistorySnapshot");
 
         long totalDocuments = sourceCollection.countDocuments(Filters.lte("createdAt", thresholdDate));
         log.info("Total documents to archive: {}", totalDocuments);
@@ -119,7 +119,7 @@ public class ArchiveSnapshotTask {
                                     .append("modifiedBy", document.get("modifiedBy"))
                                     .append("updatedAt", document.get("updatedAt"))
                                     .append("id", document.get("id"))),
-                            new Document("$out", "applicationHistorySnapshot")
+                            new Document("$out", "applicationHistorySnapshotTS")
                     )).first();
                 } catch (Exception e) {
                     log.error("Failed to aggregate and insert document with ID {}. Error: {}", document.getObjectId("id"), e.getMessage());
