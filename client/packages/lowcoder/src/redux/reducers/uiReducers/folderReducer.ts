@@ -110,7 +110,7 @@ export const folderReducer = createReducer(initialState, {
       action.payload.parentFolderId ?? ""
     ]?.map((e) => {
       if (e.folder && e.folderId === action.payload.folderId) {
-        return { ...action.payload, name: action.payload.name };
+        return { ...e, name: action.payload.name};
       }
       return e;
     });

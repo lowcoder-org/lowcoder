@@ -17,7 +17,7 @@ import {
 } from "lowcoder-design";
 import {trans, transToNode} from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
-import React, {CSSProperties, useContext, useEffect, useState} from "react";
+import React, { useContext, useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {fetchAllModules, recycleApplication, updateAppMetaAction} from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
@@ -26,13 +26,10 @@ import { TransparentImg } from "util/commonUtils";
 import { ComListTitle } from "./styledComponent";
 import {folderElementsSelector} from "@lowcoder-ee/redux/selectors/folderSelector";
 import {DraggableTree} from "@lowcoder-ee/components/DraggableTree/DraggableTree";
-import {EditorContext} from "lowcoder-sdk";
-import {getSelectedAppSnapshot, showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotSelector";
+import { showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotSelector";
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
-import RefTreeComp from "@lowcoder-ee/comps/comps/refTreeComp";
 import { EmptyContent } from "components/EmptyContent";
 import {deleteFolder, moveToFolder, updateFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
-import {HomeResInfo} from "@lowcoder-ee/util/homeResUtils";
 const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -161,15 +158,15 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
 
 
 interface ModuleItemProps {
-  meta: ApplicationMeta;
-  onDrag: (type: string) => void;
-  isOverlay: boolean;
-  selectedID: string;
-  setSelectedID: (id: string) => void;
-  selectedType: boolean;
-  setSelectedType: (id: boolean) => void;
-  resComp: NodeType;
-  id: string;
+    meta: ApplicationMeta;
+    onDrag: (type: string) => void;
+    isOverlay: boolean;
+    selectedID: string;
+    setSelectedID: (id: string) => void;
+    selectedType: boolean;
+    setSelectedType: (id: boolean) => void;
+    resComp: NodeType;
+    id: string;
 }
 
 function ModuleItem(props: ModuleItemProps) {
@@ -189,44 +186,45 @@ function ModuleItem(props: ModuleItemProps) {
     const name = resComp.name;
     const [error, setError] = useState<string | undefined>(undefined);
     const [editing, setEditing] = useState(false);
-    const editorState = useContext(EditorContext);
     const readOnly = useSelector(showAppSnapshotSelector);
     const isSelected = type === selectedType && id === selectedID;
     const handleFinishRename = (value: string) => {
-        let success = false;
-        let compId = name;
-        if (resComp.rename) {
-            compId = resComp.rename(value);
-            success = !!compId;
-        } else {
-            compId = name;
-            success = true;
-        }
-        if (success) {
-            console.log(selectedID, value);
-            setSelectedID(compId);
-            setSelectedType(type);
-            setError(undefined);
-            try{
-                dispatch(updateAppMetaAction({
-                    applicationId: selectedID,
-                    name: value
-                }));
-            } catch (error) {
-                console.error("Error: Delete module in extension:", error);
-                throw error;
+        if (value !== "") {
+            let success = false;
+            let compId = name;
+            if (resComp.rename) {
+                compId = resComp.rename(value);
+                success = !!compId;
+            } else {
+                compId = name;
+                success = true;
             }
+            if (success) {
+                setSelectedID(compId);
+                setSelectedType(type);
+                setError(undefined);
+                try {
+                    dispatch(updateAppMetaAction({
+                        applicationId: selectedID,
+                        name: value
+                    }));
+                } catch (error) {
+                    console.error("Error: Rename module in extension:", error);
+                    throw error;
+                }
+            }
+            setError(undefined);
         }
+        setError(undefined);
     };
 
     const handleNameChange = (value: string) => {
-        value === "" ? setError("Cannot Be Empty") : setError("");
+        value === "" ? setError("Cannot Be Empty") : setError(undefined);
     };
     return (
         <ItemWrapper
             draggable
             onDragStart={(e) => {
-                console.log(meta);
                 e.stopPropagation();
                 e.dataTransfer.setData("compType", compType);
                 e.dataTransfer.setDragImage(TransparentImg, 0, 0);
@@ -244,7 +242,7 @@ function ModuleItem(props: ModuleItemProps) {
             }}
         >
             <div className="module-container" >
-                    <ModuleDocIcon className="module-icon"/>
+                <ModuleDocIcon className="module-icon"/>
                 <div style={{flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)"}}>
                     <EditText
                         text={meta.name}
@@ -289,8 +287,6 @@ const ColumnDiv = styled.div<ColumnDivProps>`
   user-select: none;
   padding-left: 2px;
   padding-right: 15px;
-  /* background-color: #ffffff; */
-  /* margin: 2px 0; */
   background-color: ${(props) => (props.$isOverlay ? "rgba(255, 255, 255, 0.11)" : "")};
 
   &&& {
@@ -405,41 +401,42 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
     const { onDrag } = useContext(RightContext);
     const [error, setError] = useState<string | undefined>(undefined);
     const [editing, setEditing] = useState(false);
-    const editorState = useContext(EditorContext);
     const readOnly = useSelector(showAppSnapshotSelector);
     const level = path.length - 1;
     const type = resComp.isFolder;
     const name = resComp.name;
-    const icon = resComp.isFolder?<FileFolderIcon /> : <ModuleDocIcon width={"16px"} height={"16px"}/>;
     const isSelected = type === selectedType && id === selectedID;
     const isFolder = type;
 
     const handleFinishRename = (value: string) => {
-        let success = false;
-        let compId = name;
-        if (resComp.rename) {
-            compId = resComp.rename(value);
-            success = !!compId;
-        } else {
-            compId = name;
-            success = true;
-        }
-        if (success) {
-            setSelectedID(compId);
-            setSelectedType(type);
-            setError(undefined);
-            try{
-                dispatch(updateFolder({ id: selectedID, name: value }));
-            } catch (error) {
-                console.error("Error: Delete module in extension:", error);
-                throw error;
+        if (value !== ""){
+            let success = false;
+            let compId = name;
+            if (resComp.rename) {
+                compId = resComp.rename(value);
+                success = !!compId;
+            } else {
+                compId = name;
+                success = true;
             }
+            if (success) {
+                setSelectedID(compId);
+                setSelectedType(type);
+                setError(undefined);
+                try{
+                    dispatch(updateFolder({ id: selectedID, name: value }));
+                } catch (error) {
+                    console.error("Error: Delete module in extension:", error);
+                    throw error;
+                }
 
+            }
+            setError(undefined);
         }
     };
 
     const handleNameChange = (value: string) => {
-        value === "" ? setError("Cannot Be Empty") : setError("");
+        value === "" ? setError("Cannot Be Empty") : setError(undefined);
     };
 
     const handleClickItem = () => {
@@ -453,39 +450,39 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
         <ColumnDiv onClick={handleClickItem} $color={isSelected} $isOverlay={isOverlay}>
             <HighlightBorder $active={isOver && isFolder} $level={level} $foldable={isFolder}>
                 {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
-                        { isFolder ?
-                            <>
-                                <FileFolderIcon style={{marginRight: "4px"}}/>
-                                    <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
-                                        <EditText
-                                            text={name}
-                                            forceClickIcon={isFolder}
-                                            disabled={!isSelected || readOnly || isOverlay}
-                                            onFinish={handleFinishRename}
-                                            onChange={handleNameChange}
-                                            onEditStateChange={(editing) => setEditing(editing)}
-                                        />
-                                        <PopupCard
-                                            editorFocus={!!error && editing}
-                                            title={error ? trans("error") : ""}
-                                            content={error}
-                                            hasError={!!error}
-                                        />
-                                    </div>
-                            </> :
-                            <ModuleItem onDrag={onDrag}
-                                        key={id}
-                                        meta={resComp.module!}
-                                        isOverlay={isOverlay}
-                                        selectedID={selectedID}
-                                        setSelectedID={setSelectedID}
-                                        selectedType={selectedType}
-                                        setSelectedType={setSelectedType}
-                                        resComp = {resComp}
-                                        id = {id}
-                            />}
+                { isFolder ?
+                    <>
+                        <FileFolderIcon style={{marginRight: "4px"}}/>
+                        <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
+                            <EditText
+                                text={name}
+                                forceClickIcon={isFolder}
+                                disabled={!isSelected || readOnly || isOverlay}
+                                onFinish={handleFinishRename}
+                                onChange={handleNameChange}
+                                onEditStateChange={(editing) => setEditing(editing)}
+                            />
+                            <PopupCard
+                                editorFocus={!!error && editing}
+                                title={error ? trans("error") : ""}
+                                content={error}
+                                hasError={!!error}
+                            />
+                        </div>
+                    </> :
+                    <ModuleItem onDrag={onDrag}
+                                key={id}
+                                meta={resComp.module!}
+                                isOverlay={isOverlay}
+                                selectedID={selectedID}
+                                setSelectedID={setSelectedID}
+                                selectedType={selectedType}
+                                setSelectedType={setSelectedType}
+                                resComp = {resComp}
+                                id = {id}
+                    />}
                 {!readOnly && !isOverlay && (
-                    <EditPopover copy={!isFolder ? onCopy : undefined} del={() => onDelete()}>
+                    <EditPopover del={() => onDelete()}>
                         <Icon tabIndex={-1} />
                     </EditPopover>
                 )}
@@ -495,56 +492,51 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
 }
 
 export default function ModulePanel() {
-  const dispatch = useDispatch();
-  let elements = useSelector(folderElementsSelector);
-  const { onDrag, searchValue } = useContext(RightContext);
-  const [selectedID, setSelectedID] = useState("");
-  const [selectedType, setSelectedType] = useState(false);
-  let sourceFolderId : string = "";
-  let sourceId : string = "";
-  let folderId : string = "";
-  const tree = buildTree(elements);
-  const getById = (id: string): NodeType | undefined => getByIdFromNode(tree, id);
-  let popedItem : DraggableTreeNode<any>[] = [];
-  let popedItemSourceId = "";
+    const dispatch = useDispatch();
+    let elements = useSelector(folderElementsSelector);
+    const { searchValue } = useContext(RightContext);
+    const [selectedID, setSelectedID] = useState("");
+    const [selectedType, setSelectedType] = useState(false);
+    let sourceFolderId : string = "";
+    let sourceId : string = "";
+    let folderId : string = "";
+    const tree = buildTree(elements);
+    const getById = (id: string): NodeType | undefined => getByIdFromNode(tree, id);
+    let popedItemSourceId = "";
 
-  useEffect(() => {
-      dispatch(fetchAllModules({}));
-  }, [dispatch]);
+    useEffect(() => {
+        dispatch(fetchAllModules({}));
+    }, [dispatch]);
 
-  const moveModule = () => {
-      console.log({sourceFolderId: sourceFolderId,
-          sourceId: sourceId,
-          folderId: folderId,
-          moveFlag: true})
-      try{
-          if (sourceId !== "") {
-              dispatch(
-                  moveToFolder(
-                      {
-                          sourceFolderId: sourceFolderId!,
-                          sourceId: sourceId!,
-                          folderId: folderId!,
-                          moveFlag: true
-                      },
-                      () => {
+    const moveModule = () => {
+        try{
+            if (sourceId !== "") {
+                dispatch(
+                    moveToFolder(
+                        {
+                            sourceFolderId: sourceFolderId!,
+                            sourceId: sourceId!,
+                            folderId: folderId!,
+                            moveFlag: true
+                        },
+                        () => {
 
 
-                      },
-                      () => {}
-                  )
-              );
-          }
-      } catch (error) {
-          console.error("Error: Delete module in extension:", error);
-          throw error;
-      } finally {
-          folderId = "";
-          sourceId = "";
-          sourceFolderId = "";
-      }
+                        },
+                        () => {}
+                    )
+                );
+            }
+        } catch (error) {
+            console.error("Error: Move module in extension:", error);
+            throw error;
+        } finally {
+            folderId = "";
+            sourceId = "";
+            sourceFolderId = "";
+        }
 
-  }
+    }
 
     const getByIdFromNode = (root: NodeType | null, id: string): NodeType | undefined => {
         if (!root) {
@@ -603,26 +595,19 @@ export default function ModulePanel() {
             items: childrenItems,
             data: moduleResComp,
             addSubItem(value) {
-                console.log("addSubItem", node.id, value, node);
                 folderId = node.id!;
                 moveModule();
-                // node.items.push(value)
-                // const pushAction = node.items.pushAction({ value: value.id() });
-                // node.items.dispatch(pushAction);
             },
             deleteItem(index) {
-                console.log("deleteItem", index, node);
                 sourceFolderId = node.id!;
                 sourceId = node.items[index].id!;
 
             },
             addItem(value) {
-                console.log("additem",  "value", value, "node", node);
                 folderId = node.id!;
                 moveModule();
             },
             moveItem(from, to) {
-                console.log("moveItem", node, from, to, node.id);
             },
         };
 
@@ -638,18 +623,14 @@ export default function ModulePanel() {
     };
     const node = convertRefTree(tree);
     function onCopy(type: boolean, id: string) {
-        console.log("onCopy", type, id);
     }
 
     function onSelect(type: boolean, id: string, meta: any) {
         setSelectedID(id);
         setSelectedType(type);
-        console.log("onSelect", type, id, meta)
     }
 
     function onDelete(type: boolean, id: string, node: NodeType) {
-        console.log("1111111111111111111111111", type, id, node);
-
         if (type) {
             if (node.children.length) {
                 messageInstance.error(trans("module.folderNotEmpty"))
@@ -667,7 +648,7 @@ export default function ModulePanel() {
                         )
                     );
                 } catch (error) {
-                    console.error("Error: Delete module in extension:", error);
+                    console.error("Error: Remove folder in extension:", error);
                     throw error;
                 }
             }
@@ -701,61 +682,60 @@ export default function ModulePanel() {
                     onCancel: () => {}
                 });
             } catch (error) {
-                console.error("Error: Delete module in extension:", error);
+                console.error("Error: Remove module in extension:", error);
                 throw error;
             }
         }
     }
-
     return (
-    <>
-        <ComListTitle>{trans("rightPanel.moduleListTitle")}</ComListTitle>
-        {node ? <DraggableTree<NodeType>
-            node={node!}
-            disable={!!searchValue}
-            unfoldAll={!!searchValue}
-            showSubInDragOverlay={false}
-            showDropInPositionLine={false}
-            showPositionLineDot
-            positionLineDotDiameter={4}
-            positionLineHeight={1}
-            itemHeight={25}
-            positionLineIndent={(path, dropInAsSub) => {
-                const indent = 2 + (path.length - 1) * 30;
-                if (dropInAsSub) {
-                    return indent + 12;
-                }
-                return indent;
-            }}
-            renderItemContent={(params) => {
-                const { node, onToggleFold, onDelete: onDeleteTreeItem, ...otherParams } = params;
-                const resComp = node.data;
-                if (!resComp) {
-                    return null;
-                }
-                const id = resComp.id;
-                const isFolder = resComp.isFolder;
-                return (
-                    <ModuleSidebarItem
-                        id={id}
-                        key={id}
-                        node={node}
-                        resComp={resComp}
-                        onToggleFold={onToggleFold}
-                        onCopy={() => onCopy(isFolder, id)}
-                        onSelect={() => onSelect(isFolder, id, resComp)}
-                        selectedID={selectedID}
-                        setSelectedID={setSelectedID}
-                        selectedType={selectedType}
-                        setSelectedType={setSelectedType}
-                        onDelete={() => {
-                            (onDelete(isFolder, id, resComp))
-                        }}
-                        {...otherParams}
-                    />
-                );
-            }}
-        /> : empty}
-    </>
-  );
+        <>
+            <ComListTitle>{trans("rightPanel.moduleListTitle")}</ComListTitle>
+            {node?.items.length ? <DraggableTree<NodeType>
+                node={node!}
+                disable={!!searchValue}
+                unfoldAll={!!searchValue}
+                showSubInDragOverlay={false}
+                showDropInPositionLine={false}
+                showPositionLineDot
+                positionLineDotDiameter={4}
+                positionLineHeight={1}
+                itemHeight={25}
+                positionLineIndent={(path, dropInAsSub) => {
+                    const indent = 2 + (path.length - 1) * 30;
+                    if (dropInAsSub) {
+                        return indent + 12;
+                    }
+                    return indent;
+                }}
+                renderItemContent={(params) => {
+                    const { node, onToggleFold, onDelete: onDeleteTreeItem, ...otherParams } = params;
+                    const resComp = node.data;
+                    if (!resComp) {
+                        return null;
+                    }
+                    const id = resComp.id;
+                    const isFolder = resComp.isFolder;
+                    return (
+                        <ModuleSidebarItem
+                            id={id}
+                            key={id}
+                            node={node}
+                            resComp={resComp}
+                            onToggleFold={onToggleFold}
+                            onCopy={() => onCopy(isFolder, id)}
+                            onSelect={() => onSelect(isFolder, id, resComp)}
+                            selectedID={selectedID}
+                            setSelectedID={setSelectedID}
+                            selectedType={selectedType}
+                            setSelectedType={setSelectedType}
+                            onDelete={() => {
+                                (onDelete(isFolder, id, resComp))
+                            }}
+                            {...otherParams}
+                        />
+                    );
+                }}
+            /> : empty}
+        </>
+    );
 }
