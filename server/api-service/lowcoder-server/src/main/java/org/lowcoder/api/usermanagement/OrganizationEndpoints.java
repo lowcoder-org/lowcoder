@@ -46,7 +46,7 @@ public interface OrganizationEndpoints
 	)
     @GetMapping("/byuser/{email}")
     public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
-														   @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+														   @RequestParam(required = false, defaultValue = "1") Integer pageNum,
 														   @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
