@@ -17,6 +17,7 @@ public interface ApplicationHistorySnapshotService {
     Mono<List<ApplicationHistorySnapshotTS>> listAllHistorySnapshotBriefInfoArchived(String applicationId, String compName, String theme, Instant from, Instant to, PageRequest pageRequest);
 
     Mono<Long> countByApplicationId(String applicationId);
+    Mono<Long> countByApplicationIdArchived(String applicationId);
 
     Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId);
 
