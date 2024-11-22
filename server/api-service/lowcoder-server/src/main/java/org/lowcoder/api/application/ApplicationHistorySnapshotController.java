@@ -55,7 +55,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
 
     @Override
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam String compName,
             @RequestParam String theme,
@@ -92,7 +92,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
 
     @Override
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfoArchived(@PathVariable String applicationId,
-                                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                                   @RequestParam(defaultValue = "1") int page,
                                                                                    @RequestParam(defaultValue = "10") int size,
                                                                                    @RequestParam String compName,
                                                                                    @RequestParam String theme,
@@ -119,7 +119,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                             )
                     );
 
-                    Mono<Long> applicationHistorySnapshotCount = applicationHistorySnapshotService.countByApplicationId(applicationId);
+                    Mono<Long> applicationHistorySnapshotCount = applicationHistorySnapshotService.countByApplicationIdArchived(applicationId);
 
                     return Mono.zip(snapshotBriefInfoList, applicationHistorySnapshotCount)
                             .map(tuple -> ImmutableMap.of("list", tuple.getT1(), "count", tuple.getT2()));

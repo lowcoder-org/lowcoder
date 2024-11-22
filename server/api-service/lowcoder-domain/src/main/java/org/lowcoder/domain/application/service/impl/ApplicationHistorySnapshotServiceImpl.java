@@ -59,6 +59,13 @@ public class ApplicationHistorySnapshotServiceImpl implements ApplicationHistory
                         e -> ofException(BizError.FETCH_HISTORY_SNAPSHOT_COUNT_FAILURE, "FETCH_HISTORY_SNAPSHOT_COUNT_FAILURE"));
     }
 
+    @Override
+    public Mono<Long> countByApplicationIdArchived(String applicationId) {
+        return repositoryArchived.countByApplicationId(applicationId)
+                .onErrorMap(Exception.class,
+                        e -> ofException(BizError.FETCH_HISTORY_SNAPSHOT_COUNT_FAILURE, "FETCH_HISTORY_SNAPSHOT_COUNT_FAILURE"));
+    }
+
 
     @Override
     public Mono<ApplicationHistorySnapshot> getHistorySnapshotDetail(String historySnapshotId) {
