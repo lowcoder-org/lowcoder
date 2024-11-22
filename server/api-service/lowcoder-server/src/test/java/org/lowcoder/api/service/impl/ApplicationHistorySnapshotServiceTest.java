@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,8 +47,8 @@ public class ApplicationHistorySnapshotServiceTest {
                 .assertNext(list -> {
                     assertEquals(2, list.size());
 
-                    ApplicationHistorySnapshotTS first = list.get(0);
-                    ApplicationHistorySnapshotTS second = list.get(1);
+                    ApplicationHistorySnapshot first = list.get(0);
+                    ApplicationHistorySnapshot second = list.get(1);
                     assertTrue(first.getCreatedAt().isAfter(second.getCreatedAt()));
 
                     assertNull(first.getDsl());
@@ -66,7 +66,7 @@ public class ApplicationHistorySnapshotServiceTest {
         StepVerifier.create(service.listAllHistorySnapshotBriefInfo(applicationId, null, null, null, null, PageRequest.of(1, 1)))
                 .assertNext(list -> {
                     assertEquals(1, list.size());
-                    ApplicationHistorySnapshotTS one = list.get(0);
+                    ApplicationHistorySnapshot one = list.get(0);
                     assertNull(one.getDsl());
                     assertEquals(ImmutableMap.of("context", "context1"), one.getContext());
                     assertEquals(applicationId, one.getApplicationId());
