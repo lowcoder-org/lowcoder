@@ -31,7 +31,7 @@ import {showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotS
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
 import RefTreeComp from "@lowcoder-ee/comps/comps/refTreeComp";
 import { EmptyContent } from "components/EmptyContent";
-import {moveToFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
+import {deleteFolder, moveToFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
 import {HomeResInfo} from "@lowcoder-ee/util/homeResUtils";
 const ItemWrapper = styled.div`
   display: flex;
@@ -585,42 +585,65 @@ export default function ModulePanel() {
         // return <ModuleItem onDrag={onDrag} key={id} meta={meta} />
     }
 
-    function onDelete(type: boolean, id: string) {
+    function onDelete(type: boolean, id: string, node: NodeType) {
         setDeleteFlag(true);
         console.log("1111111111111111111111111", type, id, node);
         if (type) {
-            alert(1);
-        }
-        else {
-            CustomModal.confirm({
-                title: trans("home.moveToTrash"),
-                content: transToNode("home.moveToTrashSubTitle", {
-                    type: "",
-                    name: "This file",
-                }),
-                onConfirm: () => {
+            if (node.children.length) {
+                messageInstance.error(trans("module.folderNotEmpty"))
+            } else {
+                try {
                     dispatch(
-                        recycleApplication(
-                            {
-                                applicationId: id,
-                                folderId: popedItemSourceId,
+                        deleteFolder(
+                            {folderId: id, parentFolderId: ""},
+                            () => {
+                                messageInstance.success(trans("home.deleteSuccessMsg"));
                             },
                             () => {
-                                messageInstance.success(trans("success"))
-
-                            },
-                            () => {
+                                messageInstance.error(trans("error"))
                             }
                         )
-                    )
-                    setDeleteFlag(false)
-                },
-                confirmBtnType: "delete",
-                okText: trans("home.moveToTrash"),
-                onCancel: () => setDeleteFlag(false)
-            });
+                    );
+                } catch (error) {
+                    console.error("Error: Delete module in extension:", error);
+                    throw error;
+                }
+            }
+        } else {
+            try {
+                CustomModal.confirm({
+                    title: trans("home.moveToTrash"),
+                    content: transToNode("home.moveToTrashSubTitle", {
+                        type: "",
+                        name: "This file",
+                    }),
+                    onConfirm: () => {
+                        dispatch(
+                            recycleApplication(
+                                {
+                                    applicationId: id,
+                                    folderId: popedItemSourceId,
+                                },
+                                () => {
+                                    messageInstance.success(trans("success"));
+
+                                },
+                                () => {
+                                    messageInstance.error(trans("error"));
+                                }
+                            )
+                        )
+                        setDeleteFlag(false)
+                    },
+                    confirmBtnType: "delete",
+                    okText: trans("home.moveToTrash"),
+                    onCancel: () => setDeleteFlag(false)
+                });
+            } catch (error) {
+                console.error("Error: Delete module in extension:", error);
+                throw error;
+            }
         }
-        return true;
     }
 
     return (
@@ -661,9 +684,7 @@ export default function ModulePanel() {
                         onCopy={() => onCopy(isFolder, id)}
                         onSelect={() => onSelect(isFolder, id, resComp)}
                         onDelete={() => {
-                            if (onDelete(isFolder, id)) {
-                                onDeleteTreeItem();
-                            }
+                            (onDelete(isFolder, id, resComp))
                         }}
                         {...otherParams}
                     />
