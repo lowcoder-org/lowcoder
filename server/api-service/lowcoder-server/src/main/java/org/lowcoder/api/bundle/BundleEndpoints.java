@@ -123,7 +123,7 @@ public interface BundleEndpoints
     @GetMapping("/{bundleId}/elements")
     public Mono<PageResponseView<?>> getElements(@PathVariable String bundleId,
 												 @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
-												 @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+												 @RequestParam(required = false, defaultValue = "1") Integer pageNum,
 												 @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
