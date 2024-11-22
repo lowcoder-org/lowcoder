@@ -40,17 +40,12 @@ const ItemWrapper = styled.div`
     margin-bottom: 0;
   }
   .module-container {
-      //width: 70px;
       display: flex;
-      justify-content: space-between;
-      text-align: left;
   }
   .module-icon {
-      
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin: 4px;
+    margin-right: 4px;
+      width:19px;
+      height: 19px;
   }
   .module-content {
     flex: 1;
@@ -249,10 +244,7 @@ function ModuleItem(props: ModuleItemProps) {
             }}
         >
             <div className="module-container" >
-                <div className="module-icon">
-                    <ModuleDocIcon width="19px" height="19px"/>
-                </div>
-
+                    <ModuleDocIcon className="module-icon"/>
                 <div style={{flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)"}}>
                     <EditText
                         text={meta.name}
@@ -282,7 +274,7 @@ const HighlightBorder = styled.div<{ $active: boolean; $foldable: boolean; $leve
   border-radius: 4px;
   border: 1px solid ${(props) => (props.$active ? BorderActiveColor : "transparent")};
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
 `;
 
 interface ColumnDivProps {
@@ -463,7 +455,7 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
                 {isFolder && <FoldIconBtn>{!isFolded ? <FoldedIcon /> : <UnfoldIcon />}</FoldIconBtn>}
                         { isFolder ?
                             <>
-                                <FileFolderIcon />
+                                <FileFolderIcon style={{marginRight: "4px"}}/>
                                     <div style={{ flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)" }}>
                                         <EditText
                                             text={name}
