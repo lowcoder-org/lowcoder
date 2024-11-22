@@ -19,7 +19,7 @@ import {trans, transToNode} from "i18n";
 import { draggingUtils } from "layout/draggingUtils";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {fetchAllModules, recycleApplication} from "redux/reduxActions/applicationActions";
+import {fetchAllModules, recycleApplication, updateAppMetaAction} from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
 import CreateAppButton from "components/CreateAppButton";
 import { TransparentImg } from "util/commonUtils";
@@ -27,7 +27,7 @@ import { ComListTitle } from "./styledComponent";
 import {folderElementsSelector} from "@lowcoder-ee/redux/selectors/folderSelector";
 import {DraggableTree} from "@lowcoder-ee/components/DraggableTree/DraggableTree";
 import {EditorContext} from "lowcoder-sdk";
-import {showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotSelector";
+import {getSelectedAppSnapshot, showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotSelector";
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
 import RefTreeComp from "@lowcoder-ee/comps/comps/refTreeComp";
 import { EmptyContent } from "components/EmptyContent";
@@ -168,11 +168,65 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
 interface ModuleItemProps {
   meta: ApplicationMeta;
   onDrag: (type: string) => void;
+  isOverlay: boolean;
+  selectedID: string;
+  setSelectedID: (id: string) => void;
+  selectedType: boolean;
+  setSelectedType: (id: boolean) => void;
+  resComp: NodeType;
+  id: string;
 }
 
 function ModuleItem(props: ModuleItemProps) {
     const compType = "module";
-    const { meta } = props;
+    const {
+        meta ,
+        isOverlay,
+        selectedID,
+        setSelectedID,
+        selectedType,
+        setSelectedType,
+        resComp,
+        id
+    } = props;
+    const dispatch = useDispatch();
+    const type = resComp.isFolder;
+    const name = resComp.name;
+    const [error, setError] = useState<string | undefined>(undefined);
+    const [editing, setEditing] = useState(false);
+    const editorState = useContext(EditorContext);
+    const readOnly = useSelector(showAppSnapshotSelector);
+    const isSelected = type === selectedType && id === selectedID;
+    const handleFinishRename = (value: string) => {
+        let success = false;
+        let compId = name;
+        if (resComp.rename) {
+            compId = resComp.rename(value);
+            success = !!compId;
+        } else {
+            compId = name;
+            success = true;
+        }
+        if (success) {
+            console.log(selectedID, value);
+            setSelectedID(compId);
+            setSelectedType(type);
+            setError(undefined);
+            try{
+                dispatch(updateAppMetaAction({
+                    applicationId: selectedID,
+                    name: value
+                }));
+            } catch (error) {
+                console.error("Error: Delete module in extension:", error);
+                throw error;
+            }
+        }
+    };
+
+    const handleNameChange = (value: string) => {
+        value === "" ? setError("Cannot Be Empty") : setError("");
+    };
     return (
         <ItemWrapper
             draggable
@@ -198,8 +252,22 @@ function ModuleItem(props: ModuleItemProps) {
                 <div className="module-icon">
                     <ModuleDocIcon width="19px" height="19px"/>
                 </div>
-                <div className="module-content">
-                    <div className="module-name">{props.meta.name}</div>
+
+                <div style={{flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)"}}>
+                    <EditText
+                        text={meta.name}
+                        forceClickIcon={false}
+                        disabled={!isSelected || readOnly || isOverlay}
+                        onFinish={handleFinishRename}
+                        onChange={handleNameChange}
+                        onEditStateChange={(editing) => setEditing(editing)}
+                    />
+                    <PopupCard
+                        editorFocus={!!error && editing}
+                        title={error ? trans("error") : ""}
+                        content={error}
+                        hasError={!!error}
+                    />
                 </div>
             </div>
         </ItemWrapper>
@@ -368,7 +436,13 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
             setSelectedID(compId);
             setSelectedType(type);
             setError(undefined);
-            dispatch(updateFolder({ id: selectedID, name: value }));
+            try{
+                dispatch(updateFolder({ id: selectedID, name: value }));
+            } catch (error) {
+                console.error("Error: Delete module in extension:", error);
+                throw error;
+            }
+
         }
     };
 
@@ -407,7 +481,17 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
                                         />
                                     </div>
                             </> :
-                            <ModuleItem onDrag={onDrag} key={id} meta={resComp.module!} /> }
+                            <ModuleItem onDrag={onDrag}
+                                        key={id}
+                                        meta={resComp.module!}
+                                        isOverlay={isOverlay}
+                                        selectedID={selectedID}
+                                        setSelectedID={setSelectedID}
+                                        selectedType={selectedType}
+                                        setSelectedType={setSelectedType}
+                                        resComp = {resComp}
+                                        id = {id}
+                            />}
                 {!readOnly && !isOverlay && (
                     <EditPopover copy={!isFolder ? onCopy : undefined} del={() => onDelete()}>
                         <Icon tabIndex={-1} />
@@ -421,7 +505,6 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
 export default function ModulePanel() {
   const dispatch = useDispatch();
   let elements = useSelector(folderElementsSelector);
-  // const reload = () => elements = useSelector(folderElementsSelector);
   const { onDrag, searchValue } = useContext(RightContext);
   const [deleteFlag, setDeleteFlag] = useState(false);
   const [selectedID, setSelectedID] = useState("");

@@ -69,6 +69,15 @@ export const folderReducer = createReducer(initialState, {
     elements[action.payload.folderId ?? ""] = elements[action.payload.folderId ?? ""]?.map((e) => {
       if (!e.folder && e.applicationId === action.payload.applicationId) {
         return { ...e, ...action.payload };
+      } else {
+        if (e.folder) {
+          // console.log(e.subApplications);
+          if (e.subApplications?.map(item => {
+              if (item.applicationId === action.payload.applicationId)
+                item.name = action.payload.name
+          })){
+          }
+        }
       }
       return e;
     });
