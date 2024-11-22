@@ -83,7 +83,7 @@ function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderM
     const elementMap: Record<string, NodeType> = {};
     let rootNode: NodeType = {
         name: "root",
-        id: "root",
+        id: "",
         isFolder: true,
         children: [],
         rename: val => rootNode.name = val,
@@ -498,16 +498,54 @@ export default function ModulePanel() {
   const dispatch = useDispatch();
   let elements = useSelector(folderElementsSelector);
   const { onDrag, searchValue } = useContext(RightContext);
-  const [deleteFlag, setDeleteFlag] = useState(false);
   const [selectedID, setSelectedID] = useState("");
   const [selectedType, setSelectedType] = useState(false);
+  let sourceFolderId : string = "";
+  let sourceId : string = "";
+  let folderId : string = "";
+  const tree = buildTree(elements);
+  const getById = (id: string): NodeType | undefined => getByIdFromNode(tree, id);
+  let popedItem : DraggableTreeNode<any>[] = [];
+  let popedItemSourceId = "";
+
   useEffect(() => {
-    dispatch(fetchAllModules({}));
+      dispatch(fetchAllModules({}));
   }, [dispatch]);
 
+  const moveModule = () => {
+      console.log({sourceFolderId: sourceFolderId,
+          sourceId: sourceId,
+          folderId: folderId,
+          moveFlag: true})
+      try{
+          if (sourceId !== "") {
+              dispatch(
+                  moveToFolder(
+                      {
+                          sourceFolderId: sourceFolderId!,
+                          sourceId: sourceId!,
+                          folderId: folderId!,
+                          moveFlag: true
+                      },
+                      () => {
 
-    //Convert elements into tree
-    const tree = buildTree(elements);
+
+                      },
+                      () => {}
+                  )
+              );
+          }
+      } catch (error) {
+          console.error("Error: Delete module in extension:", error);
+          throw error;
+      } finally {
+          folderId = "";
+          sourceId = "";
+          sourceFolderId = "";
+      }
+
+  }
+
     const getByIdFromNode = (root: NodeType | null, id: string): NodeType | undefined => {
         if (!root) {
             return;
@@ -525,11 +563,7 @@ export default function ModulePanel() {
         }
         return;
     }
-
-    const getById = (id: string): NodeType | undefined => getByIdFromNode(tree, id);
-    let popedItem : DraggableTreeNode<any>[] = [];
-    let popedItemSourceId = ""
-    const convertRefTree = (treeNode: NodeType) => {
+    const convertRefTree = (treeNode: NodeType) => {    //Convert elements into tree
         const moduleResComp = getById(treeNode.id);
         const currentNodeType = moduleResComp?.isFolder;
 
@@ -570,75 +604,25 @@ export default function ModulePanel() {
             data: moduleResComp,
             addSubItem(value) {
                 console.log("addSubItem", node.id, value, node);
+                folderId = node.id!;
+                moveModule();
                 // node.items.push(value)
                 // const pushAction = node.items.pushAction({ value: value.id() });
                 // node.items.dispatch(pushAction);
             },
             deleteItem(index) {
-                console.log("deleteItem", node, index);
-                popedItemSourceId = node.id!;
-                if(!deleteFlag){
-                    popedItem = node.items.splice(index, 1);
-                    console.log(popedItem);
-                }
+                console.log("deleteItem", index, node);
+                sourceFolderId = node.id!;
+                sourceId = node.items[index].id!;
 
-                // const deleteAction = node.children.items.deleteAction(index);
-                // node.children.items.dispatch(deleteAction);
             },
             addItem(value) {
-                console.log("additem", "value",  value, node);
-                node.items.push(popedItem[0])
-                popedItem = [];
-                // const pushAction = node.children.items.pushAction({ value: value.id() });
-                // node.children.items.dispatch(pushAction);
-                // if (popedItem[0]){
-                //     dispatch(
-                //         moveToFolder(
-                //             {
-                //                 sourceFolderId: popedItemSourceId,
-                //                 sourceId: popedItem[0].id!,
-                //                 folderId: node.id!,
-                //                 moveFlag: true
-                //             },
-                //             () => {
-                //
-                //
-                //             },
-                //             () => {}
-                //         )
-                //     );
-                //     node.items.push(popedItem[0]);
-                //     popedItemSourceId = "";
-                //     popedItem = [];
-                // }
+                console.log("additem",  "value", value, "node", node);
+                folderId = node.id!;
+                moveModule();
             },
             moveItem(from, to) {
                 console.log("moveItem", node, from, to, node.id);
-                if (popedItem[0]){
-                    node.items.push(popedItem[0]);
-
-                    dispatch(
-                        moveToFolder(
-                            {
-                                sourceFolderId: popedItemSourceId,
-                                sourceId: popedItem[0].id!,
-                                folderId: node.id!,
-                                moveFlag: true
-                            },
-                            () => {
-
-
-                            },
-                            () => {}
-                        )
-                    );
-                    popedItemSourceId = "";
-                    popedItem = [];
-
-                }
-                // popedItem = [];
-                // const moveAction = node.children.items.arrayMoveAction(from, to);
-                // node.children.items.dispatch(moveAction);
             },
         };
 
@@ -652,7 +636,6 @@ export default function ModulePanel() {
         }
         return node;
     };
-
     const node = convertRefTree(tree);
     function onCopy(type: boolean, id: string) {
         console.log("onCopy", type, id);
@@ -665,8 +648,8 @@ export default function ModulePanel() {
     }
 
     function onDelete(type: boolean, id: string, node: NodeType) {
-        setDeleteFlag(true);
         console.log("1111111111111111111111111", type, id, node);
+
         if (type) {
             if (node.children.length) {
                 messageInstance.error(trans("module.folderNotEmpty"))
@@ -712,11 +695,10 @@ export default function ModulePanel() {
                                 }
                             )
                         )
-                        setDeleteFlag(false)
                     },
                     confirmBtnType: "delete",
                     okText: trans("home.moveToTrash"),
-                    onCancel: () => setDeleteFlag(false)
+                    onCancel: () => {}
                 });
             } catch (error) {
                 console.error("Error: Delete module in extension:", error);

@@ -71,7 +71,6 @@ export const folderReducer = createReducer(initialState, {
         return { ...e, ...action.payload };
       } else {
         if (e.folder) {
-          // console.log(e.subApplications);
           if (e.subApplications?.map(item => {
               if (item.applicationId === action.payload.applicationId)
                 item.name = action.payload.name
@@ -148,34 +147,49 @@ export const folderReducer = createReducer(initialState, {
       action: ReduxAction<MoveToFolderPayload>
   ): FolderReduxState => {
     let elements = { ...state.folderElements };
-    let tempIndex: number | undefined;
-    let tempNode: any;
-    let temp = elements[""].map((item, index) => {
-      if (item.folderId === action.payload.sourceFolderId && item.folder) {
-
-        const tempSubApplications = item.subApplications?.filter(e =>
-            (e.folder && e.folderId !== action.payload.sourceId) ||
-            (!e.folder && e.applicationId !== action.payload.sourceId)
-        );
-        tempNode = item.subApplications?.filter(e =>
-            (e.folder && e.folderId === action.payload.sourceId) ||
-            (!e.folder && e.applicationId === action.payload.sourceId)
-        );
-        return { ...item, subApplications: tempSubApplications };
-      }
-      if (item.folderId === action.payload.folderId && item.folder) {
-        tempIndex = index;
+    const { sourceId, folderId, sourceFolderId } = action.payload;
+    if(sourceFolderId === "") {
+      const tempItem = elements[""]?.find(e =>
+          !e.folder && e.applicationId === sourceId
+      );
+      elements[""] = elements[""]?.filter(e => e.folder || (e.applicationId !== sourceId));
+      elements[""] = elements[""].map(item => {
+        if(item.folder && item.folderId === folderId && tempItem !== undefined && !tempItem.folder) {
+          item.subApplications?.push(tempItem);
+        }
         return item;
+      })
+    } else{
+      let tempIndex: number | undefined;
+      let tempNode: any;
+      let temp = elements[""].map((item, index) => {
+        if (item.folderId === sourceFolderId && item.folder) {
+          const tempSubApplications = item.subApplications?.filter(e =>
+              (e.folder && e.folderId !== sourceId) ||
+              (!e.folder && e.applicationId !== sourceId)
+          );
+          tempNode = item.subApplications?.filter(e =>
+              (e.folder && e.folderId === sourceId) ||
+              (!e.folder && e.applicationId === sourceId)
+          );
+          return { ...item, subApplications: tempSubApplications };
+        }
+        if (item.folderId === folderId && item.folder) {
+          tempIndex = index;
+          return item;
+        }
+        return item;
+      });
+      if (tempIndex !== undefined) {
+        const targetItem = temp[tempIndex];
+        if (targetItem.folder && Array.isArray(targetItem.subApplications)) {
+          targetItem.subApplications.push(tempNode[0]);
+        }
+      } else {
+        temp.push(tempNode[0]);
       }
-      return item;
-    });
-    if (tempIndex !== undefined) {
-      const targetItem = temp[tempIndex];
-      if (targetItem.folder && Array.isArray(targetItem.subApplications)) {
-        targetItem.subApplications.push(tempNode[0]);
-      }
+      elements[""] = temp;
     }
-    elements[""] = temp;
     return {
       ...state,
       folderElements: elements,
