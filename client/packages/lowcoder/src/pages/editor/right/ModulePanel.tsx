@@ -31,7 +31,7 @@ import {showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshotS
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
 import RefTreeComp from "@lowcoder-ee/comps/comps/refTreeComp";
 import { EmptyContent } from "components/EmptyContent";
-import {deleteFolder, moveToFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
+import {deleteFolder, moveToFolder, updateFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
 import {HomeResInfo} from "@lowcoder-ee/util/homeResUtils";
 const ItemWrapper = styled.div`
   display: flex;
@@ -300,6 +300,10 @@ interface ModuleSidebarItemProps extends DraggableTreeNodeItemRenderProps {
     onSelect: () => void;
     onDelete: () => void;
     onToggleFold: () => void;
+    selectedID: string;
+    setSelectedID: (id: string) => void;
+    selectedType: boolean;
+    setSelectedType: (id: boolean) => void;
 }
 
 const empty = (
@@ -321,6 +325,7 @@ const empty = (
 );
 
 function ModuleSidebarItem(props: ModuleSidebarItemProps) {
+    const dispatch = useDispatch();
     const {
         id,
         resComp,
@@ -328,6 +333,10 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
         isOverlay,
         path,
         isFolded,
+        selectedID,
+        setSelectedID,
+        selectedType,
+        setSelectedType,
         onDelete,
         onCopy,
         onSelect,
@@ -338,13 +347,11 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
     const [editing, setEditing] = useState(false);
     const editorState = useContext(EditorContext);
     const readOnly = useSelector(showAppSnapshotSelector);
-    const [selectedModuleResName, setSelectedModuleResName] = useState("");
-    const [selectedModuleResType, setSelectedModuleResType] = useState(false);
     const level = path.length - 1;
     const type = resComp.isFolder;
     const name = resComp.name;
     const icon = resComp.isFolder?<FileFolderIcon /> : <ModuleDocIcon width={"16px"} height={"16px"}/>;
-    const isSelected = type === selectedModuleResType && id === selectedModuleResName;
+    const isSelected = type === selectedType && id === selectedID;
     const isFolder = type;
 
     const handleFinishRename = (value: string) => {
@@ -358,20 +365,15 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
             success = true;
         }
         if (success) {
-            setSelectedModuleResName(compId);
-            setSelectedModuleResType(type);
+            setSelectedID(compId);
+            setSelectedType(type);
             setError(undefined);
+            dispatch(updateFolder({ id: selectedID, name: value }));
         }
     };
 
     const handleNameChange = (value: string) => {
-        let err = "";
-        if (resComp.checkName) {
-            err = resComp.checkName(value);
-        } else {
-            err = editorState.checkRename(name, value);
-        }
-        setError(err);
+        value === "" ? setError("Cannot Be Empty") : setError("");
     };
 
     const handleClickItem = () => {
@@ -422,6 +424,8 @@ export default function ModulePanel() {
   // const reload = () => elements = useSelector(folderElementsSelector);
   const { onDrag, searchValue } = useContext(RightContext);
   const [deleteFlag, setDeleteFlag] = useState(false);
+  const [selectedID, setSelectedID] = useState("");
+  const [selectedType, setSelectedType] = useState(false);
   useEffect(() => {
     dispatch(fetchAllModules({}));
   }, [dispatch]);
@@ -575,14 +579,14 @@ export default function ModulePanel() {
     };
 
     const node = convertRefTree(tree);
-    console.log("started!!!!", node)
     function onCopy(type: boolean, id: string) {
         console.log("onCopy", type, id);
     }
 
     function onSelect(type: boolean, id: string, meta: any) {
+        setSelectedID(id);
+        setSelectedType(type);
         console.log("onSelect", type, id, meta)
-        // return <ModuleItem onDrag={onDrag} key={id} meta={meta} />
     }
 
     function onDelete(type: boolean, id: string, node: NodeType) {
@@ -683,6 +687,10 @@ export default function ModulePanel() {
                         onToggleFold={onToggleFold}
                         onCopy={() => onCopy(isFolder, id)}
                         onSelect={() => onSelect(isFolder, id, resComp)}
+                        selectedID={selectedID}
+                        setSelectedID={setSelectedID}
+                        selectedType={selectedType}
+                        setSelectedType={setSelectedType}
                         onDelete={() => {
                             (onDelete(isFolder, id, resComp))
                         }}
