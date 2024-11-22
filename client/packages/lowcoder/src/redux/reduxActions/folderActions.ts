@@ -58,6 +58,7 @@ export interface MoveToFolderPayload {
   sourceFolderId: string;
   sourceId: string;
   folderId: string;
+  moveFlag?: boolean;
 }
 
 export const moveToFolder = (

@@ -2785,6 +2785,7 @@ export const en = {
     "switch": "Switch Component: "
   },
   "module": {
+    "folderNotEmpty": "Folder is not empty",
     "emptyText": "No Data",
     "docLink": "Read More About Modules...",
     "documentationText" : "Modules are complete Applications, that can get included and repeated in other Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",

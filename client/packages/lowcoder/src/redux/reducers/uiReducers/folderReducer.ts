@@ -37,10 +37,24 @@ export const folderReducer = createReducer(initialState, {
     state: FolderReduxState,
     action: ReduxAction<RecycleApplicationPayload>
   ): FolderReduxState => {
+    const deleteArray : number[] = [];
     const elements = { ...state.folderElements };
-    elements[action.payload.folderId ?? ""] = elements[action.payload.folderId ?? ""]?.filter(
-      (e) => e.folder || (!e.folder && e.applicationId !== action.payload.applicationId)
-    );
+    elements[""] = elements[""].map((item, index) => {
+      if(item.folder) {
+        const tempSubApplications = item.subApplications?.filter(e => e.applicationId !== action.payload.applicationId);
+        return {  ...item, subApplications: tempSubApplications };
+      } else {
+         if (item.applicationId !== action.payload.applicationId)
+           return item;
+         else {
+           deleteArray.push(index);
+           return item;
+         }
+      }
+    });
+    deleteArray.map(item => {
+      elements[""].splice(item, 1);
+    })
     return {
       ...state,
       folderElements: elements,
@@ -55,6 +69,14 @@ export const folderReducer = createReducer(initialState, {
     elements[action.payload.folderId ?? ""] = elements[action.payload.folderId ?? ""]?.map((e) => {
       if (!e.folder && e.applicationId === action.payload.applicationId) {
         return { ...e, ...action.payload };
+      } else {
+        if (e.folder) {
+          if (e.subApplications?.map(item => {
+              if (item.applicationId === action.payload.applicationId)
+                item.name = action.payload.name
+          })){
+          }
+        }
       }
       return e;
     });
@@ -88,7 +110,7 @@ export const folderReducer = createReducer(initialState, {
       action.payload.parentFolderId ?? ""
     ]?.map((e) => {
       if (e.folder && e.folderId === action.payload.folderId) {
-        return { ...action.payload, name: action.payload.name };
+        return { ...e, name: action.payload.name};
       }
       return e;
     });
@@ -107,7 +129,7 @@ export const folderReducer = createReducer(initialState, {
     state: FolderReduxState,
     action: ReduxAction<MoveToFolderPayload>
   ): FolderReduxState => {
-    const elements = { ...state.folderElements };
+    let elements = { ...state.folderElements };
     elements[action.payload.sourceFolderId ?? ""] = elements[
       action.payload.sourceFolderId ?? ""
     ]?.filter(
@@ -115,6 +137,59 @@ export const folderReducer = createReducer(initialState, {
         (e.folder && e.folderId !== action.payload.sourceId) ||
         (!e.folder && e.applicationId !== action.payload.sourceId)
     );
+    return {
+      ...state,
+      folderElements: elements,
+    };
+  },
+  [ReduxActionTypes.MOVE_TO_FOLDER2_SUCCESS]: (
+      state: FolderReduxState,
+      action: ReduxAction<MoveToFolderPayload>
+  ): FolderReduxState => {
+    let elements = { ...state.folderElements };
+    const { sourceId, folderId, sourceFolderId } = action.payload;
+    if(sourceFolderId === "") {
+      const tempItem = elements[""]?.find(e =>
+          !e.folder && e.applicationId === sourceId
+      );
+      elements[""] = elements[""]?.filter(e => e.folder || (e.applicationId !== sourceId));
+      elements[""] = elements[""].map(item => {
+        if(item.folder && item.folderId === folderId && tempItem !== undefined && !tempItem.folder) {
+          item.subApplications?.push(tempItem);
+        }
+        return item;
+      })
+    } else{
+      let tempIndex: number | undefined;
+      let tempNode: any;
+      let temp = elements[""].map((item, index) => {
+        if (item.folderId === sourceFolderId && item.folder) {
+          const tempSubApplications = item.subApplications?.filter(e =>
+              (e.folder && e.folderId !== sourceId) ||
+              (!e.folder && e.applicationId !== sourceId)
+          );
+          tempNode = item.subApplications?.filter(e =>
+              (e.folder && e.folderId === sourceId) ||
+              (!e.folder && e.applicationId === sourceId)
+          );
+          return { ...item, subApplications: tempSubApplications };
+        }
+        if (item.folderId === folderId && item.folder) {
+          tempIndex = index;
+          return item;
+        }
+        return item;
+      });
+      if (tempIndex !== undefined) {
+        const targetItem = temp[tempIndex];
+        if (targetItem.folder && Array.isArray(targetItem.subApplications)) {
+          targetItem.subApplications.push(tempNode[0]);
+        }
+      } else {
+        temp.push(tempNode[0]);
+      }
+      elements[""] = temp;
+    }
     return {
       ...state,
       folderElements: elements,
