@@ -103,7 +103,7 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
           >
             <span style={{cursor: "default"}}>⣿</span>
           </DraggableItem>
-          <div style={{flex: 1}}>
+          <div style={{ flex: 1 , maxWidth: "calc(100% - 12px)" }}>
             {renderContent?.({
               node: item,
               isOver,
