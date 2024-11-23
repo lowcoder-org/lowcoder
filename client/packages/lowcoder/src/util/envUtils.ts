@@ -15,7 +15,7 @@ export function developEnv(): boolean {
  */
 // Falk: TODO: check EE by API Call
 export function isEE(): boolean {
-  return true;
+  return false;
   // return REACT_APP_EDITION === "enterprise" || REACT_APP_EDITION === "enterprise-global";
 }
 

@@ -19,9 +19,8 @@ import {
   EnvironmentsIcon,
   UsageStatisticsIcon,
   AutitLogsIcon,
-  BrandingIcon,
-  AuditAppIcon
- } from "lowcoder-design";
+  BrandingIcon
+} from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
@@ -89,7 +88,7 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.environments")}</span>
-          {(!isEE() || !currentOrgAdmin(user) && (
+          {(!isEE() && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
@@ -102,7 +101,7 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.appUsage")}</span>
-          {(!isEE() || !currentOrgAdmin(user) && (
+          {(!isEE() && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
@@ -115,12 +114,12 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.audit")}</span>
-          {(!isEE() || !currentOrgAdmin(user) && (
+          {(!isEE() && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
       ),
-      icon: <AuditAppIcon width={"20px"}/>,
+      icon: <AutitLogsIcon width={"20px"}/>,
       disabled: !isEE() || !currentOrgAdmin(user),
     },
     {
@@ -128,7 +127,7 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.branding")}</span>
-          {(!isEE() || !currentOrgAdmin(user) && (
+          {(!isEE() && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
