@@ -18,3 +18,4 @@ application-dev-localhost.yaml
 server/api-service/lowcoder-server/src/main/resources/application-local-dev.yaml
 translations/locales/node_modules/
 .vscode/settings.json
+server/api-service/lowcoder-server/src/main/resources/application-local-dev-ee.yaml
