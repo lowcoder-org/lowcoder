@@ -5,7 +5,7 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@lowcoder-ee/pages/setting/audit";
-import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
+import { isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { 
@@ -16,6 +16,11 @@ import {
   ThemeIcon,
   WorkspacesIcon,
   SubscriptionIcon,
+  EnvironmentsIcon,
+  UsageStatisticsIcon,
+  AutitLogsIcon,
+  BrandingIcon,
+  AuditAppIcon
  } from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
@@ -25,7 +30,7 @@ import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@lowcoder-ee/pages/setting/branding/BrandingSetting";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { enableCustomBrand } from "util/featureFlagUtils";
+// import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
@@ -84,51 +89,52 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.environments")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
+          {(!isEE() || !currentOrgAdmin(user) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          ))}
         </span>
       ),
-      disabled: true,
+      icon: <EnvironmentsIcon width={"20px"}/>,
+      disabled: !isEE() || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.AppUsage,
       label: (
         <span>
           <span className="text">{trans("settings.appUsage")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
+          {(!isEE() || !currentOrgAdmin(user) && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          ))}
         </span>
       ),
-      disabled: true,
+      icon: <UsageStatisticsIcon width={"20px"}/>,
+      disabled: !isEE() || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Audit,
       label: (
         <span>
           <span className="text">{trans("settings.audit")}</span>
-          {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+          {(!isEE() || !currentOrgAdmin(user) && (
             <FreeLimitTag text={trans("settings.premium")} />
-          )}
+          ))}
         </span>
       ),
-      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+      icon: <AuditAppIcon width={"20px"}/>,
+      disabled: !isEE() || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Branding,
       label: (
         <span>
           <span className="text">{trans("settings.branding")}</span>
-          {(!isEE() ||
-            !currentOrgAdmin(user) ||
-            !enableCustomBrand(config) ||
-            (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+          {(!isEE() || !currentOrgAdmin(user) && (
             <FreeLimitTag text={trans("settings.premium")} />
-          )}
+          ))}
         </span>
       ),
-      disabled:
-        !isEE() ||
-        !currentOrgAdmin(user) ||
-        !enableCustomBrand(config) ||
-        (!isSelfDomain(config) && !isEnterpriseMode(config)),
+      icon: <BrandingIcon width={"20px"}/>,
+      disabled: !isEE() || !currentOrgAdmin(user),
     },
     { 
       key: SettingPageEnum.Subscription,
