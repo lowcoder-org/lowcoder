@@ -119,7 +119,7 @@ public class DatasourceController implements DatasourceEndpoints
      */
     @Override
     public Mono<PageResponseView<?>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
-                                                             @RequestParam(required = false, defaultValue = "1s") int pageNum,
+                                                             @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                              @RequestParam(required = false, defaultValue = "0") int pageSize) {
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
         return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listJsDatasourcePlugins(objectId, name, type));
