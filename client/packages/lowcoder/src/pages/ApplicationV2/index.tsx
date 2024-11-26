@@ -4,7 +4,6 @@ import {
   DATASOURCE_URL,
   FOLDER_URL,
   FOLDER_URL_PREFIX,
-  FOLDERS_URL,
   MARKETPLACE_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
@@ -53,7 +52,6 @@ import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
 // import { SideBarItemType } from "../../components/layout/SideBarSection";
-import { RootFolderListView } from "./RootFolderListView";
 // import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 // import { ModuleView } from "./ModuleView";
@@ -262,12 +260,12 @@ export default function ApplicationHome() {
 
             {
               items: [
-                {
-                  text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
-                  routePath: FOLDERS_URL,
-                  routeComp: RootFolderListView,
-                  icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
-                },
+                // {
+                //   text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
+                //   routePath: FOLDERS_URL,
+                //   routeComp: RootFolderListView,
+                //   icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
+                // },
                 {
                   text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                   routePath: ALL_APPLICATIONS_URL,
