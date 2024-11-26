@@ -91,9 +91,6 @@ public class OrganizationServiceImpl implements OrganizationService {
                         if (Boolean.TRUE.equals(join)) {
                             return Mono.empty();
                         }
-                        OrganizationDomain organizationDomain = new OrganizationDomain();
-                        organizationDomain.setConfigs(List.of(DEFAULT_AUTH_CONFIG));
-                        organization.setOrganizationDomain(organizationDomain);
                         return create(organization, user.getId(), isSuperAdmin);
                     });
         });
