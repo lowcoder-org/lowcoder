@@ -12,6 +12,14 @@ export interface GenericApiResponse<T> {
   data: T;
 }
 
+export interface GenericApiPaginationResponse<T> {
+  total: number;
+  success: boolean;
+  code: number;
+  message: string;
+  data: T;
+}
+
 export interface FetchGroupApiResponse<T> extends GenericApiResponse<T> {
   totalAdmins: number,
   totalAdminsAndDevelopers: number,

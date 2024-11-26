@@ -203,7 +203,7 @@ const EmptyView = styled.div`
 const PaginationLayout = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 40px;
+  margin-top: -20px;
   margin-bottom: 20px;  
 `
 
@@ -308,13 +308,39 @@ export interface HomeLayoutProps {
   localMarketplaceApps?: Array<ApplicationMeta>;
   globalMarketplaceApps?: Array<ApplicationMeta>;
   mode: HomeLayoutMode;
+  setCurrentPage?: any;
+  setPageSize?: any;
+  currentPage?: number;
+  pageSize?: number;
+  total?: number;
+  setSearchValues?: any;
+  typeFilter?: number;
+  setTypeFilter?: any;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
+  const { breadcrumb = [],
+    elements = [],
+    localMarketplaceApps = [],
+    globalMarketplaceApps = [],
+    mode ,
+    setCurrentPage,
+    setPageSize,
+    pageSize,
+    currentPage,
+    setSearchValues,
+    total,
+    typeFilter,
+    setTypeFilter,
+  } = props;
+  console.log("elements", elements, total);
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
 
-  const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [], mode } = props;
-
-  console.log("folder", elements);
+  const handlePageSizeChange = (current: number, size: number) => {
+    setPageSize(size);
+  };
 
   const categoryOptions = [
     { label: <FilterMenuItem>{trans("home.allCategories")}</FilterMenuItem>, value: 'All' },
@@ -331,10 +357,9 @@ export function HomeLayout(props: HomeLayoutProps) {
   const user = useSelector(getUser);
   const isFetching = useSelector(isFetchingFolderElements);
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-  const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
   const [searchValue, setSearchValue] = useState("");
-  const [visibility, setVisibility] = useState(true);
+  const [visibility, setVisibility] = useState(mode !== "marketplace");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
@@ -352,7 +377,15 @@ export function HomeLayout(props: HomeLayoutProps) {
     return null;
   }
 
-  var displayElements = elements;
+  var displayElements = elements.sort((a, b) => {
+    if (a.folder && !b.folder) {
+      return -1; // a is a folder and should come first
+    } else if (!a.folder && b.folder) {
+      return 1; // b is a folder and should come first
+    } else {
+      return 0; // both are folders or both are not, keep original order
+    }
+  });
 
   if (mode === "marketplace" && isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
@@ -364,27 +397,7 @@ export function HomeLayout(props: HomeLayoutProps) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
   }
-
   const resList: HomeRes[] = displayElements
-    .filter((e) =>
-      searchValue
-        ? e.name?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase()) ||
-          e.createBy?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase())
-        : true
-    )
-    .filter((e) => {
-      if (HomeResTypeEnum[typeFilter].valueOf() === HomeResTypeEnum.All) {
-        return true;
-      }
-      if (e.folder) {
-        return HomeResTypeEnum[typeFilter] === HomeResTypeEnum.Folder;
-      } else {
-        if (typeFilter === "Navigation") {
-          return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
-        }
-        return HomeResTypeEnum[typeFilter].valueOf() === e.applicationType;
-      }
-    })
     .filter((e) => {
       // If "All" is selected, do not filter out any elements based on category
       if (categoryFilter === 'All' || !categoryFilter) {
@@ -425,7 +438,6 @@ export function HomeLayout(props: HomeLayoutProps) {
           }
     );
 
-  console.log(resList);
 
   const getFilterMenuItem = (type: HomeResTypeEnum) => {
     const Icon = HomeResInfo[type].icon;
@@ -474,7 +486,7 @@ export function HomeLayout(props: HomeLayoutProps) {
 
       {showNewUserGuide(user) && <HomepageTourV2 />}
 
-        <HomeView>
+              <HomeView>
           <StyleHomeCover>
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>
               {mode === "marketplace" && trans("home.appMarketplace")}
@@ -491,8 +503,11 @@ export function HomeLayout(props: HomeLayoutProps) {
               {mode !== "folders" && mode !== "module" && (
                 <FilterDropdown
                   variant="borderless"
-                  value={typeFilter}
-                  onChange={(value: any) => setTypeFilter(value as HomeResKey)}
+                  value={HomeResTypeEnum[typeFilter || 0]}
+                  onChange={(value: any) => {
+                    console.log(HomeResTypeEnum[value])
+                    setTypeFilter(HomeResTypeEnum[value])}
+                  }
                   options={[
                     getFilterMenuItem(HomeResTypeEnum.All),
                     getFilterMenuItem(HomeResTypeEnum.Application),
@@ -519,6 +534,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   placeholder={trans("search")}
                   value={searchValue}
                   onChange={(e) => setSearchValue(e.target.value)}
+                  onEnterPress={(value) => setSearchValues(value)}
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
                 {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
@@ -615,15 +631,21 @@ export function HomeLayout(props: HomeLayoutProps) {
                 </>
               )}
             </ContentWrapper>
-            {visibility ? <div>
-              <Divider />
+            {visibility && resList.length ? <div>
               <PaginationLayout>
-                <Pagination total={50} showSizeChanger />
+                <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    onChange={handlePageChange}
+                    onShowSizeChange={handlePageSizeChange}
+                    total={total}
+                    showSizeChanger
+                />
               </PaginationLayout>
             </div> : null}
           </Card>  
           
-        </HomeView> 
+        </HomeView>
       
     </Wrapper>
   );

@@ -1,9 +1,10 @@
 import Api from "./api";
 import { AxiosPromise } from "axios";
-import { GenericApiResponse } from "./apiResponses";
+import {GenericApiPaginationResponse, GenericApiResponse} from "./apiResponses";
 import {
   CreateFolderPayload,
   DeleteFolderPayload,
+  FetchFolderElementsPaginationPayload,
   FetchFolderElementsPayload,
   MoveToFolderPayload,
   UpdateFolderPayload,
@@ -39,5 +40,11 @@ export class FolderApi extends Api {
     request: FetchFolderElementsPayload
   ): AxiosPromise<GenericApiResponse<(ApplicationMeta | FolderMeta)[]>> {
     return Api.get(FolderApi.url + `/elements`, { id: request.folderId });
+  }
+
+  static fetchFolderElementsPagination(
+      request: FetchFolderElementsPaginationPayload
+  ): AxiosPromise<GenericApiPaginationResponse<(ApplicationMeta | FolderMeta)[]>> {
+    return Api.get(FolderApi.url + `/elements`, { ...request });
   }
 }
