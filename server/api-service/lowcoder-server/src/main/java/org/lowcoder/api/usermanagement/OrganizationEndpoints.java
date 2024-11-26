@@ -95,7 +95,7 @@ public interface OrganizationEndpoints
 	)
     @GetMapping("/{orgId}/members")
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "1000") int pageSize);
 
 	@Operation(

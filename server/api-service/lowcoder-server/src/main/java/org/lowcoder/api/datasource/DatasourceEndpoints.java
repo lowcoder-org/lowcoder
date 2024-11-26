@@ -101,7 +101,7 @@ public interface DatasourceEndpoints
 	)
     @GetMapping("/jsDatasourcePlugins")
     public Mono<PageResponseView<?>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
-															 @RequestParam(required = false, defaultValue = "0") int pageNum,
+															 @RequestParam(required = false, defaultValue = "1") int pageNum,
 															 @RequestParam(required = false, defaultValue = "0") int pageSize);
 
     /**
@@ -127,7 +127,7 @@ public interface DatasourceEndpoints
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByOrg")
     public Mono<PageResponseView<?>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam String name, @RequestParam String type,
-                                                        @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                        @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                         @RequestParam(required = false, defaultValue = "0") int pageSize);
 
 	@Operation(
@@ -140,7 +140,7 @@ public interface DatasourceEndpoints
     @JsonView(JsonViews.Public.class)
     @GetMapping("/listByApp")
     public Mono<PageResponseView<?>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam String name, @RequestParam String type,
-														@RequestParam(required = false, defaultValue = "0") int pageNum,
+														@RequestParam(required = false, defaultValue = "1") int pageNum,
 														@RequestParam(required = false, defaultValue = "0") int pageSize);
 
 	@Operation(

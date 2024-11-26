@@ -119,7 +119,7 @@ public class GroupController implements GroupEndpoints
 
     @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "100") int pageSize) {
         String objectId = gidService.convertGroupIdToObjectId(groupId);
         return groupApiService.getGroupMembers(objectId, pageNum, pageSize)
