@@ -1789,7 +1789,7 @@ var CodeNode = /** @class */ (function (_super) {
                 if ((pathsArr === null || pathsArr === void 0 ? void 0 : pathsArr[0]) === (options === null || options === void 0 ? void 0 : options.queryName))
                     return;
                 // wait for lazy loaded comps to load before executing query on page load
-                if (!Object.keys(value).length && paths.size) {
+                if (value && !Object.keys(value).length && paths.size) {
                     isFetching_1 = true;
                     ready_1 = false;
                 }
