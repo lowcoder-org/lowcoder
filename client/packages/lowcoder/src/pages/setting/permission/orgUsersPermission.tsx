@@ -299,17 +299,4 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-    console.log({
-        orgUsersFetching: state.ui.org.orgUsersFetching,
-        orgUsers: state.ui.org.orgUsers,
-        currentUser: getUser(state),
-    })
-  return {
-    orgUsersFetching: state.ui.org.orgUsersFetching,
-    orgUsers: state.ui.org.orgUsers,
-    currentUser: getUser(state),
-  };
-};
-
-export default connect(mapStateToProps)(OrgUsersPermission);
+export default OrgUsersPermission;
