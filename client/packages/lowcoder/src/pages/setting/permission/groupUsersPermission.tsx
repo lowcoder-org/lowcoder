@@ -4,15 +4,13 @@ import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon } from "low
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
-import { connect, useDispatch } from "react-redux";
-import { AppState } from "redux/reducers";
+import { useDispatch } from "react-redux";
 import {
   deleteGroupUserAction,
   fetchGroupUsersAction,
   quitGroupAction,
   updateUserGroupRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin, isGroupAdmin } from "util/permissionUtils";
@@ -208,13 +206,4 @@ function GroupUsersPermission(props: GroupPermissionProp) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    groupUsers: state.ui.org.groupUsers,
-    groupUsersFetching: state.ui.org.groupUsersFetching,
-    currentUser: getUser(state),
-    currentUserGroupRole: state.ui.org.currentUserGroupRole,
-  };
-};
-
-export default connect(mapStateToProps)(GroupUsersPermission);
+export default GroupUsersPermission;
