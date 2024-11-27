@@ -99,7 +99,7 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
-                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():pageNum * pageSize);
+                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():Math.min(pageNum * pageSize, groupList.size()));
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
                             subList,
@@ -107,7 +107,7 @@ public class GroupController implements GroupEndpoints
                             totalAdminsAndDevelopers,
                             totalDevelopersOnly,
                             totalOtherMembers,
-                            subList.size(),
+                            groupList.size(),
                             pageNum,
                             pageSize);
                     })
