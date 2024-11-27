@@ -1,0 +1,2279 @@
+openapi: "3.0.0"
+info:
+  description: |
+    # Introduction
+
+
+    Welcome to the [APITemplate.io](https://apitemplate.io) API v2!
+
+    APITemplate.io provides PDF generation services including [Template-based PDF generation](https://apitemplate.io/pdf-generation-api/), [HTML to PDF](https://apitemplate.io/html-to-pdf-api/), and [URL to PDF conversions](https://apitemplate.io/create-pdf-from-url/), as well as an [image generation API](https://apitemplate.io/image-generation-api/).
+
+    This page contains the documentation on how to use APITemplate.io through API calls. With the APITemplate.io API, you can create PDF documents and images, as well as manage your templates.
+
+    Our API is built on RESTful HTTP, so you can utilize any HTTP/REST library of your choice in your preferred programming language to interact with APITemplate.io's API.
+
+    **Steps to produce PDFs/Images**
+    1. Design your template(s) using our intuitive drag-and-drop template editor or the HTML editor and save it.
+    2. Integrate your workflow, either with platforms like Zapier, Make.com/Integromat, Bubble.io, or any programming languages that support REST API, to send us the JSON data along with the template ID/URL/or HTML content.
+    3. Our REST API will then return a download URL for the images (in PNG and JPEG formats) or PDFs.
+
+    # Authentication
+    Upon signing up for an account, an API key will be generated for you. If needed, you can reset this API key via the web console (under the "API Integration" section).
+
+    To integrate with our services, you need to authenticate with the APITemplate.io API. Provide your secret key in the request header using the X-API-KEY field.
+
+
+    # Content Type and CORS
+
+    **Request Content-Type**
+    The Content-Type for POST and GET requests is set to application/json.
+
+    **Cross-Origin Resource Sharing**
+    This API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).
+    And that allows cross-domain communication from the browser.
+    All responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.
+
+
+
+    # Regional API endpoint(s)
+    A regional API endpoint is intended for customers in the same region. The data for the requests and generated PDFs/images are processed and stored within the region.
+
+    The regions are:
+
+    | Region               | Endpoint                            | Max Timeout (Seconds) | Max Payload Size(MB)** |
+    |----------------------|-------------------------------------|-----------------------|-------------------------|
+    | Default (Singapore)  | https://rest.apitemplate.io         | 100                   | 1                       |
+    | Europe (Frankfurt)   | https://rest-de.apitemplate.io      | 100                   | 1                       |
+    | US East (N. Virginia)| https://rest-us.apitemplate.io      | 100                   | 1                       |
+    | Australia (Sydney)   | https://rest-au.apitemplate.io      | 30                    | 6                       |
+
+
+    Alternative Regions:
+    | Region               | Endpoint                            | Max Timeout (Seconds) | Max Payload Size(MB)** |
+    |----------------------|-------------------------------------|-----------------------|-------------------------|
+    | Default (Singapore)  | https://rest-alt.apitemplate.io     | 30                    | 6                       |
+    | Europe (Frankfurt)   | https://rest-alt-de.apitemplate.io  | 30                    | 6                       |
+    | US East (N. Virginia)| https://rest-alt-us.apitemplate.io  | 30                    | 6                       |
+
+    ** Note:
+    - Payload size applies to request and response
+    - If "export_type" is set to `json` which output file that on AWS S3 doesn't have the limitation
+    - If the "export_type" is set to `file` which returns binary data of the generated PDF, the file size of the generated PDF is limited to either 6MB or 1MB based on the region
+
+
+
+    Other regions are available on request, contact us at hello@apitemplate.io for more information
+
+    # Rate limiting
+    Our API endpoints use IP-based rate limiting to ensure fair usage and prevent abuse. Users are allowed to make up to **100 requests per 10 seconds**. This rate limit is designed to accommodate a reasonable volume of requests while maintaining optimal performance for all users.
+
+    However, if you exceed this limit and make additional requests, you will receive a response with HTTP code 429. This status code indicates that you have reached the rate limit and need to wait before making further requests.
+
+
+  version: Version 2.0
+  title: APITemplate.io API Reference
+  termsOfService: 'https://apitemplate.io/privacy-policy/'
+  contact:
+    email: hello@apitemplate.io
+    url: https://apitemplate.io
+  x-logo:
+    url: 'images/logo_new2_with_text2.png'
+    altText: APITemplate.io logo
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+servers:
+  - url: https://rest.apitemplate.io
+  - url: https://rest-au.apitemplate.io
+  - url: https://rest-de.apitemplate.io
+  - url: https://rest-us.apitemplate.io
+
+
+security:
+  - ApiKeyAuth: []
+
+
+
+
+
+
+
+paths:
+  /v2/create-pdf:
+    post:
+      summary: Create a PDF
+      operationId: create-pdf
+      description: 'This endpoint creates a PDF file with JSON data and your template. We support synchoronus and asynchronous PDF generation.'
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/paramTemplateID"
+        - $ref: "#/components/parameters/paramExportType"
+        - $ref: "#/components/parameters/paramExportInBase64"
+        - $ref: "#/components/parameters/paramExpiration"
+        - $ref: "#/components/parameters/paramOutputHTML"
+        - $ref: "#/components/parameters/paramOutputFormat"
+        - $ref: "#/components/parameters/paramFileName"
+        - $ref: "#/components/parameters/paramDirectDownload"
+        - $ref: "#/components/parameters/paramCloudStorage"
+        - $ref: "#/components/parameters/paramLoadDataFrom"
+        - $ref: "#/components/parameters/paramGenerationDelay"
+        - $ref: "#/components/parameters/paramImageResampleRes"
+        - $ref: "#/components/parameters/paramResizeImages"
+        - $ref: "#/components/parameters/paramResizeMaxWidth"
+        - $ref: "#/components/parameters/paramResizeMaxHeight"
+        - $ref: "#/components/parameters/paramResizeFormat"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3BUCKET"
+        - $ref: "#/components/parameters/paramMeta"
+        - $ref: "#/components/parameters/paramAsync"
+        - $ref: "#/components/parameters/paramWebhook"
+        - $ref: "#/components/parameters/paramWebhookMethod"
+        - $ref: "#/components/parameters/paramWebhookHeaders"
+
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: JSON data
+              example:
+                invoice_number: "INV38379"
+                date: "2021-09-30"
+                currency: "USD"
+                total_amount: 82542.56
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessPDFFile'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            --data '{ "invoice_number": "INV38379", "date": "2021-09-30", "currency": "USD", "total_amount": 82542.56 }' \
+            "https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+                template_id = "79667b2b1876e347"
+
+                data = {
+                  "invoice_number": "INV38379",
+                  "date": "2021-09-30",
+                  "currency": "USD",
+                  "total_amount": 82542.56
+                }
+
+                response = requests.post(
+                    F"https://rest.apitemplate.io/v2/create-pdf?template_id={template_id}",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                    json= data
+                )
+
+            if __name__ == "__main__":
+                main()
+
+        - lang: PHP
+          source: |
+            <?php
+                function generate($template_id,$api_key, $data) {
+                    $url = "https://rest.apitemplate.io/v2/create-pdf?template_id=" . $template_id;
+                    $headers = array("X-API-KEY: ".$api_key);
+                    $curl = curl_init();
+                    if ($data) curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    $result = curl_exec($curl);
+                    curl_close($curl);
+                    if (!$result) {
+                        return null;
+                    }else{
+                        $json_result = json_decode($result, 1);
+                        if($json_result["status"]=="success"){
+                            return $json_result["download_url"];
+                        }else{
+                            return null;
+                        }
+                    }
+                }
+
+                $tempate_id = "79667b2b1876e347";
+                $api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF";
+                $json_payload='{ "invoice_number": "INV38379", "date": "2021-09-30", "currency": "USD", "total_amount": 82542.56 }';
+                echo generate($tempate_id,$api_key,$json_payload);
+            ?>
+
+        - lang: Node.js
+          source: |
+            const https = require('https');
+            const http = require('http');
+            const { URL } = require('url');
+
+            (async () => {
+                let resp = await httpPost(
+                    'https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347',
+                    '{ "invoice_number": "INV38379", "date": "2021-09-30", "currency": "USD", "total_amount": 82542.56 }',
+                    '6fa6g2pdXGIyHRhVlGh7U56Ada1eF'
+                );
+                console.log(resp);
+            })();
+
+
+            async function httpPost(url_api, data, apiKey){
+                const uri = new URL(url_api);
+                const fx = uri.protocol === 'https:' ? https : http;
+                const opts = {
+                    method: 'POST',
+                    hostname: uri.hostname,
+                    port: uri.port,
+                    path: `${uri.pathname}${uri.search==null?"":uri.search}`,
+                    protocol: uri.protocol,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        "X-API-KEY": apiKey
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    const req = fx.request(opts, (res) => {
+                        res.setEncoding('utf8');
+                        let responseBody = '';
+                        res.on('data', (chunk) => responseBody += chunk);
+                        res.on('end', () => resolve(responseBody));
+                    });
+
+                    req.on('error', (err) => reject(err));
+                    req.write(data)
+                    req.end();
+                });
+            }
+
+        - lang: CSharp
+          source: |
+            using System;
+            using System.IO;
+            using System.Net.Http;
+            using System.Text.Json;
+            using System.Threading.Tasks;
+
+            namespace csharp
+            {
+                class ReturnContent{
+                    public string download_url{get;set;}
+                    public string status{get;set;}
+                }
+
+                class Program
+                {
+                    static async Task Main(string[] args)
+                    {
+                        var api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF";
+                        var template_id = "79667b2b1876e347";
+                        var url = $"https://rest.apitemplate.io/v2/create-pdf?template_id={template_id}";
+
+                        var data = new {
+                            invoice_number = "INV38379",
+                            date = "2021-09-30",
+                            currency = "USD",
+                            total_amount = 82542.56
+                          };
+
+
+                        var json_content = JsonSerializer.Serialize(data);
+                        var buffer = System.Text.Encoding.UTF8.GetBytes(json_content);
+                        var byteContent = new ByteArrayContent(buffer);
+
+                        Console.WriteLine(json_content);
+
+                        var client = new HttpClient();
+                        client.DefaultRequestHeaders.Add("X-API-KEY",api_key);
+                        var response = await client.PostAsync(url,byteContent);
+                        var ret = await response.Content.ReadAsStringAsync();
+
+                        var returnContent = JsonSerializer.Deserialize<ReturnContent>(ret);
+
+                        if(returnContent.status=="success"){
+                            Console.WriteLine($"Downloading {returnContent.download_url}...");
+                            var download_response = await client.GetAsync(returnContent.download_url);
+                            using (var stream = await download_response.Content.ReadAsStreamAsync())
+                            {
+                                var fileInfo = new FileInfo("image.jpeg");
+                                using (var fileStream = fileInfo.OpenWrite())
+                                {
+                                    await stream.CopyToAsync(fileStream);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/create-image:
+    post:
+      summary: Create an Image
+      operationId: create-image
+      description: |
+        This endpoint creates a JPEG file(along with PNG) with JSON data and your template
+
+
+
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/paramTemplateID"
+
+        - in: query
+          name: output_image_type
+          schema:
+            type: string
+          required: false
+          description: |
+            - Output image type(JPEG or PNG format), default to `all`. Options are `all`, `jpegOnly`,`pngOnly`.
+          example: '1'
+
+        - $ref: "#/components/parameters/paramExpiration"
+        - $ref: "#/components/parameters/paramCloudStorage"
+        - $ref: "#/components/parameters/paramGenerationDelay"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3BUCKET"
+        - $ref: "#/components/parameters/paramMeta"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: |
+                JSON data
+                - The following is the json format in the post body to generate an image
+                ```
+                {
+                    "overrides": [
+                        {
+                            "name": "<object name 1>",
+                            "property_1": "<value 1>",
+                            "property_2": "<value 2>",
+                            "property_3": "<value 3>",
+                            ...
+                        },
+                        {
+                            "name": "<object name 2>",
+                            "property_2": "<value 2>",
+                            ...
+                        }
+                    ]
+                }
+                ```
+              example:
+                overrides:
+                  - name: text_1
+                    text: hello world
+                    textBackgroundColor: 'rgba(246, 243, 243, 0)'
+                  - name: image_1
+                    src: 'https://via.placeholder.com/150'
+
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessImageFile'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            --data '{ "overrides":[ { "name":"text_1", "text":"hello world", "textBackgroundColor":"rgba(246, 243, 243, 0)" }, { "name":"image_1", "src":"https://via.placeholder.com/150" } ] }' \
+            "https://rest.apitemplate.io/v2/create-image?template_id=79667b2b1876e347"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+                template_id = "79667b2b1876e347"
+
+                data = {
+                  "overrides":[
+                      {
+                        "name":"text_1",
+                        "text":"hello world",
+                        "textBackgroundColor":"rgba(246, 243, 243, 0)"
+                      },
+                      {
+                        "name":"image_1",
+                        "src":"https://via.placeholder.com/150"
+                      }
+                  ]
+                }
+
+                response = requests.post(
+                    F"https://rest.apitemplate.io/v2/create-image?template_id={template_id}",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                    json= data
+                )
+
+            if __name__ == "__main__":
+                main()
+
+        - lang: PHP
+          source: |
+            <?php
+                function generate($template_id,$api_key, $data) {
+                    $url = "https://rest.apitemplate.io/v2/create-image?template_id=" . $template_id;
+                    $headers = array("X-API-KEY: ".$api_key);
+                    $curl = curl_init();
+                    if ($data) curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    $result = curl_exec($curl);
+                    curl_close($curl);
+                    if (!$result) {
+                        return null;
+                    }else{
+                        $json_result = json_decode($result, 1);
+                        if($json_result["status"]=="success"){
+                            return $json_result["download_url"];
+                        }else{
+                            return null;
+                        }
+                    }
+                }
+
+                $tempate_id = "79667b2b1876e347";
+                $api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF";
+                $json_payload='{ "overrides":[ { "name":"text_1", "text":"hello world", "textBackgroundColor":"rgba(246, 243, 243, 0)" }, { "name":"image_1", "src":"https://via.placeholder.com/150" } ] }';
+                echo generate($tempate_id,$api_key,$json_payload);
+            ?>
+
+        - lang: Node.js
+          source: |
+            const https = require('https');
+            const http = require('http');
+            const { URL } = require('url');
+
+            (async () => {
+                let resp = await httpPost(
+                    'https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347',
+                    '{ "overrides":[ { "name":"text_1", "text":"hello world", "textBackgroundColor":"rgba(246, 243, 243, 0)" }, { "name":"image_1", "src":"https://via.placeholder.com/150" } ] }',
+                    '6fa6g2pdXGIyHRhVlGh7U56Ada1eF'
+                );
+                console.log(resp);
+            })();
+
+
+            async function httpPost(url_api, data, apiKey){
+                const uri = new URL(url_api);
+                const fx = uri.protocol === 'https:' ? https : http;
+                const opts = {
+                    method: 'POST',
+                    hostname: uri.hostname,
+                    port: uri.port,
+                    path: `${uri.pathname}${uri.search==null?"":uri.search}`,
+                    protocol: uri.protocol,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        "X-API-KEY": apiKey
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    const req = fx.request(opts, (res) => {
+                        res.setEncoding('utf8');
+                        let responseBody = '';
+                        res.on('data', (chunk) => responseBody += chunk);
+                        res.on('end', () => resolve(responseBody));
+                    });
+
+                    req.on('error', (err) => reject(err));
+                    req.write(data)
+                    req.end();
+                });
+            }
+
+        - lang: CSharp
+          source: |
+            using System;
+            using System.IO;
+            using System.Net.Http;
+            using System.Text.Json;
+            using System.Threading.Tasks;
+
+            namespace csharp
+            {
+                class ReturnContent{
+                    public string download_url{get;set;}
+                    public string status{get;set;}
+                }
+
+                class Program
+                {
+                    static async Task Main(string[] args)
+                    {
+                        var api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF";
+                        var template_id = "79667b2b1876e347";
+                        var url = $"https://rest.apitemplate.io/v2/create-image?template_id={template_id}";
+
+                        var json_content = '{ "overrides":[ { "name":"text_1", "text":"hello world", "textBackgroundColor":"rgba(246, 243, 243, 0)" }, { "name":"text_2", "text":"Hi there" } ] }';
+
+                        var buffer = System.Text.Encoding.UTF8.GetBytes(json_content);
+                        var byteContent = new ByteArrayContent(buffer);
+
+                        Console.WriteLine(json_content);
+
+                        var client = new HttpClient();
+                        client.DefaultRequestHeaders.Add("X-API-KEY",api_key);
+                        var response = await client.PostAsync(url,byteContent);
+                        var ret = await response.Content.ReadAsStringAsync();
+
+                        var returnContent = JsonSerializer.Deserialize<ReturnContent>(ret);
+
+                        if(returnContent.status=="success"){
+                            Console.WriteLine($"Downloading {returnContent.download_url}...");
+                            var download_response = await client.GetAsync(returnContent.download_url);
+                            using (var stream = await download_response.Content.ReadAsStreamAsync())
+                            {
+                                var fileInfo = new FileInfo("image.jpeg");
+                                using (var fileStream = fileInfo.OpenWrite())
+                                {
+                                    await stream.CopyToAsync(fileStream);
+                                }
+                            }
+                        }
+                    }
+                }
+              }
+
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/create-pdf-from-html:
+    post:
+      summary: Create a PDF from HTML
+      operationId: create-pdf-from-html
+      description: |
+        - This endpoint creates a PDF file from HTML with JSON data
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/paramExportType"
+        - $ref: "#/components/parameters/paramExpiration"
+        - $ref: "#/components/parameters/paramOutputFormat"
+        - $ref: "#/components/parameters/paramFileName"
+        - $ref: "#/components/parameters/paramDirectDownload"
+        - $ref: "#/components/parameters/paramCloudStorage"
+        - $ref: "#/components/parameters/paramGenerationDelay"
+        - $ref: "#/components/parameters/paramImageResampleRes"
+        - $ref: "#/components/parameters/paramResizeImages"
+        - $ref: "#/components/parameters/paramResizeMaxWidth"
+        - $ref: "#/components/parameters/paramResizeMaxHeight"
+        - $ref: "#/components/parameters/paramResizeFormat"        
+        - $ref: "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3BUCKET"
+        - $ref: "#/components/parameters/paramMeta"
+        - $ref: "#/components/parameters/paramAsync"
+        - $ref: "#/components/parameters/paramWebhook"
+        - $ref: "#/components/parameters/paramWebhookMethod"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                body:
+                  type: string
+                  description: |
+                    The HTML body content for the PDF. This property supports HTML markup and can include Jinja2 syntax (e.g {{name}}). The value of {{name}} will be replaced with the actual value provided in the data object.
+                  example: <h1> hello world {{name}} </h1>
+
+                css:
+                  type: string
+                  description: |
+                    The CSS styles to be applied to the PDF. This property should contain valid CSS markup and should also include the style tag.
+                  example: '<style>.bg{background: red};</style>'
+                data:
+                  type: object
+                  description: |
+                    The data object containing values for dynamic content in the HTML body. This object should include properties with corresponding values.
+                  example: {name: "This is a title"}
+                settings:
+                  $ref: '#/components/schemas/PDFGenerationSettingsObject'
+
+
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessPDFFile'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+                template_id = "79667b2b1876e347"
+
+                data = {
+                  "body": "<h1> hello world {{name}} </h1>",
+                  "css": "<style>.bg{background: red};</style>",
+                  "data": {
+                    "name": "This is a title"
+                  },
+                  "settings": {
+                    "paper_size": "A4",
+                    "orientation": "1",
+                    "header_font_size": "9px",
+                    "margin_top": "40",
+                    "margin_right": "10",
+                    "margin_bottom": "40",
+                    "margin_left": "10",
+                    "print_background": "1",
+                    "displayHeaderFooter": true,
+                    "custom_header": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>",
+                    "custom_footer": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>"
+                  }
+                }
+
+                response = requests.post(
+                    F"https://rest.apitemplate.io/v2/create-pdf-from-html",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                    json= data
+                )
+
+            if __name__ == "__main__":
+                main()
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/create-pdf-from-url:
+    post:
+      summary: Create a PDF from URL
+      operationId: create-pdf-from-url
+      description: |
+        - This endpoint creates a PDF file from a URL
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/paramExportType"
+        - $ref: "#/components/parameters/paramExpiration"
+        - $ref: "#/components/parameters/paramOutputFormat"
+        - $ref: "#/components/parameters/paramFileName"
+        - $ref: "#/components/parameters/paramDirectDownload"
+        - $ref: "#/components/parameters/paramCloudStorage"
+        - $ref: "#/components/parameters/paramGenerationDelay"
+        - $ref: "#/components/parameters/paramImageResampleRes"
+        - $ref: "#/components/parameters/paramResizeImages"
+        - $ref: "#/components/parameters/paramResizeMaxWidth"
+        - $ref: "#/components/parameters/paramResizeMaxHeight"
+        - $ref: "#/components/parameters/paramResizeFormat"        
+        - $ref: "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3BUCKET"
+        - $ref: "#/components/parameters/paramMeta"
+        - $ref: "#/components/parameters/paramAsync"
+        - $ref: "#/components/parameters/paramWebhook"
+        - $ref: "#/components/parameters/paramWebhookMethod"
+
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                url:
+                  type: string
+                  description: |
+                    The URL
+                  example: https://en.wikipedia.org/wiki/Sceloporus_malachiticus
+                settings:
+                  $ref: '#/components/schemas/PDFGenerationSettingsObject'
+
+
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessPDFFile'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+                template_id = "79667b2b1876e347"
+
+                data = {
+                  "url": "https://en.wikipedia.org/wiki/Sceloporus_malachiticus",
+                  "settings": {
+                    "paper_size": "A4",
+                    "orientation": "1",
+                    "header_font_size": "9px",
+                    "margin_top": "40",
+                    "margin_right": "10",
+                    "margin_bottom": "40",
+                    "margin_left": "10",
+                    "print_background": "1",
+                    "displayHeaderFooter": true,
+                    "custom_header": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>",
+                    "custom_footer": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>"
+                  }
+                }
+
+                response = requests.post(
+                    F"https://rest.apitemplate.io/v2/create-pdf-from-url",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                    json= data
+                )
+
+            if __name__ == "__main__":
+                main()
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/list-objects:
+    get:
+      summary: List Generated Objects
+      operationId: list-objects
+      description: |
+        Retrieves all the generated PDFs and images
+
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: string
+          required: false
+          description: Retrieve only the number of records specified. Default to 300
+          example: 300
+        - in: query
+          name: offset
+          schema:
+            type: string
+          required: false
+          description: Offset is used to skip the number of records from the results. Default to 0
+          example: 0
+        - in: query
+          name: template_id
+          schema:
+            type: string
+          required: false
+          description: Filtered by template id
+          example: 00377b2b1e0ee394
+        - in: query
+          name: transaction_type
+          schema:
+            type: string
+          required: false
+          description: Filtered by transaction type, options are `PDF`, `JPEG` or `MERGE`
+          example: MERGE
+        - in: query
+          name: transaction_ref
+          schema:
+            type: string
+          required: false
+          description: Transaction reference
+          example: 4adfhg-d0e8-7399-9335-717a881dd91
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessListObjects'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            "https://rest.apitemplate.io/v2/list-objects"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+
+                response = requests.get(
+                    F"https://rest.apitemplate.io/v2/list-objects",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                )
+
+            if __name__ == "__main__":
+                main()
+
+        - lang: PHP
+          source: |
+            <?php
+                function list_objects($api_key) {
+                    $url = "https://rest.apitemplate.io/v2/list-objects";
+                    $headers = array("X-API-KEY: ".$api_key);
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    $result = curl_exec($curl);
+                    curl_close($curl);
+                    if (!$result) {
+                        return null;
+                    }else{
+                        $json_result = json_decode($result, 1);
+                        return $json_result;
+                    }
+                }
+
+
+                $api_key = "6fa6g2pdXGIyxHRhVlGh7U5Vhdckt";
+                print_r(list_objects($api_key));
+            ?>
+
+        - lang: Node.js
+          source: |
+            const https = require('https');
+            const http = require('http');
+            const { URL } = require('url');
+
+            (async () => {
+                let resp = await httpGet(
+                    'https://rest.apitemplate.io/v2/list-objects',
+                    'f6caMToxOjRySHV6dTRldU9JTVNobDg'
+                );
+                console.log(resp);
+            })();
+
+            async function httpGet(url_api, apiKey){
+                const uri = new URL(url_api);
+                const fx = uri.protocol === 'https:' ? https : http;
+                const opts = {
+                    method: 'GET',
+                    hostname: uri.hostname,
+                    port: uri.port,
+                    path: `${uri.pathname}${uri.search==null?"":uri.search}`,
+                    protocol: uri.protocol,
+                    headers: {
+                        "X-API-KEY": apiKey
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    const req = fx.get(opts, (res) => {
+                        res.setEncoding('utf8');
+                        let responseBody = '';
+                        res.on('data', (chunk) => responseBody += chunk);
+                        res.on('end', () =>resolve(responseBody));
+                    });
+                    req.on('error', (err) => reject(err));
+                });
+            }
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/delete-object:
+    get:
+      summary: Delete an Object
+      operationId: delete-object
+      description: |
+        Delete a PDF or an image from CDN and mark the transaction as deleted
+
+      tags:
+        - API Integration
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: transaction_ref
+          schema:
+            type: string
+          required: true
+          description: 	Object transaction reference
+          example: 1618d386-2343-3d234-b9c7-99c82bb9f104
+
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessDeleteObject'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            "https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+
+                response = requests.get(
+                    F"https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                )
+
+            if __name__ == "__main__":
+                main()
+
+        - lang: PHP
+          source: |
+            <?php
+                function delete_object($api_key, $trans_ref) {
+                    $url = "https://rest.apitemplate.io/v2/delete-object?transaction_ref=". $trans_ref;
+                    $headers = array("X-API-KEY: ".$api_key);
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    $result = curl_exec($curl);
+                    curl_close($curl);
+                    if (!$result) {
+                        return null;
+                    }else{
+                        $json_result = json_decode($result, 1);
+                        return $json_result;
+                    }
+                }
+
+
+                $api_key = "6fa6g2pdXGIyxHRhVlGh7U5Vhdckt";
+                $trans_ref = "1618d386-2343-3d234-b9c7-99c82bb9f104";
+                print_r(delete_object($api_key,$trans_ref));
+            ?>
+
+        - lang: Node.js
+          source: |
+            const https = require('https');
+            const http = require('http');
+            const { URL } = require('url');
+
+            (async () => {
+                let resp = await httpGet(
+                    'https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104',
+                    'f6caMToxOjRySHV6dTRldU9JTVNobDg'
+                );
+                console.log(resp);
+            })();
+
+            async function httpGet(url_api, apiKey){
+                const uri = new URL(url_api);
+                const fx = uri.protocol === 'https:' ? https : http;
+                const opts = {
+                    method: 'GET',
+                    hostname: uri.hostname,
+                    port: uri.port,
+                    path: `${uri.pathname}${uri.search==null?"":uri.search}`,
+                    protocol: uri.protocol,
+                    headers: {
+                        "X-API-KEY": apiKey
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    const req = fx.get(opts, (res) => {
+                        res.setEncoding('utf8');
+                        let responseBody = '';
+                        res.on('data', (chunk) => responseBody += chunk);
+                        res.on('end', () =>resolve(responseBody));
+                    });
+                    req.on('error', (err) => reject(err));
+                });
+            }
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+  /v2/list-templates:
+    get:
+      summary: List Templates
+      operationId: list-templates
+      description: |
+        Retrieves the information of templates
+
+      tags:
+        - Template Management
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: string
+          required: false
+          description: Retrieve only the number of records specified. Default to 300
+          example: "300"
+        - in: query
+          name: offset
+          schema:
+            type: string
+          required: false
+          description: Offset is used to skip the number of records from the results. Default to 0
+          example: "0"
+        - in: query
+          name: format
+          schema:
+            type: string
+          required: false
+          description: To filter the templates by either 'PDF' or 'JPEG'
+          example: JPEG
+        - in: query
+          name: template_id
+          schema:
+            type: string
+          required: false
+          description: To filter the templates by template id
+          example: 00377b2b1e0ee394
+        - in: query
+          name: group_name
+          schema:
+            type: string
+          required: false
+          description: To filter the templates by the group name
+          example: custom
+        - in: query
+          name: with_layer_info
+          schema:
+            type: string
+          required: false
+          description: Return along with layer information for image templates, 0=false , 1=true. Default to '0'
+          example: 0
+
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessListTemplates'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            "https://rest.apitemplate.io/v2/list-templates"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+
+                response = requests.get(
+                    F"https://rest.apitemplate.io/v2/list-templates",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                )
+
+            if __name__ == "__main__":
+                main()
+
+        - lang: PHP
+          source: |
+            <?php
+                function list_templates($api_key) {
+                    $url = "https://rest.apitemplate.io/v2/list-templates";
+                    $headers = array("X-API-KEY: ".$api_key);
+                    $curl = curl_init();
+                    curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+                    curl_setopt($curl, CURLOPT_URL, $url);
+                    curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+                    $result = curl_exec($curl);
+                    curl_close($curl);
+                    if (!$result) {
+                        return null;
+                    }else{
+                        $json_result = json_decode($result, 1);
+                        return $json_result;
+                    }
+                }
+
+
+                $api_key = "6fa6g2pdXGIyxHRhVlGh7U5Vhdckt";
+                print_r(list_templates($api_key));
+            ?>
+
+        - lang: Node.js
+          source: |
+            const https = require('https');
+            const http = require('http');
+            const { URL } = require('url');
+
+            (async () => {
+                let resp = await httpGet(
+                    'https://rest.apitemplate.io/v2/list-templates',
+                    'f6caMToxOjRySHV6dTRldU9JTVNobDg'
+                );
+                console.log(resp);
+            })();
+
+            async function httpGet(url_api, apiKey){
+                const uri = new URL(url_api);
+                const fx = uri.protocol === 'https:' ? https : http;
+                const opts = {
+                    method: 'GET',
+                    hostname: uri.hostname,
+                    port: uri.port,
+                    path: `${uri.pathname}${uri.search==null?"":uri.search}`,
+                    protocol: uri.protocol,
+                    headers: {
+                        "X-API-KEY": apiKey
+                    }
+                };
+
+                return new Promise((resolve, reject) => {
+                    const req = fx.get(opts, (res) => {
+                        res.setEncoding('utf8');
+                        let responseBody = '';
+                        res.on('data', (chunk) => responseBody += chunk);
+                        res.on('end', () =>resolve(responseBody));
+                    });
+                    req.on('error', (err) => reject(err));
+                });
+            }
+
+
+
+  /v2/get-template:
+    get:
+      summary: Get PDF template
+      operationId: get-template
+      description: |
+        Retrieves information of the PDF template (**This is an experimental API, contact support to learn more**)
+
+      tags:
+        - Template Management
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - in: query
+          name: template_id
+          schema:
+            type: string
+          required: false
+          description: Your template id, it can be obtained in the web console(Manage Templates)
+          example: 00377b2b1e0ee394
+
+      responses:
+        '200':
+          description: Returns status and template information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessTemplate'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl --header "Content-Type: application/json" \
+            -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+            "https://rest.apitemplate.io/v2/get-template?template_id=cd890b2b199c5c42"
+
+
+
+  /v2/update-template:
+    post:
+      summary: Update PDF Template
+      operationId: update-template
+      description: 'This endpoint updates PDF template (**This is an experimental API, contact support to learn more**)'
+      tags:
+        - Template Management
+      security:
+        - ApiKeyAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                template_id:
+                  type: string
+                  description: |
+                    Your template id, it can be obtained in the web console(Manage Templates)
+                  example: '00377b2b1e0ee394'
+                body:
+                  type: string
+                  description: |
+                    The HTML body
+                  example: |
+                    <h1>Title</h1>
+                css:
+                  type: string
+                  description: |
+                    The css
+                  example: |
+                    {body{ background: white;}
+
+                #settings:
+                #  type: string
+                #  description: |
+                #    Settings of the template, the followings is an example:
+                #    ```json
+                #    {
+                #      "paper_size":"A4",
+                #      "orientation":"1",
+                #      "print_background":"1",
+                #      "margin_top":"40",
+                #      "margin_bottom":"40",
+                #      "margin_right":"40",
+                #      "margin_left":"40",
+                #      "header_right":"{{pageNumber}}/{{totalPages}}",
+                #      "footer_center":"{{pageNumber}}/{{totalPages}}",
+                #      "header_center":"Sample Invoice",
+                #      "header_font_size":"11px",
+                #      "header_left":"{{date}}",
+                #      "footer_left":"{{date}}",
+                #      "custom_header":"",
+                #      "footer_font_size":"11px"
+                #    }
+                #    ```
+                #  example: '{"paper_size":"A4","orientation":"1","print_background":"1","margin_top":"40","margin_bottom":"40","margin_right":"40","margin_left":"40","header_right":"{{pageNumber}}/{{totalPages}}","footer_center":"{{pageNumber}}/{{totalPages}}","header_center":"Sample Invoice","header_font_size":"11px","header_left":"{{date}}","footer_left":"{{date}}","custom_header":"","footer_font_size":"11px"}'
+
+              required:
+                - template_id
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccess'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST \
+              --header "Content-Type: application/json"  \
+              -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+              --data '{"template_id": "d4477b2b2348d03a","body":"<h1>this is a title</h1>"}' \
+              "https://rest.apitemplate.io/v2/update-template"
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+
+
+  /v2/merge-pdfs:
+    post:
+      summary: Join/Merge multiple PDFs
+      operationId: merge-pdfs
+      description: 'This endpoint merges/joins multiple PDF URLs into a single PDF file'
+      tags:
+        - PDF Manipulation API
+      security:
+        - ApiKeyAuth: []
+      parameters:
+        - $ref: "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+        - $ref: "#/components/parameters/paramPOSTACTIONS3BUCKET"
+        - $ref: "#/components/parameters/paramMeta"
+
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                urls:
+                  type: array
+                  items:
+                    type: object
+
+                  description: |
+                    URL array. We support normal http/https URLs and data URLs
+                    - Normal URLs: URLs start with http/https, e.g: "https://fileserver.com/a1.pdf")
+                    - Data URLs: URLs prefixed with the "data:" scheme, e.g "data:application/pdf;base64,JVBERi0xLjIg...[truncated]"
+                  example: ['https://fileserver.com/a1.pdf', 'https://fileserver.com/b2.pdf', 'data:application/pdf;base64,JVBERi0xLjIg...[truncated]']
+
+                export_type:
+                  type: string
+                  description: |
+                    - Either `file` or `json`(Default).
+                      - The option `json` returns a JSON object, and the output PDF is stored on a CDN.
+                      - The option `file` returns binary data of the generated PDF(Secure and completely private) and the response HTTP header Content-Disposition is set to attachment. It has a file size limit of 6MB.
+                  example: 'json'
+
+                expiration:
+                  type: integer
+                  description: |
+                    - Expiration of the generated PDF in minutes(default to `0`, store permanently)
+                      - Use `0` to store on cdn permanently
+                      - Or use the range between `1` minute and `43200` minutes(30 days) to specify the expiration of the generated PDF
+                  example: 5
+
+                cloud_storage:
+                  type: integer
+                  description: |
+                    - Upload the generated PDFs/images to our storage CDN, default to `1`. If you have configured `Post Action` to upload the PDFs/Images to your own S3, please set it to `0`.
+                  example: 1
+
+              required:
+                - urls
+      responses:
+        '200':
+          description: Returns status and output file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResponseSuccessSingleFile'
+
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+      x-code-samples:
+        - lang: cURL
+          source: |
+            curl -X POST \
+              --header "Content-Type: application/json"  \
+              -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \
+              --data '{ "urls": ["https://fileserver.com/a1.pdf","https://fileserver.com/b2.pdf"] }' \
+              "https://rest.apitemplate.io/v2/merge-pdfs"
+
+        - lang: 'Python'
+          source: |
+            import requests, json
+
+            def main():
+                api_key = "6fa6g2pdXGIyHRhVlGh7U56Ada1eF"
+
+                json_payload = {
+                  "urls": ["https://fileserver.com/a1.pdf","https://fileserver.com/b2.pdf"] ,
+                  "output_file": "output.pdf",
+                }
+
+                response = requests.post(
+                    F"https://rest.apitemplate.io/v2/merge-pdfs",
+                    headers = {"X-API-KEY": F"{api_key}"},
+                    json = json_payload
+                )
+
+                print(response.content)
+
+            if __name__ == "__main__":
+                main()
+
+
+
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#############################################################################################################
+#############################################################################################################
+#############################################################################################################
+
+
+components:
+  securitySchemes:
+    ApiKeyAuth:        # arbitrary name for the security scheme
+      type: apiKey
+      in: header       # can be "header", "query" or "cookie"
+      name: X-API-KEY  # name of the header, query parameter or cookie
+      description: |
+        An API key is needed to be set in the Authorization header of every API call.
+        For additional support you can contact us.
+
+        - APITemplate.io expects the API key to be part of all API requests to the server in a header in this format:
+          ```
+          X-API-KEY: [API_KEY]
+          ```
+
+        - Optionally we also support Authorization header
+          ```
+          Authorization: Token [API_KEY]
+          ```
+
+        **Note: You must replace the API KEY(6fa6g2pdXGIyHRhVlGh7U56Ada1eF) with your API key in the request samples.**
+  schemas:
+    Error:
+      type: object
+      required:
+        - status
+        - message
+      properties:
+        status:
+          type: string
+          description: 'Value of the status: error'
+          example: 'error'
+        message:
+          type: string
+          description: 'Error message'
+          example: 'This is an error message'
+
+    ResponseSuccess:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+          example: success
+
+    ResponseSuccessTemplate:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+          example: success
+        template_id:
+          type: string
+          description: 'Template ID'
+          example: 'cd890b2b199c5c42'
+        body:
+          type: string
+          description: HTML body of the template
+          example: |
+            <h1>Title</h1>
+        css:
+          type: string
+          description: CSS of the template
+          example: |
+            body{background: white}
+        settings:
+          type: string
+          description: Print settings of the template
+          example: |
+            {"paper_size":"A4","orientation":"1","print_background":"1","margin_top":"40","margin_bottom":"40","margin_right":"40","margin_left":"40","header_right":"{{pageNumber}}/{{totalPages}}","footer_center":"{{pageNumber}}/{{totalPages}}","header_center":"Sample Invoice","header_font_size":"11px","header_left":"{{date}}","footer_left":"{{date}}","custom_header":"","footer_font_size":"11px"}
+
+    ResponseSuccessPDFFile:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+          example: success
+        download_url:
+          type: string
+          description: 'Download URL'
+          example: 'https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.pdf'
+        template_id:
+          type: string
+          description: 'Template ID'
+          example: 'cd890b2b199c5c42'
+        total_pages:
+          type: integer
+          description: 'Page count'
+          example: 4
+        transaction_ref:
+          type: string
+          description: Transaction reference
+          example: a0430897-2c94-40e1-a09b-57403d811ceb
+        post_actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              name:
+                type: string
+              bucket:
+                type: string
+              status:
+                type: string
+              file:
+                type: string
+
+
+
+          example:
+            - action: S3
+              name: "S3 Storage"
+              bucket: "alphacloud-test-bucket"
+              status: "success"
+              file: "s3://alphacloud-test-bucket/ab2e1bf7-cefa-42c7-929f-38d92b8bf8bf.pdf"
+
+
+    ResponseSuccessImageFile:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Status
+          example: success
+        download_url:
+          type: string
+          description: 'Download URL'
+          example: 'https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.jpeg'
+        download_url_png:
+          type: string
+          description: 'Download URL PNG'
+          example: 'https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.png'
+        template_id:
+          type: string
+          description: 'Template ID'
+          example: 'cd890b2b199c5c42'
+        transaction_ref:
+          type: string
+          description: Transaction reference
+          example: a0430897-2c94-40e1-a09b-57403d811ceb
+        post_actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              name:
+                type: string
+              bucket:
+                type: string
+              status:
+                type: string
+              file:
+                type: string
+
+          example:
+            - action: S3
+              name: "S3 Storage"
+              bucket: "alphacloud-test-bucket"
+              status: "success"
+              file: "s3://alphacloud-test-bucket/91f62769-69e4-48bf.png"
+            - action: S3
+              name: "S3 Storage"
+              bucket: "alphacloud-test-bucket"
+              status: "success"
+              file: "s3://alphacloud-test-bucket/91f62769-69e4-48bf.jpg"
+
+    ResponseSuccessListTemplates:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        templates:
+          type: array
+          items:
+            type: object
+            properties:
+              template_id:
+                type: string
+              name:
+                type: string
+              status:
+                type: string
+              format:
+                type: string
+              created_at:
+                type: string
+              updated_at:
+                type: string
+              group_name:
+                type: string
+          example:
+            - template_id: 12577b29420496
+              name: Positive Review
+              status: ACTIVE
+              format: JPEG
+              created_at: '2021-10-15T06:29:01.308Z'
+              updated_at: '2021-10-15T13:03:43.615Z'
+              group_name: ''
+            - template_id: 004271e0ee394
+              name: Test Template PDF
+              status: ACTIVE
+              format: PDF
+              created_at: '2021-10-09T09:57:52.224Z'
+              updated_at: '2021-10-16T11:18:10.613Z'
+              group_name: ''
+            - template_id: 8bf77213e06b670
+              name: New Template
+              status: ACTIVE
+              format: PDF
+              created_at: '2021-10-09T08:54:49.486Z'
+              updated_at: '2021-10-09T09:54:44.667Z'
+              group_name: ''
+
+    ResponseSuccessListObjects:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        objects:
+          type: array
+          items:
+            type: object
+          properties:
+              transaction_ref:
+                 type: string
+              description:
+                 type: string
+              source:
+                 type: string
+              meta:
+                 type: string
+              transaction_type:
+                 type: string
+              primary_url:
+                 type: string
+              secondary_url:
+                 type: string
+              deleted_at:
+                 type: string
+              deletion_status:
+                 type: integer
+              ip_address:
+                 type: string
+              created_at:
+                 type: string
+          example:
+            - transaction_ref: e9c46f03-1840-44dc-bae7-f280e0be98a9
+              description: null
+              source: null
+              meta: 'inv-23ejh23bh'
+              transaction_type: JPEG
+              primary_url: 'https://pub-cdn.apitemplate.io/e9c46f03-1840-44dc-bae7-f280e0be98a9.jpeg'
+              secondary_url: 'https://pub-cdn.apitemplate.io/e9c46f03-1840-44dc-bae7-f280e0be98a9.png'
+              deleted_at: null
+              deletion_status: 0
+              ip_address: "1.222.242.231"
+              created_at: '2021-10-16T12:08:59.281Z'
+            - transaction_ref: c973f544-fb56-465d-a1bd-35ff0e4b77e7
+              description: null
+              source: null
+              meta: 'inv-45ekdjkdbh'
+              transaction_type: PDF
+              primary_url: >-
+                https://pub-cdn.apitemplate.io/2021/10/c973f544-fb56-465d-a1bd-35ff0e4b77e7.pdf
+              secondary_url: ''
+              deleted_at: null
+              deletion_status: 0
+              ip_address: "1.222.242.231"
+              created_at: '2021-10-16T12:07:34.478Z'
+            - transaction_ref: 5ee5e0aa-4431-4d17-b94a-24ac859a5e71
+              description: null
+              source: null
+              meta: 'inv-klkjbr34ded'
+              transaction_type: JPEG
+              primary_url: 'https://pub-cdn.apitemplate.io/5ee5e0aa-4431-4d17-b94a-24ac859a5e71.jpeg'
+              secondary_url: 'https://pub-cdn.apitemplate.io/5ee5e0aa-4431-4d17-b94a-24ac859a5e71.png'
+              deleted_at: null
+              deletion_status: 0
+              ip_address: "1.222.242.231"
+              created_at: '2021-10-16T12:05:59.111Z'
+
+
+
+
+    ResponseSuccessDeleteObject:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        transaction_ref:
+          example: 1618d386-2343-3d234-b9c7-99c82bb9f104
+
+    ResponseSuccessSingleFile:
+      type: object
+      properties:
+        status:
+          type: string
+          description: 'Status'
+          example: 'success'
+        primary_url:
+          type: string
+          description: 'Generated PDF document'
+          example: 'https://craftmypdf.com/output.pdf'
+        total_pages:
+          type: integer
+          description: 'Page count'
+          example: 4
+        transaction_ref:
+          type: string
+          description: Transaction reference
+          example: a0430897-2c94-40e1-a09b-57403d811ceb
+
+    ResponseSuccessQueryImageTemplate:
+      type: object
+      properties:
+        status:
+          type: string
+          description: 'Status'
+          example: 'success'
+        width:
+          type: integer
+          description: 'Width'
+          example: 1024
+        height:
+          type: integer
+          description: 'Height'
+          example: 1024
+        layers:
+          type: array
+          items:
+            type: object
+          description: Array of layers
+          example: |
+            [
+            {
+                "name": "text_1",
+                "type": "textbox",
+                "subtype": "textbox",
+                "y": 50,
+                "x": 50,
+                "width": 629.82,
+                "height": 406.8,
+                "fontSize": 120,
+                "fontWeight": "normal",
+                "fontFamily": "Anton",
+                "fontStyle": "normal",
+                "text": "Type ~something~ ::here::",
+                "stroke": null,
+                "strokeWidth": 0,
+                "opacity": 1,
+                "backgroundColor": "",
+                "textAlign": "left",
+                "splitByGrapheme": false,
+                "textBackgroundColor": "rgba(246, 243, 243, 0)",
+                "color": "#FFB029"
+            },
+            {
+                "name": "rect_1",
+                "type": "rect",
+                "subtype": "rect",
+                "y": 101.9,
+                "x": 708.82,
+                "width": 300,
+                "height": 300,
+                "stroke": "grey",
+                "strokeWidth": 3,
+                "opacity": 1,
+                "backgroundColor": "",
+                "color": "#BEF4FF"
+            }
+            ]
+
+
+    PDFGenerationSettingsObject:
+      type: object
+      description: |
+        The settings object contains various properties to configure the PDF generation.
+      properties:
+        paper_size:
+          type: string
+          description: |
+            Specifies the paper size for the PDF. The available options are Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5,A6 or custom. custom dimensions specified as "custom_width" and "custom_height".
+        custom_width:
+          type: string
+          description: |
+            Custom width for the custom paper size. Valid units are mm, px and cm. eg: 30mm
+        custom_height:
+          type: string
+          description: |
+            Custom height for the custom paper size. Valid units are mm, px and cm. eg: 30mm
+        orientation:
+          type: string
+          description: |
+            Specifies the orientation of the PDF. The available options are "1" for portrait and "2" for landscape.
+        header_font_size:
+          type: string
+          description: |
+            Specifies the font size for the header in the PDF.
+        margin_top:
+          type: string
+          description: |
+            Specify the top margin for the PDF in millimeters (mm).
+        margin_right:
+          type: string
+          description: |
+            Specify the right margin for the PDF in millimeters (mm).
+        margin_bottom:
+          type: string
+          description: |
+            Specify the bottom margin for the PDF in millimeters (mm).
+        margin_left:
+          type: string
+          description: |
+            Specify the left margin for the PDF in millimeters (mm).
+        print_background:
+          type: string
+          description: |
+            Specifies whether to print the background graphics and colors in the PDF. Set to "1" to include backgrounds or "0" to exclude them.
+        displayHeaderFooter:
+          type: boolean
+          description: |
+            Specifies whether to display the header and footer in the PDF. Set to true to include the header and footer or false to exclude them.
+        custom_header:
+          type: string
+          description: |
+            Specify custom HTML markup for the headerof the PDF. These properties should contain valid HTML markup, including any necessary CSS styles.
+        custom_footer:
+          type: string
+          description: |
+            Specify custom HTML markup for the footer of the PDF. These properties should contain valid HTML markup, including any necessary CSS styles.
+
+      example:
+        paper_size: "A4"
+        orientation: "1"
+        header_font_size: "9px"
+        margin_top: "40"
+        margin_right: "10"
+        margin_bottom: "40"
+        margin_left: "10"
+        print_background: "1"
+        displayHeaderFooter: true
+        custom_header: "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>"
+        custom_footer: "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>"
+
+
+
+  parameters:
+    paramTemplateID:
+      in: query
+      name: template_id
+      schema:
+        type: string
+      required: true
+      description: Your template id, it can be obtained in the web console
+      example: 00377b2b1e0ee394
+
+    paramExportType:
+      in: query
+      name: export_type
+      schema:
+        type: string
+      required: false
+      description: |
+        - Either `file` or `json`(Default).
+          - The option `json` returns a JSON object, and the output PDF is stored on a CDN. Use this with the parameter `expiration`
+          - The option `file` returns binary data of the generated PDF(Secure and completely private) and the response HTTP header Content-Disposition is set to attachment.
+      example: 'json'
+    paramExportInBase64:
+      in: query
+      name: export_in_base64
+      schema:
+        type: string
+      required: false
+      description: |
+        - If export_type = `file`, the PDF can be downloaded in binary or base64 format. The value is either `1` or `0`(Default).
+          - The export_in_base64 is set `0` is to download the PDF in binary
+          - The export_in_base64 is set `1` is to download the PDF in base64 format
+          
+      example: '0'
+    paramLoadDataFrom:
+      in: query
+      name: load_data_from
+      schema:
+        type: string
+      required: false
+      description: |
+        Load JSON data from a remote URL instead of the request body. If load_data_from is specified, the JSON data in the request will be ignored.
+        
+      example: 'https://mydata.com/get-json-data?invoice=j3hbski2uia'
+
+
+    paramExpiration:
+      in: query
+      name: expiration
+      schema:
+        type: integer
+      required: false
+      description: |
+        - Expiration of the generated PDF in minutes(default to `0`, store permanently)
+          - Use `0` to store on cdn permanently
+          - Or use the range between `1` minute and `10080` minutes(7 days) to specify the expiration of the generated PDF
+      example: 5
+
+    paramOutputHTML:
+      in: query
+      name: output_html
+      schema:
+        type: string
+      required: false
+      description: |
+        - Either `1` or `0`(Default).
+        - To enable output of html content, set the value to `1` and it will return in the JSON response as html_url field (as a URL)
+      example: '0'
+
+
+    paramOutputFormat:
+      in: query
+      name: output_format
+      schema:
+        type: string
+      required: false
+      description: |
+        - Either `pdf`(Default) or `html`.
+        - It's generating PDF by default. However, you can specify output_format=html to generate only HTML(It will return in the JSON response as download_url field as a URL).
+      example: 'pdf'
+
+    paramFileName:
+      in: query
+      name: filename
+      schema:
+        type: string
+      required: false
+      description: |
+        - Default to UUID (e.g 0c93bd9e-9ebb-4634-a70f-de9131848416.pdf). Use this to specify custom file name, it should end with `.pdf`
+      example: 'invoice_89326.pdf'
+
+    paramImageResampleRes:
+      in: query
+      name: image_resample_res
+      schema:
+        type: string
+      required: false
+      description: |
+        - We embed the original images by default, meaning large PDF file sizes. Specifying the option 'image_resample_res' helps reduce the PDF file size by downsampling the images of the current PDF to a resolution(in DPI). Common values are 72, 96, 150, 300 and 600.
+      example: '150'
+
+    paramResizeImages:
+      in: query
+      name: resize_images
+      schema:
+        type: boolean
+      required: false
+      description: |
+        - Preprocess images or re-size images in the PDF, either `1`=true or `0`=false. Default to '0'
+        - If `resize_images` is set to `1`, specify the `resize_max_width`, `resize_max_height` in pixels.
+        - Images to be resized need to satisfy the following conditions:
+          - The images with the content-type `image/jpeg`, `image/jpg` or `image/png`
+          - The image URLs with the extension `.jpg`, `.jpeg` or `.png`
+      example: '0'
+
+    paramResizeMaxWidth:
+      in: query
+      name: resize_max_width
+      schema:
+        type: integer
+      required: false
+      description: |
+        - If `resize_images` is set to `1`, specify the maximum width of the image in pixels. Default to '1000'
+      example: '1000'
+
+    paramResizeMaxHeight:
+      in: query
+      name: resize_max_height
+      schema:
+        type: integer
+      required: false
+      description: |
+        - If `resize_images` is set to `1`, specify the maximum height of the image in pixels. Default to '1000'
+      example: '1000'
+
+    paramResizeFormat:
+      in: query
+      name: resize_format
+      schema:
+        type: string
+      required: false
+      description: |
+        - If `resize_images` is set to `1`, specify the format of the image. Either `jpeg` or `png`
+      example: 'jpeg'  
+
+
+    paramDirectDownload:
+      in: query
+      name: direct_download
+      schema:
+        type: string
+      required: false
+      description: |
+        - ContentDisposition set to attachment. 1=true, 0=false. Default to '0'
+      example: '0'
+
+    paramCloudStorage:
+      in: query
+      name: cloud_storage
+      schema:
+        type: integer
+      required: false
+      description: |
+        - Upload the generated PDFs/images to our storage CDN, default to `1`. If you have configured `Post Action` to upload the PDFs/Images to your own S3, please set it to `0`.
+      example: '1'
+
+    paramGenerationDelay:
+      in: query
+      name: generation_delay
+      schema:
+        type: int
+      required: false
+      description: |
+        Delay in milliseconds before PDF/image generation
+
+    paramPOSTACTIONS3FILEKEY:
+      in: query
+      name: postaction_s3_filekey
+      schema:
+        type: string
+      required: false
+      description: |
+        - This is to specify the file name for `Post Action(AWS S3/Cloudflare R2/Azure Storage)`.
+        - Please do not specify the file extension
+        - Please make sure the file name is unique
+        - You might use slash (/) as the folder delimiter
+        - It's default to transaction_ref
+
+    paramPOSTACTIONS3BUCKET:
+      in: query
+      name: postaction_s3_bucket
+      schema:
+        type: string
+      required: false
+      description: |
+        - This is to overwrite the AWS Bucket for `Post Action(AWS S3/Cloudflare R2 Storage)` or the container for `Post Action(Azure Storage)`.
+
+
+    paramMeta:
+      in: query
+      name: meta
+      schema:
+        type: string
+      required: false
+      description: |
+        - Specify an external reference ID for your own reference. It appears in the `list-objects` API.
+      example: 'inv-iwj343jospig'
+
+    paramAsync:
+      in: query
+      name: async
+      schema:
+        type: string
+      required: false
+      description: |
+        - Either `1` or `0`(Default).  `0` is synchronous call(default), `1` is asynchronous call
+        - To generate PDF asynchronously, set the value to `1` and the API call returns immediately. Once the PDF document is generated, we will make a HTTP/HTTPS GET to your URL(webhook_url) and will retry for 3 times before giving up.
+        - If `async` is set to `1`, then `webhook_url` is mandatory
+      example: '0'
+
+    paramWebhook:
+      in: query
+      name: webhook_url
+      schema:
+        type: string
+      required: false
+      description: |
+        - It is the URL of your webhook URL, it starts with http:// or https:// and has to be urlencoded.
+        - If `async` is set to `1`, then you have to specify the `webhook_url`.
+
+
+        #### Format of Webhook callback
+
+        Once the PDF is generated, we will initiate a HTTP/HTTPS GET call to the following URL:
+
+        https://`[yourwebserver.com]`?&primary_url=`[primary_url]`&transaction_ref=`[transaction_ref]`&status=`[status]`&message=`[message]`
+
+        - `[yourwebserver.com]`: The web services to handle the callback, which is the `webhook_url`
+        - `[primary_url]`: The URL to the PDF document
+        - `[transaction_ref]`: The transaction reference number
+        - `[status]` : Status of the transaction, either `success` or `error`
+        - `[message]` : Status message
+
+        ***The following is a sample webhook call back to your server***
+
+        https://yourwebserver.com?&primary_url=https%3A%2F%2Fpub-cdn.apitemplate.io%2F2021%2F06%2Fb692183d-46d7-3213-891a-460a5814ad3f.pdf&transaction_ref=b692183d-46d7-3213-891a-460a5814ad3f&status=success
+
+      example: https://yourwebserver.com
+
+    paramWebhookMethod:
+      in: query
+      name: webhook_method
+      schema:
+        type: string
+      required: false
+      description: |
+        - The HTTP method of the webhook, either `POST` or `GET`. Default to `GET`
+      example: GET
+
+    paramWebhookHeaders:
+      in: query
+      name: webhook_headers
+      schema:
+        type: string
+      required: false
+      description: |
+        - The HTTP headers of the webhook, it should be a base64 encoded JSON object.
+        - The following is an example of base64 encoded JSON:
+          ```json
+          eyJ3b3JrZmxvdy1hcGkta2V5Ijoia2V5X0VLc3MxNWJKRXFBMkRHYzM4bkNXNzlaRER1ZUZJeiJ9
+          ```
+
+          The JSON object in clear text for the above base64 encoded JSON:
+          ```json
+          { 
+            "workflow-api-key": "key_EKss15bJEqA2DGc38nCW79ZDDueFIz"
+          }
+          ```
+      example: eyJ3b3JrZmxvdy1hcGkta2V5Ijoia2V5X0VLc3MxNWJKRXFBMkRHYzM4bkNXNzlaRER1ZUZJeiJ9
