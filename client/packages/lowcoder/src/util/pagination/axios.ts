@@ -1,11 +1,10 @@
 import { FolderApi } from "@lowcoder-ee/api/folderApi";
-import { FetchFolderElementsPaginationPayload } from "@lowcoder-ee/redux/reduxActions/folderActions";
-import {
-    FetchApplicationElementsPaginationPayload,
-} from "@lowcoder-ee/redux/reduxActions/applicationActions";
 import ApplicationApi from "@lowcoder-ee/api/applicationApi";
+import {fetchAppRequestType, fetchFolderRequestType} from "@lowcoder-ee/util/pagination/type";
 
-export const fetchFolderElements = async (request: FetchFolderElementsPaginationPayload) => {
+
+
+export const fetchFolderElements = async (request: fetchFolderRequestType) => {
     try {
         const response = await FolderApi.fetchFolderElementsPagination(request);
         return {
@@ -23,7 +22,7 @@ export const fetchFolderElements = async (request: FetchFolderElementsPagination
 }
 
 
-export const fetchApplicationElements = async (request: FetchApplicationElementsPaginationPayload)=> {
+export const fetchApplicationElements = async (request: fetchAppRequestType)=> {
     try {
         const response = await ApplicationApi.fetchAllApplicationsPagination(request);
         return {
