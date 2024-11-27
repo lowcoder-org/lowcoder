@@ -5,9 +5,13 @@ export const showAppSnapshotSelector = (state: AppState) => {
 };
 
 export const getSelectedAppSnapshot = (state: AppState) => {
-  return state.ui.appSnapshot.appSnapshots.find(
+  const selectedSnapshot = state.ui.appSnapshot.appSnapshots.find(
     (s) => s.snapshotId === state.ui.appSnapshot.selectedSnapshotId
   );
+  return {
+    selectedSnapshot,
+    isArchivedSnapshot: state.ui.appSnapshot.isSelectedSnapshotIdArchived,
+  }
 };
 
 export const appSnapshotsSelector = (state: AppState) => {

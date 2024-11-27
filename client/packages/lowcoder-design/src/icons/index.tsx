@@ -1,4 +1,5 @@
 export { ReactComponent as AppSnapshotIcon } from "./v1/app-snapshot.svg";
+export { ReactComponent as ArchiveIcon } from "./remix/archive-fill.svg";
 export { ReactComponent as HookCompDropIcon } from "./v1/hook-comp-drop.svg";
 export { ReactComponent as HookCompIcon } from "./v1/hook-comp.svg";
 
