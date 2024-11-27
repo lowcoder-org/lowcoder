@@ -8,6 +8,7 @@ import { JSONArray } from "util/jsonTypes";
 import { AuthType, HttpOAuthGrantType } from "pages/datasource/form/httpDatasourceForm";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
+import {fetchDBRequestType, GenericApiPaginationResponse} from "@lowcoder-ee/util/pagination/type";
 
 export interface PreparedStatementConfig {
   enableTurnOffPreparedStatement: boolean;
@@ -170,6 +171,11 @@ export class DatasourceApi extends Api {
 
   static fetchDatasourceByOrg(orgId: string): AxiosPromise<GenericApiResponse<DatasourceInfo[]>> {
     return Api.get(DatasourceApi.url + `/listByOrg?orgId=${orgId}`);
+  }
+
+  static fetchDatasourcePaginationByOrg(request: fetchDBRequestType): AxiosPromise<GenericApiPaginationResponse<DatasourceInfo[]>> {
+    const {orgId, ...res} = request;
+    return Api.get(DatasourceApi.url + `/listByOrg?orgId=${orgId}`, {...res});
   }
 
   static createDatasource(
