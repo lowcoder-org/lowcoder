@@ -1,6 +1,6 @@
 package org.lowcoder.domain.application.repository;
 
-import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
+import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 import java.time.Instant;
 
 @Repository
-public interface ApplicationHistorySnapshotRepository extends ReactiveMongoRepository<ApplicationHistorySnapshotTS, String> {
+public interface ApplicationHistorySnapshotRepository extends ReactiveMongoRepository<ApplicationHistorySnapshot, String> {
 
     @Query(value = "{ 'applicationId': ?0, $and: [" +
             "{$or: [ { 'context.operations': { $elemMatch: { 'compName': ?1 } } }, { $expr: { $eq: [?1, null] } } ]}, " +
@@ -20,7 +20,7 @@ public interface ApplicationHistorySnapshotRepository extends ReactiveMongoRepos
             "{$or: [ { 'createdAt': { $lte: ?4} }, { $expr: { $eq: [?4, null] } } ] } " +
             "]}",
             fields = "{applicationId : 1, context: 1, createdBy : 1, createdAt : 1}")
-    Flux<ApplicationHistorySnapshotTS> findAllByApplicationId(String applicationId, String compName, String theme, Instant createdAtFrom, Instant createdAtTo, Pageable pageable);
+    Flux<ApplicationHistorySnapshot> findAllByApplicationId(String applicationId, String compName, String theme, Instant createdAtFrom, Instant createdAtTo, Pageable pageable);
 
     Mono<Long> countByApplicationId(String applicationId);
 }

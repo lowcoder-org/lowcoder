@@ -24,7 +24,7 @@ if (!window.ResizeObserver) {
   window.ResizeObserver = ResizeObserver;
 }
 
-function hideLoading() {
+export function hideLoading() {
   // hide loading
   const node = document.getElementById("loading");
   if (node) {
@@ -42,7 +42,7 @@ debug(`REACT_APP_LOG_LEVEL:, ${REACT_APP_LOG_LEVEL}`);
  
 try {
   bootstrap();
-  hideLoading();
+  // hideLoading();
 } catch (e) {
   log.error(e);
 }

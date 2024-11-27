@@ -167,7 +167,7 @@ public interface ApplicationEndpoints
             @RequestParam(required = false) ApplicationStatus applicationStatus,
             @RequestParam(defaultValue = "true") boolean withContainerSize,
 			@RequestParam(required = false) String name,
-			@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "1") Integer pageNum,
 			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
