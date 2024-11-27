@@ -334,7 +334,6 @@ export function HomeLayout(props: HomeLayoutProps) {
     setTypeFilterPagination,
 
   } = props;
-  console.log("elements", elements, total);
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };

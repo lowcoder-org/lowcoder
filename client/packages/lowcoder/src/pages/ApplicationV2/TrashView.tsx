@@ -45,16 +45,16 @@ export function TrashView() {
     <>
       <Helmet>{<title>{trans("home.trash")}</title>}</Helmet>
       <HomeLayout
-      elements={elements.elements}
-      breadcrumb={[{ text: trans("home.trash"), path: TRASH_URL }]}
-      mode={"trash"}
-      currentPage ={currentPage}
-      setCurrentPage={setCurrentPage}
-      pageSize={pageSize}
-      setPageSize={setPageSize}
-      total={elements.total}
-      setSearchValues={setSearchValues}
-      setTypeFilterPagination={setTypeFilter}
+          elements={elements.elements}
+          breadcrumb={[{ text: trans("home.trash"), path: TRASH_URL }]}
+          mode={"trash"}
+          currentPage ={currentPage}
+          setCurrentPage={setCurrentPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          total={elements.total}
+          setSearchValues={setSearchValues}
+          setTypeFilterPagination={setTypeFilter}
       />
     </>
   );

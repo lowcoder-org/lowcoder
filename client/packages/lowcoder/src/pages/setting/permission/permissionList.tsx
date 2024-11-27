@@ -21,7 +21,6 @@ import {
 } from "lowcoder-design";
 import styled from "styled-components";
 import { trans } from "i18n";
-import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { Table } from "components/Table";
 import history from "util/history";
 import { Level1SettingPageContentWithList, Level1SettingPageTitleWithBtn } from "../styled";
@@ -32,6 +31,8 @@ import { OrgGroup } from "constants/orgConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import InviteDialog from "pages/common/inviteDialog";
 import { Flex } from "antd";
+import {fetchOrgGroups} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const NEW_GROUP_PREFIX = trans("memberSettings.newGroupPrefix");
 
@@ -51,17 +52,48 @@ type DataItemInfo = {
   group?: OrgGroup;
 };
 
+interface ElementsState {
+  elements: OrgGroup[];
+  total: number;
+}
+
 export default function PermissionSetting() {
+  let dataSource: DataItemInfo[] = [];
   const user = useSelector(getUser);
   const orgId = user.currentOrgId;
-  const orgGroups = useSelector(getOrgGroups);
-  const visibleOrgGroups = orgGroups.filter((g) => !g.allUsersGroup);
-  const allUsersGroup = orgGroups.find((g) => g.allUsersGroup);
   const dispatch = useDispatch();
   const [needRenameId, setNeedRenameId] = useState<string | undefined>(undefined);
   const { nameSuffixFunc, menuItemsFunc, menuExtraView } = usePermissionMenuItems(orgId);
   const [groupCreating, setGroupCreating] = useState(false);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
+  useEffect( () => {
+    fetchOrgGroups(
+        {
+          pageNum: currentPage,
+          pageSize: pageSize,
+        }
+    ).then(result => {
+      if (result.success){
+        setElements({elements: result.data || [], total: result.total || 1})
+      }
+      else
+        console.error("ERROR: fetchFolderElements", result.error)
+    })
+      }, [currentPage, pageSize]
+  )
+  const visibleOrgGroups = elements.elements.filter((g) => !g.allUsersGroup);
+  const allUsersGroup = elements.elements.find((g) => g.allUsersGroup);
+  dataSource = currentPage === 1 ? [{
+    key: "users",
+    label: trans("memberSettings.allMembers"),
+    createTime: allUsersGroup?.createTime,
+    lock: true,
+    del: false,
+    rename: false,
+  }] : [];
   useEffect(() => {
     if (!orgId) {
       return;
@@ -104,17 +136,6 @@ export default function PermissionSetting() {
         messageInstance.error(e.message);
       });
   };
-
-  const dataSource: DataItemInfo[] = [
-    {
-      key: "users",
-      label: trans("memberSettings.allMembers"),
-      createTime: allUsersGroup?.createTime,
-      lock: true,
-      del: false,
-      rename: false,
-    },
-  ];
 
   visibleOrgGroups.forEach((group) => {
     dataSource.push({
@@ -255,6 +276,13 @@ export default function PermissionSetting() {
         />
       </div>
       {menuExtraView}
+      <PaginationComp
+          currentPage={currentPage}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          setCurrentPage={setCurrentPage}
+          total={elements.total}
+      />
     </Level1SettingPageContentWithList>
   );
 }
