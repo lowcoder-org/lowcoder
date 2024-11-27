@@ -1,15 +1,18 @@
 import Api from "./api";
 import { AxiosPromise } from "axios";
-import {GenericApiPaginationResponse, GenericApiResponse} from "./apiResponses";
+import { GenericApiResponse } from "./apiResponses";
 import {
   CreateFolderPayload,
   DeleteFolderPayload,
-  FetchFolderElementsPaginationPayload,
   FetchFolderElementsPayload,
   MoveToFolderPayload,
   UpdateFolderPayload,
 } from "../redux/reduxActions/folderActions";
 import { ApplicationMeta, FolderMeta } from "../constants/applicationConstants";
+import {
+  fetchFolderRequestType,
+  GenericApiPaginationResponse
+} from "@lowcoder-ee/util/pagination/type";
 
 export class FolderApi extends Api {
   static url = "/folders";
@@ -43,7 +46,7 @@ export class FolderApi extends Api {
   }
 
   static fetchFolderElementsPagination(
-      request: FetchFolderElementsPaginationPayload
+      request: fetchFolderRequestType
   ): AxiosPromise<GenericApiPaginationResponse<(ApplicationMeta | FolderMeta)[]>> {
     return Api.get(FolderApi.url + `/elements`, { ...request });
   }

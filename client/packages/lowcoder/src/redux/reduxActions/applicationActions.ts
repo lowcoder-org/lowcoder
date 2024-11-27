@@ -140,13 +140,6 @@ export type SetAppEditingStatePayload = {
   editingFinished: boolean;
 };
 
-export interface FetchApplicationElementsPaginationPayload {
-  pageNum?: number;
-  pageSize?: number;
-  name?: string;
-  applicationType?: number;
-}
-
 export const fetchApplicationInfo = (payload: FetchAppInfoPayload) => ({
   type: ReduxActionTypes.FETCH_APPLICATION_DETAIL,
   payload: payload,
