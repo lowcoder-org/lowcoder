@@ -5,6 +5,7 @@ import {
   DeleteApplicationPayload,
   DeleteAppPermissionPayload,
   FetchAppInfoPayload,
+  FetchApplicationElementsPaginationPayload,
   HomeDataPayload,
   PublishApplicationPayload,
   RecycleApplicationPayload,
@@ -12,7 +13,7 @@ import {
   SetAppEditingStatePayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
-import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {ApiResponse, GenericApiPaginationResponse, GenericApiResponse} from "./apiResponses";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import {
   ApplicationDetail,
@@ -106,6 +107,10 @@ class ApplicationApi extends Api {
 
   static fetchAllApplications(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
     return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false });
+  }
+
+  static fetchAllApplicationsPagination(request: FetchApplicationElementsPaginationPayload): AxiosPromise<GenericApiPaginationResponse<ApplicationMeta[]>> {
+    return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false, applicationStatus: "RECYCLED" });
   }
 
   static fetchAllModules(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {

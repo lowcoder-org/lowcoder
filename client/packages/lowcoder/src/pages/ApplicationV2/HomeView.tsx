@@ -21,7 +21,6 @@ export function HomeView() {
     const [typeFilter, setTypeFilter] = useState<number>(0);
       useEffect( () => {
           try{
-
               fetchFolderElements({
                   pageNum:currentPage,
                   pageSize:pageSize,
@@ -29,7 +28,6 @@ export function HomeView() {
                   name: searchValues,
               }).then(
                   data => {
-                      console.log(data)
                       if (data.success) {
                           setElements({elements: data.data || [], total: data.total || 1})
                       }
@@ -63,8 +61,7 @@ export function HomeView() {
         setPageSize={setPageSize}
         total={elements.total}
         setSearchValues={setSearchValues}
-        typeFilter={typeFilter}
-        setTypeFilter={setTypeFilter}
+        setTypeFilterPagination={setTypeFilter}
       />
     </>
   );
