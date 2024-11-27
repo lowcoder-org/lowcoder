@@ -106,7 +106,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList());
                         var pageTotal = list.size();
-                        list = list.subList(page * count, Math.min(page * count + count, pageTotal));
+                        list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
                         return Pair.of(list, pageTotal);
                     });
                 })
