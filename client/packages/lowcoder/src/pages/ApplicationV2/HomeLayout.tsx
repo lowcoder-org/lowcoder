@@ -313,9 +313,9 @@ export interface HomeLayoutProps {
   currentPage?: number;
   pageSize?: number;
   total?: number;
+  searchValues?: number;
   setSearchValues?: any;
-  typeFilter?: number;
-  setTypeFilter?: any;
+  setTypeFilterPagination?: any;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
@@ -328,10 +328,11 @@ export function HomeLayout(props: HomeLayoutProps) {
     setPageSize,
     pageSize,
     currentPage,
+    searchValues,
     setSearchValues,
     total,
-    typeFilter,
-    setTypeFilter,
+    setTypeFilterPagination,
+
   } = props;
   console.log("elements", elements, total);
   const handlePageChange = (page: number) => {
@@ -357,9 +358,10 @@ export function HomeLayout(props: HomeLayoutProps) {
   const user = useSelector(getUser);
   const isFetching = useSelector(isFetchingFolderElements);
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
+  const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
   const [searchValue, setSearchValue] = useState("");
-  const [visibility, setVisibility] = useState(mode !== "marketplace");
+  const [visibility, setVisibility] = useState(mode === "view" || mode === "trash");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
@@ -379,11 +381,11 @@ export function HomeLayout(props: HomeLayoutProps) {
 
   var displayElements = elements.sort((a, b) => {
     if (a.folder && !b.folder) {
-      return -1; // a is a folder and should come first
+      return -1;
     } else if (!a.folder && b.folder) {
-      return 1; // b is a folder and should come first
+      return 1;
     } else {
-      return 0; // both are folders or both are not, keep original order
+      return 0;
     }
   });
 
@@ -398,6 +400,33 @@ export function HomeLayout(props: HomeLayoutProps) {
     displayElements = [...markedLocalApps];
   }
   const resList: HomeRes[] = displayElements
+    .filter((e) => {
+      if (!visibility) {
+        if (searchValue) {
+          const lowerCaseSearchValue = searchValue.toLocaleLowerCase();
+          return e.name?.toLocaleLowerCase().includes(lowerCaseSearchValue) ||
+              e.createBy?.toLocaleLowerCase().includes(lowerCaseSearchValue);
+        }
+        return true;
+      }
+      return true;
+    })
+    .filter((e) => {
+      if(!visibility) {
+        if (HomeResTypeEnum[typeFilter].valueOf() === HomeResTypeEnum.All) {
+          return true;
+        }
+        if (e.folder) {
+          return HomeResTypeEnum[typeFilter] === HomeResTypeEnum.Folder;
+        } else {
+          if (typeFilter === "Navigation") {
+            return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
+          }
+          return HomeResTypeEnum[typeFilter].valueOf() === e.applicationType;
+        }
+      }
+      return true;
+      })
     .filter((e) => {
       // If "All" is selected, do not filter out any elements based on category
       if (categoryFilter === 'All' || !categoryFilter) {
@@ -503,10 +532,12 @@ export function HomeLayout(props: HomeLayoutProps) {
               {mode !== "folders" && mode !== "module" && (
                 <FilterDropdown
                   variant="borderless"
-                  value={HomeResTypeEnum[typeFilter || 0]}
+                  value={typeFilter}
                   onChange={(value: any) => {
-                    console.log(HomeResTypeEnum[value])
-                    setTypeFilter(HomeResTypeEnum[value])}
+                    setTypeFilter(value as HomeResKey);
+                    if(visibility)
+                      setTypeFilterPagination(HomeResTypeEnum[value])
+                  }
                   }
                   options={[
                     getFilterMenuItem(HomeResTypeEnum.All),
