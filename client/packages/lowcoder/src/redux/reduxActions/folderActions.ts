@@ -78,13 +78,6 @@ export interface FetchFolderElementsPayload {
   folderId?: string;
 }
 
-export interface FetchFolderElementsPaginationPayload {
-  pageNum?: number;
-  pageSize?: number;
-  name?: string;
-  applicationType?: string;
-}
-
 export const fetchFolderElements = (
   payload: FetchFolderElementsPayload
 ): ReduxAction<FetchFolderElementsPayload> => {
