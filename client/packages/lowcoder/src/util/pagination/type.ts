@@ -34,6 +34,14 @@ export interface fetchFolderRequestType {
     applicationType?: string;
 }
 
+export interface fetchDBRequestType {
+    orgId: string;
+    pageNum?: number;
+    pageSize?: number;
+    name?: string;
+    type?: string;
+}
+
 export interface orgGroupRequestType{
     pageNum?: number;
     pageSize?: number;
