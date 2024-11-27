@@ -10,6 +10,7 @@ import {
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {GenericApiPaginationResponse, orgGroupRequestType} from "@lowcoder-ee/util/pagination/type";
 
 export interface GroupUsersResponse extends ApiResponse {
   data: {
@@ -64,6 +65,10 @@ export class OrgApi extends Api {
 
   static fetchGroup(): AxiosPromise<GenericApiResponse<OrgGroup[]>> {
     return Api.get(OrgApi.fetchGroupURL);
+  }
+
+  static fetchGroupPagination(request: orgGroupRequestType): AxiosPromise<GenericApiPaginationResponse<OrgGroup[]>> {
+    return Api.get(OrgApi.fetchGroupURL, {...request});
   }
 
   static deleteGroup(groupId: string): AxiosPromise<ApiResponse> {

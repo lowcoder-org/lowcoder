@@ -2,7 +2,14 @@ type ApplicationType = {
     [key: number]: string; // This allows numeric indexing
 };
 
-// Define the const with explicit type
+export interface GenericApiPaginationResponse<T> {
+    total: number;
+    success: boolean;
+    code: number;
+    message: string;
+    data: T;
+}
+
 export const ApplicationPaginationType: ApplicationType = {
     0: "",
     1: "APPLICATION",
@@ -27,10 +34,7 @@ export interface fetchFolderRequestType {
     applicationType?: string;
 }
 
-export interface GenericApiPaginationResponse<T> {
-    total: number;
-    success: boolean;
-    code: number;
-    message: string;
-    data: T;
+export interface orgGroupRequestType{
+    pageNum?: number;
+    pageSize?: number;
 }

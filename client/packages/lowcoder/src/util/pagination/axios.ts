@@ -1,8 +1,7 @@
 import { FolderApi } from "@lowcoder-ee/api/folderApi";
 import ApplicationApi from "@lowcoder-ee/api/applicationApi";
-import {fetchAppRequestType, fetchFolderRequestType} from "@lowcoder-ee/util/pagination/type";
-
-
+import {fetchAppRequestType, fetchFolderRequestType, orgGroupRequestType} from "@lowcoder-ee/util/pagination/type";
+import OrgApi from "@lowcoder-ee/api/orgApi";
 
 export const fetchFolderElements = async (request: fetchFolderRequestType) => {
     try {
@@ -21,7 +20,6 @@ export const fetchFolderElements = async (request: fetchFolderRequestType) => {
     }
 }
 
-
 export const fetchApplicationElements = async (request: fetchAppRequestType)=> {
     try {
         const response = await ApplicationApi.fetchAllApplicationsPagination(request);
@@ -31,6 +29,24 @@ export const fetchApplicationElements = async (request: fetchAppRequestType)=> {
             total: response.data.total
         }
     } catch (error: any) {
+        console.error('Failed to fetch data:', error);
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
+
+export const fetchOrgGroups = async (request: orgGroupRequestType) => {
+    try{
+        const response = await OrgApi.fetchGroupPagination(request);
+        return {
+            success: true,
+            data:response.data.data,
+            total:response.data.total
+        }
+    }
+    catch (error: any) {
         console.error('Failed to fetch data:', error);
         return {
             success: false,
