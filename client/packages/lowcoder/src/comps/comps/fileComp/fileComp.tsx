@@ -48,7 +48,7 @@ import type { ItemType } from "antd/es/menu/interface";
 import Skeleton from "antd/es/skeleton";
 import Menu from "antd/es/menu";
 import Flex from "antd/es/flex";
-import { checkIsMobile } from "@lowcoder-ee/index.sdk";
+import { checkIsMobile } from "@lowcoder-ee/util/commonUtils";
 
 const FileSizeControl = codeControl((value) => {
   if (typeof value === "number") {

@@ -24,15 +24,6 @@ if (!window.ResizeObserver) {
   window.ResizeObserver = ResizeObserver;
 }
 
-export function hideLoading() {
-  // hide loading
-  const node = document.getElementById("loading");
-  if (node) {
-    // @ts-ignore
-    node.style.opacity = 0;
-  }
-}
-
 debug(`REACT_APP_EDITION: ${REACT_APP_EDITION}`);
 debug(`REACT_APP_LANGUAGES:, ${REACT_APP_LANGUAGES}`);
 debug(`REACT_APP_API_SERVICE_URL:, ${REACT_APP_API_SERVICE_URL}`);
