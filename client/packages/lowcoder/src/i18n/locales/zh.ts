@@ -1563,6 +1563,7 @@ export const zh: typeof en = {
         srcDesc: "图片链接地址",
         supportPreview: "支持点击预览",
         supportPreviewTip: "仅在图片链接有效时生效",
+        previewSrc: "图片预览链接"
     },
         progress: {
         ...en.progress,

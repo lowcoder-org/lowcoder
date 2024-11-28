@@ -2039,7 +2039,8 @@ export const en = {
     "src": "Image Source",
     "srcDesc": "The Image Source. Can be an URL, Path or Base64 String. for Example: data:image/png;base64, AAA... CCC",
     "supportPreview": "Support Click Preview (zoom)",
-    "supportPreviewTip": "Effective When the Image Source is Valid"
+    "supportPreviewTip": "Effective When the Image Source is Valid",
+    "previewSrc": "Image Preview Source"
   },
   "progress": {
     "value": "Value",

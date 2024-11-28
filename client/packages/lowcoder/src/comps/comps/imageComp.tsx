@@ -151,7 +151,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
               src={props.src.value}
               referrerPolicy="same-origin"
               draggable={false}
-              preview={props.supportPreview}
+              preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
               fallback={DEFAULT_IMG_URL}
               onClick={() => props.onEvent("click")}
             />
@@ -170,6 +170,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
+  previewSrc: StringControl,
   restrictPaddingOnRotation:withDefault(StringControl, 'image')
 };
 
@@ -192,6 +193,9 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
             {children.supportPreview.propertyView({
               label: trans("image.supportPreview"),
               tooltip: trans("image.supportPreviewTip"),
+            })}
+            {children.supportPreview.getView() && children.previewSrc.propertyView({
+               label: trans("image.previewSrc")
             })}
           </Section>
         )}
