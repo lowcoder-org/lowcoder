@@ -85,7 +85,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
-        return orgMemberService.getOrganizationMembers(orgId, page, count)
+        return orgMemberService.getOrganizationMembers(orgId)
                 .collectList()
                 .flatMap(orgMembers -> {
                     List<String> userIds = orgMembers.stream()
