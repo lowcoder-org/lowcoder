@@ -39,6 +39,15 @@ export interface OrgUsersPaginationResponse  {
     };
 }
 
+export type ApiPaginationResponse = {
+    total: number;
+    success: boolean;
+    code: number;
+    message: string;
+    data: any;
+};
+
+
 export interface fetchAppRequestType {
     pageNum?: number;
     pageSize?: number;
@@ -86,6 +95,12 @@ export interface fetchQueryLibraryPaginationRequestType {
 export interface fetchDataSourcePaginationRequestType {
     appId: string;
     name?: string;
+    pageNum?: number;
+    pageSize?: number;
+}
+
+export interface fetchOrgsByEmailRequestType {
+    email: string;
     pageNum?: number;
     pageSize?: number;
 }

@@ -4,7 +4,7 @@ import {
     fetchAppRequestType, fetchDataSourcePaginationRequestType,
     fetchDBRequestType,
     fetchFolderRequestType,
-    fetchGroupUserRequestType,
+    fetchGroupUserRequestType, fetchOrgsByEmailRequestType,
     fetchOrgUserRequestType, fetchQueryLibraryPaginationRequestType,
     orgGroupRequestType
 } from "@lowcoder-ee/util/pagination/type";
@@ -135,6 +135,25 @@ export const fetchQLPaginationByOrg = async (request: fetchQueryLibraryPaginatio
 export const fetchJsDSPaginationByApp = async (request: fetchDataSourcePaginationRequestType)=> {
     try {
         const response = await DatasourceApi.fetchJsDatasourcePaginationByApp(request);
+        return {
+            success: true,
+            data: response.data.data,
+            total: response.data.total
+        }
+    } catch (error: any) {
+        console.error('Failed to fetch data:', error);
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
+
+
+
+export const fetchOrgPaginationByEmail = async (request: fetchOrgsByEmailRequestType)=> {
+    try {
+        const response = await OrgApi.fetchOrgsPaginationByEmail(request);
         return {
             success: true,
             data: response.data.data,

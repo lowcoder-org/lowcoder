@@ -11,7 +11,9 @@ import {
 } from "redux/reduxActions/orgActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
 import {
+  ApiPaginationResponse,
   fetchGroupUserRequestType,
+  fetchOrgsByEmailRequestType,
   fetchOrgUserRequestType,
   GenericApiPaginationResponse,
   GroupUsersPaginationResponse,
@@ -165,6 +167,11 @@ export class OrgApi extends Api {
 
   static fetchOrgsByEmail(email: string): AxiosPromise<ApiResponse> {
     return Api.get(OrgApi.fetchOrgsByEmailURL(email));
+  }
+
+  static fetchOrgsPaginationByEmail(request: fetchOrgsByEmailRequestType): AxiosPromise<ApiPaginationResponse> {
+    const { email, ...rest } = request;
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email), {...rest});
   }
 }
 

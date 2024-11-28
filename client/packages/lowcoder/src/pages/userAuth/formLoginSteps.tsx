@@ -29,6 +29,8 @@ import { useDispatch, useSelector } from "react-redux";
 import history from "util/history";
 import ApplicationApi from "@lowcoder-ee/api/applicationApi";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import {fetchOrgPaginationByEmail} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -91,6 +93,11 @@ type FormLoginProps = {
   organizationId?: string;
 }
 
+interface ElementsState {
+  elements: any;
+  total: number;
+}
+
 export default function FormLoginSteps(props: FormLoginProps) {
   const dispatch = useDispatch();
   const location = useLocation(); 
@@ -111,6 +118,21 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const [skipWorkspaceStep, setSkipWorkspaceStep] = useState<boolean>(false);
   const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
   const serverSettings = useSelector(getServerSettings);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(2);
+
+  useEffect(() => {
+    fetchOrgPaginationByEmail({
+      email: account,
+      pageNum: currentPage,
+      pageSize: pageSize
+    }).then( result => {
+      setElements({elements: result.data || [], total: result.total || 1})
+      setOrgList(result.data)
+    }
+    )
+  }, [pageSize, currentPage])
 
   useEffect(() => {
     const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
@@ -233,6 +255,14 @@ export default function FormLoginSteps(props: FormLoginProps) {
               {org.orgName}
             </StyledCard>
           ))}
+          {orgList.length > 10 ?
+              <PaginationComp
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  setPageSize={setPageSize}
+                  setCurrentPage={setCurrentPage}
+                  total={elements.total}
+              /> : <></>}
         </AccountLoginWrapper>
       </>
     )
