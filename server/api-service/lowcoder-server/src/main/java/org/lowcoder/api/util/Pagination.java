@@ -64,7 +64,7 @@ public class Pagination {
     @NotNull
     public static Mono<PageResponseView<?>> fluxToPageResponseView(Integer pageNum, Integer pageSize, Flux<?> flux) {
         var countMono = flux.count();
-        var flux1 = flux.skip((long) pageNum * pageSize);
+        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
         if(pageSize > 0) flux1 = flux1.take(pageSize);
         return flux1.collectList().zipWith(countMono)
                 .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));

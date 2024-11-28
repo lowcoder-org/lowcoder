@@ -75,7 +75,7 @@ public class GroupController implements GroupEndpoints
     }
 
     @Override
-    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
             @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         return groupApiService.getGroups().flatMap(groupList -> {
             if(groupList.isEmpty()) return Mono.just(new GroupListResponseView<>(ResponseView.SUCCESS,
@@ -99,7 +99,7 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
-                        var subList = groupList.subList(pageNum * pageSize, pageSize <= 0?groupList.size():pageNum * pageSize + pageSize);
+                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():Math.min(pageNum * pageSize, groupList.size()));
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
                             subList,
@@ -107,7 +107,7 @@ public class GroupController implements GroupEndpoints
                             totalAdminsAndDevelopers,
                             totalDevelopersOnly,
                             totalOtherMembers,
-                            subList.size(),
+                            groupList.size(),
                             pageNum,
                             pageSize);
                     })
@@ -119,7 +119,7 @@ public class GroupController implements GroupEndpoints
 
     @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "100") int pageSize) {
         String objectId = gidService.convertGroupIdToObjectId(groupId);
         return groupApiService.getGroupMembers(objectId, pageNum, pageSize)

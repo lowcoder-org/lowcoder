@@ -50,7 +50,7 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
-                                                           @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                           @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         var flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                 .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
@@ -90,7 +90,7 @@ public class OrganizationController implements OrganizationEndpoints
 
     @Override
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "1000") int pageSize) {
         String id = gidService.convertOrganizationIdToObjectId(orgId);
         return orgApiService.getOrganizationMembers(id, pageNum, pageSize)

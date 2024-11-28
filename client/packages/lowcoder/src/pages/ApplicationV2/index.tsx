@@ -73,7 +73,7 @@ import AppEditor from "../editor/AppEditor";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
-
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 const TabLabel = styled.div`
   font-weight: 500;
 `;
@@ -222,6 +222,7 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
+      <LoadingBarHideTrigger />
       <SimpleSubscriptionContextProvider>
         <Layout
           sections={[

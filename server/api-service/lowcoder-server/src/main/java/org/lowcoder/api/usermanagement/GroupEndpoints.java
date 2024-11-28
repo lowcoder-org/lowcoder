@@ -63,7 +63,7 @@ public interface GroupEndpoints
 		    description = "Retrieve a list of User Groups within Lowcoder, providing an overview of available groups, based on the access rights of the currently impersonated User."
 	)
     @GetMapping("/list")
-    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "0") Integer pageNum,
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
 			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
@@ -74,7 +74,7 @@ public interface GroupEndpoints
 	)
     @GetMapping("/{groupId}/members")
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "100") int pageSize);
 
 	@Operation(

@@ -46,7 +46,7 @@ public class LibraryQueryController implements LibraryQueryEndpoints
 
     @Override
     public Mono<PageResponseView<?>> list(@RequestParam(required = false, defaultValue = "") String name,
-                                                               @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                               @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                                @RequestParam(required = false, defaultValue = "100") int pageSize) {
         var flux = libraryQueryApiService.listLibraryQueries(name)
                 .flatMapMany(Flux::fromIterable);

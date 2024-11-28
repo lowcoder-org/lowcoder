@@ -11,7 +11,7 @@ import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
 import LoginAdmin from "./loginAdmin";
 import _ from "lodash";
-
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 export default function UserAuth() {
   const dispatch = useDispatch();
   const location = useLocation<AuthLocationState>();
@@ -50,6 +50,7 @@ export default function UserAuth() {
         fetchUserAfterAuthSuccess,
       }}
     >
+      <LoadingBarHideTrigger />
       <Switch location={location}>
         <Redirect exact from={USER_AUTH_URL} to={AUTH_LOGIN_URL} />
         <Route exact path={ADMIN_AUTH_URL} component={LoginAdmin} />

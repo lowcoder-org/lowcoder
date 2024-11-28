@@ -177,7 +177,7 @@ export class CodeNode extends AbstractNode<ValueAndMsg<unknown>> {
         if (pathsArr?.[0] === options?.queryName) return;
 
         // wait for lazy loaded comps to load before executing query on page load
-        if (!Object.keys(value).length && paths.size) {
+        if (value && !Object.keys(value).length && paths.size) {
           isFetching = true;
           ready = false;
         }

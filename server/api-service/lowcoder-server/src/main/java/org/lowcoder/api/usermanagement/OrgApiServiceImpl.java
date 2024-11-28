@@ -85,7 +85,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     }
 
     private Mono<OrgMemberListView> getOrgMemberListView(String orgId, int page, int count) {
-        return orgMemberService.getOrganizationMembers(orgId, page, count)
+        return orgMemberService.getOrganizationMembers(orgId)
                 .collectList()
                 .flatMap(orgMembers -> {
                     List<String> userIds = orgMembers.stream()
@@ -106,7 +106,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList());
                         var pageTotal = list.size();
-                        list = list.subList(page * count, Math.min(page * count + count, pageTotal));
+                        list = list.subList((page - 1) * count, count == 0 ? pageTotal : Math.min(page * count, pageTotal));
                         return Pair.of(list, pageTotal);
                     });
                 })
