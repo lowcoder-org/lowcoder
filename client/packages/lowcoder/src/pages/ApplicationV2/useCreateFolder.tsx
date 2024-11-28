@@ -17,7 +17,7 @@ const CreateFolderLabel = styled.div`
   margin-bottom: 8px;
 `;
 
-export function useCreateFolder() {
+export function useCreateFolder(setModify: any, modify: boolean) {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
   const allFolders = useSelector(foldersSelector);
@@ -73,7 +73,7 @@ export function useCreateFolder() {
           </FormSection>
         </DatasourceForm>
       ),
-      onConfirm: () =>
+      onConfirm: () =>{
         form.validateFields().then(
           () =>
             new Promise((resolve, reject) => {
@@ -82,7 +82,11 @@ export function useCreateFolder() {
                 () => reject(false)
               );
             })
-        ),
+        )
+          setTimeout(() => {
+              setModify(!modify);
+          }, 200);
+      },
       okText: trans("create"),
     });
   }, [user, allFolders, form, dispatch]);

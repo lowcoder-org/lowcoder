@@ -19,6 +19,7 @@ export function HomeView() {
     const [pageSize, setPageSize] = useState(10);
     const [searchValues, setSearchValues] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
+    const [modify, setModify] = useState(true);
       useEffect( () => {
           try{
               fetchFolderElements({
@@ -38,7 +39,7 @@ export function HomeView() {
           } catch (error) {
               console.error('Failed to fetch data:', error);
           }
-          }, [currentPage, pageSize, searchValues, typeFilter]
+          }, [currentPage, pageSize, searchValues, typeFilter, modify]
       );
 
   const user = useSelector(getUser);
@@ -60,6 +61,8 @@ export function HomeView() {
         total={elements.total}
         setSearchValues={setSearchValues}
         setTypeFilterPagination={setTypeFilter}
+        setModify={setModify}
+        modify={modify}
       />
     </>
   );

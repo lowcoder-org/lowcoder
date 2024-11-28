@@ -316,6 +316,8 @@ export interface HomeLayoutProps {
   searchValues?: number;
   setSearchValues?: any;
   setTypeFilterPagination?: any;
+  setModify?: any;
+  modify?: boolean;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
@@ -332,6 +334,8 @@ export function HomeLayout(props: HomeLayoutProps) {
     setSearchValues,
     total,
     setTypeFilterPagination,
+    setModify,
+    modify
 
   } = props;
   const handlePageChange = (page: number) => {
@@ -568,7 +572,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
                 {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
-                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} />
+                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setModify} modify={modify!} />
                 )}
               </OperationRightWrapper>
             </OperationWrapper>
@@ -655,7 +659,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} />}
+                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setModify} modify={modify!}/>}
                     </EmptyView>
                   )}
                 </>
