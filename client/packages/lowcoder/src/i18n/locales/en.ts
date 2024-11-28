@@ -3266,6 +3266,7 @@ export const en = {
     "createNavigation": "Create Navigation",
     "howToUseAPI": "How to use the Open Rest API",
     "support": "Support",
+    "mobileVersion" : "Publish Mobile App"
   },
   
   "support" : {

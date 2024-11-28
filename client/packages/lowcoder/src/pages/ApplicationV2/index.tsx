@@ -3,7 +3,6 @@ import {
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
   FOLDER_URL,
-  FOLDER_URL_PREFIX,
   FOLDERS_URL,
   MARKETPLACE_URL,
   QUERY_LIBRARY_URL,
@@ -12,6 +11,7 @@ import {
   TRASH_URL,
   NEWS_URL,
   ORG_HOME_URL,
+  PUBLISHMOBILE_URL,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -33,6 +33,7 @@ import {
   AppsIcon,
   EnterpriseIcon,
   UserIcon,
+  MobileAppPublishingIcon,
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState, useMemo } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
@@ -52,6 +53,7 @@ import styled, { css } from "styled-components";
 import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
+import { PublishMobileAppView } from "./PublishMobileAppView";
 // import { SideBarItemType } from "../../components/layout/SideBarSection";
 import { RootFolderListView } from "./RootFolderListView";
 // import InviteDialog from "../common/inviteDialog";
@@ -73,7 +75,7 @@ import AppEditor from "../editor/AppEditor";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
-import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+
 const TabLabel = styled.div`
   font-weight: 500;
 `;
@@ -222,7 +224,6 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
-      <LoadingBarHideTrigger />
       <SimpleSubscriptionContextProvider>
         <Layout
           sections={[
@@ -262,17 +263,24 @@ export default function ApplicationHome() {
 
             {
               items: [
-                {
+                /* {
                   text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
                   routePath: FOLDERS_URL,
                   routeComp: RootFolderListView,
                   icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
-                },
+                }, */
                 {
                   text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                   routePath: ALL_APPLICATIONS_URL,
                   routeComp: HomeView,
                   icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
+                },
+                {
+                  text: <TabLabel>{trans("home.mobileVersion")}</TabLabel>,
+                  routePath: PUBLISHMOBILE_URL,
+                  routeComp: PublishMobileAppView,
+                  icon: ({ selected, ...otherProps }) => selected ? <MobileAppPublishingIcon {...otherProps} width={"24px"}/> : <MobileAppPublishingIcon {...otherProps} width={"24px"}/>,
+                  visible: ({ user }) => user.orgDev,
                 },
               ],
             },

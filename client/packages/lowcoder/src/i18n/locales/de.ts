@@ -3232,6 +3232,9 @@ export const de = {
   "createNavigation": "Navigation erstellen",
   "howToUseAPI": "Verwendung der Open Rest API",
   "support": "Unterstützung",
+  "mobileVersion" : "Mobile App erstellen",
+  "PublishMobile" : "Publish your App as native Mobile App",
+  "PublishMobileLoading" : "Loading from Service Vendor..."
   },
   "support": {
     ...en.support,

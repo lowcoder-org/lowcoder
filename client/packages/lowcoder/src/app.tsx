@@ -29,6 +29,7 @@ import {
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
   ADMIN_AUTH_URL,
+  PUBLISHMOBILE_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -328,7 +329,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                   TRASH_URL,
                   SETTING_URL,
                   MARKETPLACE_URL,
-                  ADMIN_APP_URL
+                  ADMIN_APP_URL,
+                  PUBLISHMOBILE_URL,
                 ]}
                 // component={ApplicationListPage}
                 component={LazyApplicationHome}
