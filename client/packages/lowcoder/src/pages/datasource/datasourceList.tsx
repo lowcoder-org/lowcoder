@@ -119,11 +119,17 @@ export const DatasourceList = () => {
     elements: DatasourceInfo[];
     total: number;
   }
-  console.log(datasource);
 
   const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  useEffect(()=> {
+    setTimeout(() => {
+      if (searchValue.length > 2 || searchValue === "")
+        setSearchValues(searchValue)
+    }, 500);
+  })
 
   useEffect( () => {
     fetchDatasourcePagination(
@@ -174,7 +180,6 @@ export const DatasourceList = () => {
             placeholder={trans("search")}
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
-            onEnterPress={(value) => setSearchValues(value)}
             style={{ width: "192px", height: "32px", margin: "0 12px 0 0" }} />
           <AddBtn buttonType={"primary"} onClick={() => showCreateForm(true)}>
             {trans("home.newDatasource")}
