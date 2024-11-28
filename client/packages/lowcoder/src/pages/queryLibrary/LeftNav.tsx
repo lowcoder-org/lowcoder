@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import styled, { css } from "styled-components";
 import {
   BluePlusIcon,
@@ -164,11 +164,20 @@ export const LeftNav = (props: {
   currentPage: number;
   pageSize: number;
   total: number;
+  setSearchValues: any;
+  searchValues: string;
 }) => {
-  const {currentPage, setCurrentPage, pageSize, setPageSize, total } = props
+  const {currentPage, setCurrentPage, pageSize, setPageSize, total , setSearchValues, searchValues} = props
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const datasourceTypes = useSelector(getDataSourceTypesMap);
+
+  useEffect(()=> {
+    setTimeout(() => {
+      if (searchValue.length > 2 || searchValue === "")
+        setSearchValues(searchValue)
+    }, 500);
+  })
 
   return (
     <ReadOnlyMask readOnly={!!props.readOnly}>
@@ -196,12 +205,6 @@ export const LeftNav = (props: {
                     let datasourceTypeName =
                       datasourceTypes[q.libraryQueryDSL?.query?.compType as DatasourceType]?.name ??
                       "";
-                    if (searchValue) {
-                      return (
-                        q.name.toLowerCase().includes(searchValue) ||
-                        datasourceTypeName.toLowerCase().includes(searchValue)
-                      );
-                    }
                     return true;
                   })
                   .map((q) => (

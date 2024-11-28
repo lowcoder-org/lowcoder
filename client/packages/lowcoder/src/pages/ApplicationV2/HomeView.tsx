@@ -17,6 +17,7 @@ export function HomeView() {
     const [elements, setElements] = useState<ElementsState>({ elements: [], total: 1 });
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
+    const [searchValue, setSearchValue] = useState("");
     const [searchValues, setSearchValues] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
     const [modify, setModify] = useState(true);
@@ -26,7 +27,7 @@ export function HomeView() {
                   pageNum:currentPage,
                   pageSize:pageSize,
                   applicationType: ApplicationPaginationType[typeFilter],
-                  name: searchValues,
+                  name: searchValue,
               }).then(
                   data => {
                       if (data.success) {
@@ -41,6 +42,13 @@ export function HomeView() {
           }
           }, [currentPage, pageSize, searchValues, typeFilter, modify]
       );
+
+      useEffect(()=> {
+          setTimeout(() => {
+              if (searchValue.length > 2 || searchValue === "")
+                  setSearchValues(searchValue)
+          }, 500);
+      })
 
   const user = useSelector(getUser);
 
@@ -59,7 +67,8 @@ export function HomeView() {
         pageSize={pageSize}
         setPageSize={setPageSize}
         total={elements.total}
-        setSearchValues={setSearchValues}
+        setSearchValue={setSearchValue}
+        searchValue={searchValue}
         setTypeFilterPagination={setTypeFilter}
         setModify={setModify}
         modify={modify}

@@ -1,7 +1,7 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { HomeBreadcrumbType, HomeLayout } from "./HomeLayout";
-import { useEffect } from "react";
+import {useEffect, useState} from "react";
 import { fetchFolderElements } from "../../redux/reduxActions/folderActions";
 import { FolderMeta } from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
@@ -34,6 +34,7 @@ export function FolderView() {
   const { folderId } = useParams<{ folderId: string }>();
 
   const dispatch = useDispatch();
+  const [searchValue, setSearchValue] = useState("")
 
   const elements = useSelector(folderElementsSelector);
   const allFolders = useSelector(foldersSelector);
@@ -55,7 +56,7 @@ export function FolderView() {
   return (
     <>
       <Helmet>{<title>{trans("home.yourFolders")}</title>}</Helmet>
-      <HomeLayout elements={elements[folderId]} mode={"folder"} breadcrumb={breadcrumbs} />
+      <HomeLayout elements={elements[folderId]} mode={"folder"} breadcrumb={breadcrumbs} setSearchValue={setSearchValue} searchValue={searchValue} />
     </>
   );
 }

@@ -313,8 +313,8 @@ export interface HomeLayoutProps {
   currentPage?: number;
   pageSize?: number;
   total?: number;
-  searchValues?: number;
-  setSearchValues?: any;
+  searchValue?: string;
+  setSearchValue?: any;
   setTypeFilterPagination?: any;
   setModify?: any;
   modify?: boolean;
@@ -330,8 +330,8 @@ export function HomeLayout(props: HomeLayoutProps) {
     setPageSize,
     pageSize,
     currentPage,
-    searchValues,
-    setSearchValues,
+    searchValue,
+    setSearchValue,
     total,
     setTypeFilterPagination,
     setModify,
@@ -363,7 +363,6 @@ export function HomeLayout(props: HomeLayoutProps) {
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
-  const [searchValue, setSearchValue] = useState("");
   const [visibility, setVisibility] = useState(mode === "view" || mode === "trash");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
@@ -566,9 +565,8 @@ export function HomeLayout(props: HomeLayoutProps) {
               <OperationRightWrapper>
                 <Search
                   placeholder={trans("search")}
-                  value={searchValue}
+                  value={searchValue || ""}
                   onChange={(e) => setSearchValue(e.target.value)}
-                  onEnterPress={(value) => setSearchValues(value)}
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
                 {mode !== "trash" && mode !== "marketplace" && user.orgDev && (

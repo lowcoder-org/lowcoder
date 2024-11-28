@@ -91,6 +91,7 @@ export const QueryLibraryEditor = () => {
   const [queryLibrary, setQueryLibrary] = useState<any>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [searchValues, setSearchValues] = useState("")
 
   const selectedRecords = queryLibraryRecords[selectedQuery] ?? {};
   const libraryQuery = queryLibrary[selectedQuery];
@@ -119,7 +120,7 @@ export const QueryLibraryEditor = () => {
         try {
             fetchQLPaginationByOrg(
                 {
-                    name: "",
+                    name: searchValues,
                     pageNum: currentPage,
                     pageSize: pageSize,
                 }
@@ -132,7 +133,7 @@ export const QueryLibraryEditor = () => {
         } catch (error) {
             console.error(error)
         }
-    }, [currentPage, pageSize])
+    }, [currentPage, pageSize, searchValues, setSearchValues])
 
   useEffect(() => {
     if (orgId) {
@@ -231,6 +232,8 @@ export const QueryLibraryEditor = () => {
           currentPage={currentPage}
           pageSize={pageSize}
           total={elements.total}
+          setSearchValues={setSearchValues}
+          searchValues={searchValues}
         />
         <RightContent>
           {!selectedQuery || !comp?.children.query.children.id.getView() ? (

@@ -15,9 +15,10 @@ export function TrashView() {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(10);
     const [searchValues, setSearchValues] = useState("");
+    const [searchValue, setSearchValue] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
 
-      useEffect( () => {
+    useEffect( () => {
           if (typeFilter === 7) // Application of Navigation is 3 in API.
               setTypeFilter(3);
             try{
@@ -41,6 +42,13 @@ export function TrashView() {
         }, [currentPage, pageSize, searchValues, typeFilter]
     );
 
+    useEffect(()=> {
+        setTimeout(() => {
+            if (searchValue.length > 2 || searchValue === "")
+                setSearchValues(searchValue)
+        }, 500);
+    })
+
   return (
     <>
       <Helmet>{<title>{trans("home.trash")}</title>}</Helmet>
@@ -53,9 +61,11 @@ export function TrashView() {
           pageSize={pageSize}
           setPageSize={setPageSize}
           total={elements.total}
-          setSearchValues={setSearchValues}
+          setSearchValue={setSearchValue}
+          searchValue={searchValue}
           setTypeFilterPagination={setTypeFilter}
       />
     </>
   );
 }
+
