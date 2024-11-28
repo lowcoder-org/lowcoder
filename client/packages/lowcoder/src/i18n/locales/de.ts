@@ -2011,8 +2011,9 @@ export const de = {
 
   "src": "Bildquelle",
   "srcDesc": "Die Bildquelle. Kann eine URL, ein Pfad oder ein Base64-String sein. z.B.: data:image/png;base64, AAA... CCC",
-  "supportPreview": "Unterstützung Klickvorschau (Zoom)",
+  "supportPreview": "Zuum Vorschau Unterstützung",
   "supportPreviewTip": "Wirksam, wenn die Bildquelle gültig ist",
+  "previewSrc": "HighRes Bildquelle"
   },
   "progress": {
     ...en.progress,

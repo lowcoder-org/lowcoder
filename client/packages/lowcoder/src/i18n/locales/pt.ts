@@ -2013,6 +2013,7 @@ export const pt = {
   "srcDesc": "A fonte da imagem. Pode ser uma URL, um caminho ou uma string Base64. Por exemplo: data:image/png;base64, AAA... CCC",
   "supportPreview": "Suporte para visualização clicável (zoom)",
   "supportPreviewTip": "Efetivo quando a fonte da imagem é válida",
+  "previewSrc" : "Fonte da imagem de alta resolução"
   },
   "progress": {
     ...en.progress,
