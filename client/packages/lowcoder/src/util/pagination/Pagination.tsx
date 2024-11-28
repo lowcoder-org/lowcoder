@@ -1,11 +1,19 @@
 import styled from "styled-components";
 import { Pagination } from "antd";
 
-const PaginationLayout = styled(Pagination)`
+interface PaginationLayoutProps {
+    height?: number;
+    marginTop?: number;
+    marginBottom?: number;
+}
+
+const PaginationLayout = styled(Pagination)<PaginationLayoutProps>`
     display: flex;
     justify-content: center;
-    margin-top: 40px;
-    margin-bottom: 20px;
+    align-items: center;
+    margin-top: ${(props) => props.marginTop !== undefined ? props.marginTop : 40}px !important;
+    margin-bottom: ${(props) => props.marginBottom !== undefined ? props.marginBottom : 20}px !important;
+    height: ${(props) => props.height}px;
 `;
 
 interface PaginationCompProps {
@@ -14,6 +22,10 @@ interface PaginationCompProps {
     currentPage: number;
     pageSize: number;
     total: number;
+    height?: number;
+    marginTop?: number;
+    marginBottom?: number;
+    simple?: boolean;
 }
 
 const PaginationComp = (props: PaginationCompProps) => {
@@ -23,6 +35,10 @@ const PaginationComp = (props: PaginationCompProps) => {
         currentPage,
         pageSize,
         total,
+        height,
+        marginTop,
+        marginBottom,
+        simple,
     } = props;
 
     const handlePageChange = (page: number, pageSize: number | undefined) => {
@@ -38,14 +54,32 @@ const PaginationComp = (props: PaginationCompProps) => {
     };
 
     return (
-        <PaginationLayout
-            current={currentPage}
-            pageSize={pageSize}
-            onChange={handlePageChange}
-            onShowSizeChange={handlePageSizeChange}
-            total={total}
-            showSizeChanger
-        />
+        <>
+        {simple ?
+            <PaginationLayout
+                height={height}
+                marginTop={marginTop}
+                marginBottom={marginBottom}
+                current={currentPage}
+                pageSize={pageSize}
+                onChange={handlePageChange}
+                onShowSizeChange={handlePageSizeChange}
+                total={total}
+                simple
+            /> :
+            <PaginationLayout
+                height={height}
+                marginTop={marginTop}
+                marginBottom={marginBottom}
+                current={currentPage}
+                pageSize={pageSize}
+                onChange={handlePageChange}
+                onShowSizeChange={handlePageSizeChange}
+                total={total}
+                showSizeChanger
+            />
+        }
+            </>
     );
 };
 

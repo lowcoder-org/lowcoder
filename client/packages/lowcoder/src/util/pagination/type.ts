@@ -4,6 +4,16 @@ type ApplicationType = {
     [key: number]: string; // This allows numeric indexing
 };
 
+export const ApplicationPaginationType: ApplicationType = {
+    0: "",
+    1: "APPLICATION",
+    2: "MODULE",
+    3: "NAVLAYOUT",
+    4: "FOLDER",
+    6: "MOBILETABLAYOUT",
+    7: "NAVIGATION",
+};
+
 export interface GenericApiPaginationResponse<T> {
     total: number;
     success: boolean;
@@ -28,16 +38,6 @@ export interface OrgUsersPaginationResponse  {
         visitorRole: string;
     };
 }
-
-export const ApplicationPaginationType: ApplicationType = {
-    0: "",
-    1: "APPLICATION",
-    2: "MODULE",
-    3: "NAVLAYOUT",
-    4: "FOLDER",
-    6: "MOBILETABLAYOUT",
-    7: "NAVIGATION",
-};
 
 export interface fetchAppRequestType {
     pageNum?: number;
@@ -73,6 +73,19 @@ export interface fetchOrgUserRequestType {
 
 export interface fetchGroupUserRequestType {
     groupId: string;
+    pageNum?: number;
+    pageSize?: number;
+}
+
+export interface fetchQueryLibraryPaginationRequestType {
+    name?: string;
+    pageNum?: number;
+    pageSize?: number;
+}
+
+export interface fetchDataSourcePaginationRequestType {
+    appId: string;
+    name?: string;
     pageNum?: number;
     pageSize?: number;
 }

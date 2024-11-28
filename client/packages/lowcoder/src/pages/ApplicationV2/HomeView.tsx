@@ -41,8 +41,6 @@ export function HomeView() {
           }, [currentPage, pageSize, searchValues, typeFilter]
       );
 
-  console.log(currentPage, pageSize);
-
   const user = useSelector(getUser);
 
   if (!user.currentOrgId) {

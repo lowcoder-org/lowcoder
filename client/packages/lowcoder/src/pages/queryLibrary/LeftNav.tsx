@@ -21,6 +21,7 @@ import { trans } from "i18n";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const Wrapper = styled.div<{ $readOnly?: boolean }>`
   display: flex;
@@ -72,7 +73,7 @@ const CreateBtn = styled(TacoButton)<{ $readOnly?: boolean }>`
 `;
 
 const Body = styled.div`
-  height: calc(100% - 80px);
+  height: calc(100% - 120px);
   display: flex;
   flex-direction: column;
 `;
@@ -158,7 +159,13 @@ export const LeftNav = (props: {
   addQuery: () => void;
   onSelect: (queryId: string) => void;
   readOnly?: boolean;
+  setCurrentPage: (page: number) => void;
+  setPageSize: (size: number) => void;
+  currentPage: number;
+  pageSize: number;
+  total: number;
 }) => {
+  const {currentPage, setCurrentPage, pageSize, setPageSize, total } = props
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const datasourceTypes = useSelector(getDataSourceTypesMap);
@@ -272,6 +279,17 @@ export const LeftNav = (props: {
             </ScrollBar>
           </SelectListWrapper>
         </Body>
+        <PaginationComp
+            height={40}
+            marginTop={0}
+            marginBottom={0}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            total={total}
+            simple={true}
+        />
       </Wrapper>
     </ReadOnlyMask>
   );
