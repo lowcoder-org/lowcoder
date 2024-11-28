@@ -4,6 +4,7 @@ import {
     fetchAppRequestType,
     fetchDBRequestType,
     fetchFolderRequestType,
+    fetchGroupUserRequestType,
     fetchOrgUserRequestType,
     orgGroupRequestType
 } from "@lowcoder-ee/util/pagination/type";
@@ -79,13 +80,30 @@ export const fetchDatasourcePagination = async (request: fetchDBRequestType)=> {
     }
 }
 
-export const fetchGroupUsrPagination = async (request: fetchOrgUserRequestType)=> {
+export const fetchGroupUsrPagination = async (request: fetchGroupUserRequestType)=> {
     try {
         const response = await OrgApi.fetchGroupUsersPagination(request);
         return {
             success: true,
-            data: response.data.data,
-            total: response.data.total
+            data: response.data.data.members,
+            total: response.data.data.total
+        }
+    } catch (error: any) {
+        console.error('Failed to fetch data:', error);
+        return {
+            success: false,
+            error: error
+        };
+    }
+}
+
+export const fetchOrgUsrPagination = async (request: fetchOrgUserRequestType)=> {
+    try {
+        const response = await OrgApi.fetchOrgUsersPagination(request);
+        return {
+            success: true,
+            data: response.data.data.members,
+            total: response.data.data.total,
         }
     } catch (error: any) {
         console.error('Failed to fetch data:', error);

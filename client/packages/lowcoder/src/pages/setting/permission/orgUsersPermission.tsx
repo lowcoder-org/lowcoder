@@ -15,15 +15,13 @@ import { trans, transToNode } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
 import React, { useEffect, useMemo } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import { AppState } from "redux/reducers";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteOrgUserAction,
   fetchOrgUsersAction,
   quitOrgAction,
   updateUserOrgRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin } from "util/permissionUtils";
@@ -299,17 +297,4 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-    console.log({
-        orgUsersFetching: state.ui.org.orgUsersFetching,
-        orgUsers: state.ui.org.orgUsers,
-        currentUser: getUser(state),
-    })
-  return {
-    orgUsersFetching: state.ui.org.orgUsersFetching,
-    orgUsers: state.ui.org.orgUsers,
-    currentUser: getUser(state),
-  };
-};
-
-export default connect(mapStateToProps)(OrgUsersPermission);
+export default OrgUsersPermission;

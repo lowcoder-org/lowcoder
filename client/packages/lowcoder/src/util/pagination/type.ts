@@ -1,4 +1,4 @@
-import {GroupUser} from "@lowcoder-ee/constants/orgConstants";
+import {GroupUser, OrgUser} from "@lowcoder-ee/constants/orgConstants";
 
 type ApplicationType = {
     [key: number]: string; // This allows numeric indexing
@@ -12,10 +12,19 @@ export interface GenericApiPaginationResponse<T> {
     data: T;
 }
 export interface GroupUsersPaginationResponse {
-    total: number;
     success: boolean;
     data: {
         members: GroupUser[];
+        visitorRole: string;
+        total: number;
+    };
+}
+
+export interface OrgUsersPaginationResponse  {
+    success: boolean;
+    data: {
+        total: number;
+        members: OrgUser[];
         visitorRole: string;
     };
 }
@@ -57,6 +66,12 @@ export interface orgGroupRequestType{
     pageSize?: number;
 }
 export interface fetchOrgUserRequestType {
+    orgId: string;
+    pageNum?: number;
+    pageSize?: number;
+}
+
+export interface fetchGroupUserRequestType {
     groupId: string;
     pageNum?: number;
     pageSize?: number;

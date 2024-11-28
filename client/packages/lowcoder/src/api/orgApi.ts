@@ -11,10 +11,11 @@ import {
 } from "redux/reduxActions/orgActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
 import {
+  fetchGroupUserRequestType,
   fetchOrgUserRequestType,
   GenericApiPaginationResponse,
   GroupUsersPaginationResponse,
-  orgGroupRequestType
+  orgGroupRequestType, OrgUsersPaginationResponse
 } from "@lowcoder-ee/util/pagination/type";
 
 export interface GroupUsersResponse extends ApiResponse {
@@ -98,11 +99,16 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchOrgUsersURL(orgId));
   }
 
+  static fetchOrgUsersPagination(request:fetchOrgUserRequestType): AxiosPromise<OrgUsersPaginationResponse> {
+    const {orgId, ...res} = request;
+    return Api.get(OrgApi.fetchOrgUsersURL(orgId), {...res});
+  }
+
   static fetchGroupUsers(groupId: string): AxiosPromise<GroupUsersResponse> {
     return Api.get(OrgApi.fetchGroupUsersURL(groupId));
   }
 
-  static fetchGroupUsersPagination(request: fetchOrgUserRequestType): AxiosPromise<GroupUsersPaginationResponse> {
+  static fetchGroupUsersPagination(request: fetchGroupUserRequestType): AxiosPromise<GroupUsersPaginationResponse> {
     const {groupId, ...res} = request;
     return Api.get(OrgApi.fetchGroupUsersURL(groupId), {...res});
   }
