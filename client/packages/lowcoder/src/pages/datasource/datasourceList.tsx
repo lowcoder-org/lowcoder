@@ -129,7 +129,7 @@ export const DatasourceList = () => {
       if (searchValue.length > 2 || searchValue === "")
         setSearchValues(searchValue)
     }, 500);
-  })
+  }, [searchValue])
 
   useEffect( () => {
     fetchDatasourcePagination(
@@ -139,7 +139,7 @@ export const DatasourceList = () => {
         pageSize: pageSize,
         name: searchValues
       }
-    ).then(result => {
+    ).then((result: any) => {
       if (result.success){
         setElements({elements: result.data || [], total: result.total || 1})
       }

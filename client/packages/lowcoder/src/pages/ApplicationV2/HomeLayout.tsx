@@ -586,7 +586,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   {resList.length > 0 ? (
                     <>
                       {mode === "trash" ? (
-                        <TrashTableView resources={resList} />
+                        <TrashTableView resources={resList} setModify={setModify} modify={modify!}/>
                       ) : (
                         <>
                           <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>

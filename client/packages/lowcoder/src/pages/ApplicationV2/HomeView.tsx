@@ -27,9 +27,9 @@ export function HomeView() {
                   pageNum:currentPage,
                   pageSize:pageSize,
                   applicationType: ApplicationPaginationType[typeFilter],
-                  name: searchValue,
+                  name: searchValues,
               }).then(
-                  data => {
+                  (data: any) => {
                       if (data.success) {
                           setElements({elements: data.data || [], total: data.total || 1})
                       }
@@ -48,7 +48,7 @@ export function HomeView() {
               if (searchValue.length > 2 || searchValue === "")
                   setSearchValues(searchValue)
           }, 500);
-      })
+      }, [searchValue])
 
   const user = useSelector(getUser);
 

@@ -177,7 +177,7 @@ export const LeftNav = (props: {
       if (searchValue.length > 2 || searchValue === "")
         setSearchValues(searchValue)
     }, 500);
-  })
+  }, [searchValue])
 
   return (
     <ReadOnlyMask readOnly={!!props.readOnly}>

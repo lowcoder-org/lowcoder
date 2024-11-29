@@ -17,6 +17,7 @@ export function TrashView() {
     const [searchValues, setSearchValues] = useState("");
     const [searchValue, setSearchValue] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
+    const [modify, setModify] = useState(false);
 
     useEffect( () => {
           if (typeFilter === 7) // Application of Navigation is 3 in API.
@@ -39,7 +40,7 @@ export function TrashView() {
             } catch (error) {
                 console.error('Failed to fetch data:', error);
             }
-        }, [currentPage, pageSize, searchValues, typeFilter]
+        }, [currentPage, pageSize, searchValues, typeFilter, modify]
     );
 
     useEffect(()=> {
@@ -47,7 +48,7 @@ export function TrashView() {
             if (searchValue.length > 2 || searchValue === "")
                 setSearchValues(searchValue)
         }, 500);
-    })
+    }, [searchValue])
 
   return (
     <>
@@ -64,6 +65,8 @@ export function TrashView() {
           setSearchValue={setSearchValue}
           searchValue={searchValue}
           setTypeFilterPagination={setTypeFilter}
+          setModify={setModify}
+          modify={modify}
       />
     </>
   );
