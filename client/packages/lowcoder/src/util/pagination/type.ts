@@ -11,7 +11,7 @@ export const ApplicationPaginationType: ApplicationType = {
     3: "NAVLAYOUT",
     4: "FOLDER",
     6: "MOBILETABLAYOUT",
-    7: "NAVIGATION",
+    7: "COMPOUND_APPLICATION",
 };
 
 export interface GenericApiPaginationResponse<T> {
