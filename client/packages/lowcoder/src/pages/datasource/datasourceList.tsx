@@ -110,6 +110,7 @@ export const DatasourceList = () => {
   const [searchValues, setSearchValues] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
+  const [modify, setModify] = useState(false);
   const datasource = useSelector(getDataSource);
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
@@ -146,7 +147,7 @@ export const DatasourceList = () => {
       else
         console.error("ERROR: fetchFolderElements", result.error)
     })
-  }, [currentPage, pageSize, searchValues]
+  }, [currentPage, pageSize, searchValues, modify]
   )
 
   return (
@@ -294,6 +295,10 @@ export const DatasourceList = () => {
                               text: trans("delete"),
                               onClick: () => {
                                 dispatch(deleteDatasource({ datasourceId: record.id }));
+                                setTimeout(() => {
+                                  setModify(!modify);
+                                }, 500);
+
                               },
                               type: "delete",
                             },
