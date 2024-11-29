@@ -29,6 +29,7 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
   const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 0 })
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [modify, setModify] = useState(false);
 
   const orgId = user.currentOrgId;
   const orgGroups = useSelector(getOrgGroups);
@@ -79,7 +80,7 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
           }
       )
       },
-      [currentPage, pageSize]
+      [currentPage, pageSize, modify]
   )
 
   if (!orgId) {
@@ -96,6 +97,8 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
                   // orgUsers={!orgMemberElements.elements.members ? [] : orgMemberElements.elements.members}
                   orgUsers={orgMemberElements.elements}
                   currentUser={currentUser}
+                  setModify={setModify}
+                  modify={modify}
               />
               <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={orgMemberElements.total} />
             </>
@@ -109,6 +112,8 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
                       groupUsersFetching={groupUsersFetching}
                       currentUserGroupRole={currentUserGroupRole}
                       currentUser={currentUser}
+                      setModify={setModify}
+                      modify={modify}
                   />
                   <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={elements.total} />
                 </>

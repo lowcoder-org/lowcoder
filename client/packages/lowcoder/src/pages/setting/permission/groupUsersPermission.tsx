@@ -45,11 +45,13 @@ type GroupPermissionProp = {
   groupUsersFetching: boolean;
   currentUserGroupRole: string;
   currentUser: User;
+  setModify?: any;
+  modify?: boolean;
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
   const { Column } = TableStyled;
-  const { group, orgId, groupUsersFetching, groupUsers, currentUserGroupRole, currentUser } = props;
+  const { group, orgId, groupUsersFetching, groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -83,6 +85,8 @@ function GroupUsersPermission(props: GroupPermissionProp) {
             groupUsers={groupUsers}
             orgId={orgId}
             groupId={group.groupId}
+            setModify={setModify}
+            modify={modify}
             trigger={
               <AddMemberButton buttonType="primary" icon={<StyledAddIcon />}>
                 {trans("memberSettings.addMember")}
@@ -145,6 +149,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                     groupId: group.groupId,
                   })
                 );
+                  setTimeout(() => {
+                      setModify(!modify);
+                  }, 200);
               }}
             >
               {TacoRoles.map((role) => (
@@ -175,6 +182,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                           dispatch(
                             quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
                           );
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.exitGroup")}
@@ -190,6 +200,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                               groupId: group.groupId,
                             })
                           );
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.moveOutGroup")}

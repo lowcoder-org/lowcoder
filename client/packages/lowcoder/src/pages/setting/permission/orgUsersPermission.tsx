@@ -58,11 +58,13 @@ type UsersPermissionProp = {
   orgUsers: OrgUser[];
   orgUsersFetching: boolean;
   currentUser: User;
+  setModify?: any;
+  modify?: boolean;
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
-  const { orgId, orgUsers, orgUsersFetching, currentUser } = props;
+  const { orgId, orgUsers, orgUsersFetching, currentUser , setModify, modify} = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
   ).length;
@@ -277,6 +279,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                                 orgId: orgId,
                               })
                             );
+                              setTimeout(() => {
+                                  setModify(!modify);
+                              }, 200);
                           },
                           confirmBtnType: "delete",
                           okText: trans("memberSettings.moveOutOrg"),

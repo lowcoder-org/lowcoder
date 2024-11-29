@@ -68,6 +68,7 @@ export default function PermissionSetting() {
   const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const [modify, setModify] = useState(false);
 
   useEffect( () => {
     fetchOrgGroups(
@@ -82,7 +83,7 @@ export default function PermissionSetting() {
       else
         console.error("ERROR: fetchFolderElements", result.error)
     })
-      }, [currentPage, pageSize]
+      }, [currentPage, pageSize, modify]
   )
   const visibleOrgGroups = elements.elements.filter((g) => !g.allUsersGroup);
   const allUsersGroup = elements.elements.find((g) => g.allUsersGroup);
@@ -116,6 +117,9 @@ export default function PermissionSetting() {
           setTimeout(() => {
             dispatch(fetchGroupsAction(orgId));
           }, 200);
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
         }
       })
       .catch((e) => {
@@ -130,6 +134,9 @@ export default function PermissionSetting() {
       .then((resp) => {
         if (validateResponse(resp)) {
           dispatch(fetchGroupsAction(orgId));
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
         }
       })
       .catch((e) => {
@@ -201,6 +208,9 @@ export default function PermissionSetting() {
                           return;
                         }
                         dispatch(updateGroupAction(record.key, { groupName: value }, orgId));
+                        setTimeout(() => {
+                          setModify(!modify);
+                        }, 200);
                         setNeedRenameId(undefined);
                       },
                     }}
