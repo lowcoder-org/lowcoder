@@ -141,8 +141,8 @@ const OperationWrapper = styled.div`
 
 const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
 
-export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void }) {
-  const { res, onMove } = props;
+export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void; setModify:any; modify: boolean }) {
+  const { res, onMove, setModify, modify } = props;
   const [appNameEditing, setAppNameEditing] = useState(false);
   const dispatch = useDispatch();
 
@@ -214,10 +214,16 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
               }
               if (res.type === HomeResTypeEnum.Folder) {
                 dispatch(updateFolder({ id: res.id, name: value }));
+                setTimeout(() => {
+                  setModify(!modify);
+                }, 200);
               } else {
                 dispatch(
                   updateAppMetaAction({ applicationId: res.id, name: value, folderId: folderId })
                 );
+                setTimeout(() => {
+                  setModify(!modify);
+                }, 200);
               }
               setAppNameEditing(false);
             }}
@@ -245,6 +251,8 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             res={res}
             onRename={() => setAppNameEditing(true)}
             onMove={(res) => onMove(res)}
+            setModify={setModify}
+            modify={modify}
           />
         </OperationWrapper>
       </Card>

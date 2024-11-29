@@ -19,7 +19,8 @@ const ApplicationCardsWrapper = styled.div`
   }
 `;
 
-export function HomeCardView(props: { resources: HomeRes[] }) {
+export function HomeCardView(props: { resources: HomeRes[], setModify?: any, modify?: boolean }) {
+  const {setModify, modify} = props;
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
 
   return (
@@ -27,9 +28,9 @@ export function HomeCardView(props: { resources: HomeRes[] }) {
       {props.resources.map((res) => (
         res.isMarketplace ? 
         <MarketplaceResCard key={res.id} res={res} /> :
-        <HomeResCard key={res.id} res={res} onMove={setNeedMoveRes} />
+        <HomeResCard key={res.id} res={res} onMove={setNeedMoveRes} setModify={setModify} modify={modify!} />
       ))}
-      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} />
+      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} setModify={setModify} modify={modify!} />
     </ApplicationCardsWrapper>
   );
 }

@@ -51,7 +51,8 @@ const TypographyText = styled(AntdTypographyText)`
   width: 100%;
 `;
 
-export const HomeTableView = (props: { resources: HomeRes[] }) => {
+export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean }) => {
+  const {setModify, modify, resources} = props
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
@@ -122,6 +123,9 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                         }
                         if (item.type === HomeResTypeEnum.Folder) {
                           dispatch(updateFolder({ id: item.id, name: value }));
+                          setTimeout(() => {
+                            setModify(!modify);
+                          }, 200);
                         } else {
                           dispatch(
                             updateAppMetaAction({
@@ -130,6 +134,9 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                               folderId: folderId,
                             })
                           );
+                          setTimeout(() => {
+                            setModify(!modify);
+                          }, 200);
                         }
                         setNeedRenameRes(undefined);
                       },
@@ -225,15 +232,17 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                     onDuplicate={(res) => setNeedDuplicateRes(res)}
                     onRename={(res) => setNeedRenameRes(res)}
                     onMove={(res) => setNeedMoveRes(res)}
+                    setModify={setModify}
+                    modify={modify!}
                   />
                 </OperationWrapper>
               );
             },
           },
         ]}
-        dataSource={props.resources}
+        dataSource={resources}
       />
-      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} />
+      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} setModify={setModify} modify={modify!} />
     </>
   );
 };
