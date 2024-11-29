@@ -203,7 +203,7 @@ const EmptyView = styled.div`
 const PaginationLayout = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: -20px;
+  margin-top: 20px;
   margin-bottom: 20px;  
 `
 
@@ -363,7 +363,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
-  const [visibility, setVisibility] = useState(mode === "view" || mode === "trash");
+  const [visibility, setVisibility] = useState(mode === "view" || mode === "trash" || mode === "folder");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );

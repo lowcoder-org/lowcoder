@@ -48,6 +48,7 @@ export class FolderApi extends Api {
   static fetchFolderElementsPagination(
       request: fetchFolderRequestType
   ): AxiosPromise<GenericApiPaginationResponse<(ApplicationMeta | FolderMeta)[]>> {
-    return Api.get(FolderApi.url + `/elements`, { ...request });
+    const {id, ...res} = request
+    return request.id ? Api.get(FolderApi.url + `/elements`,{id: id, ...res}) : Api.get(FolderApi.url + `/elements`, { ...request });
   }
 }
