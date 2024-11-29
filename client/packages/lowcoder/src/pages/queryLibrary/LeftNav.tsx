@@ -175,11 +175,14 @@ export const LeftNav = (props: {
   const datasourceTypes = useSelector(getDataSourceTypesMap);
 
   useEffect(()=> {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (searchValue.length > 2 || searchValue === "")
         setSearchValues(searchValue)
     }, 500);
+    return () => clearTimeout(timer);
   }, [searchValue])
+
+
 
   return (
     <ReadOnlyMask readOnly={!!props.readOnly}>

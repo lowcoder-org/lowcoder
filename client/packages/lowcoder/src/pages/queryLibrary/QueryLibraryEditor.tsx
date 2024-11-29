@@ -134,7 +134,13 @@ export const QueryLibraryEditor = () => {
         } catch (error) {
             console.error(error)
         }
-    }, [currentPage, pageSize, searchValues, modify])
+  }, [currentPage, pageSize, searchValues, modify])
+
+    useEffect( () => {
+            if (searchValues !== "")
+                setCurrentPage(1);
+        }, [searchValues]
+    );
 
   useEffect(() => {
     if (orgId) {

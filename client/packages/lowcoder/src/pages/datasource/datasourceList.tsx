@@ -126,10 +126,11 @@ export const DatasourceList = () => {
   const [pageSize, setPageSize] = useState(10);
 
   useEffect(()=> {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       if (searchValue.length > 2 || searchValue === "")
         setSearchValues(searchValue)
     }, 500);
+    return () => clearTimeout(timer);
   }, [searchValue])
 
   useEffect( () => {
@@ -149,6 +150,12 @@ export const DatasourceList = () => {
     })
   }, [currentPage, pageSize, searchValues, modify]
   )
+
+  useEffect( () => {
+        if (searchValues !== "")
+          setCurrentPage(1);
+      }, [searchValues]
+  );
 
   return (
     <>

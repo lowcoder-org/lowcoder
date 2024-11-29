@@ -42,12 +42,19 @@ export function TrashView() {
             }
         }, [currentPage, pageSize, searchValues, typeFilter, modify]
     );
+    useEffect( () => {
+        if (searchValues !== "")
+            setCurrentPage(1);
+        }, [searchValues]
+    );
 
+    //debouncing
     useEffect(()=> {
-        setTimeout(() => {
+        const timer = setTimeout(() => {
             if (searchValue.length > 2 || searchValue === "")
                 setSearchValues(searchValue)
         }, 500);
+        return () => clearTimeout(timer);
     }, [searchValue])
 
   return (

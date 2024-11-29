@@ -43,12 +43,19 @@ export function HomeView() {
           }, [currentPage, pageSize, searchValues, typeFilter, modify]
       );
 
-      useEffect(()=> {
-          setTimeout(() => {
-              if (searchValue.length > 2 || searchValue === "")
-                  setSearchValues(searchValue)
-          }, 500);
-      }, [searchValue])
+    useEffect( () => {
+            if (searchValues !== "")
+                setCurrentPage(1);
+        }, [searchValues]
+    );
+
+    useEffect(()=> {
+        const timer = setTimeout(() => {
+            if (searchValue.length > 2 || searchValue === "")
+                setSearchValues(searchValue)
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchValue])
 
   const user = useSelector(getUser);
 
