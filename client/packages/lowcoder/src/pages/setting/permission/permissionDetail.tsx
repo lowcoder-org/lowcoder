@@ -39,14 +39,7 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
   const orgUsersFetching = useSelector((state: AppState) => state.ui.org.orgUsersFetching);
 
   const groupIdMap = new Map(orgGroups.map((group) => [group.groupId, group]));
-  const dispatch = useDispatch();
   const selectKey = useParams<{ groupId: string }>().groupId;
-  useEffect(() => {
-    if (!orgId) {
-      return;
-    }
-    dispatch(fetchGroupsAction(orgId));
-  }, [orgId]);
 
   useEffect( () => {
     if (selectKey !== "users")

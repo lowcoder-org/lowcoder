@@ -138,8 +138,6 @@ export const QueryLibraryEditor = () => {
 
   useEffect(() => {
     if (orgId) {
-      dispatch(fetchQueryLibrary());
-      dispatch(fetchDataSourceTypes({ organizationId: orgId }));
       dispatch(
         fetchDatasource({
           organizationId: orgId,

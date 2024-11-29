@@ -95,12 +95,6 @@ export default function PermissionSetting() {
     del: false,
     rename: false,
   }] : [];
-  useEffect(() => {
-    if (!orgId) {
-      return;
-    }
-    dispatch(fetchGroupsAction(orgId));
-  }, [orgId]);
   if (!orgId) {
     return null;
   }

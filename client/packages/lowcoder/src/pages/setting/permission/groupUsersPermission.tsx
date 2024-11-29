@@ -7,7 +7,6 @@ import React, { useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import {
   deleteGroupUserAction,
-  fetchGroupUsersAction,
   quitGroupAction,
   updateUserGroupRoleAction,
 } from "redux/reduxActions/orgActions";
@@ -65,9 +64,6 @@ function GroupUsersPermission(props: GroupPermissionProp) {
     });
   }, [groupUsers]);
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchGroupUsersAction({ groupId: group.groupId }));
-  }, []);
   return (
     <>
       <PermissionHeaderWrapper>

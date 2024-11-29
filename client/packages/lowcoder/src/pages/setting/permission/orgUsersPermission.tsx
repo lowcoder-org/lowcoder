@@ -82,9 +82,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
     });
   }, [orgUsers]);
 
-  useEffect(() => {
-    dispatch(fetchOrgUsersAction(orgId));
-  }, [dispatch, orgId]);
+  // useEffect(() => {
+  //   dispatch(fetchOrgUsersAction(orgId));
+  // }, [dispatch, orgId]);
 
   const onResetPass = (userId: string) => {
     return UserApi.resetPassword(userId)
