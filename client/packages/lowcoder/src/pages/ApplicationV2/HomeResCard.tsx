@@ -8,6 +8,7 @@ import { HomeRes } from "./HomeLayout";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import {
+  backFolderViewClick,
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
@@ -23,6 +24,7 @@ import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { colorPickerEvent } from "@lowcoder-ee/comps/comps/mediaComp/colorPickerComp";
+import {FolderIcon} from "icons";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -258,4 +260,30 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
       </Card>
     </Wrapper>
   );
+}
+
+export function Back(props: { mode: string }) {
+  const { mode } = props;
+  return mode === "folder" ?
+      <Wrapper style={{cursor: "pointer"}}>
+        <Card>
+          <FolderIcon width={"42px"} height={"42px"} style={
+            {
+              marginRight: "10px",
+              flexShrink: 0
+            }
+          } />
+          <CardInfo
+              onClick={(e) => {
+                backFolderViewClick();
+              }}
+          >
+            <TypographyText
+            />
+            <h1 style={{fontSize:"x-large"}}>...</h1>
+            <AppTimeOwnerInfoLabel title={""}></AppTimeOwnerInfoLabel>
+          </CardInfo>
+        </Card>
+      </Wrapper>
+      : <></>;
 }

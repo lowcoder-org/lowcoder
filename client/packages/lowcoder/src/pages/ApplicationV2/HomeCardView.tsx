@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { HomeRes } from "./HomeLayout";
-import { HomeResCard } from "./HomeResCard";
-import { MarketplaceResCard } from "./MarketplaceResCard";
+import {Back, HomeResCard} from "./HomeResCard";
+import { MarketplaceResCard} from "./MarketplaceResCard";
 import React, { useState } from "react";
 import { MoveToFolderModal } from "./MoveToFolderModal";
 
@@ -19,12 +19,13 @@ const ApplicationCardsWrapper = styled.div`
   }
 `;
 
-export function HomeCardView(props: { resources: HomeRes[], setModify?: any, modify?: boolean }) {
-  const {setModify, modify} = props;
+export function HomeCardView(props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string }) {
+  const {setModify, modify,mode} = props;
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
 
   return (
     <ApplicationCardsWrapper>
+      <Back mode={mode!}/>
       {props.resources.map((res) => (
         res.isMarketplace ? 
         <MarketplaceResCard key={res.id} res={res} /> :

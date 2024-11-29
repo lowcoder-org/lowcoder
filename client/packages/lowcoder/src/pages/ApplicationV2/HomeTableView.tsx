@@ -4,6 +4,7 @@ import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import {
+  backFolderViewClick,
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
@@ -51,8 +52,8 @@ const TypographyText = styled(AntdTypographyText)`
   width: 100%;
 `;
 
-export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean }) => {
-  const {setModify, modify, resources} = props
+export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string }) => {
+  const {setModify, modify, resources, mode} = props
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
@@ -60,6 +61,20 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
   const [needRenameRes, setNeedRenameRes] = useState<HomeRes | undefined>(undefined);
   const [needDuplicateRes, setNeedDuplicateRes] = useState<HomeRes | undefined>(undefined);
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
+
+  const back: HomeRes = {
+    key: "",
+      id: "",
+      name: ". . .",
+      type: 4,
+      creator: "",
+      lastModifyTime: 0,
+      isManageable: false,
+      isDeletable: false
+  }
+  if (mode === "folder"){
+    resources.unshift(back)
+  }
 
   return (
     <>
@@ -70,17 +85,20 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
-            // console.log(e.target);
-            const item = record as HomeRes;
-            if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
-              return;
-            }
-            if (item.type === HomeResTypeEnum.Folder) {
-              handleFolderViewClick(item.id);
-            } else if(item.isMarketplace) {
-              handleMarketplaceAppViewClick(item.id);
-            } else {
-              item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
+            if (mode === "folder" && record.type === 4){
+              backFolderViewClick()
+            } else{
+              const item = record as HomeRes;
+              if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
+                return;
+              }
+              if (item.type === HomeResTypeEnum.Folder) {
+                handleFolderViewClick(item.id);
+              } else if(item.isMarketplace) {
+                handleMarketplaceAppViewClick(item.id);
+              } else {
+                item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
+              }
             }
           },
         })}
@@ -161,7 +179,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
             },
             render: (_, record) => (
               <SubColumnCell>
-                {HomeResInfo[(record as any).type as HomeResTypeEnum].name}
+                { mode === "folder" && record.type === 4  ?  "" : HomeResInfo[(record as any).type as HomeResTypeEnum].name }
               </SubColumnCell>
             ),
           },
@@ -223,7 +241,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                         ? handleMarketplaceAppViewClick(item.id)
                         : handleAppViewClick(item.id);
                     }}
-                    style={{ marginRight: "52px" }}
+                    style={{ marginRight: "52px", display: mode === "folder" && record.type === 4 ? "none" : "block" }}
                   >
                     {trans("view")}
                   </EditBtn>

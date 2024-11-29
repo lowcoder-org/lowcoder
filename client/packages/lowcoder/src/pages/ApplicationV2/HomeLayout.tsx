@@ -635,9 +635,9 @@ export function HomeLayout(props: HomeLayoutProps) {
                           {mode !== "marketplace" && (
                             <>
                               {layout === "list" ? (
-                                <HomeTableView resources={resList} setModify={setModify} modify={modify!}/>
+                                <HomeTableView resources={resList} setModify={setModify} modify={modify!} mode={mode}/>
                               ) : (
-                                <HomeCardView resources={resList} setModify={setModify} modify={modify!} />
+                                <HomeCardView resources={resList} setModify={setModify} modify={modify!} mode={mode} />
                               )}
                             </>
                           )}
