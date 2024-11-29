@@ -91,7 +91,8 @@ export const QueryLibraryEditor = () => {
   const [queryLibrary, setQueryLibrary] = useState<any>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
-  const [searchValues, setSearchValues] = useState("")
+  const [searchValues, setSearchValues] = useState("");
+  const [modify, setModify] = useState(false);
 
   const selectedRecords = queryLibraryRecords[selectedQuery] ?? {};
   const libraryQuery = queryLibrary[selectedQuery];
@@ -133,7 +134,7 @@ export const QueryLibraryEditor = () => {
         } catch (error) {
             console.error(error)
         }
-    }, [currentPage, pageSize, searchValues, setSearchValues])
+    }, [currentPage, pageSize, searchValues, modify])
 
   useEffect(() => {
     if (orgId) {
@@ -234,6 +235,8 @@ export const QueryLibraryEditor = () => {
           total={elements.total}
           setSearchValues={setSearchValues}
           searchValues={searchValues}
+          setModify={setModify}
+          modify={modify}
         />
         <RightContent>
           {!selectedQuery || !comp?.children.query.children.id.getView() ? (
@@ -247,6 +250,8 @@ export const QueryLibraryEditor = () => {
             comp.propertyView({
               onPublish: () => setPublishModalVisible(true),
               onHistoryShow: () => setShowHistory(true),
+              setModify: setModify,
+              modify: modify
             })
           )}
 

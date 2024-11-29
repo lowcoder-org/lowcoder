@@ -166,8 +166,10 @@ export const LeftNav = (props: {
   total: number;
   setSearchValues: any;
   searchValues: string;
+  setModify?: any;
+  modify?: boolean;
 }) => {
-  const {currentPage, setCurrentPage, pageSize, setPageSize, total , setSearchValues, searchValues} = props
+  const {currentPage, setCurrentPage, pageSize, setPageSize, total , setSearchValues, searchValues, modify, setModify} = props
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const datasourceTypes = useSelector(getDataSourceTypesMap);
@@ -244,8 +246,12 @@ export const LeftNav = (props: {
                                   CustomModal.confirm({
                                     title: trans("queryLibrary.deleteQueryTitle"),
                                     content: trans("queryLibrary.deleteQueryContent"),
-                                    onConfirm: () =>
-                                      dispatch(deleteQueryLibrary({ queryLibraryId: q.id })),
+                                    onConfirm: () => {
+                                      dispatch(deleteQueryLibrary({ queryLibraryId: q.id }))
+                                      setTimeout(() => {
+                                        setModify(!modify);
+                                      }, 200);
+                                    },
                                     confirmBtnType: "delete",
                                     okText: trans("delete"),
                                   }),
