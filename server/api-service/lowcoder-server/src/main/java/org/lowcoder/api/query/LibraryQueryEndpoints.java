@@ -40,7 +40,7 @@ public interface LibraryQueryEndpoints
 	)
     @GetMapping("/listByOrg")
     public Mono<PageResponseView<?>> list(@RequestParam(required = false, defaultValue = "") String name,
-															   @RequestParam(required = false, defaultValue = "0") int pageNum,
+															   @RequestParam(required = false, defaultValue = "1") int pageNum,
 															   @RequestParam(required = false, defaultValue = "100") int pageSize);
 
 	@Operation(

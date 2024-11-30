@@ -228,7 +228,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return user.getConnections()
                 .stream()
                 .filter(connection -> authUser.getSource().equals(connection.getSource())
-                        && connection.getRawId().equals(authUser.getUid()))
+                        && Objects.equals(connection.getRawId(), authUser.getUid()))
                 .findFirst()
                 .get();
     }

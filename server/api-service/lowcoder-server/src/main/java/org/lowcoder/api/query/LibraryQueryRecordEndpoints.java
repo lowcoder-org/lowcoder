@@ -41,7 +41,7 @@ public interface LibraryQueryRecordEndpoints
 	)
     @GetMapping("/listByLibraryQueryId")
     public Mono<PageResponseView<?>> getByLibraryQueryId(@RequestParam(name = "libraryQueryId") String libraryQueryId,
-														 @RequestParam(required = false, defaultValue = "0") int pageNum,
+														 @RequestParam(required = false, defaultValue = "1") int pageNum,
 														 @RequestParam(required = false, defaultValue = "100") int pageSize);
 
 	@Operation(

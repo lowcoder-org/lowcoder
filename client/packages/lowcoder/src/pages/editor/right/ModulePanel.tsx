@@ -38,6 +38,7 @@ const ItemWrapper = styled.div`
   }
   .module-container {
       display: flex;
+      width: 195px;
   }
   .module-icon {
     margin-right: 4px;
@@ -167,6 +168,7 @@ interface ModuleItemProps {
     setSelectedType: (id: boolean) => void;
     resComp: NodeType;
     id: string;
+    $level: number;
 }
 
 function ModuleItem(props: ModuleItemProps) {
@@ -179,7 +181,8 @@ function ModuleItem(props: ModuleItemProps) {
         selectedType,
         setSelectedType,
         resComp,
-        id
+        id,
+        $level,
     } = props;
     const dispatch = useDispatch();
     const type = resComp.isFolder;
@@ -243,8 +246,9 @@ function ModuleItem(props: ModuleItemProps) {
         >
             <div className="module-container" >
                 <ModuleDocIcon className="module-icon"/>
-                <div style={{flexGrow: 1, marginRight: "8px", width: "calc(100% - 62px)"}}>
-                    <EditText
+                <div style={{ flexGrow: 1, maxWidth: 174 - $level*10 }}>
+                        <EditText
+                            style={{ width: "100%" }}
                         text={meta.name}
                         forceClickIcon={false}
                         disabled={!isSelected || readOnly || isOverlay}
@@ -268,7 +272,7 @@ const HighlightBorder = styled.div<{ $active: boolean; $foldable: boolean; $leve
   max-width: 100%;
   flex: 1;
   display: flex;
-  padding-left: ${(props) => props.$level * 20 + (props.$foldable ? 0 : 14)}px;
+  padding-left: ${(props) => props.$level * 10 + (props.$foldable ? 0 : 14)}px;
   border-radius: 4px;
   border: 1px solid ${(props) => (props.$active ? BorderActiveColor : "transparent")};
   align-items: center;
@@ -479,7 +483,8 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
                                 selectedType={selectedType}
                                 setSelectedType={setSelectedType}
                                 resComp = {resComp}
-                                id = {id}
+                                id={id}
+                                $level={level}
                     />}
                 {!readOnly && !isOverlay && (
                     <EditPopover del={() => onDelete()}>

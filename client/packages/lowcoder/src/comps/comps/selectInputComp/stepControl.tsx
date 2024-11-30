@@ -193,7 +193,7 @@ let StepControlBasicComp = (function () {
             >
               {props.options.map((option, index) => (
                 <Steps.Step 
-                  style={{minWidth:props.minHorizontalWidth || '100%'}}
+                  style={{minWidth:props.minHorizontalWidth || 'auto'}}
                   key={index}
                   title={option.label}
                   subTitle={option.subTitle}

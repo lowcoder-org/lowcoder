@@ -99,7 +99,7 @@ public class GroupController implements GroupEndpoints
                             .filter(orgMember -> !orgMember.isAdmin() && !orgMember.isSuperAdmin() &&
                                 devMembers.stream().noneMatch(devMember -> devMember.getUserId().equals(orgMember.getUserId()))).toList().size();
 
-                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():pageNum * pageSize);
+                        var subList = groupList.subList((pageNum - 1) * pageSize, pageSize <= 0?groupList.size():Math.min(pageNum * pageSize, groupList.size()));
                         return new GroupListResponseView<>(ResponseView.SUCCESS,
                             "",
                             subList,
@@ -107,7 +107,7 @@ public class GroupController implements GroupEndpoints
                             totalAdminsAndDevelopers,
                             totalDevelopersOnly,
                             totalOtherMembers,
-                            subList.size(),
+                            groupList.size(),
                             pageNum,
                             pageSize);
                     })
@@ -119,7 +119,7 @@ public class GroupController implements GroupEndpoints
 
     @Override
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(required = false, defaultValue = "0") int pageNum,
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "100") int pageSize) {
         String objectId = gidService.convertGroupIdToObjectId(groupId);
         return groupApiService.getGroupMembers(objectId, pageNum, pageSize)

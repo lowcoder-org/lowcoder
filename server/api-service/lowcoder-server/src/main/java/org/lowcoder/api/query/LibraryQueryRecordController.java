@@ -30,7 +30,7 @@ public class LibraryQueryRecordController implements LibraryQueryRecordEndpoints
 
     @Override
     public Mono<PageResponseView<?>> getByLibraryQueryId(@RequestParam(name = "libraryQueryId") String libraryQueryId,
-                                                         @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                         @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                          @RequestParam(required = false, defaultValue = "100") int pageSize) {
         return fluxToPageResponseView(pageNum, pageSize, libraryQueryRecordApiService.getByLibraryQueryId(libraryQueryId).flatMapMany(Flux::fromIterable));
     }

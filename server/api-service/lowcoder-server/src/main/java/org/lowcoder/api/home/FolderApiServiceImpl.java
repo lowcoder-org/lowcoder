@@ -284,7 +284,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .cache();
 
         Flux<ApplicationInfoView> applicationInfoViewFlux =
-                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, null)
+                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, name)
                         .cache();
 
         Mono<Map<String, String>> application2FolderMapMono = applicationInfoViewFlux

@@ -372,7 +372,7 @@ export default function Header(props: HeaderProps) {
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const selectedSnapshot = useSelector(getSelectedAppSnapshot);
+  const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -512,7 +512,8 @@ export default function Header(props: HeaderProps) {
                     recoverSnapshotAction(
                       application.applicationId,
                       selectedSnapshot.snapshotId,
-                      selectedSnapshot.createTime
+                      selectedSnapshot.createTime,
+                      isArchivedSnapshot,
                     )
                   );
                 },
