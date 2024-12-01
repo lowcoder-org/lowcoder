@@ -98,7 +98,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsersFetching}
+        loading={groupUsers.length === 0}
       >
         <Column
           title={trans("memberSettings.nameColumn")}

@@ -151,7 +151,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
         dataSource={sortedOrgUsers}
         rowKey="userId"
         pagination={false}
-        loading={orgUsersFetching}
+        loading={orgUsers.length === 0}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
