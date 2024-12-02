@@ -50,6 +50,5 @@ TODO
 !.yarn/versions
 
 /ossutil_output
-package-lock.json
 
 op.mjs
