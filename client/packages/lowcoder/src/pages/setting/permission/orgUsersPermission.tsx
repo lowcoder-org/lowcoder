@@ -14,11 +14,10 @@ import {
 import { trans, transToNode } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteOrgUserAction,
-  fetchOrgUsersAction,
   quitOrgAction,
   updateUserOrgRoleAction,
 } from "redux/reduxActions/orgActions";
@@ -56,7 +55,6 @@ const StyledMembersIcon = styled(MembersIcon)`
 type UsersPermissionProp = {
   orgId: string;
   orgUsers: OrgUser[];
-  orgUsersFetching: boolean;
   currentUser: User;
   setModify?: any;
   modify?: boolean;
@@ -64,7 +62,7 @@ type UsersPermissionProp = {
 
 function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
-  const { orgId, orgUsers, orgUsersFetching, currentUser , setModify, modify} = props;
+  const { orgId, orgUsers, currentUser , setModify, modify} = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
   ).length;

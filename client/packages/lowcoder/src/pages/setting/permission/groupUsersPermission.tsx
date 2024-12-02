@@ -3,7 +3,7 @@ import { User } from "constants/userConstants";
 import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { useDispatch } from "react-redux";
 import {
   deleteGroupUserAction,
@@ -41,7 +41,6 @@ type GroupPermissionProp = {
   group: OrgGroup;
   orgId: string;
   groupUsers: GroupUser[];
-  groupUsersFetching: boolean;
   currentUserGroupRole: string;
   currentUser: User;
   setModify?: any;
@@ -50,7 +49,7 @@ type GroupPermissionProp = {
 
 function GroupUsersPermission(props: GroupPermissionProp) {
   const { Column } = TableStyled;
-  const { group, orgId, groupUsersFetching, groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
+  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {

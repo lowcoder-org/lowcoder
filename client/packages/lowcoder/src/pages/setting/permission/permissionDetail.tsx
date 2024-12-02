@@ -7,7 +7,6 @@ import GroupPermission from "./groupUsersPermission";
 import UsersPermission from "./orgUsersPermission";
 import { getOrgGroups } from "redux/selectors/orgSelectors";
 import { useParams } from "react-router-dom";
-import { AppState } from "redux/reducers";
 import {fetchGroupUsrPagination, fetchOrgUsrPagination} from "@lowcoder-ee/util/pagination/axios";
 import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
@@ -25,7 +24,7 @@ const All_Users = "users";
 
 export default function PermissionSetting() {  const user = useSelector(getUser);
 
-  const [elements, setElements] = useState<any>({ elements: [], total: 0 });
+  const [elements, setElements] = useState<any>({ elements: [], total: 0, role: "" });
   const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 0 })
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -33,10 +32,7 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
 
   const orgId = user.currentOrgId;
   const orgGroups = useSelector(getOrgGroups);
-  const groupUsersFetching = useSelector((state: AppState) => state.ui.org.groupUsersFetching);
-  const currentUserGroupRole = useSelector((state: AppState) => state.ui.org.currentUserGroupRole);
   const currentUser = useSelector(getUser);
-  const orgUsersFetching = useSelector((state: AppState) => state.ui.org.orgUsersFetching);
 
   const groupIdMap = new Map(orgGroups.map((group) => [group.groupId, group]));
   const dispatch = useDispatch();
@@ -47,7 +43,6 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
     }
     dispatch(fetchGroupsAction(orgId));
   }, [orgId]);
-
   useEffect( () => {
     if (selectKey !== "users" && !!groupIdMap.get(selectKey))
       fetchGroupUsrPagination(
@@ -58,27 +53,29 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
         }
         ).then(result => {
           if (result.success){
-            setElements({elements: result.data || [], total: result.total || 1})
+            setElements({elements: result.data || [], total: result.total || 1, role: result.visitorRole || ""})
           }
           else
             console.error("ERROR: fetchFolderElements", result.error)
         }
         )
     else
+    {
       fetchOrgUsrPagination(
-          {
-            orgId: orgId,
-            pageNum: currentPage,
-            pageSize: pageSize,
-          }
+        {
+          orgId: orgId,
+          pageNum: currentPage,
+          pageSize: pageSize,
+        }
       ).then(result => {
-            if (result.success){
-              setOrgMemberElements({elements: result.data || [], total: result.total || 1})
-            }
-            else
-              console.error("ERROR: fetchFolderElements", result.error)
+          if (result.success){
+            setOrgMemberElements({elements: result.data || [], total: result.total || 1})
           }
+          else
+            console.error("ERROR: fetchFolderElements", result.error)
+        }
       )
+    }
       },
       [currentPage, pageSize, modify, groupIdMap.get(selectKey)]
   )
@@ -93,7 +90,6 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
             <>
               <UsersPermission
                   orgId={orgId}
-                  orgUsersFetching={orgUsersFetching}
                   // orgUsers={!orgMemberElements.elements.members ? [] : orgMemberElements.elements.members}
                   orgUsers={orgMemberElements.elements}
                   currentUser={currentUser}
@@ -109,8 +105,7 @@ export default function PermissionSetting() {  const user = useSelector(getUser)
                       group={groupIdMap.get(selectKey)!}
                       orgId={orgId}
                       groupUsers={elements.elements}
-                      groupUsersFetching={groupUsersFetching}
-                      currentUserGroupRole={currentUserGroupRole}
+                      currentUserGroupRole={elements.role}
                       currentUser={currentUser}
                       setModify={setModify}
                       modify={modify}

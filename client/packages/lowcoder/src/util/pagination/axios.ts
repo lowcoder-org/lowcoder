@@ -87,7 +87,8 @@ export const fetchGroupUsrPagination = async (request: fetchGroupUserRequestType
         return {
             success: true,
             data: response.data.data.members,
-            total: response.data.data.total
+            total: response.data.data.total,
+            visitorRole: response.data.data.visitorRole
         }
     } catch (error: any) {
         console.error('Failed to fetch data:', error);
