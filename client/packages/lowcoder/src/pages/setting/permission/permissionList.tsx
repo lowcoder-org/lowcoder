@@ -52,12 +52,21 @@ type DataItemInfo = {
   group?: OrgGroup;
 };
 
+type PermissionSettingProps = {
+  currentPage: number;
+  setCurrentPage: (value: number) => void;
+  pageSize: number;
+  setPageSize: (value: number) => void;
+};
+
 interface ElementsState {
   elements: OrgGroup[];
   total: number;
 }
 
-export default function PermissionSetting() {
+export default function PermissionSetting(props: PermissionSettingProps) {
+
+  const {currentPage, setCurrentPage, pageSize, setPageSize} = props;
   let dataSource: DataItemInfo[] = [];
   const user = useSelector(getUser);
   const orgId = user.currentOrgId;
@@ -66,27 +75,27 @@ export default function PermissionSetting() {
   const { nameSuffixFunc, menuItemsFunc, menuExtraView } = usePermissionMenuItems(orgId);
   const [groupCreating, setGroupCreating] = useState(false);
   const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
   const [modify, setModify] = useState(false);
+  const visibleOrgGroups = elements.elements.filter((g) => !g.allUsersGroup);
+  const allUsersGroup = elements.elements.find((g) => g.allUsersGroup);
 
   useEffect( () => {
-    fetchOrgGroups(
+      fetchOrgGroups(
         {
           pageNum: currentPage,
           pageSize: pageSize,
         }
-    ).then(result => {
-      if (result.success){
-        setElements({elements: result.data || [], total: result.total || 1})
-      }
-      else
-        console.error("ERROR: fetchFolderElements", result.error)
-    })
-      }, [currentPage, pageSize, modify]
+      ).then(result => {
+        if (result.success){
+          setElements({elements: result.data || [], total: result.total || 1})
+        }
+        else
+          console.error("ERROR: fetchFolderElements", result.error)
+      })
+    }, [currentPage, pageSize, modify]
   )
-  const visibleOrgGroups = elements.elements.filter((g) => !g.allUsersGroup);
-  const allUsersGroup = elements.elements.find((g) => g.allUsersGroup);
+
+
   dataSource = currentPage === 1 ? [{
     key: "users",
     label: trans("memberSettings.allMembers"),
