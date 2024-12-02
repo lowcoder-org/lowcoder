@@ -988,6 +988,25 @@ export const defaultEvents = [
     end: dayjs().hour(21).minute(30).second(0).format(DATE_TIME_FORMAT),
     color: "#079968",
   },
+  {
+    id: "6",
+    label: "Coding",
+    start: dayjs().hour(15).minute(0).second(0).format(DATE_TIME_FORMAT),
+    end: dayjs().hour(17).minute(30).second(0).format(DATE_TIME_FORMAT),
+    color: "#079968",
+    backgroundColor:"#ffffff",
+    detail: 'Discuss project milestones and deliverables.',
+    titleColor:"#000000",
+    detailColor:"#000000",
+    titleFontWeight:"normal",
+    titleFontStyle:"italic",
+    detailFontWeight:"normal",
+    detailFontStyle:"italic",
+    animation:"none",
+    animationDelay:"0s",
+    animationDuration:"0s",
+    animationIterationCount:"0",
+  },
 ];
 export const resourcesEventsDefaultData = [
   {
