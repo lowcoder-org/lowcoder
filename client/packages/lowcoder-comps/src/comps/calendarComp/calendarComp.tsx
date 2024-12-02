@@ -12,10 +12,10 @@ import adaptivePlugin from "@fullcalendar/adaptive";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import multiMonthPlugin from '@fullcalendar/multimonth';
 import timeGridPlugin from "@fullcalendar/timegrid";
-import interactionPlugin from "@fullcalendar/interaction";
+import interactionPlugin, { EventResizeDoneArg } from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import allLocales from "@fullcalendar/core/locales-all";
-import { EventContentArg, DateSelectArg } from "@fullcalendar/core";
+import { EventContentArg, DateSelectArg, EventDropArg } from "@fullcalendar/core";
 import momentPlugin from "@fullcalendar/moment";
 
 import ErrorBoundary from "./errorBoundary";
@@ -83,6 +83,7 @@ import {
   resourceTimeGridHeaderToolbar,
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
+import { EventImpl } from "@fullcalendar/core/internal";
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -823,20 +824,34 @@ let CalendarBasicComp = (function () {
       showModal(event, false);
     }, [editEvent, showModal]);
 
-    const handleDrop = useCallback((eventInfo: EventType) => {
+    const updateEventsOnDragOrResize = useCallback((eventInfo: EventImpl) => {
+      const {extendedProps, title, ...event} = eventInfo.toJSON();
+
       let eventsList = [...props.events];
       const eventIdx = eventsList.findIndex(
-        (item: EventType) => item.id === eventInfo.id
+        (item: EventType) => item.id === event.id
       );
       if (eventIdx > -1) {
-        eventsList[eventIdx] = eventInfo;
+        eventsList[eventIdx] = {
+          label: title,
+          ...event,
+          ...extendedProps,
+        };
         handleEventDataChange(eventsList);
       }
+    }, [props.events, handleEventDataChange]);
+
+    const handleDrop = useCallback((eventInfo: EventDropArg) => {
+      updateEventsOnDragOrResize(eventInfo.event);
 
       if (typeof props.onDropEvent === 'function') {
         props.onDropEvent("dropEvent");
       }
-    }, [props.onDropEvent]);
+    }, [props.onDropEvent, updateEventsOnDragOrResize]);
+
+    const handleResize = useCallback((eventInfo: EventResizeDoneArg) => {
+      updateEventsOnDragOrResize(eventInfo.event);
+    }, [props.onDropEvent, updateEventsOnDragOrResize]);
 
     return (
       <Wrapper
@@ -854,7 +869,7 @@ let CalendarBasicComp = (function () {
             slotEventOverlap={false}
             events={ events }
             dayHeaders={true}
-            dayHeaderFormat={{ weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true }}
+            // dayHeaderFormat={{ weekday: 'short', month: 'numeric', day: 'numeric', omitCommas: true }}
             expandRows={true}
             multiMonthMinWidth={250}
             nowIndicator={true}
@@ -944,15 +959,8 @@ let CalendarBasicComp = (function () {
                 props.onEvent("change");
               }
             }}
-            eventDrop={(info) => {
-              const {extendedProps, ...event} = info.event.toJSON();
-              if (info.view) {
-                handleDrop({
-                  ...event,
-                  ...extendedProps,
-                });
-              }
-            }}
+            eventDrop={handleDrop}
+            eventResize={handleResize}
           />
         </ErrorBoundary>
       </Wrapper>
