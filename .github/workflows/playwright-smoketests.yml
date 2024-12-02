@@ -14,11 +14,11 @@ jobs:
       with:
         node-version: lts/*
     - name: Install dependencies
-      run: cd e2e && npm ci
+      run: cd uiautomation/smoke_tests && npm ci
     - name: Install Playwright Browsers
-      run: cd e2e && npx playwright install --with-deps
+      run: cd uiautomation/smoke_tests && npx playwright install --with-deps
     - name: Run Playwright tests
-      run: cd e2e && npx playwright test 
+      run: cd uiautomation/smoke_tests && npx playwright test 
     - uses: actions/upload-artifact@v4
       if: ${{ !cancelled() }}
       with:
