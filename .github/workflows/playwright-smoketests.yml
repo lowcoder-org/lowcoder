@@ -1,9 +1,11 @@
-name: Playwright Tests
+name: Playwright OpenFlower Smoke Tests
 on:
   push:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
+  schedule:
+    - cron: "*/59 * * * *"    
 jobs:
   test:
     timeout-minutes: 60
