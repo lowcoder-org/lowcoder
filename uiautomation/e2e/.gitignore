@@ -5,8 +5,6 @@ client/.yarn/cache/*.zip
 server/node-service/.yarn/cache/*.zip
 .metadata/
 .DS_Store
-uiautomation/smoke_tests/node_modules/
-uiautomation/e2e/node_modules/
 client/node_modules/
 client/packages/lowcoder-plugin-demo/.yarn/install-state.gz
 client/packages/lowcoder-plugin-demo/yarn.lock
