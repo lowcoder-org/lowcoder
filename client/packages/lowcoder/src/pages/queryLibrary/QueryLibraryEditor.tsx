@@ -213,6 +213,11 @@ export const QueryLibraryEditor = () => {
         },
         (resp) => {
           setSelectedQuery(resp.data.data.id);
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
+          setCurrentPage(Math.ceil(elements.total / pageSize));
+
         },
         () => {}
       )
@@ -273,6 +278,10 @@ export const QueryLibraryEditor = () => {
                 onSuccess: (resp) => {
                   setSelectedQuery(resp.data.data.id);
                   showCreatePanel(false);
+                  setTimeout(() => {
+                    setModify(!modify);
+                  }, 200);
+                  setCurrentPage(Math.ceil(elements.total / pageSize));
                 },
               })} />
           )}
