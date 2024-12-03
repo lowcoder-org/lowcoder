@@ -551,6 +551,16 @@ export function HomeLayout(props: HomeLayoutProps) {
                   getPopupContainer={(node: any) => node}
                   suffixIcon={<ArrowSolidIcon />} />
               )}
+              {mode === "view" &&
+                  <FilterDropdown
+                      style={{ minWidth: "220px" }}
+                      variant="borderless"
+                      value={categoryFilter}
+                      onChange={(value: any) => setCategoryFilter(value as ApplicationCategoriesEnum)}
+                      options={categoryOptions}
+                    // getPopupContainer={(node) => node}
+                      suffixIcon={<ArrowSolidIcon />}
+                  />}
               {mode === "marketplace" && (
                 <FilterDropdown
                   style={{ minWidth: "220px" }}
