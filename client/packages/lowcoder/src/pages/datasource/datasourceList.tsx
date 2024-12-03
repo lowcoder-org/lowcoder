@@ -111,7 +111,6 @@ export const DatasourceList = () => {
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
   const [modify, setModify] = useState(false);
-  const datasource = useSelector(getDataSource);
   const currentUser = useSelector(getUser);
   const orgId = currentUser.currentOrgId;
   const datasourceLoading = useSelector(getDataSourceLoading);
@@ -336,13 +335,13 @@ export const DatasourceList = () => {
                 creator: info.creatorName,
                 edit: info.edit,
               }))} />
-          <PaginationComp
-              currentPage={currentPage}
-              pageSize={pageSize}
-              setPageSize={setPageSize}
-              setCurrentPage={setCurrentPage}
-              total={elements.total}
-          />
+          { !!elements.elements.length ? <PaginationComp
+            currentPage={currentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            setCurrentPage={setCurrentPage}
+            total={elements.total}
+          /> : <></>}
         </BodyWrapper>
         {shareDatasourceId && (
           <DatasourcePermissionDialog
