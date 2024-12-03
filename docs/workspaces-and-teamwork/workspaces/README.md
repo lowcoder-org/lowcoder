@@ -4,10 +4,10 @@ Lowcoder supports Workspaces. These are isolated rooms to organize:
 
 * User-Groups
 * Users
-* [Data Sources](../connect-your-data/data-source-basics/)
-* [Predefined Data Queries](query-library.md)
-* [Apps](../build-applications/create-a-new-app/) & App Folders
-* [Themes](../build-applications/themes-and-styling/)
+* [Data Sources](../../connect-your-data/data-source-basics/)
+* [Predefined Data Queries](../query-library.md)
+* [Apps](../../build-applications/create-a-new-app/) & App Folders
+* [Themes](../../build-applications/themes-and-styling/)
 * Global includes (Javascript / CSS)
 
 {% hint style="info" %}
@@ -31,31 +31,31 @@ This can be helpful if you have your own Identity / OAuth Provider listed and wa
 
 The Workspace is a tool to use for organizing groups or user access to Apps. It is also used to apply a theme to a set of Apps.
 
-<figure><img src="../.gitbook/assets/Admin  Workspaces.png" alt=""><figcaption><p>A list of Workspaces</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Admin  Workspaces.png" alt=""><figcaption><p>A list of Workspaces</p></figcaption></figure>
 
 In the public Lowcoder Cloud, the amount of Workspaces is limited to 10.
 
 In the upper right corner, at the profile, you can find the possibility to switch between your Workspaces.
 
-<figure><img src="../.gitbook/assets/Admin  Switch Workspace.png" alt="" width="563"><figcaption><p>Switch between Workspaces</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Admin  Switch Workspace.png" alt="" width="563"><figcaption><p>Switch between Workspaces</p></figcaption></figure>
 
 ### Apps & App Folders
 
 [In Lowcoder, you can create Apps. Each App represents what you can create on a single Screen. Often, a complete application consists of multiple Apps. You can then organize these relationships in App Folders or separate them by Workspaces.](#user-content-fn-1)[^1]
 
-<figure><img src="../.gitbook/assets/Admin  Folders for Apps.png" alt=""><figcaption><p>Organize Apps into Folders to create order and show relationships</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Admin  Folders for Apps.png" alt=""><figcaption><p>Organize Apps into Folders to create order and show relationships</p></figcaption></figure>
 
 ### Themes
 
-You can create multiple [Themes](../build-applications/themes-and-styling/) for your apps and select a style theme for each app individually. However, each Workspace has its own collection of Themes.
+You can create multiple [Themes](../../build-applications/themes-and-styling/) for your apps and select a style theme for each app individually. However, each Workspace has its own collection of Themes.
 
-<figure><img src="../.gitbook/assets/Admin  Themes.png" alt=""><figcaption><p>Themes helps to style Applications individually</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Admin  Themes.png" alt=""><figcaption><p>Themes helps to style Applications individually</p></figcaption></figure>
 
 ### Global Includes
 
 It is possible to include global CSS styles to fine-tune the visuals of Apps. Also, it may be necessary to include a Javascript script, which is executed for all Apps of a Workspace. With the help of global includes, you can achieve  Workspace.
 
-<figure><img src="../.gitbook/assets/Admin  Global Includes.png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Admin  Global Includes.png" alt=""><figcaption></figcaption></figure>
 
 ### Demo
 
@@ -80,5 +80,9 @@ On self-hosted installations, you can set up thresholds for workspaces with the 
 * **LOWCODER\_MAX\_DEVELOPERS**
   * **Description**: Sets the default maximum number of Users with Developer-Role that can be registered in the Workspace.
   * **Default Value**: 100
+* **LOWCODER\_WORKSPACE\_MODE**
+  * **Description:** Sets the Lowcoder Workspace Mode. Currently, there are two modes :&#x20;
+    * ENTERPRISE mode
+    * SAAS mode
 
 [^1]: 
