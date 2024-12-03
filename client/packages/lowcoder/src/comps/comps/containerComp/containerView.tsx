@@ -225,9 +225,10 @@ const onDrop = async (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
+    const isLazyLoadComp = uiCompRegistry[compType as UICompType]?.lazyLoad;
     let defaultDataFn = undefined;
     
-    if (!compInfo.isRemote) {
+    if (isLazyLoadComp) {
       const {
         defaultDataFnName,
         defaultDataFnPath,
@@ -237,6 +238,8 @@ const onDrop = async (
         const module = await import(`../../${defaultDataFnPath}.tsx`);
         defaultDataFn = module[defaultDataFnName];
       }
+    } else if(!compInfo.isRemote) {
+      defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
     }
 
     const widgetValue: GridItemDataType = {
