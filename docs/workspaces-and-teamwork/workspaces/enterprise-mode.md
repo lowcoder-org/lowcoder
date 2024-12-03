@@ -1,27 +1,37 @@
 # Enterprise Mode
 
-In Enterprise Mode, there is only One Workspace that gets created automatically and Users can only join in that Workspace as a Member/Admin, but can't create their own Workspaces. With some other settings, Super Admin can control the behavior of Users on Enterprise mode . ( will explain it )&#x20;
+In Enterprise Mode, there is only One Workspace that gets created automatically and Users can only join in that Workspace as a Member/Admin, but can't create their own Workspaces. With some other settings, Super Admin can control the behavior of Users on Enterprise mode.&#x20;
 
-### Setting Up Enterprise mode :&#x20;
+### Setting Up Enterprise mode
 
-1. In Local Setup, we have a Root Admin User, that we can configure in docker-compose-multi.yml file. This user will be created by default and it will Super Admin of the default Workspace.\
-   ![](<../../.gitbook/assets/frame_generic_light (3) (1).png>)
-2. Set LOWCODER\_WORKSPACE\_MODE to "ENTERPRISE" in docker-compose-multi.yml file. \
-   ![](<../../.gitbook/assets/frame_generic_light (3).png>)
-3. In the above screenshot, you can see three configuration variables regarding Email and Workspace creation on Sign up. Let's go through these one by one :&#x20;
-   1. **LOWCODER\_EMAIL\_SIGNUP\_ENABLED :** \
-      This variable is the configuration for showing "Sign Up" button on Lowcoder. When it is set to "TRUE", "Sign Up" button will show up and new User can sign up in ENTERPRISE mode. But, as this is ENTERPRISE mode, so new User will only become the Member of default Workspace. \
-      LOWCODER\_EMAIL\_SIGNUP\_ENABLED = true;\
+1.  In Local Setup, we have a Root Admin User, that we can configure in docker-compose-multi.yml file. This user will be created by default and it will Super Admin of the default Workspace.\
+
+
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1).png" alt=""><figcaption></figcaption></figure>
+2.  Set LOWCODER\_WORKSPACE\_MODE to "ENTERPRISE" in docker-compose-multi.yml file. \
+
+
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3).png" alt=""><figcaption></figcaption></figure>
+3. In the above screenshot, you can see three configuration variables regarding Email and Workspace creation on Sign up. Let's go through these one by one.&#x20;
+   1. **LOWCODER\_EMAIL\_SIGNUP\_ENABLED**\
+      \
+      This variable is the configuration for showing "Sign Up" button on Lowcoder. When it is set to "true", "Sign Up" button will show up and new User can sign up in ENTERPRISE mode. But, as this is ENTERPRISE mode, the new User will only become a Member of the default Workspace. \
+      \
+      LOWCODER\_EMAIL\_SIGNUP\_ENABLED = **true**\
       \
       ![](<../../.gitbook/assets/frame_generic_light (1) (2).png>)\
-      LOWCODER\_EMAIL\_SIGNUP\_ENABLED = false;\
       \
-      ![](<../../.gitbook/assets/frame_generic_light (2) (1).png>)
-   2. **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP :** \
+      LOWCODER\_EMAIL\_SIGNUP\_ENABLED = **false**\
+      \
+      ![](<../../.gitbook/assets/frame_generic_light (2) (1).png>)\
+
+   2. **LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP**\
+      \
       This variable is the configuration for creating a Workspace when new User signs up, but as there is only One Workspace that gets created by default in ENTERPRISE mode, so this variable value doesn't matter in ENTERPRISE mode. Setting it to TRUE or FALSE won't create a new Workspace on Sign Up.\
+      \
       ![](<../../.gitbook/assets/frame_generic_light (11) (2).png>)
 
-### Scenarios :&#x20;
+### Scenarios
 
 1. LOWCODER\_WORKSPACE\_MODE = ENTERPRISE
 2. LOWCODER\_EMAIL\_SIGNUP\_ENABLED = true
@@ -56,17 +66,24 @@ In Enterprise Mode, there is only One Workspace that gets created automatically 
 | ....                       | False                             | NA                                      | Enabled              |
 | Can Member Sign Up / Login | False                             | NA                                      | Disabled             |
 
-
+### Administrative Access
 
 **Scenario #1 : Admin -> When LOWCODER\_EMAIL\_SIGNUP\_ENABLED = True or False** \
 Any User can't sign up as Admin in ENTERPRISE Mode, regardless of any settings for Env Variables. Admin can only Login.
 
 Here, if Admin disables the "Email Auth" ( means that Members can't Sign up/Login using Standard Email field ), Lowcoder allows Admin to still be able to login using /admin/auth/login. But, for other Users, Email field won't be available at /user/auth/login. They would only be able to see other Auth Providers options set by Admin.\
-**View on /user/auth/login :** \
-![](<../../.gitbook/assets/frame_generic_light (16).png>)
+\
+**View on /user/auth/login**\
+\
 
-**View on /admin/login :** \
-![](<../../.gitbook/assets/frame_generic_light (14).png>)
+
+<figure><img src="../../.gitbook/assets/frame_generic_light (16).png" alt=""><figcaption></figcaption></figure>
+
+**View on /admin/login**\
+\
+
+
+<figure><img src="../../.gitbook/assets/frame_generic_light (14).png" alt=""><figcaption></figcaption></figure>
 
 **Scenario #2 : Member -> When LOWCODER\_EMAIL\_SIGNUP\_ENABLED = True**\
 This means that New User can sign up as Member.  When Email Auth is Disabled, then User can only Sign up/Login using other Auth Providers.
@@ -74,5 +91,8 @@ This means that New User can sign up as Member.  When Email Auth is Disabled, th
 **Scenario #3 : Member -> When LOWCODER\_EMAIL\_SIGNUP\_ENABLED = False**\
 With this configuration, only existing Members would be able to Login to Lowcoder. No new Member can Sign up.
 
-**Note :** Workspace Mode Env variable can also have the value "SINGLEWORKSPACE" instead of "ENTERPRISE" .\
-![](<../../.gitbook/assets/frame_generic_light (13).png>)
+{% hint style="info" %}
+Workspace Mode Env variable can also have the value "SINGLEWORKSPACE" instead of "ENTERPRISE" .
+{% endhint %}
+
+<figure><img src="../../.gitbook/assets/frame_generic_light (13).png" alt=""><figcaption></figcaption></figure>
