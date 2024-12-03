@@ -207,6 +207,13 @@ export default function ApplicationHome() {
     user.currentOrgId && dispatch(fetchAllApplications({}));
   }, [dispatch, allAppCount, user.currentOrgId]);
 
+  useEffect(() => {
+    if (allFoldersCount !== 0) {
+      return;
+    }
+    user.currentOrgId && dispatch(fetchFolderElements({}));
+  }, [dispatch, allFoldersCount, user.currentOrgId]);
+
   if (fetchingUser || !isPreloadCompleted) {
     return <ProductLoading />;
   }
