@@ -2013,6 +2013,7 @@ export const ru = {
   "srcDesc": "Источник изображения. Может быть URL, путь или строка Base64. например: data:image/png;base64, AAA... CCC",
   "supportPreview": "Поддержка предварительного просмотра по щелчку (масштабирование)",
   "supportPreviewTip": "Эффективно, если источник изображения достоверен",
+  "previewSrc" : "Источник изображений HighRes"
   },
   "progress": {
     ...en.progress,

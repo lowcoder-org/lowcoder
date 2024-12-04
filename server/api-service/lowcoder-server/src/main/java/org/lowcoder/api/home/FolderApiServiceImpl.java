@@ -233,8 +233,8 @@ public class FolderApiServiceImpl implements FolderApiService {
      * @return flux of {@link ApplicationInfoView} or {@link FolderInfoView}
      */
     @Override
-    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name) {
-        return buildApplicationInfoViewTree(applicationType, name)
+    public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category) {
+        return buildApplicationInfoViewTree(applicationType, name, category)
                 .flatMap(tree -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> folderNode = tree.get(folderId);
                     if (folderNode == null) {
@@ -278,13 +278,13 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(folders -> new Tree<>(folders, Folder::getId, Folder::getParentFolderId, Collections.emptyList(), null, null));
     }
 
-    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name) {
+    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category) {
 
         Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
                 .cache();
 
         Flux<ApplicationInfoView> applicationInfoViewFlux =
-                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, null)
+                userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationType, ApplicationStatus.NORMAL, false, name, category)
                         .cache();
 
         Mono<Map<String, String>> application2FolderMapMono = applicationInfoViewFlux

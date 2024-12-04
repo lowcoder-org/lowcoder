@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-node-server",
-  "version": "2.5.0",
+  "version": "2.5.1",
   "private": true,
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
@@ -61,8 +61,8 @@
     "jsonpath": "^1.1.1",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
-    "lowcoder-core": "^0.0.8",
-    "lowcoder-sdk": "0.0.41",
+    "lowcoder-core": "^0.0.10",
+    "lowcoder-sdk": "2.4.17",
     "morgan": "^1.10.0",
     "node-fetch": "2",
     "node-firebird": "^1.1.9",

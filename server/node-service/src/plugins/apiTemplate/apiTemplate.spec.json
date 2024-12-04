@@ -1,0 +1,1799 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "description": "# Introduction\n\n\nWelcome to the [APITemplate.io](https://apitemplate.io) API v2!\n\nAPITemplate.io provides PDF generation services including [Template-based PDF generation](https://apitemplate.io/pdf-generation-api/), [HTML to PDF](https://apitemplate.io/html-to-pdf-api/), and [URL to PDF conversions](https://apitemplate.io/create-pdf-from-url/), as well as an [image generation API](https://apitemplate.io/image-generation-api/).\n\nThis page contains the documentation on how to use APITemplate.io through API calls. With the APITemplate.io API, you can create PDF documents and images, as well as manage your templates.\n\nOur API is built on RESTful HTTP, so you can utilize any HTTP/REST library of your choice in your preferred programming language to interact with APITemplate.io's API.\n\n**Steps to produce PDFs/Images**\n1. Design your template(s) using our intuitive drag-and-drop template editor or the HTML editor and save it.\n2. Integrate your workflow, either with platforms like Zapier, Make.com/Integromat, Bubble.io, or any programming languages that support REST API, to send us the JSON data along with the template ID/URL/or HTML content.\n3. Our REST API will then return a download URL for the images (in PNG and JPEG formats) or PDFs.\n\n# Authentication\nUpon signing up for an account, an API key will be generated for you. If needed, you can reset this API key via the web console (under the \"API Integration\" section).\n\nTo integrate with our services, you need to authenticate with the APITemplate.io API. Provide your secret key in the request header using the X-API-KEY field.\n\n\n# Content Type and CORS\n\n**Request Content-Type**\nThe Content-Type for POST and GET requests is set to application/json.\n\n**Cross-Origin Resource Sharing**\nThis API features Cross-Origin Resource Sharing (CORS) implemented in compliance with  [W3C spec](https://www.w3.org/TR/cors/).\nAnd that allows cross-domain communication from the browser.\nAll responses have a wildcard same-origin which makes them completely public and accessible to everyone, including any code on any site.\n\n\n\n# Regional API endpoint(s)\nA regional API endpoint is intended for customers in the same region. The data for the requests and generated PDFs/images are processed and stored within the region.\n\nThe regions are:\n\n| Region               | Endpoint                            | Max Timeout (Seconds) | Max Payload Size(MB)** |\n|----------------------|-------------------------------------|-----------------------|-------------------------|\n| Default (Singapore)  | https://rest.apitemplate.io         | 100                   | 1                       |\n| Europe (Frankfurt)   | https://rest-de.apitemplate.io      | 100                   | 1                       |\n| US East (N. Virginia)| https://rest-us.apitemplate.io      | 100                   | 1                       |\n| Australia (Sydney)   | https://rest-au.apitemplate.io      | 30                    | 6                       |\n\n\nAlternative Regions:\n| Region               | Endpoint                            | Max Timeout (Seconds) | Max Payload Size(MB)** |\n|----------------------|-------------------------------------|-----------------------|-------------------------|\n| Default (Singapore)  | https://rest-alt.apitemplate.io     | 30                    | 6                       |\n| Europe (Frankfurt)   | https://rest-alt-de.apitemplate.io  | 30                    | 6                       |\n| US East (N. Virginia)| https://rest-alt-us.apitemplate.io  | 30                    | 6                       |\n\n** Note:\n- Payload size applies to request and response\n- If \"export_type\" is set to `json` which output file that on AWS S3 doesn't have the limitation\n- If the \"export_type\" is set to `file` which returns binary data of the generated PDF, the file size of the generated PDF is limited to either 6MB or 1MB based on the region\n\n\n\nOther regions are available on request, contact us at hello@apitemplate.io for more information\n\n# Rate limiting\nOur API endpoints use IP-based rate limiting to ensure fair usage and prevent abuse. Users are allowed to make up to **100 requests per 10 seconds**. This rate limit is designed to accommodate a reasonable volume of requests while maintaining optimal performance for all users.\n\nHowever, if you exceed this limit and make additional requests, you will receive a response with HTTP code 429. This status code indicates that you have reached the rate limit and need to wait before making further requests.\n",
+    "version": "Version 2.0",
+    "title": "APITemplate.io API Reference",
+    "termsOfService": "https://apitemplate.io/privacy-policy/",
+    "contact": {
+      "email": "hello@apitemplate.io",
+      "url": "https://apitemplate.io"
+    },
+    "x-logo": {
+      "url": "images/logo_new2_with_text2.png",
+      "altText": "APITemplate.io logo"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://rest.apitemplate.io"
+    },
+    {
+      "url": "https://rest-au.apitemplate.io"
+    },
+    {
+      "url": "https://rest-de.apitemplate.io"
+    },
+    {
+      "url": "https://rest-us.apitemplate.io"
+    }
+  ],
+  "security": [
+    {
+      "ApiKeyAuth": []
+    }
+  ],
+  "paths": {
+    "/v2/create-pdf": {
+      "post": {
+        "summary": "Create a PDF",
+        "operationId": "create-pdf",
+        "description": "This endpoint creates a PDF file with JSON data and your template. We support synchoronus and asynchronous PDF generation.",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paramTemplateID"
+          },
+          {
+            "$ref": "#/components/parameters/paramExportType"
+          },
+          {
+            "$ref": "#/components/parameters/paramExportInBase64"
+          },
+          {
+            "$ref": "#/components/parameters/paramExpiration"
+          },
+          {
+            "$ref": "#/components/parameters/paramOutputHTML"
+          },
+          {
+            "$ref": "#/components/parameters/paramOutputFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramFileName"
+          },
+          {
+            "$ref": "#/components/parameters/paramDirectDownload"
+          },
+          {
+            "$ref": "#/components/parameters/paramCloudStorage"
+          },
+          {
+            "$ref": "#/components/parameters/paramLoadDataFrom"
+          },
+          {
+            "$ref": "#/components/parameters/paramGenerationDelay"
+          },
+          {
+            "$ref": "#/components/parameters/paramImageResampleRes"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeImages"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxWidth"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxHeight"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3BUCKET"
+          },
+          {
+            "$ref": "#/components/parameters/paramMeta"
+          },
+          {
+            "$ref": "#/components/parameters/paramAsync"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhook"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhookMethod"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhookHeaders"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "JSON data",
+                "example": {
+                  "invoice_number": "INV38379",
+                  "date": "2021-09-30",
+                  "currency": "USD",
+                  "total_amount": 82542.56
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessPDFFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n--data '{ \"invoice_number\": \"INV38379\", \"date\": \"2021-09-30\", \"currency\": \"USD\", \"total_amount\": 82542.56 }' \\\n\"https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n    template_id = \"79667b2b1876e347\"\n\n    data = {\n      \"invoice_number\": \"INV38379\",\n      \"date\": \"2021-09-30\",\n      \"currency\": \"USD\",\n      \"total_amount\": 82542.56\n    }\n\n    response = requests.post(\n        F\"https://rest.apitemplate.io/v2/create-pdf?template_id={template_id}\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n        json= data\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n    function generate($template_id,$api_key, $data) {\n        $url = \"https://rest.apitemplate.io/v2/create-pdf?template_id=\" . $template_id;\n        $headers = array(\"X-API-KEY: \".$api_key);\n        $curl = curl_init();\n        if ($data) curl_setopt($curl, CURLOPT_POSTFIELDS, $data);\n        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n        curl_setopt($curl, CURLOPT_URL, $url);\n        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);\n        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);\n        $result = curl_exec($curl);\n        curl_close($curl);\n        if (!$result) {\n            return null;\n        }else{\n            $json_result = json_decode($result, 1);\n            if($json_result[\"status\"]==\"success\"){\n                return $json_result[\"download_url\"];\n            }else{\n                return null;\n            }\n        }\n    }\n\n    $tempate_id = \"79667b2b1876e347\";\n    $api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\";\n    $json_payload='{ \"invoice_number\": \"INV38379\", \"date\": \"2021-09-30\", \"currency\": \"USD\", \"total_amount\": 82542.56 }';\n    echo generate($tempate_id,$api_key,$json_payload);\n?>\n"
+          },
+          {
+            "lang": "Node.js",
+            "source": "const https = require('https');\nconst http = require('http');\nconst { URL } = require('url');\n\n(async () => {\n    let resp = await httpPost(\n        'https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347',\n        '{ \"invoice_number\": \"INV38379\", \"date\": \"2021-09-30\", \"currency\": \"USD\", \"total_amount\": 82542.56 }',\n        '6fa6g2pdXGIyHRhVlGh7U56Ada1eF'\n    );\n    console.log(resp);\n})();\n\n\nasync function httpPost(url_api, data, apiKey){\n    const uri = new URL(url_api);\n    const fx = uri.protocol === 'https:' ? https : http;\n    const opts = {\n        method: 'POST',\n        hostname: uri.hostname,\n        port: uri.port,\n        path: `${uri.pathname}${uri.search==null?\"\":uri.search}`,\n        protocol: uri.protocol,\n        headers: {\n            'Content-Type': 'application/json',\n            'Content-Length': data.length,\n            \"X-API-KEY\": apiKey\n        }\n    };\n\n    return new Promise((resolve, reject) => {\n        const req = fx.request(opts, (res) => {\n            res.setEncoding('utf8');\n            let responseBody = '';\n            res.on('data', (chunk) => responseBody += chunk);\n            res.on('end', () => resolve(responseBody));\n        });\n\n        req.on('error', (err) => reject(err));\n        req.write(data)\n        req.end();\n    });\n}\n"
+          },
+          {
+            "lang": "CSharp",
+            "source": "using System;\nusing System.IO;\nusing System.Net.Http;\nusing System.Text.Json;\nusing System.Threading.Tasks;\n\nnamespace csharp\n{\n    class ReturnContent{\n        public string download_url{get;set;}\n        public string status{get;set;}\n    }\n\n    class Program\n    {\n        static async Task Main(string[] args)\n        {\n            var api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\";\n            var template_id = \"79667b2b1876e347\";\n            var url = $\"https://rest.apitemplate.io/v2/create-pdf?template_id={template_id}\";\n\n            var data = new {\n                invoice_number = \"INV38379\",\n                date = \"2021-09-30\",\n                currency = \"USD\",\n                total_amount = 82542.56\n              };\n\n\n            var json_content = JsonSerializer.Serialize(data);\n            var buffer = System.Text.Encoding.UTF8.GetBytes(json_content);\n            var byteContent = new ByteArrayContent(buffer);\n\n            Console.WriteLine(json_content);\n\n            var client = new HttpClient();\n            client.DefaultRequestHeaders.Add(\"X-API-KEY\",api_key);\n            var response = await client.PostAsync(url,byteContent);\n            var ret = await response.Content.ReadAsStringAsync();\n\n            var returnContent = JsonSerializer.Deserialize<ReturnContent>(ret);\n\n            if(returnContent.status==\"success\"){\n                Console.WriteLine($\"Downloading {returnContent.download_url}...\");\n                var download_response = await client.GetAsync(returnContent.download_url);\n                using (var stream = await download_response.Content.ReadAsStreamAsync())\n                {\n                    var fileInfo = new FileInfo(\"image.jpeg\");\n                    using (var fileStream = fileInfo.OpenWrite())\n                    {\n                        await stream.CopyToAsync(fileStream);\n                    }\n                }\n            }\n        }\n    }\n}\n"
+          }
+        ]
+      }
+    },
+    "/v2/create-image": {
+      "post": {
+        "summary": "Create an Image",
+        "operationId": "create-image",
+        "description": "This endpoint creates a JPEG file(along with PNG) with JSON data and your template\n",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paramTemplateID"
+          },
+          {
+            "in": "query",
+            "name": "output_image_type",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "- Output image type(JPEG or PNG format), default to `all`. Options are `all`, `jpegOnly`,`pngOnly`.\n",
+            "example": "1"
+          },
+          {
+            "$ref": "#/components/parameters/paramExpiration"
+          },
+          {
+            "$ref": "#/components/parameters/paramCloudStorage"
+          },
+          {
+            "$ref": "#/components/parameters/paramGenerationDelay"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3BUCKET"
+          },
+          {
+            "$ref": "#/components/parameters/paramMeta"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "description": "JSON data\n- The following is the json format in the post body to generate an image\n```\n{\n    \"overrides\": [\n        {\n            \"name\": \"<object name 1>\",\n            \"property_1\": \"<value 1>\",\n            \"property_2\": \"<value 2>\",\n            \"property_3\": \"<value 3>\",\n            ...\n        },\n        {\n            \"name\": \"<object name 2>\",\n            \"property_2\": \"<value 2>\",\n            ...\n        }\n    ]\n}\n```\n",
+                "example": {
+                  "overrides": [
+                    {
+                      "name": "text_1",
+                      "text": "hello world",
+                      "textBackgroundColor": "rgba(246, 243, 243, 0)"
+                    },
+                    {
+                      "name": "image_1",
+                      "src": "https://via.placeholder.com/150"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessImageFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n--data '{ \"overrides\":[ { \"name\":\"text_1\", \"text\":\"hello world\", \"textBackgroundColor\":\"rgba(246, 243, 243, 0)\" }, { \"name\":\"image_1\", \"src\":\"https://via.placeholder.com/150\" } ] }' \\\n\"https://rest.apitemplate.io/v2/create-image?template_id=79667b2b1876e347\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n    template_id = \"79667b2b1876e347\"\n\n    data = {\n      \"overrides\":[\n          {\n            \"name\":\"text_1\",\n            \"text\":\"hello world\",\n            \"textBackgroundColor\":\"rgba(246, 243, 243, 0)\"\n          },\n          {\n            \"name\":\"image_1\",\n            \"src\":\"https://via.placeholder.com/150\"\n          }\n      ]\n    }\n\n    response = requests.post(\n        F\"https://rest.apitemplate.io/v2/create-image?template_id={template_id}\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n        json= data\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n    function generate($template_id,$api_key, $data) {\n        $url = \"https://rest.apitemplate.io/v2/create-image?template_id=\" . $template_id;\n        $headers = array(\"X-API-KEY: \".$api_key);\n        $curl = curl_init();\n        if ($data) curl_setopt($curl, CURLOPT_POSTFIELDS, $data);\n        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n        curl_setopt($curl, CURLOPT_URL, $url);\n        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);\n        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);\n        $result = curl_exec($curl);\n        curl_close($curl);\n        if (!$result) {\n            return null;\n        }else{\n            $json_result = json_decode($result, 1);\n            if($json_result[\"status\"]==\"success\"){\n                return $json_result[\"download_url\"];\n            }else{\n                return null;\n            }\n        }\n    }\n\n    $tempate_id = \"79667b2b1876e347\";\n    $api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\";\n    $json_payload='{ \"overrides\":[ { \"name\":\"text_1\", \"text\":\"hello world\", \"textBackgroundColor\":\"rgba(246, 243, 243, 0)\" }, { \"name\":\"image_1\", \"src\":\"https://via.placeholder.com/150\" } ] }';\n    echo generate($tempate_id,$api_key,$json_payload);\n?>\n"
+          },
+          {
+            "lang": "Node.js",
+            "source": "const https = require('https');\nconst http = require('http');\nconst { URL } = require('url');\n\n(async () => {\n    let resp = await httpPost(\n        'https://rest.apitemplate.io/v2/create-pdf?template_id=79667b2b1876e347',\n        '{ \"overrides\":[ { \"name\":\"text_1\", \"text\":\"hello world\", \"textBackgroundColor\":\"rgba(246, 243, 243, 0)\" }, { \"name\":\"image_1\", \"src\":\"https://via.placeholder.com/150\" } ] }',\n        '6fa6g2pdXGIyHRhVlGh7U56Ada1eF'\n    );\n    console.log(resp);\n})();\n\n\nasync function httpPost(url_api, data, apiKey){\n    const uri = new URL(url_api);\n    const fx = uri.protocol === 'https:' ? https : http;\n    const opts = {\n        method: 'POST',\n        hostname: uri.hostname,\n        port: uri.port,\n        path: `${uri.pathname}${uri.search==null?\"\":uri.search}`,\n        protocol: uri.protocol,\n        headers: {\n            'Content-Type': 'application/json',\n            'Content-Length': data.length,\n            \"X-API-KEY\": apiKey\n        }\n    };\n\n    return new Promise((resolve, reject) => {\n        const req = fx.request(opts, (res) => {\n            res.setEncoding('utf8');\n            let responseBody = '';\n            res.on('data', (chunk) => responseBody += chunk);\n            res.on('end', () => resolve(responseBody));\n        });\n\n        req.on('error', (err) => reject(err));\n        req.write(data)\n        req.end();\n    });\n}\n"
+          },
+          {
+            "lang": "CSharp",
+            "source": "using System;\nusing System.IO;\nusing System.Net.Http;\nusing System.Text.Json;\nusing System.Threading.Tasks;\n\nnamespace csharp\n{\n    class ReturnContent{\n        public string download_url{get;set;}\n        public string status{get;set;}\n    }\n\n    class Program\n    {\n        static async Task Main(string[] args)\n        {\n            var api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\";\n            var template_id = \"79667b2b1876e347\";\n            var url = $\"https://rest.apitemplate.io/v2/create-image?template_id={template_id}\";\n\n            var json_content = '{ \"overrides\":[ { \"name\":\"text_1\", \"text\":\"hello world\", \"textBackgroundColor\":\"rgba(246, 243, 243, 0)\" }, { \"name\":\"text_2\", \"text\":\"Hi there\" } ] }';\n\n            var buffer = System.Text.Encoding.UTF8.GetBytes(json_content);\n            var byteContent = new ByteArrayContent(buffer);\n\n            Console.WriteLine(json_content);\n\n            var client = new HttpClient();\n            client.DefaultRequestHeaders.Add(\"X-API-KEY\",api_key);\n            var response = await client.PostAsync(url,byteContent);\n            var ret = await response.Content.ReadAsStringAsync();\n\n            var returnContent = JsonSerializer.Deserialize<ReturnContent>(ret);\n\n            if(returnContent.status==\"success\"){\n                Console.WriteLine($\"Downloading {returnContent.download_url}...\");\n                var download_response = await client.GetAsync(returnContent.download_url);\n                using (var stream = await download_response.Content.ReadAsStreamAsync())\n                {\n                    var fileInfo = new FileInfo(\"image.jpeg\");\n                    using (var fileStream = fileInfo.OpenWrite())\n                    {\n                        await stream.CopyToAsync(fileStream);\n                    }\n                }\n            }\n        }\n    }\n  }\n"
+          }
+        ]
+      }
+    },
+    "/v2/create-pdf-from-html": {
+      "post": {
+        "summary": "Create a PDF from HTML",
+        "operationId": "create-pdf-from-html",
+        "description": "- This endpoint creates a PDF file from HTML with JSON data\n",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paramExportType"
+          },
+          {
+            "$ref": "#/components/parameters/paramExpiration"
+          },
+          {
+            "$ref": "#/components/parameters/paramOutputFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramFileName"
+          },
+          {
+            "$ref": "#/components/parameters/paramDirectDownload"
+          },
+          {
+            "$ref": "#/components/parameters/paramCloudStorage"
+          },
+          {
+            "$ref": "#/components/parameters/paramGenerationDelay"
+          },
+          {
+            "$ref": "#/components/parameters/paramImageResampleRes"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeImages"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxWidth"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxHeight"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3BUCKET"
+          },
+          {
+            "$ref": "#/components/parameters/paramMeta"
+          },
+          {
+            "$ref": "#/components/parameters/paramAsync"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhook"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhookMethod"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "body": {
+                    "type": "string",
+                    "description": "The HTML body content for the PDF. This property supports HTML markup and can include Jinja2 syntax (e.g {{name}}). The value of {{name}} will be replaced with the actual value provided in the data object.\n",
+                    "example": "<h1> hello world {{name}} </h1>"
+                  },
+                  "css": {
+                    "type": "string",
+                    "description": "The CSS styles to be applied to the PDF. This property should contain valid CSS markup and should also include the style tag.\n",
+                    "example": "<style>.bg{background: red};</style>"
+                  },
+                  "data": {
+                    "type": "object",
+                    "description": "The data object containing values for dynamic content in the HTML body. This object should include properties with corresponding values.\n",
+                    "example": {
+                      "name": "This is a title"
+                    }
+                  },
+                  "settings": {
+                    "$ref": "#/components/schemas/PDFGenerationSettingsObject"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessPDFFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n    template_id = \"79667b2b1876e347\"\n\n    data = {\n      \"body\": \"<h1> hello world {{name}} </h1>\",\n      \"css\": \"<style>.bg{background: red};</style>\",\n      \"data\": {\n        \"name\": \"This is a title\"\n      },\n      \"settings\": {\n        \"paper_size\": \"A4\",\n        \"orientation\": \"1\",\n        \"header_font_size\": \"9px\",\n        \"margin_top\": \"40\",\n        \"margin_right\": \"10\",\n        \"margin_bottom\": \"40\",\n        \"margin_left\": \"10\",\n        \"print_background\": \"1\",\n        \"displayHeaderFooter\": true,\n        \"custom_header\": \"<style>#header, #footer { padding: 0 !important; }</style>\\n<table style=\\\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\\\">\\n  <tr>\\n    <td style=\\\"text-align:left; width:30%!important;\\\"><span class=\\\"date\\\"></span></td>\\n    <td style=\\\"text-align:center; width:30%!important;\\\"><span class=\\\"pageNumber\\\"></span></td>\\n    <td style=\\\"text-align:right; width:30%!important;\\\"><span class=\\\"totalPages\\\"></span></td>\\n  </tr>\\n</table>\",\n        \"custom_footer\": \"<style>#header, #footer { padding: 0 !important; }</style>\\n<table style=\\\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\\\">\\n  <tr>\\n    <td style=\\\"text-align:left; width:30%!important;\\\"><span class=\\\"date\\\"></span></td>\\n    <td style=\\\"text-align:center; width:30%!important;\\\"><span class=\\\"pageNumber\\\"></span></td>\\n    <td style=\\\"text-align:right; width:30%!important;\\\"><span class=\\\"totalPages\\\"></span></td>\\n  </tr>\\n</table>\"\n      }\n    }\n\n    response = requests.post(\n        F\"https://rest.apitemplate.io/v2/create-pdf-from-html\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n        json= data\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          }
+        ]
+      }
+    },
+    "/v2/create-pdf-from-url": {
+      "post": {
+        "summary": "Create a PDF from URL",
+        "operationId": "create-pdf-from-url",
+        "description": "- This endpoint creates a PDF file from a URL\n",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paramExportType"
+          },
+          {
+            "$ref": "#/components/parameters/paramExpiration"
+          },
+          {
+            "$ref": "#/components/parameters/paramOutputFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramFileName"
+          },
+          {
+            "$ref": "#/components/parameters/paramDirectDownload"
+          },
+          {
+            "$ref": "#/components/parameters/paramCloudStorage"
+          },
+          {
+            "$ref": "#/components/parameters/paramGenerationDelay"
+          },
+          {
+            "$ref": "#/components/parameters/paramImageResampleRes"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeImages"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxWidth"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeMaxHeight"
+          },
+          {
+            "$ref": "#/components/parameters/paramResizeFormat"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3BUCKET"
+          },
+          {
+            "$ref": "#/components/parameters/paramMeta"
+          },
+          {
+            "$ref": "#/components/parameters/paramAsync"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhook"
+          },
+          {
+            "$ref": "#/components/parameters/paramWebhookMethod"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "url": {
+                    "type": "string",
+                    "description": "The URL\n",
+                    "example": "https://en.wikipedia.org/wiki/Sceloporus_malachiticus"
+                  },
+                  "settings": {
+                    "$ref": "#/components/schemas/PDFGenerationSettingsObject"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessPDFFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n    template_id = \"79667b2b1876e347\"\n\n    data = {\n      \"url\": \"https://en.wikipedia.org/wiki/Sceloporus_malachiticus\",\n      \"settings\": {\n        \"paper_size\": \"A4\",\n        \"orientation\": \"1\",\n        \"header_font_size\": \"9px\",\n        \"margin_top\": \"40\",\n        \"margin_right\": \"10\",\n        \"margin_bottom\": \"40\",\n        \"margin_left\": \"10\",\n        \"print_background\": \"1\",\n        \"displayHeaderFooter\": true,\n        \"custom_header\": \"<style>#header, #footer { padding: 0 !important; }</style>\\n<table style=\\\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\\\">\\n  <tr>\\n    <td style=\\\"text-align:left; width:30%!important;\\\"><span class=\\\"date\\\"></span></td>\\n    <td style=\\\"text-align:center; width:30%!important;\\\"><span class=\\\"pageNumber\\\"></span></td>\\n    <td style=\\\"text-align:right; width:30%!important;\\\"><span class=\\\"totalPages\\\"></span></td>\\n  </tr>\\n</table>\",\n        \"custom_footer\": \"<style>#header, #footer { padding: 0 !important; }</style>\\n<table style=\\\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\\\">\\n  <tr>\\n    <td style=\\\"text-align:left; width:30%!important;\\\"><span class=\\\"date\\\"></span></td>\\n    <td style=\\\"text-align:center; width:30%!important;\\\"><span class=\\\"pageNumber\\\"></span></td>\\n    <td style=\\\"text-align:right; width:30%!important;\\\"><span class=\\\"totalPages\\\"></span></td>\\n  </tr>\\n</table>\"\n      }\n    }\n\n    response = requests.post(\n        F\"https://rest.apitemplate.io/v2/create-pdf-from-url\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n        json= data\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          }
+        ]
+      }
+    },
+    "/v2/list-objects": {
+      "get": {
+        "summary": "List Generated Objects",
+        "operationId": "list-objects",
+        "description": "Retrieves all the generated PDFs and images\n",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Retrieve only the number of records specified. Default to 300",
+            "example": 300
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Offset is used to skip the number of records from the results. Default to 0",
+            "example": 0
+          },
+          {
+            "in": "query",
+            "name": "template_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filtered by template id",
+            "example": "00377b2b1e0ee394"
+          },
+          {
+            "in": "query",
+            "name": "transaction_type",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Filtered by transaction type, options are `PDF`, `JPEG` or `MERGE`",
+            "example": "MERGE"
+          },
+          {
+            "in": "query",
+            "name": "transaction_ref",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Transaction reference",
+            "example": "4adfhg-d0e8-7399-9335-717a881dd91"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessListObjects"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n\"https://rest.apitemplate.io/v2/list-objects\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n\n    response = requests.get(\n        F\"https://rest.apitemplate.io/v2/list-objects\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n    function list_objects($api_key) {\n        $url = \"https://rest.apitemplate.io/v2/list-objects\";\n        $headers = array(\"X-API-KEY: \".$api_key);\n        $curl = curl_init();\n        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n        curl_setopt($curl, CURLOPT_URL, $url);\n        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);\n        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);\n        $result = curl_exec($curl);\n        curl_close($curl);\n        if (!$result) {\n            return null;\n        }else{\n            $json_result = json_decode($result, 1);\n            return $json_result;\n        }\n    }\n\n\n    $api_key = \"6fa6g2pdXGIyxHRhVlGh7U5Vhdckt\";\n    print_r(list_objects($api_key));\n?>\n"
+          },
+          {
+            "lang": "Node.js",
+            "source": "const https = require('https');\nconst http = require('http');\nconst { URL } = require('url');\n\n(async () => {\n    let resp = await httpGet(\n        'https://rest.apitemplate.io/v2/list-objects',\n        'f6caMToxOjRySHV6dTRldU9JTVNobDg'\n    );\n    console.log(resp);\n})();\n\nasync function httpGet(url_api, apiKey){\n    const uri = new URL(url_api);\n    const fx = uri.protocol === 'https:' ? https : http;\n    const opts = {\n        method: 'GET',\n        hostname: uri.hostname,\n        port: uri.port,\n        path: `${uri.pathname}${uri.search==null?\"\":uri.search}`,\n        protocol: uri.protocol,\n        headers: {\n            \"X-API-KEY\": apiKey\n        }\n    };\n\n    return new Promise((resolve, reject) => {\n        const req = fx.get(opts, (res) => {\n            res.setEncoding('utf8');\n            let responseBody = '';\n            res.on('data', (chunk) => responseBody += chunk);\n            res.on('end', () =>resolve(responseBody));\n        });\n        req.on('error', (err) => reject(err));\n    });\n}\n"
+          }
+        ]
+      }
+    },
+    "/v2/delete-object": {
+      "get": {
+        "summary": "Delete an Object",
+        "operationId": "delete-object",
+        "description": "Delete a PDF or an image from CDN and mark the transaction as deleted\n",
+        "tags": [
+          "API Integration"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "transaction_ref",
+            "schema": {
+              "type": "string"
+            },
+            "required": true,
+            "description": "Object transaction reference",
+            "example": "1618d386-2343-3d234-b9c7-99c82bb9f104"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessDeleteObject"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n\"https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n\n    response = requests.get(\n        F\"https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n    function delete_object($api_key, $trans_ref) {\n        $url = \"https://rest.apitemplate.io/v2/delete-object?transaction_ref=\". $trans_ref;\n        $headers = array(\"X-API-KEY: \".$api_key);\n        $curl = curl_init();\n        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n        curl_setopt($curl, CURLOPT_URL, $url);\n        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);\n        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);\n        $result = curl_exec($curl);\n        curl_close($curl);\n        if (!$result) {\n            return null;\n        }else{\n            $json_result = json_decode($result, 1);\n            return $json_result;\n        }\n    }\n\n\n    $api_key = \"6fa6g2pdXGIyxHRhVlGh7U5Vhdckt\";\n    $trans_ref = \"1618d386-2343-3d234-b9c7-99c82bb9f104\";\n    print_r(delete_object($api_key,$trans_ref));\n?>\n"
+          },
+          {
+            "lang": "Node.js",
+            "source": "const https = require('https');\nconst http = require('http');\nconst { URL } = require('url');\n\n(async () => {\n    let resp = await httpGet(\n        'https://rest.apitemplate.io/v2/delete-object?transaction_ref=1618d386-2343-3d234-b9c7-99c82bb9f104',\n        'f6caMToxOjRySHV6dTRldU9JTVNobDg'\n    );\n    console.log(resp);\n})();\n\nasync function httpGet(url_api, apiKey){\n    const uri = new URL(url_api);\n    const fx = uri.protocol === 'https:' ? https : http;\n    const opts = {\n        method: 'GET',\n        hostname: uri.hostname,\n        port: uri.port,\n        path: `${uri.pathname}${uri.search==null?\"\":uri.search}`,\n        protocol: uri.protocol,\n        headers: {\n            \"X-API-KEY\": apiKey\n        }\n    };\n\n    return new Promise((resolve, reject) => {\n        const req = fx.get(opts, (res) => {\n            res.setEncoding('utf8');\n            let responseBody = '';\n            res.on('data', (chunk) => responseBody += chunk);\n            res.on('end', () =>resolve(responseBody));\n        });\n        req.on('error', (err) => reject(err));\n    });\n}\n"
+          }
+        ]
+      }
+    },
+    "/v2/list-templates": {
+      "get": {
+        "summary": "List Templates",
+        "operationId": "list-templates",
+        "description": "Retrieves the information of templates\n",
+        "tags": [
+          "Template Management"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Retrieve only the number of records specified. Default to 300",
+            "example": "300"
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Offset is used to skip the number of records from the results. Default to 0",
+            "example": "0"
+          },
+          {
+            "in": "query",
+            "name": "format",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "To filter the templates by either 'PDF' or 'JPEG'",
+            "example": "JPEG"
+          },
+          {
+            "in": "query",
+            "name": "template_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "To filter the templates by template id",
+            "example": "00377b2b1e0ee394"
+          },
+          {
+            "in": "query",
+            "name": "group_name",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "To filter the templates by the group name",
+            "example": "custom"
+          },
+          {
+            "in": "query",
+            "name": "with_layer_info",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Return along with layer information for image templates, 0=false , 1=true. Default to '0'",
+            "example": 0
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessListTemplates"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n\"https://rest.apitemplate.io/v2/list-templates\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n\n    response = requests.get(\n        F\"https://rest.apitemplate.io/v2/list-templates\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n    )\n\nif __name__ == \"__main__\":\n    main()\n"
+          },
+          {
+            "lang": "PHP",
+            "source": "<?php\n    function list_templates($api_key) {\n        $url = \"https://rest.apitemplate.io/v2/list-templates\";\n        $headers = array(\"X-API-KEY: \".$api_key);\n        $curl = curl_init();\n        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);\n        curl_setopt($curl, CURLOPT_URL, $url);\n        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);\n        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);\n        $result = curl_exec($curl);\n        curl_close($curl);\n        if (!$result) {\n            return null;\n        }else{\n            $json_result = json_decode($result, 1);\n            return $json_result;\n        }\n    }\n\n\n    $api_key = \"6fa6g2pdXGIyxHRhVlGh7U5Vhdckt\";\n    print_r(list_templates($api_key));\n?>\n"
+          },
+          {
+            "lang": "Node.js",
+            "source": "const https = require('https');\nconst http = require('http');\nconst { URL } = require('url');\n\n(async () => {\n    let resp = await httpGet(\n        'https://rest.apitemplate.io/v2/list-templates',\n        'f6caMToxOjRySHV6dTRldU9JTVNobDg'\n    );\n    console.log(resp);\n})();\n\nasync function httpGet(url_api, apiKey){\n    const uri = new URL(url_api);\n    const fx = uri.protocol === 'https:' ? https : http;\n    const opts = {\n        method: 'GET',\n        hostname: uri.hostname,\n        port: uri.port,\n        path: `${uri.pathname}${uri.search==null?\"\":uri.search}`,\n        protocol: uri.protocol,\n        headers: {\n            \"X-API-KEY\": apiKey\n        }\n    };\n\n    return new Promise((resolve, reject) => {\n        const req = fx.get(opts, (res) => {\n            res.setEncoding('utf8');\n            let responseBody = '';\n            res.on('data', (chunk) => responseBody += chunk);\n            res.on('end', () =>resolve(responseBody));\n        });\n        req.on('error', (err) => reject(err));\n    });\n}\n"
+          }
+        ]
+      }
+    },
+    "/v2/get-template": {
+      "get": {
+        "summary": "Get PDF template",
+        "operationId": "get-template",
+        "description": "Retrieves information of the PDF template (**This is an experimental API, contact support to learn more**)\n",
+        "tags": [
+          "Template Management"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "template_id",
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "description": "Your template id, it can be obtained in the web console(Manage Templates)",
+            "example": "00377b2b1e0ee394"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns status and template information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessTemplate"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl --header \"Content-Type: application/json\" \\\n-H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n\"https://rest.apitemplate.io/v2/get-template?template_id=cd890b2b199c5c42\"\n"
+          }
+        ]
+      }
+    },
+    "/v2/update-template": {
+      "post": {
+        "summary": "Update PDF Template",
+        "operationId": "update-template",
+        "description": "This endpoint updates PDF template (**This is an experimental API, contact support to learn more**)",
+        "tags": [
+          "Template Management"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "template_id": {
+                    "type": "string",
+                    "description": "Your template id, it can be obtained in the web console(Manage Templates)\n",
+                    "example": "00377b2b1e0ee394"
+                  },
+                  "body": {
+                    "type": "string",
+                    "description": "The HTML body\n",
+                    "example": "<h1>Title</h1>\n"
+                  },
+                  "css": {
+                    "type": "string",
+                    "description": "The css\n",
+                    "example": "{body{ background: white;}\n"
+                  }
+                },
+                "required": [
+                  "template_id"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccess"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST \\\n  --header \"Content-Type: application/json\"  \\\n  -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n  --data '{\"template_id\": \"d4477b2b2348d03a\",\"body\":\"<h1>this is a title</h1>\"}' \\\n  \"https://rest.apitemplate.io/v2/update-template\"\n"
+          }
+        ]
+      }
+    },
+    "/v2/merge-pdfs": {
+      "post": {
+        "summary": "Join/Merge multiple PDFs",
+        "operationId": "merge-pdfs",
+        "description": "This endpoint merges/joins multiple PDF URLs into a single PDF file",
+        "tags": [
+          "PDF Manipulation API"
+        ],
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3FILEKEY"
+          },
+          {
+            "$ref": "#/components/parameters/paramPOSTACTIONS3BUCKET"
+          },
+          {
+            "$ref": "#/components/parameters/paramMeta"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "urls": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    },
+                    "description": "URL array. We support normal http/https URLs and data URLs\n- Normal URLs: URLs start with http/https, e.g: \"https://fileserver.com/a1.pdf\")\n- Data URLs: URLs prefixed with the \"data:\" scheme, e.g \"data:application/pdf;base64,JVBERi0xLjIg...[truncated]\"\n",
+                    "example": [
+                      "https://fileserver.com/a1.pdf",
+                      "https://fileserver.com/b2.pdf",
+                      "data:application/pdf;base64,JVBERi0xLjIg...[truncated]"
+                    ]
+                  },
+                  "export_type": {
+                    "type": "string",
+                    "description": "- Either `file` or `json`(Default).\n  - The option `json` returns a JSON object, and the output PDF is stored on a CDN.\n  - The option `file` returns binary data of the generated PDF(Secure and completely private) and the response HTTP header Content-Disposition is set to attachment. It has a file size limit of 6MB.\n",
+                    "example": "json"
+                  },
+                  "expiration": {
+                    "type": "integer",
+                    "description": "- Expiration of the generated PDF in minutes(default to `0`, store permanently)\n  - Use `0` to store on cdn permanently\n  - Or use the range between `1` minute and `43200` minutes(30 days) to specify the expiration of the generated PDF\n",
+                    "example": 5
+                  },
+                  "cloud_storage": {
+                    "type": "integer",
+                    "description": "- Upload the generated PDFs/images to our storage CDN, default to `1`. If you have configured `Post Action` to upload the PDFs/Images to your own S3, please set it to `0`.\n",
+                    "example": 1
+                  }
+                },
+                "required": [
+                  "urls"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Returns status and output file",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseSuccessSingleFile"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "unexpected error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        },
+        "x-code-samples": [
+          {
+            "lang": "cURL",
+            "source": "curl -X POST \\\n  --header \"Content-Type: application/json\"  \\\n  -H 'X-API-KEY: 6fa6g2pdXGIyHRhVlGh7U56Ada1eF' \\\n  --data '{ \"urls\": [\"https://fileserver.com/a1.pdf\",\"https://fileserver.com/b2.pdf\"] }' \\\n  \"https://rest.apitemplate.io/v2/merge-pdfs\"\n"
+          },
+          {
+            "lang": "Python",
+            "source": "import requests, json\n\ndef main():\n    api_key = \"6fa6g2pdXGIyHRhVlGh7U56Ada1eF\"\n\n    json_payload = {\n      \"urls\": [\"https://fileserver.com/a1.pdf\",\"https://fileserver.com/b2.pdf\"] ,\n      \"output_file\": \"output.pdf\",\n    }\n\n    response = requests.post(\n        F\"https://rest.apitemplate.io/v2/merge-pdfs\",\n        headers = {\"X-API-KEY\": F\"{api_key}\"},\n        json = json_payload\n    )\n\n    print(response.content)\n\nif __name__ == \"__main__\":\n    main()\n"
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKeyAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-API-KEY",
+        "description": "An API key is needed to be set in the Authorization header of every API call.\nFor additional support you can contact us.\n\n- APITemplate.io expects the API key to be part of all API requests to the server in a header in this format:\n  ```\n  X-API-KEY: [API_KEY]\n  ```\n\n- Optionally we also support Authorization header\n  ```\n  Authorization: Token [API_KEY]\n  ```\n\n**Note: You must replace the API KEY(6fa6g2pdXGIyHRhVlGh7U56Ada1eF) with your API key in the request samples.**\n"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "required": [
+          "status",
+          "message"
+        ],
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Value of the status: error",
+            "example": "error"
+          },
+          "message": {
+            "type": "string",
+            "description": "Error message",
+            "example": "This is an error message"
+          }
+        }
+      },
+      "ResponseSuccess": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          }
+        }
+      },
+      "ResponseSuccessTemplate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Template ID",
+            "example": "cd890b2b199c5c42"
+          },
+          "body": {
+            "type": "string",
+            "description": "HTML body of the template",
+            "example": "<h1>Title</h1>\n"
+          },
+          "css": {
+            "type": "string",
+            "description": "CSS of the template",
+            "example": "body{background: white}\n"
+          },
+          "settings": {
+            "type": "string",
+            "description": "Print settings of the template",
+            "example": "{\"paper_size\":\"A4\",\"orientation\":\"1\",\"print_background\":\"1\",\"margin_top\":\"40\",\"margin_bottom\":\"40\",\"margin_right\":\"40\",\"margin_left\":\"40\",\"header_right\":\"{{pageNumber}}/{{totalPages}}\",\"footer_center\":\"{{pageNumber}}/{{totalPages}}\",\"header_center\":\"Sample Invoice\",\"header_font_size\":\"11px\",\"header_left\":\"{{date}}\",\"footer_left\":\"{{date}}\",\"custom_header\":\"\",\"footer_font_size\":\"11px\"}\n"
+          }
+        }
+      },
+      "ResponseSuccessPDFFile": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "Download URL",
+            "example": "https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.pdf"
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Template ID",
+            "example": "cd890b2b199c5c42"
+          },
+          "total_pages": {
+            "type": "integer",
+            "description": "Page count",
+            "example": 4
+          },
+          "transaction_ref": {
+            "type": "string",
+            "description": "Transaction reference",
+            "example": "a0430897-2c94-40e1-a09b-57403d811ceb"
+          },
+          "post_actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "bucket": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "file": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "action": "S3",
+                "name": "S3 Storage",
+                "bucket": "alphacloud-test-bucket",
+                "status": "success",
+                "file": "s3://alphacloud-test-bucket/ab2e1bf7-cefa-42c7-929f-38d92b8bf8bf.pdf"
+              }
+            ]
+          }
+        }
+      },
+      "ResponseSuccessImageFile": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          },
+          "download_url": {
+            "type": "string",
+            "description": "Download URL",
+            "example": "https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.jpeg"
+          },
+          "download_url_png": {
+            "type": "string",
+            "description": "Download URL PNG",
+            "example": "https://bucket.s3.amazonaws.com/91f62769-69e4-48bf.png"
+          },
+          "template_id": {
+            "type": "string",
+            "description": "Template ID",
+            "example": "cd890b2b199c5c42"
+          },
+          "transaction_ref": {
+            "type": "string",
+            "description": "Transaction reference",
+            "example": "a0430897-2c94-40e1-a09b-57403d811ceb"
+          },
+          "post_actions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "bucket": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "file": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "action": "S3",
+                "name": "S3 Storage",
+                "bucket": "alphacloud-test-bucket",
+                "status": "success",
+                "file": "s3://alphacloud-test-bucket/91f62769-69e4-48bf.png"
+              },
+              {
+                "action": "S3",
+                "name": "S3 Storage",
+                "bucket": "alphacloud-test-bucket",
+                "status": "success",
+                "file": "s3://alphacloud-test-bucket/91f62769-69e4-48bf.jpg"
+              }
+            ]
+          }
+        }
+      },
+      "ResponseSuccessListTemplates": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "templates": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "template_id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "format": {
+                  "type": "string"
+                },
+                "created_at": {
+                  "type": "string"
+                },
+                "updated_at": {
+                  "type": "string"
+                },
+                "group_name": {
+                  "type": "string"
+                }
+              }
+            },
+            "example": [
+              {
+                "template_id": "12577b29420496",
+                "name": "Positive Review",
+                "status": "ACTIVE",
+                "format": "JPEG",
+                "created_at": "2021-10-15T06:29:01.308Z",
+                "updated_at": "2021-10-15T13:03:43.615Z",
+                "group_name": ""
+              },
+              {
+                "template_id": "004271e0ee394",
+                "name": "Test Template PDF",
+                "status": "ACTIVE",
+                "format": "PDF",
+                "created_at": "2021-10-09T09:57:52.224Z",
+                "updated_at": "2021-10-16T11:18:10.613Z",
+                "group_name": ""
+              },
+              {
+                "template_id": "8bf77213e06b670",
+                "name": "New Template",
+                "status": "ACTIVE",
+                "format": "PDF",
+                "created_at": "2021-10-09T08:54:49.486Z",
+                "updated_at": "2021-10-09T09:54:44.667Z",
+                "group_name": ""
+              }
+            ]
+          }
+        }
+      },
+      "ResponseSuccessListObjects": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "objects": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "properties": {
+              "transaction_ref": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "source": {
+                "type": "string"
+              },
+              "meta": {
+                "type": "string"
+              },
+              "transaction_type": {
+                "type": "string"
+              },
+              "primary_url": {
+                "type": "string"
+              },
+              "secondary_url": {
+                "type": "string"
+              },
+              "deleted_at": {
+                "type": "string"
+              },
+              "deletion_status": {
+                "type": "integer"
+              },
+              "ip_address": {
+                "type": "string"
+              },
+              "created_at": {
+                "type": "string"
+              }
+            },
+            "example": [
+              {
+                "transaction_ref": "e9c46f03-1840-44dc-bae7-f280e0be98a9",
+                "description": null,
+                "source": null,
+                "meta": "inv-23ejh23bh",
+                "transaction_type": "JPEG",
+                "primary_url": "https://pub-cdn.apitemplate.io/e9c46f03-1840-44dc-bae7-f280e0be98a9.jpeg",
+                "secondary_url": "https://pub-cdn.apitemplate.io/e9c46f03-1840-44dc-bae7-f280e0be98a9.png",
+                "deleted_at": null,
+                "deletion_status": 0,
+                "ip_address": "1.222.242.231",
+                "created_at": "2021-10-16T12:08:59.281Z"
+              },
+              {
+                "transaction_ref": "c973f544-fb56-465d-a1bd-35ff0e4b77e7",
+                "description": null,
+                "source": null,
+                "meta": "inv-45ekdjkdbh",
+                "transaction_type": "PDF",
+                "primary_url": "https://pub-cdn.apitemplate.io/2021/10/c973f544-fb56-465d-a1bd-35ff0e4b77e7.pdf",
+                "secondary_url": "",
+                "deleted_at": null,
+                "deletion_status": 0,
+                "ip_address": "1.222.242.231",
+                "created_at": "2021-10-16T12:07:34.478Z"
+              },
+              {
+                "transaction_ref": "5ee5e0aa-4431-4d17-b94a-24ac859a5e71",
+                "description": null,
+                "source": null,
+                "meta": "inv-klkjbr34ded",
+                "transaction_type": "JPEG",
+                "primary_url": "https://pub-cdn.apitemplate.io/5ee5e0aa-4431-4d17-b94a-24ac859a5e71.jpeg",
+                "secondary_url": "https://pub-cdn.apitemplate.io/5ee5e0aa-4431-4d17-b94a-24ac859a5e71.png",
+                "deleted_at": null,
+                "deletion_status": 0,
+                "ip_address": "1.222.242.231",
+                "created_at": "2021-10-16T12:05:59.111Z"
+              }
+            ]
+          }
+        }
+      },
+      "ResponseSuccessDeleteObject": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "success"
+          },
+          "transaction_ref": {
+            "example": "1618d386-2343-3d234-b9c7-99c82bb9f104"
+          }
+        }
+      },
+      "ResponseSuccessSingleFile": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          },
+          "primary_url": {
+            "type": "string",
+            "description": "Generated PDF document",
+            "example": "https://craftmypdf.com/output.pdf"
+          },
+          "total_pages": {
+            "type": "integer",
+            "description": "Page count",
+            "example": 4
+          },
+          "transaction_ref": {
+            "type": "string",
+            "description": "Transaction reference",
+            "example": "a0430897-2c94-40e1-a09b-57403d811ceb"
+          }
+        }
+      },
+      "ResponseSuccessQueryImageTemplate": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status",
+            "example": "success"
+          },
+          "width": {
+            "type": "integer",
+            "description": "Width",
+            "example": 1024
+          },
+          "height": {
+            "type": "integer",
+            "description": "Height",
+            "example": 1024
+          },
+          "layers": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            },
+            "description": "Array of layers",
+            "example": "[\n{\n    \"name\": \"text_1\",\n    \"type\": \"textbox\",\n    \"subtype\": \"textbox\",\n    \"y\": 50,\n    \"x\": 50,\n    \"width\": 629.82,\n    \"height\": 406.8,\n    \"fontSize\": 120,\n    \"fontWeight\": \"normal\",\n    \"fontFamily\": \"Anton\",\n    \"fontStyle\": \"normal\",\n    \"text\": \"Type ~something~ ::here::\",\n    \"stroke\": null,\n    \"strokeWidth\": 0,\n    \"opacity\": 1,\n    \"backgroundColor\": \"\",\n    \"textAlign\": \"left\",\n    \"splitByGrapheme\": false,\n    \"textBackgroundColor\": \"rgba(246, 243, 243, 0)\",\n    \"color\": \"#FFB029\"\n},\n{\n    \"name\": \"rect_1\",\n    \"type\": \"rect\",\n    \"subtype\": \"rect\",\n    \"y\": 101.9,\n    \"x\": 708.82,\n    \"width\": 300,\n    \"height\": 300,\n    \"stroke\": \"grey\",\n    \"strokeWidth\": 3,\n    \"opacity\": 1,\n    \"backgroundColor\": \"\",\n    \"color\": \"#BEF4FF\"\n}\n]\n"
+          }
+        }
+      },
+      "PDFGenerationSettingsObject": {
+        "type": "object",
+        "description": "The settings object contains various properties to configure the PDF generation.\n",
+        "properties": {
+          "paper_size": {
+            "type": "string",
+            "description": "Specifies the paper size for the PDF. The available options are Letter, Legal, Tabloid, Ledger, A0, A1, A2, A3, A4, A5,A6 or custom. custom dimensions specified as \"custom_width\" and \"custom_height\".\n"
+          },
+          "custom_width": {
+            "type": "string",
+            "description": "Custom width for the custom paper size. Valid units are mm, px and cm. eg: 30mm\n"
+          },
+          "custom_height": {
+            "type": "string",
+            "description": "Custom height for the custom paper size. Valid units are mm, px and cm. eg: 30mm\n"
+          },
+          "orientation": {
+            "type": "string",
+            "description": "Specifies the orientation of the PDF. The available options are \"1\" for portrait and \"2\" for landscape.\n"
+          },
+          "header_font_size": {
+            "type": "string",
+            "description": "Specifies the font size for the header in the PDF.\n"
+          },
+          "margin_top": {
+            "type": "string",
+            "description": "Specify the top margin for the PDF in millimeters (mm).\n"
+          },
+          "margin_right": {
+            "type": "string",
+            "description": "Specify the right margin for the PDF in millimeters (mm).\n"
+          },
+          "margin_bottom": {
+            "type": "string",
+            "description": "Specify the bottom margin for the PDF in millimeters (mm).\n"
+          },
+          "margin_left": {
+            "type": "string",
+            "description": "Specify the left margin for the PDF in millimeters (mm).\n"
+          },
+          "print_background": {
+            "type": "string",
+            "description": "Specifies whether to print the background graphics and colors in the PDF. Set to \"1\" to include backgrounds or \"0\" to exclude them.\n"
+          },
+          "displayHeaderFooter": {
+            "type": "boolean",
+            "description": "Specifies whether to display the header and footer in the PDF. Set to true to include the header and footer or false to exclude them.\n"
+          },
+          "custom_header": {
+            "type": "string",
+            "description": "Specify custom HTML markup for the headerof the PDF. These properties should contain valid HTML markup, including any necessary CSS styles.\n"
+          },
+          "custom_footer": {
+            "type": "string",
+            "description": "Specify custom HTML markup for the footer of the PDF. These properties should contain valid HTML markup, including any necessary CSS styles.\n"
+          }
+        },
+        "example": {
+          "paper_size": "A4",
+          "orientation": "1",
+          "header_font_size": "9px",
+          "margin_top": "40",
+          "margin_right": "10",
+          "margin_bottom": "40",
+          "margin_left": "10",
+          "print_background": "1",
+          "displayHeaderFooter": true,
+          "custom_header": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>",
+          "custom_footer": "<style>#header, #footer { padding: 0 !important; }</style>\n<table style=\"width: 100%; padding: 0px 5px;margin: 0px!important;font-size: 15px\">\n  <tr>\n    <td style=\"text-align:left; width:30%!important;\"><span class=\"date\"></span></td>\n    <td style=\"text-align:center; width:30%!important;\"><span class=\"pageNumber\"></span></td>\n    <td style=\"text-align:right; width:30%!important;\"><span class=\"totalPages\"></span></td>\n  </tr>\n</table>"
+        }
+      }
+    },
+    "parameters": {
+      "paramTemplateID": {
+        "in": "query",
+        "name": "template_id",
+        "schema": {
+          "type": "string"
+        },
+        "required": true,
+        "description": "Your template id, it can be obtained in the web console",
+        "example": "00377b2b1e0ee394"
+      },
+      "paramExportType": {
+        "in": "query",
+        "name": "export_type",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Either `file` or `json`(Default).\n  - The option `json` returns a JSON object, and the output PDF is stored on a CDN. Use this with the parameter `expiration`\n  - The option `file` returns binary data of the generated PDF(Secure and completely private) and the response HTTP header Content-Disposition is set to attachment.\n",
+        "example": "json"
+      },
+      "paramExportInBase64": {
+        "in": "query",
+        "name": "export_in_base64",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- If export_type = `file`, the PDF can be downloaded in binary or base64 format. The value is either `1` or `0`(Default).\n  - The export_in_base64 is set `0` is to download the PDF in binary\n  - The export_in_base64 is set `1` is to download the PDF in base64 format\n  \n",
+        "example": "0"
+      },
+      "paramLoadDataFrom": {
+        "in": "query",
+        "name": "load_data_from",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "Load JSON data from a remote URL instead of the request body. If load_data_from is specified, the JSON data in the request will be ignored.\n",
+        "example": "https://mydata.com/get-json-data?invoice=j3hbski2uia"
+      },
+      "paramExpiration": {
+        "in": "query",
+        "name": "expiration",
+        "schema": {
+          "type": "integer"
+        },
+        "required": false,
+        "description": "- Expiration of the generated PDF in minutes(default to `0`, store permanently)\n  - Use `0` to store on cdn permanently\n  - Or use the range between `1` minute and `10080` minutes(7 days) to specify the expiration of the generated PDF\n",
+        "example": 5
+      },
+      "paramOutputHTML": {
+        "in": "query",
+        "name": "output_html",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Either `1` or `0`(Default).\n- To enable output of html content, set the value to `1` and it will return in the JSON response as html_url field (as a URL)\n",
+        "example": "0"
+      },
+      "paramOutputFormat": {
+        "in": "query",
+        "name": "output_format",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Either `pdf`(Default) or `html`.\n- It's generating PDF by default. However, you can specify output_format=html to generate only HTML(It will return in the JSON response as download_url field as a URL).\n",
+        "example": "pdf"
+      },
+      "paramFileName": {
+        "in": "query",
+        "name": "filename",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Default to UUID (e.g 0c93bd9e-9ebb-4634-a70f-de9131848416.pdf). Use this to specify custom file name, it should end with `.pdf`\n",
+        "example": "invoice_89326.pdf"
+      },
+      "paramImageResampleRes": {
+        "in": "query",
+        "name": "image_resample_res",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- We embed the original images by default, meaning large PDF file sizes. Specifying the option 'image_resample_res' helps reduce the PDF file size by downsampling the images of the current PDF to a resolution(in DPI). Common values are 72, 96, 150, 300 and 600.\n",
+        "example": "150"
+      },
+      "paramResizeImages": {
+        "in": "query",
+        "name": "resize_images",
+        "schema": {
+          "type": "boolean"
+        },
+        "required": false,
+        "description": "- Preprocess images or re-size images in the PDF, either `1`=true or `0`=false. Default to '0'\n- If `resize_images` is set to `1`, specify the `resize_max_width`, `resize_max_height` in pixels.\n- Images to be resized need to satisfy the following conditions:\n  - The images with the content-type `image/jpeg`, `image/jpg` or `image/png`\n  - The image URLs with the extension `.jpg`, `.jpeg` or `.png`\n",
+        "example": "0"
+      },
+      "paramResizeMaxWidth": {
+        "in": "query",
+        "name": "resize_max_width",
+        "schema": {
+          "type": "integer"
+        },
+        "required": false,
+        "description": "- If `resize_images` is set to `1`, specify the maximum width of the image in pixels. Default to '1000'\n",
+        "example": "1000"
+      },
+      "paramResizeMaxHeight": {
+        "in": "query",
+        "name": "resize_max_height",
+        "schema": {
+          "type": "integer"
+        },
+        "required": false,
+        "description": "- If `resize_images` is set to `1`, specify the maximum height of the image in pixels. Default to '1000'\n",
+        "example": "1000"
+      },
+      "paramResizeFormat": {
+        "in": "query",
+        "name": "resize_format",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- If `resize_images` is set to `1`, specify the format of the image. Either `jpeg` or `png`\n",
+        "example": "jpeg"
+      },
+      "paramDirectDownload": {
+        "in": "query",
+        "name": "direct_download",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- ContentDisposition set to attachment. 1=true, 0=false. Default to '0'\n",
+        "example": "0"
+      },
+      "paramCloudStorage": {
+        "in": "query",
+        "name": "cloud_storage",
+        "schema": {
+          "type": "integer"
+        },
+        "required": false,
+        "description": "- Upload the generated PDFs/images to our storage CDN, default to `1`. If you have configured `Post Action` to upload the PDFs/Images to your own S3, please set it to `0`.\n",
+        "example": "1"
+      },
+      "paramGenerationDelay": {
+        "in": "query",
+        "name": "generation_delay",
+        "schema": {
+          "type": "int"
+        },
+        "required": false,
+        "description": "Delay in milliseconds before PDF/image generation\n"
+      },
+      "paramPOSTACTIONS3FILEKEY": {
+        "in": "query",
+        "name": "postaction_s3_filekey",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- This is to specify the file name for `Post Action(AWS S3/Cloudflare R2/Azure Storage)`.\n- Please do not specify the file extension\n- Please make sure the file name is unique\n- You might use slash (/) as the folder delimiter\n- It's default to transaction_ref\n"
+      },
+      "paramPOSTACTIONS3BUCKET": {
+        "in": "query",
+        "name": "postaction_s3_bucket",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- This is to overwrite the AWS Bucket for `Post Action(AWS S3/Cloudflare R2 Storage)` or the container for `Post Action(Azure Storage)`.\n"
+      },
+      "paramMeta": {
+        "in": "query",
+        "name": "meta",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Specify an external reference ID for your own reference. It appears in the `list-objects` API.\n",
+        "example": "inv-iwj343jospig"
+      },
+      "paramAsync": {
+        "in": "query",
+        "name": "async",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- Either `1` or `0`(Default).  `0` is synchronous call(default), `1` is asynchronous call\n- To generate PDF asynchronously, set the value to `1` and the API call returns immediately. Once the PDF document is generated, we will make a HTTP/HTTPS GET to your URL(webhook_url) and will retry for 3 times before giving up.\n- If `async` is set to `1`, then `webhook_url` is mandatory\n",
+        "example": "0"
+      },
+      "paramWebhook": {
+        "in": "query",
+        "name": "webhook_url",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- It is the URL of your webhook URL, it starts with http:// or https:// and has to be urlencoded.\n- If `async` is set to `1`, then you have to specify the `webhook_url`.\n\n\n#### Format of Webhook callback\n\nOnce the PDF is generated, we will initiate a HTTP/HTTPS GET call to the following URL:\n\nhttps://`[yourwebserver.com]`?&primary_url=`[primary_url]`&transaction_ref=`[transaction_ref]`&status=`[status]`&message=`[message]`\n\n- `[yourwebserver.com]`: The web services to handle the callback, which is the `webhook_url`\n- `[primary_url]`: The URL to the PDF document\n- `[transaction_ref]`: The transaction reference number\n- `[status]` : Status of the transaction, either `success` or `error`\n- `[message]` : Status message\n\n***The following is a sample webhook call back to your server***\n\nhttps://yourwebserver.com?&primary_url=https%3A%2F%2Fpub-cdn.apitemplate.io%2F2021%2F06%2Fb692183d-46d7-3213-891a-460a5814ad3f.pdf&transaction_ref=b692183d-46d7-3213-891a-460a5814ad3f&status=success\n",
+        "example": "https://yourwebserver.com"
+      },
+      "paramWebhookMethod": {
+        "in": "query",
+        "name": "webhook_method",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- The HTTP method of the webhook, either `POST` or `GET`. Default to `GET`\n",
+        "example": "GET"
+      },
+      "paramWebhookHeaders": {
+        "in": "query",
+        "name": "webhook_headers",
+        "schema": {
+          "type": "string"
+        },
+        "required": false,
+        "description": "- The HTTP headers of the webhook, it should be a base64 encoded JSON object.\n- The following is an example of base64 encoded JSON:\n  ```json\n  eyJ3b3JrZmxvdy1hcGkta2V5Ijoia2V5X0VLc3MxNWJKRXFBMkRHYzM4bkNXNzlaRER1ZUZJeiJ9\n  ```\n\n  The JSON object in clear text for the above base64 encoded JSON:\n  ```json\n  { \n    \"workflow-api-key\": \"key_EKss15bJEqA2DGc38nCW79ZDDueFIz\"\n  }\n  ```\n",
+        "example": "eyJ3b3JrZmxvdy1hcGkta2V5Ijoia2V5X0VLc3MxNWJKRXFBMkRHYzM4bkNXNzlaRER1ZUZJeiJ9"
+      }
+    }
+  }
+}

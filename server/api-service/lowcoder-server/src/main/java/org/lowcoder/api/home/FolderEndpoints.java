@@ -71,7 +71,8 @@ public interface FolderEndpoints
     public Mono<PageResponseView<?>> getElements(@RequestParam(value = "id", required = false) String folderId,
 												 @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
 												 @RequestParam(required = false) String name,
-												 @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+												 @RequestParam(required = false) String category,
+												 @RequestParam(required = false, defaultValue = "1") Integer pageNum,
 												 @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(

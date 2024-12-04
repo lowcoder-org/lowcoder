@@ -53,7 +53,7 @@ public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Override
     public Flux<OrgMember> getOrganizationMembers(String orgId, int page, int count) {
-        return biRelationService.getBySourceId(ORG_MEMBER, orgId, PageRequest.of(page, count))
+        return biRelationService.getBySourceId(ORG_MEMBER, orgId, PageRequest.of(page - 1, count))
                 .map(OrgMember::from);
     }
 

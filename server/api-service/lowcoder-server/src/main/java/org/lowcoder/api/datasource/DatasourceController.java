@@ -119,7 +119,7 @@ public class DatasourceController implements DatasourceEndpoints
      */
     @Override
     public Mono<PageResponseView<?>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
-                                                             @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                             @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                              @RequestParam(required = false, defaultValue = "0") int pageSize) {
         String objectId = gidService.convertApplicationIdToObjectId(applicationId);
         return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listJsDatasourcePlugins(objectId, name, type));
@@ -142,7 +142,7 @@ public class DatasourceController implements DatasourceEndpoints
     @SneakyThrows
     @Override
     public Mono<PageResponseView<?>> listOrgDataSources(@RequestParam(name = "orgId") String orgId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
-                                                        @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                        @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                         @RequestParam(required = false, defaultValue = "0") int pageSize) {
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
@@ -153,7 +153,7 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<PageResponseView<?>> listAppDataSources(@RequestParam(name = "appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
-                                                        @RequestParam(required = false, defaultValue = "0") int pageNum,
+                                                        @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                         @RequestParam(required = false, defaultValue = "0") int pageSize) {
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");

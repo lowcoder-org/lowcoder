@@ -47,9 +47,9 @@ const children = {
 const QueryLibraryCompBase = simpleMultiComp(children);
 
 export const QueryLibraryComp = class extends QueryLibraryCompBase {
-  propertyView(params: { onPublish: () => void; onHistoryShow: () => void }) {
+  propertyView(params: { onPublish: () => void; onHistoryShow: () => void; setModify: any; modify: boolean }) {
     return (
-      <PropertyView comp={this} onPublish={params.onPublish} onHistoryShow={params.onHistoryShow} />
+      <PropertyView comp={this} onPublish={params.onPublish} onHistoryShow={params.onHistoryShow} setModify={params.setModify} modify={params.modify} />
     );
   }
 
@@ -99,11 +99,13 @@ function getMetaData(
 }
 
 const PropertyView = (props: {
-  comp: QueryLibraryCompType;
-  onPublish: () => void;
-  onHistoryShow: () => void;
+    comp: QueryLibraryCompType,
+    onPublish: () => void,
+    onHistoryShow: () => void,
+    setModify?: any
+    modify?: boolean
 }) => {
-  const { comp, onPublish, onHistoryShow } = props;
+  const { comp, onPublish, onHistoryShow, setModify, modify } = props;
 
   const reduxDispatch = useDispatch();
 
@@ -157,12 +159,16 @@ const PropertyView = (props: {
                     CustomModal.confirm({
                       title: trans("queryLibrary.deleteQueryLabel"),
                       content: trans("queryLibrary.deleteQueryContent"),
-                      onConfirm: () =>
+                      onConfirm: () =>{
                         reduxDispatch(
                           deleteQueryLibrary({
                             queryLibraryId: comp.children.query.children.id.getView(),
                           })
-                        ),
+                        )
+                          setTimeout(() => {
+                              setModify(!modify);
+                          }, 500);
+                      },
                       confirmBtnType: "delete",
                       okText: trans("delete"),
                     })

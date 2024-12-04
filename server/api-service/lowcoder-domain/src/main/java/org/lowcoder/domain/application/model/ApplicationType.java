@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum ApplicationType {
     APPLICATION(1),
     MODULE(2),
-    COMPOUND_APPLICATION(3);
+    COMPOUND_APPLICATION(3),
+    FOLDER(4);
 
     private final int value;
 

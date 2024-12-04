@@ -4,7 +4,6 @@ import {
   DATASOURCE_URL,
   FOLDER_URL,
   FOLDER_URL_PREFIX,
-  FOLDERS_URL,
   MARKETPLACE_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
@@ -53,7 +52,6 @@ import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
 // import { SideBarItemType } from "../../components/layout/SideBarSection";
-import { RootFolderListView } from "./RootFolderListView";
 // import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 // import { ModuleView } from "./ModuleView";
@@ -73,7 +71,7 @@ import AppEditor from "../editor/AppEditor";
 import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
-
+import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 const TabLabel = styled.div`
   font-weight: 500;
 `;
@@ -222,6 +220,7 @@ export default function ApplicationHome() {
 
   return (
     <DivStyled>
+      <LoadingBarHideTrigger />
       <SimpleSubscriptionContextProvider>
         <Layout
           sections={[
@@ -261,12 +260,12 @@ export default function ApplicationHome() {
 
             {
               items: [
-                {
-                  text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
-                  routePath: FOLDERS_URL,
-                  routeComp: RootFolderListView,
-                  icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
-                },
+                // {
+                //   text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
+                //   routePath: FOLDERS_URL,
+                //   routeComp: RootFolderListView,
+                //   icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
+                // },
                 {
                   text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                   routePath: ALL_APPLICATIONS_URL,

@@ -418,7 +418,7 @@ public class UserServiceImpl implements UserService {
         return connections.stream()
                 .filter(connection -> !AuthSourceConstants.EMAIL.equals(connection.getSource()) &&
                         !AuthSourceConstants.PHONE.equals(connection.getSource()))
-                .collect(Collectors.toMap(Connection::getSource, Connection::getRawUserInfo));
+                .collect(Collectors.toMap(Connection::getAuthId, Connection::getRawUserInfo));
     }
 
     protected String convertEmail(Set<Connection> connections) {

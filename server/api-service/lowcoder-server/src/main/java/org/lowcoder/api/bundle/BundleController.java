@@ -106,7 +106,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<PageResponseView<?>> getElements(@PathVariable String bundleId,
                                                    @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
-                                                   @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                   @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                    @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         String objectId = gidService.convertBundleIdToObjectId(bundleId);
         var flux = bundleApiService.getElements(objectId, applicationType).cache();

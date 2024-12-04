@@ -31,7 +31,7 @@ export const newAppPrefix = (userName: string, appType: AppTypeEnum = AppTypeEnu
   return trans("home.newApp", { userName: userName, name: toLower(HomeResInfo[appType].name) });
 };
 
-export function useCreateHomeRes() {
+export function useCreateHomeRes(setModify:any, modify: boolean) {
   const dispatch = useDispatch();
   const user = useSelector(getUser);
   const allApplications = useSelector(normalAppListSelector);
@@ -39,7 +39,7 @@ export function useCreateHomeRes() {
 
   const { folderId } = useParams<{ folderId: string }>();
 
-  const handleFolderCreate = useCreateFolder();
+  const handleFolderCreate = useCreateFolder(setModify, modify);
 
   const handleCreate = useCallback(
     (type: HomeResTypeEnum) => {

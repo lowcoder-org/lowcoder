@@ -70,12 +70,13 @@ public class FolderController implements FolderEndpoints
     public Mono<PageResponseView<?>> getElements(@RequestParam(value = "id", required = false) String folderId,
                                                  @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
                                                  @RequestParam(required = false) String name,
-                                                 @RequestParam(required = false, defaultValue = "0") Integer pageNum,
+                                                 @RequestParam(required = false) String category,
+                                                 @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                  @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         String objectId = gidService.convertFolderIdToObjectId(folderId);
-        var flux = folderApiService.getElements(objectId, applicationType, name).cache();
+        var flux = folderApiService.getElements(objectId, applicationType, name, category).cache();
         var countMono = flux.count();
-        var flux1 = flux.skip((long) pageNum * pageSize);
+        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
         if(pageSize > 0) flux1 = flux1.take(pageSize);
         return flux1.collectList()
             .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))

@@ -185,14 +185,14 @@ function NavLayoutPickModal(props: {
   );
 }
 
-export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayoutMode }) => {
-  const { defaultVisible, mode } = props;
+export const CreateDropdown = (props: { defaultVisible?: boolean; mode: HomeLayoutMode; setModify: any; modify: boolean }) => {
+  const { defaultVisible, mode, setModify, modify} = props;
   const [createDropdownVisible, setCreateDropdownVisible] = useState(false);
   const [layoutPickerVisible, setLayoutPickerVisible] = useState(false);
 
   const user = useSelector(getUser);
 
-  const [handleCreate, isCreating] = useCreateHomeRes();
+  const [handleCreate, isCreating] = useCreateHomeRes(setModify, modify);
 
   const getCreateMenuItem = (type: HomeResTypeEnum, mode?: HomeLayoutMode): ItemType => {
     if (

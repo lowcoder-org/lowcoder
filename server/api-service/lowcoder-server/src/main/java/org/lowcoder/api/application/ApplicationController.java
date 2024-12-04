@@ -78,8 +78,8 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name) {
-        return applicationApiService.getRecycledApplications(name)
+    public Mono<ResponseView<List<ApplicationInfoView>>> getRecycledApplications(@RequestParam(required = false) String name, @RequestParam(required = false) String category) {
+        return applicationApiService.getRecycledApplications(name, category)
                 .collectList()
                 .map(ResponseView::success);
     }
@@ -159,15 +159,16 @@ public class ApplicationController implements ApplicationEndpoints {
 
     @Override
     public Mono<ResponseView<List<ApplicationInfoView>>> getApplications(@RequestParam(required = false) Integer applicationType,
-            @RequestParam(required = false) ApplicationStatus applicationStatus,
-            @RequestParam(defaultValue = "true") boolean withContainerSize,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false, defaultValue = "0") Integer pageNum,
-            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
+                                                                         @RequestParam(required = false) ApplicationStatus applicationStatus,
+                                                                         @RequestParam(defaultValue = "true") boolean withContainerSize,
+                                                                         @RequestParam(required = false) String name,
+                                                                         @RequestParam(required = false) String category,
+                                                                         @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+                                                                         @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
-        var flux = userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name).cache();
+        var flux = userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name, category).cache();
         Mono<Long> countMono = flux.count();
-        var flux1 = flux.skip((long) pageNum * pageSize);
+        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
         if(pageSize > 0) flux1 = flux1.take(pageSize);
         return flux1.collectList().zipWith(countMono)
                 .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));

@@ -6,6 +6,7 @@ import { DraggableTreeContext } from "./DraggableTreeContext";
 import DroppablePlaceholder from "./DroppablePlaceHolder";
 import { DraggableTreeNode, DraggableTreeNodeItemRenderProps, IDragData, IDropData } from "./types";
 import { checkDroppableFlag } from "./util";
+import { Flex } from "antd";
 
 const DraggableMenuItemWrapper = styled.div`
   position: relative;
@@ -88,29 +89,34 @@ export default function DraggableMenuItem(props: IDraggableMenuItemProps) {
             disabled={isDragging || disabled}
           />
         )}
-        <DraggableItem
-          path={path}
-          id={id}
-          dropInAsSub={dropInAsSub && canDropIn !== false}
-          isOver={isOver}
-          ref={(node) => {
-            setDragNodeRef(node);
-            setDropNodeRef(node);
-          }}
-          {...dragListeners}
-        >
-          {renderContent?.({
-            node: item,
-            isOver,
-            path,
-            isOverlay,
-            hasChildren: items.length > 0,
-            dragging: !!(isDragging || parentDragging),
-            isFolded: isFold,
-            onDelete: () => onDelete?.(path),
-            onToggleFold: () => context.toggleFold(id),
-          }) || null}
-        </DraggableItem>
+        <Flex style={{paddingLeft: '15px'}} align="center">
+          <DraggableItem
+              path={path}
+              id={id}
+              dropInAsSub={dropInAsSub && canDropIn !== false}
+              isOver={isOver}
+              ref={(node) => {
+                setDragNodeRef(node);
+                setDropNodeRef(node);
+              }}
+              {...dragListeners}
+          >
+            <span style={{cursor: "default"}}>⣿</span>
+          </DraggableItem>
+          <div style={{ flex: 1 , maxWidth: "calc(100% - 12px)" }}>
+            {renderContent?.({
+              node: item,
+              isOver,
+              path,
+              isOverlay,
+              hasChildren: items.length > 0,
+              dragging: !!(isDragging || parentDragging),
+              isFolded: isFold,
+              onDelete: () => onDelete?.(path),
+              onToggleFold: () => context.toggleFold(id),
+            }) || null}
+          </div>
+        </Flex>
       </DraggableMenuItemWrapper>
       {items.length > 0 && !isFold && (
         <div className="sub-menu-list">

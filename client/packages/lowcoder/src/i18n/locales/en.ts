@@ -2038,8 +2038,9 @@ export const en = {
   "image": {
     "src": "Image Source",
     "srcDesc": "The Image Source. Can be an URL, Path or Base64 String. for Example: data:image/png;base64, AAA... CCC",
-    "supportPreview": "Support Click Preview (zoom)",
-    "supportPreviewTip": "Effective When the Image Source is Valid"
+    "supportPreview": "Support Zoom Preview (on Click)",
+    "supportPreviewTip": "Effective When the Image Source is Valid",
+    "previewSrc": "HighRes Image Source"
   },
   "progress": {
     "value": "Value",
@@ -2785,6 +2786,7 @@ export const en = {
     "switch": "Switch Component: "
   },
   "module": {
+    "folderNotEmpty": "Folder is not empty",
     "emptyText": "No Data",
     "docLink": "Read More About Modules...",
     "documentationText" : "Modules are complete Applications, that can get included and repeated in other Applications and it functions just like a single component. As modules can get embedded, they need to be able to interact with your outside apps or websites. This four settings help to support communication with a Module.",
