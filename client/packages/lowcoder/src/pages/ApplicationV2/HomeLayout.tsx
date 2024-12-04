@@ -340,6 +340,8 @@ export function HomeLayout(props: HomeLayoutProps) {
     modify
 
   } = props;
+
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -431,15 +433,6 @@ export function HomeLayout(props: HomeLayoutProps) {
       }
       return true;
       })
-    .filter((e) => {
-      // If "All" is selected, do not filter out any elements based on category
-      if (categoryFilter === 'All' || !categoryFilter) {
-        return true;
-      }
-      // Otherwise, filter elements based on the selected category
-      return !e.folder && e.category === categoryFilter.toString();
-    })
-    
     .map((e) =>
       e.folder
         ? {
@@ -470,7 +463,6 @@ export function HomeLayout(props: HomeLayoutProps) {
             isLocalMarketplace: e.isLocalMarketplace,
           }
     );
-
 
   const getFilterMenuItem = (type: HomeResTypeEnum) => {
     const Icon = HomeResInfo[type].icon;
