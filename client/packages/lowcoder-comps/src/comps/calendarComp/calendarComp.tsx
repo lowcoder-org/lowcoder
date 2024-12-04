@@ -845,7 +845,7 @@ let CalendarBasicComp = (function () {
       updateEventsOnDragOrResize(eventInfo.event);
 
       if (typeof props.onDropEvent === 'function') {
-        props.onDropEvent("dropEvent");
+        props.onDropEvent("drop");
       }
     }, [props.onDropEvent, updateEventsOnDragOrResize]);
 
@@ -957,6 +957,11 @@ let CalendarBasicComp = (function () {
               });
               if (needChange) {
                 props.onEvent("change");
+              }
+            }}
+            eventDragStart={() => {
+              if (typeof props.onDropEvent === 'function') {
+                props.onDropEvent("drag");
               }
             }}
             eventDrop={handleDrop}
