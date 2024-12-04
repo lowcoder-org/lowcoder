@@ -30,7 +30,7 @@ export function HomeView() {
             pageSize:pageSize,
             applicationType: ApplicationPaginationType[typeFilter],
             name: searchValues,
-            category: categoryFilter
+            category: categoryFilter === "All" ? "" : categoryFilter
           }).then(
             (data: any) => {
               if (data.success) {
