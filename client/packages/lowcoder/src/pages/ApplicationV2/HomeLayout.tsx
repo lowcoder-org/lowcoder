@@ -316,6 +316,7 @@ export interface HomeLayoutProps {
   searchValue?: string;
   setSearchValue?: any;
   setTypeFilterPagination?: any;
+  setCategoryFilterPagination?: any;
   setModify?: any;
   modify?: boolean;
 }
@@ -334,6 +335,7 @@ export function HomeLayout(props: HomeLayoutProps) {
     setSearchValue,
     total,
     setTypeFilterPagination,
+    setCategoryFilterPagination,
     setModify,
     modify
 
@@ -551,12 +553,17 @@ export function HomeLayout(props: HomeLayoutProps) {
                   getPopupContainer={(node: any) => node}
                   suffixIcon={<ArrowSolidIcon />} />
               )}
-              {mode === "view" &&
+              {(mode === "view" || mode === "folder") &&
                   <FilterDropdown
                       style={{ minWidth: "220px" }}
                       variant="borderless"
                       value={categoryFilter}
-                      onChange={(value: any) => setCategoryFilter(value as ApplicationCategoriesEnum)}
+                      onChange={(value: any) => {
+                        setCategoryFilter(value as ApplicationCategoriesEnum)
+                        setCategoryFilterPagination(value as ApplicationCategoriesEnum);
+                        }
+
+                      }
                       options={categoryOptions}
                     // getPopupContainer={(node) => node}
                       suffixIcon={<ArrowSolidIcon />}

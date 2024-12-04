@@ -5,7 +5,7 @@ import { Helmet } from "react-helmet";
 import { trans } from "i18n";
 import {useState, useEffect } from "react";
 import {fetchFolderElements} from "@lowcoder-ee/util/pagination/axios";
-import {ApplicationMeta, FolderMeta} from "@lowcoder-ee/constants/applicationConstants";
+import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "@lowcoder-ee/constants/applicationConstants";
 import {ApplicationPaginationType} from "@lowcoder-ee/util/pagination/type";
 
 interface ElementsState {
@@ -21,26 +21,29 @@ export function HomeView() {
     const [searchValues, setSearchValues] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
     const [modify, setModify] = useState(true);
+    const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
+
       useEffect( () => {
-          try{
-              fetchFolderElements({
-                  pageNum:currentPage,
-                  pageSize:pageSize,
-                  applicationType: ApplicationPaginationType[typeFilter],
-                  name: searchValues,
-              }).then(
-                  (data: any) => {
-                      if (data.success) {
-                          setElements({elements: data.data || [], total: data.total || 1})
-                      }
-                      else
-                        console.error("ERROR: fetchFolderElements", data.error)
-                  }
-              );
-          } catch (error) {
-              console.error('Failed to fetch data:', error);
-          }
-          }, [currentPage, pageSize, searchValues, typeFilter, modify]
+        try{
+          fetchFolderElements({
+            pageNum:currentPage,
+            pageSize:pageSize,
+            applicationType: ApplicationPaginationType[typeFilter],
+            name: searchValues,
+            category: categoryFilter
+          }).then(
+            (data: any) => {
+              if (data.success) {
+                setElements({elements: data.data || [], total: data.total || 1})
+              }
+              else
+                console.error("ERROR: fetchFolderElements", data.error)
+            }
+          );
+        } catch (error) {
+            console.error('Failed to fetch data:', error);
+        }
+        }, [currentPage, pageSize, searchValues, typeFilter, modify, categoryFilter]
       );
 
     useEffect( () => {
@@ -79,6 +82,7 @@ export function HomeView() {
         setTypeFilterPagination={setTypeFilter}
         setModify={setModify}
         modify={modify}
+        setCategoryFilterPagination={setCategoryFilter}
       />
     </>
   );
