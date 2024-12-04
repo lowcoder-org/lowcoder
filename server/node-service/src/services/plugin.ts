@@ -189,7 +189,7 @@ export function listPlugins(ctx: PluginContext, ids: string[] = []) {
     const pluginMeta = {
       ...plugin,
       shouldValidateDataSourceConfig: !!plugin.validateDataSourceConfig,
-    } as DataSourcePluginMeta;
+    } as unknown as DataSourcePluginMeta;
 
     pluginMetaOps.forEach(([path, fn]) => {
       jsonPath.apply(pluginMeta, path, fn);

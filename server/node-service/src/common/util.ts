@@ -128,6 +128,6 @@ export function dirToSpecList(specDir: string) {
       spec,
     });
   });
-  logger.info("spec list loaded %s, duration: %d ms",specDir, performance.now() - start);
+  // logger.info("spec list loaded %s, duration: %d ms",specDir, performance.now() - start);
   return specList;
 }

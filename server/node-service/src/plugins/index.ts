@@ -39,6 +39,7 @@ import postmanEchoPlugin from "./postmanEcho";
 import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
+import apiTemplatePlugin from "./apiTemplate";
 // import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
@@ -90,6 +91,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
+  apiTemplatePlugin,
   ossPlugin,
   
   // Project Management
