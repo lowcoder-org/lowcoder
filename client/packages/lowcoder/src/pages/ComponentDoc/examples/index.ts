@@ -1,5 +1,7 @@
 import { UICompType } from "comps/uiCompRegistry";
 import ButtonExample from "./ButtonComp/Button";
+import IconButtonExample from "./ButtonComp/IconButton";
+import ToggleButtonExample from "./ButtonComp/ToggleButton";
 import InputExample from "./textInputComp/Input";
 import PasswordExample from "./textInputComp/Password";
 import TextAreaExample from "./textInputComp/TextArea";
@@ -36,6 +38,8 @@ import IFrameExample from "./IFrame";
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
+  controlButton: IconButtonExample,
+  toggleButton: ToggleButtonExample,
   input: InputExample,
   textArea: TextAreaExample,
   password: PasswordExample,
