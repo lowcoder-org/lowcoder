@@ -179,6 +179,18 @@ public class Application extends HasIdAndAuditing {
         return dsl;
     }
 
+    public String getCategory() {
+        if(editingApplicationDSL == null || editingApplicationDSL.get("settings") == null) return "";
+        Object settingsObject = editingApplicationDSL.get("settings");
+        if (settingsObject instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> settings = (Map<String, Object>) editingApplicationDSL.get("settings");
+            return (String) settings.get("category");
+        } else {
+            return "";
+        }
+    }
+
     public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
 
     public Object getLiveContainerSize() {
