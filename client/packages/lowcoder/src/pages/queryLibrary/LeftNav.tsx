@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import styled, { css } from "styled-components";
 import {
   BluePlusIcon,
@@ -21,6 +21,7 @@ import { trans } from "i18n";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 import { saveAs } from "file-saver";
 import DataSourceIcon from "components/DataSourceIcon";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const Wrapper = styled.div<{ $readOnly?: boolean }>`
   display: flex;
@@ -72,7 +73,7 @@ const CreateBtn = styled(TacoButton)<{ $readOnly?: boolean }>`
 `;
 
 const Body = styled.div`
-  height: calc(100% - 80px);
+  height: calc(100% - 120px);
   display: flex;
   flex-direction: column;
 `;
@@ -158,10 +159,30 @@ export const LeftNav = (props: {
   addQuery: () => void;
   onSelect: (queryId: string) => void;
   readOnly?: boolean;
+  setCurrentPage: (page: number) => void;
+  setPageSize: (size: number) => void;
+  currentPage: number;
+  pageSize: number;
+  total: number;
+  setSearchValues: any;
+  searchValues: string;
+  setModify?: any;
+  modify?: boolean;
 }) => {
+  const {currentPage, setCurrentPage, pageSize, setPageSize, total , setSearchValues, searchValues, modify, setModify} = props
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
   const datasourceTypes = useSelector(getDataSourceTypesMap);
+
+  useEffect(()=> {
+    const timer = setTimeout(() => {
+      if (searchValue.length > 2 || searchValue === "")
+        setSearchValues(searchValue)
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchValue])
+
+
 
   return (
     <ReadOnlyMask readOnly={!!props.readOnly}>
@@ -189,12 +210,6 @@ export const LeftNav = (props: {
                     let datasourceTypeName =
                       datasourceTypes[q.libraryQueryDSL?.query?.compType as DatasourceType]?.name ??
                       "";
-                    if (searchValue) {
-                      return (
-                        q.name.toLowerCase().includes(searchValue) ||
-                        datasourceTypeName.toLowerCase().includes(searchValue)
-                      );
-                    }
                     return true;
                   })
                   .map((q) => (
@@ -234,8 +249,12 @@ export const LeftNav = (props: {
                                   CustomModal.confirm({
                                     title: trans("queryLibrary.deleteQueryTitle"),
                                     content: trans("queryLibrary.deleteQueryContent"),
-                                    onConfirm: () =>
-                                      dispatch(deleteQueryLibrary({ queryLibraryId: q.id })),
+                                    onConfirm: () => {
+                                      dispatch(deleteQueryLibrary({ queryLibraryId: q.id }))
+                                      setTimeout(() => {
+                                        setModify(!modify);
+                                      }, 200);
+                                    },
                                     confirmBtnType: "delete",
                                     okText: trans("delete"),
                                   }),
@@ -272,6 +291,17 @@ export const LeftNav = (props: {
             </ScrollBar>
           </SelectListWrapper>
         </Body>
+        <PaginationComp
+            height={40}
+            marginTop={0}
+            marginBottom={0}
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            total={total}
+            simple={true}
+        />
       </Wrapper>
     </ReadOnlyMask>
   );

@@ -4,6 +4,7 @@ import { TacoButton } from "lowcoder-design/src/components/button"
 import styled from "styled-components";
 import { useDispatch } from "react-redux";
 import {
+  backFolderViewClick,
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
@@ -51,7 +52,8 @@ const TypographyText = styled(AntdTypographyText)`
   width: 100%;
 `;
 
-export const HomeTableView = (props: { resources: HomeRes[] }) => {
+export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, modify?: boolean, mode?: string }) => {
+  const {setModify, modify, resources, mode} = props
   const dispatch = useDispatch();
 
   const { folderId } = useParams<{ folderId: string }>();
@@ -60,26 +62,43 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
   const [needDuplicateRes, setNeedDuplicateRes] = useState<HomeRes | undefined>(undefined);
   const [needMoveRes, setNeedMoveRes] = useState<HomeRes | undefined>(undefined);
 
+  const back: HomeRes = {
+    key: "",
+      id: "",
+      name: ". . .",
+      type: 4,
+      creator: "",
+      lastModifyTime: 0,
+      isManageable: false,
+      isDeletable: false
+  }
+  if (mode === "folder"){
+    resources.unshift(back)
+  }
+
   return (
     <>
       <Table
-        style={{ padding: "0 24px 80px", color: "#8B8FA3" }}
+        style={{ padding: "0 24px 60px", color: "#8B8FA3" }}
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
-            // console.log(e.target);
-            const item = record as HomeRes;
-            if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
-              return;
-            }
-            if (item.type === HomeResTypeEnum.Folder) {
-              handleFolderViewClick(item.id);
-            } else if(item.isMarketplace) {
-              handleMarketplaceAppViewClick(item.id);
-            } else {
-              item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
+            if (mode === "folder" && record.type === 4){
+              backFolderViewClick()
+            } else{
+              const item = record as HomeRes;
+              if (needRenameRes?.id === item.id || needDuplicateRes?.id === item.id) {
+                return;
+              }
+              if (item.type === HomeResTypeEnum.Folder) {
+                handleFolderViewClick(item.id);
+              } else if(item.isMarketplace) {
+                handleMarketplaceAppViewClick(item.id);
+              } else {
+                item.isEditable ? handleAppEditClick(e, item.id) : handleAppViewClick(item.id);
+              }
             }
           },
         })}
@@ -122,6 +141,9 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                         }
                         if (item.type === HomeResTypeEnum.Folder) {
                           dispatch(updateFolder({ id: item.id, name: value }));
+                          setTimeout(() => {
+                            setModify(!modify);
+                          }, 200);
                         } else {
                           dispatch(
                             updateAppMetaAction({
@@ -130,6 +152,9 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                               folderId: folderId,
                             })
                           );
+                          setTimeout(() => {
+                            setModify(!modify);
+                          }, 200);
                         }
                         setNeedRenameRes(undefined);
                       },
@@ -154,7 +179,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
             },
             render: (_, record) => (
               <SubColumnCell>
-                {HomeResInfo[(record as any).type as HomeResTypeEnum].name}
+                { mode === "folder" && record.type === 4  ?  "" : HomeResInfo[(record as any).type as HomeResTypeEnum].name }
               </SubColumnCell>
             ),
           },
@@ -216,7 +241,7 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                         ? handleMarketplaceAppViewClick(item.id)
                         : handleAppViewClick(item.id);
                     }}
-                    style={{ marginRight: "52px" }}
+                    style={{ marginRight: "52px", display: mode === "folder" && record.type === 4 ? "none" : "block" }}
                   >
                     {trans("view")}
                   </EditBtn>
@@ -225,15 +250,17 @@ export const HomeTableView = (props: { resources: HomeRes[] }) => {
                     onDuplicate={(res) => setNeedDuplicateRes(res)}
                     onRename={(res) => setNeedRenameRes(res)}
                     onMove={(res) => setNeedMoveRes(res)}
+                    setModify={setModify}
+                    modify={modify!}
                   />
                 </OperationWrapper>
               );
             },
           },
         ]}
-        dataSource={props.resources}
+        dataSource={resources}
       />
-      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} />
+      <MoveToFolderModal source={needMoveRes} onClose={() => setNeedMoveRes(undefined)} setModify={setModify} modify={modify!} />
     </>
   );
 };

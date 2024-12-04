@@ -8,6 +8,7 @@ import { HomeRes } from "./HomeLayout";
 import { HomeResTypeEnum } from "../../types/homeRes";
 import { updateFolder } from "../../redux/reduxActions/folderActions";
 import {
+  backFolderViewClick,
   handleAppEditClick,
   handleAppViewClick,
   handleFolderViewClick,
@@ -23,6 +24,7 @@ import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { colorPickerEvent } from "@lowcoder-ee/comps/comps/mediaComp/colorPickerComp";
+import {FolderIcon} from "icons";
 
 const EditButton = styled(TacoButton)`
   width: 52px;
@@ -141,8 +143,8 @@ const OperationWrapper = styled.div`
 
 const MONTH_MILLIS = 30 * 24 * 60 * 60 * 1000;
 
-export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void }) {
-  const { res, onMove } = props;
+export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => void; setModify:any; modify: boolean }) {
+  const { res, onMove, setModify, modify } = props;
   const [appNameEditing, setAppNameEditing] = useState(false);
   const dispatch = useDispatch();
 
@@ -214,10 +216,16 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
               }
               if (res.type === HomeResTypeEnum.Folder) {
                 dispatch(updateFolder({ id: res.id, name: value }));
+                setTimeout(() => {
+                  setModify(!modify);
+                }, 200);
               } else {
                 dispatch(
                   updateAppMetaAction({ applicationId: res.id, name: value, folderId: folderId })
                 );
+                setTimeout(() => {
+                  setModify(!modify);
+                }, 200);
               }
               setAppNameEditing(false);
             }}
@@ -245,9 +253,37 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
             res={res}
             onRename={() => setAppNameEditing(true)}
             onMove={(res) => onMove(res)}
+            setModify={setModify}
+            modify={modify}
           />
         </OperationWrapper>
       </Card>
     </Wrapper>
   );
+}
+
+export function Back(props: { mode: string }) {
+  const { mode } = props;
+  return mode === "folder" ?
+      <Wrapper style={{cursor: "pointer"}}>
+        <Card>
+          <FolderIcon width={"42px"} height={"42px"} style={
+            {
+              marginRight: "10px",
+              flexShrink: 0
+            }
+          } />
+          <CardInfo
+              onClick={(e) => {
+                backFolderViewClick();
+              }}
+          >
+            <TypographyText
+            />
+            <h1 style={{fontSize:"x-large"}}>...</h1>
+            <AppTimeOwnerInfoLabel title={""}></AppTimeOwnerInfoLabel>
+          </CardInfo>
+        </Card>
+      </Wrapper>
+      : <></>;
 }

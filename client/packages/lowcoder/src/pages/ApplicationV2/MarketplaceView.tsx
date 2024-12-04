@@ -13,6 +13,7 @@ import { Helmet } from "react-helmet";
 export function MarketplaceView() {
   const [ marketplaceApps, setMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
   const [ localMarketplaceApps, setLocalMarketplaceApps ] = useState<Array<ApplicationMeta>>([]);
+  const [searchValue, setSearchValue] = useState("");
 
   const fetchMarketplaceApps = async () => {
     try {
@@ -60,7 +61,10 @@ export function MarketplaceView() {
         localMarketplaceApps={localMarketplaceApps}
         globalMarketplaceApps={marketplaceApps}
         breadcrumb={[{ text: trans("home.marketplace"), path: MARKETPLACE_URL }]}
-        mode={"marketplace"} />
+        mode={"marketplace"}
+        searchValue={searchValue}
+        setSearchValue={setSearchValue}
+      />
     </>
   );
 };
