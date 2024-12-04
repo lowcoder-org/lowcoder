@@ -21,6 +21,7 @@ export function HomeView() {
     const [searchValues, setSearchValues] = useState("");
     const [typeFilter, setTypeFilter] = useState<number>(0);
     const [modify, setModify] = useState(true);
+    const [isCreated, setIsCreated] = useState(true);
     const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
 
       useEffect( () => {
@@ -43,7 +44,7 @@ export function HomeView() {
         } catch (error) {
             console.error('Failed to fetch data:', error);
         }
-        }, [currentPage, pageSize, searchValues, typeFilter, modify, categoryFilter]
+        }, [currentPage, pageSize, searchValues, typeFilter, modify, categoryFilter, isCreated]
       );
 
     useEffect( () => {
@@ -83,6 +84,8 @@ export function HomeView() {
         setModify={setModify}
         modify={modify}
         setCategoryFilterPagination={setCategoryFilter}
+        setIsCreated={setIsCreated}
+        isCreated={isCreated}
       />
     </>
   );

@@ -317,6 +317,8 @@ export interface HomeLayoutProps {
   setSearchValue?: any;
   setTypeFilterPagination?: any;
   setCategoryFilterPagination?: any;
+  setIsCreated?: any;
+  isCreated?: boolean;
   setModify?: any;
   modify?: boolean;
 }
@@ -337,7 +339,9 @@ export function HomeLayout(props: HomeLayoutProps) {
     setTypeFilterPagination,
     setCategoryFilterPagination,
     setModify,
-    modify
+    modify,
+    setIsCreated,
+    isCreated
 
   } = props;
 
@@ -579,7 +583,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
                 {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
-                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setModify} modify={modify!} />
+                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setIsCreated} modify={isCreated!} />
                 )}
               </OperationRightWrapper>
             </OperationWrapper>
@@ -666,7 +670,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setModify} modify={modify!}/>}
+                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setIsCreated} modify={isCreated!}/>}
                     </EmptyView>
                   )}
                 </>
