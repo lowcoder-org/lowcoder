@@ -1,5 +1,5 @@
-import "comps/comps/layout/navLayout";
-import "comps/comps/layout/mobileTabLayout";
+// import "comps/comps/layout/navLayout";
+// import "comps/comps/layout/mobileTabLayout";
 
 import { CompAction, CompActionTypes } from "lowcoder-core";
 import { EditorContext, EditorState } from "comps/editorState";
