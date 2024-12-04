@@ -61,6 +61,7 @@ export interface fetchFolderRequestType {
     pageSize?: number;
     name?: string;
     applicationType?: string;
+    category?: string
 }
 
 export interface fetchDBRequestType {

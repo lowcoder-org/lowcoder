@@ -2,7 +2,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { HomeBreadcrumbType, HomeLayout } from "./HomeLayout";
 import {useEffect, useState} from "react";
-import {ApplicationMeta, FolderMeta} from "../../constants/applicationConstants";
+import {ApplicationCategoriesEnum, ApplicationMeta, FolderMeta} from "../../constants/applicationConstants";
 import { buildFolderUrl } from "../../constants/routesURL";
 import { folderElementsSelector, foldersSelector } from "../../redux/selectors/folderSelector";
 import { Helmet } from "react-helmet";
@@ -46,6 +46,7 @@ export function FolderView() {
   const [typeFilter, setTypeFilter] = useState<number>(0);
   const [modify, setModify] = useState(true);
   const [searchValue, setSearchValue] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
 
   const dispatch = useDispatch();
 
@@ -68,6 +69,7 @@ export function FolderView() {
             pageSize:pageSize,
             applicationType: ApplicationPaginationType[typeFilter],
             name: searchValues,
+            category: categoryFilter === "All" ? "" : categoryFilter
           }).then(
               (data: any) => {
                 if (data.success) {
@@ -80,7 +82,7 @@ export function FolderView() {
         } catch (error) {
           console.error('Failed to fetch data:', error);
         }
-      }, [currentPage, pageSize, searchValues, typeFilter, modify]);
+      }, [currentPage, pageSize, searchValues, typeFilter, modify, categoryFilter]);
 
     useEffect( () => {
             if (searchValues !== "")
@@ -113,6 +115,7 @@ export function FolderView() {
           setTypeFilterPagination={setTypeFilter}
           setModify={setModify}
           modify={modify}
+          setCategoryFilterPagination={setCategoryFilter}
       />
     </>
   );

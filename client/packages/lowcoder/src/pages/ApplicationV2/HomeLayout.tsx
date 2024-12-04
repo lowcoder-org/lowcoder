@@ -316,6 +316,9 @@ export interface HomeLayoutProps {
   searchValue?: string;
   setSearchValue?: any;
   setTypeFilterPagination?: any;
+  setCategoryFilterPagination?: any;
+  setIsCreated?: any;
+  isCreated?: boolean;
   setModify?: any;
   modify?: boolean;
 }
@@ -334,10 +337,15 @@ export function HomeLayout(props: HomeLayoutProps) {
     setSearchValue,
     total,
     setTypeFilterPagination,
+    setCategoryFilterPagination,
     setModify,
-    modify
+    modify,
+    setIsCreated,
+    isCreated
 
   } = props;
+
+
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
@@ -429,15 +437,6 @@ export function HomeLayout(props: HomeLayoutProps) {
       }
       return true;
       })
-    .filter((e) => {
-      // If "All" is selected, do not filter out any elements based on category
-      if (categoryFilter === 'All' || !categoryFilter) {
-        return true;
-      }
-      // Otherwise, filter elements based on the selected category
-      return !e.folder && e.category === categoryFilter.toString();
-    })
-    
     .map((e) =>
       e.folder
         ? {
@@ -468,7 +467,6 @@ export function HomeLayout(props: HomeLayoutProps) {
             isLocalMarketplace: e.isLocalMarketplace,
           }
     );
-
 
   const getFilterMenuItem = (type: HomeResTypeEnum) => {
     const Icon = HomeResInfo[type].icon;
@@ -546,17 +544,22 @@ export function HomeLayout(props: HomeLayoutProps) {
                     getFilterMenuItem(HomeResTypeEnum.Application),
                     getFilterMenuItem(HomeResTypeEnum.Module),
                     ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation), getFilterMenuItem(HomeResTypeEnum.MobileTabLayout)] : []),
-                    ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
+                    ...(mode !== "trash" && mode !== "marketplace" && mode !== "folder" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
                   ]}
                   getPopupContainer={(node: any) => node}
                   suffixIcon={<ArrowSolidIcon />} />
               )}
-              {mode === "view" &&
+              {(mode === "view" || mode === "folder") &&
                   <FilterDropdown
                       style={{ minWidth: "220px" }}
                       variant="borderless"
                       value={categoryFilter}
-                      onChange={(value: any) => setCategoryFilter(value as ApplicationCategoriesEnum)}
+                      onChange={(value: any) => {
+                        setCategoryFilter(value as ApplicationCategoriesEnum)
+                        setCategoryFilterPagination(value as ApplicationCategoriesEnum);
+                        }
+
+                      }
                       options={categoryOptions}
                     // getPopupContainer={(node) => node}
                       suffixIcon={<ArrowSolidIcon />}
@@ -580,7 +583,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
                 {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
-                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setModify} modify={modify!} />
+                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setIsCreated} modify={isCreated!} />
                 )}
               </OperationRightWrapper>
             </OperationWrapper>
@@ -667,7 +670,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setModify} modify={modify!}/>}
+                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setIsCreated} modify={isCreated!}/>}
                     </EmptyView>
                   )}
                 </>
