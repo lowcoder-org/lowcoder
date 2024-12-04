@@ -20,13 +20,11 @@ export function TrashView() {
     const [modify, setModify] = useState(false);
 
     useEffect( () => {
-          if (typeFilter === 7) // Application of Navigation is 3 in API.
-              setTypeFilter(3);
             try{
                 fetchApplicationElements({
                     pageNum:currentPage,
                     pageSize:pageSize,
-                    applicationType: typeFilter,
+                    applicationType: typeFilter === 7 ? 3 : typeFilter, // // Application of Navigation is 3 in API.
                     name: searchValues,
                 }).then(
                     data => {

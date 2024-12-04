@@ -545,7 +545,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                     getFilterMenuItem(HomeResTypeEnum.All),
                     getFilterMenuItem(HomeResTypeEnum.Application),
                     getFilterMenuItem(HomeResTypeEnum.Module),
-                    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
+                    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation), getFilterMenuItem(HomeResTypeEnum.MobileTabLayout)] : []),
                     ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
                   ]}
                   getPopupContainer={(node: any) => node}
