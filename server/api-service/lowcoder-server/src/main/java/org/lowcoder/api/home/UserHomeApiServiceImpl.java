@@ -202,7 +202,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                 }
                                 return applicationService.findByOrganizationIdWithoutDsl(currentOrgId);
                             })
-                            .filter(application -> (isNull(applicationType) || application.getApplicationType() == applicationType.getValue())
+                            .filter(application -> (isNull(applicationType) || applicationType == ApplicationType.ALL || application.getApplicationType() == applicationType.getValue())
                                     && (isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
                                     && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name))
                                     && (isNull(category) || StringUtils.containsIgnoreCase(application.getCategory(), category)))
