@@ -5,13 +5,14 @@ type ApplicationType = {
 };
 
 export const ApplicationPaginationType: ApplicationType = {
-    0: "",
+    0: "ALL",
     1: "APPLICATION",
     2: "MODULE",
-    3: "NAVLAYOUT",
+    3: "NAVIGATION",
     4: "FOLDER",
-    6: "MOBILETABLAYOUT",
-    7: "COMPOUND_APPLICATION",
+    6: "MOBILE_TAB_LAYOUT", //mobile navigation.
+    7: "NAV_LAYOUT", //pc navigation
+    8: "BUNDLE"
 };
 
 export interface GenericApiPaginationResponse<T> {
