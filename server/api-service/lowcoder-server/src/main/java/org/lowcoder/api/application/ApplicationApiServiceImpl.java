@@ -300,7 +300,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                             .build();
                 })
                 .delayUntil(applicationView -> {
-                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.COMPOUND_APPLICATION.getValue()) {
+                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.NAV_LAYOUT.getValue()) {
                         return compoundApplicationDslFilter.removeSubAppsFromCompoundDsl(applicationView.getApplicationDSL());
                     }
                     return Mono.empty();
