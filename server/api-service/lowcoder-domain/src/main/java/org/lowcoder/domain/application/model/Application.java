@@ -165,12 +165,39 @@ public class Application extends HasIdAndAuditing {
     }
 
     public String getCategory() {
-        if(editingApplicationDSL == null || editingApplicationDSL.get("settings") == null) return "";
-        Object settingsObject = editingApplicationDSL.get("settings");
+        var liveDSL = getLiveApplicationDsl();
+        if(liveDSL == null || liveDSL.get("settings") == null) return "";
+        Object settingsObject = liveDSL.get("settings");
         if (settingsObject instanceof Map) {
             @SuppressWarnings("unchecked")
-            Map<String, Object> settings = (Map<String, Object>) editingApplicationDSL.get("settings");
+            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
             return (String) settings.get("category");
+        } else {
+            return "";
+        }
+    }
+
+    public String getTitle() {
+        var liveDSL = getLiveApplicationDsl();
+        if(liveDSL == null || liveDSL.get("settings") == null) return "";
+        Object settingsObject = liveDSL.get("settings");
+        if (settingsObject instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+            return (String) settings.get("title");
+        } else {
+            return "";
+        }
+    }
+
+    public String getDescription() {
+        var liveDSL = getLiveApplicationDsl();
+        if(liveDSL == null || liveDSL.get("settings") == null) return "";
+        Object settingsObject = liveDSL.get("settings");
+        if (settingsObject instanceof Map) {
+            @SuppressWarnings("unchecked")
+            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+            return (String) settings.get("description");
         } else {
             return "";
         }
