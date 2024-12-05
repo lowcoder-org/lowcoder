@@ -28,7 +28,7 @@ public class ApplicationInfoView {
     @JsonInclude(Include.NON_NULL)
     private final Object containerSize; // for module size
     @Nullable
-    private final String folderId;
+    private String folderId;
 
     @Nullable
     private final Instant lastViewTime; // user last visit time for this app
@@ -60,5 +60,8 @@ public class ApplicationInfoView {
      */
     public boolean isFolder() {
         return false;
+    }
+    public void setFolderId(@Nullable String folderId) {
+        this.folderId = folderId;
     }
 }
