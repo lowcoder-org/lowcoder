@@ -161,6 +161,9 @@ export function getEchartsConfig(
       "min": props.min,
       "max": props.max,
       "gap": props.gap,
+      "itemStyle": {
+        "opacity": props.opacity
+      },
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top

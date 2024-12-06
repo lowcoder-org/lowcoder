@@ -80,6 +80,9 @@ export const en = {
     gap: 'Gap',
     defaultGap: '2',
     label:'Label',
+    opacity: 'Opacity',
+    defaultOpacity: '1',
+
   },
   gaugeChart: {
     title: 'Title',
