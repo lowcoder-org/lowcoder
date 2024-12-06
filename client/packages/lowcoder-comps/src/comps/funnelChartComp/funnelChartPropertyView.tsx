@@ -33,6 +33,7 @@ export function funnelChartPropertyView(
         })}
         {children.legendVisibility.getView()&& children.echartsLegendConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
+        {children.echartsFunnelAlignConfig.getPropertyView()}
         {children.echartsTitleConfig.getPropertyView()}
         {children.left.propertyView({ label: trans("funnelChart.left") })}
         {children.top.propertyView({ label: trans("funnelChart.top") })}

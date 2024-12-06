@@ -24,6 +24,7 @@ import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxi
 import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
 import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
 import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { EchartsFunnelAlignConfig } from "../chartComp/chartConfigs/echartsFunnelAlignConfig";
 import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
 import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
@@ -253,6 +254,7 @@ let chartJsonModeChildren: any = {
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
   // style: styleControl(EchartsStyle, 'style'),
