@@ -110,6 +110,7 @@ export const en = {
     legendPosition: "Legend Position",
     labelPosition: "Label Position",
     titlePosition: "Title Position",
+    funnelAlign: "Funnel Align"
   },
   chart: {
     delete: "Delete",
