@@ -41,6 +41,7 @@ export function funnelChartPropertyView(
         {children.min.propertyView({ label: trans("funnelChart.min") })}
         {children.max.propertyView({ label: trans("funnelChart.max") })}
         {children.gap.propertyView({ label: trans("funnelChart.gap") })}
+        {children.opacity.propertyView({ label: trans("funnelChart.opacity") })}
         {children.echartsTitle.propertyView({ label: trans("funnelChart.title") })}
         {children.tooltip.propertyView({label: trans("funnelChart.tooltip")})}
         {children.label.propertyView({label: trans("funnelChart.label")})}

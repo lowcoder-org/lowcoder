@@ -30,7 +30,7 @@ import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig
 import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { FunnelChartConfig } from "../chartComp/chartConfigs/funnelChartConfig";
+import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
@@ -265,7 +265,8 @@ let chartJsonModeChildren: any = {
   width:withDefault(NumberControl,trans('funnelChart.defaultWidth')),
   min:withDefault(NumberControl,trans('funnelChart.defaultMin')),
   max:withDefault(NumberControl,trans('funnelChart.defaultMax')),
-  gap:withDefault(NumberControl,trans('funnelChart.defaultGap'))
+  gap:withDefault(NumberControl,trans('funnelChart.defaultGap')),
+  opacity:withDefault(NumberControl,trans('funnelChart.defaultOpacity'))
 }
 if (EchartsStyle) {
   chartJsonModeChildren = {
