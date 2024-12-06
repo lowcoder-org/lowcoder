@@ -161,7 +161,7 @@ public class OrgApiServiceImpl implements OrgApiService {
     private Mono<OrgMember> checkVisitorAdminRole(String orgId) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
-                .filter(it -> it.getRole() == MemberRole.ADMIN)
+                .filter(it -> it.getRole() == MemberRole.ADMIN || it.getRole() == MemberRole.SUPER_ADMIN)
                 .switchIfEmpty(deferredError(BizError.NOT_AUTHORIZED, "NOT_AUTHORIZED"));
     }
 
