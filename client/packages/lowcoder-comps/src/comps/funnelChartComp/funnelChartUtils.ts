@@ -161,7 +161,8 @@ export function getEchartsConfig(
       "min": props.min,
       "max": props.max,
       "gap": props.gap,
-      "funnelAlign": props.echartsFunnelAlignConfig.top,
+      "funnelAlign": props.echartsFunnelAlignConfig.funnelAlign,
+      "sort": props.echartsSortingConfig.sort,
       "itemStyle": {
         "opacity": props.opacity
       },

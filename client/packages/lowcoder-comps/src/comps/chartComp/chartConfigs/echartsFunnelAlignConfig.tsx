@@ -26,19 +26,19 @@ const FunnelAlignOptions = [
 export const EchartsFunnelAlignConfig = (function () {
   return new MultiCompBuilder(
     {
-      position: dropdownControl(FunnelAlignOptions, "center"),
+      funnelAlign: dropdownControl(FunnelAlignOptions, "center"),
     },
     (props): FunnelSeriesOption => {
       const config: FunnelSeriesOption = {
-        top: "center",
+        funnelAlign: "center",
       };
-      config.top = props.position
+      config.funnelAlign = props.funnelAlign
       return config;
     }
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.position.propertyView({
+        {children.funnelAlign.propertyView({
           label: trans("echarts.funnelAlign"),
           radioButton: true,
         })}

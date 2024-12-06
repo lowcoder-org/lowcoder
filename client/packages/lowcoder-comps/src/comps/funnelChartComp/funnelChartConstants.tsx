@@ -33,6 +33,7 @@ import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
+import {EchartsSortingConfig} from "../chartComp/chartConfigs/echartsSortingConfig";
 
 export const ChartTypeOptions = [
   {
@@ -253,6 +254,7 @@ let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
+  echartsSortingConfig: EchartsSortingConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
   echartsConfig: EchartsOptionComp,
