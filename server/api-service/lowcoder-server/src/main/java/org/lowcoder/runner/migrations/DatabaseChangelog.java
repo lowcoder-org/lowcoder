@@ -396,6 +396,32 @@ public class DatabaseChangelog {
                 makeIndex("createdAt"));
     }
 
+    @ChangeSet(order = "027", id = "populate-email-in-user-connections", author = "Thomas")
+    public void populateEmailInUserConnections(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        Query query = new Query(Criteria.where("connections.authId").is("EMAIL")
+                .and("connections.email").is(null));
+
+        // Get the collection directly and use a cursor for manual iteration
+        MongoCursor<Document> cursor = mongoTemplate.getCollection("user").find(query.getQueryObject()).iterator();
+
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+
+            // Retrieve connections array
+            List<Document> connections = (List<Document>) document.get("connections");
+            for (Document connection : connections) {
+                if ("EMAIL".equals(connection.getString("authId")) && !connection.containsKey("email")) {
+                    // Set the email field with the value of the name field
+                    connection.put("email", connection.getString("name"));
+                }
+            }
+
+            // Save the updated document back to the collection
+            mongoTemplate.getCollection("user").replaceOne(new Document("_id", document.get("_id")), document);
+        }
+
+    }
+
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
