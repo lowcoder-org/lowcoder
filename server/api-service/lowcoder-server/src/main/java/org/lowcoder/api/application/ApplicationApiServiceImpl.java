@@ -169,8 +169,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Flux<ApplicationInfoView> getRecycledApplications(String name) {
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name);
+    public Flux<ApplicationInfoView> getRecycledApplications(String name, String category) {
+        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name, category);
     }
 
     private Mono<Void> checkCurrentUserApplicationPermission(String applicationId, ResourceAction action) {
@@ -300,7 +300,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                             .build();
                 })
                 .delayUntil(applicationView -> {
-                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.COMPOUND_APPLICATION.getValue()) {
+                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.NAV_LAYOUT.getValue()) {
                         return compoundApplicationDslFilter.removeSubAppsFromCompoundDsl(applicationView.getApplicationDSL());
                     }
                     return Mono.empty();

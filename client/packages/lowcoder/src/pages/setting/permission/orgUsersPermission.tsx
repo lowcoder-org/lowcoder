@@ -14,16 +14,13 @@ import {
 import { trans, transToNode } from "i18n";
 import InviteDialog from "pages/common/inviteDialog";
 import ProfileImage from "pages/common/profileImage";
-import React, { useEffect, useMemo } from "react";
-import { connect, useDispatch, useSelector } from "react-redux";
-import { AppState } from "redux/reducers";
+import React, { useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteOrgUserAction,
-  fetchOrgUsersAction,
   quitOrgAction,
   updateUserOrgRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin } from "util/permissionUtils";
@@ -58,13 +55,14 @@ const StyledMembersIcon = styled(MembersIcon)`
 type UsersPermissionProp = {
   orgId: string;
   orgUsers: OrgUser[];
-  orgUsersFetching: boolean;
   currentUser: User;
+  setModify?: any;
+  modify?: boolean;
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
-  const { orgId, orgUsers, orgUsersFetching, currentUser } = props;
+  const { orgId, orgUsers, currentUser , setModify, modify} = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
   ).length;
@@ -82,9 +80,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
     });
   }, [orgUsers]);
 
-  useEffect(() => {
-    dispatch(fetchOrgUsersAction(orgId));
-  }, [dispatch, orgId]);
+  // useEffect(() => {
+  //   dispatch(fetchOrgUsersAction(orgId));
+  // }, [dispatch, orgId]);
 
   const onResetPass = (userId: string) => {
     return UserApi.resetPassword(userId)
@@ -151,7 +149,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
         dataSource={sortedOrgUsers}
         rowKey="userId"
         pagination={false}
-        loading={orgUsersFetching}
+        loading={orgUsers.length === 0}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
@@ -279,6 +277,9 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                                 orgId: orgId,
                               })
                             );
+                              setTimeout(() => {
+                                  setModify(!modify);
+                              }, 200);
                           },
                           confirmBtnType: "delete",
                           okText: trans("memberSettings.moveOutOrg"),
@@ -299,12 +300,4 @@ function OrgUsersPermission(props: UsersPermissionProp) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    orgUsersFetching: state.ui.org.orgUsersFetching,
-    orgUsers: state.ui.org.orgUsers,
-    currentUser: getUser(state),
-  };
-};
-
-export default connect(mapStateToProps)(OrgUsersPermission);
+export default OrgUsersPermission;

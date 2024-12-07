@@ -32,7 +32,8 @@ const EditBtn = styled(TacoButton)`
   height: 24px;
 `;
 
-export const TrashTableView = (props: { resources: HomeRes[] }) => {
+export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, modify: boolean }) => {
+  const {resources, setModify, modify} = props;
   const dispatch = useDispatch();
 
   return (
@@ -119,13 +120,17 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                     style={{ padding: "0 8px", width: "fit-content", minWidth: "52px" }}
                     buttonType={"blue"}
                     className={"home-datasource-edit-button"}
-                    onClick={() =>
-                      dispatch(
-                        restoreApplication({ applicationId: item.id }, () => {
-                          messageInstance.success(trans("home.recoverSuccessMsg"));
-                        })
-                      )
+                    onClick={() =>{
+                        dispatch(
+                            restoreApplication({ applicationId: item.id }, () => {
+                                messageInstance.success(trans("home.recoverSuccessMsg"));
+                            })
+                        )
+                        setTimeout(() => {
+                            setModify(!modify);
+                        }, 200);
                     }
+                  }
                   >
                     {trans("recover")}
                   </EditBtn>
@@ -140,7 +145,7 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                         type: HomeResInfo[item.type].name.toLowerCase(),
                         name: <b>{item.name}</b>,
                       }),
-                      onConfirm: () =>
+                      onConfirm: () =>{
                         new Promise((resolve, reject) => {
                           dispatch(
                             deleteApplication(
@@ -152,10 +157,15 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
                               () => reject()
                             )
                           );
-                        }),
+                        })
+                          setTimeout(() => {
+                              setModify(!modify);
+                          }, 200);
+                      },
                       confirmBtnType: "delete",
                       okText: trans("delete"),
                     })
+
                   }
                   style={{ marginLeft: "12px", width: "76px" }}
                 >
@@ -166,7 +176,7 @@ export const TrashTableView = (props: { resources: HomeRes[] }) => {
           },
         },
       ]}
-      dataSource={props.resources}
+      dataSource={resources}
     />
   );
 };

@@ -1,12 +1,13 @@
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchGroupsAction } from "redux/reduxActions/orgActions";
+import React, {useEffect, useState} from "react";
+import { useSelector } from "react-redux";
 import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import GroupPermission from "./groupUsersPermission";
 import UsersPermission from "./orgUsersPermission";
-import { getOrgGroups } from "redux/selectors/orgSelectors";
-import { useParams } from "react-router";
+import { useParams } from "react-router-dom";
+import {fetchGroupUsrPagination, fetchOrgGroups, fetchOrgUsrPagination} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import {OrgGroup} from "@lowcoder-ee/constants/orgConstants";
 
 const PermissionContent = styled.div`
   display: flex;
@@ -18,34 +19,109 @@ const PermissionContent = styled.div`
   width: 100%;
 `;
 
-const All_Users = "users";
+export default function PermissionSetting(props: {currentPageProp: number, pageSizeProp: number}) {
 
-export default function PermissionSetting() {
+  const {currentPageProp, pageSizeProp} = props;
   const user = useSelector(getUser);
+  const [elements, setElements] = useState<any>({ elements: [], total: 1, role: "" });
+  const [group, setGrouop] = useState<OrgGroup>();
+  const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 1 })
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [modify, setModify] = useState(false);
+
   const orgId = user.currentOrgId;
-  const orgGroups = useSelector(getOrgGroups);
-  const groupIdMap = new Map(orgGroups.map((group) => [group.groupId, group]));
-  const dispatch = useDispatch();
+  const currentUser = useSelector(getUser);
   const selectKey = useParams<{ groupId: string }>().groupId;
-  useEffect(() => {
-    if (!orgId) {
-      return;
+
+  useEffect( () => {
+      fetchOrgGroups(
+        {
+          pageNum: currentPageProp,
+          pageSize: pageSizeProp,
+        }
+      ).then(result => {
+        if (result.success && !!result.data){
+          setGrouop(result.data.find(group => group.groupId === selectKey))
+        }
+        else
+          console.error("ERROR: fetchFolderElements", result.error)
+      })
+    }, [currentPageProp, pageSizeProp]
+  )
+
+  useEffect( () => {
+    if (selectKey !== "users" && selectKey)
+      fetchGroupUsrPagination(
+        {
+          groupId:selectKey,
+          pageNum: currentPage,
+          pageSize: pageSize,
+        }
+        ).then(result => {
+          if (result.success){
+            setElements({elements: result.data || [], total: result.total || 1, role: result.visitorRole || ""})
+          }
+          else
+            console.error("ERROR: fetchFolderElements", result.error)
+        }
+        )
+    else
+    {
+      fetchOrgUsrPagination(
+        {
+          orgId: orgId,
+          pageNum: currentPage,
+          pageSize: pageSize,
+        }
+      ).then(result => {
+          if (result.success){
+            setOrgMemberElements({elements: result.data || [], total: result.total || 1})
+          }
+          else
+            console.error("ERROR: fetchFolderElements", result.error)
+        }
+      )
     }
-    dispatch(fetchGroupsAction(orgId));
-  }, [orgId]);
+      },
+      [currentPage, pageSize, modify, selectKey]
+  )
+
   if (!orgId) {
     return null;
   }
 
   return (
-    <PermissionContent key={selectKey}>
-      {selectKey === All_Users ? (
-        <UsersPermission orgId={orgId} />
-      ) : (
-        groupIdMap.has(selectKey) && (
-          <GroupPermission group={groupIdMap.get(selectKey)!} orgId={orgId} />
-        )
-      )}
-    </PermissionContent>
+      <PermissionContent key={selectKey}>
+        {selectKey === "users" ? (
+            <>
+              <UsersPermission
+                  orgId={orgId}
+                  // orgUsers={!orgMemberElements.elements.members ? [] : orgMemberElements.elements.members}
+                  orgUsers={orgMemberElements.elements}
+                  currentUser={currentUser}
+                  setModify={setModify}
+                  modify={modify}
+              />
+              <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={orgMemberElements.total} />
+            </>
+        ) : (
+          group && (
+                <>
+                  <GroupPermission
+                      group={group}
+                      orgId={orgId}
+                      groupUsers={elements.elements}
+                      currentUserGroupRole={elements.role}
+                      currentUser={currentUser}
+                      setModify={setModify}
+                      modify={modify}
+                  />
+                  <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={elements.total} />
+                </>
+
+            )
+        )}
+      </PermissionContent>
   );
 }

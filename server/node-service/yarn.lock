@@ -7689,16 +7689,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"lowcoder-core@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "lowcoder-core@npm:0.0.8"
+"lowcoder-core@npm:^0.0.10":
+  version: 0.0.10
+  resolution: "lowcoder-core@npm:0.0.10"
   dependencies:
     "@rollup/plugin-commonjs": ^23.0.0
     "@rollup/plugin-node-resolve": ^15.0.0
     intl-messageformat: ^10.2.1
     lodash: ^4.17.21
     lru-cache: ^7.14.1
-  checksum: 67f6ddc1b924d96d5d2ba0fca05b50bf91035b3d24d51acf89e0e40ca466121ba0f220f7162215b71077a43025b9df0a9b55aee48a937605a73fec4a06b71cac
+  checksum: f41ae738c8c46df132d8bb31a749e4aa0542e087302cefe078b55cb503372c9979e2e97c926d3ca1592de3aad64a70e8dab2454458b593f1f983f27ad4f85708
   languageName: node
   linkType: hard
 
@@ -7743,8 +7743,8 @@ __metadata:
     jsonpath: ^1.1.1
     lodash: ^4.17.21
     loglevel: ^1.8.1
-    lowcoder-core: ^0.0.8
-    lowcoder-sdk: 0.0.41
+    lowcoder-core: ^0.0.10
+    lowcoder-sdk: 2.4.17
     morgan: ^1.10.0
     nock: ^13.3.0
     node-fetch: 2
@@ -7765,13 +7765,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"lowcoder-sdk@npm:0.0.41":
-  version: 0.0.41
-  resolution: "lowcoder-sdk@npm:0.0.41"
+"lowcoder-sdk@npm:2.4.17":
+  version: 2.4.17
+  resolution: "lowcoder-sdk@npm:2.4.17"
+  dependencies:
+    prettier: ^3.1.1
   peerDependencies:
-    react: ">=17"
-    react-dom: ">=17"
-  checksum: f7820b8ddfc9e86c3c36923347a686325b449a9d01cad761c0800e27d6f3408e76668664a24667eeb19eb6674f5024113da7a9fc3881cf5ce28d6f9304444c79
+    react: ">=18"
+    react-dom: ">=18"
+  checksum: d4ef5af5e90070aa55b04a190c6b4ad24a28101836db30b21629ff0a3e2428b0daf29b1670a4a44418cd58d18384ef8d19d3327d9f057c459b560f0c357b675b
   languageName: node
   linkType: hard
 
@@ -8422,8 +8424,8 @@ __metadata:
   linkType: hard
 
 "node-gyp@npm:latest":
-  version: 10.2.0
-  resolution: "node-gyp@npm:10.2.0"
+  version: 10.3.1
+  resolution: "node-gyp@npm:10.3.1"
   dependencies:
     env-paths: ^2.2.0
     exponential-backoff: ^3.1.1
@@ -8437,7 +8439,7 @@ __metadata:
     which: ^4.0.0
   bin:
     node-gyp: bin/node-gyp.js
-  checksum: 0233759d8c19765f7fdc259a35eb046ad86c3d09e22f7384613ae2b89647dd27fcf833fdf5293d9335041e91f9b1c539494225959cdb312a5c8080b7534b926f
+  checksum: 91b0690ab504fe051ad66863226dc5ecac72b8471f85e8428e4d5ca3217d3a2adfffae48cd555e8d009a4164689fff558b88d2bc9bfd246452a3336ab308cf99
   languageName: node
   linkType: hard
 
@@ -8981,6 +8983,15 @@ __metadata:
   version: 1.1.2
   resolution: "prelude-ls@npm:1.1.2"
   checksum: c4867c87488e4a0c233e158e4d0d5565b609b105d75e4c05dc760840475f06b731332eb93cc8c9cecb840aa8ec323ca3c9a56ad7820ad2e63f0261dadcb154e4
+  languageName: node
+  linkType: hard
+
+"prettier@npm:^3.1.1":
+  version: 3.4.2
+  resolution: "prettier@npm:3.4.2"
+  bin:
+    prettier: bin/prettier.cjs
+  checksum: 061c84513db62d3944c8dc8df36584dad82883ce4e49efcdbedd8703dce5b173c33fd9d2a4e1725d642a3b713c932b55418342eaa347479bc4a9cca114a04cd0
   languageName: node
   linkType: hard
 

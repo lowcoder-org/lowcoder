@@ -7,7 +7,12 @@ import {
   NavDocIcon,
 } from "lowcoder-design";
 import { HomeResTypeEnum } from "../types/homeRes";
-import { APPLICATION_VIEW_URL, APPLICATION_MARKETPLACE_VIEW_URL, buildFolderUrl } from "../constants/routesURL";
+import {
+  APPLICATION_VIEW_URL,
+  APPLICATION_MARKETPLACE_VIEW_URL,
+  buildFolderUrl,
+  ALL_APPLICATIONS_URL
+} from "../constants/routesURL";
 import history from "./history";
 import { trans } from "../i18n";
 import { FunctionComponent } from "react";
@@ -62,3 +67,5 @@ export const handleAppViewClick = (id: string) => window.open(APPLICATION_VIEW_U
 export const handleMarketplaceAppViewClick = (id: string, isLocalMarketplace?: boolean) => isLocalMarketplace == true ? window.open(APPLICATION_VIEW_URL(id, "view_marketplace"), '_blank') : window.open(APPLICATION_MARKETPLACE_VIEW_URL(id, "view_marketplace"), '_blank');
 
 export const handleFolderViewClick = (id: string) => history.push(buildFolderUrl(id));
+
+export const backFolderViewClick = () => history.push(ALL_APPLICATIONS_URL);

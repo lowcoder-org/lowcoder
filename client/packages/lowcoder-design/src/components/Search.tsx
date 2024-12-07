@@ -62,24 +62,35 @@ interface ISearch {
   placeholder: string;
   value: string;
   onChange: (value: React.ChangeEvent<HTMLInputElement>) => void;
+  onEnterPress?: (value: string) => void; // Added for capturing Enter key press
   disabled?: boolean;
 }
 
 export const Search = (props: ISearch & InputProps) => {
-  const { value, onChange, style, disabled, placeholder, ...others } = props;
+  const { value, onChange, style, disabled, placeholder, onEnterPress, ...others } = props;
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onChange && onChange(e);
   };
+
+  // Handling Enter key press
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && onEnterPress) {
+      onEnterPress(value);
+    }
+  };
+
   return (
-    <SearchDiv style={style}>
-      <SearchInput
-        disabled={disabled}
-        placeholder={placeholder}
-        onChange={handleChange}
-        value={value}
-        prefix={<SearchIcon />}
-        {...others}
-      />
-    </SearchDiv>
+      <SearchDiv style={style}>
+        <SearchInput
+            disabled={disabled}
+            placeholder={placeholder}
+            onChange={handleChange}
+            onKeyDown={handleKeyDown} // Listening for key down events
+            value={value}
+            prefix={<SearchIcon />}
+            {...others}
+        />
+      </SearchDiv>
   );
 };
