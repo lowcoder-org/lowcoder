@@ -10,13 +10,21 @@ export function developEnv(): boolean {
   return REACT_APP_ENV === "development" || localEnv();
 }
 
-/**
- * is enterprise edition
- */
-// Falk: TODO: check EE by API Call
+// Create a global variable to hold the EE state
+let eeActiveState = false;
+
+// Function to dynamically update the EE state
+export function setEEActiveState(isActive: boolean) {
+  eeActiveState = isActive;
+}
+
 export function isEE(): boolean {
-  return false;
-  // return REACT_APP_EDITION === "enterprise" || REACT_APP_EDITION === "enterprise-global";
+  return eeActiveState;
+}
+
+// Is hosted as Enterprise Edition?
+export function isEEEnvironment(): boolean {
+  return REACT_APP_EDITION === "enterprise";
 }
 
 export function isSaasMode(config?: SystemConfig) {
@@ -30,12 +38,3 @@ export function isEnterpriseMode(config?: SystemConfig) {
 export function isSelfDomain(config?: SystemConfig) {
   return config?.selfDomain;
 }
-
-/* export function showAuditLog(config?: SystemConfig) {
-  return config?.featureFlag?.enableAuditLog;
-} */
-
-/* export function useCloudHosting() {
-  const systemConfig = useSelector(selectSystemConfig);
-  return systemConfig?.cloudHosting ?? true;
-} */
