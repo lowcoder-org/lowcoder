@@ -1,6 +1,7 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
-import { FETCH_ENTERPRISE_LICENSE, setEnterpriseLicense } from 'redux/reduxActions/enterpriseActions';
-import { getEnterpriseLicense } from 'api/enterpriseApi';
+import { ReduxActionTypes } from "constants/reduxActionConstants";
+import { setEnterpriseLicense } from "redux/reduxActions/enterpriseActions";
+import { getEnterpriseLicense } from "api/enterpriseApi";
 
 // Define the type of data returned by the API
 interface EnterpriseLicenseResponse {
@@ -24,5 +25,5 @@ function* fetchEnterpriseLicenseSaga(): Generator<any, void, EnterpriseLicenseRe
 }
 
 export default function* enterpriseSagas() {
-    yield takeLatest(FETCH_ENTERPRISE_LICENSE, fetchEnterpriseLicenseSaga);
+    yield takeLatest(ReduxActionTypes.FETCH_ENTERPRISE_LICENSE, fetchEnterpriseLicenseSaga);
 }

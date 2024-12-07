@@ -10,37 +10,39 @@ interface EnterpriseContextValue {
 
 const EnterpriseContext = createContext<EnterpriseContextValue>({ isEnterpriseActive: false });
 
-type Props = { children?: React.ReactNode };
+type ProviderProps = {
+    children: React.ReactNode;
+}
 
-export const EnterpriseProvider: React.FC<Props> = ({ children }) => {
+export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
     const dispatch = useDispatch();
     const isEnterpriseActiveRedux = useSelector(selectEnterpriseEditionStatus); // From Redux store
     const [isEnterpriseActive, setIsEnterpriseActive] = useState(false);
-    
+  
     useEffect(() => {
-    if (isEEEnvironment()) {
+      if (isEEEnvironment()) {
         // Fetch the enterprise license only if we're in an EE environment
         dispatch(fetchEnterpriseLicense());
-    } else {
+      } else {
         // Set the state to false for non-EE environments
         setEEActiveState(false);
         setIsEnterpriseActive(false);
-    }
+      }
     }, [dispatch]);
-
+  
     useEffect(() => {
-    if (isEEEnvironment()) {
+      if (isEEEnvironment()) {
         // Update the global EE state based on Redux
         setEEActiveState(isEnterpriseActiveRedux);
         setIsEnterpriseActive(isEnterpriseActiveRedux);
-    }
+      }
     }, [isEnterpriseActiveRedux]);
-
+  
     return (
-        <EnterpriseContext.Provider value={{ isEnterpriseActive }}>
-            {children}
-        </EnterpriseContext.Provider>
+      <EnterpriseContext.Provider value={{ isEnterpriseActive }}>
+        {children}
+      </EnterpriseContext.Provider>
     );
-};
-
-export const useEnterpriseContext = () => useContext(EnterpriseContext);
+  };
+  
+  export const useEnterpriseContext = () => useContext(EnterpriseContext);
