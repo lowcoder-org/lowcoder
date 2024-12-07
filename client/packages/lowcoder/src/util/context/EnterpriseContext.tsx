@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchEnterpriseLicense } from 'redux/reduxActions/enterpriseActions';
 import { selectEnterpriseEditionStatus } from '@lowcoder-ee/redux/selectors/enterpriseSelectors';
 import { useDispatch, useSelector } from 'react-redux';
-import { setEEActiveState, isEEEnvironment } from "util/envUtils";
+import { isEEEnvironment } from "util/envUtils";
 
 interface EnterpriseContextValue {
     isEnterpriseActive: boolean;
@@ -25,7 +25,7 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
         dispatch(fetchEnterpriseLicense());
       } else {
         // Set the state to false for non-EE environments
-        setEEActiveState(false);
+        // setEEActiveState(false);
         setIsEnterpriseActive(false);
       }
     }, [dispatch]);
@@ -33,7 +33,7 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
     useEffect(() => {
       if (isEEEnvironment()) {
         // Update the global EE state based on Redux
-        setEEActiveState(isEnterpriseActiveRedux);
+        // setEEActiveState(isEnterpriseActiveRedux);
         setIsEnterpriseActive(isEnterpriseActiveRedux);
       }
     }, [isEnterpriseActiveRedux]);

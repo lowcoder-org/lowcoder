@@ -10,18 +10,6 @@ export function developEnv(): boolean {
   return REACT_APP_ENV === "development" || localEnv();
 }
 
-// Create a global variable to hold the EE state
-let eeActiveState = false;
-
-// Function to dynamically update the EE state
-export function setEEActiveState(isActive: boolean) {
-  eeActiveState = isActive;
-}
-
-export function isEE(): boolean {
-  return eeActiveState;
-}
-
 // Is hosted as Enterprise Edition?
 export function isEEEnvironment(): boolean {
   return REACT_APP_EDITION === "enterprise";

@@ -8,3 +8,8 @@ export const selectRemainingAPICalls = (state: AppState) =>
 
 export const selectEnterpriseLicenses = (state: AppState) =>
     state.ui.enterprise?.eeLicenses ?? [];
+
+export const selectIsLicenseActive = (state: AppState) => {
+    const enterprise = state.ui.enterprise;
+    return enterprise?.eeActive && enterprise?.remainingAPICalls > 0;
+};

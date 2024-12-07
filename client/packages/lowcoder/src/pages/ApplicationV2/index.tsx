@@ -50,11 +50,11 @@ import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { Support } from "pages/support";
-import { isEE } from "util/envUtils";
 import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
 import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
-import { isEEEnvironment } from "util/envUtils";
 import { EnterpriseProvider } from "@lowcoder-ee/util/context/EnterpriseContext";
+import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+
 
 // adding App Editor, so we can show Apps inside the Admin Area
 import AppEditor from "../editor/AppEditor";
@@ -101,6 +101,8 @@ export default function ApplicationHome() {
   const deploymentId = useSelector(getDeploymentId);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
+
+  const isLicenseActive = useSelector(selectIsLicenseActive);
 
   useEffect(() => {
     if (user.currentOrgId) {
@@ -225,7 +227,7 @@ export default function ApplicationHome() {
                   },
                 ],
               },
-              isEE() ? {
+              isLicenseActive ? {
                 items: [
                   {
                     text: <TabLabel>{trans("settings.AppUsage")}</TabLabel>,

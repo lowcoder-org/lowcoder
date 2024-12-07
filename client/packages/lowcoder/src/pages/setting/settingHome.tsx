@@ -5,7 +5,6 @@ import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import AuditSetting from "@lowcoder-ee/pages/setting/audit";
-import { isEE, isEnterpriseMode, isSelfDomain } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { 
@@ -34,6 +33,8 @@ import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
 import { Subscription } from "./subscriptions";
+import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+
 
 enum SettingPageEnum {
   UserGroups = "permission",
@@ -52,6 +53,8 @@ export function SettingHome() {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
+
+  const isLicenseActive = useSelector(selectIsLicenseActive);
 
   const items = [
     {
@@ -88,52 +91,52 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.environments")}</span>
-          {(!isEE() && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
       ),
       icon: <EnvironmentsIcon width={"20px"}/>,
-      disabled: !isEE() || !currentOrgAdmin(user),
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.AppUsage,
       label: (
         <span>
           <span className="text">{trans("settings.appUsage")}</span>
-          {(!isEE() && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
       ),
       icon: <UsageStatisticsIcon width={"20px"}/>,
-      disabled: !isEE() || !currentOrgAdmin(user),
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Audit,
       label: (
         <span>
           <span className="text">{trans("settings.audit")}</span>
-          {(!isEE() && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
       ),
       icon: <AutitLogsIcon width={"20px"}/>,
-      disabled: !isEE() || !currentOrgAdmin(user),
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Branding,
       label: (
         <span>
           <span className="text">{trans("settings.branding")}</span>
-          {(!isEE() && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
           ))}
         </span>
       ),
       icon: <BrandingIcon width={"20px"}/>,
-      disabled: !isEE() || !currentOrgAdmin(user),
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     { 
       key: SettingPageEnum.Subscription,
