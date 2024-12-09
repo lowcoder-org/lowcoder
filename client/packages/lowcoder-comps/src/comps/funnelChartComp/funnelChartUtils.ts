@@ -168,7 +168,16 @@ export function getEchartsConfig(
       },
       "label": {
         "show": props.label,
-        "position": props.echartsLabelConfig.top
+        "position": props.echartsLabelConfig.top,
+        "fontFamily": props?.style?.fontFamily || theme?.style?.fontFamily,
+        "fontSize": props?.style?.textSize || theme?.style?.textSize,
+        "fontWeight": props?.style?.textWeight || theme?.style?.textWeight,
+        "color": props?.style?.text || theme?.style?.text,
+        "fontStyle": props?.style?.fontStyle || theme?.style?.fontStyle,
+        "textShadowColor": props?.style?.boxShadowColor || theme?.style?.boxShadowColor,
+        "textShadowBlur": props?.style?.boxShadow?.split(' ')[0],
+        "textShadowOffsetX": props?.style?.boxShadow?.split(' ')[1],
+        "textShadowOffsetY": props?.style?.boxShadow?.split(' ')[2]
       },
       "data": props.echartsOption.data
     }

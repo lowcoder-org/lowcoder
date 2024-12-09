@@ -16,7 +16,10 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartsStyle,
+  TextStyle,
+  FunnelStyle,
+  FunnelChartStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -33,7 +36,7 @@ import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
-import {EchartsSortingConfig} from "../chartComp/chartConfigs/echartsSortingConfig";
+import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
 
 export const ChartTypeOptions = [
   {
@@ -272,12 +275,16 @@ let chartJsonModeChildren: any = {
   gap:withDefault(NumberControl,trans('funnelChart.defaultGap')),
   opacity:withDefault(NumberControl,trans('funnelChart.defaultOpacity'))
 }
+
 if (EchartsStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    style: styleControl(FunnelStyle, 'style'),
+    chartStyle: styleControl(FunnelChartStyle, 'style')
   }
 }
+
+console.log(FunnelStyle)
 
 const chartMapModeChildren = {
   mapInstance: stateComp(),
