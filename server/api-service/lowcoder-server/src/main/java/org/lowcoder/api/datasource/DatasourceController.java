@@ -58,34 +58,34 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<Datasource>> getById(@PathVariable String id) {
-        String objectId = gidService.convertDatasourceIdToObjectId(id);
-        return datasourceApiService.findByIdWithPermission(objectId)
+        return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
+            datasourceApiService.findByIdWithPermission(objectId)
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Datasource>> update(@PathVariable String id,
             @RequestBody UpsertDatasourceRequest request) {
-        String objectId = gidService.convertDatasourceIdToObjectId(id);
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
-        return datasourceApiService.update(objectId, resolvedDatasource)
+        return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
+            datasourceApiService.update(objectId, resolvedDatasource)
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
                 .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE))
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
-        String objectId = gidService.convertDatasourceIdToObjectId(id);
-        return datasourceApiService.delete(objectId)
+        return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
+            datasourceApiService.delete(objectId)
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
                         return businessEventPublisher.publishDatasourceEvent(objectId, DATA_SOURCE_DELETE);
                     }
                     return Mono.empty();
                 })
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
@@ -108,9 +108,9 @@ public class DatasourceController implements DatasourceEndpoints
     @Override
     public Mono<ResponseView<DatasourceStructure>> getStructure(@PathVariable String datasourceId,
             @RequestParam(required = false, defaultValue = "false") boolean ignoreCache) {
-        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
-        return datasourceStructureService.getStructure(objectId, ignoreCache)
-                .map(ResponseView::success);
+        return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
+            datasourceStructureService.getStructure(objectId, ignoreCache)
+                .map(ResponseView::success));
     }
 
     /**
@@ -121,8 +121,8 @@ public class DatasourceController implements DatasourceEndpoints
     public Mono<PageResponseView<?>> listJsDatasourcePlugins(@RequestParam("appId") String applicationId, @RequestParam(required = false) String name, @RequestParam(required = false) String type,
                                                              @RequestParam(required = false, defaultValue = "1") int pageNum,
                                                              @RequestParam(required = false, defaultValue = "0") int pageSize) {
-        String objectId = gidService.convertApplicationIdToObjectId(applicationId);
-        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listJsDatasourcePlugins(objectId, name, type));
+        return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
+            fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listJsDatasourcePlugins(appId, name, type)));
     }
 
     /**
@@ -147,8 +147,8 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(orgId)) {
             return ofError(BizError.INVALID_PARAMETER, "ORG_ID_EMPTY");
         }
-        String objectId = gidService.convertOrganizationIdToObjectId(orgId);
-        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listOrgDataSources(objectId, name, type));
+        return gidService.convertOrganizationIdToObjectId(orgId).flatMap(objectId ->
+            fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listOrgDataSources(objectId, name, type)));
     }
 
     @Override
@@ -158,27 +158,26 @@ public class DatasourceController implements DatasourceEndpoints
         if (StringUtils.isBlank(applicationId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_APP_ID");
         }
-        String objectId = gidService.convertApplicationIdToObjectId(applicationId);
-
-        return fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listAppDataSources(objectId, name, type));
+        return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
+            fluxToPageResponseView(pageNum, pageSize, datasourceApiService.listAppDataSources(appId, name, type)));
     }
 
     @Override
     public Mono<ResponseView<CommonPermissionView>> getPermissions(@PathVariable("datasourceId") String datasourceId) {
-        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
-        return datasourceApiService.getPermissions(objectId)
-                .map(ResponseView::success);
+        return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
+            datasourceApiService.getPermissions(objectId)
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> grantPermission(@PathVariable String datasourceId,
             @RequestBody BatchAddPermissionRequest request) {
-        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
         ResourceRole role = ResourceRole.fromValue(request.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
-        return datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
+        return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
+            datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
                         return businessEventPublisher.publishDatasourcePermissionEvent(objectId, request.userIds(),
@@ -186,7 +185,7 @@ public class DatasourceController implements DatasourceEndpoints
                     }
                     return Mono.empty();
                 })
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
@@ -214,8 +213,8 @@ public class DatasourceController implements DatasourceEndpoints
 
     @Override
     public Mono<ResponseView<Object>> info(@RequestParam(required = false) String datasourceId) {
-        String objectId = gidService.convertDatasourceIdToObjectId(datasourceId);
-        return Mono.just(ResponseView.success(datasourceApiService.info(objectId)));
+        return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
+            Mono.just(ResponseView.success(datasourceApiService.info(objectId))));
     }
 
 }
