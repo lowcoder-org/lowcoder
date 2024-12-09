@@ -58,9 +58,18 @@ export function funnelChartPropertyView(
       <Section name={sectionNames.titleStyle}>
         {children.titleStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.labelStyle}>
+      {
+        children.label.getView() ?
+        <Section name={sectionNames.labelStyle}>
         {children.style?.getPropertyView()}
-      </Section>
+      </Section> : <></>
+      }
+      {
+        children.legendVisibility.getView() ?
+        <Section name={sectionNames.legendStyle}>
+          {children.legendStyle?.getPropertyView()}
+        </Section> : <></>
+      }
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );

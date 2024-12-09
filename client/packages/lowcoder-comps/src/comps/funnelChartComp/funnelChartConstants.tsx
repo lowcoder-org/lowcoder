@@ -281,6 +281,7 @@ if (EchartsStyle) {
     ...chartJsonModeChildren,
     style: styleControl(FunnelStyle, 'style'),
     titleStyle: styleControl(FunnelStyle, 'titleStyle'),
+    legendStyle: styleControl(FunnelStyle, 'legendStyle'),
     chartStyle: styleControl(FunnelChartStyle, 'chartStyle')
   }
 }
