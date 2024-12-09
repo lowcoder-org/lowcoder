@@ -1793,6 +1793,25 @@ export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
+export const FunnelStyle = [
+  getBackground("primarySurface"),
+  TEXT,
+  TEXT_SIZE,
+  TEXT_WEIGHT,
+  FONT_FAMILY,
+  FONT_STYLE,
+  BOXSHADOWCOLOR,
+  BOXSHADOW,
+] as const;
+
+export const FunnelChartStyle = [
+  OPACITY,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+] as const;
+
 export const CalendarStyle = [
   getBackground("primarySurface"),
   {
