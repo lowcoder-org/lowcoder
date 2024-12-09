@@ -143,10 +143,10 @@ export function getEchartsConfig(
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":props.echartsTitleConfig.top,
     "textStyle": {
-      "fontFamily": props?.titleStyle?.fontFamily || theme?.style?.fontFamily,
-      "fontSize": props?.titleStyle?.textSize || theme?.style?.textSize,
-      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight,
-      "color": props?.titleStyle?.text || theme?.style?.text,
+      "fontFamily": props?.titleStyle?.fontFamily || theme?.style?.fontFamily || "Arial",
+      "fontSize": props?.titleStyle?.textSize || theme?.style?.textSize || 18,
+      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight || "bold",
+      "color": props?.titleStyle?.text || theme?.style?.text || "#333",
       "fontStyle": props?.titleStyle?.fontStyle || theme?.style?.fontStyle,
       "textShadowColor": props?.titleStyle?.boxShadowColor || theme?.style?.boxShadowColor,
       "textShadowBlur": props?.titleStyle?.boxShadow?.split(' ')[0],
@@ -163,6 +163,17 @@ export function getEchartsConfig(
   "legend":props.legendVisibility&& {
     "data": props.echartsOption.data?.map(data=>data.name),
     "top": props.echartsLegendConfig.top,
+    "textStyle": {
+      "fontFamily": props?.legendStyle?.fontFamily || theme?.style?.fontFamily || "Arial",
+      "fontSize": props?.legendStyle?.textSize || theme?.style?.textSize,
+      "fontWeight": props?.legendStyle?.textWeight || theme?.style?.textWeight,
+      "color": props?.legendStyle?.text || theme?.style?.text || "#000000",
+      "fontStyle": props?.legendStyle?.fontStyle || theme?.style?.fontStyle,
+      "textShadowColor": props?.legendStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+      "textShadowBlur": props?.legendStyle?.boxShadow?.split(' ')[0],
+      "textShadowOffsetX": props?.legendStyle?.boxShadow?.split(' ')[1],
+      "textShadowOffsetY": props?.legendStyle?.boxShadow?.split(' ')[2]
+    }
   },
   "series": [
     {
@@ -191,7 +202,7 @@ export function getEchartsConfig(
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top,
-        "fontFamily": props?.style?.fontFamily || theme?.style?.fontFamily,
+        "fontFamily": props?.style?.fontFamily || theme?.style?.fontFamily || "Arial",
         "fontSize": props?.style?.textSize || theme?.style?.textSize,
         "fontWeight": props?.style?.textWeight || theme?.style?.textWeight,
         "color": props?.style?.text || theme?.style?.text,

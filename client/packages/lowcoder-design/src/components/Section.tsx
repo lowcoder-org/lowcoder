@@ -189,4 +189,5 @@ export const sectionNames = {
   modalStyle:trans("prop.modalStyle"),
   chartStyle:trans("prop.chartStyle"),
   titleStyle:trans("prop.titleStyle"),
+  legendStyle:trans("prop.legendStyle"),
 };
