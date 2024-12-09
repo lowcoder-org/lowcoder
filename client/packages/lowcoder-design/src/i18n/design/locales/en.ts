@@ -41,7 +41,8 @@ export const en = {
     columnStyle: 'Column Style',
     modalStyle: 'Modal Style',
     chartStyle: "Chart Style",
-    titleStyle: "Title Style"
+    titleStyle: "Title Style",
+    legendStyle: "Legend Style",
   },
   passwordInput: {
     label: "Password:",
