@@ -65,29 +65,29 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String libraryQueryId,
             @RequestBody UpsertLibraryQueryRequest upsertLibraryQueryRequest) {
-        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
-        return libraryQueryApiService.update(objectId, upsertLibraryQueryRequest)
-                .map(ResponseView::success);
+        return gidService.convertLibraryQueryIdToObjectId(libraryQueryId).flatMap(objectId ->
+            libraryQueryApiService.update(objectId, upsertLibraryQueryRequest)
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String libraryQueryId) {
-        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
-        return libraryQueryService.getById(objectId)
+        return gidService.convertLibraryQueryIdToObjectId(libraryQueryId).flatMap(objectId ->
+            libraryQueryService.getById(objectId)
                 .delayUntil(__ -> libraryQueryApiService.delete(objectId))
                 .delayUntil(libraryQuery -> businessEventPublisher.publishLibraryQueryEvent(libraryQuery.getId(), libraryQuery.getName(),
                         EventType.LIBRARY_QUERY_DELETE))
-                .thenReturn(ResponseView.success(true));
+                .thenReturn(ResponseView.success(true)));
     }
 
     @Override
     public Mono<ResponseView<LibraryQueryRecordMetaView>> publish(@PathVariable String libraryQueryId,
             @RequestBody LibraryQueryPublishRequest libraryQueryPublishRequest) {
-        String objectId = gidService.convertLibraryQueryIdToObjectId(libraryQueryId);
-        return libraryQueryApiService.publish(objectId, libraryQueryPublishRequest)
+        return gidService.convertLibraryQueryIdToObjectId(libraryQueryId).flatMap(objectId ->
+            libraryQueryApiService.publish(objectId, libraryQueryPublishRequest)
                 .delayUntil(__ -> libraryQueryService.getById(objectId)
                         .flatMap(libraryQuery -> businessEventPublisher.publishLibraryQuery(libraryQuery, EventType.LIBRARY_QUERY_PUBLISH)))
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
 }
