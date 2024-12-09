@@ -1794,7 +1794,6 @@ export const JsonEditorStyle = [LABEL] as const;
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
 export const FunnelStyle = [
-  getBackground("primarySurface"),
   TEXT,
   TEXT_SIZE,
   TEXT_WEIGHT,
@@ -1805,7 +1804,10 @@ export const FunnelStyle = [
 ] as const;
 
 export const FunnelChartStyle = [
+  getBackground("primarySurface"),
   OPACITY,
+  BOXSHADOWCOLOR,
+  BOXSHADOW,
   BORDER,
   BORDER_STYLE,
   RADIUS,
