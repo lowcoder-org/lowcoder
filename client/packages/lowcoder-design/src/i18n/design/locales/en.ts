@@ -40,6 +40,8 @@ export const en = {
     badgeStyle: 'Badge Style',
     columnStyle: 'Column Style',
     modalStyle: 'Modal Style',
+    chartStyle: "Chart Style",
+    titleStyle: "Title Style"
   },
   passwordInput: {
     label: "Password:",

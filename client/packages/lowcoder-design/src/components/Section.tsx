@@ -187,4 +187,6 @@ export const sectionNames = {
   badgeStyle:trans("prop.badgeStyle"),
   columnStyle:trans("prop.columnStyle"),
   modalStyle:trans("prop.modalStyle"),
+  chartStyle:trans("prop.chartStyle"),
+  titleStyle:trans("prop.titleStyle"),
 };

@@ -280,11 +280,12 @@ if (EchartsStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     style: styleControl(FunnelStyle, 'style'),
-    chartStyle: styleControl(FunnelChartStyle, 'style')
+    titleStyle: styleControl(FunnelStyle, 'titleStyle'),
+    chartStyle: styleControl(FunnelChartStyle, 'chartStyle')
   }
 }
 
-console.log(FunnelStyle)
+console.log(FunnelChartStyle)
 
 const chartMapModeChildren = {
   mapInstance: stateComp(),

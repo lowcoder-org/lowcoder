@@ -52,8 +52,14 @@ export function funnelChartPropertyView(
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style?.getPropertyView()}
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.labelStyle}>
+        {children.style?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
