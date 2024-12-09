@@ -165,6 +165,10 @@ export type MarginConfig = CommonColorConfig & {
   readonly margin: string;
 };
 
+export type DirectionConfig = CommonColorConfig & {
+  readonly direction: string;
+};
+
 export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
@@ -203,6 +207,7 @@ export type SingleColorConfig =
   | FontFamilyConfig
   | FontStyleConfig
   | MarginConfig
+  | DirectionConfig
   | PaddingConfig
   | ContainerHeaderPaddingConfig
   | ContainerSiderPaddingConfig
@@ -548,6 +553,12 @@ const MARGIN = {
   margin: "margin",
 } as const;
 
+const DIRECTION = {
+  name: "direction",
+  label: trans("style.direction"),
+  position: "direction",
+} as const;
+
 const PADDING = {
   name: "padding",
   label: trans("style.padding"),
@@ -736,6 +747,16 @@ function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
   return {
     name: "background",
     label: trans("style.background"),
+    depTheme: depTheme,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  } as const;
+}
+
+function getGradientBackground(depTheme: keyof ThemeDetail = "primarySurface") {
+  return {
+    name: "gradientBackground",
+    label: trans("style.gradientBackground"),
     depTheme: depTheme,
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
@@ -1793,7 +1814,7 @@ export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
-export const FunnelStyle = [
+export const FunnelTextStyle = [
   TEXT,
   TEXT_SIZE,
   TEXT_WEIGHT,
@@ -1805,6 +1826,8 @@ export const FunnelStyle = [
 
 export const FunnelChartStyle = [
   getBackground("primarySurface"),
+  getGradientBackground(),
+  DIRECTION,
   OPACITY,
   BOXSHADOWCOLOR,
   BOXSHADOW,

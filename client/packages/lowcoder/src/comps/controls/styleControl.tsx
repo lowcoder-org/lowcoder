@@ -43,6 +43,7 @@ import {
   SimpleColorConfig,
   SingleColorConfig,
   MarginConfig,
+  DirectionConfig,
   PaddingConfig,
   TextSizeConfig,
   TextWeightConfig,
@@ -187,7 +188,11 @@ function isBorderStyleConfig(config: SingleColorConfig): config is borderStyleCo
 }
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
-  return config.hasOwnProperty("margin");
+  return config.hasOwnProperty("direction");
+}
+
+function isDirectionConfig(config: SingleColorConfig): config is DirectionConfig {
+  return config.hasOwnProperty("direction");
 }
 
 function isBoxShadowConfig(
@@ -325,6 +330,9 @@ function isEmptyBorderStyle(borderStyle: string) {
 
 function isEmptyMargin(margin: string) {
   return _.isEmpty(margin);
+}
+function isEmptyDirection(direction: string) {
+  return _.isEmpty(direction);
 }
 function isEmptyPadding(padding: string) {
   return _.isEmpty(padding);
@@ -490,6 +498,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       return;
     }
     if (!isEmptyMargin(props[name]) && isMarginConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyDirection(props[name]) && isDirectionConfig(config)) {
       res[name] = props[name];
       return;
     }
@@ -767,6 +779,7 @@ const LineHeightPropIcon = styled(LineHeightIcon)`
 `;
 
 const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
+const DirectionIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px; color: #888`;
 const RadiusPropIcon = styled(BorderRadiusIcon)` width: 24px; margin: 0 11px 0 0px; color: #888`;
 const BorderPropIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
@@ -913,6 +926,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       name === 'footerBackgroundImagePosition' ||
       name === 'footerBackgroundImageOrigin' ||
       name === 'margin' ||
+      name === 'direction' ||
       name === 'padding' ||
       name === 'containerHeaderPadding' ||
       name === 'containerSiderPadding' ||
@@ -1094,6 +1108,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                               ).propertyView({
                                 label: config.label,
                                 preInputNode: <MarginIcon title="Margin" />,
+                                placeholder: props[name],
+                              })
+                            : name === 'direction'
+                              ? (
+                                children[name] as InstanceType<
+                                  typeof StringControl
+                                >
+                              ).propertyView({
+                                label: config.label,
+                                preInputNode: <DirectionIcon title="direction" />,
                                 placeholder: props[name],
                               })
                             : name === 'animationIterationCount'

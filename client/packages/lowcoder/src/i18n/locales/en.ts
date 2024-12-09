@@ -568,7 +568,8 @@ export const en = {
     "siderBackgroundImageOrigin": "Sider Background Image Origin",
     "activeBackground": "Active Background Color",
     "labelBackground": "Label Background Color",
-
+    "gradientBackground": "Gradient Background Color",
+    "direction": "Direction"
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",

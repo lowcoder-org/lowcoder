@@ -134,8 +134,6 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-
-  console.log("props?.titleStyle",props.echartsOption.data?.map(data=>data.color));
   if (props.mode === "json") {
     let opt={
   "title": {
@@ -145,7 +143,7 @@ export function getEchartsConfig(
     "textStyle": {
       "fontFamily": props?.titleStyle?.fontFamily || theme?.style?.fontFamily || "Arial",
       "fontSize": props?.titleStyle?.textSize || theme?.style?.textSize || 18,
-      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight || "bold",
+      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight,
       "color": props?.titleStyle?.text || theme?.style?.text || "#333",
       "fontStyle": props?.titleStyle?.fontStyle || theme?.style?.fontStyle,
       "textShadowColor": props?.titleStyle?.boxShadowColor || theme?.style?.boxShadowColor,
@@ -154,7 +152,18 @@ export function getEchartsConfig(
       "textShadowOffsetY": props?.titleStyle?.boxShadow?.split(' ')[2]
     }
   },
-  "backgroundColor": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) || theme?.style?.background : props?.chartStyle?.background || theme?.style?.background,
+    "backgroundColor": props?.chartStyle?.gradientBackground && props?.chartStyle?.background
+      ? {
+        "x": props?.chartStyle?.direction?.split(' ')[0],
+        "y": props?.chartStyle?.direction?.split(' ')[1],
+        "x2": props?.chartStyle?.direction?.split(' ')[2],
+        "y2": props?.chartStyle?.direction?.split(' ')[3],
+        "colorStops": [
+          { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background  || "#FFFFFF" },
+          { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground || "#FFFFFF" }
+        ]
+      }
+      : props?.chartStyle?.opacity ? (props?.chartStyle?.background || theme?.style?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background || theme?.style?.background,
   "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
