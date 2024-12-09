@@ -12,6 +12,7 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import opacityToHex from "../../util/opacityToHex";
 
 export function transformData(
   originData: JSONObject[],
@@ -133,14 +134,27 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+
+  console.log("props?.titleStyle",props.echartsOption.data?.map(data=>data.color));
   if (props.mode === "json") {
     let opt={
   "title": {
     "text": props.echartsTitle,
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":props.echartsTitleConfig.top
+    "left":props.echartsTitleConfig.top,
+    "textStyle": {
+      "fontFamily": props?.titleStyle?.fontFamily || theme?.style?.fontFamily,
+      "fontSize": props?.titleStyle?.textSize || theme?.style?.textSize,
+      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight,
+      "color": props?.titleStyle?.text || theme?.style?.text,
+      "fontStyle": props?.titleStyle?.fontStyle || theme?.style?.fontStyle,
+      "textShadowColor": props?.titleStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+      "textShadowBlur": props?.titleStyle?.boxShadow?.split(' ')[0],
+      "textShadowOffsetX": props?.titleStyle?.boxShadow?.split(' ')[1],
+      "textShadowOffsetY": props?.titleStyle?.boxShadow?.split(' ')[2]
+    }
   },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
+  "backgroundColor": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) || theme?.style?.background : props?.chartStyle?.background || theme?.style?.background,
   "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
@@ -164,7 +178,15 @@ export function getEchartsConfig(
       "funnelAlign": props.echartsFunnelAlignConfig.funnelAlign,
       "sort": props.echartsSortingConfig.sort,
       "itemStyle": {
-        "opacity": props.opacity
+        "opacity": props.opacity,
+        "borderColor": props?.chartStyle?.border || theme?.style?.border,
+        "borderWidth": props?.chartStyle?.borderWidth,
+        "borderType": props?.chartStyle?.borderStyle,
+        "borderRadius": props?.chartStyle?.radius,
+        "shadowColor": props?.chartStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+        "shadowBlur": props?.chartStyle?.boxShadow?.split(' ')[0],
+        "shadowOffsetX": props?.chartStyle?.boxShadow?.split(' ')[0],
+        "shadowOffsetY": props?.chartStyle?.boxShadow?.split(' ')[0]
       },
       "label": {
         "show": props.label,
