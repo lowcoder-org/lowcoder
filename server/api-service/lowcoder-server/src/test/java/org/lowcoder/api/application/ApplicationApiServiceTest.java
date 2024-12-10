@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
@@ -152,7 +153,7 @@ public class ApplicationApiServiceTest {
 
         // publish
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.publish(id));
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish", "1.0.0")));
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
