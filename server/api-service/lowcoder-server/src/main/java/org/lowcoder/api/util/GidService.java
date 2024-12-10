@@ -20,6 +20,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Component
 public class GidService {
     @Autowired
@@ -72,11 +74,11 @@ public class GidService {
         return Mono.just(id);
     }
 
-    public Mono<String> convertFolderIdToObjectId(String id) {
+    public Mono<Optional<String>> convertFolderIdToObjectId(String id) {
         if(FieldName.isGID(id)) {
-            return folderRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+            return folderRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId).map(Optional::ofNullable).switchIfEmpty(Mono.just(Optional.empty()));
         }
-        return Mono.just(id);
+        return Mono.just(Optional.ofNullable(id));
     }
 
     public Mono<String> convertBundleIdToObjectId(String id) {
