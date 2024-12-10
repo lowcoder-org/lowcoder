@@ -1,10 +1,7 @@
 package org.lowcoder.api.application;
 
 import lombok.RequiredArgsConstructor;
-import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationPermissionView;
-import org.lowcoder.api.application.view.ApplicationView;
-import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
@@ -132,9 +129,10 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId) {
+    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
+                                                       @RequestBody ApplicationPublishRequest applicationPublishRequest) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.publish(appId)
+            applicationApiService.publish(appId, applicationPublishRequest)
                 .map(ResponseView::success));
     }
 

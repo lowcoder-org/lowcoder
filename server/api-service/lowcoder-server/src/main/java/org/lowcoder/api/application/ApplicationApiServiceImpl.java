@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.FolderApiService;
@@ -23,6 +24,7 @@ import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.*;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
@@ -91,6 +93,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final PermissionHelper permissionHelper;
     private final DatasourceService datasourceService;
     private final ApplicationHistorySnapshotService applicationHistorySnapshotService;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
@@ -352,11 +355,19 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> publish(String applicationId) {
+    public Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest) {
         return checkApplicationStatus(applicationId, NORMAL)
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, PUBLISH_APPLICATIONS))
+                .delayUntil(__ -> applicationService.findById(applicationId)
+                        .map(application -> ApplicationRecord.builder()
+                                .tag(applicationPublishRequest.tag())
+                                .commitMessage(applicationPublishRequest.commitMessage())
+                                .applicationId(application.getId())
+                                .applicationDSL(application.getEditingApplicationDSL())
+                                .build())
+                        .map(applicationRecordService::insert))
                 .flatMap(permission -> applicationService.publish(applicationId)
                         .map(applicationUpdated -> ApplicationView.builder()
                                 .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
