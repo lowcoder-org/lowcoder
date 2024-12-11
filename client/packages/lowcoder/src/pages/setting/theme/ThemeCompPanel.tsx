@@ -194,7 +194,9 @@ export const ThemeCompPanel = (props: any) => {
             }
           },
         }) as any;
-        await newComp.load();
+        if (compInfo.lazyLoad) {
+          await newComp.load();
+        }
       }
 
       if (newComp) {
