@@ -211,15 +211,15 @@ export function getEchartsConfig(
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top,
-        "fontFamily": props?.style?.fontFamily,
-        "fontSize": props?.style?.textSize,
-        "fontWeight": props?.style?.textWeight,
-        "color": props?.style?.text,
-        "fontStyle": props?.style?.fontStyle,
-        "textShadowColor": props?.style?.boxShadowColor,
-        "textShadowBlur": props?.style?.boxShadow?.split(' ')[0],
-        "textShadowOffsetX": props?.style?.boxShadow?.split(' ')[1],
-        "textShadowOffsetY": props?.style?.boxShadow?.split(' ')[2]
+        "fontFamily": props?.labelStyle?.fontFamily,
+        "fontSize": props?.labelStyle?.textSize,
+        "fontWeight": props?.labelStyle?.textWeight,
+        "color": props?.labelStyle?.text,
+        "fontStyle": props?.labelStyle?.fontStyle,
+        "textShadowColor": props?.labelStyle?.boxShadowColor,
+        "textShadowBlur": props?.labelStyle?.boxShadow?.split(' ')[0],
+        "textShadowOffsetX": props?.labelStyle?.boxShadow?.split(' ')[1],
+        "textShadowOffsetY": props?.labelStyle?.boxShadow?.split(' ')[2]
       },
       "data": props.echartsOption.data
     }
