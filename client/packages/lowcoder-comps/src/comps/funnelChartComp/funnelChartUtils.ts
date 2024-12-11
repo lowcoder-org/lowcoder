@@ -141,12 +141,12 @@ export function getEchartsConfig(
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":props.echartsTitleConfig.top,
     "textStyle": {
-      "fontFamily": props?.titleStyle?.fontFamily || theme?.style?.fontFamily || "Arial",
-      "fontSize": props?.titleStyle?.textSize || theme?.style?.textSize || 18,
-      "fontWeight": props?.titleStyle?.textWeight || theme?.style?.textWeight,
-      "color": props?.titleStyle?.text || theme?.style?.text || "#333",
-      "fontStyle": props?.titleStyle?.fontStyle || theme?.style?.fontStyle,
-      "textShadowColor": props?.titleStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+      "fontFamily": props?.titleStyle?.fontFamily,
+      "fontSize": props?.titleStyle?.textSize,
+      "fontWeight": props?.titleStyle?.textWeight,
+      "color": props?.titleStyle?.text,
+      "fontStyle": props?.titleStyle?.fontStyle,
+      "textShadowColor": props?.titleStyle?.boxShadowColor,
       "textShadowBlur": props?.titleStyle?.boxShadow?.split(' ')[0],
       "textShadowOffsetX": props?.titleStyle?.boxShadow?.split(' ')[1],
       "textShadowOffsetY": props?.titleStyle?.boxShadow?.split(' ')[2]
@@ -159,11 +159,11 @@ export function getEchartsConfig(
         "x2": props?.chartStyle?.direction?.split(' ')[2],
         "y2": props?.chartStyle?.direction?.split(' ')[3],
         "colorStops": [
-          { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background  || "#FFFFFF" },
-          { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground || "#FFFFFF" }
+          { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background},
+          { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground}
         ]
       }
-      : props?.chartStyle?.opacity ? (props?.chartStyle?.background || theme?.style?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background || theme?.style?.background,
+      : props?.chartStyle?.opacity ? (props?.chartStyle?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background,
   "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
@@ -173,12 +173,12 @@ export function getEchartsConfig(
     "data": props.echartsOption.data?.map(data=>data.name),
     "top": props.echartsLegendConfig.top,
     "textStyle": {
-      "fontFamily": props?.legendStyle?.fontFamily || theme?.style?.fontFamily || "Arial",
-      "fontSize": props?.legendStyle?.textSize || theme?.style?.textSize,
-      "fontWeight": props?.legendStyle?.textWeight || theme?.style?.textWeight,
-      "color": props?.legendStyle?.text || theme?.style?.text || "#000000",
-      "fontStyle": props?.legendStyle?.fontStyle || theme?.style?.fontStyle,
-      "textShadowColor": props?.legendStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+      "fontFamily": props?.legendStyle?.fontFamily,
+      "fontSize": props?.legendStyle?.textSize,
+      "fontWeight": props?.legendStyle?.textWeight,
+      "color": props?.legendStyle?.text,
+      "fontStyle": props?.legendStyle?.fontStyle,
+      "textShadowColor": props?.legendStyle?.boxShadowColor,
       "textShadowBlur": props?.legendStyle?.boxShadow?.split(' ')[0],
       "textShadowOffsetX": props?.legendStyle?.boxShadow?.split(' ')[1],
       "textShadowOffsetY": props?.legendStyle?.boxShadow?.split(' ')[2]
@@ -199,11 +199,11 @@ export function getEchartsConfig(
       "sort": props.echartsSortingConfig.sort,
       "itemStyle": {
         "opacity": props.opacity,
-        "borderColor": props?.chartStyle?.border || theme?.style?.border,
+        "borderColor": props?.chartStyle?.border,
         "borderWidth": props?.chartStyle?.borderWidth,
         "borderType": props?.chartStyle?.borderStyle,
         "borderRadius": props?.chartStyle?.radius,
-        "shadowColor": props?.chartStyle?.boxShadowColor || theme?.style?.boxShadowColor,
+        "shadowColor": props?.chartStyle?.boxShadowColor,
         "shadowBlur": props?.chartStyle?.boxShadow?.split(' ')[0],
         "shadowOffsetX": props?.chartStyle?.boxShadow?.split(' ')[0],
         "shadowOffsetY": props?.chartStyle?.boxShadow?.split(' ')[0]
@@ -211,12 +211,12 @@ export function getEchartsConfig(
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top,
-        "fontFamily": props?.style?.fontFamily || theme?.style?.fontFamily || "Arial",
-        "fontSize": props?.style?.textSize || theme?.style?.textSize,
-        "fontWeight": props?.style?.textWeight || theme?.style?.textWeight,
-        "color": props?.style?.text || theme?.style?.text,
-        "fontStyle": props?.style?.fontStyle || theme?.style?.fontStyle,
-        "textShadowColor": props?.style?.boxShadowColor || theme?.style?.boxShadowColor,
+        "fontFamily": props?.style?.fontFamily,
+        "fontSize": props?.style?.textSize,
+        "fontWeight": props?.style?.textWeight,
+        "color": props?.style?.text,
+        "fontStyle": props?.style?.fontStyle,
+        "textShadowColor": props?.style?.boxShadowColor,
         "textShadowBlur": props?.style?.boxShadow?.split(' ')[0],
         "textShadowOffsetX": props?.style?.boxShadow?.split(' ')[1],
         "textShadowOffsetY": props?.style?.boxShadow?.split(' ')[2]

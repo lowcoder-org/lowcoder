@@ -278,10 +278,10 @@ let chartJsonModeChildren: any = {
 if (EchartsStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(FunnelTextStyle, 'style'),
+    chartStyle: styleControl(FunnelChartStyle, 'chartStyle'),
     titleStyle: styleControl(FunnelTextStyle, 'titleStyle'),
+    labelStyle: styleControl(FunnelTextStyle, 'labelStyle'),
     legendStyle: styleControl(FunnelTextStyle, 'legendStyle'),
-    chartStyle: styleControl(FunnelChartStyle, 'chartStyle')
   }
 }
 

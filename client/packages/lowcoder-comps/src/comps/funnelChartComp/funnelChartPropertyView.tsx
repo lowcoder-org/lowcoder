@@ -61,7 +61,7 @@ export function funnelChartPropertyView(
       {
         children.label.getView() ?
         <Section name={sectionNames.labelStyle}>
-        {children.style?.getPropertyView()}
+        {children.labelStyle?.getPropertyView()}
       </Section> : <></>
       }
       {
