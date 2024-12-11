@@ -1,6 +1,6 @@
 # Self-hosting
 
-In this article, you will be guided through how to host Lowcoder on your own server using Docker-Compose or Docker.
+In this article, you will be guided through how to host Lowcoder on your own server using Docker Compose or Docker.
 
 There are multiple ways of installation. We directly support:
 
@@ -22,7 +22,7 @@ For easy setup and deployment, we provide an [all-in-one image](https://hub.dock
 #### Prerequisites
 
 * [Docker](https://docs.docker.com/get-docker/) (version 20.10.7 or above)
-* [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
+* [Docker Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
 
 {% hint style="info" %}
 Recommended system spec: 1-core CPU and 2 GB RAM.
@@ -40,7 +40,7 @@ cd lowcoder
 #### Deploy
 
 {% tabs %}
-{% tab title="Docker-Compose (Recommended)" %}
+{% tab title="Docker Compose (Recommended)" %}
 Follow the steps below:
 
 1. Download the configuration file by clicking [docker-compose.yml](https://github.com/lowcoder-org/lowcoder/blob/main/deploy/docker/docker-compose.yaml) or running the curl command:
@@ -54,7 +54,7 @@ curl https://raw.githubusercontent.com/lowcoder-org/lowcoder/main/deploy/docker/
 2.  Start the Docker container by running this command:
 
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
     \
@@ -85,13 +85,13 @@ docker run -d --name lowcoder -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" low
 #### Update to the latest version
 
 {% tabs %}
-{% tab title="Docker-Compose" %}
+{% tab title="Docker Compose" %}
 Run the following commands to update to the latest Lowcoder image:
 
 ```bash
-docker-compose pull
-docker-compose rm -fsv lowcoder
-docker-compose up -d
+docker compose pull
+docker compose rm -fsv lowcoder
+docker compose up -d
 ```
 {% endtab %}
 
