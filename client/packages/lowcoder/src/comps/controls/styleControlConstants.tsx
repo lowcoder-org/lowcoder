@@ -556,7 +556,7 @@ const MARGIN = {
 const DIRECTION = {
   name: "direction",
   label: trans("style.direction"),
-  position: "direction",
+  direction: "direction",
 } as const;
 
 const PADDING = {

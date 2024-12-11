@@ -12,6 +12,7 @@ const theme = {
   borderWidth: "1px",
   borderStyle: "solid",
   margin: "3px",
+  direction: "0 0 1 1",
   padding: "3px",
   lineHeight: "18px",
   gridColumns: String(DEFAULT_GRID_COLUMNS),
