@@ -188,7 +188,7 @@ function isBorderStyleConfig(config: SingleColorConfig): config is borderStyleCo
 }
 
 function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
-  return config.hasOwnProperty("direction");
+  return config.hasOwnProperty("margin");
 }
 
 function isDirectionConfig(config: SingleColorConfig): config is DirectionConfig {
@@ -634,6 +634,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     if (isMarginConfig(config)) {
       res[name] = themeWithDefault[config.margin];
     }
+    if (isDirectionConfig(config)) {
+      res[name] = themeWithDefault[config.direction] || '0 0 1 1';
+    }
     if (isPaddingConfig(config)) {
       res[name] = themeWithDefault[config.padding];
     }
@@ -998,6 +1001,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                     if (
                       name === 'radius' ||
                       name === 'margin' ||
+                      name === 'direction' ||
                       name === 'padding' ||
                       name === 'containerHeaderPadding' ||
                       name === 'containerSiderPadding' ||
