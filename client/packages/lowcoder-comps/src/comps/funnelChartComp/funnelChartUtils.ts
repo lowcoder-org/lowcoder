@@ -138,7 +138,7 @@ export function getEchartsConfig(
   console.log("props", props);
   console.log("theme", theme);
 
-  const backgroundColor = props?.chartStyle?.chartBackgroundColor || theme?.chartStyle?.backgroundColor;
+  const backgroundColor = props?.chartStyle?.chartBackgroundColor || theme?.chartStyle?.backgroundColor || "#FFFFFF";
   const gradientColor = props?.chartStyle?.chartGradientColor || theme?.chartStyle?.gradientColor;
   const opacity = props?.chartStyle?.chartOpacity || theme?.chartStyle?.opacity;
   const direction = props?.chartStyle?.direction || theme?.chartStyle?.direction;
@@ -154,9 +154,9 @@ export function getEchartsConfig(
     "left":props.echartsTitleConfig.top,
     "textStyle": {
       "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-      "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize,
+      "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || '18',
       "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-      "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor,
+      "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
       "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
       "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
       "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow.split('px')[0],
@@ -171,8 +171,8 @@ export function getEchartsConfig(
         "x2": direction?.split(' ')[2],
         "y2": direction?.split(' ')[3],
         "colorStops": [
-          { "offset": 0, "color": opacity ? backgroundColor + opacityToHex(opacity) : backgroundColor  || "#FFFFFF" },
-          { "offset": 1, "color": opacity ? gradientColor + opacityToHex(opacity) : gradientColor || "#FFFFFF" }
+          { "offset": 0, "color": backgroundColor + opacityToHex(opacity)},
+          { "offset": 1, "color": gradientColor + opacityToHex(opacity)}
         ]
       }
       : backgroundColor + opacityToHex(opacity),
@@ -188,7 +188,7 @@ export function getEchartsConfig(
       "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
       "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize,
       "fontWeight": props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
-      "color": props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor,
+      "color": props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || "#000000",
       "fontStyle": props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
       "textShadowColor": props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
       "textShadowBlur": props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow.split('px')[0],
@@ -226,7 +226,7 @@ export function getEchartsConfig(
         "fontFamily": props?.labelStyle?.chartFontFamily || theme?.labelStyle?.fontFamily,
         "fontSize": props?.labelStyle?.chartTextSize || theme?.labelStyle?.fontSize,
         "fontWeight": props?.labelStyle?.chartTextWeight || theme?.labelStyle?.fontWeight,
-        "color": props?.labelStyle?.chartTextColor || theme?.labelStyle?.fontColor,
+        "color": props?.labelStyle?.chartTextColor || theme?.labelStyle?.fontColor || "#000000",
         "fontStyle": props?.labelStyle?.chartFontStyle || theme?.labelStyle?.fontStyle,
         "textShadowColor": props?.labelStyle?.chartShadowColor || theme?.labelStyle?.shadowColor,
         "textShadowBlur": props?.labelStyle?.chartBoxShadow?.split('px')[0] || theme?.labelStyle?.boxShadow.split('px')[0],
