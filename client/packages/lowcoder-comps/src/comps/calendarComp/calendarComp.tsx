@@ -306,7 +306,7 @@ let CalendarBasicComp = (function () {
           ...(item.groupId ? { groupId: item.groupId } : {}),
           backgroundColor: item.backgroundColor,
           extendedProps: {   // Ensure color is in extendedProps
-              color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+            color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
             detail: item.detail,
             titleColor:item.titleColor,
             detailColor:item.detailColor,
@@ -324,21 +324,12 @@ let CalendarBasicComp = (function () {
     }, [currentEvents, theme])
 
     useEffect(() => {
+      if (initData.current) return;
+
       const mapData: Record<string, number> = {};
       events?.forEach((item: any, index: number) => {
         mapData[`${item.id}`] = index;
       })
-
-      if (initData.current) {
-        const difference = differenceWith(events, props.initialData, isEqual);
-        const inserted = differenceBy(difference, Object.keys(initDataMap)?.map(id => ({ id })), 'id')
-        const updated = filter(difference, obj => includes(Object.keys(initDataMap), String(obj.id)));
-        const deleted = differenceBy(props.initialData, Object.keys(mapData)?.map(id => ({ id })), 'id')
-
-        comp.children?.comp.children?.updatedEvents.dispatchChangeValueAction(updated);
-        comp.children?.comp.children?.insertedEvents.dispatchChangeValueAction(inserted);
-        comp.children?.comp.children?.deletedEvents.dispatchChangeValueAction(deleted);
-      }
 
       if (!initData.current && events?.length && comp?.children?.comp?.children?.initialData) {
         setInitDataMap(mapData);
@@ -407,7 +398,54 @@ let CalendarBasicComp = (function () {
       }
     }, [slotLabelFormat, slotLabelFormatWeek, slotLabelFormatMonth]);
 
-    const handleEventDataChange = useCallback((data: Array<Record<string,any>>) => {
+    const findUpdatedInsertedDeletedEvents = useCallback((data: Array<EventType>) => {
+      if (!initData.current) return;
+
+      let eventsData: Array<Record<string, any>> = currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
+        ? data.filter((event: { resourceId?: string; }) => Boolean(event.resourceId))
+        : data.filter((event: { resourceId?: string; }) => !Boolean(event.resourceId));
+
+      eventsData = eventsData.map((item) => ({
+        title: item.label,
+        id: item.id,
+        start: dayjs(item.start, DateParser).format(),
+        end: dayjs(item.end, DateParser).format(),
+        allDay: item.allDay,
+        ...(item.resourceId ? { resourceId: item.resourceId } : {}),
+        ...(item.groupId ? { groupId: item.groupId } : {}),
+        backgroundColor: item.backgroundColor,
+        extendedProps: {   // Ensure color is in extendedProps
+          color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+          detail: item.detail,
+          titleColor:item.titleColor,
+          detailColor:item.detailColor,
+          titleFontWeight:item.titleFontWeight,
+          titleFontStyle:item.titleFontStyle,
+          detailFontWeight:item.detailFontWeight,
+          detailFontStyle:item.detailFontStyle,
+          animation:item?.animation,
+          animationDelay:item?.animationDelay,
+          animationDuration:item?.animationDuration,
+          animationIterationCount:item?.animationIterationCount
+        }
+      }));
+
+      const mapData: Record<string, number> = {};
+      eventsData?.forEach((item: any, index: number) => {
+        mapData[`${item.id}`] = index;
+      })
+
+      const difference = differenceWith(eventsData, props.initialData, isEqual);
+      const inserted = differenceBy(difference, Object.keys(initDataMap)?.map(id => ({ id })), 'id')
+      const updated = filter(difference, obj => includes(Object.keys(initDataMap), String(obj.id)));
+      const deleted = differenceBy(props.initialData, Object.keys(mapData)?.map(id => ({ id })), 'id')
+
+      comp?.children?.comp?.children?.updatedEvents.dispatchChangeValueAction(updated);
+      comp?.children?.comp?.children?.insertedEvents.dispatchChangeValueAction(inserted);
+      comp?.children?.comp?.children?.deletedEvents.dispatchChangeValueAction(deleted);
+    }, [initDataMap, currentView, props.initialData, initData.current]);
+
+    const handleEventDataChange = useCallback((data: Array<EventType>) => {
       comp?.children?.comp.children.events.children.manual.children.manual.dispatch(
         comp?.children?.comp.children.events.children.manual.children.manual.setChildrensAction(
           data
@@ -416,6 +454,9 @@ let CalendarBasicComp = (function () {
       comp?.children?.comp.children.events.children.mapData.children.data.dispatchChangeValueAction(
         JSON.stringify(data)
       );
+
+      findUpdatedInsertedDeletedEvents(data);
+
       props.onEvent("change");
     }, [comp, props.onEvent]);
 
@@ -955,9 +996,9 @@ let CalendarBasicComp = (function () {
                   changeEvents.push(event);
                 }
               });
-              if (needChange) {
-                props.onEvent("change");
-              }
+              // if (needChange) {
+              //   props.onEvent("change");
+              // }
             }}
             eventDragStart={() => {
               if (typeof props.onDropEvent === 'function') {
