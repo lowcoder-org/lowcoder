@@ -80,6 +80,11 @@ import {
   borderStyleConfig,
   BoxShadowConfig,
   BoxShadowColorConfig,
+  ChartBackgroundColorConfig,
+  ChartGradientColorConfig,
+  ChartShadowColorConfig,
+  ChartBorderColorConfig,
+  ChartTextColorConfig,
   AnimationIterationCountConfig,
   OpacityConfig,
   AnimationConfig,
@@ -250,6 +255,32 @@ function isBoxShadowColorConfig(
   config: SingleColorConfig
 ): config is BoxShadowColorConfig {
   return config.hasOwnProperty('boxShadowColor');
+}
+
+function isChartBackgroundColorConfig(
+  config: SingleColorConfig
+): config is ChartBackgroundColorConfig {
+  return config.hasOwnProperty('chartBackgroundColor');
+}
+function isChartGradientColorConfig(
+  config: SingleColorConfig
+): config is ChartGradientColorConfig {
+  return config.hasOwnProperty('chartGradientColor');
+}
+function isChartShadowColorConfig(
+  config: SingleColorConfig
+): config is ChartShadowColorConfig {
+  return config.hasOwnProperty('chartShadowColor');
+}
+function isChartBorderColorConfig(
+  config: SingleColorConfig
+): config is ChartBorderColorConfig {
+  return config.hasOwnProperty('chartBorderColor');
+}
+function isChartTextColorConfig(
+  config: SingleColorConfig
+): config is ChartTextColorConfig {
+  return config.hasOwnProperty('chartTextColor');
 }
 
 function isAnimationIterationCountConfig(
@@ -423,6 +454,22 @@ function isEmptyBoxShadow(boxShadow: string) {
 
 function isEmptyBoxShadowColor(boxShadowColor: string) {
   return _.isEmpty(boxShadowColor);
+}
+
+function isEmptyChartBackgroundColor(chartBackgroundColor: string) {
+  return _.isEmpty(chartBackgroundColor);
+}
+function isEmptyChartGradientColor(chartGradientColor: string) {
+  return _.isEmpty(chartGradientColor);
+}
+function isEmptyChartShadowColor(chartShadowColor: string) {
+  return _.isEmpty(chartShadowColor);
+}
+function isEmptyChartBorderColor(chartBorderColor: string) {
+  return _.isEmpty(chartBorderColor);
+}
+function isEmptyChartTextColor(chartTextColor: string) {
+  return _.isEmpty(chartTextColor);
 }
 
 function isEmptyAnimation(animation: string) {
@@ -625,6 +672,26 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
+    if (!isEmptyChartBackgroundColor(props[name]) && isChartBackgroundColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyChartGradientColor(props[name]) && isChartGradientColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyChartShadowColor(props[name]) && isChartShadowColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyChartBorderColor(props[name]) && isChartBorderColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
+    if (!isEmptyChartTextColor(props[name]) && isChartTextColorConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (
       !isEmptyAnimationIterationCount(props[name]) &&
       isAnimationIterationCountConfig(config)
@@ -779,7 +846,22 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = themeWithDefault[config.boxShadow] || '0px 0px 0px';
     }
     if (isBoxShadowColorConfig(config)) {
-      res[name] = themeWithDefault[config.boxShadowColor] || '0px 0px 0px';
+      res[name] = themeWithDefault[config.boxShadowColor];
+    }
+    if (isChartBackgroundColorConfig(config)) {
+      res[name] = themeWithDefault[config.chartBackgroundColor];
+    }
+    if (isChartGradientColorConfig(config)) {
+      res[name] = themeWithDefault[config.chartGradientColor];
+    }
+    if (isChartShadowColorConfig(config)) {
+      res[name] = themeWithDefault[config.chartShadowColor];
+    }
+    if (isChartBorderColorConfig(config)) {
+      res[name] = themeWithDefault[config.chartBorderColor];
+    }
+    if (isChartTextColorConfig(config)) {
+      res[name] = themeWithDefault[config.chartTextColor];
     }
     if (isAnimationIterationCountConfig(config)) {
       res[name] = themeWithDefault[config.animationIterationCount] || '0';
@@ -946,6 +1028,32 @@ const OpacityPropIcon = styled(OpacityIcon)`
 `;
 
 const BoxShadowColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+
+const ChartBackgroundColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+const ChartGradientColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+const ChartShadowColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+const ChartBorderColorPropIcon = styled(BorderWidthIcon)`
+  margin: 0 8px 0 -3px;
+  padding: 3px;
+  color: #888;
+`;
+const ChartTextColorPropIcon = styled(BorderWidthIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
   color: #888;
@@ -1173,6 +1281,11 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                       name === 'animationIterationCount' ||
                       name === 'opacity' ||
                       name === 'boxShadowColor' ||
+                      name === 'chartBackgroundColor' ||
+                      name === 'chartGradientColor' ||
+                      name === 'chartShadowColor' ||
+                      name === 'chartBorderColor' ||
+                      name === 'chartTextColor' ||
                       name === 'boxShadow' ||
                       name === 'animation' ||
                       name === 'animationDelay' ||
@@ -1412,187 +1525,134 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                           ),
                                                           placeholder: props[name],
                                                         })
-                                                    : name === 'boxShadow'
-                                                      ? (
+                                                      : name === 'chartBackgroundColor'
+                                                        ? (
                                                           children[name] as InstanceType<
                                                             typeof StringControl
                                                           >
                                                         ).propertyView({
                                                           label: config.label,
                                                           preInputNode: (
-                                                            <BoxShadowPropIcon title="BoxShadow-Type" />
+                                                            <ChartBackgroundColorPropIcon title="BoxShadowColor-Type" />
                                                           ),
                                                           placeholder: props[name],
                                                         })
-                                                      : name === 'animation'
-                                                        ? (
+                                                        : name === 'chartGradientColor'
+                                                          ? (
                                                             children[name] as InstanceType<
                                                               typeof StringControl
                                                             >
                                                           ).propertyView({
                                                             label: config.label,
                                                             preInputNode: (
-                                                              <AnimationPropIcon title="Animation-Type" />
+                                                              <ChartGradientColorPropIcon title="BoxShadowColor-Type" />
                                                             ),
                                                             placeholder: props[name],
                                                           })
-                                                        : name === 'animationDelay'
-                                                          ? (
+                                                          : name === 'chartShadowColor'
+                                                            ? (
                                                               children[name] as InstanceType<
                                                                 typeof StringControl
                                                               >
                                                             ).propertyView({
                                                               label: config.label,
                                                               preInputNode: (
-                                                                <AnimationDelayPropIcon title="AnimationDelay-Type" />
+                                                                <ChartShadowColorPropIcon title="BoxShadowColor-Type" />
                                                               ),
                                                               placeholder: props[name],
                                                             })
-                                                          : name === 'animationDuration'
-                                                            ? (
+                                                            : name === 'chartBorderColor'
+                                                              ? (
                                                                 children[name] as InstanceType<
                                                                   typeof StringControl
                                                                 >
                                                               ).propertyView({
                                                                 label: config.label,
                                                                 preInputNode: (
-                                                                  <AnimationDurationPropIcon title="AnimationDuration-Type" />
+                                                                  <ChartBorderColorPropIcon title="BoxShadowColor-Type" />
                                                                 ),
                                                                 placeholder: props[name],
                                                               })
-                                                              : name === 'padding' ||
-                                                                  name ===
-                                                                    'containerHeaderPadding' ||
-                                                                  name ===
-                                                                    'containerSiderPadding' ||
-                                                                  name ===
-                                                                    'containerFooterPadding' ||
-                                                                  name === 'containerBodyPadding'
+                                                              : name === 'chartTextColor'
                                                                 ? (
-                                                                    children[name] as InstanceType<
-                                                                      typeof StringControl
-                                                                    >
-                                                                  ).propertyView({
-                                                                    label: config.label,
-                                                                    preInputNode: (
-                                                                      <PaddingIcon title="Padding" />
-                                                                    ),
-                                                                    placeholder: props[name],
-                                                                  })
-                                                                : name === 'textSize'
-                                                                  ? (
-                                                                      children[
-                                                                        name
-                                                                      ] as InstanceType<
-                                                                        typeof StringControl
-                                                                      >
-                                                                    ).propertyView({
-                                                                      label: config.label,
-                                                                      preInputNode: (
-                                                                        <StyledTextSizeIcon title="Font Size" />
-                                                                      ),
-                                                                      placeholder: props[name],
-                                                                    })
-                                                                  : name === 'textWeight'
+                                                                  children[name] as InstanceType<
+                                                                    typeof StringControl
+                                                                  >
+                                                                ).propertyView({
+                                                                  label: config.label,
+                                                                  preInputNode: (
+                                                                    <ChartTextColorPropIcon title="BoxShadowColor-Type" />
+                                                                  ),
+                                                                  placeholder: props[name],
+                                                                })
+                                                                  : name === 'boxShadow'
                                                                     ? (
-                                                                        children[
-                                                                          name
-                                                                        ] as InstanceType<
+                                                                        children[name] as InstanceType<
                                                                           typeof StringControl
                                                                         >
                                                                       ).propertyView({
                                                                         label: config.label,
                                                                         preInputNode: (
-                                                                          <StyledTextWeightIcon title="Font Weight" />
+                                                                          <BoxShadowPropIcon title="BoxShadow-Type" />
                                                                         ),
                                                                         placeholder: props[name],
                                                                       })
-                                                                    : name === 'fontFamily'
+                                                                    : name === 'animation'
                                                                       ? (
-                                                                          children[
-                                                                            name
-                                                                          ] as InstanceType<
+                                                                          children[name] as InstanceType<
                                                                             typeof StringControl
                                                                           >
                                                                         ).propertyView({
                                                                           label: config.label,
                                                                           preInputNode: (
-                                                                            <StyledFontFamilyIcon title="Font Family" />
+                                                                            <AnimationPropIcon title="Animation-Type" />
                                                                           ),
                                                                           placeholder: props[name],
                                                                         })
-                                                                      : name === 'textDecoration'
+                                                                      : name === 'animationDelay'
                                                                         ? (
-                                                                            children[
-                                                                              name
-                                                                            ] as InstanceType<
+                                                                            children[name] as InstanceType<
                                                                               typeof StringControl
                                                                             >
                                                                           ).propertyView({
                                                                             label: config.label,
                                                                             preInputNode: (
-                                                                              <StyledTextDecorationPropIcon title="Text Decoration" />
+                                                                              <AnimationDelayPropIcon title="AnimationDelay-Type" />
                                                                             ),
-                                                                            placeholder:
-                                                                              props[name],
+                                                                            placeholder: props[name],
                                                                           })
-                                                                        : name === 'textTransform'
+                                                                        : name === 'animationDuration'
                                                                           ? (
-                                                                              children[
-                                                                                name
-                                                                              ] as InstanceType<
+                                                                              children[name] as InstanceType<
                                                                                 typeof StringControl
                                                                               >
                                                                             ).propertyView({
                                                                               label: config.label,
                                                                               preInputNode: (
-                                                                                <StyledTextTransformIcon title="Text Transform" />
+                                                                                <AnimationDurationPropIcon title="AnimationDuration-Type" />
                                                                               ),
-                                                                              placeholder:
-                                                                                props[name],
+                                                                              placeholder: props[name],
                                                                             })
-                                                                          : name === 'fontStyle'
-                                                                            ? (
-                                                                                children[
-                                                                                  name
-                                                                                ] as InstanceType<
-                                                                                  typeof StringControl
-                                                                                >
-                                                                              ).propertyView({
-                                                                                label: config.label,
-                                                                                preInputNode: (
-                                                                                  <StyledTextStyleIcon title="Font Style" />
-                                                                                ),
-                                                                                placeholder:
-                                                                                  props[name],
-                                                                              })
-                                                                            : name ===
-                                                                                  'backgroundImage' ||
+                                                                            : name === 'padding' ||
                                                                                 name ===
-                                                                                  'headerBackgroundImage' ||
+                                                                                  'containerHeaderPadding' ||
                                                                                 name ===
-                                                                                  'footerBackgroundImage'
+                                                                                  'containerSiderPadding' ||
+                                                                                name ===
+                                                                                  'containerFooterPadding' ||
+                                                                                name === 'containerBodyPadding'
                                                                               ? (
-                                                                                  children[
-                                                                                    name
-                                                                                  ] as InstanceType<
+                                                                                  children[name] as InstanceType<
                                                                                     typeof StringControl
                                                                                   >
                                                                                 ).propertyView({
-                                                                                  label:
-                                                                                    config.label,
+                                                                                  label: config.label,
                                                                                   preInputNode: (
-                                                                                    <StyledBackgroundImageIcon title="Background Image" />
+                                                                                    <PaddingIcon title="Padding" />
                                                                                   ),
-                                                                                  placeholder:
-                                                                                    props[name],
+                                                                                  placeholder: props[name],
                                                                                 })
-                                                                              : name ===
-                                                                                    'backgroundImageRepeat' ||
-                                                                                  name ===
-                                                                                    'headerBackgroundImageRepeat' ||
-                                                                                  name ===
-                                                                                    'footerBackgroundImageRepeat'
+                                                                              : name === 'textSize'
                                                                                 ? (
                                                                                     children[
                                                                                       name
@@ -1600,16 +1660,13 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                       typeof StringControl
                                                                                     >
                                                                                   ).propertyView({
-                                                                                    label:
-                                                                                      config.label,
+                                                                                    label: config.label,
                                                                                     preInputNode: (
-                                                                                      <StyledBackgroundImageIcon title="Background Image Repeat" />
+                                                                                      <StyledTextSizeIcon title="Font Size" />
                                                                                     ),
-                                                                                    placeholder:
-                                                                                      props[name],
+                                                                                    placeholder: props[name],
                                                                                   })
-                                                                                : name ===
-                                                                                    'rotation'
+                                                                                : name === 'textWeight'
                                                                                   ? (
                                                                                       children[
                                                                                         name
@@ -1617,36 +1674,152 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                         typeof StringControl
                                                                                       >
                                                                                     ).propertyView({
-                                                                                      label:
-                                                                                        config.label,
-                                                                                      preInputNode:
-                                                                                        (
-                                                                                          <RotationPropIcon title="Rotation" />
-                                                                                        ),
-                                                                                      placeholder:
-                                                                                        props[name],
+                                                                                      label: config.label,
+                                                                                      preInputNode: (
+                                                                                        <StyledTextWeightIcon title="Font Weight" />
+                                                                                      ),
+                                                                                      placeholder: props[name],
                                                                                     })
-                                                                                    : name === 'lineHeight'  // Added lineHeight here
+                                                                                  : name === 'fontFamily'
                                                                                     ? (
-                                                                                      children[name] as InstanceType<typeof StringControl>
-                                                                                    ).propertyView({
-                                                                                    label: config.label,
-                                                                                    preInputNode: <LineHeightPropIcon title="Line Height" />,
-                                                                                    placeholder: props[name],
-                                                                                  })
-                                                                                  : children[
-                                                                                      name
-                                                                                    ].propertyView({
-                                                                                      label:
-                                                                                        config.label,
-                                                                                      panelDefaultColor:
-                                                                                        props[name],
-                                                                                      // isDep: isDepColorConfig(config),
-                                                                                      isDep: true,
-                                                                                      depMsg:
-                                                                                        depMsg,
-                                                                                      allowGradient: config.name.includes('background'),
-                                                                                    })}
+                                                                                        children[
+                                                                                          name
+                                                                                        ] as InstanceType<
+                                                                                          typeof StringControl
+                                                                                        >
+                                                                                      ).propertyView({
+                                                                                        label: config.label,
+                                                                                        preInputNode: (
+                                                                                          <StyledFontFamilyIcon title="Font Family" />
+                                                                                        ),
+                                                                                        placeholder: props[name],
+                                                                                      })
+                                                                                    : name === 'textDecoration'
+                                                                                      ? (
+                                                                                          children[
+                                                                                            name
+                                                                                          ] as InstanceType<
+                                                                                            typeof StringControl
+                                                                                          >
+                                                                                        ).propertyView({
+                                                                                          label: config.label,
+                                                                                          preInputNode: (
+                                                                                            <StyledTextDecorationPropIcon title="Text Decoration" />
+                                                                                          ),
+                                                                                          placeholder:
+                                                                                            props[name],
+                                                                                        })
+                                                                                      : name === 'textTransform'
+                                                                                        ? (
+                                                                                            children[
+                                                                                              name
+                                                                                            ] as InstanceType<
+                                                                                              typeof StringControl
+                                                                                            >
+                                                                                          ).propertyView({
+                                                                                            label: config.label,
+                                                                                            preInputNode: (
+                                                                                              <StyledTextTransformIcon title="Text Transform" />
+                                                                                            ),
+                                                                                            placeholder:
+                                                                                              props[name],
+                                                                                          })
+                                                                                        : name === 'fontStyle'
+                                                                                          ? (
+                                                                                              children[
+                                                                                                name
+                                                                                              ] as InstanceType<
+                                                                                                typeof StringControl
+                                                                                              >
+                                                                                            ).propertyView({
+                                                                                              label: config.label,
+                                                                                              preInputNode: (
+                                                                                                <StyledTextStyleIcon title="Font Style" />
+                                                                                              ),
+                                                                                              placeholder:
+                                                                                                props[name],
+                                                                                            })
+                                                                                          : name ===
+                                                                                                'backgroundImage' ||
+                                                                                              name ===
+                                                                                                'headerBackgroundImage' ||
+                                                                                              name ===
+                                                                                                'footerBackgroundImage'
+                                                                                            ? (
+                                                                                                children[
+                                                                                                  name
+                                                                                                ] as InstanceType<
+                                                                                                  typeof StringControl
+                                                                                                >
+                                                                                              ).propertyView({
+                                                                                                label:
+                                                                                                  config.label,
+                                                                                                preInputNode: (
+                                                                                                  <StyledBackgroundImageIcon title="Background Image" />
+                                                                                                ),
+                                                                                                placeholder:
+                                                                                                  props[name],
+                                                                                              })
+                                                                                            : name ===
+                                                                                                  'backgroundImageRepeat' ||
+                                                                                                name ===
+                                                                                                  'headerBackgroundImageRepeat' ||
+                                                                                                name ===
+                                                                                                  'footerBackgroundImageRepeat'
+                                                                                              ? (
+                                                                                                  children[
+                                                                                                    name
+                                                                                                  ] as InstanceType<
+                                                                                                    typeof StringControl
+                                                                                                  >
+                                                                                                ).propertyView({
+                                                                                                  label:
+                                                                                                    config.label,
+                                                                                                  preInputNode: (
+                                                                                                    <StyledBackgroundImageIcon title="Background Image Repeat" />
+                                                                                                  ),
+                                                                                                  placeholder:
+                                                                                                    props[name],
+                                                                                                })
+                                                                                              : name ===
+                                                                                                  'rotation'
+                                                                                                ? (
+                                                                                                    children[
+                                                                                                      name
+                                                                                                    ] as InstanceType<
+                                                                                                      typeof StringControl
+                                                                                                    >
+                                                                                                  ).propertyView({
+                                                                                                    label:
+                                                                                                      config.label,
+                                                                                                    preInputNode:
+                                                                                                      (
+                                                                                                        <RotationPropIcon title="Rotation" />
+                                                                                                      ),
+                                                                                                    placeholder:
+                                                                                                      props[name],
+                                                                                                  })
+                                                                                                  : name === 'lineHeight'  // Added lineHeight here
+                                                                                                  ? (
+                                                                                                    children[name] as InstanceType<typeof StringControl>
+                                                                                                  ).propertyView({
+                                                                                                  label: config.label,
+                                                                                                  preInputNode: <LineHeightPropIcon title="Line Height" />,
+                                                                                                  placeholder: props[name],
+                                                                                                })
+                                                                                                : children[
+                                                                                                    name
+                                                                                                  ].propertyView({
+                                                                                                    label:
+                                                                                                      config.label,
+                                                                                                    panelDefaultColor:
+                                                                                                      props[name],
+                                                                                                    // isDep: isDepColorConfig(config),
+                                                                                                    isDep: true,
+                                                                                                    depMsg:
+                                                                                                      depMsg,
+                                                                                                    allowGradient: config.name.includes('background'),
+                                                                                                  })}
                   </div>
                 );
               })}
