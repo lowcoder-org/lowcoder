@@ -103,7 +103,6 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
-                createApplicationRequest.publishedApplicationDSL(),
                 createApplicationRequest.editingApplicationDSL(),
                 false, false, false, "", Instant.now());
 
@@ -265,15 +264,18 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                     List<Application> dependentModules = tuple.getT3();
                     Map<String, Object> commonSettings = tuple.getT4();
 
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, Application::getLiveApplicationDsl, (a, b) -> b));
-                    return applicationService.updateById(applicationId, application).map(__ ->
-                        ApplicationView.builder()
-                            .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                            .applicationDSL(application.getEditingApplicationDSL())
-                            .moduleDSL(dependentModuleDsl)
-                            .orgCommonSettings(commonSettings)
-                            .build());
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .flatMap(dependentModuleDsl ->
+                                applicationService.updateById(applicationId, application).map(__ ->
+                                    ApplicationView.builder()
+                                        .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
+                                        .applicationDSL(application.getEditingApplicationDSL())
+                                        .moduleDSL(dependentModuleDsl)
+                                        .orgCommonSettings(commonSettings)
+                                        .build()));
                 });
     }
 
@@ -286,21 +288,26 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     ResourcePermission permission = tuple.getT1();
                     Application application = tuple.getT2();
                     List<Application> dependentModules = tuple.getT3();
                     Map<String, Object> commonSettings = tuple.getT4();
                     String templateId = tuple.getT5();
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, app -> sanitizeDsl(app.getLiveApplicationDsl()), (a, b) -> b));
-                    return ApplicationView.builder()
-                            .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                            .applicationDSL(sanitizeDsl(application.getLiveApplicationDsl()))
-                            .moduleDSL(dependentModuleDsl)
-                            .orgCommonSettings(commonSettings)
-                            .templateId(templateId)
-                            .build();
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .flatMap(dependentModuleDsl ->
+                                application.getLiveApplicationDsl(applicationRecordService).map(liveDsl ->
+                                    ApplicationView.builder()
+                                        .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
+                                        .applicationDSL(sanitizeDsl(liveDsl))
+                                        .moduleDSL(dependentModuleDsl)
+                                        .orgCommonSettings(commonSettings)
+                                        .templateId(templateId)
+                                        .build())
+                            );
                 })
                 .delayUntil(applicationView -> {
                     if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.NAV_LAYOUT.getValue()) {
@@ -368,10 +375,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                                 .applicationDSL(application.getEditingApplicationDSL())
                                 .build())
                         .map(applicationRecordService::insert))
-                .flatMap(permission -> applicationService.publish(applicationId)
+                .flatMap(permission -> applicationService.findById(applicationId)
                         .map(applicationUpdated -> ApplicationView.builder()
                                 .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
-                                .applicationDSL(applicationUpdated.getLiveApplicationDsl())
+                                .applicationDSL(applicationUpdated.getEditingApplicationDSL())
                                 .build()));
     }
 

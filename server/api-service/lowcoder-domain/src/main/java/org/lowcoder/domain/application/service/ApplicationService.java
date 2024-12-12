@@ -20,10 +20,6 @@ public interface ApplicationService {
 
     Mono<Boolean> updateById(String applicationId, Application application);
 
-    Mono<Boolean> updatePublishedApplicationDSL(String applicationId, Map<String, Object> applicationDSL);
-
-    Mono<Application> publish(String applicationId);
-
     Mono<Boolean> updateEditState(String applicationId, Boolean editingFinished);
 
     Mono<Application> create(Application newApplication, String visitorId);
