@@ -169,6 +169,42 @@ export type DirectionConfig = CommonColorConfig & {
   readonly direction: string;
 };
 
+export type ChartOpacityConfig = CommonColorConfig & {
+  readonly chartOpacity: string;
+};
+
+export type ChartBoxShadowConfig = CommonColorConfig & {
+  readonly chartBoxShadow: string;
+};
+
+export type ChartBorderStyleConfig = CommonColorConfig & {
+  readonly chartBorderStyle: string;
+};
+
+export type ChartBorderRadiusConfig = CommonColorConfig & {
+  readonly chartBorderRadius: string;
+};
+
+export type ChartBorderWidthConfig = CommonColorConfig & {
+  readonly chartBorderWidth: string;
+};
+
+export type ChartTextSizeConfig = CommonColorConfig & {
+  readonly chartTextSize: string;
+};
+
+export type ChartTextWeightConfig = CommonColorConfig & {
+  readonly chartTextWeight: string;
+};
+
+export type ChartFontFamilyConfig = CommonColorConfig & {
+  readonly chartFontFamily: string;
+};
+
+export type ChartFontStyleConfig = CommonColorConfig & {
+  readonly chartFontStyle: string;
+};
+
 export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
@@ -208,6 +244,15 @@ export type SingleColorConfig =
   | FontStyleConfig
   | MarginConfig
   | DirectionConfig
+  | ChartOpacityConfig
+  | ChartBoxShadowConfig
+  | ChartBorderStyleConfig
+  | ChartBorderRadiusConfig
+  | ChartBorderWidthConfig
+  | ChartTextSizeConfig
+  | ChartTextWeightConfig
+  | ChartFontFamilyConfig
+  | ChartFontStyleConfig
   | PaddingConfig
   | ContainerHeaderPaddingConfig
   | ContainerSiderPaddingConfig
@@ -557,6 +602,60 @@ const DIRECTION = {
   name: "direction",
   label: trans("style.direction"),
   direction: "direction",
+} as const;
+
+const CHARTOPACITY = {
+  name: "chartOpacity",
+  label: trans("style.opacity"),
+  chartOpacity: "chartOpacity",
+} as const;
+
+const CHARTBOXSHADOW = {
+  name: "chartBoxShadow",
+  label: trans("style.boxShadow"),
+  chartBoxShadow: "chartBoxShadow",
+} as const;
+
+const CHARTBORDERSTYLE = {
+  name: "chartBorderStyle",
+  label: trans("style.borderStyle"),
+  chartBorderStyle: "chartBorderStyle",
+} as const;
+
+const CHARTBORDERRADIUS = {
+  name: "chartBorderRadius",
+  label: trans("style.borderRadius"),
+  chartBorderRadius: "chartBorderRadius",
+} as const;
+
+const CHARTBORDERWIDTH = {
+  name: "chartBorderWidth",
+  label: trans("style.borderWidth"),
+  chartBorderWidth: "chartBorderWidth",
+} as const;
+
+const CHARTTEXTSIZE = {
+  name: "chartTextSize",
+  label: trans("style.textSize"),
+  chartTextSize: "chartTextSize",
+} as const;
+
+const CHARTTEXTWEIGHT = {
+  name: "chartTextWeight",
+  label: trans("style.textWeight"),
+  chartTextWeight: "chartTextWeight",
+} as const;
+
+const CHARTFONTFAMILY = {
+  name: "chartFontFamily",
+  label: trans("style.fontFamily"),
+  chartFontFamily: "chartFontFamily",
+} as const;
+
+const CHARTFONTSTYLE = {
+  name: "chartFontStyle",
+  label: trans("style.fontStyle"),
+  chartFontStyle: "chartFontStyle",
 } as const;
 
 const PADDING = {
@@ -1816,25 +1915,25 @@ export const EchartsStyle = [getBackground("primarySurface")] as const;
 
 export const FunnelTextStyle = [
   TEXT,
-  TEXT_SIZE,
-  TEXT_WEIGHT,
-  FONT_FAMILY,
-  FONT_STYLE,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
   BOXSHADOWCOLOR,
-  BOXSHADOW,
+  CHARTBOXSHADOW,
 ] as const;
 
 export const FunnelChartStyle = [
   getBackground("primarySurface"),
   getGradientBackground(),
   DIRECTION,
-  OPACITY,
+  CHARTOPACITY,
   BOXSHADOWCOLOR,
-  BOXSHADOW,
+  CHARTBOXSHADOW,
   BORDER,
-  BORDER_STYLE,
-  RADIUS,
-  BORDER_WIDTH,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
 ] as const;
 
 export const CalendarStyle = [
