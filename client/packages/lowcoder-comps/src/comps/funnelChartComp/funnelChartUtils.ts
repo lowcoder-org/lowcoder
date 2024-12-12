@@ -134,6 +134,10 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+
+  console.log("props", props);
+  console.log("theme", theme);
+
   if (props.mode === "json") {
     let opt={
   "title": {
@@ -141,29 +145,29 @@ export function getEchartsConfig(
     'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
     "left":props.echartsTitleConfig.top,
     "textStyle": {
-      "fontFamily": props?.titleStyle?.fontFamily,
-      "fontSize": props?.titleStyle?.textSize,
-      "fontWeight": props?.titleStyle?.textWeight,
-      "color": props?.titleStyle?.text,
-      "fontStyle": props?.titleStyle?.fontStyle,
-      "textShadowColor": props?.titleStyle?.boxShadowColor,
-      "textShadowBlur": props?.titleStyle?.boxShadow?.split(' ')[0],
-      "textShadowOffsetX": props?.titleStyle?.boxShadow?.split(' ')[1],
-      "textShadowOffsetY": props?.titleStyle?.boxShadow?.split(' ')[2]
+      "fontFamily": props?.titleStyle?.fontFamily || theme?.titleStyle?.fontFamily,
+      "fontSize": props?.titleStyle?.textSize || theme?.titleStyle?.fontSize,
+      "fontWeight": props?.titleStyle?.textWeight || theme?.titleStyle?.fontWeight,
+      "color": props?.titleStyle?.text || theme?.titleStyle?.fontColor,
+      "fontStyle": props?.titleStyle?.fontStyle || theme?.titleStyle?.fontStyle,
+      "textShadowColor": props?.titleStyle?.boxShadowColor || theme?.titleStyle?.shadowColor,
+      "textShadowBlur": props?.titleStyle?.boxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow.split('px')[0],
+      "textShadowOffsetX": props?.titleStyle?.boxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow.split('px')[1],
+      "textShadowOffsetY": props?.titleStyle?.boxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow.split('px')[2]
     }
   },
-    "backgroundColor": props?.chartStyle?.gradientBackground && props?.chartStyle?.background
-      ? {
-        "x": props?.chartStyle?.direction?.split(' ')[0],
-        "y": props?.chartStyle?.direction?.split(' ')[1],
-        "x2": props?.chartStyle?.direction?.split(' ')[2],
-        "y2": props?.chartStyle?.direction?.split(' ')[3],
-        "colorStops": [
-          { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background},
-          { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground}
-        ]
-      }
-      : props?.chartStyle?.opacity ? (props?.chartStyle?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background,
+    "backgroundColor": props?.chartStyle?.background || theme?.chartStyle?.backgroundColor,
+      // ? {
+      //   "x": props?.chartStyle?.direction?.split(' ')[0],
+      //   "y": props?.chartStyle?.direction?.split(' ')[1],
+      //   "x2": props?.chartStyle?.direction?.split(' ')[2],
+      //   "y2": props?.chartStyle?.direction?.split(' ')[3],
+      //   "colorStops": [
+      //     { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background},
+      //     { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground}
+      //   ]
+      // }
+      // : props?.chartStyle?.opacity ? (props?.chartStyle?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background,
   "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
@@ -173,15 +177,15 @@ export function getEchartsConfig(
     "data": props.echartsOption.data?.map(data=>data.name),
     "top": props.echartsLegendConfig.top,
     "textStyle": {
-      "fontFamily": props?.legendStyle?.fontFamily,
-      "fontSize": props?.legendStyle?.textSize,
-      "fontWeight": props?.legendStyle?.textWeight,
-      "color": props?.legendStyle?.text,
-      "fontStyle": props?.legendStyle?.fontStyle,
-      "textShadowColor": props?.legendStyle?.boxShadowColor,
-      "textShadowBlur": props?.legendStyle?.boxShadow?.split(' ')[0],
-      "textShadowOffsetX": props?.legendStyle?.boxShadow?.split(' ')[1],
-      "textShadowOffsetY": props?.legendStyle?.boxShadow?.split(' ')[2]
+      "fontFamily": props?.legendStyle?.fontFamily || theme?.legendStyle?.fontFamily,
+      "fontSize": props?.legendStyle?.textSize || theme?.legendStyle?.fontSize,
+      "fontWeight": props?.legendStyle?.textWeight || theme?.legendStyle?.fontWeight,
+      "color": props?.legendStyle?.text || theme?.legendStyle?.fontColor,
+      "fontStyle": props?.legendStyle?.fontStyle || theme?.legendStyle?.fontStyle,
+      "textShadowColor": props?.legendStyle?.boxShadowColor || theme?.legendStyle?.shadowColor,
+      "textShadowBlur": props?.legendStyle?.boxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow.split('px')[0],
+      "textShadowOffsetX": props?.legendStyle?.boxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow.split('px')[1],
+      "textShadowOffsetY": props?.legendStyle?.boxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow.split('px')[2]
     }
   },
   "series": [
@@ -199,27 +203,27 @@ export function getEchartsConfig(
       "sort": props.echartsSortingConfig.sort,
       "itemStyle": {
         "opacity": props.opacity,
-        "borderColor": props?.chartStyle?.border,
-        "borderWidth": props?.chartStyle?.borderWidth,
-        "borderType": props?.chartStyle?.borderStyle,
-        "borderRadius": props?.chartStyle?.radius,
-        "shadowColor": props?.chartStyle?.boxShadowColor,
-        "shadowBlur": props?.chartStyle?.boxShadow?.split(' ')[0],
-        "shadowOffsetX": props?.chartStyle?.boxShadow?.split(' ')[0],
-        "shadowOffsetY": props?.chartStyle?.boxShadow?.split(' ')[0]
+        "borderColor": props?.chartStyle?.border || theme?.chartStyle?.borderColor,
+        "borderWidth": props?.chartStyle?.borderWidth || theme?.chartStyle?.borderWidth,
+        "borderType": props?.chartStyle?.borderStyle || theme?.chartStyle?.borderType,
+        "borderRadius": props?.chartStyle?.radius || theme?.chartStyle?.borderRadius,
+        "shadowColor": props?.chartStyle?.boxShadowColor || theme?.chartStyle?.shadowColor,
+        "shadowBlur": props?.chartStyle?.boxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow.split('px')[0],
+        "shadowOffsetX": props?.chartStyle?.boxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow.split('px')[1],
+        "shadowOffsetY": props?.chartStyle?.boxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow.split('px')[2]
       },
       "label": {
         "show": props.label,
         "position": props.echartsLabelConfig.top,
-        "fontFamily": props?.labelStyle?.fontFamily,
-        "fontSize": props?.labelStyle?.textSize,
-        "fontWeight": props?.labelStyle?.textWeight,
-        "color": props?.labelStyle?.text,
-        "fontStyle": props?.labelStyle?.fontStyle,
-        "textShadowColor": props?.labelStyle?.boxShadowColor,
-        "textShadowBlur": props?.labelStyle?.boxShadow?.split(' ')[0],
-        "textShadowOffsetX": props?.labelStyle?.boxShadow?.split(' ')[1],
-        "textShadowOffsetY": props?.labelStyle?.boxShadow?.split(' ')[2]
+        "fontFamily": props?.labelStyle?.fontFamily || theme?.labelStyle?.fontFamily,
+        "fontSize": props?.labelStyle?.textSize || theme?.labelStyle?.fontSize,
+        "fontWeight": props?.labelStyle?.textWeight || theme?.labelStyle?.fontWeight,
+        "color": props?.labelStyle?.text || theme?.labelStyle?.fontColor,
+        "fontStyle": props?.labelStyle?.fontStyle || theme?.labelStyle?.fontStyle,
+        "textShadowColor": props?.labelStyle?.boxShadowColor || theme?.labelStyle?.shadowColor,
+        "textShadowBlur": props?.labelStyle?.boxShadow?.split('px')[0] || theme?.labelStyle?.boxShadow.split('px')[0],
+        "textShadowOffsetX": props?.labelStyle?.boxShadow?.split('px')[1] || theme?.labelStyle?.boxShadow.split('px')[1],
+        "textShadowOffsetY": props?.labelStyle?.boxShadow?.split('px')[2] || theme?.labelStyle?.boxShadow.split('px')[2]
       },
       "data": props.echartsOption.data
     }
