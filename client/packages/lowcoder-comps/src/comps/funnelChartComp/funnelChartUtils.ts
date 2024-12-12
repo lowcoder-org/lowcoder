@@ -134,6 +134,10 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+  const backgroundColor = props?.chartStyle?.background || theme?.chartStyle?.backgroundColor;
+  const gradientColor = props?.chartStyle?.gradientBackground || theme?.chartStyle?.gradientColor;
+  const opacity = props?.chartStyle?.opacity || theme?.chartStyle?.opacity;
+  const direction = props?.chartStyle?.direction || theme?.chartStyle?.direction;
 
   console.log("props", props);
   console.log("theme", theme);
@@ -156,18 +160,18 @@ export function getEchartsConfig(
       "textShadowOffsetY": props?.titleStyle?.boxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow.split('px')[2]
     }
   },
-    "backgroundColor": props?.chartStyle?.background || theme?.chartStyle?.backgroundColor,
-      // ? {
-      //   "x": props?.chartStyle?.direction?.split(' ')[0],
-      //   "y": props?.chartStyle?.direction?.split(' ')[1],
-      //   "x2": props?.chartStyle?.direction?.split(' ')[2],
-      //   "y2": props?.chartStyle?.direction?.split(' ')[3],
-      //   "colorStops": [
-      //     { "offset": 0, "color": props?.chartStyle?.opacity ? props?.chartStyle?.background + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background},
-      //     { "offset": 1, "color": props?.chartStyle?.opacity ? props?.chartStyle?.gradientBackground + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.gradientBackground}
-      //   ]
-      // }
-      // : props?.chartStyle?.opacity ? (props?.chartStyle?.background) + opacityToHex(props?.chartStyle?.opacity) : props?.chartStyle?.background,
+    "backgroundColor": gradientColor && backgroundColor
+      ? {
+        "x": direction?.split(' ')[0],
+        "y": direction?.split(' ')[1],
+        "x2": direction?.split(' ')[2],
+        "y2": direction?.split(' ')[3],
+        "colorStops": [
+          { "offset": 0, "color": opacity ? backgroundColor + opacityToHex(opacity) : backgroundColor  || "#FFFFFF" },
+          { "offset": 1, "color": opacity ? gradientColor + opacityToHex(opacity) : gradientColor || "#FFFFFF" }
+        ]
+      }
+      : backgroundColor + opacityToHex(opacity),
   "color": props.echartsOption.data?.map(data => data.color),
   "tooltip": props.tooltip&&{
     "trigger": "item",
