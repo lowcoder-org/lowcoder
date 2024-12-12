@@ -225,6 +225,26 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         placeholder = '#FFFFFF';
         break;
       }
+      case 'chartBackgroundColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartGradientColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartShadowColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartBorderColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartTextColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
       case 'boxShadow': {
         placeholder = '0px 0px 0px';
         break;
@@ -364,6 +384,26 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         break;
       }
       case 'boxShadowColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBackgroundColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartGradientColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartShadowColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBorderColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartTextColor': {
         icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }

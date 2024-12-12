@@ -41,6 +41,22 @@ export type BoxShadowColorConfig = CommonColorConfig & {
   readonly boxShadowColor: string;
 };
 
+export type ChartBackgroundColorConfig = CommonColorConfig & {
+  readonly chartBackgroundColor: string;
+};
+export type ChartGradientColorConfig = CommonColorConfig & {
+  readonly chartGradientColor: string;
+};
+export type ChartShadowColorConfig = CommonColorConfig & {
+  readonly chartShadowColor: string;
+};
+export type ChartBorderColorConfig = CommonColorConfig & {
+  readonly chartBorderColor: string;
+};
+export type ChartTextColorConfig = CommonColorConfig & {
+  readonly chartTextColor: string;
+};
+
 export type AnimationIterationCountConfig = CommonColorConfig & {
   readonly animationIterationCount: string;
 };
@@ -281,6 +297,11 @@ export type SingleColorConfig =
   | BoxShadowColorConfig
   | AnimationIterationCountConfig
   | LineHeightConfig
+  | ChartBackgroundColorConfig
+  | ChartGradientColorConfig
+  | ChartShadowColorConfig
+  | ChartBorderColorConfig
+  | ChartTextColorConfig
   
  
 
@@ -505,6 +526,36 @@ const BOXSHADOWCOLOR = {
   name: "boxShadowColor",
   label: trans("style.boxShadowColor"),
   boxShadowColor: "boxShadowColor",
+} as const;
+
+const CHARTBACKGROUNDCOLOR = {
+  name: "chartBackgroundColor",
+  label: trans("style.chartBackgroundColor"),
+  chartBackgroundColor: "chartBackgroundColor",
+} as const;
+
+const CHARTGRADIENTCOLOR = {
+  name: "chartGradientColor",
+  label: trans("style.chartGradientColor"),
+  chartGradientColor: "chartGradientColor",
+} as const;
+
+const CHARTSHADOWCOLOR = {
+  name: "chartShadowColor",
+  label: trans("style.chartShadowColor"),
+  chartShadowColor: "chartShadowColor",
+} as const;
+
+const CHARTBORDERCOLOR = {
+  name: "chartBorderColor",
+  label: trans("style.chartBorderColor"),
+  chartBorderColor: "chartBorderColor",
+} as const;
+
+const CHARTTEXTCOLOR = {
+  name: "chartTextColor",
+  label: trans("style.chartTextColor"),
+  chartTextColor: "chartTextColor",
 } as const;
 
 const OPACITY = {
@@ -1914,23 +1965,23 @@ export const JsonEditorStyle = [LABEL] as const;
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
 export const FunnelTextStyle = [
-  TEXT,
+  CHARTTEXTCOLOR,
   CHARTTEXTSIZE,
   CHARTTEXTWEIGHT,
   CHARTFONTFAMILY,
   CHARTFONTSTYLE,
-  BOXSHADOWCOLOR,
+  CHARTSHADOWCOLOR,
   CHARTBOXSHADOW,
 ] as const;
 
 export const FunnelChartStyle = [
-  getBackground("primarySurface"),
-  getGradientBackground(),
+  CHARTBACKGROUNDCOLOR,
+  CHARTGRADIENTCOLOR,
   DIRECTION,
   CHARTOPACITY,
-  BOXSHADOWCOLOR,
+  CHARTSHADOWCOLOR,
   CHARTBOXSHADOW,
-  BORDER,
+  CHARTBORDERCOLOR,
   CHARTBORDERSTYLE,
   CHARTBORDERRADIUS,
   CHARTBORDERWIDTH,
