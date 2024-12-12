@@ -25,7 +25,7 @@ import {
   TextStyleIcon,
   ImageCompIconSmall,
   RotationIcon,
-  LineHeightIcon
+  LineHeightIcon,
  } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { debounce } from "lodash";
@@ -101,7 +101,8 @@ const isColorStyle = (styleKey: string) => {
     styleKey !== 'containerHeaderPadding' &&
     styleKey !== 'containerSiderPadding' &&
     styleKey !== 'containerFooterPadding' &&
-    styleKey !== 'containerBodyPadding';
+    styleKey !== 'containerBodyPadding' &&
+    styleKey !== 'direction';
 }
 
 
@@ -275,6 +276,10 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         placeholder = '0deg';
         break;
       }
+      case 'direction': {
+        placeholder = '0 0 1 1';
+        break;
+      }
     }
     return placeholder;
   }
@@ -378,6 +383,10 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
       }
       case 'lineHeight': {
         icon = <LineHeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'direction': {
+        icon = <ExpandIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
     }
