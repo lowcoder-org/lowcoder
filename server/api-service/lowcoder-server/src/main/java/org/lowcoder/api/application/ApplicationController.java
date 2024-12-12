@@ -1,5 +1,6 @@
 package org.lowcoder.api.application;
 
+import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.PageResponseView;
@@ -13,6 +14,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
@@ -38,6 +41,7 @@ public class ApplicationController implements ApplicationEndpoints {
     private final SessionUserService sessionUserService;
     private final GidService gidService;
     private final FolderElementRelationService folderElementRelationService;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
@@ -130,9 +134,27 @@ public class ApplicationController implements ApplicationEndpoints {
 
     @Override
     public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
-                                                       @RequestBody ApplicationPublishRequest applicationPublishRequest) {
+                                                       @RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.publish(appId, applicationPublishRequest)
+                    applicationRecordService.getLatestRecordByApplicationId(applicationId)
+                        .map(applicationRecord -> {
+                            String tag = applicationRecord.getTag(); // Assuming format is 1.0.0
+                            String newtag = "1.0.0";
+
+                            if (tag != null && tag.matches("\\d+\\.\\d+\\.\\d+")) { // Validate tag format
+                                String[] parts = tag.split("\\."); // Split by "."
+                                int major = Integer.parseInt(parts[0]);
+                                int minor = Integer.parseInt(parts[1]);
+                                int patch = Integer.parseInt(parts[2]);
+
+                                patch++; // Increment the patch version
+                                newtag = String.format("%d.%d.%d", major, minor, patch);
+                            }
+
+                            return newtag;
+                        })
+                        .switchIfEmpty(Mono.just("1.0.0"))
+                        .flatMap(newtag -> applicationApiService.publish(appId, Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag))))
                 .map(ResponseView::success));
     }
 

@@ -134,7 +134,7 @@ public interface ApplicationEndpoints
 	)
     @PostMapping("/{applicationId}/publish")
 	public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
-												@RequestBody ApplicationPublishRequest applicationPublishRequest);
+												@RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,

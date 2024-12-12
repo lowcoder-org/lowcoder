@@ -374,7 +374,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                                 .applicationId(application.getId())
                                 .applicationDSL(application.getEditingApplicationDSL())
                                 .build())
-                        .map(applicationRecordService::insert))
+                        .flatMap(applicationRecordService::insert))
                 .flatMap(permission -> applicationService.findById(applicationId)
                         .map(applicationUpdated -> ApplicationView.builder()
                                 .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
