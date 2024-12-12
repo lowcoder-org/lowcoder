@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.query.view.QueryExecutionRequest;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
@@ -62,6 +63,7 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
     private final DatasourceService datasourceService;
     private final QueryExecutionService queryExecutionService;
     private final CommonConfig commonConfig;
+    private final ApplicationRecordService applicationRecordService;
 
     @Value("${server.port}")
     private int port;
@@ -79,7 +81,7 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
         String queryId = queryExecutionRequest.getQueryId();
         Mono<Application> appMono = applicationService.findById(appId).cache();
         Mono<ApplicationQuery> appQueryMono = appMono
-                .map(app -> app.getQueryByViewModeAndQueryId(viewMode, queryId))
+                .flatMap(app -> app.getQueryByViewModeAndQueryId(viewMode, queryId, applicationRecordService))
                 .cache();
 
         Mono<BaseQuery> baseQueryMono = appQueryMono.flatMap(this::getBaseQuery).cache();

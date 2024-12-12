@@ -23,8 +23,8 @@ public interface ApplicationRecordEndpoints
 		    summary = "Delete Application Record",
 		    description = "Permanently remove a specific Application Record from Lowcoder using its unique record ID."
 	)
-    @DeleteMapping("/{ApplicationRecordId}")
-    public Mono<Void> delete(@PathVariable String ApplicationRecordId);
+    @DeleteMapping("/{applicationRecordId}")
+    public Mono<Void> delete(@PathVariable String applicationRecordId);
 
 	@Operation(
 			tags = TAG_APPLICATION_RECORDS,
@@ -33,7 +33,7 @@ public interface ApplicationRecordEndpoints
 		    description = "Retrieve a specific Application Record within Lowcoder using the associated application ID."
 	)
     @GetMapping("/listByApplicationId")
-    public Mono<ResponseView<List<ApplicationRecordMetaView>>> getByApplicationId(@RequestParam(name = "ApplicationId") String ApplicationId);
+    public Mono<ResponseView<List<ApplicationRecordMetaView>>> getByApplicationId(@RequestParam(name = "applicationId") String applicationId);
 
 	@Operation(
 			tags = TAG_APPLICATION_RECORDS,
@@ -42,7 +42,7 @@ public interface ApplicationRecordEndpoints
 		    description = "Retrieve a list of Application Records, which store information related to executed queries within Lowcoder and the current Organization / Workspace by the impersonated User"
 	)
     @GetMapping
-    public Mono<ResponseView<Map<String, Object>>> dslById(@RequestParam(name = "ApplicationId") String ApplicationId,
-            @RequestParam(name = "ApplicationRecordId") String ApplicationRecordId);
+    public Mono<ResponseView<Map<String, Object>>> dslById(@RequestParam(name = "applicationId") String applicationId,
+            @RequestParam(name = "applicationRecordId") String applicationRecordId);
 
 }

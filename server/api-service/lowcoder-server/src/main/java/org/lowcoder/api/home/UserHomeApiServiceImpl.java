@@ -14,6 +14,7 @@ import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.bundle.model.BundleElement;
@@ -69,6 +70,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final CommonConfig config;
     private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
     private final BundleService bundleService;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -252,8 +254,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .flatMap(positions -> {
                                             long position = positions.isEmpty() ? 0 : positions.get(0);
                                             ResourceRole resourceRole = resourcePermissionMap.get(application.getId()).getResourceRole();
-                                            return Mono.just(buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
-                                                    position, withContainerSize));
+                                            return buildView(application, resourceRole, userMap, applicationLastViewTimeMap.get(application.getId()),
+                                                    position, withContainerSize);
                                         });
                             });
                 });
@@ -359,7 +361,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
                     return applicationFlux
                             .flatMap(application -> Mono.zip(Mono.just(application), userMapMono, orgMapMono))
-                            .map(tuple2 -> {
+                            .flatMap(tuple2 -> {
                                 // build view
                                 Application application = tuple2.getT1();
                                 Map<String, User> userMap = tuple2.getT2();
@@ -379,19 +381,17 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .build();
 
                                 // marketplace specific fields
-                                Map<String, Object> settings = new HashMap<>();
-                                if (application.getPublishedApplicationDSL() != null)
-                                {
-                                	settings.putAll((Map<String, Object>)application.getPublishedApplicationDSL().getOrDefault("settings", new HashMap<>()));
-                                }
-                                
-                                marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
-                                marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
-                                marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
-                                marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
-
-                                return marketplaceApplicationInfoView;
-
+                                return application.getPublishedApplicationDSL(applicationRecordService)
+                                        .map(pubishedApplicationDSL ->
+                                                (Map<String, Object>) new HashMap<String, Object>((Map<String, Object>) pubishedApplicationDSL.getOrDefault("settings", new HashMap<>())))
+                                        .switchIfEmpty(Mono.just(new HashMap<>()))
+                                        .map(settings -> {
+                                            marketplaceApplicationInfoView.setTitle((String)settings.getOrDefault("title", application.getName()));
+                                            marketplaceApplicationInfoView.setCategory((String)settings.get("category"));
+                                            marketplaceApplicationInfoView.setDescription((String)settings.get("description"));
+                                            marketplaceApplicationInfoView.setImage((String)settings.get("icon"));
+                                            return marketplaceApplicationInfoView;
+                                        });
                             });
 
                 });
@@ -561,7 +561,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 });
     }
 
-    private ApplicationInfoView buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
+    private Mono<ApplicationInfoView> buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
                                           Long bundlePosition, boolean withContainerSize) {
         ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                 .applicationId(application.getId())
@@ -582,11 +582,14 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .publicToMarketplace(application.isPublicToMarketplace())
                 .agencyProfile(application.agencyProfile());
         if (withContainerSize) {
-            return applicationInfoViewBuilder
-                    .containerSize(application.getLiveContainerSize())
-                    .build();
+            return application.getLiveContainerSize(applicationRecordService).map(size -> applicationInfoViewBuilder
+                    .containerSize(size)
+                    .build())
+                    .switchIfEmpty(Mono.just(applicationInfoViewBuilder
+                            .containerSize(null)
+                            .build()));
         }
-        return applicationInfoViewBuilder.build();
+        return Mono.just(applicationInfoViewBuilder.build());
     }
 
 }
