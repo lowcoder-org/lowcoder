@@ -137,11 +137,9 @@ public class Application extends HasIdAndAuditing {
     @Transient
     @JsonIgnore
     public Mono<Map<String, Object>> getLiveApplicationDsl(ApplicationRecordService applicationRecordService) {
-        return applicationRecordService.getLatestRecordByApplicationId(this.getId()).map(applicationRecord -> {
-            Map<String, Object> dsl = applicationRecord == null ? editingApplicationDSL : applicationRecord.getApplicationDSL();
-            if(dsl == null) dsl = new HashMap<>();
-            return dsl;
-        });
+        return applicationRecordService.getLatestRecordByApplicationId(this.getId())
+                .map(ApplicationRecord::getApplicationDSL)
+                .switchIfEmpty(Mono.just(editingApplicationDSL));
     }
 
     public String getOrganizationId() {
