@@ -141,7 +141,7 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Mono<List<Application>> getAllDependentModulesFromApplication(Application application, boolean viewMode) {
-        return application.getLiveApplicationDsl(applicationRecordService).flatMap(liveApplicationDsl -> {
+        return application.getLiveApplicationDsl(applicationRecordService).switchIfEmpty(Mono.just(new HashMap<>())).flatMap(liveApplicationDsl -> {
             Map<String, Object> dsl = viewMode ? liveApplicationDsl : application.getEditingApplicationDSL();
             return getAllDependentModulesFromDsl(dsl);
         });
