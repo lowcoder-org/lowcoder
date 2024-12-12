@@ -130,7 +130,7 @@ public class ApplicationApiServiceTest {
     private Mono<ApplicationView> createApplication(String name, String folderId) {
         CreateApplicationRequest createApplicationRequest =
                 new CreateApplicationRequest("org01", name, ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"), Map.of("comp", "list"), folderId);
+                        Map.of("comp", "list"), folderId);
         return applicationApiService.create(createApplicationRequest);
     }
 
@@ -148,7 +148,7 @@ public class ApplicationApiServiceTest {
 
         // published dsl before publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
-                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // publish

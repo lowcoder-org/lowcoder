@@ -294,7 +294,6 @@ public interface ApplicationEndpoints
     public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
                                            String name,
                                            Integer applicationType,
-                                           Map<String, Object> publishedApplicationDSL,
                                            Map<String, Object> editingApplicationDSL,
                                            @Nullable String folderId) {
     }
