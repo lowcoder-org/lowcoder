@@ -999,16 +999,7 @@ const LineHeightPropIcon = styled(LineHeightIcon)`
 `;
 
 const MarginIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
-const DirectionIcon = styled(ExpandIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartOpacity = styled(OpacityIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartBoxShadow = styled(ShadowIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartBorderStyle = styled(BorderStyleIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartBorderRadius = styled(BorderRadiusIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartBorderWidth = styled(BorderWidthIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartTextSize = styled(TextSizeIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartTextWeight = styled(TextWeightIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartFontFamily = styled(FontFamilyIcon)` margin: 0 8px 0 2px; color: #888`;
-const ChartFontStyle = styled(TextStyleIcon)` margin: 0 8px 0 2px; color: #888`;
+const DirectionIcon = styled(ExpandIcon)` margin: 0 13px 0 2px; color: #888`;
 const PaddingIcon = styled(CompressIcon)`	margin: 0 8px 0 2px; color: #888`;
 const RadiusPropIcon = styled(BorderRadiusIcon)` width: 24px; margin: 0 11px 0 0px; color: #888`;
 const BorderPropIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
@@ -1035,7 +1026,7 @@ const BoxShadowColorPropIcon = styled(BorderWidthIcon)`
 
 const ChartBackgroundColorPropIcon = styled(BorderWidthIcon)`
   margin: 0 8px 0 -3px;
-  padding: 3px;
+  padding: 13px;
   color: #888;
 `;
 const ChartGradientColorPropIcon = styled(BorderWidthIcon)`
@@ -1406,7 +1397,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                   >
                                 ).propertyView({
                                   label: config.label,
-                                  preInputNode: <ChartOpacity title="chartOpacity" />,
+                                  preInputNode: <OpacityPropIcon title="chartOpacity" />,
                                   placeholder: props[name],
                                 })
                                 : name === 'chartBoxShadow'
@@ -1416,7 +1407,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                     >
                                   ).propertyView({
                                     label: config.label,
-                                    preInputNode: <ChartBoxShadow title="chartBoxShadow" />,
+                                    preInputNode: <BoxShadowPropIcon title="chartBoxShadow" />,
                                     placeholder: props[name],
                                   })
                                   : name === 'chartBorderStyle'
@@ -1426,7 +1417,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                       >
                                     ).propertyView({
                                       label: config.label,
-                                      preInputNode: <ChartBorderStyle title="chartBorderStyle" />,
+                                      preInputNode: <BorderStylePropIcon title="chartBorderStyle" />,
                                       placeholder: props[name],
                                     })
                                     : name === 'chartBorderRadius'
@@ -1436,7 +1427,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                         >
                                       ).propertyView({
                                         label: config.label,
-                                        preInputNode: <ChartBorderRadius title="chartBorderRadius" />,
+                                        preInputNode: <RadiusPropIcon title="chartBorderRadius" />,
                                         placeholder: props[name],
                                       })
                                       : name === 'chartBorderWidth'
@@ -1446,7 +1437,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                           >
                                         ).propertyView({
                                           label: config.label,
-                                          preInputNode: <ChartBorderWidth title="chartBorderWidth" />,
+                                          preInputNode: <BorderPropIcon title="chartBorderWidth" />,
                                           placeholder: props[name],
                                         })
                                         : name === 'chartTextSize'
@@ -1456,7 +1447,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                             >
                                           ).propertyView({
                                             label: config.label,
-                                            preInputNode: <ChartTextSize title="chartTextSize" />,
+                                            preInputNode: <StyledTextSizeIcon title="chartTextSize" />,
                                             placeholder: props[name],
                                           })
                                           : name === 'chartTextWeight'
@@ -1466,7 +1457,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                               >
                                             ).propertyView({
                                               label: config.label,
-                                              preInputNode: <ChartTextWeight title="chartTextWeight" />,
+                                              preInputNode: <StyledTextWeightIcon title="chartTextWeight" />,
                                               placeholder: props[name],
                                             })
                                             : name === 'chartFontFamily'
@@ -1476,7 +1467,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                 >
                                               ).propertyView({
                                                 label: config.label,
-                                                preInputNode: <ChartFontFamily title="chartFontFamily" />,
+                                                preInputNode: <StyledFontFamilyIcon title="chartFontFamily" />,
                                                 placeholder: props[name],
                                               })
                                               : name === 'chartFontStyle'
@@ -1486,7 +1477,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                   >
                                                 ).propertyView({
                                                   label: config.label,
-                                                  preInputNode: <ChartFontStyle title="chartFontStyle" />,
+                                                  preInputNode: <StyledFontFamilyIcon title="chartFontStyle" />,
                                                   placeholder: props[name],
                                                 })
                                                 : name === 'animationIterationCount'
