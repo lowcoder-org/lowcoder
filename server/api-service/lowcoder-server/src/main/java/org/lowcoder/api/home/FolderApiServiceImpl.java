@@ -234,7 +234,7 @@ public class FolderApiServiceImpl implements FolderApiService {
      */
     @Override
     public Flux<?> getElements(@Nullable String folderId, @Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category) {
-        return buildApplicationInfoViewTree(applicationType, name, category)
+        return buildApplicationInfoViewTree(applicationType, name, category, folderId)
                 .flatMap(tree -> {
                     FolderNode<ApplicationInfoView, FolderInfoView> folderNode = tree.get(folderId);
                     if (folderNode == null) {
@@ -278,7 +278,7 @@ public class FolderApiServiceImpl implements FolderApiService {
                 .map(folders -> new Tree<>(folders, Folder::getId, Folder::getParentFolderId, Collections.emptyList(), null, null));
     }
 
-    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category) {
+    private Mono<Tree<ApplicationInfoView, FolderInfoView>> buildApplicationInfoViewTree(@Nullable ApplicationType applicationType, @Nullable String name, @Nullable String category, @Nullable String folderId) {
 
         Mono<OrgMember> orgMemberMono = sessionUserService.getVisitorOrgMemberCache()
                 .cache();
@@ -296,7 +296,8 @@ public class FolderApiServiceImpl implements FolderApiService {
         Flux<Folder> folderFlux = orgMemberMono.flatMapMany(orgMember -> folderService.findByOrganizationId(orgMember.getOrgId()))
                 .filter(folder -> name == null || StringUtils.containsIgnoreCase(folder.getName(), name)
                         || StringUtils.containsIgnoreCase(folder.getType(), name)
-                        || StringUtils.containsIgnoreCase(folder.getDescription(), name))
+                        || StringUtils.containsIgnoreCase(folder.getDescription(), name)
+                        || StringUtils.containsIgnoreCase(folder.getId(), folderId))
                 .cache();
 
         Mono<Map<String, Instant>> folderId2LastViewTimeMapMono = orgMemberMono

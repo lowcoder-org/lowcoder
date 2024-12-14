@@ -13,6 +13,7 @@ export function hookToComp(useHookFn: () => JSONObject) {
     }),
     (comp) => {
       const hookValue = useHookFn();
+
       useEffect(() => {
         comp.children.value.dispatchChangeValueAction(hookValue);
       }, [hookValue]);
@@ -33,8 +34,10 @@ export function hookToStateComp(useHookFn: () => JSONObject) {
     (comp) => {
       const hookValue = useHookFn();
       useEffect(() => {
-        comp.children.stateValue.dispatchChangeValueAction(hookValue);
-      }, [hookValue]);
+        if (hookValue !== comp.children.stateValue.getView()) {
+          comp.children.stateValue.dispatchChangeValueAction(hookValue);
+        }
+      }, []);
       return null;
     }
   );
