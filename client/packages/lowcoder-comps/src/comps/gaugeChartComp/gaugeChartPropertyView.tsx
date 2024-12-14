@@ -37,6 +37,7 @@ export function gaugeChartPropertyView(
         {children.top.propertyView({ label: trans("gaugeChart.top") })}
         {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
         {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
+        {children.radius.propertyView({ label: trans("gaugeChart.radius") })}
         {children.min.propertyView({ label: trans("gaugeChart.min") })}
         {children.max.propertyView({ label: trans("gaugeChart.max") })}
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle") })}
