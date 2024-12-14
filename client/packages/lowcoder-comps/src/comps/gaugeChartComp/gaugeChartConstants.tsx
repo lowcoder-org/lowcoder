@@ -272,6 +272,8 @@ let chartJsonModeChildren: any = {
   startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
   endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
+  pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
+  pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
 
 }
 if (EchartsStyle) {

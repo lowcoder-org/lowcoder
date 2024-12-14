@@ -43,6 +43,8 @@ export function gaugeChartPropertyView(
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle") })}
         {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle") })}
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber") })}
+        {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength") })}
+        {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
       </Section>
