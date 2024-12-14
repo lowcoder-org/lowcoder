@@ -265,12 +265,14 @@ let chartJsonModeChildren: any = {
   top:withDefault(NumberControl,trans('gaugeChart.defaultTop')),
   bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),
   width:withDefault(NumberControl,trans('gaugeChart.defaultWidth')),
+  radius:withDefault(NumberControl,trans('gaugeChart.defaultRadius')),
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
   gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
   startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
   endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
+
 }
 if (EchartsStyle) {
   chartJsonModeChildren = {

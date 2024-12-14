@@ -109,6 +109,8 @@ export const en = {
     endAngle: 'End Angle',
     defaultSplitNumber: '10',
     splitNumber: 'Split Number',
+    radius: 'Radius',
+    defaultRadius: '60%',
     label:'Label',
 
   },
