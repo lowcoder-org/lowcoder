@@ -55,7 +55,7 @@ export function SettingHome() {
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
 
   const isLicenseActive = useSelector(selectIsLicenseActive);
-
+  
   const items = [
     {
       key: SettingPageEnum.Organization,
