@@ -39,14 +39,26 @@ export function gaugeChartPropertyView(
         {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
         {children.min.propertyView({ label: trans("gaugeChart.min") })}
         {children.max.propertyView({ label: trans("gaugeChart.max") })}
+        {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle") })}
+        {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle") })}
+        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style?.getPropertyView()}
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.labelStyle}>
+        {children.labelStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.legendStyle}>
+        {children.legendStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>

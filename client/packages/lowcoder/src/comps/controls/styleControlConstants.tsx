@@ -1964,7 +1964,7 @@ export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [getBackground("primarySurface")] as const;
 
-export const FunnelTextStyle = [
+export const EchartDefaultTextStyle = [
   CHARTTEXTCOLOR,
   CHARTTEXTSIZE,
   CHARTTEXTWEIGHT,
@@ -1974,7 +1974,7 @@ export const FunnelTextStyle = [
   CHARTBOXSHADOW,
 ] as const;
 
-export const FunnelChartStyle = [
+export const EchartDefaultChartStyle = [
   CHARTBACKGROUNDCOLOR,
   CHARTGRADIENTCOLOR,
   DIRECTION,

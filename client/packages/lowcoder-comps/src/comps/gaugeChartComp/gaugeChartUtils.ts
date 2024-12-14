@@ -157,13 +157,25 @@ export function getEchartsConfig(
       "min": props.min,
       "max": props.max,
       "gap": props.gap,
+      "startAngle": props.startAngle,
+      "endAngle": props.endAngle,
+      "splitNumber": props.splitNumber,
       'detail': {
         "backgroundColor": props?.style?.background, "formatter": "{value}%"
       },
       "label": {
         "show": props.label,
-        "position": props.echartsLabelConfig.top
-          },
+        "position": props.echartsLabelConfig.top,
+        "fontFamily": props?.labelStyle?.chartFontFamily || theme?.labelStyle?.fontFamily,
+        "fontSize": props?.labelStyle?.chartTextSize || theme?.labelStyle?.fontSize,
+        "fontWeight": props?.labelStyle?.chartTextWeight || theme?.labelStyle?.fontWeight,
+        "color": props?.labelStyle?.chartTextColor || theme?.labelStyle?.fontColor || "#000000",
+        "fontStyle": props?.labelStyle?.chartFontStyle || theme?.labelStyle?.fontStyle,
+        "textShadowColor": props?.labelStyle?.chartShadowColor || theme?.labelStyle?.shadowColor,
+        "textShadowBlur": props?.labelStyle?.chartBoxShadow?.split('px')[0] || theme?.labelStyle?.boxShadow?.split('px')[0],
+        "textShadowOffsetX": props?.labelStyle?.chartBoxShadow?.split('px')[1] || theme?.labelStyle?.boxShadow?.split('px')[1],
+        "textShadowOffsetY": props?.labelStyle?.chartBoxShadow?.split('px')[2] || theme?.labelStyle?.boxShadow?.split('px')[2]
+      },
       /*"detail": {
         "formatter": "{value}%"
       }, */
