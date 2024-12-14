@@ -103,7 +103,14 @@ export const en = {
     defaultMax:'100',
     gap: 'Gap',
     defaultGap: '2',
+    defaultStartAngle: '180',
+    startAngle: 'Start Angle',
+    defaultEndAngle: '0',
+    endAngle: 'End Angle',
+    defaultSplitNumber: '10',
+    splitNumber: 'Split Number',
     label:'Label',
+
   },
   echarts: {
     defaultTitle: "Data Display",

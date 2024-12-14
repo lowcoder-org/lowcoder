@@ -147,7 +147,7 @@ FunnelChartTmpComp = withViewFn(FunnelChartTmpComp, (comp) => {
       chartSize,
       themeConfig,
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren), theme, childrenToProps(echartsConfigChildren)]);
+  }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
@@ -175,7 +175,6 @@ FunnelChartTmpComp = withViewFn(FunnelChartTmpComp, (comp) => {
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={themeConfig}
           mode={mode}
         />
     </ReactResizeDetector>

@@ -16,7 +16,9 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartsStyle,
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -265,12 +267,18 @@ let chartJsonModeChildren: any = {
   width:withDefault(NumberControl,trans('gaugeChart.defaultWidth')),
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
-  gap:withDefault(NumberControl,trans('gaugeChart.defaultGap'))
+  gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
+  startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
+  endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
+  splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
 }
 if (EchartsStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 const chartMapModeChildren = {

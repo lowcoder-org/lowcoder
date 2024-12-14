@@ -17,8 +17,8 @@ import {
   clickEvent,
   styleControl,
   EchartsStyle,
-  FunnelTextStyle,
-  FunnelChartStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -278,10 +278,10 @@ let chartJsonModeChildren: any = {
 if (EchartsStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    chartStyle: styleControl(FunnelChartStyle, 'chartStyle'),
-    titleStyle: styleControl(FunnelTextStyle, 'titleStyle'),
-    labelStyle: styleControl(FunnelTextStyle, 'labelStyle'),
-    legendStyle: styleControl(FunnelTextStyle, 'legendStyle'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 
