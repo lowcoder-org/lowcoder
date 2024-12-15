@@ -1,7 +1,8 @@
 import { JSONObject } from "util/jsonTypes";
 import { simpleMultiComp, stateComp, valueComp, withViewFn } from "comps/generators";
 import { withSimpleExposing } from "comps/generators/withExposing";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
+import { isEqual } from "lodash";
 
 /**
  * Enter a react hook and return a comp that exposes the data and methods provided by the hook
@@ -33,11 +34,11 @@ export function hookToStateComp(useHookFn: () => JSONObject) {
     }),
     (comp) => {
       const hookValue = useHookFn();
-      useEffect(() => {
-        if (hookValue !== comp.children.stateValue.getView()) {
-          comp.children.stateValue.dispatchChangeValueAction(hookValue);
-        }
-      }, []);
+      const stateValue = useMemo(() => comp.children.stateValue.getView(), [comp.children.stateValue]);
+
+      if (!isEqual(hookValue, stateValue)) {
+        comp.children.stateValue.dispatchChangeValueAction(hookValue);
+      }
       return null;
     }
   );

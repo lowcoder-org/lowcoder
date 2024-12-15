@@ -55,9 +55,21 @@ function useSaveComp(
     }
     const curJson = comp.toJsonValue();
     const curJsonStr = JSON.stringify(curJson);
-    if (prevJsonStr === curJsonStr || (Boolean(prevAppId) && prevAppId !== applicationId)) {
+
+
+    if (!Boolean(prevAppId) && Boolean(applicationId)) {
+      return setPrevAppId(applicationId);
+    }
+    if (prevAppId !== applicationId) {
+      return setPrevAppId(applicationId);
+    }
+    if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
+      return setPrevJsonStr(curJsonStr);
+    }
+    if (prevJsonStr === curJsonStr) {
       return;
     }
+
     // the first time is a normal change, the latter is the manual update
     if (prevComp) {
       dispatch(

@@ -88,6 +88,7 @@ const AppEditor = React.memo(() => {
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
   const [blockEditing, setBlockEditing] = useState<boolean>(false);
+  const [fetchingAppDetails, setFetchingAppDetails] = useState<boolean>(false);
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
@@ -174,6 +175,7 @@ const AppEditor = React.memo(() => {
   }, [dispatch, fetchOrgGroupsFinished, orgId]);
 
   const fetchApplication = useCallback(() => {
+    setFetchingAppDetails(true);
     dispatch(
       fetchApplicationInfo({
         type: viewMode,
@@ -190,9 +192,11 @@ const AppEditor = React.memo(() => {
           });
           setAppInfo(info);
           fetchJSDataSourceByApp();
+          setFetchingAppDetails(false);
         },
         onError: (errorMessage) => {
           setAppError(errorMessage);
+          setFetchingAppDetails(false);
         }
       })
     );
@@ -249,16 +253,21 @@ const AppEditor = React.memo(() => {
         </Suspense>
       ) : (
         <Suspense fallback={<EditorSkeletonView />}>
-          <AppEditorInternalView
-            appInfo={appInfo}
-            readOnly={readOnly}
-            blockEditing={blockEditing}
-            loading={
-              !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-            }
-            compInstance={compInstance}
-            fetchApplication={fetchApplication}
-          />
+          {fetchingAppDetails
+            ? <EditorSkeletonView />
+            : (
+              <AppEditorInternalView
+                appInfo={appInfo}
+                readOnly={readOnly}
+                blockEditing={blockEditing}
+                loading={
+                  !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+                }
+                compInstance={compInstance}
+                fetchApplication={fetchApplication}
+              />
+            )
+          }
         </Suspense>
       )}
     </ErrorBoundary>
