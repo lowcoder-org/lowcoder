@@ -51,6 +51,7 @@ export function gaugeChartPropertyView(
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
         {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar") })}
+        {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}

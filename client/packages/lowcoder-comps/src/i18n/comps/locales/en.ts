@@ -123,6 +123,7 @@ export const en = {
     progressBarWidth: 'Progress Bar Width',
     defaultProgressBarWidth: '10',
     progressBar: 'Progress Bar',
+    roundCap: 'Round Cap',
   },
   echarts: {
     defaultTitle: "Data Display",
