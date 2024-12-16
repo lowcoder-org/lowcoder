@@ -13,6 +13,7 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
+import getBackgroundColor from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -158,18 +159,7 @@ export function getEchartsConfig(
           "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
         },
       },
-      "backgroundColor": gradientColor && backgroundColor
-        ? {
-          "x": direction?.split(' ')[0],
-          "y": direction?.split(' ')[1],
-          "x2": direction?.split(' ')[2],
-          "y2": direction?.split(' ')[3],
-          "colorStops": [
-            { "offset": 0, "color": backgroundColor + opacityToHex(opacity)},
-            { "offset": 1, "color": gradientColor + opacityToHex(opacity)}
-          ]
-        }
-        : backgroundColor + opacityToHex(opacity),
+      "backgroundColor": getBackgroundColor(backgroundColor, gradientColor, opacity, direction),
       "tooltip": props.tooltip&&{
         "trigger": "item",
         "formatter": "{a} <br/>{b} : {c}%"
