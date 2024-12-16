@@ -219,7 +219,7 @@ public class Application extends HasIdAndAuditing {
                         return "";
                     }
                 }
-        );
+        ).onErrorReturn("");
     }
 
     public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
