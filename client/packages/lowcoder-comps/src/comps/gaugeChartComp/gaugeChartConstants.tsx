@@ -262,6 +262,7 @@ let chartJsonModeChildren: any = {
   legendVisibility: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
   progressBar: withDefault(BoolControl, true),
+  roundCap: withDefault(BoolControl, true),
   left:withDefault(NumberControl,trans('gaugeChart.defaultLeft')),
   top:withDefault(NumberControl,trans('gaugeChart.defaultTop')),
   bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),

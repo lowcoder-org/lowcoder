@@ -174,6 +174,7 @@ export function getEchartsConfig(
         "trigger": "item",
         "formatter": "{a} <br/>{b} : {c}%"
       },
+      "color": props?.echartsOption?.data?.map(data => data.color),
       "series": [
         {
           "name": props.echartsConfig.type,
@@ -182,7 +183,7 @@ export function getEchartsConfig(
           "left": `${props.left}%`,
           "top": props.top,
           "bottom": props.bottom,
-          "width":  `${props.left}%`,
+          "width":`${props.left}%`,
           "min": props.min,
           "max": props.max,
           "gap": props.gap,
@@ -195,8 +196,7 @@ export function getEchartsConfig(
             "width": props?.pointerWidth,
           },
           "itemStyle": {
-            "color": props.echartsOption.data?.map(data => data.color),
-            "opacity": props.opacity,
+            "opacity": props?.opacity,
             "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
             "borderWidth": props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             "borderType": props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
@@ -207,27 +207,27 @@ export function getEchartsConfig(
             "shadowOffsetY": props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
           },
           "progress": {
-            "roundCap": true,
+            "roundCap": props.roundCap,
             "show": props?.progressBar,
             "width": props?.progressBarWidth
           },
           "axisLine": {
-            "roundCap": true,
+            "roundCap": props.roundCap,
             "lineStyle": {
               "width": props?.progressBarWidth
             }
           },
           "axisLabel": {
-            "distance": props?.progressBarWidth + "10", // Distance of the labels from the axis
-            "fontFamily": props?.axixLabelStyle?.chartFontFamily || theme?.axixLabelStyle?.fontFamily,
-            "fontSize": props?.axixLabelStyle?.chartTextSize || theme?.axixLabelStyle?.fontSize || 12,
-            "fontWeight": props?.axixLabelStyle?.chartTextWeight || theme?.axixLabelStyle?.fontWeight,
-            "color": props?.axixLabelStyle?.chartTextColor || theme?.axixLabelStyle?.fontColor || "#000000",
-            "fontStyle": props?.axixLabelStyle?.chartFontStyle || theme?.axixLabelStyle?.fontStyle,
-            "textShadowColor": props?.axixLabelStyle?.chartShadowColor || theme?.axixLabelStyle?.shadowColor,
-            "textShadowBlur": props?.axixLabelStyle?.chartBoxShadow?.split('px')[0] || theme?.axixLabelStyle?.boxShadow?.split('px')[0],
-            "textShadowOffsetX": props?.axixLabelStyle?.chartBoxShadow?.split('px')[1] || theme?.axixLabelStyle?.boxShadow?.split('px')[1],
-            "textShadowOffsetY": props?.axixLabelStyle?.chartBoxShadow?.split('px')[2] || theme?.axixLabelStyle?.boxShadow?.split('px')[2]
+            "distance": Number(props?.progressBarWidth) + 10,
+            "fontFamily": props?.axisLabelStyle?.chartFontFamily || theme?.axisLabelStyle?.fontFamily,
+            "fontSize": props?.axisLabelStyle?.chartTextSize || theme?.axisLabelStyle?.fontSize || 12,
+            "fontWeight": props?.axisLabelStyle?.chartTextWeight || theme?.axisLabelStyle?.fontWeight,
+            "color": props?.axisLabelStyle?.chartTextColor || theme?.axisLabelStyle?.fontColor || "#000000",
+            "fontStyle": props?.axisLabelStyle?.chartFontStyle || theme?.axisLabelStyle?.fontStyle,
+            "textShadowColor": props?.axisLabelStyle?.chartShadowColor || theme?.axisLabelStyle?.shadowColor,
+            "textShadowBlur": props?.axisLabelStyle?.chartBoxShadow?.split('px')[0] || theme?.axisLabelStyle?.boxShadow?.split('px')[0],
+            "textShadowOffsetX": props?.axisLabelStyle?.chartBoxShadow?.split('px')[1] || theme?.axisLabelStyle?.boxShadow?.split('px')[1],
+            "textShadowOffsetY": props?.axisLabelStyle?.chartBoxShadow?.split('px')[2] || theme?.axisLabelStyle?.boxShadow?.split('px')[2]
           },
           'detail': {
             "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
@@ -245,7 +245,8 @@ export function getEchartsConfig(
             "position": props.echartsLabelConfig.top,
           },
           "data": props.echartsOption.data?.map(item => ({
-            ...item,
+            "value": item.value,
+            "name": item.name,
             title: {
               "fontFamily": props?.labelStyle?.chartFontFamily || theme?.labelStyle?.fontFamily,
               "fontSize": props?.labelStyle?.chartTextSize || theme?.labelStyle?.fontSize,
