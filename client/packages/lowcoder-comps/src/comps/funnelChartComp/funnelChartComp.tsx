@@ -147,7 +147,7 @@ FunnelChartTmpComp = withViewFn(FunnelChartTmpComp, (comp) => {
       chartSize,
       themeConfig,
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [chartSize, ...Object.values(echartsConfigChildren), theme]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
