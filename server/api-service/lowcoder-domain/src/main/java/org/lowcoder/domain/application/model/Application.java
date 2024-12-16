@@ -164,43 +164,62 @@ public class Application extends HasIdAndAuditing {
         return dsl;
     }
 
-    public String getCategory() {
-        var liveDSL = getLiveApplicationDsl();
-        if(liveDSL == null || liveDSL.get("settings") == null) return "";
-        Object settingsObject = liveDSL.get("settings");
-        if (settingsObject instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-            return (String) settings.get("category");
-        } else {
-            return "";
-        }
+    public Mono<String> getCategory(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+            if (liveDSL == null || liveDSL.get("settings") == null) return "";
+            Object settingsObject = liveDSL.get("settings");
+            if (settingsObject instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+                return (String) settings.get("category");
+            } else {
+                return "";
+            }
+        });
     }
 
-    public String getTitle() {
-        var liveDSL = getLiveApplicationDsl();
-        if(liveDSL == null || liveDSL.get("settings") == null) return "";
-        Object settingsObject = liveDSL.get("settings");
-        if (settingsObject instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-            return (String) settings.get("title");
-        } else {
-            return "";
-        }
+    public Mono<String> getTitle(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+            if (liveDSL == null || liveDSL.get("settings") == null) return "";
+            Object settingsObject = liveDSL.get("settings");
+            if (settingsObject instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+                return (String) settings.get("title");
+            } else {
+                return "";
+            }
+        });
     }
 
-    public String getDescription() {
-        var liveDSL = getLiveApplicationDsl();
-        if(liveDSL == null || liveDSL.get("settings") == null) return "";
-        Object settingsObject = liveDSL.get("settings");
-        if (settingsObject instanceof Map) {
-            @SuppressWarnings("unchecked")
-            Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-            return (String) settings.get("description");
-        } else {
-            return "";
-        }
+    public Mono<String> getDescription(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+                if (liveDSL == null || liveDSL.get("settings") == null) return "";
+                Object settingsObject = liveDSL.get("settings");
+                if (settingsObject instanceof Map) {
+                    @SuppressWarnings("unchecked")
+                    Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+                    return (String) settings.get("description");
+                } else {
+                    return "";
+                }
+            }
+        );
+    }
+
+    public Mono<String> getIcon(ApplicationRecordService applicationRecordService) {
+        return getLiveApplicationDsl(applicationRecordService).map(liveDSL -> {
+                    if (liveDSL == null || liveDSL.get("settings") == null) return "";
+                    Object settingsObject = liveDSL.get("settings");
+                    if (settingsObject instanceof Map) {
+                        @SuppressWarnings("unchecked")
+                        Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
+                        return (String) settings.get("icon");
+                    } else {
+                        return "";
+                    }
+                }
+        );
     }
 
     public Map<String, Object> getEditingApplicationDSLOrNull() {return editingApplicationDSL; }
