@@ -43,6 +43,7 @@ export const en = {
     chartStyle: "Chart Style",
     titleStyle: "Title Style",
     legendStyle: "Legend Style",
+    detailStyle: "Detail Style",
   },
   passwordInput: {
     label: "Password:",

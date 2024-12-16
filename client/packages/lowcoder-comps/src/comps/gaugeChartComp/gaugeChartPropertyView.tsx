@@ -47,8 +47,10 @@ export function gaugeChartPropertyView(
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth") })}
+        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
+        {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
@@ -62,7 +64,7 @@ export function gaugeChartPropertyView(
       <Section name={sectionNames.labelStyle}>
         {children.labelStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.legendStyle}>
+      <Section name={sectionNames.detailStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>

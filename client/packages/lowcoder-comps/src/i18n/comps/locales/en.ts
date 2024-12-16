@@ -120,7 +120,9 @@ export const en = {
     defaultPosition_X: '50',
     position_y: 'Position-Y',
     defaultPosition_Y: '60',
-
+    progressBarWidth: 'Progress Bar Width',
+    defaultProgressBarWidth: '10',
+    progressBar: 'Progress Bar',
   },
   echarts: {
     defaultTitle: "Data Display",

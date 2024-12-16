@@ -261,6 +261,7 @@ let chartJsonModeChildren: any = {
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
+  progressBar: withDefault(BoolControl, true),
   left:withDefault(NumberControl,trans('gaugeChart.defaultLeft')),
   top:withDefault(NumberControl,trans('gaugeChart.defaultTop')),
   bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),
@@ -269,13 +270,14 @@ let chartJsonModeChildren: any = {
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
   gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
-  positin_x:withDefault(NumberControl,trans('gaugeChart.position_x')),
-  positin_y:withDefault(NumberControl,trans('gaugeChart.position_y')),
+  position_x:withDefault(NumberControl,trans('gaugeChart.defaultPosition_X')),
+  position_y:withDefault(NumberControl,trans('gaugeChart.defaultPosition_Y')),
   startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
   endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
   pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
   pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
+  progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
 
 }
 if (EchartsStyle) {
