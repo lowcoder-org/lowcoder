@@ -186,13 +186,13 @@ export function getEchartsConfig(
           "min": props.min,
           "max": props.max,
           "gap": props.gap,
-          "center": [`${props.position_x}%`, `${props.position_y}%`],
-          "startAngle": props.startAngle,
-          "endAngle": props.endAngle,
-          "splitNumber": props.splitNumber,
+          "center": [`${props?.position_x}%`, `${props?.position_y}%`],
+          "startAngle": props?.startAngle,
+          "endAngle": props?.endAngle,
+          "splitNumber": props?.splitNumber,
           "pointer": {
-            "length": `${props.pointerLength}%`,
-            "width": props.pointerWidth,
+            "length": `${props?.pointerLength}%`,
+            "width": props?.pointerWidth,
           },
           "itemStyle": {
             "color": props.echartsOption.data?.map(data => data.color),
@@ -205,6 +205,17 @@ export function getEchartsConfig(
             "shadowBlur": props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
             "shadowOffsetX": props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
             "shadowOffsetY": props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+          },
+          "progress": {
+            "roundCap": true,
+            "show": props?.progressBar,
+            "width": props?.progressBarWidth
+          },
+          "axisLine": {
+            "roundCap": true,
+            "lineStyle": {
+              "width": props?.progressBarWidth
+            }
           },
           'detail': {
             "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
