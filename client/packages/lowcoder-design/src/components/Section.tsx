@@ -191,4 +191,5 @@ export const sectionNames = {
   titleStyle:trans("prop.titleStyle"),
   legendStyle:trans("prop.legendStyle"),
   detailStyle:trans("prop.detailStyle"),
+  axisLabelStyle:trans("prop.axisLabelStyle"),
 };

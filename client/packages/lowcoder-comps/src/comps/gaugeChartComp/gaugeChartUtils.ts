@@ -217,6 +217,18 @@ export function getEchartsConfig(
               "width": props?.progressBarWidth
             }
           },
+          "axisLabel": {
+            "distance": props?.progressBarWidth + "10", // Distance of the labels from the axis
+            "fontFamily": props?.axixLabelStyle?.chartFontFamily || theme?.axixLabelStyle?.fontFamily,
+            "fontSize": props?.axixLabelStyle?.chartTextSize || theme?.axixLabelStyle?.fontSize || 12,
+            "fontWeight": props?.axixLabelStyle?.chartTextWeight || theme?.axixLabelStyle?.fontWeight,
+            "color": props?.axixLabelStyle?.chartTextColor || theme?.axixLabelStyle?.fontColor || "#000000",
+            "fontStyle": props?.axixLabelStyle?.chartFontStyle || theme?.axixLabelStyle?.fontStyle,
+            "textShadowColor": props?.axixLabelStyle?.chartShadowColor || theme?.axixLabelStyle?.shadowColor,
+            "textShadowBlur": props?.axixLabelStyle?.chartBoxShadow?.split('px')[0] || theme?.axixLabelStyle?.boxShadow?.split('px')[0],
+            "textShadowOffsetX": props?.axixLabelStyle?.chartBoxShadow?.split('px')[1] || theme?.axixLabelStyle?.boxShadow?.split('px')[1],
+            "textShadowOffsetY": props?.axixLabelStyle?.chartBoxShadow?.split('px')[2] || theme?.axixLabelStyle?.boxShadow?.split('px')[2]
+          },
           'detail': {
             "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
             "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 16,
