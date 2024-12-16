@@ -12,6 +12,7 @@ import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRecord;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
@@ -35,7 +36,9 @@ import org.lowcoder.domain.user.model.UserStatus;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
+import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.models.VersionedModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -203,11 +206,13 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                     return applicationService.findByOrganizationIdWithDsl(currentOrgId);
                                 }
                                 return applicationService.findByOrganizationIdWithoutDsl(currentOrgId);
-                            })
-                            .filter(application -> (isNull(applicationType) || applicationType == ApplicationType.ALL || application.getApplicationType() == applicationType.getValue())
-                                    && (isNull(applicationStatus) || application.getApplicationStatus() == applicationStatus)
-                                    && (isNull(name) || StringUtils.containsIgnoreCase(application.getName(), name))
-                                    && (isNull(category) || StringUtils.containsIgnoreCase(application.getCategory(), category)))
+                            }).flatMap(application -> application.getCategory(applicationRecordService)
+                                    .map(categoryValue -> Map.entry(application, categoryValue)))
+                            .filter(entry -> (isNull(applicationType) || applicationType == ApplicationType.ALL || entry.getKey().getApplicationType() == applicationType.getValue())
+                                    && (isNull(applicationStatus) || entry.getKey().getApplicationStatus() == applicationStatus)
+                                    && (isNull(name) || StringUtils.containsIgnoreCase(entry.getKey().getName(), name))
+                                    && (isNull(category) || StringUtils.containsIgnoreCase(entry.getValue(), category)))
+                            .map(Map.Entry::getKey)
                             .cache()
                             .collectList()
                             .flatMapIterable(Function.identity());
@@ -563,36 +568,48 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
 
     private Mono<ApplicationInfoView> buildView(Application application, ResourceRole maxRole, Map<String, User> userMap, @Nullable Instant lastViewTime,
                                           Long bundlePosition, boolean withContainerSize) {
-        ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
-                .applicationId(application.getId())
-                .applicationGid(application.getGid())
-                .orgId(application.getOrganizationId())
-                .name(application.getName())
-                .title(application.getTitle())
-                .description(application.getDescription())
-                .category(application.getCategory())
-                .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
-                        .map(User::getName)
-                        .orElse(""))
-                .createAt(application.getCreatedAt().toEpochMilli())
-                .role(maxRole.getValue())
-                .applicationType(application.getApplicationType())
-                .applicationStatus(application.getApplicationStatus())
-                .lastModifyTime(application.getUpdatedAt())
-                .lastViewTime(lastViewTime)
-                .lastEditedAt(application.getLastEditedAt())
-                .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace())
-                .agencyProfile(application.agencyProfile());
-        if (withContainerSize) {
-            return application.getLiveContainerSize(applicationRecordService).map(size -> applicationInfoViewBuilder
-                    .containerSize(size)
-                    .build())
-                    .switchIfEmpty(Mono.just(applicationInfoViewBuilder
-                            .containerSize(null)
-                            .build()));
-        }
-        return Mono.just(applicationInfoViewBuilder.build());
+        return application.getTitle(applicationRecordService)
+                .zipWith(application.getDescription(applicationRecordService))
+                .zipWith(application.getCategory(applicationRecordService), TupleUtils::merge)
+                .zipWith(application.getIcon(applicationRecordService), TupleUtils::merge)
+                .zipWith(applicationRecordService.getLatestRecordByApplicationId(application.getId()).map(Optional::of).switchIfEmpty(Mono.just(Optional.empty())), TupleUtils::merge)
+                .flatMap(tuple -> {
+                    Optional<ApplicationRecord> lastAppRecord = tuple.getT5();
+                    ApplicationInfoView.ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
+                        .applicationId(application.getId())
+                        .applicationGid(application.getGid())
+                        .orgId(application.getOrganizationId())
+                        .name(application.getName())
+                        .title(tuple.getT1())
+                        .description(tuple.getT2())
+                        .category(tuple.getT3())
+                        .icon(tuple.getT4())
+                        .published(lastAppRecord.isPresent())
+                        .publishedVersion(lastAppRecord.map(ApplicationRecord::version).orElse(null))
+                        .lastPublishedTime(lastAppRecord.map(ApplicationRecord::getCreatedAt).orElse(null))
+                        .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
+                                .map(User::getName)
+                                .orElse(""))
+                        .createAt(application.getCreatedAt().toEpochMilli())
+                        .role(maxRole.getValue())
+                        .applicationType(application.getApplicationType())
+                        .applicationStatus(application.getApplicationStatus())
+                        .lastModifyTime(application.getUpdatedAt())
+                        .lastViewTime(lastViewTime)
+                        .lastEditedAt(application.getLastEditedAt())
+                        .publicToAll(application.isPublicToAll())
+                        .publicToMarketplace(application.isPublicToMarketplace())
+                        .agencyProfile(application.agencyProfile());
+                    if (withContainerSize) {
+                        return application.getLiveContainerSize(applicationRecordService).map(size -> applicationInfoViewBuilder
+                                .containerSize(size)
+                                .build())
+                                .switchIfEmpty(Mono.just(applicationInfoViewBuilder
+                                        .containerSize(null)
+                                        .build()));
+                    }
+                    return Mono.just(applicationInfoViewBuilder.build());
+        });
     }
 
 }
