@@ -67,6 +67,9 @@ export function gaugeChartPropertyView(
       <Section name={sectionNames.detailStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>
+      <Section name={sectionNames.axisLabelStyle}>
+        {children.axisLabelStyle?.getPropertyView()}
+      </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );

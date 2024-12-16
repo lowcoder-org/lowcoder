@@ -287,6 +287,7 @@ if (EchartsStyle) {
     titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
     labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
     legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
+    axisLabelStyle: styleControl(EchartDefaultTextStyle, 'axisLabelStyle'),
   }
 }
 const chartMapModeChildren = {
