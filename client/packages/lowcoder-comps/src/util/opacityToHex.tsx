@@ -12,3 +12,4 @@ export default function opacityToHex(opacity: any) {
     return 'FF';
   }
 }
+
