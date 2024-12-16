@@ -40,6 +40,8 @@ export function gaugeChartPropertyView(
         {children.radius.propertyView({ label: trans("gaugeChart.radius") })}
         {children.min.propertyView({ label: trans("gaugeChart.min") })}
         {children.max.propertyView({ label: trans("gaugeChart.max") })}
+        {children.position_x.propertyView({ label: trans("gaugeChart.position_x") })}
+        {children.position_y.propertyView({ label: trans("gaugeChart.position_y") })}
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle") })}
         {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle") })}
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber") })}

@@ -1077,6 +1077,7 @@ const RotationPropIcon = styled(RotationIcon)` margin: 0 8px 0 -3px; padding: 3p
 const StyledTextSizeIcon = styled(TextSizeIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const StyledTextTransformIcon = styled(TextTransformationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const StyledFontFamilyIcon = styled(FontFamilyIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
+const StyledFontStyleIcon = styled(TextStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const StyledTextWeightIcon = styled(TextWeightIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const StyledTextStyleIcon = styled(TextStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const StyledTextDecorationPropIcon = styled(TextDecorationIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
@@ -1477,7 +1478,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                   >
                                                 ).propertyView({
                                                   label: config.label,
-                                                  preInputNode: <StyledFontFamilyIcon title="chartFontStyle" />,
+                                                  preInputNode: <StyledFontStyleIcon title="chartFontStyle" />,
                                                   placeholder: props[name],
                                                 })
                                                 : name === 'animationIterationCount'
