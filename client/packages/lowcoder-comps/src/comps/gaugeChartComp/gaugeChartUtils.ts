@@ -186,6 +186,7 @@ export function getEchartsConfig(
           "min": props.min,
           "max": props.max,
           "gap": props.gap,
+          "center": [`${props.position_x}%`, `${props.position_y}%`],
           "startAngle": props.startAngle,
           "endAngle": props.endAngle,
           "splitNumber": props.splitNumber,

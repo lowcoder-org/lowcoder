@@ -269,6 +269,8 @@ let chartJsonModeChildren: any = {
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
   gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
+  positin_x:withDefault(NumberControl,trans('gaugeChart.position_x')),
+  positin_y:withDefault(NumberControl,trans('gaugeChart.position_y')),
   startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
   endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
