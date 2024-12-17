@@ -21,20 +21,20 @@ const LegendPositionOptions = [
 export const EchartsTitleVerticalConfig = (function () {
   return new MultiCompBuilder(
     {
-      position: dropdownControl(LegendPositionOptions, "top"),
+      top: dropdownControl(LegendPositionOptions, "top"),
     },
     (props): LegendComponentOption => {
       const config: LegendComponentOption = {
         top: "top",
         type: "scroll",
       };
-      config.top = props.position
+      config.top = props.top
       return config;
     }
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.position.propertyView({
+        {children.top.propertyView({
           label: trans("echarts.titlePositionVertical"),
           radioButton: true,
         })}

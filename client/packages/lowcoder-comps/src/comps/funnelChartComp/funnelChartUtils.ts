@@ -151,7 +151,7 @@ export function getEchartsConfig(
     let opt={
       "title": {
         "text": props.echartsTitle,
-        'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
+        'top': props.echartsTitleVerticalConfig.top,
         "left":props.echartsTitleConfig.top,
         "textStyle": {
           "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
