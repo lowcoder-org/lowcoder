@@ -145,7 +145,9 @@ export const en = {
     labelPosition: "Label Position",
     titlePosition: "Title Position",
     funnelAlign: "Funnel Align",
-    sort: "Sort"
+    sort: "Sort",
+    legendLayout: "Chart Legend Layout",
+    legendAlign: "Chart Legend Align"
   },
   chart: {
     delete: "Delete",

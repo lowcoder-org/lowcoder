@@ -174,6 +174,8 @@ export function getEchartsConfig(
       "legend":props.legendVisibility&& {
         "data": props.echartsOption.data?.map(data=>data.name),
         "top": props.echartsLegendConfig.top,
+        "left": props.echartsLegendAlignConfig.left,
+        "orient": props.echartsLegendAlignConfig.orient,
         "textStyle": {
           "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
           "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize,
