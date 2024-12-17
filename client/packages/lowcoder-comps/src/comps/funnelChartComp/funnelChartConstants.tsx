@@ -37,7 +37,8 @@ import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
 import { EchartsLegendAlignConfig } from "../chartComp/chartConfigs/echartsLegendAlignConfig";
-import { EchartsLegendLayoutConfig } from "../chartComp/chartConfigs/echartsLegendLayoutConfig";
+import { EchartsLegendOrientConfig } from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 
 export const ChartTypeOptions = [
   {
@@ -261,10 +262,11 @@ let chartJsonModeChildren: any = {
   echartsSortingConfig: EchartsSortingConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
-  echartsLegendLayoutConfig: EchartsLegendLayoutConfig,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
   echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   // style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),

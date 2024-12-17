@@ -141,13 +141,14 @@ export const en = {
   },
   echarts: {
     defaultTitle: "Data Display",
-    legendPosition: "Legend Position",
-    labelPosition: "Label Position",
-    titlePosition: "Title Position",
+    legendPosition: "Legend-X",
+    legendOrient: "Legend Orient",
+    legendAlign: "Legend-Y",
+    labelPosition: "Label-X",
+    titlePosition: "Title-X",
+    titlePositionVertical: "Title-Y",
     funnelAlign: "Funnel Align",
     sort: "Sort",
-    legendLayout: "Chart Legend Layout",
-    legendAlign: "Chart Legend Align"
   },
   chart: {
     delete: "Delete",

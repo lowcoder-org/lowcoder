@@ -7,7 +7,7 @@ import {
 import { LegendComponentOption } from "echarts";
 import { trans } from "i18n/comps";
 
-const LegendLayoutOptions = [
+const LegendOrientOptions = [
   {
     label: <HorizontoalIcon />,
     value: "horizontal",
@@ -18,24 +18,24 @@ const LegendLayoutOptions = [
   },
 ] as const;
 
-export const EchartsLegendLayoutConfig = (function () {
+export const EchartsLegendOrientConfig = (function () {
   return new MultiCompBuilder(
     {
-      legendLayout: dropdownControl(LegendLayoutOptions, "bottom"),
+      orient: dropdownControl(LegendOrientOptions, "horizontal"),
     },
     (props): LegendComponentOption => {
       const config: LegendComponentOption = {
-        orient: "vertical",
+        orient: "horizontal",
         type: "scroll"
       };
-      config.orient = props.legendLayout
+      config.orient = props.orient
       return config;
     }
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.legendLayout.propertyView({
-          label: trans("echarts.legendLayout"),
+        {children.orient.propertyView({
+          label: trans("echarts.legendOrient"),
           radioButton: true,
         })}
       </>
