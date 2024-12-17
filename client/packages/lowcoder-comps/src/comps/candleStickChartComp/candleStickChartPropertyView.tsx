@@ -32,11 +32,11 @@ export function candleStickChartPropertyView(
           ),
         })}
         {children.echartsTitleConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
         {children.left.propertyView({ label: trans("candleStickChart.left") })}
         {children.right.propertyView({ label: trans("candleStickChart.right") })}
         {children.top.propertyView({ label: trans("candleStickChart.top") })}
         {children.bottom.propertyView({ label: trans("candleStickChart.bottom") })}
-        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("candleStickChart.title") })}
         {children.dataZoomVisibility.getView() && children.dataZoomHeight.propertyView({ label: trans("candleStickChart.dataZoomHeight") })}
         {children.dataZoomVisibility.getView() && children.dataZoomBottom.propertyView({ label: trans("candleStickChart.dataZoomBottom") })}

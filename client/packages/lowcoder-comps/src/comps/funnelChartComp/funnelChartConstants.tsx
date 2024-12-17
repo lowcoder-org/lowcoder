@@ -36,6 +36,8 @@ import { i18nObjs, trans } from "i18n/comps";
 import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
+import { EchartsLegendAlignConfig } from "../chartComp/chartConfigs/echartsLegendAlignConfig";
+import { EchartsLegendLayoutConfig } from "../chartComp/chartConfigs/echartsLegendLayoutConfig";
 
 export const ChartTypeOptions = [
   {
@@ -259,6 +261,8 @@ let chartJsonModeChildren: any = {
   echartsSortingConfig: EchartsSortingConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
+  echartsLegendLayoutConfig: EchartsLegendLayoutConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
   // style: styleControl(EchartsStyle, 'style'),
