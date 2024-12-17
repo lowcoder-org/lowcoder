@@ -257,9 +257,15 @@ let chartJsonModeChildren: any = {
   echartsLabelConfig: EchartsLabelConfig,
   echartsTitleConfig:EchartsTitleConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  left:withDefault(NumberControl,trans('candleStickChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('candleStickChart.defaultRight')),
+  top:withDefault(NumberControl,trans('candleStickChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('candleStickChart.defaultBottom')),
+  dataZoomBottom:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomBottom')),
+  dataZoomHeight:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomHeight')),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  dataZoomVisibility: withDefault(BoolControl, true),
 }
 if (EchartsStyle) {
   chartJsonModeChildren = {

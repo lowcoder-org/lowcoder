@@ -161,21 +161,32 @@ export function getEchartsConfig(
         }
       },
       "backgroundColor": getBackgroundColor(backgroundColor, gradientColor, opacity, direction),
-      "color": props.echartsOption.data?.map(data => data.color),
-      "tooltip": props.tooltip&&{
+      "color": props?.echartsOption.data?.map(data => data.color),
+      "tooltip": props?.tooltip&&{
         "trigger": "axis",
         "axisPointer": {
           "type": "cross"
         }
       },
       "grid": {
-        "left": "10%",
-        "right": "10%",
-        "bottom": "10%",
+        "left": `${props?.left}%`,
+        "right": `${props?.right}%`,
+        "bottom": `${props?.bottom}%`,
+        "top": `${props?.top}%`,
       },
+      "dataZoom": [
+        {
+          "show": props?.dataZoomVisibility,
+          "type": 'slider',
+          "start": 0,
+          "end": 100,
+          "bottom": props?.dataZoomBottom,
+          'height': props?.dataZoomHeight
+        }
+      ],
       "xAxis": {
         "type": "category",
-        "data": props.echartsOption.xAxis.data
+        "data": props?.echartsOption.xAxis.data
       },
       "yAxis": {
         "type": "value",
@@ -183,8 +194,8 @@ export function getEchartsConfig(
       },
       "series": [
         {
-          "name": props.echartsConfig.type,
-          "type": props.echartsConfig.type,
+          "name": props?.echartsConfig.type,
+          "type": props?.echartsConfig.type,
           "left": "10%",
           "top": 60,
           "bottom": 60,
@@ -194,9 +205,9 @@ export function getEchartsConfig(
           "gap": 2,
           "label": {
             "show": true,
-            "position": props.echartsLabelConfig.top
+            "position": props?.echartsLabelConfig.top
           },
-          "data": props.echartsOption.data,
+          "data": props?.echartsOption.data,
         }
       ]
     }
