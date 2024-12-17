@@ -31,13 +31,14 @@ export function funnelChartPropertyView(
             </div>
           ),
         })}
-        {children.legendVisibility.getView()&& children.echartsLegendConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
         {children.echartsFunnelAlignConfig.getPropertyView()}
-        {children.legendVisibility.getView() && children.echartsLegendLayoutConfig.getPropertyView()}
-        {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
-        {children.echartsTitleConfig.getPropertyView()}
         {children.left.propertyView({ label: trans("funnelChart.left") })}
         {children.top.propertyView({ label: trans("funnelChart.top") })}
         {children.bottom.propertyView({ label: trans("funnelChart.bottom") })}
