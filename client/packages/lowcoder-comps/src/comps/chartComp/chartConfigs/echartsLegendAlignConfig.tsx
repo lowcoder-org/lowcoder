@@ -5,7 +5,7 @@ import {
   dropdownControl,
   MultiCompBuilder,
 } from "lowcoder-sdk";
-import {FunnelSeriesOption, LegendComponentOption} from "echarts";
+import { LegendComponentOption } from "echarts";
 import { trans } from "i18n/comps";
 
 const FunnelLegnedAlignOptions = [
@@ -28,9 +28,10 @@ export const EchartsLegendAlignConfig = (function () {
     {
       legendAlign: dropdownControl(FunnelLegnedAlignOptions, "center"),
     },
-    (props): FunnelSeriesOption => {
-      const config: FunnelSeriesOption = {
-        left: "center",
+    (props): LegendComponentOption => {
+      const config: LegendComponentOption = {
+        left: "right",
+        type: "scroll",
       };
       config.left = props.legendAlign
       return config;

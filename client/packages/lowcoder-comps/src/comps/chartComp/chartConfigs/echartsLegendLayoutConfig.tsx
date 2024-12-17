@@ -25,7 +25,8 @@ export const EchartsLegendLayoutConfig = (function () {
     },
     (props): LegendComponentOption => {
       const config: LegendComponentOption = {
-        orient: "horizontal",
+        orient: "vertical",
+        type: "scroll"
       };
       config.orient = props.legendLayout
       return config;

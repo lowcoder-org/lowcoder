@@ -34,9 +34,9 @@ export function funnelChartPropertyView(
         {children.legendVisibility.getView()&& children.echartsLegendConfig.getPropertyView()}
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
-        {children.echartsLegendLayoutConfig.getPropertyView()}
-        {children.echartsLegendAlignConfig.getPropertyView()}
-        {children.echartsConfig.getPropertyView()}
+        {children.echartsFunnelAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendLayoutConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
         {children.echartsTitleConfig.getPropertyView()}
         {children.left.propertyView({ label: trans("funnelChart.left") })}
         {children.top.propertyView({ label: trans("funnelChart.top") })}
