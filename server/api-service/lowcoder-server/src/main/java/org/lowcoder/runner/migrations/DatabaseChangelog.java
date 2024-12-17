@@ -451,6 +451,10 @@ public class DatabaseChangelog {
             mongoTemplate.insert(record);
         }
     }
+    @ChangeSet(order = "029", id = "add-tag-index-to-record", author = "Thomas")
+    public void addTagIndexToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        ensureIndexes(mongoTemplate, ApplicationRecord.class, makeIndex("applicationId", "tag").unique());
+    }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
