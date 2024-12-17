@@ -1,15 +1,15 @@
 import opacityToHex from "./opacityToHex";
 
 const getBackgroundColor = (
-  backgroundColor = '',
-  gradientColor = '',
-  opacity = '',
-  direction = '',
+  backgroundColor: any,
+  gradientColor: any,
+  opacity: any,
+  direction: any,
 ) => {
   if (direction?.split(' ').length < 4)
     return gradientColor && backgroundColor
       ? {
-        "type": 'radical',
+        "type": 'radial',
         "x": direction?.split(' ')[0],
         "y": direction?.split(' ')[1],
         "r": direction?.split(' ')[2],
