@@ -37,6 +37,7 @@ export const EchartsLegendOrientConfig = (function () {
         {children.orient.propertyView({
           label: trans("echarts.legendOrient"),
           radioButton: true,
+          tooltip: trans("echarts.changingLegend_orient_Tooltip")
         })}
       </>
     ))

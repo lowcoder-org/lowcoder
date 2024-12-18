@@ -42,6 +42,7 @@ export const EchartsLabelConfig = (function () {
         {children.position.propertyView({
           label: trans("echarts.labelPosition"),
           radioButton: true,
+          tooltip: trans("echarts.changingLabelTooltip")
         })}
       </>
     ))

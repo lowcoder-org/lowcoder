@@ -37,6 +37,7 @@ export const EchartsLegendConfig = (function () {
         {children.position.propertyView({
           label: trans("echarts.legendPosition"),
           radioButton: true,
+          tooltip: trans("echarts.changingLegend_x_Tooltip")
         })}
       </>
     ))
