@@ -1,9 +1,9 @@
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
-import { TacoButton, CustomSelect } from "lowcoder-design";
-import React, { useState } from "react";
-import { useDispatch } from "react-redux";
+import { TacoButton, CustomSelect, messageInstance } from "lowcoder-design";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { default as ColorPicker } from "antd/es/color-picker";
@@ -15,31 +15,62 @@ import {
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
 import type { UploadChangeParam, RcFile } from "antd/es/upload";
+import MaterialApi, { MaterialUploadTypeEnum } from "@lowcoder-ee/api/materialApi";
+import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
+import { fetchCommonSettings, setCommonSettings } from "@lowcoder-ee/redux/reduxActions/commonSettingsActions";
+import { useShallowEqualSelector } from "@lowcoder-ee/util/hooks";
+import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { BrandingSettings } from "@lowcoder-ee/api/commonSettingApi";
 
 const { TextArea } = Input;
 
-interface BrandingSettings {
-    logo: File | null;
-    squareLogo: File | null;
-    mainBrandingColor: string;
-    editorHeaderColor: string;
-    adminSidebarColor: string;
-    editorSidebarColor: string;
-    font: string;
-    errorPageText: string;
-    errorPageImage: File | null;
-    signUpPageText: string;
-    signUpPageImage: File | null;
-    loggedOutPageText: string;
-    loggedOutPageImage: File | null;
-    standardDescription: string;
-    standardTitle: string;
-    showDocumentation: boolean;
-    documentationLink: string | null;
-    submitIssue: boolean;
-    whatsNew: boolean;
-    whatsNewLink: string | null;
+enum SettingsEnum {
+  LOGO = "logo",
+  SQUARE_LOGO = "squareLogo",
+  ERROR_PAGE_IMAGE = "errorPageImage",
+  LOGOUT_PAGE_IMAGE = "loggedOutPageImage",
+  SIGNUP_PAGE_IMAGE = "signUpPageImage",
+  MAIN_BRANDING_COLOR = "mainBrandingColor",
+  EDITOR_HEADER_COLOR = "editorHeaderColor",
+  ADMIN_SIDEBAR_COLOR = "adminSidebarColor",
+  EDITOR_SIDEBAR_COLOR = "editorSidebarColor",
+  FONT = "font",
+  ERROR_PAGE_TEXT = "errorPageText",
+  SIGNUP_PAGE_TEXT = "signUpPageText",
+  LOGGED_OUT_PAGE_TEXT = "loggedOutPageText",
+  STANDARD_DESCRIPTION =  "standardDescription",
+  STANDARD_TITLE = "standardTitle",
+  SHOW_DOCUMENTATION = "showDocumentation",
+  DOCUMENTATION_LINK = "documentationLink",
+  SUBMIT_ISSUE = "submitIssue",
+  WHATS_NEW = "whatsNew",
+  WHATS_NEW_LINK = "whatsNewLink",
 }
+
+const defaultSettings = {
+  logo: null,
+  squareLogo: null,
+  mainBrandingColor: "#FF5733",
+  editorHeaderColor: "#4287f5",
+  adminSidebarColor: "#2e2e2e",
+  editorSidebarColor: "#f4f4f4",
+  font: "Roboto",
+  errorPageText: "Oops! Something went wrong.",
+  errorPageImage: null,
+  signUpPageText: "Join us today to explore new opportunities!",
+  signUpPageImage: null,
+  loggedOutPageText: "You have been logged out successfully.",
+  loggedOutPageImage: null,
+  standardDescription: "This is a sample description for SEO.",
+  standardTitle: "Welcome to Our Application",
+  showDocumentation: true,
+  documentationLink: null,
+  submitIssue: true,
+  whatsNew: false,
+  whatsNewLink : null,
+};
 
 // type FileType = Parameters<UploadProps["beforeUpload"]>[0] | undefined;
 
@@ -101,16 +132,20 @@ const StyledSquareUploadContainer = styled.div`
   }
 `;
 
-const getBase64 = (file: RcFile, callback: (url: string) => void) => {
+const getBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.addEventListener("load", () => callback(reader.result as string));
-    reader.readAsDataURL(file);
+    reader.readAsBinaryString(file); // Read file as base64
+
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = error => reject(error);
+  });
 };
   
 const beforeUpload = (file: RcFile) => {
-    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png" || file.type === "image/svg+xml";
     if (!isJpgOrPng) {
-      message.error("You can only upload JPG/PNG files!");
+      message.error("You can only upload JPG/PNG/SVG files!");
       return Upload.LIST_IGNORE;
     }
     const isLt2M = file.size / 1024 / 1024 < 2;
@@ -122,65 +157,81 @@ const beforeUpload = (file: RcFile) => {
 };
 
 export function BrandingSetting() {
-  const [settings, setSettings] = useState<BrandingSettings>({
-    logo: null,
-    squareLogo: null,
-    mainBrandingColor: "#FF5733",
-    editorHeaderColor: "#4287f5",
-    adminSidebarColor: "#2e2e2e",
-    editorSidebarColor: "#f4f4f4",
-    font: "Roboto",
-    errorPageText: "Oops! Something went wrong.",
-    errorPageImage: null,
-    signUpPageText: "Join us today to explore new opportunities!",
-    signUpPageImage: null,
-    loggedOutPageText: "You have been logged out successfully.",
-    loggedOutPageImage: null,
-    standardDescription: "This is a sample description for SEO.",
-    standardTitle: "Welcome to Our Application",
-    showDocumentation: true,
-    documentationLink: null,
-    submitIssue: true,
-    whatsNew: false,
-    whatsNewLink : null,
+  const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
+  const [loading, setLoading] = useState({
+    [SettingsEnum.LOGO]: false,
+    [SettingsEnum.SQUARE_LOGO]: false,
+    [SettingsEnum.ERROR_PAGE_IMAGE]: false,
+    [SettingsEnum.LOGOUT_PAGE_IMAGE]: false,
+    [SettingsEnum.SIGNUP_PAGE_IMAGE]: false,
   });
+  const currentUser = useSelector(getUser);
+  const dispatch = useDispatch();
+  const commonSettings = useShallowEqualSelector(getCommonSettings);
 
-  const handleSave = (key: keyof BrandingSettings, value: any) => {
+  useEffect(() => {
+    setSettings(commonSettings.branding ?? defaultSettings);
+  }, [commonSettings?.branding]);
+
+  useEffect(() => {
+    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
+  }, [currentUser.currentOrgId, dispatch]);
+
+  const updateSettings = (key: keyof BrandingSettings, value: any) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
-  const [logo, setLogo] = useState<string | null>(null);
-  const [squareLogo, setSquareLogo] = useState<string | null>(null);
-  const [loadingLogo, setLoadingLogo] = useState(false);
-  const [loadingSquareLogo, setLoadingSquareLogo] = useState(false);
-  const [errorPageImage, setErrorPageImage] = useState<string | null>(null);
-  const [signUpPageImage, setSignUpPageImage] = useState<string | null>(null);
-  const [loggedOutPageImage, setLoggedOutPageImage] = useState<string | null>(null);
-  const [loadingErrorPage, setLoadingErrorPage] = useState(false);
-  const [loadingSignUpPage, setLoadingSignUpPage] = useState(false);
-  const [loadingLoggedOutPage, setLoadingLoggedOutPage] = useState(false);
+  const handleUpload = async (options: any, imageType: keyof BrandingSettings) => {
+    const { onSuccess, onError, file } = options;
 
+    try {
+      setLoading((loading) => ({
+        ...loading,
+        [imageType]: true,
+      }))
+      const base64File = await getBase64(file);
+      const resp = await MaterialApi.upload(
+        file.name,
+        MaterialUploadTypeEnum.COMMON,
+        btoa(base64File),
+      );
+      if (validateResponse(resp)) {
+        onSuccess(trans("success"));
+        updateSettings(imageType, resp.data.data.id);
+        return;
+      }
+      throw new Error("Something went wrong");
+    } catch (error: any) {
+      onError(error);
+      messageInstance.error(trans("home.fileUploadError"));
+    } finally {
+      setLoading((loading) => ({
+        ...loading,
+        [imageType]: false,
+      }))
+    }
+  }
 
-  const handleImageChange =
-  (setImage: React.Dispatch<React.SetStateAction<string | null>>, setLoading: React.Dispatch<React.SetStateAction<boolean>>) =>
-  (info: UploadChangeParam) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-    return;
-    }
-    if (info.file.status === "done" && info.file.originFileObj) {
-      getBase64(info.file.originFileObj as RcFile, (url) => {
-      setLoading(false);
-      setImage(url);
-    });
-    }
-  };
+  const handleSave = () => {
+    dispatch(
+      setCommonSettings({
+        orgId: currentUser.currentOrgId,
+        data: {
+          key: 'branding',
+          value: settings,
+        },
+        onSuccess: () => {
+          messageInstance.success(trans("advanced.saveSuccess"));
+        },
+      })
+    );
+  }
 
   const uploadButton = (loading: boolean) => (
-  <div>
-    {loading ? <LoadingOutlined /> : <PlusOutlined />}
-    <div style={{ marginTop: 8 }}>Upload</div>
-  </div>
+    <div>
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div style={{ marginTop: 8 }}>Upload</div>
+    </div>
   );
 
   return (
@@ -206,10 +257,13 @@ export function BrandingSetting() {
                   listType="picture-card"
                   showUploadList={false}
                   beforeUpload={beforeUpload}
-                  onChange={handleImageChange(setLogo, setLoadingLogo)}
                   maxCount={1}
+                  customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
                 >
-                  {logo ? <img src={logo} alt="logo" /> : uploadButton(loadingLogo)}
+                  {Boolean(settings[SettingsEnum.LOGO])
+                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.LOGO]!)} alt="logo" />
+                    : uploadButton(loading[SettingsEnum.LOGO])
+                  }
                 </Upload>
                 <HelpText>{trans("branding.logoHelp")}</HelpText>
               </StyledRectUploadContainer>
@@ -224,10 +278,13 @@ export function BrandingSetting() {
                   listType="picture-card"
                   showUploadList={false}
                   beforeUpload={beforeUpload}
-                  onChange={handleImageChange(setSquareLogo, setLoadingSquareLogo)}
                   maxCount={1}
+                  customRequest={(options) => handleUpload(options, SettingsEnum.SQUARE_LOGO)}
                 >
-                  {squareLogo ? <img src={squareLogo} alt="square-logo" /> : uploadButton(loadingSquareLogo)}
+                  {Boolean(settings[SettingsEnum.SQUARE_LOGO])
+                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
+                    : uploadButton(loading[SettingsEnum.SQUARE_LOGO])
+                  }
                 </Upload>
                 <HelpText>{trans("branding.squareLogoHelp")}</HelpText>
               </StyledSquareUploadContainer>
@@ -248,7 +305,7 @@ export function BrandingSetting() {
                 showText
                 allowClear
                 format="hex"
-                onChange={(_, hex) => handleSave("mainBrandingColor", hex)}
+                onChange={(_, hex) => updateSettings(SettingsEnum.MAIN_BRANDING_COLOR, hex)}
               />
               <HelpText>{trans("branding.mainBrandingColorHelp")}</HelpText>
             </div>
@@ -261,7 +318,7 @@ export function BrandingSetting() {
                 showText
                 allowClear
                 format="hex"
-                onChange={(_, hex) => handleSave("editorHeaderColor", hex)}
+                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_HEADER_COLOR, hex)}
               />
               <HelpText>{trans("branding.editorHeaderColorHelp")}</HelpText>
             </div>
@@ -274,7 +331,7 @@ export function BrandingSetting() {
                 showText
                 allowClear
                 format="hex"
-                onChange={(_, hex) => handleSave("adminSidebarColor", hex)}
+                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_COLOR, hex)}
               />
               <HelpText>{trans("branding.adminSidebarColorHelp")}</HelpText>
             </div>
@@ -287,7 +344,7 @@ export function BrandingSetting() {
                 showText
                 allowClear
                 format="hex"
-                onChange={(_, hex) => handleSave("editorSidebarColor", hex)}
+                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_COLOR, hex)}
               />
               <HelpText>{trans("branding.editorSidebarColorHelp")}</HelpText>
             </div>
@@ -297,7 +354,7 @@ export function BrandingSetting() {
               <CustomSelect
                 options={[] /* Dynamically populate Google Fonts */}
                 value={settings.font}
-                onChange={(font) => handleSave("font", font)}
+                onChange={(font) => updateSettings(SettingsEnum.FONT, font)}
               />
               <HelpText>{trans("branding.fontHelp")}</HelpText>
             </div>
@@ -314,7 +371,7 @@ export function BrandingSetting() {
               <TextArea
                 rows={4}
                 value={settings.errorPageText || ""}
-                onChange={(e) => handleSave("errorPageText", e.target.value)}
+                onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
               <HelpText>{trans("branding.errorPageHelp")}</HelpText>
@@ -326,10 +383,13 @@ export function BrandingSetting() {
                   listType="picture-card"
                   showUploadList={false}
                   beforeUpload={beforeUpload}
-                  onChange={handleImageChange(setErrorPageImage, setLoadingErrorPage)}
                   maxCount={1}
+                  customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
                 >
-                  {errorPageImage ? <img src={errorPageImage} alt="errorPage" /> : uploadButton(loadingErrorPage)}
+                  {Boolean(settings[SettingsEnum.ERROR_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
+                    : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
+                  }
                 </Upload>
               </StyledRectUploadContainer>
             </div>
@@ -339,7 +399,7 @@ export function BrandingSetting() {
               <TextArea
                 rows={4}
                 value={settings.signUpPageText || ""}
-                onChange={(e) => handleSave("signUpPageText", e.target.value)}
+                onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
               <HelpText>{trans("branding.signUpPageHelp")}</HelpText>
@@ -351,10 +411,13 @@ export function BrandingSetting() {
                   listType="picture-card"
                   showUploadList={false}
                   beforeUpload={beforeUpload}
-                  onChange={handleImageChange(setSignUpPageImage, setLoadingSignUpPage)}
                   maxCount={1}
+                  customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
                 >
-                  {signUpPageImage ? <img src={signUpPageImage} alt="signUpPage" /> : uploadButton(loadingSignUpPage)}
+                  {Boolean(settings[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
+                    : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                  }
                 </Upload>
               </StyledRectUploadContainer>
             </div>
@@ -364,7 +427,7 @@ export function BrandingSetting() {
               <TextArea
                 rows={4}
                 value={settings.loggedOutPageText || ""}
-                onChange={(e) => handleSave("loggedOutPageText", e.target.value)}
+                onChange={(e) => updateSettings(SettingsEnum.LOGGED_OUT_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
               <HelpText>{trans("branding.loggedOutPageHelp")}</HelpText>
@@ -376,10 +439,13 @@ export function BrandingSetting() {
                   listType="picture-card"
                   showUploadList={false}
                   beforeUpload={beforeUpload}
-                  onChange={handleImageChange(setLoggedOutPageImage, setLoadingLoggedOutPage)}
                   maxCount={1}
+                  customRequest={(options) => handleUpload(options, SettingsEnum.LOGOUT_PAGE_IMAGE)}
                 >
-                  {loggedOutPageImage ? <img src={loggedOutPageImage} alt="loggedOutPage" /> : uploadButton(loadingLoggedOutPage)}
+                  {Boolean(settings[SettingsEnum.LOGOUT_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.LOGOUT_PAGE_IMAGE]!)} alt="logout_page_image" />
+                    : uploadButton(loading[SettingsEnum.LOGOUT_PAGE_IMAGE])
+                  }
                 </Upload>
               </StyledRectUploadContainer>
             </div>
@@ -389,7 +455,7 @@ export function BrandingSetting() {
               <TextArea
                 rows={2}
                 value={settings.standardDescription || ""}
-                onChange={(e) => handleSave("standardDescription", e.target.value)}
+                onChange={(e) => updateSettings(SettingsEnum.STANDARD_DESCRIPTION, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
             </div>
@@ -399,7 +465,7 @@ export function BrandingSetting() {
               <TextArea
                 rows={2}
                 value={settings.standardTitle || ""}
-                onChange={(e) => handleSave("standardTitle", e.target.value)}
+                onChange={(e) => updateSettings(SettingsEnum.STANDARD_TITLE, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
             </div>
@@ -408,7 +474,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.submitIssue")}</h3>
               <Switch
                 checked={settings.submitIssue}
-                onChange={(checked) => handleSave("submitIssue", checked)}
+                onChange={(checked) => updateSettings(SettingsEnum.SUBMIT_ISSUE, checked)}
               />
             </div>
 
@@ -425,7 +491,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.showDocumentation")}</h3>
               <Switch
                 checked={settings.showDocumentation}
-                onChange={(checked) => handleSave("showDocumentation", checked)}
+                onChange={(checked) => updateSettings(SettingsEnum.SHOW_DOCUMENTATION, checked)}
               />
             </div>
             {settings.showDocumentation && (
@@ -434,7 +500,7 @@ export function BrandingSetting() {
                 <Input
                   placeholder={trans("branding.documentationLinkPlaceholder")}
                   value={settings.documentationLink || ""}
-                  onChange={(e) => handleSave("documentationLink", e.target.value)}
+                  onChange={(e) => updateSettings(SettingsEnum.DOCUMENTATION_LINK, e.target.value)}
                   style={{ marginBottom: 12 }}
                 />
                 <HelpText>{trans("branding.documentationLinkHelp")}</HelpText>
@@ -452,7 +518,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.whatsNew")}</h3>
               <Switch
                 checked={settings.whatsNew}
-                onChange={(checked) => handleSave("whatsNew", checked)}
+                onChange={(checked) => updateSettings(SettingsEnum.WHATS_NEW, checked)}
               />
             </div>
             {settings.whatsNew && (
@@ -461,18 +527,17 @@ export function BrandingSetting() {
                 <Input
                   placeholder={trans("branding.whatsNewLinkPlaceholder")}
                   value={settings.whatsNewLink || ""}
-                  onChange={(e) => handleSave("whatsNewLink", e.target.value)}
+                  onChange={(e) => updateSettings(SettingsEnum.WHATS_NEW_LINK, e.target.value)}
                   style={{ marginBottom: 12 }}
                 />
                 <HelpText>{trans("branding.whatsNewLinkHelp")}</HelpText>
               </div>
             )}
           </Card>
-
         </BrandingSettingContent>
 
         <TacoButton
-          onClick={() => console.log("Settings saved:", settings)}
+          onClick={handleSave}
           style={{ marginTop: 20 }}
         >
           {trans("branding.saveButton")}

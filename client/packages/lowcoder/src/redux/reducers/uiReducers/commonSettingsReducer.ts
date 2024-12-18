@@ -1,6 +1,6 @@
 import { createReducer } from "util/reducerUtils";
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
-import { CommonSettingResponseData, ThemeType } from "api/commonSettingApi";
+import { BrandingSettings, CommonSettingResponseData, ThemeType } from "api/commonSettingApi";
 import { GenericApiResponse } from "api/apiResponses";
 
 export interface NpmRegistryConfigEntry {
@@ -30,6 +30,7 @@ export interface CommonSettingsState {
     applyPreloadCSSToHomePage?: boolean | null;
     runJavaScriptInHost?: boolean | null;
     showHeaderInPublicApps?: boolean;
+    branding?: BrandingSettings;
   };
   setResult: boolean;
 
