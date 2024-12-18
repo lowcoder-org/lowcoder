@@ -130,7 +130,11 @@ export { ReactComponent as APIDocsIcon } from "./remix/instance-line.svg";
 export { ReactComponent as SubscriptionIcon } from "./remix/award-fill.svg";
 export { ReactComponent as SupportIcon } from "./remix/user-heart-line.svg";
 // export { ReactComponent as AllAppIcon } from "./v1/icon-all-app.svg";
-
+// EE 
+export { ReactComponent as EnvironmentsIcon } from "./remix/git-branch-line.svg"; 
+export { ReactComponent as UsageStatisticsIcon } from "./remix/line-chart-line.svg";
+export { ReactComponent as AutitLogsIcon } from "./remix/user-community-line.svg";
+export { ReactComponent as BrandingIcon } from "./remix/paint-brush-line.svg";
 
 // Data Sources
 export { ReactComponent as MysqlIcon } from "./v1/icon-query-MySQL.svg";

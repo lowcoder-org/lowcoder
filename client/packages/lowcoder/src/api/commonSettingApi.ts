@@ -79,6 +79,29 @@ export interface ThemeDetail {
   showDataLoadingIndicators?: boolean;
 }
 
+export interface BrandingSettings {
+  logo: string | null;
+  squareLogo: string | null;
+  mainBrandingColor: string;
+  editorHeaderColor: string;
+  adminSidebarColor: string;
+  editorSidebarColor: string;
+  font: string;
+  errorPageText: string;
+  errorPageImage: string | null;
+  signUpPageText: string;
+  signUpPageImage: string | null;
+  loggedOutPageText: string;
+  loggedOutPageImage: string | null;
+  standardDescription: string;
+  standardTitle: string;
+  showDocumentation: boolean;
+  documentationLink: string | null;
+  submitIssue: boolean;
+  whatsNew: boolean;
+  whatsNewLink: string | null;
+}
+
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {
     case "primary": return trans("themeDetail.primary");
