@@ -36,6 +36,7 @@ export const EchartsSortingConfig = (function () {
         {children.sort.propertyView({
           label: trans("echarts.sort"),
           radioButton: true,
+          tooltip: trans("echarts.changingSortTooltip")
         })}
       </>
     ))

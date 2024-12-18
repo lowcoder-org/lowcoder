@@ -42,6 +42,7 @@ export const EchartsLegendAlignConfig = (function () {
         {children.left.propertyView({
           label: trans("echarts.legendAlign"),
           radioButton: true,
+          tooltip: trans("echarts.changingLegend_y_Tooltip")
         })}
       </>
     ))

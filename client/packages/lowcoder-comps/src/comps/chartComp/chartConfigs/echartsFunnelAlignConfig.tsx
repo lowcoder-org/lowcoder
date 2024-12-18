@@ -41,6 +41,7 @@ export const EchartsFunnelAlignConfig = (function () {
         {children.funnelAlign.propertyView({
           label: trans("echarts.funnelAlign"),
           radioButton: true,
+          tooltip: trans("echarts.changingAlignTooltip")
         })}
       </>
     ))

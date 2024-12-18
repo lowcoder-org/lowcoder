@@ -33,8 +33,8 @@ export function funnelChartPropertyView(
         })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
-        {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
         {children.echartsFunnelAlignConfig.getPropertyView()}
@@ -47,9 +47,9 @@ export function funnelChartPropertyView(
         {children.gap.propertyView({ label: trans("funnelChart.gap") })}
         {children.opacity.propertyView({ label: trans("funnelChart.opacity") })}
         {children.echartsTitle.propertyView({ label: trans("funnelChart.title") })}
-        {children.tooltip.propertyView({label: trans("funnelChart.tooltip")})}
-        {children.label.propertyView({label: trans("funnelChart.label")})}
-        {children.legendVisibility.propertyView({label: trans("funnelChart.legendVisibility")})}
+        {children.tooltip.propertyView({label: trans("funnelChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip")})}
+        {children.label.propertyView({label: trans("funnelChart.label"), tooltip: trans("echarts.labelVisibilityTooltip")})}
+        {children.legendVisibility.propertyView({label: trans("funnelChart.legendVisibility"), tooltip: trans("echarts.legendVisibilityTooltip")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
