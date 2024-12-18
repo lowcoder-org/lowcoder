@@ -1975,10 +1975,11 @@ export const EchartDefaultTextStyle = [
 ] as const;
 
 export const EchartDefaultChartStyle = [
-  CHARTBACKGROUNDCOLOR,
-  CHARTGRADIENTCOLOR,
-  DIRECTION,
-  CHARTOPACITY,
+  getBackground("primarySurface"),
+  // CHARTBACKGROUNDCOLOR,
+  // CHARTGRADIENTCOLOR,
+  // DIRECTION,
+  // CHARTOPACITY,
   CHARTSHADOWCOLOR,
   CHARTBOXSHADOW,
   CHARTBORDERCOLOR,
