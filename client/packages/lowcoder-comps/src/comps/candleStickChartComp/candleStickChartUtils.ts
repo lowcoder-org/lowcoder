@@ -13,7 +13,7 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import { useContext } from "react";
-import getBackgroundColor from "../../util/gradientBackgroundColor";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -136,11 +136,6 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
-  const backgroundColor = props?.chartStyle?.chartBackgroundColor || theme?.chartStyle?.backgroundColor || "#FFFFFF";
-  const gradientColor = props?.chartStyle?.chartGradientColor || theme?.chartStyle?.gradientColor;
-  const opacity = props?.chartStyle?.chartOpacity || theme?.chartStyle?.opacity;
-  const direction = props?.chartStyle?.direction || theme?.chartStyle?.direction;
-
 
   if (props.mode === "json") {
     let opt={
@@ -160,7 +155,7 @@ export function getEchartsConfig(
           "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
         }
       },
-      "backgroundColor": getBackgroundColor(backgroundColor, gradientColor, opacity, direction),
+      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle.backgroundColor || "#FFFFFF"),
       "color": props?.echartsOption.data?.map(data => data.color),
       "tooltip": props?.tooltip&&{
         "trigger": "axis",
