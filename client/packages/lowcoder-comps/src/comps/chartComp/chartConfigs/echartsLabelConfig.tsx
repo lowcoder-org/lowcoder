@@ -10,17 +10,17 @@ import { trans } from "i18n/comps";
 
 const LabelPositionOptions = [
   {
+    label: <AlignLeft />,
+    value: "left",
+  },
+  {
     label: <AlignClose />,
     value: "inside",
   },
   {
     label: <AlignRight />,
     value: "right",
-  },
-  {
-    label: <AlignLeft />,
-    value: "left",
-  },
+  }
 ] as const;
 
 export const EchartsLabelConfig = (function () {

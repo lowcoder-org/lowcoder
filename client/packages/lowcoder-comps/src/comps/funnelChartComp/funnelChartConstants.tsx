@@ -38,7 +38,6 @@ import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleCon
 import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
 import { EchartsLegendAlignConfig } from "../chartComp/chartConfigs/echartsLegendAlignConfig";
 import { EchartsLegendOrientConfig } from "../chartComp/chartConfigs/echartsLegendOrientConfig";
-import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 
 export const ChartTypeOptions = [
   {
@@ -266,7 +265,6 @@ let chartJsonModeChildren: any = {
   echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
-  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   // style: styleControl(EchartsStyle, 'style'),
   tooltip: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
