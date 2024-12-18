@@ -38,15 +38,15 @@ export function funnelChartPropertyView(
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
         {children.echartsFunnelAlignConfig.getPropertyView()}
-        {children.left.propertyView({ label: trans("funnelChart.left") })}
-        {children.top.propertyView({ label: trans("funnelChart.top") })}
-        {children.bottom.propertyView({ label: trans("funnelChart.bottom") })}
-        {children.width.propertyView({ label: trans("funnelChart.width") })}
-        {children.min.propertyView({ label: trans("funnelChart.min") })}
-        {children.max.propertyView({ label: trans("funnelChart.max") })}
-        {children.gap.propertyView({ label: trans("funnelChart.gap") })}
-        {children.opacity.propertyView({ label: trans("funnelChart.opacity") })}
-        {children.echartsTitle.propertyView({ label: trans("funnelChart.title") })}
+        {children.echartsTitle.propertyView({ label: trans("funnelChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.left.propertyView({ label: trans("funnelChart.left"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
+        {children.top.propertyView({ label: trans("funnelChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("funnelChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.width.propertyView({ label: trans("funnelChart.width"), tooltip: trans("echarts.widthTooltip") })}
+        {children.min.propertyView({ label: trans("funnelChart.min"), tooltip: trans("echarts.minTooltip") })}
+        {children.max.propertyView({ label: trans("funnelChart.max"), tooltip: trans("echarts.maxTooltip") })}
+        {children.gap.propertyView({ label: trans("funnelChart.gap"), tooltip: trans("echarts.gapTooltip") })}
+        {children.opacity.propertyView({ label: trans("funnelChart.opacity"), tooltip: trans("echarts.opacityTooltip") })}
         {children.tooltip.propertyView({label: trans("funnelChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip")})}
         {children.label.propertyView({label: trans("funnelChart.label"), tooltip: trans("echarts.labelVisibilityTooltip")})}
         {children.legendVisibility.propertyView({label: trans("funnelChart.legendVisibility"), tooltip: trans("echarts.legendVisibilityTooltip")})}

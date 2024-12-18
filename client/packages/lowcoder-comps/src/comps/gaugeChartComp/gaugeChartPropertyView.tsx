@@ -32,26 +32,26 @@ export function gaugeChartPropertyView(
           ),
         })}
         {children.echartsTitleConfig.getPropertyView()}
-        {children.echartsTitle.propertyView({ label: trans("gaugeChart.title") })}
+        {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
         {children.top.propertyView({ label: trans("gaugeChart.top") })}
         {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
         {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
-        {children.radius.propertyView({ label: trans("gaugeChart.radius") })}
-        {children.min.propertyView({ label: trans("gaugeChart.min") })}
-        {children.max.propertyView({ label: trans("gaugeChart.max") })}
-        {children.position_x.propertyView({ label: trans("gaugeChart.position_x") })}
-        {children.position_y.propertyView({ label: trans("gaugeChart.position_y") })}
-        {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle") })}
-        {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle") })}
-        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber") })}
-        {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength") })}
-        {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth") })}
-        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth") })}
+        {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
+        {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
+        {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
+        {children.position_x.propertyView({ label: trans("gaugeChart.position_x"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
+        {children.position_y.propertyView({ label: trans("gaugeChart.position_y"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
+        {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle"), tooltip: trans("echarts.startAngleTooltip") })}
+        {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle"), tooltip: trans("echarts.endAngleTooltip") })}
+        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
+        {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
+        {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("echarts.progressBarWidthToolTip") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
-        {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip") })}
-        {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar") })}
-        {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap") })}
+        {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
+        {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
+        {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
