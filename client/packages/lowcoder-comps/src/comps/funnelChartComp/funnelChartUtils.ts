@@ -135,23 +135,16 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-
-  console.log("props", props);
-  console.log("theme", theme);
-
   const backgroundColor = props?.chartStyle?.chartBackgroundColor || theme?.chartStyle?.backgroundColor || "#FFFFFF";
   const gradientColor = props?.chartStyle?.chartGradientColor || theme?.chartStyle?.gradientColor;
   const opacity = props?.chartStyle?.chartOpacity || theme?.chartStyle?.opacity;
   const direction = props?.chartStyle?.direction || theme?.chartStyle?.direction;
 
-  console.log("props", props);
-  console.log("theme", theme);
-
   if (props.mode === "json") {
     let opt={
       "title": {
         "text": props.echartsTitle,
-        'top': props.echartsTitleVerticalConfig.top,
+        'top': "top",
         "left":props.echartsTitleConfig.top,
         "textStyle": {
           "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
@@ -175,7 +168,7 @@ export function getEchartsConfig(
         "data": props.echartsOption.data?.map(data=>data.name),
         "top": props.echartsLegendConfig.top,
         "left": props.echartsLegendAlignConfig.left,
-        "orient": props.echartsLegendLayoutConfig.orient,
+        "orient": props.echartsLegendOrientConfig.orient,
         "textStyle": {
           "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
           "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize,

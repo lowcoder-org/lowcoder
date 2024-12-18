@@ -10,17 +10,17 @@ import { trans } from "i18n/comps";
 
 const FunnelAlignOptions = [
   {
+    label: <AlignLeft />,
+    value: "left",
+  },
+  {
     label: <AlignClose />,
     value: "center",
   },
   {
     label: <AlignRight />,
     value: "right",
-  },
-  {
-    label: <AlignLeft />,
-    value: "left",
-  },
+  }
 ] as const;
 
 export const EchartsFunnelAlignConfig = (function () {

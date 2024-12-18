@@ -1,5 +1,5 @@
 import {
-  HorizontoalIcon,
+  HorizontalIcon,
   VerticalIcon,
   dropdownControl,
   MultiCompBuilder,
@@ -9,7 +9,7 @@ import { trans } from "i18n/comps";
 
 const LegendOrientOptions = [
   {
-    label: <HorizontoalIcon />,
+    label: <HorizontalIcon />,
     value: "horizontal",
   },
   {
