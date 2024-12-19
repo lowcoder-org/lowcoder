@@ -179,7 +179,7 @@ public class ApplicationApiServiceTest {
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
-        // publish
+        // publish 2
         applicationIdMono = applicationIdMono
                 .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish 2", "2.0.0"))).cache();
 
@@ -192,6 +192,14 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
+
+        // publish 3
+        applicationIdMono = applicationIdMono
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Same tag", "2.0.0"))).cache();
+
+        // Error
+        StepVerifier.create(applicationIdMono)
+                .verifyError();
     }
 
     @Test
