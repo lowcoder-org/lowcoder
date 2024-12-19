@@ -3,13 +3,11 @@ package org.lowcoder.domain.application.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.github.f4b6a3.uuid.UuidCreator;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import lombok.extern.jackson.Jacksonized;
-import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.lowcoder.domain.application.ApplicationUtil;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
@@ -20,11 +18,13 @@ import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 import static com.google.common.base.Suppliers.memoize;
@@ -39,6 +39,9 @@ import static org.lowcoder.domain.application.ApplicationUtil.getDependentModule
 public class Application extends HasIdAndAuditing {
     @Getter
     private String gid;
+    @Setter
+    @Getter
+    private String slug;
     private String organizationId;
     private String name;
     private Integer applicationType;

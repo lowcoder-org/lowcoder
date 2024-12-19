@@ -20,6 +20,7 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationService;
+import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.permission.model.ResourceHolder;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.sdk.constants.FieldName;
@@ -321,6 +322,26 @@ public class ApplicationApiServiceTest {
                     Assertions.assertSame(application.getApplicationStatus(), ApplicationStatus.DELETED);
                     Assertions.assertNotNull(application.getGid());
                     Assertions.assertTrue(FieldName.isGID(application.getGid()));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithMockUser
+    public void testUpdateSlug() {
+        // Create a dummy application
+        Mono<String> applicationMono = createApplication("SlugTestApp", null)
+                .map(applicationView -> applicationView.getApplicationInfoView().getApplicationId());
+
+        // Assume updateSlug is performed by passing applicationId and the new slug
+        Mono<Application> updatedApplicationMono = applicationMono
+                .flatMap(applicationId -> applicationApiService.updateSlug(applicationId, "new-slug-value"));
+
+        // Verify the application updates with the new slug
+        StepVerifier.create(updatedApplicationMono)
+                .assertNext(application -> {
+                    Assertions.assertNotNull(application.getSlug(), "Slug should not be null");
+                    Assertions.assertEquals("new-slug-value", application.getSlug(), "Slug should be updated to 'new-slug-value'");
                 })
                 .verifyComplete();
     }
