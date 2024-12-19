@@ -8,6 +8,7 @@ import org.lowcoder.api.common.mockuser.WithMockUser;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
@@ -21,13 +22,14 @@ import reactor.test.StepVerifier;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class OrganizationServiceTest {
 
+    @Autowired
     private OrganizationService organizationService;
 
     private Mono<Organization> createOrganization(String name) {
         Organization organization = Organization.builder()
                 .name(name)
                 .build();
-        return organizationService.create(organization, "", false);
+        return organizationService.create(organization, "user01", false);
     }
 
     @Test
