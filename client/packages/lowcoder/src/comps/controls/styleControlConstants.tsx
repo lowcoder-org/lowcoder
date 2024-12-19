@@ -41,6 +41,22 @@ export type BoxShadowColorConfig = CommonColorConfig & {
   readonly boxShadowColor: string;
 };
 
+export type ChartBackgroundColorConfig = CommonColorConfig & {
+  readonly chartBackgroundColor: string;
+};
+export type ChartGradientColorConfig = CommonColorConfig & {
+  readonly chartGradientColor: string;
+};
+export type ChartShadowColorConfig = CommonColorConfig & {
+  readonly chartShadowColor: string;
+};
+export type ChartBorderColorConfig = CommonColorConfig & {
+  readonly chartBorderColor: string;
+};
+export type ChartTextColorConfig = CommonColorConfig & {
+  readonly chartTextColor: string;
+};
+
 export type AnimationIterationCountConfig = CommonColorConfig & {
   readonly animationIterationCount: string;
 };
@@ -165,6 +181,46 @@ export type MarginConfig = CommonColorConfig & {
   readonly margin: string;
 };
 
+export type DirectionConfig = CommonColorConfig & {
+  readonly direction: string;
+};
+
+export type ChartOpacityConfig = CommonColorConfig & {
+  readonly chartOpacity: string;
+};
+
+export type ChartBoxShadowConfig = CommonColorConfig & {
+  readonly chartBoxShadow: string;
+};
+
+export type ChartBorderStyleConfig = CommonColorConfig & {
+  readonly chartBorderStyle: string;
+};
+
+export type ChartBorderRadiusConfig = CommonColorConfig & {
+  readonly chartBorderRadius: string;
+};
+
+export type ChartBorderWidthConfig = CommonColorConfig & {
+  readonly chartBorderWidth: string;
+};
+
+export type ChartTextSizeConfig = CommonColorConfig & {
+  readonly chartTextSize: string;
+};
+
+export type ChartTextWeightConfig = CommonColorConfig & {
+  readonly chartTextWeight: string;
+};
+
+export type ChartFontFamilyConfig = CommonColorConfig & {
+  readonly chartFontFamily: string;
+};
+
+export type ChartFontStyleConfig = CommonColorConfig & {
+  readonly chartFontStyle: string;
+};
+
 export type PaddingConfig = CommonColorConfig & {
   readonly padding: string;
 };
@@ -203,6 +259,16 @@ export type SingleColorConfig =
   | FontFamilyConfig
   | FontStyleConfig
   | MarginConfig
+  | DirectionConfig
+  | ChartOpacityConfig
+  | ChartBoxShadowConfig
+  | ChartBorderStyleConfig
+  | ChartBorderRadiusConfig
+  | ChartBorderWidthConfig
+  | ChartTextSizeConfig
+  | ChartTextWeightConfig
+  | ChartFontFamilyConfig
+  | ChartFontStyleConfig
   | PaddingConfig
   | ContainerHeaderPaddingConfig
   | ContainerSiderPaddingConfig
@@ -231,6 +297,11 @@ export type SingleColorConfig =
   | BoxShadowColorConfig
   | AnimationIterationCountConfig
   | LineHeightConfig
+  | ChartBackgroundColorConfig
+  | ChartGradientColorConfig
+  | ChartShadowColorConfig
+  | ChartBorderColorConfig
+  | ChartTextColorConfig
   
  
 
@@ -457,6 +528,36 @@ const BOXSHADOWCOLOR = {
   boxShadowColor: "boxShadowColor",
 } as const;
 
+const CHARTBACKGROUNDCOLOR = {
+  name: "chartBackgroundColor",
+  label: trans("style.chartBackgroundColor"),
+  chartBackgroundColor: "chartBackgroundColor",
+} as const;
+
+const CHARTGRADIENTCOLOR = {
+  name: "chartGradientColor",
+  label: trans("style.chartGradientColor"),
+  chartGradientColor: "chartGradientColor",
+} as const;
+
+const CHARTSHADOWCOLOR = {
+  name: "chartShadowColor",
+  label: trans("style.chartShadowColor"),
+  chartShadowColor: "chartShadowColor",
+} as const;
+
+const CHARTBORDERCOLOR = {
+  name: "chartBorderColor",
+  label: trans("style.chartBorderColor"),
+  chartBorderColor: "chartBorderColor",
+} as const;
+
+const CHARTTEXTCOLOR = {
+  name: "chartTextColor",
+  label: trans("style.chartTextColor"),
+  chartTextColor: "chartTextColor",
+} as const;
+
 const OPACITY = {
   name: "opacity",
   label: trans("style.opacity"),
@@ -546,6 +647,66 @@ const MARGIN = {
   name: "margin",
   label: trans("style.margin"),
   margin: "margin",
+} as const;
+
+const DIRECTION = {
+  name: "direction",
+  label: trans("style.direction"),
+  direction: "direction",
+} as const;
+
+const CHARTOPACITY = {
+  name: "chartOpacity",
+  label: trans("style.opacity"),
+  chartOpacity: "chartOpacity",
+} as const;
+
+const CHARTBOXSHADOW = {
+  name: "chartBoxShadow",
+  label: trans("style.boxShadow"),
+  chartBoxShadow: "chartBoxShadow",
+} as const;
+
+const CHARTBORDERSTYLE = {
+  name: "chartBorderStyle",
+  label: trans("style.borderStyle"),
+  chartBorderStyle: "chartBorderStyle",
+} as const;
+
+const CHARTBORDERRADIUS = {
+  name: "chartBorderRadius",
+  label: trans("style.borderRadius"),
+  chartBorderRadius: "chartBorderRadius",
+} as const;
+
+const CHARTBORDERWIDTH = {
+  name: "chartBorderWidth",
+  label: trans("style.borderWidth"),
+  chartBorderWidth: "chartBorderWidth",
+} as const;
+
+const CHARTTEXTSIZE = {
+  name: "chartTextSize",
+  label: trans("style.textSize"),
+  chartTextSize: "chartTextSize",
+} as const;
+
+const CHARTTEXTWEIGHT = {
+  name: "chartTextWeight",
+  label: trans("style.textWeight"),
+  chartTextWeight: "chartTextWeight",
+} as const;
+
+const CHARTFONTFAMILY = {
+  name: "chartFontFamily",
+  label: trans("style.fontFamily"),
+  chartFontFamily: "chartFontFamily",
+} as const;
+
+const CHARTFONTSTYLE = {
+  name: "chartFontStyle",
+  label: trans("style.fontStyle"),
+  chartFontStyle: "chartFontStyle",
 } as const;
 
 const PADDING = {
@@ -736,6 +897,16 @@ function getBackground(depTheme: keyof ThemeDetail = "primarySurface") {
   return {
     name: "background",
     label: trans("style.background"),
+    depTheme: depTheme,
+    depType: DEP_TYPE.SELF,
+    transformer: toSelf,
+  } as const;
+}
+
+function getGradientBackground(depTheme: keyof ThemeDetail = "primarySurface") {
+  return {
+    name: "gradientBackground",
+    label: trans("style.gradientBackground"),
     depTheme: depTheme,
     depType: DEP_TYPE.SELF,
     transformer: toSelf,
@@ -1792,6 +1963,30 @@ export const DrawerStyle = [getBackground()] as const;
 export const JsonEditorStyle = [LABEL] as const;
 
 export const EchartsStyle = [getBackground("primarySurface")] as const;
+
+export const EchartDefaultTextStyle = [
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+] as const;
+
+export const EchartDefaultChartStyle = [
+  getBackground("primarySurface"),
+  // CHARTBACKGROUNDCOLOR,
+  // CHARTGRADIENTCOLOR,
+  // DIRECTION,
+  // CHARTOPACITY,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
 
 export const CalendarStyle = [
   getBackground("primarySurface"),
