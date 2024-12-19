@@ -40,6 +40,7 @@ import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
 import apiTemplatePlugin from "./apiTemplate";
+import uiPathPlugin from "./uiPath";
 // import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
@@ -79,6 +80,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
+  uiPathPlugin,
   // boomiPlugin,
 
   // Messaging
