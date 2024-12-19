@@ -79,7 +79,6 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
                                         .toEntity(Resource.class)
                                         .map(response -> ResponseEntity
                                                 .status(response.getStatusCode())
-                                                .headers(response.getHeaders())
                                                 .body(response.getBody())
                                         );
                             }));
