@@ -787,7 +787,9 @@ export const en = {
     "categoryProjectManagement" : "Project Management",
     "categoryCrm" : "CRM",
     "categoryEcommerce" : "E-commerce",
-    "categoryApis" : "Others",
+    "categoryWebscrapers" : "Webscrapers",
+    "categoryDocumentHandling" : "Report & Document Generation",
+    "categoryRPA" : "Robotic Process Automation",
   },
 
 

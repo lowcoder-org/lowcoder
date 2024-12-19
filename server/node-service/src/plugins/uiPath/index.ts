@@ -43,7 +43,7 @@ const uiPathPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
   id: "uiPath",
   name: "UiPath",
   icon: "uiPath.svg",
-  category: "Workflow",
+  category: "RPA",
   dataSourceConfig,
   queryConfig: async () => {
     const { actions, categories } = await parseOpenApi(spec as unknown as OpenAPI.Document, parseOptions);
@@ -58,7 +58,6 @@ const uiPathPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
-
     const { serverURL } = dataSourceConfig;
     const runApiDsConfig = {
       url: "",

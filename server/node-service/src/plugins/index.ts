@@ -41,7 +41,8 @@ import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
 import apiTemplatePlugin from "./apiTemplate";
 import uiPathPlugin from "./uiPath";
-import serpApiPlugin from "./serpApi"
+import serpApiPlugin from "./serpApi";
+import carboneIoPlugin from "./carboneIo";
 // import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
@@ -81,7 +82,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
-  uiPathPlugin,
+  
   // boomiPlugin,
 
   // Messaging
@@ -94,7 +95,6 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
-  apiTemplatePlugin,
   ossPlugin,
   
   // Project Management
@@ -102,6 +102,10 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   jiraPlugin,
   notionPlugin,
   slackPlugin,
+
+  // Reports & Document Creation
+  apiTemplatePlugin,
+  carboneIoPlugin,
 
   // CRM
   frontPlugin,
@@ -112,7 +116,10 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   wooCommercePlugin,
 
   // Webscrapers
-  serpApiPlugin
+  serpApiPlugin,
+
+  // RPA
+  uiPathPlugin
 ];
 
 try {

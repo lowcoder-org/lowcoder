@@ -129,7 +129,9 @@ const categories: Category[] = [
   { label: trans("query.categoryProjectManagement"), filter: (t) => t.definition?.category === "Project Management" },
   { label: trans("query.categoryCrm"), filter: (t) => t.definition?.category === "CRM" },
   { label: trans("query.categoryEcommerce"), filter: (t) => t.definition?.category === "eCommerce" },
-  { label: trans("query.categoryApis"), filter: (t) => t.definition?.category === "api" },
+  { label: trans("query.categoryWebscrapers"), filter: (t) => t.definition?.category === "Webscrapers" },
+  { label: trans("query.categoryDocumentHandling"), filter: (t) => t.definition?.category === "DocumentHandling" },
+  { label: trans("query.categoryRPA"), filter: (t) => t.definition?.category === "RPA" },
 ];
 
 // Section component
