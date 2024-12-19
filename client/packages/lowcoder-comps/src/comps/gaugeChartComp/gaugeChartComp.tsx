@@ -146,9 +146,9 @@ GaugeChartTmpComp = withViewFn(GaugeChartTmpComp, (comp) => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      theme?.theme?.components?.candleStickChart || {},
+      themeConfig
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [chartSize, ...Object.values(echartsConfigChildren), theme]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
@@ -176,7 +176,6 @@ GaugeChartTmpComp = withViewFn(GaugeChartTmpComp, (comp) => {
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={mode !== 'map' ? themeConfig : undefined}
           mode={mode}
         />
     </ReactResizeDetector>

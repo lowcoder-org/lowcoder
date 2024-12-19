@@ -8,7 +8,7 @@ import {
 import { LegendComponentOption } from "echarts";
 import { trans } from "i18n/comps";
 
-const TitlePositionOptions = [
+const FunnelLegnedAlignOptions = [
   {
     label: <AlignLeft />,
     value: "left",
@@ -23,26 +23,26 @@ const TitlePositionOptions = [
   }
 ] as const;
 
-export const EchartsTitleConfig = (function () {
+export const EchartsLegendAlignConfig = (function () {
   return new MultiCompBuilder(
     {
-      position: dropdownControl(TitlePositionOptions, "center"),
+      left: dropdownControl(FunnelLegnedAlignOptions, "center"),
     },
     (props): LegendComponentOption => {
       const config: LegendComponentOption = {
-        top: "center",
+        left: "center",
         type: "scroll",
       };
-      config.top = props.position
+      config.left = props.left
       return config;
     }
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.position.propertyView({
-          label: trans("echarts.titlePosition"),
+        {children.left.propertyView({
+          label: trans("echarts.legendAlign"),
           radioButton: true,
-          tooltip: trans("echarts.changingTitle_x_Tooltip")
+          tooltip: trans("echarts.changingLegend_y_Tooltip")
         })}
       </>
     ))

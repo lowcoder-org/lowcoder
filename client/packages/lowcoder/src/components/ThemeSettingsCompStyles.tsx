@@ -25,7 +25,7 @@ import {
   TextStyleIcon,
   ImageCompIconSmall,
   RotationIcon,
-  LineHeightIcon
+  LineHeightIcon,
  } from "lowcoder-design/src/icons";
 import { trans } from "i18n";
 import { debounce } from "lodash";
@@ -101,7 +101,17 @@ const isColorStyle = (styleKey: string) => {
     styleKey !== 'containerHeaderPadding' &&
     styleKey !== 'containerSiderPadding' &&
     styleKey !== 'containerFooterPadding' &&
-    styleKey !== 'containerBodyPadding';
+    styleKey !== 'containerBodyPadding' &&
+    styleKey !== 'direction' &&
+    styleKey !== 'chartOpacity' &&
+    styleKey !== 'chartBoxShadow' &&
+    styleKey !== 'chartBorderStyle' &&
+    styleKey !== 'chartBorderRadius' &&
+    styleKey !== 'chartBorderWidth' &&
+    styleKey !== 'chartTextSize' &&
+    styleKey !== 'chartTextWeight' &&
+    styleKey !== 'chartFontFamily' &&
+    styleKey !== 'chartFontStyle';
 }
 
 
@@ -215,6 +225,26 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         placeholder = '#FFFFFF';
         break;
       }
+      case 'chartBackgroundColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartGradientColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartShadowColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartBorderColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
+      case 'chartTextColor': {
+        placeholder = '#FFFFFF';
+        break;
+      }
       case 'boxShadow': {
         placeholder = '0px 0px 0px';
         break;
@@ -275,6 +305,47 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         placeholder = '0deg';
         break;
       }
+      case 'direction': {
+        placeholder = '0 0 1 1';
+        break;
+      }
+      case 'chartOpacity': {
+        placeholder = '1';
+        break;
+      }
+      case 'chartBoxShadow': {
+        placeholder = '1px 1px 1px';
+        break;
+      }
+      case 'chartBorderStyle': {
+        placeholder = 'solid';
+        break;
+      }
+      case 'chartBorderRadius': {
+        placeholder = '1px';
+        break;
+      }
+      case 'chartBorderWidth': {
+        placeholder = '1px';
+        break;
+      }
+      case 'chartTextSize': {
+        placeholder = '14px';
+        break;
+      }
+      case 'chartTextWeight': {
+        placeholder = 'normal';
+        break;
+      }
+      case 'chartFontFamily': {
+        placeholder = 'Arial';
+        break;
+      }
+      case 'chartFontStyle': {
+        placeholder = 'normal';
+        break;
+      }
+
     }
     return placeholder;
   }
@@ -313,6 +384,26 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         break;
       }
       case 'boxShadowColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBackgroundColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartGradientColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartShadowColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBorderColor': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartTextColor': {
         icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
@@ -380,6 +471,47 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         icon = <LineHeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }
+      case 'direction': {
+        icon = <ExpandIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartOpacity': {
+        icon = <OpacityIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBoxShadow': {
+        icon = <ShadowIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBorderStyle': {
+        icon = <BorderStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBorderRadius': {
+        icon = <BorderRadiusIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartBorderWidth': {
+        icon = <BorderWidthIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartTextSize': {
+        icon = <TextSizeIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartTextWeight': {
+        icon = <TextWeightIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartFontFamily': {
+        icon = <FontFamilyIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'chartFontStyle': {
+        icon = <TextStyleIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+
     }
     return icon;
   }
