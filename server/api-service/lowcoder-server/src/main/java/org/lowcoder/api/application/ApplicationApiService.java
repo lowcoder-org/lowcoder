@@ -62,4 +62,6 @@ public interface ApplicationApiService {
 
     // Falk: why we have request.publicToMarketplace() - but here only agencyProfile? Not from request?
     Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile);
+
+    Mono<Application> updateSlug(String applicationId, String slug);
 }

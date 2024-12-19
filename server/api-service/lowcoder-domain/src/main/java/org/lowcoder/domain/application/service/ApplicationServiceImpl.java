@@ -14,23 +14,16 @@ import org.lowcoder.domain.application.model.ApplicationRecord;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
-import org.lowcoder.domain.organization.repository.OrganizationRepository;
-import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
-import org.lowcoder.domain.query.model.LibraryQuery;
-import org.lowcoder.domain.query.model.LibraryQueryRecord;
-import org.lowcoder.domain.query.service.LibraryQueryRecordService;
 import org.lowcoder.domain.user.repository.UserRepository;
-import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -352,5 +345,19 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .map(ApplicationRecord::getApplicationDSL)
                 .switchIfEmpty(findById(applicationId)
                         .map(Application::getEditingApplicationDSL));
+    }
+
+    @Override
+    public Mono<Application> updateSlug(String applicationId, String newSlug) {
+        return repository.existsBySlug(newSlug).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+            }
+            return repository.findById(applicationId)
+                    .flatMap(application -> {
+                        application.setSlug(newSlug);
+                        return repository.save(application);
+                    });
+        });
     }
 }
