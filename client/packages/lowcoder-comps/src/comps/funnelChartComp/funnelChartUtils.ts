@@ -154,7 +154,7 @@ export function getEchartsConfig(
           "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
         }
       },
-      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle.backgroundColor || "#FFFFFF"),
+      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       "color": props.echartsOption.data?.map(data => data.color),
       "tooltip": props.tooltip&&{
         "trigger": "item",
