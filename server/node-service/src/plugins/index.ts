@@ -41,6 +41,7 @@ import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
 import apiTemplatePlugin from "./apiTemplate";
 import uiPathPlugin from "./uiPath";
+import serpApiPlugin from "./serpApi"
 // import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
@@ -109,6 +110,9 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   stripePlugin,
   shopifyPlugin,
   wooCommercePlugin,
+
+  // Webscrapers
+  serpApiPlugin
 ];
 
 try {
