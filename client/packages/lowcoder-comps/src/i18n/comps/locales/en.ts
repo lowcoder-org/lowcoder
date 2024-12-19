@@ -137,6 +137,7 @@ export const en = {
     progressBarWidth: 'Progress Bar Width',
     defaultProgressBarWidth: '10',
     progressBar: 'Progress Bar',
+    roundCap: "Round Cap"
   },
   echarts: {
     defaultTitle: "Data Display",
@@ -167,6 +168,7 @@ export const en = {
     opacityTooltip: "Set the opacity of the Chart.",
     titleTooltip: "Set the title of the Chart.",
     roundCap: 'Round Cap',
+    pointerWidth: "Pointer Width",
     roundCapTooltip: "Change the shape of the start, current, and end edges of the progress bar to round or straight.",
     progressBarVisibilityToolip: "Show or hide the current status on the progress bar.",
     endAngleTooltip: "Set the End angle value of the Chart.",
