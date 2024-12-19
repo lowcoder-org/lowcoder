@@ -73,4 +73,6 @@ public interface ApplicationService {
 
     Mono<Boolean> updateLastEditedAt(String applicationId, Instant time, String visitorId);
     Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId);
+
+    Mono<Application> updateSlug(String applicationId, String newSlug);
 }

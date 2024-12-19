@@ -67,4 +67,6 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
      * Find all agency applications
      */
     Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+    Mono<Boolean> existsBySlug(String slug);
+
 }

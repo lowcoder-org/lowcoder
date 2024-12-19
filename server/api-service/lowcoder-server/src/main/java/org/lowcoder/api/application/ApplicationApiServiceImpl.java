@@ -600,6 +600,11 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         (applicationId, agencyProfile));
     }
 
+    @Override
+    public Mono<Application> updateSlug(String applicationId, String slug) {
+        return applicationService.updateSlug(applicationId, slug);
+    }
+
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {
         if (applicationDsl.get("queries") instanceof List<?> queries) {
             List<Map<String, Object>> list = queries.stream().map(this::doSanitizeQuery).toList();

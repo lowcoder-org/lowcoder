@@ -181,6 +181,9 @@ public interface OrganizationEndpoints
 	@GetMapping("/{orgId}/api-usage")
 	public Mono<ResponseView<Long>> getOrgApiUsageCount(@PathVariable String orgId, @RequestParam(required = false) Boolean lastMonthOnly);
 
+	@PutMapping("/{orgId}/slug")
+    Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug);
+
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 
     }

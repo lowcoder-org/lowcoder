@@ -1,6 +1,5 @@
 package org.lowcoder.api.application;
 
-import io.sentry.protocol.App;
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.PageResponseView;
@@ -163,6 +162,12 @@ public class ApplicationController implements ApplicationEndpoints {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.updateEditState(appId, updateEditStateRequest)
                 .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<Application>> updateSlug(@PathVariable String applicationId, @RequestBody String slug) {
+        return applicationApiService.updateSlug(applicationId, slug)
+                .map(ResponseView::success);
     }
 
     @Override

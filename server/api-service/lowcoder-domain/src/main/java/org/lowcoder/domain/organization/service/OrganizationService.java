@@ -48,4 +48,6 @@ public interface OrganizationService {
     Mono<Organization> getByDomain();
 
     Mono<Boolean> updateCommonSettings(String orgId, String key, Object value);
+
+    Mono<Organization> updateSlug(String organizationId, String newSlug);
 }

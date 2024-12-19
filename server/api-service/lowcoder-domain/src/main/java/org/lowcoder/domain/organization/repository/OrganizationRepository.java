@@ -27,4 +27,5 @@ public interface OrganizationRepository extends ReactiveMongoRepository<Organiza
     Mono<Organization> findByOrganizationDomain_DomainAndState(String domain, OrganizationState state);
 
     Flux<Organization> findByOrganizationDomainIsNotNull();
+    Mono<Boolean> existsBySlug(String slug);
 }
