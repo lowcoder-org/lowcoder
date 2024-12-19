@@ -5,10 +5,10 @@ import {
   dropdownControl,
   MultiCompBuilder,
 } from "lowcoder-sdk";
-import { LegendComponentOption } from "echarts";
+import {FunnelSeriesOption, LegendComponentOption} from "echarts";
 import { trans } from "i18n/comps";
 
-const TitlePositionOptions = [
+const FunnelAlignOptions = [
   {
     label: <AlignLeft />,
     value: "left",
@@ -23,26 +23,25 @@ const TitlePositionOptions = [
   }
 ] as const;
 
-export const EchartsTitleConfig = (function () {
+export const EchartsFunnelAlignConfig = (function () {
   return new MultiCompBuilder(
     {
-      position: dropdownControl(TitlePositionOptions, "center"),
+      funnelAlign: dropdownControl(FunnelAlignOptions, "center"),
     },
-    (props): LegendComponentOption => {
-      const config: LegendComponentOption = {
-        top: "center",
-        type: "scroll",
+    (props): FunnelSeriesOption => {
+      const config: FunnelSeriesOption = {
+        funnelAlign: "center",
       };
-      config.top = props.position
+      config.funnelAlign = props.funnelAlign
       return config;
     }
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.position.propertyView({
-          label: trans("echarts.titlePosition"),
+        {children.funnelAlign.propertyView({
+          label: trans("echarts.funnelAlign"),
           radioButton: true,
-          tooltip: trans("echarts.changingTitle_x_Tooltip")
+          tooltip: trans("echarts.changingAlignTooltip")
         })}
       </>
     ))
