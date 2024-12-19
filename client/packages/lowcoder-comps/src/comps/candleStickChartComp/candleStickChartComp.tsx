@@ -144,9 +144,9 @@ CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      themeConfig,
+      theme?.theme?.components?.candleStickChart || {},
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren), theme]);
+  }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))
@@ -168,14 +168,15 @@ CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
       }}
     >
       <ReactECharts
-          ref={(e) => (echartsCompRef.current = e)}
-          style={{ height: "100%" }}
-          notMerge
-          lazyUpdate
-          opts={{ locale: getEchartsLocale() }}
-          option={option}
-          mode={mode}
-        />
+        ref={(e) => (echartsCompRef.current = e)}
+        style={{ height: "100%" }}
+        notMerge
+        lazyUpdate
+        opts={{ locale: getEchartsLocale() }}
+        option={option}
+        theme={mode !== 'map' ? themeConfig : undefined}
+        mode={mode}
+      />
     </ReactResizeDetector>
   );
 });
