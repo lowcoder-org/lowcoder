@@ -16,6 +16,7 @@ import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSet
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -292,6 +293,9 @@ public class OrganizationServiceImpl implements OrganizationService {
     @Override
     public Mono<Organization> updateSlug(String organizationId, String newSlug) {
         return repository.existsBySlug(newSlug).flatMap(exists -> {
+            if (!SlugUtils.validate(newSlug)) {
+                return Mono.error(new BizException(BizError.INVALID_SLUG, "Slug format is invalid"));
+            }
             if (exists) {
                 return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
             }
