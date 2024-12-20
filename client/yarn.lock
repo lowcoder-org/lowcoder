@@ -7890,6 +7890,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"cross-spawn@npm:^7.0.5":
+  version: 7.0.6
+  resolution: "cross-spawn@npm:7.0.6"
+  dependencies:
+    path-key: ^3.1.0
+    shebang-command: ^2.0.0
+    which: ^2.0.1
+  checksum: 8d306efacaf6f3f60e0224c287664093fa9185680b2d195852ba9a863f85d02dcc737094c6e512175f8ee0161f9b87c73c6826034c2422e39de7d6569cf4503b
+  languageName: node
+  linkType: hard
+
 "crypto-browserify@npm:^3.11.0":
   version: 3.12.0
   resolution: "crypto-browserify@npm:3.12.0"
@@ -13807,7 +13818,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     axios: ^1.7.4
     chalk: 4
     commander: ^9.4.1
-    cross-spawn: ^7.0.3
+    cross-spawn: ^7.0.5
     fs-extra: ^10.1.0
     react: ^18.2.0
     react-dom: ^18.2.0
