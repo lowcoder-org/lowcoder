@@ -50,6 +50,7 @@ export default function TableExample() {
           compFactory={TableComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.style")}>
         <Example
           title={trans("componentDoc.hideHeader")}
@@ -66,6 +67,7 @@ export default function TableExample() {
           compFactory={TableComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.selectionMode")}>
         <Example
           title={trans("componentDoc.single")}
@@ -89,6 +91,7 @@ export default function TableExample() {
           compFactory={TableComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.paginationSetting")}>
         <Example
           title={trans("componentDoc.paginationShowQuickJumper")}
@@ -114,6 +117,86 @@ export default function TableExample() {
           config={{
             data: data,
             pagination: { showSizeChanger: true, pageSizeOptions: "[5, 10, 20, 50]" },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title="Toolbar Settings">
+        <Example
+          title="Bottom Position"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"below", showFilter:true, showDownload:true,showRefresh:true,columnSetting:true},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Top Position"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"above", showFilter:true, showDownload:true,showRefresh:true,columnSetting:true},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="No Toolbar"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"close"},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title="Summary and Inline Rows">
+        <Example
+          title="Summary Rows"
+          width={400}
+          config={{ 
+            data: data,
+            showSummary: true,
+            summaryRows: "2",
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Add Inline Rows - Start writing into the last Row of this Table :"
+          width={400}
+          config={{ 
+            data: data,
+            inlineAddNewRow: true,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title="Row Style">
+        <Example
+          title="Hiding Vertical Row Grid Borders"
+          width={400}
+          config={{ 
+            data: data,
+            showRowGridBorder: false,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hiding Horizontal Row Grid Borders"
+          width={400}
+          config={{ 
+            data: data,
+            showHRowGridBorder: false,
           }}
           blackListConfig={blackListConfig}
           compFactory={TableComp}

@@ -1,5 +1,7 @@
 import { UICompType } from "comps/uiCompRegistry";
 import ButtonExample from "./ButtonComp/Button";
+import IconButtonExample from "./ButtonComp/IconButton";
+import ToggleButtonExample from "./ButtonComp/ToggleButton";
 import InputExample from "./textInputComp/Input";
 import PasswordExample from "./textInputComp/Password";
 import TextAreaExample from "./textInputComp/TextArea";
@@ -33,9 +35,34 @@ import TimeRangeExample from "./CalendarInputComp/TimeRange";
 import jsonSchemaFormExample from "./formComp/JSONSchemaform";
 import NavigationExample from "./Navigation";
 import IFrameExample from "./IFrame";
+import FloatButtonExample from "./ButtonComp/FloatButton";
+import AvatarExample from "./presentationComp/avatar";
+import AvatarGroupExample from "./presentationComp/avatarGroup";
+import TimerExample from "./CalendarInputComp/Timer";
+import AudioExample from "./MediaComp/Audio";
+import VideoExample from "./MediaComp/Video";
+import TreeExample from "./selectInputComp/Tree";
+import TreeSelectExample from "./selectInputComp/TreeSelect";
+import AutoCompleteExample from "./selectInputComp/AutoComplete";
+import ListViewExample from "./presentationComp/listView";
+import TimeLineExample from "./presentationComp/timeline";
+import CommentExample from "./presentationComp/comment";
+import ColorPickerExample from "./MediaComp/ColorPicker";
+import SignatureExample from "./MediaComp/Signature";
+import TransferExample from "./MediaComp/Transfer";
+import ResponsiveLayoutExample from "./ContainersComp/ResponsiveLayout";
+import PageLayoutExample from "./ContainersComp/PageLayout";
+import ColumnLayoutExample from "./ContainersComp/ColumnLayout";
+import TabbedContainerExample from "./ContainersComp/TabbedContainer";
+import ContainerExample from "./ContainersComp/Container";
+import ContentCardExample from "./MediaComp/ContentCard";
+
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
+  controlButton: IconButtonExample,
+  toggleButton: ToggleButtonExample,
+  floatingButton: FloatButtonExample,
   input: InputExample,
   textArea: TextAreaExample,
   password: PasswordExample,
@@ -69,6 +96,26 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   jsonSchemaForm: jsonSchemaFormExample,
   navigation: NavigationExample,
   iframe: IFrameExample,
+  avatar: AvatarExample,
+  avatarGroup: AvatarGroupExample,
+  timer: TimerExample,
+  audio: AudioExample,
+  video: VideoExample,
+  tree: TreeExample,
+  treeSelect: TreeSelectExample,
+  autocomplete: AutoCompleteExample,
+  listView: ListViewExample,
+  timeline: TimeLineExample,
+  comment: CommentExample,
+  colorPicker: ColorPickerExample,
+  signature: SignatureExample,
+  transfer: TransferExample,
+  responsiveLayout: ResponsiveLayoutExample,
+  pageLayout: PageLayoutExample,
+  columnLayout: ColumnLayoutExample,
+  tabbedContainer: TabbedContainerExample,
+  container: ContainerExample,
+  card: ContentCardExample,
 };
 
 export default examples;
