@@ -137,7 +137,9 @@ export const en = {
     progressBarWidth: 'Progress Bar Width',
     defaultProgressBarWidth: '10',
     progressBar: 'Progress Bar',
-    roundCap: "Round Cap"
+    roundCap: "Round Cap",
+    chartType: "Chart Type",
+    chartTypeTooltip: "Select the types of Charts."
   },
   echarts: {
     defaultTitle: "Data Display",
@@ -269,6 +271,14 @@ export const en = {
     centerPositionChange: "Center Position Change",
     centerPositionChangeDesc: "Triggers when the map center position changes",
     chartEventHandlers: "Chart Event Handlers",
+    stageGauge: "Stage Speed Gauge",
+    gradeGauge: "Grade Gauge",
+    temperatureGauge: "Temperature Gauge chart",
+    multiGauge: "Multi Title Gauge",
+    ringGauge: "Ring Gauge",
+    barometerGauge: "Gauge Barometer chart",
+    clockGauge: "Clock",
+    default: "Default"
   },
   imageEditor: {
     defaultSrc: "",
