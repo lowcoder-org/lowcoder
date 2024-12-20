@@ -18,6 +18,7 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
@@ -349,15 +350,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Mono<Application> updateSlug(String applicationId, String newSlug) {
-        return repository.existsBySlug(newSlug).flatMap(exists -> {
+        return repository.findById(applicationId).flatMap(application -> repository.existsByOrganizationIdAndSlug(application.getOrganizationId(), newSlug).flatMap(exists -> {
+            if (!SlugUtils.validate(newSlug)) {
+                return Mono.error(new BizException(BizError.INVALID_SLUG, "Slug format is invalid"));
+            }
             if (exists) {
                 return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
             }
-            return repository.findById(applicationId)
-                    .flatMap(application -> {
-                        application.setSlug(newSlug);
-                        return repository.save(application);
-                    });
-        });
+            application.setSlug(newSlug);
+            return repository.save(application);
+        }));
     }
 }
