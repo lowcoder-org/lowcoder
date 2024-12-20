@@ -279,7 +279,7 @@ let chartJsonModeChildren: any = {
   opacity:withDefault(NumberControl,trans('funnelChart.defaultOpacity'))
 }
 
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
