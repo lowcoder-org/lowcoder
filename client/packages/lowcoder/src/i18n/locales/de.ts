@@ -789,7 +789,7 @@ export const de = {
   "categoryProjectManagement": "Projektmanagement",
   "categoryCrm": "CRM",
   "categoryEcommerce": "E-Commerce",
-  "categoryWebscrapers": "Web-Scraper",
+  "categoryWebscrapers": "Web-Scraper & Open Data",
   "categoryDocumentHandling": "Bericht & Dokumentenerstellung",
   "categoryRPA": "Roboter Prozess Automatisierung"
   },

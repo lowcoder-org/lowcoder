@@ -44,6 +44,7 @@ import uiPathPlugin from "./uiPath";
 import serpApiPlugin from "./serpApi";
 import carboneIoPlugin from "./carboneIo";
 import boomiPlugin from "./boomi";
+import eodhdApiPlugin from "./eodhdApi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -116,6 +117,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
 
   // Webscrapers
   serpApiPlugin,
+  eodhdApiPlugin,
 
   // RPA
   uiPathPlugin
