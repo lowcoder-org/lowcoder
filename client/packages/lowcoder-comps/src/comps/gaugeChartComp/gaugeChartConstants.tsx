@@ -232,6 +232,41 @@ const EchartsOptionMap = {
   gauge: GaugeChartConfig,
 };
 
+const ChartTypeOptions = [
+  {
+    label: trans("chart.default"),
+    value: "default",
+  },
+  {
+    label: trans("chart.stageGauge"),
+    value: "stageGauge",
+  },
+  {
+    label: trans("chart.gradeGauge"),
+    value: "gradeGauge",
+  },
+  {
+    label: trans("chart.temperatureGauge"),
+    value: "temperatureGauge",
+  },
+  {
+    label: trans("chart.multiGauge"),
+    value: "multiGauge",
+  },
+  {
+    label: trans("chart.ringGauge"),
+    value: "ringGauge",
+  },
+  {
+    label: trans("chart.barometerGauge"),
+    value: "barometerGauge",
+  },
+  {
+    label: trans("chart.clockGauge"),
+    value: "clockGauge",
+  },
+] as const;
+
 const ChartOptionComp = withType(ChartOptionMap, "bar");
 const EchartsOptionComp = withType(EchartsOptionMap, "gauge");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
@@ -251,6 +286,7 @@ export const chartUiModeChildren = {
 
 let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
+  chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,

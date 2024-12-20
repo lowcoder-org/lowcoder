@@ -137,7 +137,7 @@ export function getEchartsConfig(
 ): EChartsOptionWithMap {
 
   if (props.mode === "json") {
-    let opt={
+    let basic={
       "title": {
         "text": props.echartsTitle,
         'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
@@ -247,7 +247,75 @@ export function getEchartsConfig(
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+
+    let stageGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "stageGaugeOpt",
+      }
+    }
+
+    let gradeGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "gradeGaugeOpt",
+      }
+    }
+
+    let temperatureGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "temperatureGaugeOpt",
+      }
+    }
+
+    let multiGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "multiGaugeOpt",
+      }
+    }
+
+    let ringGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "ringGaugeOpt",
+      }
+    }
+
+    let barometerGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "barometerGaugeOpt",
+      }
+    }
+
+    let clockGaugeOpt = {
+      ...basic,
+      "title": {
+        ...basic.title,
+        "text": "clockGaugeOpt",
+      }
+    }
+
+    const typeMap = {
+      default: basic,
+      stageGauge: stageGaugeOpt,
+      gradeGauge: gradeGaugeOpt,
+      temperatureGauge: temperatureGaugeOpt,
+      multiGauge: multiGaugeOpt,
+      ringGauge: ringGaugeOpt,
+      barometerGauge: barometerGaugeOpt,
+      clockGauge: clockGaugeOpt,
+    };
+
+    return typeMap[props.chartType] || basic;
 
   }
 
