@@ -61,9 +61,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
-        if(FieldName.isGID(id))
-            return Mono.from(repository.findByGid(id)).switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
-        return repository.findById(id)
+        return Mono.from(repository.findBySlug(id))
+                .switchIfEmpty(
+                        Mono.defer(() -> {
+                            if (FieldName.isGID(id))
+                                return Mono.from(repository.findByGid(id));
+                            return repository.findById(id);
+                        }))
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
     }
 
@@ -124,7 +128,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Flux<Application> findByIdIn(List<String> applicationIds) {
         if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.get(0)))
             return repository.findByGidIn(applicationIds);
-        return repository.findByIdIn(applicationIds);
+        return repository.findBySlugIn(applicationIds).switchIfEmpty(repository.findByIdIn(applicationIds));
     }
 
     @Override
@@ -280,7 +284,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .map(Application::getGid)
                     .collect(Collectors.toSet());
 
-        return repository.findByCreatedByAndIdIn(userId, applicationIds)
+        return repository.findByCreatedByAndSlugIn(userId, applicationIds).switchIfEmpty(repository.findByCreatedByAndIdIn(userId, applicationIds))
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
     }
