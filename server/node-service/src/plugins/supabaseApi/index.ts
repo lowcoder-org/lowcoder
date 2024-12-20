@@ -73,8 +73,6 @@ const supabaseApiPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
       dynamicParamsConfig: otherDataSourceConfig,
     };
 
-    console.log("runApiDsConfig", runApiDsConfig);
-
     return runOpenApi(actionData, runApiDsConfig, spec as OpenAPIV3.Document);
   },
 };

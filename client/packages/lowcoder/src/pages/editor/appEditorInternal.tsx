@@ -44,6 +44,7 @@ function useSaveComp(
   const dispatch = useDispatch();
   const [prevComp, setPrevComp] = useState<Comp>();
   const [prevJsonStr, setPrevJsonStr] = useState<string>();
+  const [prevAppId, setPrevAppId] = useState<string>();
 
   useEffect(() => {
     if (readOnly || blockEditing) {
@@ -54,9 +55,21 @@ function useSaveComp(
     }
     const curJson = comp.toJsonValue();
     const curJsonStr = JSON.stringify(curJson);
+
+
+    if (!Boolean(prevAppId) && Boolean(applicationId)) {
+      return setPrevAppId(applicationId);
+    }
+    if (prevAppId !== applicationId) {
+      return setPrevAppId(applicationId);
+    }
+    if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
+      return setPrevJsonStr(curJsonStr);
+    }
     if (prevJsonStr === curJsonStr) {
       return;
     }
+
     // the first time is a normal change, the latter is the manual update
     if (prevComp) {
       dispatch(
@@ -70,7 +83,8 @@ function useSaveComp(
     }
     setPrevComp(comp);
     setPrevJsonStr(curJsonStr);
-  }, [comp, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
+    setPrevAppId(applicationId);
+  }, [comp, prevAppId, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
 }
 
 interface AppEditorInternalViewProps {

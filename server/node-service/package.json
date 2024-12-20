@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-node-server",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "private": true,
   "engines": {
     "node": "^14.18.0 || >=16.0.0"
@@ -71,7 +71,7 @@
     "prom-client": "^14.2.0",
     "proxy-agent": "^5.0.0",
     "stylis": "^4.3.0",
-    "swagger-client": "^3.31.0",
+    "swagger-client": "^3.32.2",
     "typescript": "^4.9.3",
     "yaml": "^2.6.0"
   },

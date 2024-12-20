@@ -13,6 +13,7 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import { useContext } from "react";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -136,62 +137,62 @@ export function getEchartsConfig(
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-   "tooltip": props.tooltip&&{
-    "trigger": "axis",
-    "axisPointer": {
-      "type": "cross"
-    }
-  },
-  "grid": {
-    "left": "10%",
-    "right": "10%",
-    "bottom": "10%",
-  },
-  "xAxis": {
-    "type": "category",
-    "data": props.echartsOption.xAxis.data
-  },
-  "yAxis": {
-    "type": "value",
-    "scale": true
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
+      "title": {
+        "text": props.echartsTitle,
+        'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
+        "left":"center"
       },
-      "data": props.echartsOption.data,
+      "backgroundColor": parseBackground( props?.style?.background || theme?.style?.background || "#FFFFFF"),
+      "color": props.echartsOption.data?.map(data => data.color),
+      "tooltip": props.tooltip&&{
+        "trigger": "axis",
+        "axisPointer": {
+          "type": "cross"
+        }
+      },
+      "grid": {
+        "left": "10%",
+        "right": "10%",
+        "bottom": "10%",
+      },
+      "xAxis": {
+        "type": "category",
+        "data": props.echartsOption.xAxis.data
+      },
+      "yAxis": {
+        "type": "value",
+        "scale": true
+      },
+      "series": [
+        {
+          "name": props.echartsConfig.type,
+          "type": props.echartsConfig.type,
+          "left": "10%",
+          "top": 60,
+          "bottom": 60,
+          "width": "80%",
+          "min": 0,
+          "max": 100,
+          "gap": 2,
+          "label": {
+            "show": true,
+            "position": props.echartsLabelConfig.top
+          },
+          "data": props.echartsOption.data,
+        }
+      ]
     }
-  ]
-}
     return props.echartsOption ? opt : {};
-    
+
   }
-  
+
   if(props.mode === "map") {
     const {
       mapZoomLevel,
       mapCenterLat,
       mapCenterLng,
-      mapOptions, 
-      showCharts, 
+      mapOptions,
+      showCharts,
     } = props;
 
     const echartsOption = mapOptions && showCharts ? mapOptions : {};

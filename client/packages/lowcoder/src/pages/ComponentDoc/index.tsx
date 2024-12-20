@@ -14,6 +14,7 @@ import {
 import { ExampleContext } from "./ExampleContext";
 import { trans } from "i18n";
 import { Helmet } from "react-helmet";
+import { LoadingBarHideTrigger } from "@lowcoder-ee/util/hideLoading";
 
 type CompInfo = UICompManifest & { key: string };
 const groups: Partial<Record<UICompCategory, CompInfo[]>> = {};
@@ -109,6 +110,7 @@ export default function ComponentDoc() {
         <link rel="iframely" type="text/html" href={window.location.href} media="(aspect-ratio: 1280/720)"/>,
       </Helmet>
       <Wrapper>
+        <LoadingBarHideTrigger />
         <div className="main">
           <div className="sidebar">
             <div className="search">

@@ -39,6 +39,137 @@
     "LOWCODER_REDIS_URL": {
       "description": "Your Redis Database URL.",
       "required": false
+    },
+    "LOWCODER_MAX_REQUEST_SIZE": {
+      "description": "Lowcoder max request size",
+      "value": "20m",
+      "required": false
+    },
+    "LOWCODER_MAX_QUERY_TIMEOUT": {
+      "description": "Lowcoder max query timeout (in seconds)",
+      "value": "120",
+      "required": false
+    },
+    "LOWCODER_DEFAULT_QUERY_TIMEOUT": {
+      "description": "Lowcoder default query timeout (in seconds)",
+      "value": "10",
+      "required": false
+    },
+    "LOWCODER_API_RATE_LIMIT": {
+      "description": "Number of max Request per Second",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_API_SERVICE_URL": {
+      "description": "Lowcoder API service URL",
+      "value": "http://localhost:8080",
+      "required": false
+    },
+    "LOWCODER_NODE_SERVICE_URL": {
+      "description": "Lowcoder Node service (js executor) URL",
+      "value": "http://localhost:6060",
+      "required": false
+    },
+    "LOWCODER_MAX_ORGS_PER_USER": {
+      "description": "Default maximum organizations per user",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_MAX_MEMBERS_PER_ORG": {
+      "description": "Default maximum members per organization",
+      "value": "1000",
+      "required": false
+    },
+    "LOWCODER_MAX_GROUPS_PER_ORG": {
+      "description": "Default maximum groups per organization",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_MAX_APPS_PER_ORG": {
+      "description": "Default maximum applications per organization",
+      "value": "1000",
+      "required": false
+    },
+    "LOWCODER_MAX_DEVELOPERS": {
+      "description": "Default maximum developers",
+      "value": "100",
+      "required": false
+    },
+    "LOWCODER_WORKSPACE_MODE": {
+      "description": "SAAS to activate, ENTERPRISE to switch off - Workspaces",
+      "value": "SAAS",
+      "required": false
+    },
+    "LOWCODER_EMAIL_SIGNUP_ENABLED": {
+      "description": "Control if users create their own Workspace automatic when Sign Up",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_CREATE_WORKSPACE_ON_SIGNUP": {
+      "description": "IF LOWCODER_WORKSPACE_MODE = SAAS, controls if a own workspace is created for the user after sign up",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_MARKETPLACE_PRIVATE_MODE": {
+      "description": "Control if not to show Apps on the local Marketplace to anonymous users",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_SUPERUSER_USERNAME": {
+      "description": "Username of the Super-User of an Lowcoder Installation",
+      "value": "admin@localhost",
+      "required": false
+    },
+    "LOWCODER_SUPERUSER_PASSWORD": {
+      "description": "Password of the Super-User, if not present or empty, it will be generated",
+      "value": "`generated and printed into log file",
+      "required": false
+    },
+    "LOWCODER_API_KEY_SECRET": {
+      "description": "String to encrypt/sign API Keys that users may create",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_HOST": {
+      "description": "SMTP Hostname of your Mail Relay Server",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_PORT": {
+      "description": "Port number for the SMTP service",
+      "value": "587",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_USERNAME": {
+      "description": "Username for SMTP authentication",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_PASSWORD": {
+      "description": "Password for SMTP authentication",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_AUTH": {
+      "description": "Enable SMTP authentication",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_SSL_ENABLED": {
+      "description": "Enable SSL encryption",
+      "value": "false",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED": {
+      "description": "Enable STARTTLS encryption",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED": {
+      "description": "Require STARTTLS encryption",
+      "value": "true",
+      "required": false
+    },
+    "LOWCODER_LOST_PASSWORD_EMAIL_SENDER": {
+      "description": "\"from\" Email address of the password Reset Email Sender",
+      "value": "service@lowcoder.cloud",
+      "required": false
     }
   }
 }

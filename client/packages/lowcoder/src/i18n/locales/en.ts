@@ -568,7 +568,22 @@ export const en = {
     "siderBackgroundImageOrigin": "Sider Background Image Origin",
     "activeBackground": "Active Background Color",
     "labelBackground": "Label Background Color",
-
+    "gradientBackground": "Gradient Background Color",
+    "direction": "Direction",
+    "chartOpacity": "Opacity",
+    "chartBoxShadow": "Box Shadow",
+    "chartBorderStyle": "Border Style",
+    "chartBorderRadius": "Border Radius",
+    "chartBorderWidth": "Border Width",
+    "chartTextSize": "Text Size",
+    "chartTextWeight": "Text Weight",
+    "chartFontFamily": "Font Family",
+    "chartFontStyle": "Font Style",
+    "chartBackgroundColor": "Background Color",
+    "chartGradientColor": "Gradient Color",
+    "chartShadowColor": "Shadow Color",
+    "chartBorderColor": "Border Color",
+    "chartTextColor": "Text Color"
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",
@@ -772,7 +787,9 @@ export const en = {
     "categoryProjectManagement" : "Project Management",
     "categoryCrm" : "CRM",
     "categoryEcommerce" : "E-commerce",
-    "categoryApis" : "Others",
+    "categoryWebscrapers" : "Webscrapers & Open Data",
+    "categoryDocumentHandling" : "Report & Document Generation",
+    "categoryRPA" : "Robotic Process Automation",
   },
 
 

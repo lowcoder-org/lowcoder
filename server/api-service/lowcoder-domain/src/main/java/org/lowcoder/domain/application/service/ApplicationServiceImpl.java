@@ -10,23 +10,20 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.application.model.Application;
+import org.lowcoder.domain.application.model.ApplicationRecord;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
-import org.lowcoder.domain.organization.repository.OrganizationRepository;
-import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
-import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Lists;
@@ -45,6 +42,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ResourcePermissionService resourcePermissionService;
     private final ApplicationRepository repository;
     private final UserRepository userRepository;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<Application> findById(String id) {
@@ -75,23 +73,6 @@ public class ApplicationServiceImpl implements ApplicationService {
         }
 
         return mongoUpsertHelper.updateById(application, applicationId);
-    }
-
-
-    @Override
-    public Mono<Boolean> updatePublishedApplicationDSL(String applicationId, Map<String, Object> applicationDSL) {
-        Application application = Application.builder().publishedApplicationDSL(applicationDSL).build();
-        return mongoUpsertHelper.updateById(application, applicationId);
-    }
-
-    @Override
-    public Mono<Application> publish(String applicationId) {
-        return findById(applicationId)
-                .flatMap(newApplication -> { // copy editingApplicationDSL to publishedApplicationDSL
-                    Map<String, Object> editingApplicationDSL = newApplication.getEditingApplicationDSL();
-                    return updatePublishedApplicationDSL(applicationId, editingApplicationDSL)
-                            .thenReturn(newApplication);
-                });
     }
 
     @Override
@@ -153,8 +134,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Mono<List<Application>> getAllDependentModulesFromApplication(Application application, boolean viewMode) {
-        Map<String, Object> dsl = viewMode ? application.getLiveApplicationDsl() : application.getEditingApplicationDSL();
-        return getAllDependentModulesFromDsl(dsl);
+        return application.getLiveApplicationDsl(applicationRecordService).switchIfEmpty(Mono.just(new HashMap<>())).flatMap(liveApplicationDsl -> {
+            Map<String, Object> dsl = viewMode ? liveApplicationDsl : application.getEditingApplicationDSL();
+            return getAllDependentModulesFromDsl(dsl);
+        });
     }
 
     @Override
@@ -169,12 +152,12 @@ public class ApplicationServiceImpl implements ApplicationService {
     }
 
     private Flux<Application> getDependentModules(Application module, Set<String> circularDependencyCheckSet) {
-        return Flux.fromIterable(module.getLiveModules())
+        return module.getLiveModules(applicationRecordService).flatMapMany(modules -> Flux.fromIterable(modules)
                 .filter(moduleId -> !circularDependencyCheckSet.contains(moduleId))
                 .doOnNext(circularDependencyCheckSet::add)
                 .collectList()
                 .flatMapMany(this::findByIdIn)
-                .onErrorContinue((e, i) -> log.warn("get dependent modules on error continue , {}", e.getMessage()));
+                .onErrorContinue((e, i) -> log.warn("get dependent modules on error continue , {}", e.getMessage())));
     }
 
     @Override
@@ -354,5 +337,27 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .doOnNext(application -> application.setEditingUserId(visitorId))
                 .flatMap(repository::save)
                 .hasElements();
+    }
+
+    @Override
+    public Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId) {
+        return applicationRecordService.getLatestRecordByApplicationId(applicationId)
+                .map(ApplicationRecord::getApplicationDSL)
+                .switchIfEmpty(findById(applicationId)
+                        .map(Application::getEditingApplicationDSL));
+    }
+
+    @Override
+    public Mono<Application> updateSlug(String applicationId, String newSlug) {
+        return repository.existsBySlug(newSlug).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+            }
+            return repository.findById(applicationId)
+                    .flatMap(application -> {
+                        application.setSlug(newSlug);
+                        return repository.save(application);
+                    });
+        });
     }
 }

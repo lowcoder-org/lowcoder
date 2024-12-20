@@ -16,7 +16,6 @@ import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSet
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.repository.UserRepository;
-import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -35,10 +34,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 
-import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -290,5 +287,19 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private String buildCommonSettingsUpdateTimeKey(String key) {
         return key + "_updateTime";
+    }
+
+    @Override
+    public Mono<Organization> updateSlug(String organizationId, String newSlug) {
+        return repository.existsBySlug(newSlug).flatMap(exists -> {
+            if (exists) {
+                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+            }
+            return repository.findById(organizationId)
+                    .flatMap(organization -> {
+                        organization.setSlug(newSlug);
+                        return repository.save(organization);
+                    });
+        });
     }
 }

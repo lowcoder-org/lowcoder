@@ -707,6 +707,20 @@ export const zh: typeof en = {
         dynamicDataSourceConfigLoadingText: "加载额外数据源配置...",
         dynamicDataSourceConfigErrText: "无法加载额外数据源配置.",
         retry: "重试",
+        "categoryDatabase": "数据库",
+        "categoryBigdata": "大数据",
+        "categoryAi": "人工智能",
+        "categoryDevops": "开发运维",
+        "categoryAppdevelopment": "应用开发",
+        "categoryWorkflow": "工作流",
+        "categoryMessaging": "消息传递",
+        "categoryAssets": "资产与存储",
+        "categoryProjectManagement": "项目管理",
+        "categoryCrm": "客户关系管理",
+        "categoryEcommerce": "电子商务",
+        "categoryWebscrapers": "网络爬虫",
+        "categoryDocumentHandling": "报告与文档生成",
+        "categoryRPA": "机器人流程自动化"
     },
 
     sqlQuery: {

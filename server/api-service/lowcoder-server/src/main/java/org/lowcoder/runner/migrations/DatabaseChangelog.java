@@ -9,9 +9,11 @@ import com.mongodb.client.MongoCursor;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
+import org.lowcoder.domain.application.model.ApplicationRecord;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
@@ -49,8 +51,10 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import static org.lowcoder.api.authentication.util.AdvancedMapUtils.documentToMap;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
 import static org.lowcoder.sdk.util.IDUtils.generate;
 
@@ -396,6 +400,61 @@ public class DatabaseChangelog {
                 makeIndex("createdAt"));
     }
 
+    @ChangeSet(order = "027", id = "populate-email-in-user-connections", author = "Thomas")
+    public void populateEmailInUserConnections(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        Query query = new Query(Criteria.where("connections.authId").is("EMAIL")
+                .and("connections.email").is(null));
+
+        // Get the collection directly and use a cursor for manual iteration
+        MongoCursor<Document> cursor = mongoTemplate.getCollection("user").find(query.getQueryObject()).iterator();
+
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+
+            // Retrieve connections array
+            List<Document> connections = (List<Document>) document.get("connections");
+            for (Document connection : connections) {
+                if ("EMAIL".equals(connection.getString("authId")) && !connection.containsKey("email")) {
+                    // Set the email field with the value of the name field
+                    connection.put("email", connection.getString("name"));
+                }
+            }
+
+            // Save the updated document back to the collection
+            mongoTemplate.getCollection("user").replaceOne(new Document("_id", document.get("_id")), document);
+        }
+
+    }
+
+    @ChangeSet(order = "028", id = "published-to-record", author = "Thomas")
+    public void publishedToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        Query query = new Query(Criteria.where("publishedApplicationDSL").exists(true));
+
+        MongoCursor<Document> cursor = mongoTemplate.getCollection("application").find(query.getQueryObject()).iterator();
+
+        while (cursor.hasNext()) {
+            Document document = cursor.next();
+            Document dsl = (Document) document.get("publishedApplicationDSL");
+            ObjectId id = document.getObjectId("_id");
+            String createdBy = document.getString("createdBy");
+            Map<String, Object> dslMap = documentToMap(dsl);
+            ApplicationRecord record = ApplicationRecord.builder()
+                    .applicationId(id.toHexString())
+                    .applicationDSL(dslMap)
+                    .commitMessage("")
+                    .tag("1.0.0")
+                    .createdBy(createdBy)
+                    .modifiedBy(createdBy)
+                    .createdAt(Instant.now())
+                    .updatedAt(Instant.now())
+                    .build();
+            mongoTemplate.insert(record);
+        }
+    }
+    @ChangeSet(order = "029", id = "add-tag-index-to-record", author = "Thomas")
+    public void addTagIndexToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
+        ensureIndexes(mongoTemplate, ApplicationRecord.class, makeIndex("applicationId", "tag").unique());
+    }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents

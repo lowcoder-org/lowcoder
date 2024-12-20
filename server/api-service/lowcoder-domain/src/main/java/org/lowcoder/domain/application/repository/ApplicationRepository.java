@@ -17,16 +17,16 @@ import java.util.Collection;
 public interface ApplicationRepository extends ReactiveMongoRepository<Application, String>, CustomApplicationRepository {
 
     // publishedApplicationDSL : 0 -> excludes publishedApplicationDSL from the return
-    @Aggregation(pipeline = {"{ $match: { organizationId: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings.category': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
+    @Aggregation(pipeline = {"{ $match: { organizationId: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
     Flux<Application> findByOrganizationId(String organizationId);
 
 
     @Override
     @Nonnull
-    @Aggregation(pipeline = {"{ $match: { _id: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings.category': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
+    @Aggregation(pipeline = {"{ $match: { _id: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
     Mono<Application> findById(@Nonnull String id);
 
-    @Aggregation(pipeline = {"{ $match: { gid: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings.category': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
+    @Aggregation(pipeline = {"{ $match: { gid: ?0 } }", "{ $project:  { 'editingApplicationDSL.settings': 1, _id: 1, gid: 1, organizationId: 1, name: 1, applicationType: 1, applicationStatus: 1, publicToAll: 1, publicToMarketplace: 1, agencyProfile: 1, editingUserId: 1, lastEditedAt: 1, createdAt: 1, updatedAt: 1, createdBy: 1, modifiedBy: 1, _class: 1}}"})
     Flux<Application> findByGid(@Nonnull String gid);
 
     Mono<Long> countByOrganizationIdAndApplicationStatus(String organizationId, ApplicationStatus applicationStatus);
@@ -67,4 +67,6 @@ public interface ApplicationRepository extends ReactiveMongoRepository<Applicati
      * Find all agency applications
      */
     Flux<Application> findByPublicToAllIsTrueAndAgencyProfileIsTrue();
+    Mono<Boolean> existsBySlug(String slug);
+
 }
