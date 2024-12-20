@@ -257,7 +257,7 @@ let chartJsonModeChildren: any = {
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     style: styleControl(EchartsStyle, 'style'),
