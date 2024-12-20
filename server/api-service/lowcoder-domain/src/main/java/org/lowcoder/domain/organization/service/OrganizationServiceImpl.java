@@ -170,7 +170,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         if(FieldName.isGID(id))
             return repository.findByGidAndState(id, ACTIVE)
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
-        return repository.findByIdAndState(id, ACTIVE)
+        return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
     }
 
@@ -180,7 +180,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             return repository.findByGidAndState(orgId, ACTIVE)
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                     .map(Organization::getCommonSettings);
-        return repository.findByIdAndState(orgId, ACTIVE)
+        return repository.findBySlugAndState(orgId, ACTIVE).switchIfEmpty(repository.findByIdAndState(orgId, ACTIVE))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                 .map(Organization::getCommonSettings);
     }
@@ -189,7 +189,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Flux<Organization> getByIds(Collection<String> ids) {
         if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
             return repository.findByGidInAndState(ids, ACTIVE);
-        return repository.findByIdInAndState(ids, ACTIVE);
+        return repository.findBySlugInAndState(ids, ACTIVE).switchIfEmpty(repository.findByIdInAndState(ids, ACTIVE));
     }
 
     @Override
@@ -222,7 +222,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Mono<Boolean> deleteLogo(String organizationId) {
         Mono<Organization> organizationMono;
         if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
-        else organizationMono = repository.findByIdAndState(organizationId, ACTIVE);
+        else organizationMono = repository.findBySlugAndState(organizationId, ACTIVE).switchIfEmpty(repository.findByIdAndState(organizationId, ACTIVE));
         return organizationMono
                 .flatMap(organization -> {
                     // delete from asset repo.
