@@ -232,9 +232,13 @@ public class GeneralSqlExecutor {
 
     private void bindParam(int bindIndex, Object value, PreparedStatement preparedStatement, String bindKeyName) throws SQLException {
         if (value == null) {
-            ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
-            int paramType = parameterMetaData.getParameterType(bindIndex);
-            preparedStatement.setNull(bindIndex, paramType);
+            try {
+                ParameterMetaData parameterMetaData = preparedStatement.getParameterMetaData();
+                int paramType = parameterMetaData.getParameterType(bindIndex);
+                preparedStatement.setNull(bindIndex, paramType);
+            } catch(Exception e) {
+                preparedStatement.setNull(bindIndex, java.sql.Types.NULL);
+            }
             return;
         }
         if (value instanceof Integer intValue) {

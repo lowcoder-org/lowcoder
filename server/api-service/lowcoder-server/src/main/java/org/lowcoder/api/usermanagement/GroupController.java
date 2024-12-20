@@ -58,20 +58,20 @@ public class GroupController implements GroupEndpoints
     @Override
     public Mono<ResponseView<Boolean>> update(@PathVariable String groupId,
             @Valid @RequestBody UpdateGroupRequest updateGroupRequest) {
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupService.getById(objectId)
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupService.getById(objectId)
                 .zipWhen(group -> groupApiService.update(objectId, updateGroupRequest))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupUpdateEvent(tuple.getT2(), tuple.getT1(), updateGroupRequest.getGroupName()))
-                .map(tuple -> ResponseView.success(tuple.getT2()));
+                .map(tuple -> ResponseView.success(tuple.getT2())));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String groupId) {
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupService.getById(objectId)
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupService.getById(objectId)
                 .zipWhen(group -> groupApiService.deleteGroup(objectId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupDeleteEvent(tuple.getT2(), tuple.getT1()))
-                .map(tuple -> ResponseView.success(tuple.getT2()));
+                .map(tuple -> ResponseView.success(tuple.getT2())));
     }
 
     @Override
@@ -121,9 +121,9 @@ public class GroupController implements GroupEndpoints
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
             @RequestParam(required = false, defaultValue = "1") int pageNum,
             @RequestParam(required = false, defaultValue = "100") int pageSize) {
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupApiService.getGroupMembers(objectId, pageNum, pageSize)
-                .map(ResponseView::success);
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupApiService.getGroupMembers(objectId, pageNum, pageSize)
+                .map(ResponseView::success));
     }
 
     @Override
@@ -138,33 +138,33 @@ public class GroupController implements GroupEndpoints
         if (StringUtils.isBlank(addMemberRequest.getRole())) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_ROLE");
         }
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupApiService.addGroupMember(objectId, addMemberRequest.getUserId(), addMemberRequest.getRole())
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupApiService.addGroupMember(objectId, addMemberRequest.getUserId(), addMemberRequest.getRole())
                 .delayUntil(result -> businessEventPublisher.publishGroupMemberAddEvent(result, objectId, addMemberRequest))
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> updateRoleForMember(@RequestBody UpdateRoleRequest updateRoleRequest,
             @PathVariable String groupId) {
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupMemberService.getGroupMember(objectId, updateRoleRequest.getUserId())
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupMemberService.getGroupMember(objectId, updateRoleRequest.getUserId())
                 .zipWhen(tuple -> groupApiService.updateRoleForMember(objectId, updateRoleRequest))
                 .delayUntil(
                         tuple -> businessEventPublisher.publishGroupMemberRoleUpdateEvent(tuple.getT2(), objectId, tuple.getT1(), updateRoleRequest))
                 .map(Tuple2::getT2)
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> leaveGroup(@PathVariable String groupId) {
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return sessionUserService.getVisitorOrgMemberCache()
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            sessionUserService.getVisitorOrgMemberCache()
                 .flatMap(orgMember -> groupMemberService.getGroupMember(objectId, orgMember.getUserId()))
                 .zipWhen(tuple -> groupApiService.leaveGroup(objectId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupMemberLeaveEvent(tuple.getT2(), tuple.getT1()))
                 .map(Tuple2::getT2)
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
@@ -173,11 +173,11 @@ public class GroupController implements GroupEndpoints
         if (StringUtils.isBlank(userId)) {
             return ofError(BizError.INVALID_PARAMETER, "INVALID_USER_ID");
         }
-        String objectId = gidService.convertGroupIdToObjectId(groupId);
-        return groupMemberService.getGroupMember(objectId, userId)
+        return gidService.convertGroupIdToObjectId(groupId).flatMap(objectId ->
+            groupMemberService.getGroupMember(objectId, userId)
                 .zipWhen(groupMember -> groupApiService.removeUser(objectId, userId))
                 .delayUntil(tuple -> businessEventPublisher.publishGroupMemberRemoveEvent(tuple.getT2(), tuple.getT1()))
                 .map(Tuple2::getT2)
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 }

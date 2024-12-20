@@ -6,9 +6,12 @@ import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
-import spec from './lowcoder.spec.json';
+import spec10 from './lowcoder.spec-v1.0.json';
+import spec11 from './lowcoder.spec-v1.1.json';
+
 const specs = {
-  "v1.0": spec,
+  "v1.0": spec10,
+  "v1.1": spec11,
 }
 
 const dataSourceConfig = {
@@ -21,11 +24,6 @@ const dataSourceConfig = {
       rules: [{ required: true }],
       placeholder: "https://<your-lowcoder-api-service>:port",
       tooltip: "Input the server url of your self-hosting instance or api-service.lowcoder.cloud if you are running your apps on the free public Community Edition Cloud Service.",
-    },
-    {
-      "type": "groupTitle",
-      "key": "API Key",
-      "label": "Api Key Auth"
     },
     {
       type: "password",
@@ -72,13 +70,15 @@ const lowcoderPlugin: DataSourcePlugin<any, DataSourceConfigType> = {
     };
   },
   run: function (actionData, dataSourceConfig): Promise<any> {
-    const { serverURL, ...otherDataSourceConfig } = dataSourceConfig;
+    const { serverURL, specVersion, dynamicParamsConfig, ...otherDataSourceConfig } = dataSourceConfig;
+
     const runApiDsConfig = {
       url: "",
       serverURL: serverURL,
       dynamicParamsConfig: otherDataSourceConfig,
-      specVersion: dataSourceConfig.specVersion,
+      specVersion: specVersion
     };
+
     return runOpenApi(actionData, runApiDsConfig, version2spec(specs, dataSourceConfig.specVersion) as OpenAPIV3.Document);
   },
 };

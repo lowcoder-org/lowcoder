@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.common.InitData;
 import org.lowcoder.api.common.mockuser.WithMockUser;
@@ -129,7 +130,7 @@ public class ApplicationApiServiceTest {
     private Mono<ApplicationView> createApplication(String name, String folderId) {
         CreateApplicationRequest createApplicationRequest =
                 new CreateApplicationRequest("org01", name, ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"), Map.of("comp", "list"), folderId);
+                        Map.of("comp", "list"), folderId);
         return applicationApiService.create(createApplicationRequest);
     }
 
@@ -147,12 +148,12 @@ public class ApplicationApiServiceTest {
 
         // published dsl before publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
-                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // publish
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.publish(id));
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish", "1.0.0"))).cache();
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
@@ -163,6 +164,42 @@ public class ApplicationApiServiceTest {
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
+
+        // update
+        applicationIdMono = applicationIdMono
+                .delayUntil(id -> applicationApiService.update(id, Application.builder().editingApplicationDSL(Map.of("comp", "table")).build())).cache();
+
+        // edit dsl after publish
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .verifyComplete();
+
+        // published dsl after publish
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
+                .verifyComplete();
+
+        // publish 2
+        applicationIdMono = applicationIdMono
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish 2", "2.0.0"))).cache();
+
+        // edit dsl after publish
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .verifyComplete();
+
+        // published dsl after publish
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+                .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
+                .verifyComplete();
+
+        // publish 3
+        applicationIdMono = applicationIdMono
+                .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Same tag", "2.0.0"))).cache();
+
+        // Error
+        StepVerifier.create(applicationIdMono)
+                .verifyError();
     }
 
     @Test

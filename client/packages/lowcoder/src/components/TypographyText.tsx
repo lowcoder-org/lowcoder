@@ -40,9 +40,9 @@ const StyledTypographyText = styled(AntdTypographyText)`
 `;
 
 export const TypographyText = (props: {
-  value: string;
-  editing: boolean;
-  onChange: (value: string) => void;
+  value?: string;
+  editing?: boolean;
+  onChange?: (value: string) => void;
 }) => (
   <StyledTypographyText
     title={props.value}

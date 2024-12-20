@@ -22,7 +22,7 @@ import { useCompInstance } from "../../comps/utils/useCompInstance";
 import { QueryLibraryComp } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { useSearchParam, useThrottle } from "react-use";
 import { Comp } from "lowcoder-core";
-import { LibraryQuery } from "../../api/queryLibraryApi";
+import {LibraryQuery} from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
 import { default as Form } from "antd/es/form";
@@ -46,6 +46,7 @@ import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Helmet } from "react-helmet";
+import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
 
 const Wrapper = styled.div`
   display: flex;
@@ -59,9 +60,21 @@ const RightContent = styled.div`
   position: relative;
 `;
 
+interface ElementsState {
+  elements: LibraryQuery[];
+  total: number;
+}
+
+function transformData(input: LibraryQuery[]) {
+  const output: any = {};
+  input.forEach(item => {
+    output[item.id] = item;
+  });
+  return output;
+}
+
 export const QueryLibraryEditor = () => {
   const dispatch = useDispatch();
-  const queryLibrary = useSelector(getQueryLibrary);
   const queryLibraryRecords = useSelector(getQueryLibraryRecords);
   const originDatasourceInfo = useSelector(getDataSource);
   const currentUser = useSelector(getUser);
@@ -74,6 +87,12 @@ export const QueryLibraryEditor = () => {
   const [publishModalVisible, setPublishModalVisible] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isDataSourceReady, setIsDataSourceReady] = useState(false);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [queryLibrary, setQueryLibrary] = useState<any>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [searchValues, setSearchValues] = useState("");
+  const [modify, setModify] = useState(false);
 
   const selectedRecords = queryLibraryRecords[selectedQuery] ?? {};
   const libraryQuery = queryLibrary[selectedQuery];
@@ -99,9 +118,32 @@ export const QueryLibraryEditor = () => {
   useSaveQueryLibrary(libraryQuery, comp);
 
   useEffect(() => {
+        try {
+            fetchQLPaginationByOrg(
+                {
+                    name: searchValues,
+                    pageNum: currentPage,
+                    pageSize: pageSize,
+                }
+            ).then(result => {
+                if (result.success){
+                    setElements({elements: result.data || [], total: result.total || 1})
+                    setQueryLibrary(transformData(result.data || []));
+                }
+            });
+        } catch (error) {
+            console.error(error)
+        }
+  }, [currentPage, pageSize, searchValues, modify])
+
+    useEffect( () => {
+            if (searchValues !== "")
+                setCurrentPage(1);
+        }, [searchValues]
+    );
+
+  useEffect(() => {
     if (orgId) {
-      dispatch(fetchQueryLibrary());
-      dispatch(fetchDataSourceTypes({ organizationId: orgId }));
       dispatch(
         fetchDatasource({
           organizationId: orgId,
@@ -125,7 +167,8 @@ export const QueryLibraryEditor = () => {
 
   useEffect(() => {
     if (!forwardQueryId && !queryLibrary[selectedQuery]) {
-      setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
+      // @ts-ignore
+        setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
     }
   }, [dispatch, Object.keys(queryLibrary).length]);
 
@@ -145,13 +188,13 @@ export const QueryLibraryEditor = () => {
     })
     .map((info) => info.datasource);
 
-  const recentlyUsed = Object.values(queryLibrary)
-    .map((i) => i.libraryQueryDSL?.query.datasourceId)
+    const recentlyUsed = Object.values(queryLibrary)
+    .map((i: any) => i.libraryQueryDSL?.query.datasourceId)
     .map((id) => datasource.find((d) => d.id === id))
     .filter((i) => !!i) as Datasource[];
 
   const nameGenerator = new NameGenerator();
-  nameGenerator.init(Object.values(queryLibrary).map((t) => t.name));
+    nameGenerator.init(Object.values(queryLibrary).map((t: any) => t.name));
   const newName = nameGenerator.genItemName(trans("queryLibrary.unnamed"));
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
@@ -170,6 +213,11 @@ export const QueryLibraryEditor = () => {
         },
         (resp) => {
           setSelectedQuery(resp.data.data.id);
+          setTimeout(() => {
+            setModify(!modify);
+          }, 200);
+          setCurrentPage(Math.ceil(elements.total / pageSize));
+
         },
         () => {}
       )
@@ -189,7 +237,16 @@ export const QueryLibraryEditor = () => {
             setSelectedQuery(id);
             showCreatePanel(false);
           } }
-          readOnly={showHistory} />
+          setCurrentPage={setCurrentPage}
+          setPageSize={setPageSize}
+          currentPage={currentPage}
+          pageSize={pageSize}
+          total={elements.total}
+          setSearchValues={setSearchValues}
+          searchValues={searchValues}
+          setModify={setModify}
+          modify={modify}
+        />
         <RightContent>
           {!selectedQuery || !comp?.children.query.children.id.getView() ? (
             EmptyQueryWithoutTab
@@ -202,6 +259,8 @@ export const QueryLibraryEditor = () => {
             comp.propertyView({
               onPublish: () => setPublishModalVisible(true),
               onHistoryShow: () => setShowHistory(true),
+              setModify: setModify,
+              modify: modify
             })
           )}
 
@@ -219,6 +278,10 @@ export const QueryLibraryEditor = () => {
                 onSuccess: (resp) => {
                   setSelectedQuery(resp.data.data.id);
                   showCreatePanel(false);
+                  setTimeout(() => {
+                    setModify(!modify);
+                  }, 200);
+                  setCurrentPage(Math.ceil(elements.total / pageSize));
                 },
               })} />
           )}

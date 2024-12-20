@@ -42,10 +42,10 @@ public class FolderController implements FolderEndpoints
 
     @Override
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String folderId) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
-        return folderApiService.delete(objectId)
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
+            folderApiService.delete(objectId.orElse(null))
                 .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), EventType.FOLDER_DELETE))
-                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
     /**
@@ -73,67 +73,68 @@ public class FolderController implements FolderEndpoints
                                                  @RequestParam(required = false) String category,
                                                  @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                  @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
-        var flux = folderApiService.getElements(objectId, applicationType, name, category).cache();
-        var countMono = flux.count();
-        var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
-        if(pageSize > 0) flux1 = flux1.take(pageSize);
-        return flux1.collectList()
-            .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
-            .zipWith(countMono)
-            .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(optionalObjectId -> {
+            String objectId = optionalObjectId.orElse(null);
+            var flux = folderApiService.getElements(optionalObjectId.orElse(null), applicationType, name, category).cache();
+            var countMono = flux.count();
+            var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
+            if (pageSize > 0) flux1 = flux1.take(pageSize);
+            return flux1.collectList()
+                    .delayUntil(__ -> folderApiService.upsertLastViewTime(objectId))
+                    .zipWith(countMono)
+                    .map(tuple -> PageResponseView.success(tuple.getT1(), pageNum, pageSize, Math.toIntExact(tuple.getT2())));
+        });
     }
 
     @Override
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
-        String objectId = gidService.convertFolderIdToObjectId(targetFolderId);
-        return folderApiService.move(applicationLikeId, objectId)
-                .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, objectId, APPLICATION_MOVE))
-                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+        return gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
+            folderApiService.move(applicationLikeId, objectId.orElse(null))
+                .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, objectId.orElse(null), APPLICATION_MOVE))
+                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
     @Override
     public Mono<ResponseView<Void>> updatePermission(@PathVariable String folderId,
             @PathVariable String permissionId,
             @RequestBody UpdatePermissionRequest updatePermissionRequest) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
         ResourceRole role = ResourceRole.fromValue(updatePermissionRequest.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", updatePermissionRequest);
         }
 
-        return folderApiService.updatePermission(objectId, permissionId, role)
-                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
+            folderApiService.updatePermission(objectId.orElse(null), permissionId, role)
+                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
     @Override
     public Mono<ResponseView<Void>> removePermission(
             @PathVariable String folderId,
             @PathVariable String permissionId) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
-
-        return folderApiService.removePermission(objectId, permissionId)
-                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
+            folderApiService.removePermission(objectId.orElse(null), permissionId)
+                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
     @Override
     public Mono<ResponseView<Void>> grantPermission(
             @PathVariable String folderId,
             @RequestBody BatchAddPermissionRequest request) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
         ResourceRole role = ResourceRole.fromValue(request.role());
         if (role == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
-        return folderApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
-                .then(Mono.fromSupplier(() -> ResponseView.success(null)));
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
+            folderApiService.grantPermission(objectId.orElse(null), request.userIds(), request.groupIds(), role)
+                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
     @Override
     public Mono<ResponseView<ApplicationPermissionView>> getApplicationPermissions(@PathVariable String folderId) {
-        String objectId = gidService.convertFolderIdToObjectId(folderId);
-        return folderApiService.getPermissions(objectId)
-                .map(ResponseView::success);
+        return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
+            folderApiService.getPermissions(objectId.orElse(null))
+                .map(ResponseView::success));
     }
 }

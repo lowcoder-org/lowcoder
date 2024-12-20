@@ -2,8 +2,6 @@ import { FormInput, messageInstance, PasswordInput } from "lowcoder-design";
 import {
   AuthBottomView,
   ConfirmButton,
-  FormWrapperMobile,
-  LoginCardTitle,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
 import React, { useContext, useEffect, useState } from "react";
@@ -15,7 +13,7 @@ import { UserConnectionSource } from "@lowcoder-ee/constants/userConstants";
 import { trans } from "i18n";
 import { AuthContext, useAuthSubmit } from "pages/userAuth/authUtils";
 import { ThirdPartyAuth } from "pages/userAuth/thirdParty/thirdPartyAuth";
-import { AUTH_FORGOT_PASSWORD_URL, AUTH_REGISTER_URL, ORG_AUTH_FORGOT_PASSWORD_URL, ORG_AUTH_REGISTER_URL } from "constants/routesURL";
+import { AUTH_FORGOT_PASSWORD_URL, AUTH_REGISTER_URL } from "constants/routesURL";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { Divider } from "antd";
 import Flex from "antd/es/flex";
@@ -27,8 +25,9 @@ import LeftOutlined from "@ant-design/icons/LeftOutlined";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { useDispatch, useSelector } from "react-redux";
 import history from "util/history";
-import ApplicationApi from "@lowcoder-ee/api/applicationApi";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import {fetchOrgPaginationByEmail} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -91,6 +90,11 @@ type FormLoginProps = {
   organizationId?: string;
 }
 
+interface ElementsState {
+  elements: any;
+  total: number;
+}
+
 export default function FormLoginSteps(props: FormLoginProps) {
   const dispatch = useDispatch();
   const location = useLocation(); 
@@ -111,6 +115,22 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const [skipWorkspaceStep, setSkipWorkspaceStep] = useState<boolean>(false);
   const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
   const serverSettings = useSelector(getServerSettings);
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(() => {
+    if (account)
+    fetchOrgPaginationByEmail({
+      email: account,
+      pageNum: currentPage,
+      pageSize: pageSize
+    }).then( result => {
+      setElements({elements: result.data || [], total: result.total || 1})
+      setOrgList(result.data)
+    }
+    )
+  }, [pageSize, currentPage])
 
   useEffect(() => {
     const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
@@ -147,20 +167,25 @@ export default function FormLoginSteps(props: FormLoginProps) {
     }
 
     setOrgLoading(true);
-    OrgApi.fetchOrgsByEmail(account)
+    fetchOrgPaginationByEmail({
+      email: account,
+      pageNum: currentPage,
+      pageSize: pageSize
+    })
       .then((resp) => {
-        if (validateResponse(resp)) {
-          setOrgList(resp.data.data);
-          if (!resp.data.data.length) {
+        if (resp.success) {
+          setElements({elements: resp.data || [], total: resp.total || 1})
+          setOrgList(resp.data);
+          if (!resp.data.length) {
             history.push(
               AUTH_REGISTER_URL,
               {...location.state || {}, email: account},
             )
             return;
           }
-          if (resp.data.data.length === 1) {
-            setOrganizationId(resp.data.data[0].orgId);
-            dispatch(fetchConfigAction(resp.data.data[0].orgId));
+          if (resp.data.length === 1) {
+            setOrganizationId(resp.data[0].orgId);
+            dispatch(fetchConfigAction(resp.data[0].orgId));
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
             return;
           }
@@ -233,6 +258,14 @@ export default function FormLoginSteps(props: FormLoginProps) {
               {org.orgName}
             </StyledCard>
           ))}
+          {orgList.length > 10 ?
+              <PaginationComp
+                  currentPage={currentPage}
+                  pageSize={pageSize}
+                  setPageSize={setPageSize}
+                  setCurrentPage={setCurrentPage}
+                  total={elements.total}
+              /> : <></>}
         </AccountLoginWrapper>
       </>
     )

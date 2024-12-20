@@ -1,5 +1,8 @@
 package org.lowcoder.api.authentication.util;
 
+import org.bson.Document;
+
+import java.util.HashMap;
 import java.util.Map;
 
 public class AdvancedMapUtils {
@@ -52,4 +55,23 @@ public class AdvancedMapUtils {
 
         return current!=null?current.toString():null;
     }
+
+    public static Map<String, Object> documentToMap(Document document) {
+        if (document == null) {
+            return new HashMap<>();
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        for (Map.Entry<String, Object> entry : document.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Document) {
+                // Recursively convert nested Document
+                map.put(entry.getKey(), documentToMap((Document) value));
+            } else {
+                map.put(entry.getKey(), value);
+            }
+        }
+        return map;
+    }
+
 }
