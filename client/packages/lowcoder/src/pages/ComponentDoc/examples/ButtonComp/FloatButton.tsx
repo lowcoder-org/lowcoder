@@ -12,9 +12,27 @@ export default function FloatButtonExample() {
       >
         <Example
           title={trans("componentDoc.default")}
-          width={120}
           config={{ 
-            text: trans("componentDoc.submit") 
+            icon: "/icon:antd/questioncircleoutlined",
+            value: "",
+            shape: "circle",
+            manual: [
+              {
+                badge: "1",
+                description: "",
+                icon: "/icon:antd/filetextoutlined",
+                id: 0,
+                label: "Option 1"
+              },
+              {
+                badge: "1",
+                description: "",
+                icon: "/icon:antd/filetextoutlined",
+                id: 1,
+                label: "Option 2"
+              }
+            ]
+
         }}
           compFactory={FloatButtonComp}
         />
