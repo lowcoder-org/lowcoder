@@ -34,25 +34,6 @@ import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "../chartComp/chartConfigs/gaugeChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 
-export const ChartTypeOptions = [
-  {
-    label: trans("chart.bar"),
-    value: "bar",
-  },
-  {
-    label: trans("chart.line"),
-    value: "line",
-  },
-  {
-    label: trans("chart.scatter"),
-    value: "scatter",
-  },
-  {
-    label: trans("chart.pie"),
-    value: "pie",
-  },
-] as const;
-
 export const UIEventOptions = [
   {
     label: trans("chart.select"),
