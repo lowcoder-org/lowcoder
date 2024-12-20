@@ -210,8 +210,6 @@ export async function parseOpenApi(
   specId?: string
 ): Promise<OpenAPIParseResult> {
 
-  console.log("parsing API");
-
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);

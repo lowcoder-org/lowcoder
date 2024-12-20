@@ -43,7 +43,7 @@ import apiTemplatePlugin from "./apiTemplate";
 import uiPathPlugin from "./uiPath";
 import serpApiPlugin from "./serpApi";
 import carboneIoPlugin from "./carboneIo";
-// import boomiPlugin from "./boomi";
+import boomiPlugin from "./boomi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -82,8 +82,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
-  
-  // boomiPlugin,
+  boomiPlugin,
 
   // Messaging
   twilioPlugin,
