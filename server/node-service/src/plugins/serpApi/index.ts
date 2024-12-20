@@ -17,7 +17,8 @@ const dataSourceConfig = {
     {
       "type": "password",
       "key": "apikey-query-api_key.value",
-      "label": "api_key"
+      "label": "API Key",
+      "tooltip" : "SerpAPI allows you to scrape the results from Google search engine via our SerpApi service. Start here https://serpapi.com/pricing to get an API Key."
     }
   ]
 } as const;
