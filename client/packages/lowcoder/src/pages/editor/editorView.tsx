@@ -55,7 +55,7 @@ import {
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
-import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { getBrandingSettings, getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
 // import { BottomSkeleton } from "./bottom/BottomContent";
@@ -145,9 +145,14 @@ const ViewBody = styled.div<{ $hideBodyHeader?: boolean; $height?: number }>`
   )`};
 `;
 
-const SiderWrapper = styled.div`
+const SiderWrapper = styled.div<{
+  $bgColor?: string;
+  $fontColor?: string;
+  $activeBgColor?: string;
+  $activeFontColor?: string;
+}>`
   .ant-menu {
-    background-color: #393b47;
+    background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
     height: calc(100vh - 48px);
 
     .ant-menu-item {
@@ -165,10 +170,10 @@ const SiderWrapper = styled.div`
       &.ant-menu-item-selected,
       &:hover,
       &:active {
-        background-color: #393b47;
-
+        background-color: ${props => props.$bgColor ? props.$bgColor : '#393b47'};
         svg {
-          background: #8b8fa37f;
+          background: ${props => props.$activeBgColor ? props.$activeBgColor : '#8b8fa37f'};
+          color: ${props => props.$activeFontColor ? props.$activeFontColor : '#ffffffa6'};
           border-radius: 4px;
         }
       }
@@ -308,6 +313,7 @@ function EditorView(props: EditorViewProps) {
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
+  const brandingSettings = useSelector(getBrandingSettings);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),
@@ -519,7 +525,12 @@ function EditorView(props: EditorViewProps) {
           toggleShortcutList={toggleShortcutList}
         >
           <Body>
-            <SiderWrapper>
+            <SiderWrapper
+              $bgColor={brandingSettings?.editorSidebarColor}
+              $fontColor={brandingSettings?.editorSidebarFontColor}
+              $activeBgColor={brandingSettings?.editorSidebarActiveBgColor}
+              $activeFontColor={brandingSettings?.editorSidebarActiveFontColor}
+            >
               <Sider width={40}>
                 <Menu
                   theme="dark"

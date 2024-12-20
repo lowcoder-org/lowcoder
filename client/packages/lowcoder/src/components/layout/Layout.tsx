@@ -9,13 +9,21 @@ import SideBar from "components/layout/SideBar";
 import { CNMainContent, CNSidebar } from "constants/styleSelectors";
 import { SideBarSection, SideBarSectionProps } from "./SideBarSection";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 
 type LayoutProps = {
   sections: SideBarSectionProps[];
 };
 
-const SideBarV2 = styled(SideBar)`
-  background: #f7f9fc !important;
+const SideBarV2 = styled(SideBar)<{
+  $bgColor?: string,
+  $fontColor?: string,
+  $activeBgColor?: string,
+  $activeFontColor?: string,
+}>`
+  background: ${props => props.$bgColor ? props.$bgColor : '#f7f9fc'} !important;
+  ${props => props.$fontColor && `color: ${props.$fontColor}`};
   padding: 28px 10px;
   border-right: 1px solid #ebebeb;
 
@@ -30,6 +38,8 @@ const SideBarV2 = styled(SideBar)`
 `;
 
 export function Layout(props: LayoutProps) {
+  const brandingSettings = useSelector(getBrandingSettings);
+
   const routes: ReactElement[] = [];
   props.sections.forEach((section) => {
     section.items.forEach((item) => {
@@ -49,7 +59,13 @@ export function Layout(props: LayoutProps) {
       <AppHeader />
       <HelpDropdown />
       <AntdLayout>
-        <SideBarV2 className={CNSidebar}>
+        <SideBarV2
+          className={CNSidebar}
+          $bgColor={brandingSettings?.adminSidebarColor}
+          $fontColor={brandingSettings?.adminSidebarFontColor}
+          $activeBgColor={brandingSettings?.adminSidebarActiveBgColor}
+          $activeFontColor={brandingSettings?.adminSidebarActiveFontColor}
+        >
           {props.sections
             .filter((section) => section.items.length > 0)
             .map((section, index) => (
