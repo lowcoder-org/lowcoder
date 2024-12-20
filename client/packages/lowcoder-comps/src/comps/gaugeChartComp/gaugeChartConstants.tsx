@@ -16,7 +16,6 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle,
   EchartDefaultChartStyle,
   EchartDefaultTextStyle
 } from "lowcoder-sdk";
