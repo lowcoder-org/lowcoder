@@ -83,9 +83,15 @@ export interface BrandingSettings {
   logo: string | null;
   squareLogo: string | null;
   mainBrandingColor: string;
-  editorHeaderColor: string;
+  appHeaderColor: string;
   adminSidebarColor: string;
+  adminSidebarFontColor: string;
+  adminSidebarActiveBgColor: string;
+  adminSidebarActiveFontColor: string;
   editorSidebarColor: string;
+  editorSidebarFontColor: string;
+  editorSidebarActiveBgColor: string;
+  editorSidebarActiveFontColor: string;
   font: string;
   errorPageText: string;
   errorPageImage: string | null;

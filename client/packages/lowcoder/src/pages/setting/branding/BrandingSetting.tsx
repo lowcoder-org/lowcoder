@@ -21,8 +21,8 @@ import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { fetchCommonSettings, setCommonSettings } from "@lowcoder-ee/redux/reduxActions/commonSettingsActions";
 import { useShallowEqualSelector } from "@lowcoder-ee/util/hooks";
-import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { BrandingSettings } from "@lowcoder-ee/api/commonSettingApi";
+import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 
 const { TextArea } = Input;
 
@@ -33,9 +33,15 @@ enum SettingsEnum {
   LOGOUT_PAGE_IMAGE = "loggedOutPageImage",
   SIGNUP_PAGE_IMAGE = "signUpPageImage",
   MAIN_BRANDING_COLOR = "mainBrandingColor",
-  EDITOR_HEADER_COLOR = "editorHeaderColor",
+  APP_HEADER_COLOR = "appHeaderColor",
   ADMIN_SIDEBAR_COLOR = "adminSidebarColor",
+  ADMIN_SIDEBAR_FONT_COLOR = "adminSidebarFontColor",
+  ADMIN_SIDEBAR_ACTIVE_BG_COLOR = "adminSidebarActiveBgColor",
+  ADMIN_SIDEBAR_ACTIVE_FONT_COLOR = "adminSidebarActiveFontColor",
   EDITOR_SIDEBAR_COLOR = "editorSidebarColor",
+  EDITOR_SIDEBAR_FONT_COLOR = "editorSidebarFontColor",
+  EDITOR_SIDEBAR_ACTIVE_BG_COLOR = "editorSidebarActiveBgColor",
+  EDITOR_SIDEBAR_ACTIVE_FONT_COLOR = "editorSidebarActiveFontColor",
   FONT = "font",
   ERROR_PAGE_TEXT = "errorPageText",
   SIGNUP_PAGE_TEXT = "signUpPageText",
@@ -53,9 +59,15 @@ const defaultSettings = {
   logo: null,
   squareLogo: null,
   mainBrandingColor: "#FF5733",
-  editorHeaderColor: "#4287f5",
-  adminSidebarColor: "#2e2e2e",
+  appHeaderColor: "#2c2c2c",
+  adminSidebarColor: "#f7f9fc",
+  adminSidebarFontColor: "#000000e0",
+  adminSidebarActiveBgColor: "#ebf0f7",
+  adminSidebarActiveFontColor: "#4965f2",
   editorSidebarColor: "#f4f4f4",
+  editorSidebarFontColor: "",
+  editorSidebarActiveBgColor: "",
+  editorSidebarActiveFontColor: "",
   font: "Roboto",
   errorPageText: "Oops! Something went wrong.",
   errorPageImage: null,
@@ -167,11 +179,11 @@ export function BrandingSetting() {
   });
   const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
-  const commonSettings = useShallowEqualSelector(getCommonSettings);
+  const brandingSettings = useShallowEqualSelector(getBrandingSettings);
 
   useEffect(() => {
-    setSettings(commonSettings.branding ?? defaultSettings);
-  }, [commonSettings?.branding]);
+    setSettings(brandingSettings ?? defaultSettings);
+  }, [brandingSettings]);
 
   useEffect(() => {
     dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
@@ -301,7 +313,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.mainBrandingColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                defaultValue={settings.mainBrandingColor}
+                value={settings.mainBrandingColor}
                 showText
                 allowClear
                 format="hex"
@@ -309,16 +321,16 @@ export function BrandingSetting() {
               />
               <HelpText>{trans("branding.mainBrandingColorHelp")}</HelpText>
             </div>
-
+            
             <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.editorHeaderColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                defaultValue={settings.editorHeaderColor}
+                value={settings.appHeaderColor}
                 showText
                 allowClear
                 format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_HEADER_COLOR, hex)}
+                onChange={(_, hex) => updateSettings(SettingsEnum.APP_HEADER_COLOR, hex)}
               />
               <HelpText>{trans("branding.editorHeaderColorHelp")}</HelpText>
             </div>
@@ -327,7 +339,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.adminSidebarColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                defaultValue={settings.adminSidebarColor}
+                value={settings.adminSidebarColor}
                 showText
                 allowClear
                 format="hex"
@@ -337,16 +349,94 @@ export function BrandingSetting() {
             </div>
 
             <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.adminSidebarFontColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.adminSidebarFontColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_FONT_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.adminSidebarFontColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.adminSidebarActiveBgColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.adminSidebarActiveBgColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_BG_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.adminSidebarActiveBgColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.adminSidebarActiveFontColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.adminSidebarActiveFontColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.adminSidebarActiveFontColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.editorSidebarColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                defaultValue={settings.editorSidebarColor}
+                value={settings.editorSidebarColor}
                 showText
                 allowClear
                 format="hex"
                 onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_COLOR, hex)}
               />
               <HelpText>{trans("branding.editorSidebarColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.editorSidebarFontColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.editorSidebarFontColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_FONT_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.editorSidebarFontColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.editorSidebarActiveBgColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.editorSidebarActiveBgColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_BG_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.editorSidebarActiveBgColorHelp")}</HelpText>
+            </div>
+
+            <div style={{marginTop : "20px"}}>
+              <h3>{trans("branding.editorSidebarActiveFontColor")}</h3>
+              <ColorPicker
+                getPopupContainer={(node: any) => node.parentNode}
+                value={settings.editorSidebarActiveFontColor}
+                showText
+                allowClear
+                format="hex"
+                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
+              />
+              <HelpText>{trans("branding.editorSidebarActiveFontColorHelp")}</HelpText>
             </div>
 
             <div style={{marginTop : "20px"}}>
