@@ -51,7 +51,7 @@ const HeaderWrapper = styled.div`
   padding: 0 36px;
   align-items: center;
   flex-shrink: 0;
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 720px) {
     padding: 0 24px;
   }
 `;
@@ -61,11 +61,13 @@ const OperationWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 32px;
+  height: auto;
   padding: 0 36px;
   margin: 8px 0 20px 0;
-  @media screen and (max-width: 500px) {
-    padding: 0 24px;
+  @media screen and (max-width: 850px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 `;
 
@@ -90,17 +92,9 @@ const Breadcrumb = styled(AntdBreadcrumb)`
     flex-direction: column;
     justify-content: center;
   }
-`;
 
-const OperationRightWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: auto;
-  @media screen and (max-width: 500px) {
-    > Button {
-      display: none;
-    }
+  @media screen and (max-width: 720px) {
+    display:none
   }
 `;
 
@@ -209,8 +203,8 @@ const PaginationLayout = styled.div`
 
 const LayoutSwitcher = styled.div`
   position: absolute;
-  right: 36px;
-  top: 6px;
+  left: 20px;
+  top: 40px;
   cursor: pointer;
   width: 32px;
   height: 16px;
@@ -222,10 +216,6 @@ const LayoutSwitcher = styled.div`
 
   &:hover {
     background-color: #f5f5f6;
-  }
-
-  @media screen and (max-width: 500px) {
-    display: none;
   }
 `;
 
@@ -249,27 +239,21 @@ const StyleHomeCover = styled.div`
     border-radius:10px 10px 0 0;
 `;
 
-const StyleHomeContent = styled.div` 
-    position: relative;
-    margin-top:-50px;
-    display: flex;
-    align-items: end;
-    gap: 20px;
+const SearchWrapper = styled.div`
+  width: auto;
 
-    .subtitle {
-        color: #8b8fa3;
-    }
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
 
-    .button-end {
-        margin-left: auto;
+  @media screen and (max-width: 980px) {
+    width: 100%;
+    > Button {
+      display: none;
     }
-    
-    svg {
-        margin-right: 5px;
-        vertical-align: middle;
-    }
+  }
 `;
-
 
 function showNewUserGuide(user: User) {
   return (
@@ -515,7 +499,7 @@ export function HomeLayout(props: HomeLayoutProps) {
 
       {showNewUserGuide(user) && <HomepageTourV2 />}
 
-              <HomeView>
+        <HomeView>
           <StyleHomeCover>
             <h1 style={{color: "#ffffff", marginTop : "12px"}}>
               {mode === "marketplace" && trans("home.appMarketplace")}
@@ -550,20 +534,20 @@ export function HomeLayout(props: HomeLayoutProps) {
                   suffixIcon={<ArrowSolidIcon />} />
               )}
               {(mode === "view" || mode === "folder") &&
-                  <FilterDropdown
-                      style={{ minWidth: "220px" }}
-                      variant="borderless"
-                      value={categoryFilter}
-                      onChange={(value: any) => {
-                        setCategoryFilter(value as ApplicationCategoriesEnum)
-                        setCategoryFilterPagination(value as ApplicationCategoriesEnum);
-                        }
-
+                <FilterDropdown
+                    style={{ minWidth: "220px" }}
+                    variant="borderless"
+                    value={categoryFilter}
+                    onChange={(value: any) => {
+                      setCategoryFilter(value as ApplicationCategoriesEnum)
+                      setCategoryFilterPagination(value as ApplicationCategoriesEnum);
                       }
-                      options={categoryOptions}
-                    // getPopupContainer={(node) => node}
-                      suffixIcon={<ArrowSolidIcon />}
-                  />}
+
+                    }
+                    options={categoryOptions}
+                  // getPopupContainer={(node) => node}
+                    suffixIcon={<ArrowSolidIcon />}
+                />}
               {mode === "marketplace" && (
                 <FilterDropdown
                   style={{ minWidth: "220px" }}
@@ -575,17 +559,28 @@ export function HomeLayout(props: HomeLayoutProps) {
                   suffixIcon={<ArrowSolidIcon />} />
               )}
 
-              <OperationRightWrapper>
+              <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
+                {layout === "list" ? <HomeCardIcon/> : <HomeListIcon/>}
+              </LayoutSwitcher>
+
+              <SearchWrapper>
                 <Search
                   placeholder={trans("search")}
                   value={searchValue || ""}
                   onChange={(e) => setSearchValue(e.target.value)}
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
-                {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
-                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} setModify={setIsCreated} modify={isCreated!} />
-                )}
-              </OperationRightWrapper>
+              
+
+              {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
+                <CreateDropdown 
+                  defaultVisible={showNewUserGuide(user)} 
+                  mode={mode} 
+                  setModify={setIsCreated} 
+                  modify={isCreated!} />
+              )}
+              </SearchWrapper>
+
             </OperationWrapper>
 
             <Divider />
@@ -602,10 +597,7 @@ export function HomeLayout(props: HomeLayoutProps) {
                         <TrashTableView resources={resList} setModify={setModify} modify={modify!}/>
                       ) : (
                         <>
-                          <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
-                            {layout === "list" ? <HomeCardIcon style={{marginRight: "-11px"}}/> : <HomeListIcon style={{marginTop: "-30px"}}/>}
-                          </LayoutSwitcher>
-                        
+                          
                           {mode === "marketplace" && (
                             <>
                               {layout === "list" ? (
