@@ -178,7 +178,7 @@ public class Application extends HasIdAndAuditing {
             } else {
                 return "";
             }
-        });
+        }).onErrorReturn("");
     }
 
     public Mono<String> getTitle(ApplicationRecordService applicationRecordService) {
@@ -192,7 +192,7 @@ public class Application extends HasIdAndAuditing {
             } else {
                 return "";
             }
-        });
+        }).onErrorReturn("");
     }
 
     public Mono<String> getDescription(ApplicationRecordService applicationRecordService) {
@@ -207,7 +207,7 @@ public class Application extends HasIdAndAuditing {
                     return "";
                 }
             }
-        );
+        ).onErrorReturn("");
     }
 
     public Mono<String> getIcon(ApplicationRecordService applicationRecordService) {
