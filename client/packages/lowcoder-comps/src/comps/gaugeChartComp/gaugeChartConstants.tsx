@@ -16,7 +16,6 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle,
   EchartDefaultChartStyle,
   EchartDefaultTextStyle
 } from "lowcoder-sdk";
@@ -281,7 +280,7 @@ let chartJsonModeChildren: any = {
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
 
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
