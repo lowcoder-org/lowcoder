@@ -182,6 +182,20 @@ export function getEchartsConfig(
             "length": `${props?.pointerLength}%`,
             "width": props?.pointerWidth,
           },
+          "axisTick": {
+            "length": props.axisTickLength,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": props.axisTickWidth
+            }
+          },
+          "splitLine": {
+            "length": Number(props.axisTickLength) * 1.5,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": Number(props.axisTickWidth) * 1.5
+            }
+          },
           "itemStyle": {
             "opacity": props?.opacity,
             "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
@@ -261,49 +275,57 @@ export function getEchartsConfig(
             type: 'gauge',
             axisLine: {
               lineStyle: {
-                width: 15,
+                width: props.progressBarWidthStage,
                 color: [
-                  [0.3, '#67e0e3'],
-                  [0.7, '#37a2da'],
-                  [1, '#fd666d']
+                  props.stageGaugeProgressBarColor1 && props.stageGaugeProgressBarInterval1 ? [props.stageGaugeProgressBarInterval1 || 0.3, props.stageGaugeProgressBarColor1 || "#67e0e3"] : [],
+                  props.stageGaugeProgressBarColor2 && props.stageGaugeProgressBarInterval2 ? [props.stageGaugeProgressBarInterval2 || 0.7, props.stageGaugeProgressBarColor2 || "#37a2da"] : [],
+                  props.stageGaugeProgressBarColor3 && props.stageGaugeProgressBarInterval3 ? [props.stageGaugeProgressBarInterval3 || 1, props.stageGaugeProgressBarColor3 || "#fd666d"] : [],
                 ]
               }
             },
             pointer: {
+              ...basicSeries.pointer,
               itemStyle: {
                 color: 'auto',
               }
             },
             axisTick: {
-              distance: -15,
-              length: 7,
+              distance: -Number(props.progressBarWidthStage),
+              length: props.axisTickLength,
               lineStyle: {
-                color: '#fff',
-                width: 1.5
+                color: props.axisTickColorStage,
+                width: props.axisTickWidth
               }
             },
             splitLine: {
-              distance: -15,
-              length: 15,
+              distance: -Number(props.progressBarWidthStage),
+              length: props.progressBarWidthStage,
               lineStyle: {
-                color: '#fff',
-                width: 3
+                color: props.axisTickColorStage,
+                width: Number(props.axisTickWidth) * 1.5
               }
             },
             axisLabel: {
               color: 'inherit',
-              distance: 20,
+              distance: Number(props.progressBarWidthStage) + 10,
               fontSize: 13
             },
             detail: {
               valueAnimation: true,
-              formatter: '{value} km/h',
-              color: 'inherit',
-              fontSize: 20
+              formatter: props?.stageGaugeOption?.data?.map(data => data.formatter)[0],
+              fontFamily: props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
+              fontSize: props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 20,
+              fontWeight: props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
+              color: props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || 'inherit',
+              fontStyle: props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
+              textShadowColor: props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
+              textShadowBlur: props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow?.split('px')[0],
+              textShadowOffsetX: props?.legendStyle?.chartBoxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow?.split('px')[1],
+              textShadowOffsetY: props?.legendStyle?.chartBoxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow?.split('px')[2]
             },
             data: [
               {
-                value: 80
+                value: props?.stageGaugeOption?.data?.map(data => data.value)
               }
             ]
           }
