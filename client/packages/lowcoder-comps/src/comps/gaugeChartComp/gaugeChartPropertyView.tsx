@@ -49,6 +49,9 @@ export function gaugeChartPropertyView(
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
+        {children.axisTickColor.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
         {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
@@ -79,7 +82,7 @@ export function gaugeChartPropertyView(
   const stageGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
+        {children.stageGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -97,6 +100,13 @@ export function gaugeChartPropertyView(
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
+
+        {children.stageGaugeProgressBarInterval1.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
+        {children.stageGaugeProgressBarColor1.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
+        {children.stageGaugeProgressBarInterval2.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
+        {children.stageGaugeProgressBarColor2.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
+        {children.stageGaugeProgressBarInterval3.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
+        {children.stageGaugeProgressBarColor3.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
         {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
         {children.top.propertyView({ label: trans("gaugeChart.top") })}
         {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
@@ -111,11 +121,14 @@ export function gaugeChartPropertyView(
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.progressBarWidthStage.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
+        {children.axisTickColorStage.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
-        {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
-        {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}
+        {/*{children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}*/}
+        {/*{children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}*/}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
@@ -126,15 +139,15 @@ export function gaugeChartPropertyView(
       <Section name={sectionNames.titleStyle}>
         {children.titleStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.labelStyle}>
-        {children.labelStyle?.getPropertyView()}
-      </Section>
+      {/*<Section name={sectionNames.labelStyle}>*/}
+      {/*  {children.labelStyle?.getPropertyView()}*/}
+      {/*</Section>*/}
       <Section name={sectionNames.detailStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.axisLabelStyle}>
-        {children.axisLabelStyle?.getPropertyView()}
-      </Section>
+      {/*<Section name={sectionNames.axisLabelStyle}>*/}
+      {/*  {children.axisLabelStyle?.getPropertyView()}*/}
+      {/*</Section>*/}
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );

@@ -17,7 +17,8 @@ import {
   clickEvent,
   styleControl,
   EchartDefaultChartStyle,
-  EchartDefaultTextStyle
+  EchartDefaultTextStyle,
+  ColorControl
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -267,6 +268,7 @@ export const chartUiModeChildren = {
 
 let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
+  stageGaugeOption: jsonControl(toObject, i18nObjs.stageGaugeChartOption),
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
@@ -295,7 +297,17 @@ let chartJsonModeChildren: any = {
   pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
   pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
-
+  progressBarWidthStage:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidthStage')),
+  stageGaugeProgressBarColor1: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor1')),
+  stageGaugeProgressBarColor2: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor2')),
+  stageGaugeProgressBarColor3: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor3')),
+  stageGaugeProgressBarInterval1: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval1')),
+  stageGaugeProgressBarInterval2: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval2')),
+  stageGaugeProgressBarInterval3: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval3')),
+  axisTickWidth: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultAxisTickWidth')),
+  axisTickLength: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultAxisTickLength')),
+  axisTickColor: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColor')),
+  axisTickColorStage: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColorStage')),
 }
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {

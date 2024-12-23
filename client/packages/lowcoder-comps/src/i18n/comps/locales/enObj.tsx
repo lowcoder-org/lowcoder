@@ -176,6 +176,11 @@ export const enObj: I18nObjects = {
       { value: 60, name: "Completed",color:'#fc8452' }
     ]
   },
+  stageGaugeChartOption: {
+    data: [
+      { value: 80, formatter: "Speed: {value} Km/h" }
+    ]
+  },
   defaultSankeyChartOption: {
     data: [
       {name: "Show"},
