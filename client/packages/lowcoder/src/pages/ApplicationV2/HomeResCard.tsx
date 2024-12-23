@@ -1,5 +1,5 @@
 import { TacoButton } from "lowcoder-design/src/components/button"
-import React, { useState } from "react";
+import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
@@ -23,18 +23,7 @@ import { APPLICATION_VIEW_URL } from "constants/routesURL";
 import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { colorPickerEvent } from "@lowcoder-ee/comps/comps/mediaComp/colorPickerComp";
 import {FolderIcon} from "icons";
-
-const EditButton = styled(TacoButton)`
-  width: 52px;
-  height: 24px;
-  padding: 5px 12px;
-  margin-right: 12px;
-  @media screen and (max-width: 500px) {
-    display: none;
-  }
-`;
 
 const ExecButton = styled(TacoButton)`
   width: 52px;

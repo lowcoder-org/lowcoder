@@ -129,10 +129,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // we check if we are on the public cloud
     const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
     const isLocalhost = window.location.hostname === 'localhost';
-    
-    /* if (isLocalhost || isLowCoderDomain) {
-      posthog.init('phc_lD36OXeppUehLgI33YFhioTpXqThZ5QqR8IWeKvXP7f', { api_host: 'https://eu.i.posthog.com', person_profiles: 'always' });
-    } */
 
     // make sure all users in this app have checked login info
     if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
@@ -143,7 +139,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       // if the user just logged in, we send the event to posthog
       if (isLocalhost || isLowCoderDomain) {
         if (sessionStorage.getItem('_just_logged_in_')) {
-          // posthog.identify(this.props.currentUserId);
           sessionStorage.removeItem('_just_logged_in_');
         }
       }
