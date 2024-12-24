@@ -176,9 +176,14 @@ export const enObj: I18nObjects = {
       { value: 60, name: "Completed",color:'#fc8452' }
     ]
   },
-  stageGaugeChartOption: {
+  defaultStageGaugeChartOption: {
     data: [
-      { value: 80, formatter: "Speed: {value} Km/h" }
+      { value: 80, formatter: "{value} Km/h" }
+    ]
+  },
+  defaultGradeGaugeChartOption: {
+    data: [
+      { value: 80, name: "Grade Rating" }
     ]
   },
   defaultSankeyChartOption: {

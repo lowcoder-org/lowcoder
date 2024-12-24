@@ -5,7 +5,8 @@ export type I18nObjects = {
   defaultDataSource: JSONObject[];
   defaultEchartsJsonOption: Record<string, unknown>;
   defaultGaugeChartOption: Record<string, unknown>;
-  stageGaugeChartOption: Record<string, unknown>;
+  defaultStageGaugeChartOption: Record<string, unknown>;
+  defaultGradeGaugeChartOption: Record<string, unknown>;
   defaultFunnelChartOption: Record<string, unknown>;
   defaultSankeyChartOption: Record<string, unknown>;
   defaultCandleStickChartOption: Record<string, unknown>;
