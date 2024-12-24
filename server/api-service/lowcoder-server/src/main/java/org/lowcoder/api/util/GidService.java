@@ -40,10 +40,13 @@ public class GidService {
     private BundleRepository bundleRepository;
 
     public Mono<String> convertApplicationIdToObjectId(String id) {
-        if(FieldName.isGID(id)) {
-            return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
-        }
-        return Mono.just(id);
+        return applicationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
+                Mono.defer(() -> {
+                    if (FieldName.isGID(id)) {
+                        return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+                    }
+                    return Mono.just(id);
+                }));
     }
 
     public Mono<String> convertDatasourceIdToObjectId(String id) {
@@ -54,10 +57,13 @@ public class GidService {
     }
 
     public Mono<String> convertOrganizationIdToObjectId(String id) {
-        if(FieldName.isGID(id)) {
-            return organizationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
-        }
-        return Mono.just(id);
+        return organizationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
+                Mono.defer(() -> {
+                    if(FieldName.isGID(id)) {
+                        return organizationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+                    }
+                    return Mono.just(id);
+                }));
     }
 
     public Mono<String> convertGroupIdToObjectId(String id) {

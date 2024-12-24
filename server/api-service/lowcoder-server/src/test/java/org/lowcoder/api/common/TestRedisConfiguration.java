@@ -10,7 +10,7 @@ import java.time.Duration;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("UnstableApiUsage")
-@TestConfiguration
+//@TestConfiguration
 public class TestRedisConfiguration {
 
     private static final AtomicInteger STATE = new AtomicInteger(0);
