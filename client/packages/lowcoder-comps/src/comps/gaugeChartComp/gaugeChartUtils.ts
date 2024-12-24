@@ -137,6 +137,22 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
+  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000') => {
+
+    return {
+      "fontFamily": styleContainer?.chartFontFamily || themeContainer?.fontFamily || 'Arial, sans-serif',
+      "fontSize": styleContainer?.chartTextSize || themeContainer?.fontSize || defaultFontSize,
+      "fontWeight": styleContainer?.chartTextWeight || themeContainer?.fontWeight,
+      "color": styleContainer?.chartTextColor || themeContainer?.fontColor || defaultFontColor,
+      "fontStyle": styleContainer?.chartFontStyle || themeContainer?.fontStyle,
+      "textShadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
+      "textShadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
+      "textShadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
+      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2]
+    }
+
+  }
+
   if (props.mode === "json") {
 
     const basic={
@@ -145,16 +161,19 @@ export function getEchartsConfig(
         'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
         "left":props.echartsTitleConfig.top,
         "textStyle": {
-          "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-          "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
-          "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-          "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
-          "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
-          "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
-          "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
-          "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
-          "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
-        },
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+        // "textStyle": {
+        //   "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
+        //   "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
+        //   "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
+        //   "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
+        //   "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
+        //   "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
+        //   "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
+        //   "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
+        //   "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
+        // },
       },
       "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       "tooltip": props.tooltip&&{
@@ -181,6 +200,8 @@ export function getEchartsConfig(
           "pointer": {
             "length": `${props?.pointerLength}%`,
             "width": props?.pointerWidth,
+            "icon": props?.pointerIcon,
+            "offsetCenter": [0, `-${props.pointer_Y}%`],
           },
           "axisTick": {
             "length": props.axisTickLength,
@@ -338,82 +359,75 @@ export function getEchartsConfig(
           {
             ...basicSeries,
             type: 'gauge',
-            startAngle: 180,
-            endAngle: 0,
-            center: ['50%', '75%'], // Keeps the gauge lower on the canvas
-            radius: '110%', // Reduced from '90%' to make the gauge smaller
-            min: 0,
-            max: 1,
-            splitNumber: 8,
             axisLine: {
               lineStyle: {
-                width: 4, // slightly thinner line for smaller gauge
+                width: props.progressBarWidth, // slightly thinner line for smaller gauge
                 color: [
-                  [0.25, '#FF6E76'],
-                  [0.5, '#FDDD60'],
-                  [0.75, '#58D9F9'],
-                  [1, '#7CFFB2']
+                  [props.gradeGaugeProgressBarInterval1, props.stageGaugeProgressBarColor1],
+                  [props.gradeGaugeProgressBarInterval2, props.stageGaugeProgressBarColor2],
+                  [props.gradeGaugeProgressBarInterval3, props.stageGaugeProgressBarColor3],
+                  [props.gradeGaugeProgressBarInterval4, props.stageGaugeProgressBarColor4]
                 ]
               }
             },
             pointer: {
-              icon: 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
-              length: '10%', // slightly shorter pointer
-              width: 14,     // slightly narrower pointer
-              offsetCenter: [0, '-60%'],
+              icon: props.pointerIcon || 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+              length: props.gradeGaugePointerLength, // slightly shorter pointer
+              width: props.gradeGaugePointerWidth,     // slightly narrower pointer
+              offsetCenter: [0, `-${props.gradeGaugePointer_Y}%`],
               itemStyle: {
                 color: 'auto'
               }
             },
             axisTick: {
-              length: 8, // shorter ticks
+              length: props.axisTickLength,
               lineStyle: {
-                color: 'auto',
-                width: 2
+                color: props.axisTickColorGrade || 'auto',
+                width: props.axisTickWidth
               }
             },
             splitLine: {
-              length: 15, // shorter split lines
+              length: Number(props.axisTickLength) * 2,
               lineStyle: {
-                color: 'auto',
-                width: 4
+                color: props.axisTickColorGrade || 'auto',
+                width: Number(props.axisTickWidth) * 1.5
               }
             },
+            // axisTick: {
+            //   distance: -Number(props.progressBarWidthStage),
+            //   length: props.axisTickLength,
+            //   lineStyle: {
+            //     color: props.axisTickColorStage,
+            //     width: props.axisTickWidth
+            //   }
+            // },
+            // splitLine: {
+            //   distance: -Number(props.progressBarWidthStage),
+            //   length: props.progressBarWidthStage,
+            //   lineStyle: {
+            //     color: props.axisTickColorStage,
+            //     width: Number(props.axisTickWidth) * 1.5
+            //   }
+            // },
             axisLabel: {
-              color: '#464646',
-              fontSize: 12, // smaller font size for labels
-              distance: -40, // adjust distance to keep labels readable
-              rotate: 'tangential',
-              formatter: function (value) {
-                if (value === 0.875) {
-                  return 'Grade A';
-                } else if (value === 0.625) {
-                  return 'Grade B';
-                } else if (value === 0.375) {
-                  return 'Grade C';
-                } else if (value === 0.125) {
-                  return 'Grade D';
-                }
-                return '';
-              }
+              show: false
             },
             title: {
               offsetCenter: [0, '-10%'],
-              fontSize: 14 // smaller font for title
+              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
             },
             detail: {
-              fontSize: 20, // smaller detail number font
               offsetCenter: [0, '-35%'],
               valueAnimation: true,
               formatter: function (value) {
-                return Math.round(value * 100) + '';
+                return value;
               },
-              color: 'inherit'
+              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, 'inherit'),
             },
             data: [
               {
-                value: 0.3,
-                name: 'Grade Rating'
+                value: props?.gradeGaugeOption?.data?.map(data => data.value),
+                name: props?.gradeGaugeOption?.data?.map(data => data.name)[0],
               }
             ]
           }
