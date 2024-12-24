@@ -356,10 +356,10 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Mono<Application> updateSlug(String applicationId, String newSlug) {
         return repository.findById(applicationId).flatMap(application -> repository.existsByOrganizationIdAndSlug(application.getOrganizationId(), newSlug).flatMap(exists -> {
             if (!SlugUtils.validate(newSlug)) {
-                return Mono.error(new BizException(BizError.INVALID_SLUG, "Slug format is invalid"));
+                return Mono.error(new BizException(BizError.SLUG_INVALID, "SLUG_INVALID"));
             }
             if (exists) {
-                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+                return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
             }
             application.setSlug(newSlug);
             return repository.save(application);

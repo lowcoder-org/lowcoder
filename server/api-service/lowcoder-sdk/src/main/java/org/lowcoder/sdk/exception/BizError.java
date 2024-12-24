@@ -154,8 +154,8 @@ public enum BizError {
     ILLEGAL_BUNDLE_PERMISSION_ID(500, 6404),
 
     //slug 6501 - 6501
-    DUPLICATE_ENTRY(403, 6501),
-    INVALID_SLUG(403, 6502);
+    SLUG_DUPLICATE_ENTRY(403, 6501),
+    SLUG_INVALID(403, 6502);
 
     static {
         checkDuplicates(values(), BizError::getBizErrorCode);
