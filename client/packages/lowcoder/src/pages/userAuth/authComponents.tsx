@@ -18,6 +18,7 @@ const StyledBrandingColumn = styled(Col)`
   display: flex;
   flex-direction: column;
   justify-content: center;
+  width: 100%;
 `;
 
 const StyledBrandingText = styled(Typography.Title)`
@@ -27,6 +28,18 @@ const StyledBrandingText = styled(Typography.Title)`
   background: #0000001f;
   border-radius: 18px;
   text-align: center;
+
+  @media screen and (max-width: 640px) {
+    font-size: 34px !important;
+  }
+`;
+
+const StyledRightColumn = styled(Col)`
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
 `;
 
 const AuthCardContainer = styled.div<{$isEE?: boolean}>`
@@ -42,6 +55,7 @@ const AuthCard = styled.div<{$isEE?: boolean}>`
   display: flex;
   flex-direction: column;
   width: ${props => props.$isEE ? '850px' : '480px'};
+  max-width: 90%;
   background: #ffffff;
   box-shadow: 0 0 20px 20px rgba(246, 248, 250, 0.85);
   border-radius: 16px;
@@ -51,7 +65,7 @@ const AuthCard = styled.div<{$isEE?: boolean}>`
   @media screen and (max-width: 640px) {
     margin: 32px 18px 18px 18px;
     width: calc(100vw - 36px);
-    padding: 32px 24px;
+    padding: ${props => props.$isEE ? '0px' : '32px 24px'};
   }
 `;
 
@@ -67,7 +81,7 @@ const AuthCardHeading = styled.div<{ $type?: string, $isEE?: boolean }>`
     margin-top: ${props => props.$isEE ? '0': '107px'};
   }
   @media screen and (max-height: 700px) {
-    margin-top: 47px;
+    margin-top: ${props => props.$isEE ? '0': '47px'};
   }
   @media screen and (max-width: 640px) {
     font-size: 23px;
@@ -169,24 +183,14 @@ const BrandingWrapper = (props: {
   }
   return (
     <Row style={{minHeight: '500px'}}>
-      <StyledBrandingColumn span={12} style={{
-        backgroundColor: '#eaeaea',
-        backgroundImage: 'url(https://images.unsplash.com/photo-1589810264340-0ce27bfbf751?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D)',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-      }}>
+      <StyledBrandingColumn md={12} sm={24}>
         <StyledBrandingText>
           Join us today to explore new opportunities!
         </StyledBrandingText>
       </StyledBrandingColumn>
-      <Col span={12} style={{
-        padding: '28px 36px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-      }}>
+      <StyledRightColumn md={12} sm={24}>
         {props.children}
-      </Col>
+      </StyledRightColumn>
     </Row>
   )
 }
@@ -223,7 +227,7 @@ export const AuthContainer = (props: {
           {props.children}
         </BrandingWrapper>
       </AuthCard>
-      { props.subHeading && (
+      { props.subHeading && !props.isEE && (
         <AuthCardSubFooter>
           <img src={favicon} alt={"Lowcoder | " + trans("productDesc")} width="20px"/>
           <a href="https://lowcoder.cloud" target="_blank" rel="noreferrer">
