@@ -17,7 +17,8 @@ import {
   clickEvent,
   styleControl,
   EchartDefaultChartStyle,
-  EchartDefaultTextStyle
+  EchartDefaultTextStyle,
+  ColorControl
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -33,25 +34,6 @@ import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "../chartComp/chartConfigs/gaugeChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
-
-export const ChartTypeOptions = [
-  {
-    label: trans("chart.bar"),
-    value: "bar",
-  },
-  {
-    label: trans("chart.line"),
-    value: "line",
-  },
-  {
-    label: trans("chart.scatter"),
-    value: "scatter",
-  },
-  {
-    label: trans("chart.pie"),
-    value: "pie",
-  },
-] as const;
 
 export const UIEventOptions = [
   {
@@ -232,6 +214,41 @@ const EchartsOptionMap = {
   gauge: GaugeChartConfig,
 };
 
+const ChartTypeOptions = [
+  {
+    label: trans("chart.default"),
+    value: "default",
+  },
+  {
+    label: trans("chart.stageGauge"),
+    value: "stageGauge",
+  },
+  {
+    label: trans("chart.gradeGauge"),
+    value: "gradeGauge",
+  },
+  {
+    label: trans("chart.temperatureGauge"),
+    value: "temperatureGauge",
+  },
+  {
+    label: trans("chart.multiGauge"),
+    value: "multiGauge",
+  },
+  {
+    label: trans("chart.ringGauge"),
+    value: "ringGauge",
+  },
+  {
+    label: trans("chart.barometerGauge"),
+    value: "barometerGauge",
+  },
+  {
+    label: trans("chart.clockGauge"),
+    value: "clockGauge",
+  },
+] as const;
+
 const ChartOptionComp = withType(ChartOptionMap, "bar");
 const EchartsOptionComp = withType(EchartsOptionMap, "gauge");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
@@ -251,6 +268,9 @@ export const chartUiModeChildren = {
 
 let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
+  stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
+  gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
+  chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
@@ -277,8 +297,33 @@ let chartJsonModeChildren: any = {
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
   pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
   pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
+  pointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultPointer_Y')),
+  gradeGaugePointerLength:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointerLength')),
+  gradeGaugePointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointerWidth')),
+  gradeGaugePointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointer_Y')),
+  pointerIcon:withDefault(StringControl),
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
-
+  progressBarWidthStage:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidthStage')),
+  stageGaugeProgressBarColor1: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor1')),
+  stageGaugeProgressBarColor2: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor2')),
+  stageGaugeProgressBarColor3: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor3')),
+  stageGaugeProgressBarColor4: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor4')),
+  stageGaugeProgressBarInterval1: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval1')),
+  stageGaugeProgressBarInterval2: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval2')),
+  stageGaugeProgressBarInterval3: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultProgressBarInterval3')),
+  gradeGaugeProgressBarInterval1: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultGradeProgressBarInterval1')),
+  gradeGaugeProgressBarInterval2: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultGradeProgressBarInterval2')),
+  gradeGaugeProgressBarInterval3: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultGradeProgressBarInterval3')),
+  gradeGaugeProgressBarInterval4: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultGradeProgressBarInterval4')),
+  gradeGaugeProgressBarString1: withDefault(StringControl, trans('gaugeChart.stageGauge.defaultGradeGaugeProgressBarString1')),
+  gradeGaugeProgressBarString2: withDefault(StringControl, trans('gaugeChart.stageGauge.defaultGradeGaugeProgressBarString2')),
+  gradeGaugeProgressBarString3: withDefault(StringControl, trans('gaugeChart.stageGauge.defaultGradeGaugeProgressBarString3')),
+  gradeGaugeProgressBarString4: withDefault(StringControl, trans('gaugeChart.stageGauge.defaultGradeGaugeProgressBarString4')),
+  axisTickWidth: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultAxisTickWidth')),
+  axisTickLength: withDefault(NumberControl, trans('gaugeChart.stageGauge.defaultAxisTickLength')),
+  axisTickColor: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColor')),
+  axisTickColorStage: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColorStage')),
+  axisTickColorGrade: withDefault(ColorControl),
 }
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {

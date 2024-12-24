@@ -14,6 +14,7 @@ import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
+import {ba} from "@fullcalendar/core/internal-common";
 
 export function transformData(
   originData: JSONObject[],
@@ -136,23 +137,43 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
+  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000') => {
+
+    return {
+      "fontFamily": styleContainer?.chartFontFamily || themeContainer?.fontFamily || 'Arial, sans-serif',
+      "fontSize": styleContainer?.chartTextSize || themeContainer?.fontSize || defaultFontSize,
+      "fontWeight": styleContainer?.chartTextWeight || themeContainer?.fontWeight,
+      "color": styleContainer?.chartTextColor || themeContainer?.fontColor || defaultFontColor,
+      "fontStyle": styleContainer?.chartFontStyle || themeContainer?.fontStyle,
+      "textShadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
+      "textShadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
+      "textShadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
+      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2]
+    }
+
+  }
+
   if (props.mode === "json") {
-    let opt={
+
+    const basic={
       "title": {
         "text": props.echartsTitle,
         'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
         "left":props.echartsTitleConfig.top,
         "textStyle": {
-          "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-          "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
-          "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-          "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
-          "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
-          "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
-          "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
-          "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
-          "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
-        },
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+        // "textStyle": {
+        //   "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
+        //   "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
+        //   "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
+        //   "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
+        //   "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
+        //   "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
+        //   "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
+        //   "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
+        //   "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
+        // },
       },
       "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       "tooltip": props.tooltip&&{
@@ -179,6 +200,22 @@ export function getEchartsConfig(
           "pointer": {
             "length": `${props?.pointerLength}%`,
             "width": props?.pointerWidth,
+            "icon": props?.pointerIcon,
+            "offsetCenter": [0, `-${props.pointer_Y}%`],
+          },
+          "axisTick": {
+            "length": props.axisTickLength,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": props.axisTickWidth
+            }
+          },
+          "splitLine": {
+            "length": Number(props.axisTickLength) * 1.5,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": Number(props.axisTickWidth) * 1.5
+            }
           },
           "itemStyle": {
             "opacity": props?.opacity,
@@ -247,7 +284,775 @@ export function getEchartsConfig(
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+
+    const { progress, ...basicSeries } = basic.series[0];
+    const { color, ...basicStyle } = basic;
+
+    let stageGaugeOpt = {
+      ...basicStyle,
+        series: [
+          {
+            ...basicSeries,
+            type: 'gauge',
+            axisLine: {
+              lineStyle: {
+                width: props.progressBarWidthStage,
+                color: [
+                  props.stageGaugeProgressBarColor1 && props.stageGaugeProgressBarInterval1 ? [props.stageGaugeProgressBarInterval1 || 0.3, props.stageGaugeProgressBarColor1 || "#67e0e3"] : [],
+                  props.stageGaugeProgressBarColor2 && props.stageGaugeProgressBarInterval2 ? [props.stageGaugeProgressBarInterval2 || 0.7, props.stageGaugeProgressBarColor2 || "#37a2da"] : [],
+                  props.stageGaugeProgressBarColor3 && props.stageGaugeProgressBarInterval3 ? [props.stageGaugeProgressBarInterval3 || 1, props.stageGaugeProgressBarColor3 || "#fd666d"] : [],
+                ]
+              }
+            },
+            pointer: {
+              ...basicSeries.pointer,
+              itemStyle: {
+                color: 'auto',
+              }
+            },
+            axisTick: {
+              distance: -Number(props.progressBarWidthStage),
+              length: props.axisTickLength,
+              lineStyle: {
+                color: props.axisTickColorStage,
+                width: props.axisTickWidth
+              }
+            },
+            splitLine: {
+              distance: -Number(props.progressBarWidthStage),
+              length: props.progressBarWidthStage,
+              lineStyle: {
+                color: props.axisTickColorStage,
+                width: Number(props.axisTickWidth) * 1.5
+              }
+            },
+            axisLabel: {
+              color: 'inherit',
+              distance: Number(props.progressBarWidthStage) + 10,
+              fontSize: 13
+            },
+            detail: {
+              valueAnimation: true,
+              formatter: props?.stageGaugeOption?.data?.map(data => data.formatter)[0],
+              fontFamily: props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
+              fontSize: props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 20,
+              fontWeight: props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
+              color: props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || 'inherit',
+              fontStyle: props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
+              textShadowColor: props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
+              textShadowBlur: props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow?.split('px')[0],
+              textShadowOffsetX: props?.legendStyle?.chartBoxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow?.split('px')[1],
+              textShadowOffsetY: props?.legendStyle?.chartBoxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow?.split('px')[2]
+            },
+            data: [
+              {
+                value: props?.stageGaugeOption?.data?.map(data => data.value)
+              }
+            ]
+          }
+        ]
+      }
+
+    let gradeGaugeOpt = {
+      ...basicStyle,
+        series: [
+          {
+            ...basicSeries,
+            type: 'gauge',
+            axisLine: {
+              lineStyle: {
+                width: props.progressBarWidth, // slightly thinner line for smaller gauge
+                color: [
+                  [props.gradeGaugeProgressBarInterval1, props.stageGaugeProgressBarColor1],
+                  [props.gradeGaugeProgressBarInterval2, props.stageGaugeProgressBarColor2],
+                  [props.gradeGaugeProgressBarInterval3, props.stageGaugeProgressBarColor3],
+                  [props.gradeGaugeProgressBarInterval4, props.stageGaugeProgressBarColor4]
+                ]
+              }
+            },
+            pointer: {
+              icon: props.pointerIcon || 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+              length: props.gradeGaugePointerLength, // slightly shorter pointer
+              width: props.gradeGaugePointerWidth,     // slightly narrower pointer
+              offsetCenter: [0, `-${props.gradeGaugePointer_Y}%`],
+              itemStyle: {
+                color: 'auto'
+              }
+            },
+            axisTick: {
+              length: props.axisTickLength,
+              lineStyle: {
+                color: props.axisTickColorGrade || 'auto',
+                width: props.axisTickWidth
+              }
+            },
+            splitLine: {
+              length: Number(props.axisTickLength) * 2,
+              lineStyle: {
+                color: props.axisTickColorGrade || 'auto',
+                width: Number(props.axisTickWidth) * 1.5
+              }
+            },
+            // axisTick: {
+            //   distance: -Number(props.progressBarWidthStage),
+            //   length: props.axisTickLength,
+            //   lineStyle: {
+            //     color: props.axisTickColorStage,
+            //     width: props.axisTickWidth
+            //   }
+            // },
+            // splitLine: {
+            //   distance: -Number(props.progressBarWidthStage),
+            //   length: props.progressBarWidthStage,
+            //   lineStyle: {
+            //     color: props.axisTickColorStage,
+            //     width: Number(props.axisTickWidth) * 1.5
+            //   }
+            // },
+            axisLabel: {
+              show: false
+            },
+            title: {
+              offsetCenter: [0, '-10%'],
+              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
+            },
+            detail: {
+              offsetCenter: [0, '-35%'],
+              valueAnimation: true,
+              formatter: function (value) {
+                return value;
+              },
+              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, 'inherit'),
+            },
+            data: [
+              {
+                value: props?.gradeGaugeOption?.data?.map(data => data.value),
+                name: props?.gradeGaugeOption?.data?.map(data => data.name)[0],
+              }
+            ]
+          }
+        ]
+    }
+
+    let multiGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          type: 'gauge',
+          // Reduce the overall size of the gauge
+          radius: '85%',
+          center: ['50%', '55%'], // Adjust center if needed
+
+          anchor: {
+            show: true,
+            showAbove: true,
+            size: 14, // Decrease anchor size
+            itemStyle: {
+              color: '#FAC858'
+            }
+          },
+          pointer: {
+            width: 6,      // Narrow the pointer
+            length: '70%', // Shorten the pointer length
+            offsetCenter: [0, '10%'],
+            icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z'
+          },
+
+          progress: {
+            show: true,
+            overlap: true,
+            roundCap: true
+          },
+          axisLine: {
+            roundCap: true
+          },
+
+          data: [
+            {
+              value: 20,
+              name: 'Good',
+              title: {
+                fontSize: 12,
+                offsetCenter: ['-60%', '75%']
+              },
+              detail: {
+                fontSize: 12,
+                offsetCenter: ['-60%', '90%']
+              }
+            },
+            {
+              value: 40,
+              name: 'Better',
+              title: {
+                fontSize: 12,
+                offsetCenter: ['0%', '75%']
+              },
+              detail: {
+                fontSize: 12,
+                offsetCenter: ['0%', '90%']
+              }
+            },
+            {
+              value: 60,
+              name: 'Perfect',
+              title: {
+                fontSize: 12,
+                offsetCenter: ['60%', '75%']
+              },
+              detail: {
+                fontSize: 12,
+                offsetCenter: ['60%', '90%']
+              }
+            }
+          ],
+
+          title: {
+            fontSize: 12
+          },
+          detail: {
+            width: 30,
+            height: 12,
+            fontSize: 12,
+            color: '#fff',
+            backgroundColor: 'inherit',
+            borderRadius: 3,
+            formatter: '{value}%'
+          }
+        }
+      ]
+    }
+
+    let temperatureGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          type: 'gauge',
+          center: ['50%', '70%'],
+          radius: '80%',             // Shrink the gauge radius
+          startAngle: 200,
+          endAngle: -20,
+          min: 0,
+          max: 60,
+          splitNumber: 12,
+          itemStyle: {
+            color: '#FFAB91'
+          },
+          progress: {
+            show: true,
+            width: 20               // Reduced from 30
+          },
+          pointer: {
+            show: false
+          },
+          axisLine: {
+            lineStyle: {
+              width: 20             // Reduced from 30
+            }
+          },
+          axisTick: {
+            distance: -30,          // Reduced from -45
+            splitNumber: 5,
+            lineStyle: {
+              width: 2,
+              color: '#999'
+            }
+          },
+          splitLine: {
+            distance: -36,          // Reduced from -52
+            length: 10,             // Reduced from 14
+            lineStyle: {
+              width: 2,             // Reduced from 3
+              color: '#999'
+            }
+          },
+          axisLabel: {
+            distance: -14,          // Reduced from -20
+            color: '#999',
+            fontSize: 14            // Reduced from 20
+          },
+          anchor: {
+            show: false
+          },
+          title: {
+            show: false
+          },
+          detail: {
+            valueAnimation: true,
+            width: '60%',
+            lineHeight: 30,         // Reduced from 40
+            borderRadius: 8,
+            offsetCenter: [0, '-15%'],
+            fontSize: 40,           // Reduced from 60
+            fontWeight: 'bolder',
+            formatter: '{value} °C',
+            color: 'inherit'
+          },
+          data: [
+            {
+              value: 20
+            }
+          ]
+        },
+        {
+          type: 'gauge',
+          center: ['50%', '70%'],
+          radius: '80%',            // Match the same radius
+          startAngle: 200,
+          endAngle: -20,
+          min: 0,
+          max: 60,
+          itemStyle: {
+            color: '#FD7347'
+          },
+          progress: {
+            show: true,
+            width: 6                // Reduced from 8
+          },
+          pointer: {
+            show: false
+          },
+          axisLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          splitLine: {
+            show: false
+          },
+          axisLabel: {
+            show: false
+          },
+          detail: {
+            show: false
+          },
+          data: [
+            {
+              value: 20
+            }
+          ]
+        }
+      ]
+    }
+
+    let ringGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          type: 'gauge',
+          center: ['50%', '55%'],
+          radius: '80%',              // Shrink the gauge
+          startAngle: 90,
+          endAngle: -270,
+          pointer: {
+            show: false
+          },
+          progress: {
+            show: true,
+            overlap: false,
+            roundCap: true,
+            clip: false,
+            itemStyle: {
+              borderWidth: 1,
+              borderColor: '#464646'
+            }
+          },
+          axisLine: {
+            lineStyle: {
+              width: 20              // Reduced from 40
+            }
+          },
+          splitLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            show: false
+          },
+          data: [
+            {
+              value: 20,
+              name: 'Perfect',
+              title: {
+                fontSize: 12,         // Smaller font
+                offsetCenter: ['0%', '-40%'] // Adjust if needed
+              },
+              detail: {
+                valueAnimation: true,
+                fontSize: 12,         // Smaller font
+                width: 40,            // Slightly smaller
+                height: 12,           // Slightly smaller
+                offsetCenter: ['0%', '-20%']
+              }
+            },
+            {
+              value: 40,
+              name: 'Good',
+              title: {
+                fontSize: 12,
+                offsetCenter: ['0%', '0%']
+              },
+              detail: {
+                valueAnimation: true,
+                fontSize: 12,
+                width: 40,
+                height: 12,
+                offsetCenter: ['0%', '20%']
+              }
+            },
+            {
+              value: 60,
+              name: 'Commonly',
+              title: {
+                fontSize: 12,
+                offsetCenter: ['0%', '40%']
+              },
+              detail: {
+                valueAnimation: true,
+                fontSize: 12,
+                width: 40,
+                height: 12,
+                offsetCenter: ['0%', '60%']
+              }
+            }
+          ],
+          title: {
+            fontSize: 12 // Smaller title font size
+          },
+          detail: {
+            fontSize: 12,
+            width: 40,
+            height: 12,
+            borderRadius: 20,
+            borderWidth: 1,
+            formatter: '{value}%'
+          }
+        }
+      ]
+    }
+
+    let barometerGaugeOpt = {
+      ...basic,
+      series: [
+        {
+          type: 'gauge',
+          min: 0,
+          max: 100,
+          center: ['50%', '60%'],
+          splitNumber: 10,
+          radius: '70%',       // Reduced from 80% to fit a smaller canvas
+          axisLine: {
+            lineStyle: {
+              color: [[1, '#f00']],
+              width: 2         // Reduced line width
+            }
+          },
+          splitLine: {
+            distance: -12,     // Reduced from -18
+            length: 10,        // Reduced from 18
+            lineStyle: {
+              color: '#f00',
+              width: 2         // Thinner line
+            }
+          },
+          axisTick: {
+            distance: -8,      // Reduced from -12
+            length: 6,         // Reduced from 10
+            lineStyle: {
+              color: '#f00',
+              width: 1
+            }
+          },
+          axisLabel: {
+            distance: -30,     // Reduced from -50 to bring labels closer
+            color: '#f00',
+            fontSize: 14       // Reduced from 25
+          },
+          anchor: {
+            show: true,
+            size: 14,          // Reduced from 20
+            itemStyle: {
+              borderColor: '#000',
+              borderWidth: 1    // Reduced border width
+            }
+          },
+          pointer: {
+            offsetCenter: [0, '10%'],
+            length: '80%',      // Reduced pointer length (from 115%) for proportionality
+            icon: 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z',
+            itemStyle: {
+              color: '#000'
+            }
+          },
+          detail: {
+            valueAnimation: true,
+            precision: 2,        // Increase precision or keep as is
+            fontSize: 16,        // Reduced from default larger size
+            offsetCenter: [0, '40%'] // Adjust to fit within the smaller radius
+          },
+          title: {
+            offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
+            fontSize: 14                // Smaller font
+          },
+          data: [
+            {
+              value: 58.46,
+              name: 'PLP'
+            }
+          ]
+        },
+        {
+          type: 'gauge',
+          min: 0,
+          max: 60,
+          center: ['50%', '60%'],
+          splitNumber: 6,
+          radius: '60%',          // Match the radius
+          axisLine: {
+            lineStyle: {
+              color: [[1, '#000']],
+              width: 2
+            }
+          },
+          splitLine: {
+            distance: -2,          // Adjust spacing
+            length: 10,            // Reduced length
+            lineStyle: {
+              color: '#000',
+              width: 2
+            }
+          },
+          axisTick: {
+            distance: 0,
+            length: 6,             // Reduced
+            lineStyle: {
+              color: '#000',
+              width: 1
+            }
+          },
+          axisLabel: {
+            distance: 6,           // Reduced label distance
+            fontSize: 14,          // Smaller font
+            color: '#000'
+          },
+          pointer: {
+            show: false
+          },
+          title: {
+            show: false
+          },
+          anchor: {
+            show: true,
+            size: 10,              // Smaller anchor
+            itemStyle: {
+              color: '#000'
+            }
+          }
+        }
+      ]
+    }
+
+    let clockGaugeOpt = {
+      ...basicStyle,
+        series: [
+          {
+            ...basicSeries,
+            name: 'hour',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 12,
+            center: ['50%', '50%'],
+            splitNumber: 12,
+            clockwise: true,
+            axisLine: {
+              lineStyle: {
+                width: 15,
+                color: [[1, 'rgba(0,0,0,0.7)']],
+                shadowColor: 'rgba(0, 0, 0, 0.5)',
+                shadowBlur: 15
+              }
+            },
+            splitLine: {
+              lineStyle: {
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 3,
+                shadowOffsetX: 1,
+                shadowOffsetY: 2
+              }
+            },
+            axisLabel: {
+              fontSize: 15,
+              distance: 20,
+              formatter: function (value) {
+                if (value === 0) {
+                  return '';
+                }
+                return value + '';
+              }
+            },
+            pointer: {
+              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              width: 6,
+              length: '55%',
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: '#C0911F',
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 8,
+                shadowOffsetX: 2,
+                shadowOffsetY: 4
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: [0, '30%']
+            },
+            data: [
+              {
+                value: 0
+              }
+            ]
+          },
+          {
+            name: 'minute',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 60,
+            clockwise: true,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            },
+            axisLabel: {
+              show: false
+            },
+            pointer: {
+              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              width: 4,
+              length: '70%',
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: '#C0911F',
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 8,
+                shadowOffsetX: 2,
+                shadowOffsetY: 4
+              }
+            },
+            anchor: {
+              show: true,
+              size: 10,
+              showAbove: false,
+              itemStyle: {
+                borderWidth: 15,
+                borderColor: '#C0911F',
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 8,
+                shadowOffsetX: 2,
+                shadowOffsetY: 4
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: ['0%', '-40%']
+            },
+            data: [
+              {
+                value: 20
+              }
+            ]
+          },
+          {
+            name: 'second',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 60,
+            animationEasingUpdate: 'bounceOut',
+            clockwise: true,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            },
+            axisLabel: {
+              show: false
+            },
+            pointer: {
+              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              width: 2,
+              length: '85%',
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: '#C0911F',
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 8,
+                shadowOffsetX: 2,
+                shadowOffsetY: 4
+              }
+            },
+            anchor: {
+              show: true,
+              size: 15,
+              showAbove: true,
+              itemStyle: {
+                color: '#C0911F',
+                shadowColor: 'rgba(0, 0, 0, 0.3)',
+                shadowBlur: 8,
+                shadowOffsetX: 2,
+                shadowOffsetY: 4
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: ['0%', '-40%']
+            },
+            data: [
+              {
+                value: 40
+              }
+            ]
+          }
+        ]
+    }
+
+    const typeMap = {
+      default: basic,
+      stageGauge: stageGaugeOpt,
+      gradeGauge: gradeGaugeOpt,
+      temperatureGauge: temperatureGaugeOpt,
+      multiGauge: multiGaugeOpt,
+      ringGauge: ringGaugeOpt,
+      barometerGauge: barometerGaugeOpt,
+      clockGauge: clockGaugeOpt,
+    };
+
+    return typeMap[props.chartType] || basic;
 
   }
 
