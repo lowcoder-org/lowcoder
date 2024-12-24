@@ -293,7 +293,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Mono<Organization> updateSlug(String organizationId, String newSlug) {
         return repository.existsBySlug(newSlug).flatMap(exists -> {
             if (exists) {
-                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+                return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
             }
             return repository.findById(organizationId)
                     .flatMap(organization -> {
