@@ -393,22 +393,6 @@ export function getEchartsConfig(
                 width: Number(props.axisTickWidth) * 1.5
               }
             },
-            // axisTick: {
-            //   distance: -Number(props.progressBarWidthStage),
-            //   length: props.axisTickLength,
-            //   lineStyle: {
-            //     color: props.axisTickColorStage,
-            //     width: props.axisTickWidth
-            //   }
-            // },
-            // splitLine: {
-            //   distance: -Number(props.progressBarWidthStage),
-            //   length: props.progressBarWidthStage,
-            //   lineStyle: {
-            //     color: props.axisTickColorStage,
-            //     width: Number(props.axisTickWidth) * 1.5
-            //   }
-            // },
             axisLabel: {
               show: false
             },
@@ -528,83 +512,71 @@ export function getEchartsConfig(
       series: [
         {
           ...basicSeries,
-          type: 'gauge',
-          center: ['50%', '70%'],
-          radius: '80%',             // Shrink the gauge radius
-          startAngle: 200,
-          endAngle: -20,
-          min: 0,
-          max: 60,
-          splitNumber: 12,
           itemStyle: {
-            color: '#FFAB91'
+            color: props?.temperatureGaugeOption?.data?.map(data => data.color)[0]
           },
           progress: {
             show: true,
-            width: 20               // Reduced from 30
+            width: props.progressBarWidth
           },
           pointer: {
             show: false
           },
           axisLine: {
             lineStyle: {
-              width: 20             // Reduced from 30
+              width: props.progressBarWidth
             }
           },
           axisTick: {
-            distance: -30,          // Reduced from -45
-            splitNumber: 5,
+            length: props.axisTickLength,
+            distance: -Number(props.progressBarWidth) - 10,
             lineStyle: {
-              width: 2,
-              color: '#999'
+              color: props.axisTickColorGrade || 'auto',
+              width: props.axisTickWidth
             }
           },
           splitLine: {
-            distance: -36,          // Reduced from -52
-            length: 10,             // Reduced from 14
+            distance: -Number(props.progressBarWidth) - 10 - Number(props.axisTickLength),
+            length: Number(props.axisTickLength) * 2,
             lineStyle: {
-              width: 2,             // Reduced from 3
-              color: '#999'
+              color: props.axisTickColorGrade || 'auto',
+              width: Number(props.axisTickWidth) * 1.5
             }
           },
           axisLabel: {
-            distance: -14,          // Reduced from -20
-            color: '#999',
-            fontSize: 14            // Reduced from 20
-          },
-          anchor: {
-            show: false
-          },
-          title: {
-            show: false
+            distance: -20,          // Reduced from -20
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 20, "#999"),
           },
           detail: {
             valueAnimation: true,
-            width: '60%',
             lineHeight: 30,         // Reduced from 40
-            borderRadius: 8,
             offsetCenter: [0, '-15%'],
-            fontSize: 40,           // Reduced from 60
-            fontWeight: 'bolder',
-            formatter: '{value} °C',
-            color: 'inherit'
+            formatter: props?.temperatureGaugeOption?.data?.map(data => data.formatter)[0],
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 40, 'inherit'),
           },
           data: [
             {
-              value: 20
+              value: props?.temperatureGaugeOption?.data?.map(data => data.value)
             }
           ]
         },
         {
           type: 'gauge',
-          center: ['50%', '70%'],
-          radius: '80%',            // Match the same radius
-          startAngle: 200,
-          endAngle: -20,
-          min: 0,
-          max: 60,
+          // center: ['50%', '70%'],
+          // radius: '80%',            // Match the same radius
+          // startAngle: 200,
+          // endAngle: -20,
+          // min: 0,
+          // max: 60,
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          startAngle: props?.startAngle,
+          endAngle: props?.endAngle,
+          splitNumber: props?.splitNumber,
+          min: props?.min,
+          max: props?.max,
+          radius: `${props.radius}%`,
           itemStyle: {
-            color: '#FD7347'
+            color: props?.temperatureGaugeOption?.data?.map(data => data.borderColor)[0]
           },
           progress: {
             show: true,
@@ -630,7 +602,7 @@ export function getEchartsConfig(
           },
           data: [
             {
-              value: 20
+              value: props?.temperatureGaugeOption?.data?.map(data => data.value)
             }
           ]
         }

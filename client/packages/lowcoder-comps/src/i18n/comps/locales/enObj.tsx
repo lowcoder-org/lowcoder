@@ -186,6 +186,11 @@ export const enObj: I18nObjects = {
       { value: 80, name: "Grade Rating" }
     ]
   },
+  defaultTemperatureGaugeChartOption: {
+    data: [
+      {value: 20, color: "#fc8452", borderColor: "#cd7c1d", formatter: "{value} °C" }
+    ]
+  },
   defaultSankeyChartOption: {
     data: [
       {name: "Show"},

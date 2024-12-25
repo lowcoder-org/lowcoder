@@ -239,7 +239,7 @@ export function gaugeChartPropertyView(
   const temperatureGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
+        {children.temperatureGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -272,6 +272,9 @@ export function gaugeChartPropertyView(
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
+        {children.axisTickColorGrade.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
         {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
@@ -286,9 +289,9 @@ export function gaugeChartPropertyView(
       <Section name={sectionNames.titleStyle}>
         {children.titleStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.labelStyle}>
-        {children.labelStyle?.getPropertyView()}
-      </Section>
+      {/*<Section name={sectionNames.labelStyle}>*/}
+      {/*  {children.labelStyle?.getPropertyView()}*/}
+      {/*</Section>*/}
       <Section name={sectionNames.detailStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>

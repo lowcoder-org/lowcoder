@@ -270,6 +270,7 @@ let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
   stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
   gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
+  temperatureGaugeOption: jsonControl(toObject, i18nObjs.defaultTemperatureGaugeChartOption),
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
