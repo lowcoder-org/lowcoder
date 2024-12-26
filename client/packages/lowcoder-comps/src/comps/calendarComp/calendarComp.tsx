@@ -84,6 +84,9 @@ import {
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
 import { EventImpl } from "@fullcalendar/core/internal";
+import DatePicker from "antd/es/date-picker";
+
+const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -205,6 +208,7 @@ let childrenMap: any = {
   updatedEvents: stateComp<JSONObject>({}),
   insertedEvents: stateComp<JSONObject>({}),
   deletedEvents: stateComp<JSONObject>({}),
+  inputFormat: withDefault(StringControl, DATE_TIME_FORMAT),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -245,6 +249,7 @@ let CalendarBasicComp = (function () {
     modalStyle?:any;
     showVerticalScrollbar?:boolean;
     initialData: Array<EventType>;
+    inputFormat: string;
   }, dispatch: any) => {
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
@@ -531,7 +536,14 @@ let CalendarBasicComp = (function () {
       const modalTitle = ifEdit
         ? trans("calendar.editEvent")
         : trans("calendar.creatEvent");
-      form && form.setFieldsValue(event);
+      if (form) {
+        const eventData = {
+          ...event,
+          start: Boolean(event.start) ? dayjs(event.start, props.inputFormat): null,
+          end: Boolean(event.end) ? dayjs(event.end, props.inputFormat): null,
+        }
+        form.setFieldsValue(eventData)
+      }
       const eventId = editEvent.current?.id;
 
       CustomModal.confirm({
@@ -589,13 +601,21 @@ let CalendarBasicComp = (function () {
                   label={trans("calendar.eventStartTime")}
                   name="start"
                 >
-                  <Input />
+                  <DatePicker
+                    showTime
+                    format={props.inputFormat}
+                    popupStyle={{zIndex: 2050}}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventEndTime")}
                   name="end"
                 >
-                  <Input />
+                  <DatePicker
+                    showTime
+                    format={props.inputFormat}
+                    popupStyle={{zIndex: 2050}}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventAllDay")}
@@ -739,7 +759,11 @@ let CalendarBasicComp = (function () {
               animation,
               animationDelay,
               animationDuration,
-              animationIterationCount } = form.getFieldsValue();
+              animationIterationCount,
+              start,
+              end,
+              allDay,
+            } = form.getFieldsValue();
             const idExist = props.events.findIndex(
               (item: EventType) => item.id === id
             );
@@ -757,6 +781,9 @@ let CalendarBasicComp = (function () {
                     label,
                     detail,
                     id,
+                    start: dayjs(start, DateParser).format(),
+                    end: dayjs(end, DateParser).format(),
+                    allDay,
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(resourceId !== undefined ? { resourceId } : null),
                     ...(color !== undefined ? { color } : null),
@@ -779,9 +806,9 @@ let CalendarBasicComp = (function () {
               handleEventDataChange(changeEvents);
             } else {
               const createInfo = {
-                allDay: event.allDay,
-                start: event.start,
-                end: event.end,
+                allDay: allDay,
+                start: dayjs(start, DateParser).format(),
+                end: dayjs(end, DateParser).format(),
                 id,
                 label,
                 detail,
@@ -1033,6 +1060,7 @@ let CalendarBasicComp = (function () {
       modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
       showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
+      inputFormat: { propertyView: (arg0: {}) => any; };
     }) => {
       const license = children.licenseKey.getView();
       
@@ -1072,6 +1100,22 @@ let CalendarBasicComp = (function () {
             {children.eventMaxStack.propertyView({ label: trans("calendar.eventMaxStack"), tooltip: trans("calendar.eventMaxStackTooltip"), })}
           </Section>
           <Section name={sectionNames.layout}>
+            {children.inputFormat.propertyView({
+              label: trans("calendar.inputFormat"),
+              placeholder: DATE_TIME_FORMAT,
+              tooltip: (
+                <>
+                  {trans("calendar.reference")} &nbsp;
+                  <a
+                    href={`https://day.js.org/docs/en/display/format`}
+                    target={"_blank"}
+                    rel="noreferrer"
+                  >
+                    dayjs format
+                  </a>
+                </>
+              ),
+            })}
             {children.licenseKey.propertyView({ label: trans("calendar.license"), tooltip: trans("calendar.licenseTooltip"), })}
             {license == ""
               ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })

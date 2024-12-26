@@ -424,7 +424,9 @@ export const en = {
     animationDelay:"Delay",
     animationDuration:"Duration",
     animationIterationCount:"IterationCount",
-    showVerticalScrollbar:"Show Vertical ScrollBar"
+    showVerticalScrollbar:"Show Vertical ScrollBar",
+    inputFormat: "Input Format",
+    reference: "Please Refer to",
   },
 };
 
