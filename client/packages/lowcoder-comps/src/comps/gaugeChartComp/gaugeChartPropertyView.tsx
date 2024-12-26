@@ -261,7 +261,7 @@ export function gaugeChartPropertyView(
         {children.top.propertyView({ label: trans("gaugeChart.top") })}
         {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
         {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
-        {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
+        {children.radiusTemperature.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
         {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
         {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
         {children.position_x.propertyView({ label: trans("gaugeChart.position_x"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
@@ -271,7 +271,8 @@ export function gaugeChartPropertyView(
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.progressBar.getView() && children.progressBarWidthTemperature.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("gaugeChart.axisLabelDistanceTooltip") })}
         {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
         {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
         {children.axisTickColorGrade.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}

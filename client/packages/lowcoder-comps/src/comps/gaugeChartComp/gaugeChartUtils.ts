@@ -424,18 +424,6 @@ export function getEchartsConfig(
         {
           ...basicSeries,
           type: 'gauge',
-          // Reduce the overall size of the gauge
-          radius: '85%',
-          center: ['50%', '55%'], // Adjust center if needed
-
-          anchor: {
-            show: true,
-            showAbove: true,
-            size: 14, // Decrease anchor size
-            itemStyle: {
-              color: '#FAC858'
-            }
-          },
           pointer: {
             width: 6,      // Narrow the pointer
             length: '70%', // Shorten the pointer length
@@ -458,11 +446,11 @@ export function getEchartsConfig(
               name: 'Good',
               title: {
                 fontSize: 12,
-                offsetCenter: ['-60%', '75%']
+                offsetCenter: ['-60%', '60%']
               },
               detail: {
                 fontSize: 12,
-                offsetCenter: ['-60%', '90%']
+                offsetCenter: ['-60%', '80%']
               }
             },
             {
@@ -470,11 +458,11 @@ export function getEchartsConfig(
               name: 'Better',
               title: {
                 fontSize: 12,
-                offsetCenter: ['0%', '75%']
+                offsetCenter: ['0%', '60%']
               },
               detail: {
                 fontSize: 12,
-                offsetCenter: ['0%', '90%']
+                offsetCenter: ['0%', '80%']
               }
             },
             {
@@ -482,11 +470,11 @@ export function getEchartsConfig(
               name: 'Perfect',
               title: {
                 fontSize: 12,
-                offsetCenter: ['60%', '75%']
+                offsetCenter: ['60%', '60%']
               },
               detail: {
                 fontSize: 12,
-                offsetCenter: ['60%', '90%']
+                offsetCenter: ['60%', '80%']
               }
             }
           ],
@@ -512,31 +500,32 @@ export function getEchartsConfig(
       series: [
         {
           ...basicSeries,
+          radius: `${props.radiusTemperature}%`,
           itemStyle: {
             color: props?.temperatureGaugeOption?.data?.map(data => data.color)[0]
           },
           progress: {
             show: true,
-            width: props.progressBarWidth
+            width: props.progressBarWidthTemperature
           },
           pointer: {
             show: false
           },
           axisLine: {
             lineStyle: {
-              width: props.progressBarWidth
+              width: props.progressBarWidthTemperature
             }
           },
           axisTick: {
             length: props.axisTickLength,
-            distance: -Number(props.progressBarWidth) - 10,
+            distance: -Number(props.progressBarWidthTemperature) - 10,
             lineStyle: {
               color: props.axisTickColorGrade || 'auto',
               width: props.axisTickWidth
             }
           },
           splitLine: {
-            distance: -Number(props.progressBarWidth) - 10 - Number(props.axisTickLength),
+            distance: -Number(props.progressBarWidthTemperature) - 10 - Number(props.axisTickLength),
             length: Number(props.axisTickLength) * 2,
             lineStyle: {
               color: props.axisTickColorGrade || 'auto',
@@ -544,12 +533,11 @@ export function getEchartsConfig(
             }
           },
           axisLabel: {
-            distance: -20,          // Reduced from -20
+            distance: -Number(props.axisLabelDistance),
             ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 20, "#999"),
           },
           detail: {
             valueAnimation: true,
-            lineHeight: 30,         // Reduced from 40
             offsetCenter: [0, '-15%'],
             formatter: props?.temperatureGaugeOption?.data?.map(data => data.formatter)[0],
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 40, 'inherit'),
@@ -574,7 +562,7 @@ export function getEchartsConfig(
           splitNumber: props?.splitNumber,
           min: props?.min,
           max: props?.max,
-          radius: `${props.radius}%`,
+          radius: `${props.radiusTemperature}%`,
           itemStyle: {
             color: props?.temperatureGaugeOption?.data?.map(data => data.borderColor)[0]
           },

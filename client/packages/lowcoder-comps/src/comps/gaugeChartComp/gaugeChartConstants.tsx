@@ -288,6 +288,7 @@ let chartJsonModeChildren: any = {
   bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),
   width:withDefault(NumberControl,trans('gaugeChart.defaultWidth')),
   radius:withDefault(NumberControl,trans('gaugeChart.defaultRadius')),
+  radiusTemperature:withDefault(NumberControl,trans('gaugeChart.defaultRadiusTemperature')),
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
   gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
@@ -305,6 +306,7 @@ let chartJsonModeChildren: any = {
   pointerIcon:withDefault(StringControl),
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
   progressBarWidthStage:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidthStage')),
+  progressBarWidthTemperature:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidthTemperature')),
   stageGaugeProgressBarColor1: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor1')),
   stageGaugeProgressBarColor2: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor2')),
   stageGaugeProgressBarColor3: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultProgressBarColor3')),
@@ -325,6 +327,7 @@ let chartJsonModeChildren: any = {
   axisTickColor: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColor')),
   axisTickColorStage: withDefault(ColorControl, trans('gaugeChart.stageGauge.defaultAxisTickColorStage')),
   axisTickColorGrade: withDefault(ColorControl),
+  axisLabelDistance: withDefault(NumberControl, trans('gaugeChart.defaultAxisLabelDistance')),
 }
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
