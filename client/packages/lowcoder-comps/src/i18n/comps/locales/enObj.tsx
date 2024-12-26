@@ -191,6 +191,30 @@ export const enObj: I18nObjects = {
       {value: 20, color: "#fc8452", borderColor: "#cd7c1d", formatter: "{value} °C" }
     ]
   },
+  defaultMultiTitleGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: [
+          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['-60%', '60%'], valuePosition: ['-60%', '80%']},
+          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '60%'], valuePosition: ['0%', '80%']},
+          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['60%', '60%'], valuePosition: ['60%', '80%']},
+        ]
+      }
+    ]
+  },
+  defaultRingGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: [
+          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['0%', '-40%'], valuePosition: ['0%', '-20%']},
+          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '0%'], valuePosition: ['0%', '20%']},
+          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['0%', '40%'], valuePosition: ['0%', '60%']},
+        ]
+      }
+    ]
+  },
   defaultSankeyChartOption: {
     data: [
       {name: "Show"},

@@ -8,6 +8,8 @@ export type I18nObjects = {
   defaultStageGaugeChartOption: Record<string, unknown>;
   defaultGradeGaugeChartOption: Record<string, unknown>;
   defaultTemperatureGaugeChartOption: Record<string, unknown>;
+  defaultMultiTitleGaugeChartOption: Record<string, unknown>;
+  defaultRingGaugeChartOption: Record<string, unknown>;
   defaultFunnelChartOption: Record<string, unknown>;
   defaultSankeyChartOption: Record<string, unknown>;
   defaultCandleStickChartOption: Record<string, unknown>;

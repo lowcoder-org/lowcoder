@@ -271,6 +271,8 @@ let chartJsonModeChildren: any = {
   stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
   gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
   temperatureGaugeOption: jsonControl(toObject, i18nObjs.defaultTemperatureGaugeChartOption),
+  multiTitleGaugeOption: jsonControl(toObject, i18nObjs.defaultMultiTitleGaugeChartOption),
+  ringGaugeOption: jsonControl(toObject, i18nObjs.defaultRingGaugeChartOption),
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
@@ -329,6 +331,7 @@ let chartJsonModeChildren: any = {
   axisTickColorGrade: withDefault(ColorControl),
   axisLabelDistance: withDefault(NumberControl, trans('gaugeChart.defaultAxisLabelDistance')),
 }
+
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,

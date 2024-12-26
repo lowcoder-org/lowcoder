@@ -271,6 +271,7 @@ export function gaugeChartPropertyView(
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
         {children.progressBar.getView() && children.progressBarWidthTemperature.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("gaugeChart.axisLabelDistanceTooltip") })}
         {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
@@ -306,7 +307,7 @@ export function gaugeChartPropertyView(
   const multiGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
+        {children.multiTitleGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -338,6 +339,8 @@ export function gaugeChartPropertyView(
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.pointer_Y.propertyView({ label: trans("gaugeChart.pointer_Y"), tooltip: trans("gaugeChart.pointer_Y_Tooltip") })}
+        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
         {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
@@ -369,7 +372,7 @@ export function gaugeChartPropertyView(
   const ringGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
+        {children.ringGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (

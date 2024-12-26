@@ -425,12 +425,10 @@ export function getEchartsConfig(
           ...basicSeries,
           type: 'gauge',
           pointer: {
-            width: 6,      // Narrow the pointer
-            length: '70%', // Shorten the pointer length
-            offsetCenter: [0, '10%'],
-            icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z'
+            ...basicSeries.pointer,
+            icon: props.pointerIcon || 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+            offsetCenter: [0, '8%']
           },
-
           progress: {
             show: true,
             overlap: true,
@@ -440,56 +438,34 @@ export function getEchartsConfig(
             roundCap: true
           },
 
-          data: [
-            {
-              value: 20,
-              name: 'Good',
-              title: {
-                fontSize: 12,
-                offsetCenter: ['-60%', '60%']
-              },
-              detail: {
-                fontSize: 12,
-                offsetCenter: ['-60%', '80%']
-              }
+          data: props.multiTitleGaugeOption.data[0].value.map(item => ({
+            value: item.value,
+            name: item.title,
+            title: {
+              offsetCenter: item.titlePosition
             },
-            {
-              value: 40,
-              name: 'Better',
-              title: {
-                fontSize: 12,
-                offsetCenter: ['0%', '60%']
-              },
-              detail: {
-                fontSize: 12,
-                offsetCenter: ['0%', '80%']
-              }
+            detail: {
+              offsetCenter: item.valuePosition
             },
-            {
-              value: 60,
-              name: 'Perfect',
-              title: {
-                fontSize: 12,
-                offsetCenter: ['60%', '60%']
-              },
-              detail: {
-                fontSize: 12,
-                offsetCenter: ['60%', '80%']
+            itemStyle: {
+              color: item.color
+            },
+            pointer: {
+              itemStyle: {
+                color: item.color
               }
             }
-          ],
+          })),
 
           title: {
-            fontSize: 12
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
           },
           detail: {
             width: 30,
             height: 12,
-            fontSize: 12,
-            color: '#fff',
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff'),
             backgroundColor: 'inherit',
-            borderRadius: 3,
-            formatter: '{value}%'
+            formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
       ]
@@ -602,11 +578,9 @@ export function getEchartsConfig(
       series: [
         {
           ...basicSeries,
-          type: 'gauge',
-          center: ['50%', '55%'],
-          radius: '80%',              // Shrink the gauge
           startAngle: 90,
-          endAngle: -270,
+          endAngle: 450,
+          type: 'gauge',
           pointer: {
             show: false
           },
@@ -617,7 +591,7 @@ export function getEchartsConfig(
             clip: false,
             itemStyle: {
               borderWidth: 1,
-              borderColor: '#464646'
+              borderColor: 'inherit'
             }
           },
           axisLine: {
@@ -634,63 +608,35 @@ export function getEchartsConfig(
           axisLabel: {
             show: false
           },
-          data: [
-            {
-              value: 20,
-              name: 'Perfect',
-              title: {
-                fontSize: 12,         // Smaller font
-                offsetCenter: ['0%', '-40%'] // Adjust if needed
-              },
-              detail: {
-                valueAnimation: true,
-                fontSize: 12,         // Smaller font
-                width: 40,            // Slightly smaller
-                height: 12,           // Slightly smaller
-                offsetCenter: ['0%', '-20%']
-              }
+          data: props.ringGaugeOption.data[0].value.map(item => ({
+            value: item.value,
+            name: item.title,
+            title: {
+              offsetCenter: item.titlePosition
             },
-            {
-              value: 40,
-              name: 'Good',
-              title: {
-                fontSize: 12,
-                offsetCenter: ['0%', '0%']
-              },
-              detail: {
-                valueAnimation: true,
-                fontSize: 12,
-                width: 40,
-                height: 12,
-                offsetCenter: ['0%', '20%']
-              }
+            detail: {
+              offsetCenter: item.valuePosition
             },
-            {
-              value: 60,
-              name: 'Commonly',
-              title: {
-                fontSize: 12,
-                offsetCenter: ['0%', '40%']
-              },
-              detail: {
-                valueAnimation: true,
-                fontSize: 12,
-                width: 40,
-                height: 12,
-                offsetCenter: ['0%', '60%']
+            itemStyle: {
+              color: item.color
+            },
+            pointer: {
+              itemStyle: {
+                color: item.color
               }
             }
-          ],
+          })),
           title: {
-            fontSize: 12 // Smaller title font size
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
           },
           detail: {
-            fontSize: 12,
             width: 40,
             height: 12,
             borderRadius: 20,
             borderWidth: 1,
-            formatter: '{value}%'
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#000000'),
+            // backgroundColor: 'inherit',
+            formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
       ]
