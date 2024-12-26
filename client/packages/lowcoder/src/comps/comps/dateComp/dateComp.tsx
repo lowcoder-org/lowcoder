@@ -70,6 +70,7 @@ const commonChildren = {
   label: LabelControl,
   placeholder: withDefault(StringControl, trans("date.placeholder")),
   format: StringControl,
+  inputFormat: withDefault(StringControl, DATE_FORMAT),
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   showTime: BoolControl,
@@ -92,7 +93,7 @@ const commonChildren = {
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
+  _.pick(props, "format", "inputFormat", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
   children.showTime.propertyView({ label: trans("date.showTime") }),
@@ -154,6 +155,7 @@ export type DateCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
   | "disabled"
   | "format"
+  | "inputFormat"
   | "minDate"
   | "maxDate"
   | "suffixIcon"
@@ -279,7 +281,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
-            {formatPropertyView({ children })}
+            {formatPropertyView({ children, placeholder: DATE_FORMAT })}
             {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
           </Section>
         )}

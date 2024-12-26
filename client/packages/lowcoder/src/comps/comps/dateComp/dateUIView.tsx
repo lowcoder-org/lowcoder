@@ -53,8 +53,9 @@ export const DateUIView = (props: DataUIViewProps) => {
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
-      {...omit(props, "format")}
+      {...omit(props, "format", "inputFormat")}
       multiple={false}
+      format={props.inputFormat}
       ref={props.viewRef as any}
       minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
       maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}

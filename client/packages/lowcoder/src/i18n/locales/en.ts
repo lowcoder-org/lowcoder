@@ -1809,6 +1809,7 @@ export const en = {
   },
   "date": {
     "format": "Format",
+    "inputFormat": "Input Format",
     "formatTip": "Support: 'YYYY-MM-DD HH:mm:ss', 'YYYY-MM-DD', 'Timestamp'",
     "reference": "Please Refer to",
     "showTime": "Show Time",

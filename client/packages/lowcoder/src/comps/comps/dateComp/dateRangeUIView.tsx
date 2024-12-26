@@ -61,7 +61,8 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
   return useUIView(
     <DateRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange" , "format")}
+      {...omit(props, "onChange" , "format", "inputFormat")}
+      format={props.inputFormat}
       ref={props.viewRef as any}
       value={[props.start, props.end]}
       disabledDate={(current: any) => disabledDate(current, props.minDate, props.maxDate)}

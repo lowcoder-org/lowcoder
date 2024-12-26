@@ -137,7 +137,10 @@ export function formatDate(date: string, format: string) {
 const childrenMap = {
   text: StringControl,
   format: withDefault(StringControl, DATE_FORMAT),
+  inputFormat: withDefault(StringControl, DATE_FORMAT),
 };
+
+let inputFormat = DATE_FORMAT;
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
@@ -146,6 +149,7 @@ type DateEditProps = {
   onChange: (value: string) => void;
   onChangeEnd: () => void;
   showTime: boolean;
+  inputFormat: string;
 };
 
 export const DateEdit = (props: DateEditProps) => {
@@ -183,6 +187,7 @@ export const DateEdit = (props: DateEditProps) => {
         nextIcon={<IconNext />}
         superNextIcon={<IconSuperNext />}
         superPrevIcon={<SuperPrevIcon />}
+        format={props.inputFormat}
         allowClear={true}
         variant="borderless"
         autoFocus
@@ -210,6 +215,7 @@ export const DateComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
+      inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return formatDate(value, props.format);
     },
@@ -222,6 +228,7 @@ export const DateComp = (function () {
         onChange={props.onChange}
         onChangeEnd={props.onChangeEnd}
         showTime={false}
+        inputFormat={inputFormat}
       />
     ))
     .setPropertyViewFn((children) => (
