@@ -173,17 +173,35 @@ export const enObj: I18nObjects = {
   },
   defaultGaugeChartOption: {
     data: [
-      { value: 60, name: "Completed",color:'#fc8452' }
+      { value: 60, name: "Completed",color:'#fc8452', formatter: "{value} %" }
     ]
   },
   defaultStageGaugeChartOption: {
     data: [
-      { value: 80, formatter: "{value} Km/h" }
+      {
+        value: 80,
+        formatter: "{value} Km/h",
+        color: [
+          [0.3, '#67e0e3'],
+          [0.7, '#37a2da'],
+          [1, '#fd666d']
+        ]
+      }
     ]
   },
   defaultGradeGaugeChartOption: {
     data: [
-      { value: 80, name: "Grade Rating" }
+      {
+        value: 80,
+        name: "Grade Rating",
+        formatter: "{value} %",
+        color: [
+          [0.25, '#FF6E76'],
+          [0.5, '#FDDD60'],
+          [0.75, '#58D9F9'],
+          [1, '#7CFFB2']
+        ]
+      }
     ]
   },
   defaultTemperatureGaugeChartOption: {
@@ -204,6 +222,18 @@ export const enObj: I18nObjects = {
     ]
   },
   defaultRingGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: [
+          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['0%', '-40%'], valuePosition: ['0%', '-20%']},
+          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '0%'], valuePosition: ['0%', '20%']},
+          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['0%', '40%'], valuePosition: ['0%', '60%']},
+        ]
+      }
+    ]
+  },
+  defaultBarometerGaugeChartOption: {
     data: [
       {
         formatter: "{value}%",

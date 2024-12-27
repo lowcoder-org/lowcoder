@@ -163,17 +163,6 @@ export function getEchartsConfig(
         "textStyle": {
           ...styleWrapper(props?.titleStyle, theme?.titleStyle)
         }
-        // "textStyle": {
-        //   "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-        //   "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
-        //   "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-        //   "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
-        //   "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
-        //   "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
-        //   "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
-        //   "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
-        //   "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
-        // },
       },
       "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       "tooltip": props.tooltip&&{
@@ -201,7 +190,7 @@ export function getEchartsConfig(
             "length": `${props?.pointerLength}%`,
             "width": props?.pointerWidth,
             "icon": props?.pointerIcon,
-            "offsetCenter": [0, `-${props.pointer_Y}%`],
+            "offsetCenter": [0, `${-Number(props.pointer_Y)}%`]
           },
           "axisTick": {
             "length": props.axisTickLength,
@@ -240,27 +229,11 @@ export function getEchartsConfig(
             }
           },
           "axisLabel": {
-            "distance": Number(props?.progressBarWidth) + 10,
-            "fontFamily": props?.axisLabelStyle?.chartFontFamily || theme?.axisLabelStyle?.fontFamily,
-            "fontSize": props?.axisLabelStyle?.chartTextSize || theme?.axisLabelStyle?.fontSize || 12,
-            "fontWeight": props?.axisLabelStyle?.chartTextWeight || theme?.axisLabelStyle?.fontWeight,
-            "color": props?.axisLabelStyle?.chartTextColor || theme?.axisLabelStyle?.fontColor || "#000000",
-            "fontStyle": props?.axisLabelStyle?.chartFontStyle || theme?.axisLabelStyle?.fontStyle,
-            "textShadowColor": props?.axisLabelStyle?.chartShadowColor || theme?.axisLabelStyle?.shadowColor,
-            "textShadowBlur": props?.axisLabelStyle?.chartBoxShadow?.split('px')[0] || theme?.axisLabelStyle?.boxShadow?.split('px')[0],
-            "textShadowOffsetX": props?.axisLabelStyle?.chartBoxShadow?.split('px')[1] || theme?.axisLabelStyle?.boxShadow?.split('px')[1],
-            "textShadowOffsetY": props?.axisLabelStyle?.chartBoxShadow?.split('px')[2] || theme?.axisLabelStyle?.boxShadow?.split('px')[2]
+            "distance": Number(props?.progressBarWidth) + Number(props.axisLabelDistance),
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 12, "#000000"),
           },
           'detail': {
-            "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
-            "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 16,
-            "fontWeight": props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
-            "color": props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || "#000000",
-            "fontStyle": props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
-            "textShadowColor": props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
-            "textShadowBlur": props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow?.split('px')[0],
-            "textShadowOffsetX": props?.legendStyle?.chartBoxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow?.split('px')[1],
-            "textShadowOffsetY": props?.legendStyle?.chartBoxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow?.split('px')[2]
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, "#000000"),
           },
           "label": {
             "show": props.label,
@@ -270,15 +243,7 @@ export function getEchartsConfig(
             "value": item.value,
             "name": item.name,
             title: {
-              "fontFamily": props?.labelStyle?.chartFontFamily || theme?.labelStyle?.fontFamily,
-              "fontSize": props?.labelStyle?.chartTextSize || theme?.labelStyle?.fontSize,
-              "fontWeight": props?.labelStyle?.chartTextWeight || theme?.labelStyle?.fontWeight,
-              "color": props?.labelStyle?.chartTextColor || theme?.labelStyle?.fontColor || "#000000",
-              "fontStyle": props?.labelStyle?.chartFontStyle || theme?.labelStyle?.fontStyle,
-              "textShadowColor": props?.labelStyle?.chartShadowColor || theme?.labelStyle?.shadowColor,
-              "textShadowBlur": props?.labelStyle?.chartBoxShadow?.split('px')[0] || theme?.labelStyle?.boxShadow?.split('px')[0],
-              "textShadowOffsetX": props?.labelStyle?.chartBoxShadow?.split('px')[1] || theme?.labelStyle?.boxShadow?.split('px')[1],
-              "textShadowOffsetY": props?.labelStyle?.chartBoxShadow?.split('px')[2] || theme?.labelStyle?.boxShadow?.split('px')[2]
+              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 18, "#000000"),
             }
           }))
         }
@@ -293,15 +258,10 @@ export function getEchartsConfig(
         series: [
           {
             ...basicSeries,
-            type: 'gauge',
             axisLine: {
               lineStyle: {
-                width: props.progressBarWidthStage,
-                color: [
-                  props.stageGaugeProgressBarColor1 && props.stageGaugeProgressBarInterval1 ? [props.stageGaugeProgressBarInterval1 || 0.3, props.stageGaugeProgressBarColor1 || "#67e0e3"] : [],
-                  props.stageGaugeProgressBarColor2 && props.stageGaugeProgressBarInterval2 ? [props.stageGaugeProgressBarInterval2 || 0.7, props.stageGaugeProgressBarColor2 || "#37a2da"] : [],
-                  props.stageGaugeProgressBarColor3 && props.stageGaugeProgressBarInterval3 ? [props.stageGaugeProgressBarInterval3 || 1, props.stageGaugeProgressBarColor3 || "#fd666d"] : [],
-                ]
+                width: props.stageProgressBarWidth,
+                color:props?.stageGaugeOption?.data?.map(data => data.color)[0]
               }
             },
             pointer: {
@@ -311,38 +271,29 @@ export function getEchartsConfig(
               }
             },
             axisTick: {
-              distance: -Number(props.progressBarWidthStage),
+              distance: -Number(props.stageProgressBarWidth),
               length: props.axisTickLength,
               lineStyle: {
-                color: props.axisTickColorStage,
+                color: props.stageAxisTickColor,
                 width: props.axisTickWidth
               }
             },
             splitLine: {
-              distance: -Number(props.progressBarWidthStage),
-              length: props.progressBarWidthStage,
+              distance: -Number(props.stageProgressBarWidth),
+              length: props.stageProgressBarWidth,
               lineStyle: {
-                color: props.axisTickColorStage,
+                color: props.stageAxisTickColor,
                 width: Number(props.axisTickWidth) * 1.5
               }
             },
             axisLabel: {
-              color: 'inherit',
-              distance: Number(props.progressBarWidthStage) + 10,
-              fontSize: 13
+              distance: Number(props?.stageProgressBarWidth) + Number(props.axisLabelDistance),
+              ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 13, "inherit"),
             },
             detail: {
               valueAnimation: true,
               formatter: props?.stageGaugeOption?.data?.map(data => data.formatter)[0],
-              fontFamily: props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
-              fontSize: props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 20,
-              fontWeight: props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
-              color: props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || 'inherit',
-              fontStyle: props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
-              textShadowColor: props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
-              textShadowBlur: props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow?.split('px')[0],
-              textShadowOffsetX: props?.legendStyle?.chartBoxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow?.split('px')[1],
-              textShadowOffsetY: props?.legendStyle?.chartBoxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow?.split('px')[2]
+              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, "inherit"),
             },
             data: [
               {
@@ -361,17 +312,15 @@ export function getEchartsConfig(
             type: 'gauge',
             axisLine: {
               lineStyle: {
-                width: props.progressBarWidth, // slightly thinner line for smaller gauge
-                color: [
-                  [props.gradeGaugeProgressBarInterval1, props.stageGaugeProgressBarColor1],
-                  [props.gradeGaugeProgressBarInterval2, props.stageGaugeProgressBarColor2],
-                  [props.gradeGaugeProgressBarInterval3, props.stageGaugeProgressBarColor3],
-                  [props.gradeGaugeProgressBarInterval4, props.stageGaugeProgressBarColor4]
-                ]
+                width: props.progressBarWidth,
+                color:props?.gradeGaugeOption?.data?.map(data => data.color)[0]
               }
             },
+            progress: {
+              width: props?.stageProgressBarWidth,
+            },
             pointer: {
-              icon: props.pointerIcon || 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+              icon: props.gradePointerIcon || 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
               length: props.gradeGaugePointerLength, // slightly shorter pointer
               width: props.gradeGaugePointerWidth,     // slightly narrower pointer
               offsetCenter: [0, `-${props.gradeGaugePointer_Y}%`],
@@ -382,14 +331,14 @@ export function getEchartsConfig(
             axisTick: {
               length: props.axisTickLength,
               lineStyle: {
-                color: props.axisTickColorGrade || 'auto',
+                color: props.gradeAxisTickColor || 'auto',
                 width: props.axisTickWidth
               }
             },
             splitLine: {
               length: Number(props.axisTickLength) * 2,
               lineStyle: {
-                color: props.axisTickColorGrade || 'auto',
+                color: props.gradeAxisTickColor || 'auto',
                 width: Number(props.axisTickWidth) * 1.5
               }
             },
@@ -397,11 +346,11 @@ export function getEchartsConfig(
               show: false
             },
             title: {
-              offsetCenter: [0, '-10%'],
+              offsetCenter: [0, '0%'],
               ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
             },
             detail: {
-              offsetCenter: [0, '-35%'],
+              offsetCenter: [0, '25%'],
               valueAnimation: true,
               formatter: function (value) {
                 return value;
@@ -476,47 +425,47 @@ export function getEchartsConfig(
       series: [
         {
           ...basicSeries,
-          radius: `${props.radiusTemperature}%`,
+          radius: `${props.temperatureRadius}%`,
           itemStyle: {
             color: props?.temperatureGaugeOption?.data?.map(data => data.color)[0]
           },
           progress: {
             show: true,
-            width: props.progressBarWidthTemperature
+            width: props.temperatureProgressBarWidth
           },
           pointer: {
             show: false
           },
           axisLine: {
             lineStyle: {
-              width: props.progressBarWidthTemperature
+              width: props.temperatureProgressBarWidth
             }
           },
           axisTick: {
-            length: props.axisTickLength,
-            distance: -Number(props.progressBarWidthTemperature) - 10,
+            distance: -Number(props.temperatureProgressBarWidth) - 15,
+            length: -Number(props.axisTickLength),
             lineStyle: {
-              color: props.axisTickColorGrade || 'auto',
+              color: props.gradeAxisTickColor || '#999',
               width: props.axisTickWidth
             }
           },
           splitLine: {
-            distance: -Number(props.progressBarWidthTemperature) - 10 - Number(props.axisTickLength),
-            length: Number(props.axisTickLength) * 2,
+            distance: -Number(props.temperatureProgressBarWidth) -15,
+            length: -Number(props.axisTickLength) * 2,
             lineStyle: {
-              color: props.axisTickColorGrade || 'auto',
+              color: props.gradeAxisTickColor || '#999',
               width: Number(props.axisTickWidth) * 1.5
             }
           },
           axisLabel: {
-            distance: -Number(props.axisLabelDistance),
+            distance: Number(props?.temperatureProgressBarWidth) - Number(props.temperatureAxisLabelDistance) + Number(props.axisTickLength) * 2,
             ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 20, "#999"),
           },
           detail: {
             valueAnimation: true,
             offsetCenter: [0, '-15%'],
             formatter: props?.temperatureGaugeOption?.data?.map(data => data.formatter)[0],
-            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 40, 'inherit'),
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 30, 'inherit'),
           },
           data: [
             {
@@ -526,25 +475,19 @@ export function getEchartsConfig(
         },
         {
           type: 'gauge',
-          // center: ['50%', '70%'],
-          // radius: '80%',            // Match the same radius
-          // startAngle: 200,
-          // endAngle: -20,
-          // min: 0,
-          // max: 60,
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           startAngle: props?.startAngle,
           endAngle: props?.endAngle,
           splitNumber: props?.splitNumber,
           min: props?.min,
           max: props?.max,
-          radius: `${props.radiusTemperature}%`,
+          radius: `${props.temperatureRadius}%`,
           itemStyle: {
             color: props?.temperatureGaugeOption?.data?.map(data => data.borderColor)[0]
           },
           progress: {
             show: true,
-            width: 6                // Reduced from 8
+            width: 6
           },
           pointer: {
             show: false

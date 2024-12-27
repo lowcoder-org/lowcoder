@@ -34,10 +34,6 @@ export function gaugeChartPropertyView(
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
-        {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
-        {children.top.propertyView({ label: trans("gaugeChart.top") })}
-        {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
-        {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
         {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
         {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
         {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
@@ -51,10 +47,10 @@ export function gaugeChartPropertyView(
         {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
         {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
-        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
-        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
-        {children.axisTickColor.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
-        {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.axisTickLength"), tooltip: trans("echarts.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.axisTickWidth"), tooltip: trans("echarts.axisTickWidthTooltip") })}
+        {children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("echarts.axisLabelDistanceTooltip") })}
+        {children.axisTickColor.propertyView({ label: trans("gaugeChart.axisTickColor"), tooltip: trans("echarts.axisTickColorTooltip") })}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
         {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
         {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}
@@ -102,17 +98,6 @@ export function gaugeChartPropertyView(
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
-
-        {children.stageGaugeProgressBarInterval1.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.stageGaugeProgressBarColor1.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.stageGaugeProgressBarInterval2.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.stageGaugeProgressBarColor2.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.stageGaugeProgressBarInterval3.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.stageGaugeProgressBarColor3.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
-        {children.top.propertyView({ label: trans("gaugeChart.top") })}
-        {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
-        {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
         {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
         {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
         {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
@@ -120,14 +105,16 @@ export function gaugeChartPropertyView(
         {children.position_y.propertyView({ label: trans("gaugeChart.position_y"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle"), tooltip: trans("echarts.startAngleTooltip") })}
         {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle"), tooltip: trans("echarts.endAngleTooltip") })}
-        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.progressBarWidthStage.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
-        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
-        {children.axisTickColorStage.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
-        {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
+        {children.pointer_Y.propertyView({ label: trans("gaugeChart.pointer_Y"), tooltip: trans("gaugeChart.pointer_Y_Tooltip") })}
+        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
+        {children.stageProgressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.axisTickLength"), tooltip: trans("echarts.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.axisTickWidth"), tooltip: trans("echarts.axisTickWidthTooltip") })}
+        {children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("echarts.axisLabelDistanceTooltip") })}
+        {children.stageAxisTickColor.propertyView({ label: trans("gaugeChart.axisTickColor"), tooltip: trans("echarts.axisTickColorTooltip") })}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
         {/*{children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}*/}
         {/*{children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}*/}
@@ -147,9 +134,9 @@ export function gaugeChartPropertyView(
       <Section name={sectionNames.detailStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>
-      {/*<Section name={sectionNames.axisLabelStyle}>*/}
-      {/*  {children.axisLabelStyle?.getPropertyView()}*/}
-      {/*</Section>*/}
+      <Section name={sectionNames.axisLabelStyle}>
+        {children.axisLabelStyle?.getPropertyView()}
+      </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
@@ -175,24 +162,6 @@ export function gaugeChartPropertyView(
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
-        {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
-        {children.top.propertyView({ label: trans("gaugeChart.top") })}
-        {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
-        {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
-
-        {children.gradeGaugeProgressBarInterval1.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {/*{children.gradeGaugeProgressBarString1.propertyView({label: trans("gaugeChart.stageGauge.gradeProgressBarString"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}*/}
-        {children.stageGaugeProgressBarColor1.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.gradeGaugeProgressBarInterval2.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {/*{children.gradeGaugeProgressBarString2.propertyView({label: trans("gaugeChart.stageGauge.gradeProgressBarString"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}*/}
-        {children.stageGaugeProgressBarColor2.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.gradeGaugeProgressBarInterval3.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {/*{children.gradeGaugeProgressBarString3.propertyView({label: trans("gaugeChart.stageGauge.gradeProgressBarString"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}*/}
-        {children.stageGaugeProgressBarColor3.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {children.gradeGaugeProgressBarInterval4.propertyView({label: trans("gaugeChart.stageGauge.progressBarInterval"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-        {/*{children.gradeGaugeProgressBarString4.propertyView({label: trans("gaugeChart.stageGauge.gradeProgressBarString"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}*/}
-        {children.stageGaugeProgressBarColor4.propertyView({label: trans("gaugeChart.stageGauge.progressBarColor"), tooltip: trans("gaugeChart.stageGauge.defaultToolTip") })}
-
         {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
         {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
         {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
@@ -200,16 +169,16 @@ export function gaugeChartPropertyView(
         {children.position_y.propertyView({ label: trans("gaugeChart.position_y"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle"), tooltip: trans("echarts.startAngleTooltip") })}
         {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle"), tooltip: trans("echarts.endAngleTooltip") })}
-        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
         {children.gradeGaugePointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
         {children.gradeGaugePointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.gradeGaugePointer_Y.propertyView({ label: trans("gaugeChart.pointer_Y"), tooltip: trans("gaugeChart.pointer_Y_Tooltip") })}
-        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
-        {children.progressBar.getView() && children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
-        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
-        {children.axisTickColorGrade.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
-        {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
+        {children.gradePointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
+        {children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
+        {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.axisTickLength"), tooltip: trans("echarts.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.axisTickWidth"), tooltip: trans("echarts.axisTickWidthTooltip") })}
+        {/*{children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("echarts.axisLabelDistanceTooltip") })}*/}
+        {children.gradeAxisTickColor.propertyView({ label: trans("gaugeChart.axisTickColor"), tooltip: trans("echarts.axisTickColorTooltip") })}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
         {/*{children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}*/}
         {/*{children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}*/}
@@ -257,30 +226,26 @@ export function gaugeChartPropertyView(
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
-        {/* {children.left.propertyView({ label: trans("gaugeChart.left") })}
-        {children.top.propertyView({ label: trans("gaugeChart.top") })}
-        {children.bottom.propertyView({ label: trans("gaugeChart.bottom") })}
-        {children.width.propertyView({ label: trans("gaugeChart.width") })} */}
-        {children.radiusTemperature.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
+        {children.temperatureRadius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
         {children.min.propertyView({ label: trans("gaugeChart.min"), tooltip: trans("echarts.minTooltip") })}
         {children.max.propertyView({ label: trans("gaugeChart.max"), tooltip: trans("echarts.maxTooltip") })}
         {children.position_x.propertyView({ label: trans("gaugeChart.position_x"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
         {children.position_y.propertyView({ label: trans("gaugeChart.position_y"), tooltip: trans("echarts.positionChart_x_Tooltip") })}
         {children.startAngle.propertyView({ label: trans("gaugeChart.startAngle"), tooltip: trans("echarts.startAngleTooltip") })}
         {children.endAngle.propertyView({ label: trans("gaugeChart.endAngle"), tooltip: trans("echarts.endAngleTooltip") })}
+        {/*{children.gradeGaugePointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}*/}
+        {/*{children.gradeGaugePointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}*/}
+        {/*{children.gradeGaugePointer_Y.propertyView({ label: trans("gaugeChart.pointer_Y"), tooltip: trans("gaugeChart.pointer_Y_Tooltip") })}*/}
+        {/*{children.gradePointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}*/}
+        {children.temperatureProgressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.splitNumber.propertyView({ label: trans("gaugeChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
-        {children.pointerLength.propertyView({ label: trans("gaugeChart.pointerLength"), tooltip: trans("echarts.pointerLengthTooltip") })}
-        {children.pointerWidth.propertyView({ label: trans("gaugeChart.pointerWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
-        {children.progressBar.getView() && children.progressBarWidthTemperature.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
-        {children.axisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("gaugeChart.axisLabelDistanceTooltip") })}
-        {children.axisTickLength.propertyView({ label: trans("gaugeChart.stageGauge.axisTickLength"), tooltip: trans("gaugeChart.stageGauge.axisTickLengthTooltip") })}
-        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.stageGauge.axisTickWidth"), tooltip: trans("gaugeChart.stageGauge.axisTickWidthTooltip") })}
-        {children.axisTickColorGrade.propertyView({ label: trans("gaugeChart.stageGauge.axisTickColor"), tooltip: trans("gaugeChart.stageGauge.axisTickColorTooltip") })}
-        {/* {children.gap.propertyView({ label: trans("gaugeChart.gap") })} */}
+        {children.axisTickLength.propertyView({ label: trans("gaugeChart.axisTickLength"), tooltip: trans("echarts.axisTickLengthTooltip") })}
+        {children.axisTickWidth.propertyView({ label: trans("gaugeChart.axisTickWidth"), tooltip: trans("echarts.axisTickWidthTooltip") })}
+        {children.temperatureAxisLabelDistance.propertyView({ label: trans("gaugeChart.axisLabelDistance"), tooltip: trans("echarts.axisLabelDistanceTooltip") })}
+        {children.gradeAxisTickColor.propertyView({ label: trans("gaugeChart.axisTickColor"), tooltip: trans("echarts.axisTickColorTooltip") })}
         {children.tooltip.propertyView({ label: trans("gaugeChart.tooltip"), tooltip: trans("echarts.tooltipVisibilityTooltip") })}
-        {children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}
-        {children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}
+        {/*{children.progressBar.propertyView({ label: trans("gaugeChart.progressBar"), tooltip: trans("echarts.progressBarVisibilityTooltip") })}*/}
+        {/*{children.roundCap.propertyView({ label: trans("gaugeChart.roundCap"), tooltip: trans("echarts.roundCapVisibilityTooltip") })}*/}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
