@@ -273,6 +273,8 @@ let chartJsonModeChildren: any = {
   temperatureGaugeOption: jsonControl(toObject, i18nObjs.defaultTemperatureGaugeChartOption),
   multiTitleGaugeOption: jsonControl(toObject, i18nObjs.defaultMultiTitleGaugeChartOption),
   ringGaugeOption: jsonControl(toObject, i18nObjs.defaultRingGaugeChartOption),
+  clockGaugeOption: jsonControl(toObject, i18nObjs.defaultClockGaugeChartOption),
+
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

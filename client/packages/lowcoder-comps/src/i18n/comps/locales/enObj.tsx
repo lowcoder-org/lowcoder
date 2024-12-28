@@ -236,13 +236,40 @@ export const enObj: I18nObjects = {
   defaultBarometerGaugeChartOption: {
     data: [
       {
-        formatter: "{value}%",
         value: [
-          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['0%', '-40%'], valuePosition: ['0%', '-20%']},
-          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '0%'], valuePosition: ['0%', '20%']},
-          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['0%', '40%'], valuePosition: ['0%', '60%']},
+          {color: "#19b1e6", },
         ]
       }
+    ]
+  },
+  defaultClockGaugeChartOption: {
+    data: [
+      {
+        outlineColor: "#aa2a2a",
+        anchor:{
+          color: "#cfae09",
+          size: 10,
+        },
+        hour: {
+          color: "#cfae09",
+          width: 4,
+          length: 50,
+          value: 4
+        },
+        minute: {
+          color: "#cfae09",
+          width: 2.5,
+          length: 65,
+          value: 30
+        },
+        second: {
+          color: "#cfae09",
+          width: 1,
+          length: 90,
+          value: 45,
+
+        }
+      },
     ]
   },
   defaultSankeyChartOption: {
