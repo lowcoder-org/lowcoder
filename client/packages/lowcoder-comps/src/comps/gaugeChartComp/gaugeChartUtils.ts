@@ -577,8 +577,8 @@ export function getEchartsConfig(
             height: 12,
             borderRadius: 20,
             borderWidth: 1,
-            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#000000'),
-            // backgroundColor: 'inherit',
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit'),
+            borderColor: 'inherit',
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -589,97 +589,96 @@ export function getEchartsConfig(
       ...basic,
       series: [
         {
+          ...basicSeries,
           type: 'gauge',
-          min: 0,
-          max: 100,
-          center: ['50%', '60%'],
-          splitNumber: 10,
-          radius: '70%',       // Reduced from 80% to fit a smaller canvas
+          min: props?.barometerGaugeOption?.data[0]?.outline?.period[0],
+          max: props?.barometerGaugeOption?.data[0]?.outline?.period[1],
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          splitNumber: props?.barometerGaugeOption?.data[0]?.outline?.splitNumber,
+          radius: props?.barometerGaugeOption?.data[0]?.outline?.radius,
           axisLine: {
             lineStyle: {
-              color: [[1, '#f00']],
-              width: 2         // Reduced line width
+              color: [[1, props?.barometerGaugeOption?.data[0]?.outline?.color]],
+              width: props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth
             }
           },
           splitLine: {
             distance: -12,     // Reduced from -18
-            length: 10,        // Reduced from 18
+            length: Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength) * 2,
             lineStyle: {
-              color: '#f00',
-              width: 2         // Thinner line
+              color: props?.barometerGaugeOption?.data[0]?.outline?.color,
+              width: Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth) * 1.5
             }
           },
           axisTick: {
             distance: -8,      // Reduced from -12
-            length: 6,         // Reduced from 10
+            length: props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength,
             lineStyle: {
-              color: '#f00',
-              width: 1
+              color: props?.barometerGaugeOption?.data[0]?.outline?.color,
+              width: props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth
             }
           },
           axisLabel: {
             distance: -30,     // Reduced from -50 to bring labels closer
-            color: '#f00',
-            fontSize: 14       // Reduced from 25
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 14, '#f00')
           },
           pointer: {
-            offsetCenter: [0, '10%'],
-            length: '80%',      // Reduced pointer length (from 115%) for proportionality
-            icon: 'path://M2090.36389,615.30999 L2090.36389,615.30999 C2091.48372,615.30999 2092.40383,616.194028 2092.44859,617.312956 L2096.90698,728.755929 C2097.05155,732.369577 2094.2393,735.416212 2090.62566,735.56078 C2090.53845,735.564269 2090.45117,735.566014 2090.36389,735.566014 L2090.36389,735.566014 C2086.74736,735.566014 2083.81557,732.63423 2083.81557,729.017692 C2083.81557,728.930412 2083.81732,728.84314 2083.82081,728.755929 L2088.2792,617.312956 C2088.32396,616.194028 2089.24407,615.30999 2090.36389,615.30999 Z',
+            ...basicSeries.pointer,
+            icon: props?.barometerPointerIcon,
             itemStyle: {
-              color: '#000'
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color
             }
           },
           detail: {
             valueAnimation: true,
             precision: 2,        // Increase precision or keep as is
-            fontSize: 16,        // Reduced from default larger size
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16),
             offsetCenter: [0, '40%'] // Adjust to fit within the smaller radius
           },
           title: {
             offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
-            fontSize: 14                // Smaller font
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 14)
           },
           data: [
             {
-              value: 58.46,
-              name: 'PLP'
+              value: props?.barometerGaugeOption?.data[0]?.value,
+              name: props?.barometerGaugeOption?.data[0]?.name,
             }
           ]
         },
         {
+          ...basicSeries,
           type: 'gauge',
-          min: 0,
-          max: 60,
-          center: ['50%', '60%'],
-          splitNumber: 6,
-          radius: '60%',          // Match the radius
+          min: props?.barometerGaugeOption?.data[0]?.inline?.period[0],
+          max: props?.barometerGaugeOption?.data[0]?.inline?.period[1],
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          splitNumber: props?.barometerGaugeOption?.data[0]?.inline?.splitNumber,
+          radius: props?.barometerGaugeOption?.data[0]?.inline?.radius,
           axisLine: {
             lineStyle: {
-              color: [[1, '#000']],
-              width: 2
+              color: [[1, props?.barometerGaugeOption?.data[0]?.inline?.color]],
+              width: props?.barometerGaugeOption?.data[0]?.inline?.progressBarWidth
             }
           },
           splitLine: {
             distance: -2,          // Adjust spacing
-            length: 10,            // Reduced length
+            length: Number(props?.barometerGaugeOption?.data[0]?.inline?.axisTickLength) * 2,
             lineStyle: {
-              color: '#000',
-              width: 2
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color,
+              width: Number(props?.barometerGaugeOption?.data[0]?.inline?.axisTickWidth) * 1.5
             }
           },
           axisTick: {
             distance: 0,
-            length: 6,             // Reduced
+            length: props?.barometerGaugeOption?.data[0]?.inline?.axisTickLength,
             lineStyle: {
-              color: '#000',
-              width: 1
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color,
+              width: props?.barometerGaugeOption?.data[0]?.inline?.axisTickWidth
             }
           },
           axisLabel: {
-            distance: 6,           // Reduced label distance
-            fontSize: 14,          // Smaller font
-            color: '#000'
+            distance: 6,
+            ...styleWrapper(props?.axisLabelStyleOutline, theme?.axisLabelStyleOutline, 14, '#000'),
           },
           pointer: {
             show: false
@@ -687,13 +686,16 @@ export function getEchartsConfig(
           title: {
             show: false
           },
+          detail: {
+            show: false
+          }
         }
       ]
     }
-    console.log(props?.clockGaugeOption?.data?.map(data => data.hour)[0])
 
     let clockGaugeOpt = {
       ...basicStyle,
+      tooltip: false,
         series: [
           {
             ...basicSeries,

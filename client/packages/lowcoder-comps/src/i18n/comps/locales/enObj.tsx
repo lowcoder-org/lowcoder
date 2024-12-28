@@ -236,9 +236,27 @@ export const enObj: I18nObjects = {
   defaultBarometerGaugeChartOption: {
     data: [
       {
-        value: [
-          {color: "#19b1e6", },
-        ]
+        formatter: "{value}%",
+        value: 58.46,
+        name: "PLP",
+        outline: {
+          color: "#c80707",
+          period: [0,100],
+          splitNumber: 10,
+          progressBarWidth: 2,
+          axisTickLength: 6,
+          axisTickWidth: 2,
+          radius: "70%",
+        },
+        inline: {
+          color: "#000000",
+          period: [0,60],
+          progressBarWidth: 2,
+          splitNumber: 6,
+          axisTickLength: 6,
+          axisTickWidth: 2,
+          radius: "60%"
+        },
       }
     ]
   },

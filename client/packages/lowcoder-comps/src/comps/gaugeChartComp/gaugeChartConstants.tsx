@@ -274,6 +274,7 @@ let chartJsonModeChildren: any = {
   multiTitleGaugeOption: jsonControl(toObject, i18nObjs.defaultMultiTitleGaugeChartOption),
   ringGaugeOption: jsonControl(toObject, i18nObjs.defaultRingGaugeChartOption),
   clockGaugeOption: jsonControl(toObject, i18nObjs.defaultClockGaugeChartOption),
+  barometerGaugeOption: jsonControl(toObject, i18nObjs.defaultBarometerGaugeChartOption),
 
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
@@ -307,6 +308,7 @@ let chartJsonModeChildren: any = {
   pointerIcon:withDefault(StringControl),
   gradePointerIcon:withDefault(StringControl, trans('gaugeChart.gradeDefaultPointerIcon')),
   clockPointerIcon:withDefault(StringControl, trans('gaugeChart.clockDefaultPointerIcon')),
+  barometerPointerIcon:withDefault(StringControl, trans('gaugeChart.defaultBarometerPointerIcon')),
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
   axisTickWidth: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickWidth')),
   axisTickLength: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickLength')),
@@ -332,6 +334,7 @@ if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
     labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
     legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
     axisLabelStyle: styleControl(EchartDefaultTextStyle, 'axisLabelStyle'),
+    axisLabelStyleOutline: styleControl(EchartDefaultTextStyle, 'axisLabelStyleOutline'),
   }
 }
 const chartMapModeChildren = {
