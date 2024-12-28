@@ -482,7 +482,7 @@ export function gaugeChartPropertyView(
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.radius.propertyView({ label: trans("gaugeChart.radius"), tooltip: trans("echarts.radiusTooltip") })}
-        {children.pointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
+        {children.clockPointerIcon.propertyView({ label: trans("gaugeChart.pointerIcon"), tooltip: trans("gaugeChart.pointerIconTooltip") })}
         {children.progressBarWidth.propertyView({ label: trans("gaugeChart.progressBarWidth"), tooltip: trans("echarts.pointerWidthTooltip") })}
         {children.axisTickLength.propertyView({ label: trans("gaugeChart.axisTickLength"), tooltip: trans("echarts.axisTickLengthTooltip") })}
         {children.axisTickWidth.propertyView({ label: trans("gaugeChart.axisTickWidth"), tooltip: trans("echarts.axisTickWidthTooltip") })}

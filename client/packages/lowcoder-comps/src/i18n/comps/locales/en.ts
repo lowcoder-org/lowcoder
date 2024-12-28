@@ -145,6 +145,7 @@ export const en = {
     chartTypeTooltip: "Select the types of Charts.",
     defaultPointer_Y: "0",
     gradeDefaultPointerIcon: "path://M12.8,0.7l12,40.1H0.7L12.8,0.7z",
+    clockDefaultPointerIcon: "path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z",
     pointer_Y: "Pointer-Y",
     pointer_Y_Tooltip: "select vertical of pointer",
     pointerIcon: "Pointer Icon",

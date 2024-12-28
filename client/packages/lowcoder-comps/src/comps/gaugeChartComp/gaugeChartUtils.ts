@@ -749,7 +749,7 @@ export function getEchartsConfig(
               }
             },
             pointer: {
-              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              icon: props?.clockPointerIcon,
               width: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.width,
               length: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.length,
               offsetCenter: [0, '8%'],
@@ -794,7 +794,7 @@ export function getEchartsConfig(
               show: false
             },
             pointer: {
-              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              icon: props?.clockPointerIcon,
               width: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.width,
               length: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.length,
               offsetCenter: [0, '8%'],
@@ -840,7 +840,7 @@ export function getEchartsConfig(
               show: false
             },
             pointer: {
-              icon: 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
+              icon: props?.clockPointerIcon,
               width: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.width,
               length: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.length,
               offsetCenter: [0, '8%'],

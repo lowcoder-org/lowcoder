@@ -306,6 +306,7 @@ let chartJsonModeChildren: any = {
   pointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultPointer_Y')),
   pointerIcon:withDefault(StringControl),
   gradePointerIcon:withDefault(StringControl, trans('gaugeChart.gradeDefaultPointerIcon')),
+  clockPointerIcon:withDefault(StringControl, trans('gaugeChart.clockDefaultPointerIcon')),
   progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
   axisTickWidth: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickWidth')),
   axisTickLength: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickLength')),
