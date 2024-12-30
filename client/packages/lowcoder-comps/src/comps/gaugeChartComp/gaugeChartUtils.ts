@@ -152,7 +152,7 @@ export function getEchartsConfig(
       "borderColor": styleContainer?.chartBorderColor || themeContainer?.borderColor || 'inherit',
       "borderWidth": styleContainer?.chartBorderWidth || themeContainer?.borderWidth || detailBorderWidth,
       "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
-      "borderRadius": styleContainer?.chartBorderRadius || themeContainer?.borderRadius,
+      "borderRadius": Number(styleContainer?.chartBorderRadius || themeContainer?.borderRadius),
       "backgroundColor": styleContainer?.chartBackgroundColor || themeContainer?.backgroundColor || defaultBackgroundColor,
       "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0] || 24,
       "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
@@ -218,7 +218,7 @@ export function getEchartsConfig(
             "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
             "borderWidth": props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             "borderType": props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
-            "borderRadius": props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius,
+            "borderRadius": Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
             "shadowColor": props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
             "shadowBlur": props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
             "shadowOffsetX": props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
@@ -386,7 +386,7 @@ export function getEchartsConfig(
           anchor: {
             show: true,
             showAbove: true,
-            size: 10,
+            size: Number(props?.pointerWidth) * 1.5,
             itemStyle: {
               color: props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
             }
@@ -418,6 +418,10 @@ export function getEchartsConfig(
 
           title: {
             ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
+          },
+          pointer: {
+            ...basicSeries.pointer,
+            icon: props?.multiTitlePointerIcon,
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
@@ -535,17 +539,18 @@ export function getEchartsConfig(
             show: false
           },
           progress: {
-            "roundCap": props.roundCap,
+            roundCap: props?.roundCap,
             show: true,
-            width: props?.progressBarWidth,
+            width: props?.ringProgressBarWidth,
             overlap: false,
             clip: false,
           },
-          // axisLine: {
-          //   lineStyle: {
-          //     width: 20              // Reduced from 40
-          //   }
-          // },
+          axisLine: {
+            roundCap: props?.roundCap,
+            lineStyle: {
+              width: props?.ringProgressBarWidth
+            }
+          },
           splitLine: {
             show: false
           },
