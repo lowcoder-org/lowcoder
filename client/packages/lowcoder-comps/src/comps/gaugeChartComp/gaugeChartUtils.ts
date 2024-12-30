@@ -137,7 +137,7 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
-  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000') => {
+  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000', detailBorderWidth = 0, defaultBackgroundColor = "" ) => {
 
     return {
       "fontFamily": styleContainer?.chartFontFamily || themeContainer?.fontFamily || 'Arial, sans-serif',
@@ -148,7 +148,14 @@ export function getEchartsConfig(
       "textShadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
       "textShadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
       "textShadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
-      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2]
+      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2],
+      "borderColor": styleContainer?.chartBorderColor || themeContainer?.borderColor || 'inherit',
+      "borderWidth": styleContainer?.chartBorderWidth || themeContainer?.borderWidth || detailBorderWidth,
+      "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
+      "borderRadius": styleContainer?.chartBorderRadius || themeContainer?.borderRadius,
+      "backgroundColor": styleContainer?.chartBackgroundColor || themeContainer?.backgroundColor || defaultBackgroundColor,
+      "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0] || 24,
+      "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
     }
 
   }
@@ -304,6 +311,7 @@ export function getEchartsConfig(
         ]
       }
 
+      console.log(props?.legendStyle)
     let gradeGaugeOpt = {
       ...basicStyle,
         series: [
@@ -367,34 +375,36 @@ export function getEchartsConfig(
         ]
     }
 
+    console.log(props?.barometerGaugeOption?.data)
+
     let multiGaugeOpt = {
       ...basicStyle,
       series: [
         {
           ...basicSeries,
           type: 'gauge',
-          pointer: {
-            ...basicSeries.pointer,
-            icon: props.pointerIcon || 'path://M2.9,0.7L2.9,0.7c1.4,0,2.6,1.2,2.6,2.6v115c0,1.4-1.2,2.6-2.6,2.6l0,0c-1.4,0-2.6-1.2-2.6-2.6V3.3C0.3,1.9,1.4,0.7,2.9,0.7z',
-            offsetCenter: [0, '8%']
+          anchor: {
+            show: true,
+            showAbove: true,
+            size: 10,
+            itemStyle: {
+              color: props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
+            }
           },
           progress: {
-            show: true,
             overlap: true,
-            roundCap: true
-          },
-          axisLine: {
-            roundCap: true
+            ...progress
           },
 
-          data: props.multiTitleGaugeOption.data[0].value.map(item => ({
+          data: props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]?.value?.map(item => ({
             value: item.value,
             name: item.title,
             title: {
               offsetCenter: item.titlePosition
             },
             detail: {
-              offsetCenter: item.valuePosition
+              offsetCenter: item.valuePosition,
+
             },
             itemStyle: {
               color: item.color
@@ -410,10 +420,7 @@ export function getEchartsConfig(
             ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
           },
           detail: {
-            width: 30,
-            height: 12,
-            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff'),
-            backgroundColor: 'inherit',
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -458,7 +465,7 @@ export function getEchartsConfig(
             }
           },
           axisLabel: {
-            distance: Number(props?.temperatureProgressBarWidth) - Number(props.temperatureAxisLabelDistance) + Number(props.axisTickLength) * 2,
+            distance: Number(props?.temperatureProgressBarWidth) - Number(props.temperatureAxisLabelDistance),
             ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 20, "#999"),
           },
           detail: {
@@ -528,20 +535,17 @@ export function getEchartsConfig(
             show: false
           },
           progress: {
+            "roundCap": props.roundCap,
             show: true,
+            width: props?.progressBarWidth,
             overlap: false,
-            roundCap: true,
             clip: false,
-            itemStyle: {
-              borderWidth: 1,
-              borderColor: 'inherit'
-            }
           },
-          axisLine: {
-            lineStyle: {
-              width: 20              // Reduced from 40
-            }
-          },
+          // axisLine: {
+          //   lineStyle: {
+          //     width: 20              // Reduced from 40
+          //   }
+          // },
           splitLine: {
             show: false
           },
@@ -551,7 +555,7 @@ export function getEchartsConfig(
           axisLabel: {
             show: false
           },
-          data: props.ringGaugeOption.data[0].value.map(item => ({
+          data: props?.ringGaugeOption?.data && props?.ringGaugeOption?.data[0]?.value.map(item => ({
             value: item.value,
             name: item.title,
             title: {
@@ -573,12 +577,7 @@ export function getEchartsConfig(
             ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
           },
           detail: {
-            width: 40,
-            height: 12,
-            borderRadius: 20,
-            borderWidth: 1,
-            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit'),
-            borderColor: 'inherit',
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -587,7 +586,7 @@ export function getEchartsConfig(
 
     let barometerGaugeOpt = {
       ...basic,
-      series: [
+      series: props?.barometerGaugeOption?.data && [
         {
           ...basicSeries,
           type: 'gauge',
@@ -603,30 +602,41 @@ export function getEchartsConfig(
             }
           },
           splitLine: {
-            distance: -12,     // Reduced from -18
-            length: Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength) * 2,
+           distance: -Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth),
+            length: -Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength) * 2,
             lineStyle: {
               color: props?.barometerGaugeOption?.data[0]?.outline?.color,
               width: Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth) * 1.5
             }
           },
           axisTick: {
-            distance: -8,      // Reduced from -12
-            length: props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength,
+            distance: -Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth),
+            length: -Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength),
             lineStyle: {
               color: props?.barometerGaugeOption?.data[0]?.outline?.color,
               width: props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth
             }
           },
           axisLabel: {
-            distance: -30,     // Reduced from -50 to bring labels closer
-            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 14, '#f00')
+            distance: Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth) - 20,
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 13, '#c80707')
           },
           pointer: {
             ...basicSeries.pointer,
             icon: props?.barometerPointerIcon,
+            length: `${props?.barometerPointerLength}%`,
+            width: props?.barometerPointerWidth,
+            offsetCenter: [0, `${-Number(props.barometerPointer_Y)}%`],
             itemStyle: {
               color: props?.barometerGaugeOption?.data[0]?.inline?.color
+            }
+          },
+          anchor: {
+            show: true,
+            size: 10,
+            itemStyle: {
+              borderColor: '#000',
+              borderWidth: 1
             }
           },
           detail: {
@@ -637,7 +647,7 @@ export function getEchartsConfig(
           },
           title: {
             offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
-            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 14)
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 13)
           },
           data: [
             {
@@ -654,6 +664,13 @@ export function getEchartsConfig(
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           splitNumber: props?.barometerGaugeOption?.data[0]?.inline?.splitNumber,
           radius: props?.barometerGaugeOption?.data[0]?.inline?.radius,
+          anchor: {
+            show: true,
+            size: 6,
+            itemStyle: {
+              color: '#000'
+            }
+          },
           axisLine: {
             lineStyle: {
               color: [[1, props?.barometerGaugeOption?.data[0]?.inline?.color]],
@@ -677,8 +694,8 @@ export function getEchartsConfig(
             }
           },
           axisLabel: {
-            distance: 6,
-            ...styleWrapper(props?.axisLabelStyleOutline, theme?.axisLabelStyleOutline, 14, '#000'),
+            distance: Number(props?.barometerGaugeOption?.data[0]?.inline?.progressBarWidth) + 6,
+            ...styleWrapper(props?.axisLabelStyleOutline, theme?.axisLabelStyleOutline, 13, '#000'),
           },
           pointer: {
             show: false

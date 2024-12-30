@@ -44,6 +44,7 @@ import {
   SingleColorConfig,
   MarginConfig,
   DirectionConfig,
+  DetailSizeConfig,
   ChartOpacityConfig,
   ChartBoxShadowConfig,
   ChartBorderStyleConfig,
@@ -207,6 +208,10 @@ function isMarginConfig(config: SingleColorConfig): config is MarginConfig {
 
 function isDirectionConfig(config: SingleColorConfig): config is DirectionConfig {
   return config.hasOwnProperty("direction");
+}
+
+function isDetailSizeConfig(config: SingleColorConfig): config is DetailSizeConfig {
+  return config.hasOwnProperty("detailSize");
 }
 
 function isChartOpacityConfig(config: SingleColorConfig): config is ChartOpacityConfig {
@@ -409,6 +414,9 @@ function isEmptyMargin(margin: string) {
 }
 function isEmptyDirection(direction: string) {
   return _.isEmpty(direction);
+}
+function isEmptyDetailSize(detailSize: string) {
+  return _.isEmpty(detailSize);
 }
 function isEmptyChartOpacity(chartOpacity: string) {
   return _.isEmpty(chartOpacity);
@@ -624,6 +632,10 @@ function calcColors<ColorMap extends Record<string, string>>(
       res[name] = props[name];
       return;
     }
+    if (!isEmptyDetailSize(props[name]) && isDetailSizeConfig(config)) {
+      res[name] = props[name];
+      return;
+    }
     if (!isEmptyChartOpacity(props[name]) && isChartOpacityConfig(config)) {
       res[name] = props[name];
       return;
@@ -811,6 +823,9 @@ function calcColors<ColorMap extends Record<string, string>>(
     }
     if (isDirectionConfig(config)) {
       res[name] = themeWithDefault[config.direction] || '0 0 1 1';
+    }
+    if (isDetailSizeConfig(config)) {
+      res[name] = themeWithDefault[config.detailSize] || '24px 12px';
     }
     if (isChartOpacityConfig(config)) {
       res[name] = themeWithDefault[config.chartOpacity] || '1';
@@ -1174,6 +1189,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       name === 'footerBackgroundImageOrigin' ||
       name === 'margin' ||
       name === 'direction' ||
+      name === 'detailSize' ||
       name === 'chartOpacity' ||
       name === 'chartBoxShadow' ||
       name === 'chartBorderStyle' ||
@@ -1255,6 +1271,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                       name === 'radius' ||
                       name === 'margin' ||
                       name === 'direction' ||
+                      name === 'detailSize' ||
                       name === 'chartOpacity' ||
                       name === 'chartBoxShadow' ||
                       name === 'chartBorderStyle' ||
@@ -1391,6 +1408,16 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 preInputNode: <DirectionIcon title="direction" />,
                                 placeholder: props[name],
                               })
+                              : name === 'detailSize'
+                                ? (
+                                  children[name] as InstanceType<
+                                    typeof StringControl
+                                  >
+                                ).propertyView({
+                                  label: config.label,
+                                  preInputNode: <DirectionIcon title="detailSize" />,
+                                  placeholder: props[name],
+                                })
                               : name === 'chartOpacity'
                                 ? (
                                   children[name] as InstanceType<

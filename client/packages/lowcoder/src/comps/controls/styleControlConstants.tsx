@@ -185,6 +185,10 @@ export type DirectionConfig = CommonColorConfig & {
   readonly direction: string;
 };
 
+export type DetailSizeConfig = CommonColorConfig & {
+  readonly detailSize: string;
+};
+
 export type ChartOpacityConfig = CommonColorConfig & {
   readonly chartOpacity: string;
 };
@@ -260,6 +264,7 @@ export type SingleColorConfig =
   | FontStyleConfig
   | MarginConfig
   | DirectionConfig
+  | DetailSizeConfig
   | ChartOpacityConfig
   | ChartBoxShadowConfig
   | ChartBorderStyleConfig
@@ -653,6 +658,12 @@ const DIRECTION = {
   name: "direction",
   label: trans("style.direction"),
   direction: "direction",
+} as const;
+
+const DETAILSIZE = {
+  name: "detailSize",
+  label: trans("style.detailSize"),
+  detailSize: "detailSize",
 } as const;
 
 const CHARTOPACITY = {
@@ -1980,6 +1991,22 @@ export const EchartDefaultChartStyle = [
   // CHARTGRADIENTCOLOR,
   // DIRECTION,
   // CHARTOPACITY,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const EchartDefaultDetailStyle = [
+  CHARTBACKGROUNDCOLOR,
+  DETAILSIZE,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
   CHARTSHADOWCOLOR,
   CHARTBOXSHADOW,
   CHARTBORDERCOLOR,

@@ -155,7 +155,7 @@ export const en = {
     defaultGradeGaugePointerWidth: "10",
     defaultGradeGaugePointer_Y: "45",
     defaultAxisLabelDistance: "10",
-    defaultTemperatureAxisLabelDistance: "40",
+    defaultTemperatureAxisLabelDistance: "30",
     axisLabelDistance: "Axis Label Distance",
     progressBarColor: "Progress Bar Color",
     gradeProgressBarString: "Progress Bar String",
@@ -168,6 +168,9 @@ export const en = {
     axisTickWidth: "axisTick Width",
     axisTickWidthStage: "axisTick Width",
     axisTickColor: "AxisTick Color",
+    defaultBarometerPointerWidth: "3",
+    defaultBarometerPointerLength: "125",
+    defaultBarometerPointer_Y: "-10",
 
   },
   echarts: {

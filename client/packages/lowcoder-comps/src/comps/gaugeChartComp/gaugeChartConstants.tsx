@@ -18,7 +18,8 @@ import {
   styleControl,
   EchartDefaultChartStyle,
   EchartDefaultTextStyle,
-  ColorControl
+  ColorControl,
+  EchartDefaultDetailStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -303,8 +304,11 @@ let chartJsonModeChildren: any = {
   endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
   splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
   pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
+  barometerPointerLength:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointerLength')),
   pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
+  barometerPointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointerWidth')),
   pointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultPointer_Y')),
+  barometerPointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointer_Y')),
   pointerIcon:withDefault(StringControl),
   gradePointerIcon:withDefault(StringControl, trans('gaugeChart.gradeDefaultPointerIcon')),
   clockPointerIcon:withDefault(StringControl, trans('gaugeChart.clockDefaultPointerIcon')),
@@ -326,13 +330,13 @@ let chartJsonModeChildren: any = {
 
 }
 
-if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle && EchartDefaultDetailStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
     titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
     labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
-    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
+    legendStyle: styleControl(EchartDefaultDetailStyle, 'legendStyle'),
     axisLabelStyle: styleControl(EchartDefaultTextStyle, 'axisLabelStyle'),
     axisLabelStyleOutline: styleControl(EchartDefaultTextStyle, 'axisLabelStyleOutline'),
   }
