@@ -240,6 +240,7 @@ export function getEchartsConfig(
             ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 12, "#000000"),
           },
           'detail': {
+            formatter: props?.echartsOption?.data?.map(data => data.formatter)[0],
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, "#000000"),
           },
           "label": {
@@ -311,7 +312,6 @@ export function getEchartsConfig(
         ]
       }
 
-      console.log(props?.legendStyle)
     let gradeGaugeOpt = {
       ...basicStyle,
         series: [
@@ -360,9 +360,7 @@ export function getEchartsConfig(
             detail: {
               offsetCenter: [0, '25%'],
               valueAnimation: true,
-              formatter: function (value) {
-                return value;
-              },
+              formatter: props?.gradeGaugeOption?.data?.map(data => data.formatter)[0],
               ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, 'inherit'),
             },
             data: [
@@ -374,8 +372,6 @@ export function getEchartsConfig(
           }
         ]
     }
-
-    console.log(props?.barometerGaugeOption?.data)
 
     let multiGaugeOpt = {
       ...basicStyle,
@@ -583,7 +579,7 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
-            formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
+            formatter: props?.ringGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
       ]
@@ -648,7 +644,8 @@ export function getEchartsConfig(
             valueAnimation: true,
             precision: 2,        // Increase precision or keep as is
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16),
-            offsetCenter: [0, '40%'] // Adjust to fit within the smaller radius
+            offsetCenter: [0, '40%'],
+            formatter: props?.barometerGaugeOption?.data?.map(data => data.formatter)[0],
           },
           title: {
             offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
