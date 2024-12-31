@@ -66,7 +66,7 @@ const StepHeader = (props : {
   title: string,
 }) => (
   <Flex justify="center" style={{marginBottom: '22px'}}>
-    <h3 style={{margin: 0}}>{props.title}</h3>
+    <h3 style={{margin: 0, padding: '2px 0 0 8px'}}>{props.title}</h3>
   </Flex>
 )
 

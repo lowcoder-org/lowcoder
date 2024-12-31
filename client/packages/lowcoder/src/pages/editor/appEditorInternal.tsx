@@ -53,9 +53,9 @@ function useSaveComp(
     if (!comp || comp === prevComp) {
       return;
     }
+
     const curJson = comp.toJsonValue();
     const curJsonStr = JSON.stringify(curJson);
-
 
     if (!Boolean(prevAppId) && Boolean(applicationId)) {
       return setPrevAppId(applicationId);
@@ -64,6 +64,7 @@ function useSaveComp(
       return setPrevAppId(applicationId);
     }
     if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
+      setPrevComp(comp)
       return setPrevJsonStr(curJsonStr);
     }
     if (prevJsonStr === curJsonStr) {
@@ -84,7 +85,7 @@ function useSaveComp(
     setPrevComp(comp);
     setPrevJsonStr(curJsonStr);
     setPrevAppId(applicationId);
-  }, [comp, prevAppId, applicationId, prevComp, prevJsonStr, readOnly, dispatch]);
+  }, [comp, applicationId, readOnly, dispatch]);
 }
 
 interface AppEditorInternalViewProps {

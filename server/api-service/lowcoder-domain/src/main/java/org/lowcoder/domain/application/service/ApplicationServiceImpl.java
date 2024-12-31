@@ -18,6 +18,7 @@ import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.domain.permission.model.ResourceType;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.user.repository.UserRepository;
+import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.NonEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.constants.FieldName;
@@ -60,9 +61,13 @@ public class ApplicationServiceImpl implements ApplicationService {
             return Mono.error(new BizException(BizError.INVALID_PARAMETER, "INVALID_PARAMETER", FieldName.ID));
         }
 
-        if(FieldName.isGID(id))
-            return Mono.from(repository.findByGid(id)).switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
-        return repository.findById(id)
+        return Mono.from(repository.findBySlug(id))
+                .switchIfEmpty(
+                        Mono.defer(() -> {
+                            if (FieldName.isGID(id))
+                                return Mono.from(repository.findByGid(id));
+                            return repository.findById(id);
+                        }))
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "CANT_FIND_APPLICATION", id)));
     }
 
@@ -123,7 +128,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     public Flux<Application> findByIdIn(List<String> applicationIds) {
         if(!applicationIds.isEmpty() && FieldName.isGID(applicationIds.get(0)))
             return repository.findByGidIn(applicationIds);
-        return repository.findByIdIn(applicationIds);
+        return repository.findBySlugIn(applicationIds).switchIfEmpty(repository.findByIdIn(applicationIds));
     }
 
     @Override
@@ -279,7 +284,7 @@ public class ApplicationServiceImpl implements ApplicationService {
                     .map(Application::getGid)
                     .collect(Collectors.toSet());
 
-        return repository.findByCreatedByAndIdIn(userId, applicationIds)
+        return repository.findByCreatedByAndSlugIn(userId, applicationIds).switchIfEmpty(repository.findByCreatedByAndIdIn(userId, applicationIds))
                 .map(HasIdAndAuditing::getId)
                 .collect(Collectors.toSet());
     }
@@ -349,15 +354,15 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public Mono<Application> updateSlug(String applicationId, String newSlug) {
-        return repository.existsBySlug(newSlug).flatMap(exists -> {
-            if (exists) {
-                return Mono.error(new BizException(BizError.DUPLICATE_ENTRY, "Slug already exists"));
+        return repository.findById(applicationId).flatMap(application -> repository.existsByOrganizationIdAndSlug(application.getOrganizationId(), newSlug).flatMap(exists -> {
+            if (!SlugUtils.validate(newSlug)) {
+                return Mono.error(new BizException(BizError.SLUG_INVALID, "SLUG_INVALID"));
             }
-            return repository.findById(applicationId)
-                    .flatMap(application -> {
-                        application.setSlug(newSlug);
-                        return repository.save(application);
-                    });
-        });
+            if (exists) {
+                return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
+            }
+            application.setSlug(newSlug);
+            return repository.save(application);
+        }));
     }
 }
