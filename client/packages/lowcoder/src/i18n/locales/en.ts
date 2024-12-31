@@ -583,7 +583,8 @@ export const en = {
     "chartGradientColor": "Gradient Color",
     "chartShadowColor": "Shadow Color",
     "chartBorderColor": "Border Color",
-    "chartTextColor": "Text Color"
+    "chartTextColor": "Text Color",
+    "detailSize": "Detail Size"
   },
   "export": {
     "hiddenDesc": "If true, the component is hidden",

@@ -16,7 +16,8 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -24,6 +25,7 @@ import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxi
 import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
 import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
 import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
 import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
@@ -252,15 +254,25 @@ let chartJsonModeChildren: any = {
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsTitleConfig:EchartsTitleConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  left:withDefault(NumberControl,trans('candleStickChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('candleStickChart.defaultRight')),
+  top:withDefault(NumberControl,trans('candleStickChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('candleStickChart.defaultBottom')),
+  dataZoomBottom:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomBottom')),
+  dataZoomHeight:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomHeight')),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  dataZoomVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 

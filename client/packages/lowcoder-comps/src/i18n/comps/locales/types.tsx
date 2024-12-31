@@ -5,6 +5,13 @@ export type I18nObjects = {
   defaultDataSource: JSONObject[];
   defaultEchartsJsonOption: Record<string, unknown>;
   defaultGaugeChartOption: Record<string, unknown>;
+  defaultStageGaugeChartOption: Record<string, unknown>;
+  defaultGradeGaugeChartOption: Record<string, unknown>;
+  defaultTemperatureGaugeChartOption: Record<string, unknown>;
+  defaultMultiTitleGaugeChartOption: Record<string, unknown>;
+  defaultRingGaugeChartOption: Record<string, unknown>;
+  defaultBarometerGaugeChartOption: Record<string, unknown>;
+  defaultClockGaugeChartOption: Record<string, unknown>;
   defaultFunnelChartOption: Record<string, unknown>;
   defaultSankeyChartOption: Record<string, unknown>;
   defaultCandleStickChartOption: Record<string, unknown>;

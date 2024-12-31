@@ -173,7 +173,121 @@ export const enObj: I18nObjects = {
   },
   defaultGaugeChartOption: {
     data: [
-      { value: 60, name: "Completed",color:'#fc8452' }
+      { value: 60, name: "Completed",color:'#fc8452', formatter: "{value} %" }
+    ]
+  },
+  defaultStageGaugeChartOption: {
+    data: [
+      {
+        value: 80,
+        formatter: "{value} Km/h",
+        color: [
+          [0.3, '#67e0e3'],
+          [0.7, '#37a2da'],
+          [1, '#fd666d']
+        ]
+      }
+    ]
+  },
+  defaultGradeGaugeChartOption: {
+    data: [
+      {
+        value: 80,
+        name: "Grade Rating",
+        formatter: "{value} %",
+        color: [
+          [0.25, '#FF6E76'],
+          [0.5, '#FDDD60'],
+          [0.75, '#58D9F9'],
+          [1, '#7CFFB2']
+        ]
+      }
+    ]
+  },
+  defaultTemperatureGaugeChartOption: {
+    data: [
+      {value: 20, color: "#fc8452", borderColor: "#cd7c1d", formatter: "{value} °C" }
+    ]
+  },
+  defaultMultiTitleGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: [
+          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['-60%', '60%'], valuePosition: ['-60%', '80%']},
+          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '60%'], valuePosition: ['0%', '80%']},
+          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['60%', '60%'], valuePosition: ['60%', '80%']},
+        ]
+      }
+    ]
+  },
+  defaultRingGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: [
+          {color: "#19b1e6", title: "Perfect", value: 20, titlePosition: ['0%', '-40%'], valuePosition: ['0%', '-20%']},
+          {color: "#fac858", title: "Good", value: 40, titlePosition: ['0%', '0%'], valuePosition: ['0%', '20%']},
+          {color: "#09f64d", title: "Commonly", value: 60, titlePosition: ['0%', '40%'], valuePosition: ['0%', '60%']},
+        ]
+      }
+    ]
+  },
+  defaultBarometerGaugeChartOption: {
+    data: [
+      {
+        formatter: "{value}%",
+        value: 58.46,
+        name: "PLP",
+        outline: {
+          color: "#c80707",
+          period: [0,100],
+          splitNumber: 10,
+          progressBarWidth: 2,
+          axisTickLength: 6,
+          axisTickWidth: 2,
+          radius: "70%",
+        },
+        inline: {
+          color: "#000000",
+          period: [0,60],
+          progressBarWidth: 2,
+          splitNumber: 6,
+          axisTickLength: 6,
+          axisTickWidth: 2,
+          radius: "60%"
+        },
+      }
+    ]
+  },
+  defaultClockGaugeChartOption: {
+    data: [
+      {
+        outlineColor: "#aa2a2a",
+        anchor:{
+          color: "#cfae09",
+          size: 10,
+        },
+        hour: {
+          color: "#cfae09",
+          width: 4,
+          length: 50,
+          value: 4
+        },
+        minute: {
+          color: "#cfae09",
+          width: 2.5,
+          length: 65,
+          value: 30
+        },
+        second: {
+          color: "#cfae09",
+          width: 1,
+          length: 90,
+          value: 45,
+
+        }
+      },
     ]
   },
   defaultSankeyChartOption: {

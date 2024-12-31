@@ -44,7 +44,8 @@ export const en = {
     titleStyle: "Title Style",
     legendStyle: "Legend Style",
     detailStyle: "Detail Style",
-    axisLabelStyle: "Axis Label Style"
+    axisLabelStyle: "Axis Label Style",
+    axisLabelStyleOutline: "Outline Axis Label Style"
   },
   passwordInput: {
     label: "Password:",

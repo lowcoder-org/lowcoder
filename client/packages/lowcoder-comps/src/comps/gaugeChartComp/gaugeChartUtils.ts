@@ -14,6 +14,7 @@ import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
+import {ba} from "@fullcalendar/core/internal-common";
 
 export function transformData(
   originData: JSONObject[],
@@ -136,23 +137,39 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
+  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000', detailBorderWidth = 0, defaultBackgroundColor = "" ) => {
+
+    return {
+      "fontFamily": styleContainer?.chartFontFamily || themeContainer?.fontFamily || 'Arial, sans-serif',
+      "fontSize": styleContainer?.chartTextSize || themeContainer?.fontSize || defaultFontSize,
+      "fontWeight": styleContainer?.chartTextWeight || themeContainer?.fontWeight,
+      "color": styleContainer?.chartTextColor || themeContainer?.fontColor || defaultFontColor,
+      "fontStyle": styleContainer?.chartFontStyle || themeContainer?.fontStyle,
+      "textShadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
+      "textShadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
+      "textShadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
+      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2],
+      "borderColor": styleContainer?.chartBorderColor || themeContainer?.borderColor || 'inherit',
+      "borderWidth": styleContainer?.chartBorderWidth || themeContainer?.borderWidth || detailBorderWidth,
+      "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
+      "borderRadius": Number(styleContainer?.chartBorderRadius || themeContainer?.borderRadius),
+      "backgroundColor": styleContainer?.chartBackgroundColor || themeContainer?.backgroundColor || defaultBackgroundColor,
+      "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0] || 24,
+      "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
+    }
+
+  }
+
   if (props.mode === "json") {
-    let opt={
+
+    const basic={
       "title": {
         "text": props.echartsTitle,
         'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
         "left":props.echartsTitleConfig.top,
         "textStyle": {
-          "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-          "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || 18,
-          "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-          "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
-          "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
-          "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
-          "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
-          "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
-          "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
-        },
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
       "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       "tooltip": props.tooltip&&{
@@ -179,13 +196,29 @@ export function getEchartsConfig(
           "pointer": {
             "length": `${props?.pointerLength}%`,
             "width": props?.pointerWidth,
+            "icon": props?.pointerIcon,
+            "offsetCenter": [0, `${-Number(props.pointer_Y)}%`]
+          },
+          "axisTick": {
+            "length": props.axisTickLength,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": props.axisTickWidth
+            }
+          },
+          "splitLine": {
+            "length": Number(props.axisTickLength) * 1.5,
+            "lineStyle": {
+              "color": props.axisTickColor,
+              "width": Number(props.axisTickWidth) * 1.5
+            }
           },
           "itemStyle": {
             "opacity": props?.opacity,
             "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
             "borderWidth": props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             "borderType": props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
-            "borderRadius": props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius,
+            "borderRadius": Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
             "shadowColor": props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
             "shadowBlur": props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
             "shadowOffsetX": props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
@@ -203,27 +236,12 @@ export function getEchartsConfig(
             }
           },
           "axisLabel": {
-            "distance": Number(props?.progressBarWidth) + 10,
-            "fontFamily": props?.axisLabelStyle?.chartFontFamily || theme?.axisLabelStyle?.fontFamily,
-            "fontSize": props?.axisLabelStyle?.chartTextSize || theme?.axisLabelStyle?.fontSize || 12,
-            "fontWeight": props?.axisLabelStyle?.chartTextWeight || theme?.axisLabelStyle?.fontWeight,
-            "color": props?.axisLabelStyle?.chartTextColor || theme?.axisLabelStyle?.fontColor || "#000000",
-            "fontStyle": props?.axisLabelStyle?.chartFontStyle || theme?.axisLabelStyle?.fontStyle,
-            "textShadowColor": props?.axisLabelStyle?.chartShadowColor || theme?.axisLabelStyle?.shadowColor,
-            "textShadowBlur": props?.axisLabelStyle?.chartBoxShadow?.split('px')[0] || theme?.axisLabelStyle?.boxShadow?.split('px')[0],
-            "textShadowOffsetX": props?.axisLabelStyle?.chartBoxShadow?.split('px')[1] || theme?.axisLabelStyle?.boxShadow?.split('px')[1],
-            "textShadowOffsetY": props?.axisLabelStyle?.chartBoxShadow?.split('px')[2] || theme?.axisLabelStyle?.boxShadow?.split('px')[2]
+            "distance": Number(props?.progressBarWidth) + Number(props.axisLabelDistance),
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 12, "#000000"),
           },
           'detail': {
-            "fontFamily": props?.legendStyle?.chartFontFamily || theme?.legendStyle?.fontFamily,
-            "fontSize": props?.legendStyle?.chartTextSize || theme?.legendStyle?.fontSize || 16,
-            "fontWeight": props?.legendStyle?.chartTextWeight || theme?.legendStyle?.fontWeight,
-            "color": props?.legendStyle?.chartTextColor || theme?.legendStyle?.fontColor || "#000000",
-            "fontStyle": props?.legendStyle?.chartFontStyle || theme?.legendStyle?.fontStyle,
-            "textShadowColor": props?.legendStyle?.chartShadowColor || theme?.legendStyle?.shadowColor,
-            "textShadowBlur": props?.legendStyle?.chartBoxShadow?.split('px')[0] || theme?.legendStyle?.boxShadow?.split('px')[0],
-            "textShadowOffsetX": props?.legendStyle?.chartBoxShadow?.split('px')[1] || theme?.legendStyle?.boxShadow?.split('px')[1],
-            "textShadowOffsetY": props?.legendStyle?.chartBoxShadow?.split('px')[2] || theme?.legendStyle?.boxShadow?.split('px')[2]
+            formatter: props?.echartsOption?.data?.map(data => data.formatter)[0],
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, "#000000"),
           },
           "label": {
             "show": props.label,
@@ -233,21 +251,667 @@ export function getEchartsConfig(
             "value": item.value,
             "name": item.name,
             title: {
-              "fontFamily": props?.labelStyle?.chartFontFamily || theme?.labelStyle?.fontFamily,
-              "fontSize": props?.labelStyle?.chartTextSize || theme?.labelStyle?.fontSize,
-              "fontWeight": props?.labelStyle?.chartTextWeight || theme?.labelStyle?.fontWeight,
-              "color": props?.labelStyle?.chartTextColor || theme?.labelStyle?.fontColor || "#000000",
-              "fontStyle": props?.labelStyle?.chartFontStyle || theme?.labelStyle?.fontStyle,
-              "textShadowColor": props?.labelStyle?.chartShadowColor || theme?.labelStyle?.shadowColor,
-              "textShadowBlur": props?.labelStyle?.chartBoxShadow?.split('px')[0] || theme?.labelStyle?.boxShadow?.split('px')[0],
-              "textShadowOffsetX": props?.labelStyle?.chartBoxShadow?.split('px')[1] || theme?.labelStyle?.boxShadow?.split('px')[1],
-              "textShadowOffsetY": props?.labelStyle?.chartBoxShadow?.split('px')[2] || theme?.labelStyle?.boxShadow?.split('px')[2]
+              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 18, "#000000"),
             }
           }))
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+
+    const { progress, ...basicSeries } = basic.series[0];
+    const { color, ...basicStyle } = basic;
+
+    let stageGaugeOpt = {
+      ...basicStyle,
+        series: [
+          {
+            ...basicSeries,
+            axisLine: {
+              lineStyle: {
+                width: props.stageProgressBarWidth,
+                color:props?.stageGaugeOption?.data?.map(data => data.color)[0]
+              }
+            },
+            pointer: {
+              ...basicSeries.pointer,
+              itemStyle: {
+                color: 'auto',
+              }
+            },
+            axisTick: {
+              distance: -Number(props.stageProgressBarWidth),
+              length: props.axisTickLength,
+              lineStyle: {
+                color: props.stageAxisTickColor,
+                width: props.axisTickWidth
+              }
+            },
+            splitLine: {
+              distance: -Number(props.stageProgressBarWidth),
+              length: props.stageProgressBarWidth,
+              lineStyle: {
+                color: props.stageAxisTickColor,
+                width: Number(props.axisTickWidth) * 1.5
+              }
+            },
+            axisLabel: {
+              distance: Number(props?.stageProgressBarWidth) + Number(props.axisLabelDistance),
+              ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 13, "inherit"),
+            },
+            detail: {
+              valueAnimation: true,
+              formatter: props?.stageGaugeOption?.data?.map(data => data.formatter)[0],
+              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, "inherit"),
+            },
+            data: [
+              {
+                value: props?.stageGaugeOption?.data?.map(data => data.value)
+              }
+            ]
+          }
+        ]
+      }
+
+    let gradeGaugeOpt = {
+      ...basicStyle,
+        series: [
+          {
+            ...basicSeries,
+            type: 'gauge',
+            axisLine: {
+              lineStyle: {
+                width: props.progressBarWidth,
+                color:props?.gradeGaugeOption?.data?.map(data => data.color)[0]
+              }
+            },
+            progress: {
+              width: props?.stageProgressBarWidth,
+            },
+            pointer: {
+              icon: props.gradePointerIcon || 'path://M12.8,0.7l12,40.1H0.7L12.8,0.7z',
+              length: props.gradeGaugePointerLength, // slightly shorter pointer
+              width: props.gradeGaugePointerWidth,     // slightly narrower pointer
+              offsetCenter: [0, `-${props.gradeGaugePointer_Y}%`],
+              itemStyle: {
+                color: 'auto'
+              }
+            },
+            axisTick: {
+              length: props.axisTickLength,
+              lineStyle: {
+                color: props.gradeAxisTickColor || 'auto',
+                width: props.axisTickWidth
+              }
+            },
+            splitLine: {
+              length: Number(props.axisTickLength) * 2,
+              lineStyle: {
+                color: props.gradeAxisTickColor || 'auto',
+                width: Number(props.axisTickWidth) * 1.5
+              }
+            },
+            axisLabel: {
+              show: false
+            },
+            title: {
+              offsetCenter: [0, '0%'],
+              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
+            },
+            detail: {
+              offsetCenter: [0, '25%'],
+              valueAnimation: true,
+              formatter: props?.gradeGaugeOption?.data?.map(data => data.formatter)[0],
+              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 20, 'inherit'),
+            },
+            data: [
+              {
+                value: props?.gradeGaugeOption?.data?.map(data => data.value),
+                name: props?.gradeGaugeOption?.data?.map(data => data.name)[0],
+              }
+            ]
+          }
+        ]
+    }
+
+    let multiGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          type: 'gauge',
+          anchor: {
+            show: true,
+            showAbove: true,
+            size: Number(props?.pointerWidth) * 1.5,
+            itemStyle: {
+              color: props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
+            }
+          },
+          progress: {
+            overlap: true,
+            ...progress
+          },
+
+          data: props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]?.value?.map(item => ({
+            value: item.value,
+            name: item.title,
+            title: {
+              offsetCenter: item.titlePosition
+            },
+            detail: {
+              offsetCenter: item.valuePosition,
+
+            },
+            itemStyle: {
+              color: item.color
+            },
+            pointer: {
+              itemStyle: {
+                color: item.color
+              }
+            }
+          })),
+
+          title: {
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
+          },
+          pointer: {
+            ...basicSeries.pointer,
+            icon: props?.multiTitlePointerIcon,
+          },
+          detail: {
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
+            formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
+          }
+        }
+      ]
+    }
+
+    let temperatureGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          radius: `${props.temperatureRadius}%`,
+          itemStyle: {
+            color: props?.temperatureGaugeOption?.data?.map(data => data.color)[0]
+          },
+          progress: {
+            show: true,
+            width: props.temperatureProgressBarWidth
+          },
+          pointer: {
+            show: false
+          },
+          axisLine: {
+            lineStyle: {
+              width: props.temperatureProgressBarWidth
+            }
+          },
+          axisTick: {
+            distance: -Number(props.temperatureProgressBarWidth) - 15,
+            length: -Number(props.axisTickLength),
+            lineStyle: {
+              color: props.gradeAxisTickColor || '#999',
+              width: props.axisTickWidth
+            }
+          },
+          splitLine: {
+            distance: -Number(props.temperatureProgressBarWidth) -15,
+            length: -Number(props.axisTickLength) * 2,
+            lineStyle: {
+              color: props.gradeAxisTickColor || '#999',
+              width: Number(props.axisTickWidth) * 1.5
+            }
+          },
+          axisLabel: {
+            distance: Number(props?.temperatureProgressBarWidth) - Number(props.temperatureAxisLabelDistance),
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 20, "#999"),
+          },
+          detail: {
+            valueAnimation: true,
+            offsetCenter: [0, '-15%'],
+            formatter: props?.temperatureGaugeOption?.data?.map(data => data.formatter)[0],
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 30, 'inherit'),
+          },
+          data: [
+            {
+              value: props?.temperatureGaugeOption?.data?.map(data => data.value)
+            }
+          ]
+        },
+        {
+          type: 'gauge',
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          startAngle: props?.startAngle,
+          endAngle: props?.endAngle,
+          splitNumber: props?.splitNumber,
+          min: props?.min,
+          max: props?.max,
+          radius: `${props.temperatureRadius}%`,
+          itemStyle: {
+            color: props?.temperatureGaugeOption?.data?.map(data => data.borderColor)[0]
+          },
+          progress: {
+            show: true,
+            width: 6
+          },
+          pointer: {
+            show: false
+          },
+          axisLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          splitLine: {
+            show: false
+          },
+          axisLabel: {
+            show: false
+          },
+          detail: {
+            show: false
+          },
+          data: [
+            {
+              value: props?.temperatureGaugeOption?.data?.map(data => data.value)
+            }
+          ]
+        }
+      ]
+    }
+
+    let ringGaugeOpt = {
+      ...basicStyle,
+      series: [
+        {
+          ...basicSeries,
+          startAngle: 90,
+          endAngle: 450,
+          type: 'gauge',
+          pointer: {
+            show: false
+          },
+          progress: {
+            roundCap: props?.roundCap,
+            show: true,
+            width: props?.ringProgressBarWidth,
+            overlap: false,
+            clip: false,
+          },
+          axisLine: {
+            roundCap: props?.roundCap,
+            lineStyle: {
+              width: props?.ringProgressBarWidth
+            }
+          },
+          splitLine: {
+            show: false
+          },
+          axisTick: {
+            show: false
+          },
+          axisLabel: {
+            show: false
+          },
+          data: props?.ringGaugeOption?.data && props?.ringGaugeOption?.data[0]?.value.map(item => ({
+            value: item.value,
+            name: item.title,
+            title: {
+              offsetCenter: item.titlePosition
+            },
+            detail: {
+              offsetCenter: item.valuePosition
+            },
+            itemStyle: {
+              color: item.color
+            },
+            pointer: {
+              itemStyle: {
+                color: item.color
+              }
+            }
+          })),
+          title: {
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 16),
+          },
+          detail: {
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
+            formatter: props?.ringGaugeOption?.data?.map(data => data.formatter)[0],
+          }
+        }
+      ]
+    }
+
+    let barometerGaugeOpt = {
+      ...basic,
+      series: props?.barometerGaugeOption?.data && [
+        {
+          ...basicSeries,
+          type: 'gauge',
+          min: props?.barometerGaugeOption?.data[0]?.outline?.period[0],
+          max: props?.barometerGaugeOption?.data[0]?.outline?.period[1],
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          splitNumber: props?.barometerGaugeOption?.data[0]?.outline?.splitNumber,
+          radius: props?.barometerGaugeOption?.data[0]?.outline?.radius,
+          axisLine: {
+            lineStyle: {
+              color: [[1, props?.barometerGaugeOption?.data[0]?.outline?.color]],
+              width: props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth
+            }
+          },
+          splitLine: {
+           distance: -Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth),
+            length: -Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength) * 2,
+            lineStyle: {
+              color: props?.barometerGaugeOption?.data[0]?.outline?.color,
+              width: Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth) * 1.5
+            }
+          },
+          axisTick: {
+            distance: -Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth),
+            length: -Number(props?.barometerGaugeOption?.data[0]?.outline?.axisTickLength),
+            lineStyle: {
+              color: props?.barometerGaugeOption?.data[0]?.outline?.color,
+              width: props?.barometerGaugeOption?.data[0]?.outline?.axisTickWidth
+            }
+          },
+          axisLabel: {
+            distance: Number(props?.barometerGaugeOption?.data[0]?.outline?.progressBarWidth) - 20,
+            ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 13, '#c80707')
+          },
+          pointer: {
+            ...basicSeries.pointer,
+            icon: props?.barometerPointerIcon,
+            length: `${props?.barometerPointerLength}%`,
+            width: props?.barometerPointerWidth,
+            offsetCenter: [0, `${-Number(props.barometerPointer_Y)}%`],
+            itemStyle: {
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color
+            }
+          },
+          anchor: {
+            show: true,
+            size: 10,
+            itemStyle: {
+              borderColor: '#000',
+              borderWidth: 1
+            }
+          },
+          detail: {
+            valueAnimation: true,
+            precision: 2,        // Increase precision or keep as is
+            ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16),
+            offsetCenter: [0, '40%'],
+            formatter: props?.barometerGaugeOption?.data?.map(data => data.formatter)[0],
+          },
+          title: {
+            offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 13)
+          },
+          data: [
+            {
+              value: props?.barometerGaugeOption?.data[0]?.value,
+              name: props?.barometerGaugeOption?.data[0]?.name,
+            }
+          ]
+        },
+        {
+          ...basicSeries,
+          type: 'gauge',
+          min: props?.barometerGaugeOption?.data[0]?.inline?.period[0],
+          max: props?.barometerGaugeOption?.data[0]?.inline?.period[1],
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          splitNumber: props?.barometerGaugeOption?.data[0]?.inline?.splitNumber,
+          radius: props?.barometerGaugeOption?.data[0]?.inline?.radius,
+          anchor: {
+            show: true,
+            size: 6,
+            itemStyle: {
+              color: '#000'
+            }
+          },
+          axisLine: {
+            lineStyle: {
+              color: [[1, props?.barometerGaugeOption?.data[0]?.inline?.color]],
+              width: props?.barometerGaugeOption?.data[0]?.inline?.progressBarWidth
+            }
+          },
+          splitLine: {
+            distance: -2,          // Adjust spacing
+            length: Number(props?.barometerGaugeOption?.data[0]?.inline?.axisTickLength) * 2,
+            lineStyle: {
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color,
+              width: Number(props?.barometerGaugeOption?.data[0]?.inline?.axisTickWidth) * 1.5
+            }
+          },
+          axisTick: {
+            distance: 0,
+            length: props?.barometerGaugeOption?.data[0]?.inline?.axisTickLength,
+            lineStyle: {
+              color: props?.barometerGaugeOption?.data[0]?.inline?.color,
+              width: props?.barometerGaugeOption?.data[0]?.inline?.axisTickWidth
+            }
+          },
+          axisLabel: {
+            distance: Number(props?.barometerGaugeOption?.data[0]?.inline?.progressBarWidth) + 6,
+            ...styleWrapper(props?.axisLabelStyleOutline, theme?.axisLabelStyleOutline, 13, '#000'),
+          },
+          pointer: {
+            show: false
+          },
+          title: {
+            show: false
+          },
+          detail: {
+            show: false
+          }
+        }
+      ]
+    }
+
+    let clockGaugeOpt = {
+      ...basicStyle,
+      tooltip: false,
+        series: [
+          {
+            ...basicSeries,
+            name: 'hour',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 12,
+            center: ['50%', '50%'],
+            splitNumber: 12,
+            clockwise: true,
+            axisLine: {
+              lineStyle: {
+                width: props.progressBarWidth,
+                color: [[1, props?.clockGaugeOption?.data?.map(data => data.outlineColor)[0]]],
+                shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            axisTick: {
+              length: props.axisTickLength,
+              lineStyle: {
+                width: props.axisTickWidth,
+                color: props.axisTickColor,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            splitLine: {
+              length: Number(props.axisTickLength) * 2,
+              lineStyle: {
+                width: Number(props.axisTickWidth) * 1.5,
+                color: props.axisTickColor,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            axisLabel: {
+              ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 16, "#000000"),
+              distance: Number(props?.progressBarWidth) + Number(props.axisLabelDistance),
+              formatter: function (value) {
+                if (value === 0) {
+                  return '';
+                }
+                return value + '';
+              }
+            },
+            pointer: {
+              icon: props?.clockPointerIcon,
+              width: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.width,
+              length: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.length,
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.color,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: [0, '30%']
+            },
+            data: [
+              {
+                value: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.value
+              }
+            ]
+          },
+          {
+            name: 'minute',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 60,
+            clockwise: true,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            },
+            axisLabel: {
+              show: false
+            },
+            pointer: {
+              icon: props?.clockPointerIcon,
+              width: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.width,
+              length: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.length,
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.color,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: ['0%', '-40%']
+            },
+            data: [
+              {
+                value: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.value
+              }
+            ]
+          },
+          {
+            name: 'second',
+            type: 'gauge',
+            startAngle: 90,
+            endAngle: -270,
+            min: 0,
+            max: 60,
+            animationEasingUpdate: 'bounceOut',
+            clockwise: true,
+            axisLine: {
+              show: false
+            },
+            splitLine: {
+              show: false
+            },
+            axisTick: {
+              show: false
+            },
+            axisLabel: {
+              show: false
+            },
+            pointer: {
+              icon: props?.clockPointerIcon,
+              width: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.width,
+              length: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.length,
+              offsetCenter: [0, '8%'],
+              itemStyle: {
+                color: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.color,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            anchor: {
+              show: true,
+              size: props?.clockGaugeOption?.data?.map(data => data.anchor)[0]?.size,
+              showAbove: true,
+              itemStyle: {
+                color: props?.clockGaugeOption?.data?.map(data => data.anchor)[0]?.color,
+                shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+              }
+            },
+            detail: {
+              show: false
+            },
+            title: {
+              offsetCenter: ['0%', '-40%']
+            },
+            data: [
+              {
+                value: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.value
+              }
+            ]
+          }
+        ]
+    }
+
+    const typeMap = {
+      default: basic,
+      stageGauge: stageGaugeOpt,
+      gradeGauge: gradeGaugeOpt,
+      temperatureGauge: temperatureGaugeOpt,
+      multiGauge: multiGaugeOpt,
+      ringGauge: ringGaugeOpt,
+      barometerGauge: barometerGaugeOpt,
+      clockGauge: clockGaugeOpt,
+    };
+
+    return typeMap[props.chartType] || basic;
 
   }
 
