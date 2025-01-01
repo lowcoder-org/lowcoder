@@ -1,4 +1,4 @@
-import { IconComp } from "comps/comps/iconComp";
+import { ControlButton } from "comps/comps/meetingComp/controlButton";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
@@ -16,19 +16,19 @@ export default function IconButtonExample() {
             prefixIcon: "/icon:solid/align-justify",
             iconSize: "30px",
         }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
         <Example
           title={trans("componentDoc.loading")}
           width={120}
           config={{ type: "default", text: trans("componentDoc.submit"), loading: true }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
         <Example
           title={trans("componentDoc.disabled")}
           width={120}
           config={{ type: "default", text: trans("componentDoc.submit"), disabled: true }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
       </ExampleGroup>
       
@@ -39,7 +39,7 @@ export default function IconButtonExample() {
           config={{
             style: { backgroundColor: "#CD574C", borderColor: "#AC3A32", color: "#E0ECF6" },
           }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
         <Example
           title={trans("componentDoc.warning")}
@@ -47,7 +47,7 @@ export default function IconButtonExample() {
           config={{
             style: { backgroundColor: "#F4A125", borderColor: "#DA7D16", color: "#000000" },
           }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
         <Example
           title={trans("componentDoc.success")}
@@ -55,7 +55,7 @@ export default function IconButtonExample() {
           config={{
             style: { backgroundColor: "#5E8D6E", borderColor: "#40694E", color: "#E0ECF6" },
           }}
-          compFactory={IconComp}
+          compFactory={ControlButton}
         />
       </ExampleGroup>
     </>
