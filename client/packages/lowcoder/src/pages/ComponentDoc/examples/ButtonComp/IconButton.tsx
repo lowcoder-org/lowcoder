@@ -12,14 +12,9 @@ export default function IconButtonExample() {
       >
         <Example
           title={trans("componentDoc.default")}
-          width={20}
           config={{ 
-            form: "",
-            type: "",
             prefixIcon: "/icon:solid/align-justify",
             iconSize: "30px",
-            aspectRatio: "1 / 1",
-            autoHeight: "fixed",
         }}
           compFactory={IconComp}
         />

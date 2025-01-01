@@ -56,7 +56,18 @@ import ColumnLayoutExample from "./ContainersComp/ColumnLayout";
 import TabbedContainerExample from "./ContainersComp/TabbedContainer";
 import ContainerExample from "./ContainersComp/Container";
 import ContentCardExample from "./MediaComp/ContentCard";
-
+import ImageCarouselExample from "./presentationComp/imageCarousel";
+import FormExample from "./formComp/Form";
+import JsonEditorExample from "./formComp/JSONEditor";
+import JsonExplorerExample from "./formComp/JSONExplorer";
+import ShapeExample from "./MediaComp/Shape";
+import JsonLottieAnimationExample from "./MediaComp/LottieAnimation";
+import IconExample from "./MediaComp/Icons";
+import TourExample from "./MediaComp/Tour";
+import QRCodeExample from "./MediaComp/QRCode";
+import StepControlExample from "./selectInputComp/StepControl";
+import CustomCompExample from "./presentationComp/customComponent";
+import ScannerExample from "./MediaComp/Scanner";
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
@@ -116,6 +127,18 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   tabbedContainer: TabbedContainerExample,
   container: ContainerExample,
   card: ContentCardExample,
+  carousel: ImageCarouselExample,
+  form: FormExample,
+  jsonEditor: JsonEditorExample,
+  jsonExplorer: JsonExplorerExample,
+  shape: ShapeExample,
+  jsonLottie: JsonLottieAnimationExample,
+  icon: IconExample,
+  tour: TourExample,
+  qrCode: QRCodeExample,
+  step: StepControlExample,
+  custom: CustomCompExample,
+  scanner: ScannerExample,
 };
 
 export default examples;

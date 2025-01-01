@@ -3,6 +3,25 @@ import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
+const buttons = {
+  "manual": [
+      {
+          "id": 0,
+          "label": "Option 1",
+          "badge": "1",
+          "description": "",
+          "icon": "/icon:antd/filetextoutlined"
+      },
+      {
+          "id": 1,
+          "label": "Option 2",
+          "badge": "0",
+          "description": "",
+          "icon": "/icon:antd/filetextoutlined"
+      }
+  ]
+};
+
 export default function FloatButtonExample() {
   return (
     <>
@@ -13,44 +32,13 @@ export default function FloatButtonExample() {
         <Example
           title={trans("componentDoc.default")}
           config={{ 
+            buttons: buttons,
+            buttonTheme: "primary",
             icon: "/icon:antd/questioncircleoutlined",
-            value: "",
+            includeMargin: true,
+            preventStyleOverwriting: false,
             shape: "circle",
-            manual: [
-              {
-                badge: "1",
-                description: "",
-                icon: "/icon:antd/filetextoutlined",
-                id: 0,
-                label: "Option 1"
-              },
-              {
-                badge: "1",
-                description: "",
-                icon: "/icon:antd/filetextoutlined",
-                id: 1,
-                label: "Option 2"
-              }
-            ]
-
-        }}
-          compFactory={FloatButtonComp}
-        />
-        <Example
-          title={trans("componentDoc.loading")}
-          width={120}
-          config={{ 
-            text: trans("componentDoc.submit"), 
-            loading: true 
-        }}
-          compFactory={FloatButtonComp}
-        />
-        <Example
-          title={trans("componentDoc.disabled")}
-          width={120}
-          config={{
-            text: trans("componentDoc.submit"), 
-            disabled: true 
+            value: "",
         }}
           compFactory={FloatButtonComp}
         />
