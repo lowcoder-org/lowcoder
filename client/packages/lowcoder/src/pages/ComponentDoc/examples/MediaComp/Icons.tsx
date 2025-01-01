@@ -10,9 +10,12 @@ export default function IconExample() {
         >
           <Example
             title="Icon"
+            width={'80px'}
+            height={'80px'}
             config={{
               icon: "/icon:solid/align-justify",
               iconSize: "20",
+              autoHeight: false,
             }}
             compFactory={IconComp}
           />
