@@ -190,7 +190,7 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
   ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
 `;
 
-const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
+export const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
     background: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     border-style: ${props => props.$style?.borderStyle};
