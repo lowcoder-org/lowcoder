@@ -264,6 +264,7 @@ let CalendarBasicComp = (function () {
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
     const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
     const [initDataMap, setInitDataMap] = useState<Record<string, number>>({});
+    const [hoverEventId, setHoverEvent] = useState<string>();
 
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
@@ -490,36 +491,45 @@ let CalendarBasicComp = (function () {
           : "";
       return (
         <Suspense fallback={null}>
-          <Event
-            className={`event ${sizeClass} ${stateClass}`}
-            theme={theme?.theme}
-            $isList={isList}
-            $allDay={Boolean(props.showAllDay)}
-            $style={props.style}
-            $backgroundColor={eventInfo.backgroundColor}
-            $extendedProps={eventInfo?.event?.extendedProps}
+          <Tooltip
+            title={eventInfo?.event?.extendedProps?.detail}
+            open={
+              isList
+              && Boolean(eventInfo?.event?.extendedProps?.detail)
+              && hoverEventId === eventInfo.event.id
+            }
           >
-            <div className="event-time">{eventInfo?.timeText}</div>
-            <div className="event-title">{eventInfo?.event?.title}</div>
-            <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
-            <Remove
+            <Event
+              className={`event ${sizeClass} ${stateClass}`}
+              theme={theme?.theme}
               $isList={isList}
-              className="event-remove"
-              onClick={(e) => {
-                e.stopPropagation();
-                const events = props.events.filter(
-                  (item: EventType) => item.id !== eventInfo.event.id
-                );
-                handleEventDataChange(events);
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
+              $allDay={Boolean(props.showAllDay)}
+              $style={props.style}
+              $backgroundColor={eventInfo.backgroundColor}
+              $extendedProps={eventInfo?.event?.extendedProps}
             >
-              <CalendarDeleteIcon />
-            </Remove>
-          </Event>
+              <div className="event-time">{eventInfo?.timeText}</div>
+              <div className="event-title">{eventInfo?.event?.title }</div>
+              {!isList && <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>}
+              <Remove
+                $isList={isList}
+                className="event-remove"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const events = props.events.filter(
+                    (item: EventType) => item.id !== eventInfo.event.id
+                  );
+                  handleEventDataChange(events);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <CalendarDeleteIcon />
+              </Remove>
+            </Event>
+          </Tooltip>
         </Suspense>
       );
     }, [
@@ -1034,6 +1044,8 @@ let CalendarBasicComp = (function () {
             }}
             eventDrop={handleDrop}
             eventResize={handleResize}
+            eventMouseEnter={({event}) => setHoverEvent(event.id)}
+            eventMouseLeave={({event}) => setHoverEvent(undefined)}
           />
         </ErrorBoundary>
       </Wrapper>
