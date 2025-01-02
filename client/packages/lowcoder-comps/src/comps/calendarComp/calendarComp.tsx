@@ -1210,7 +1210,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
           },
           execute: (comp, values) => {
               const viewType = values[0] as string || "timeGridWeek"; // Default to "timeGridWeek" if undefined
-              const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+              const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
               comp.children[viewKey].dispatchChangeValueAction(viewType);
           }
       },*/
@@ -1223,8 +1223,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("resourceTimeGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("resourceTimeGridDay");
           }
         },
         {
@@ -1234,8 +1234,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("resourceTimelineDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("resourceTimelineDay");
           }
         },
         {
@@ -1245,8 +1245,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridWeek");
           }
         },
         {
@@ -1256,8 +1256,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("timeGridWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("timeGridWeek");
           }
         },
         {
@@ -1267,8 +1267,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("timeGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("timeGridDay");
           }
         },
         {
@@ -1278,8 +1278,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridDay");
           }
         },
         {
@@ -1289,8 +1289,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("listWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("listWeek");
           }
         },
         {
@@ -1300,8 +1300,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridMonth");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridMonth");
           }
         },
         {
@@ -1311,8 +1311,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("multiMonthYear");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("multiMonthYear");
           }
         },
         {
