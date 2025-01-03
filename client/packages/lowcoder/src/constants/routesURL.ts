@@ -49,6 +49,7 @@ export const FOLDERS_URL = `/folders`;
 export const TRASH_URL = `/trash`;
 export const IMPORT_APP_FROM_TEMPLATE_URL = `${ALL_APPLICATIONS_URL}/template-import/:templateId`;
 export const APP_EDITOR_URL = `${ALL_APPLICATIONS_URL}/:applicationId/:viewMode/:appPageId?`;
+export const PUBLIC_APP_EDITOR_URL = `${ALL_APPLICATIONS_URL}/public/edit`;
 
 export const AUTH_BIND_URL = `${USER_AUTH_URL}/bind`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;

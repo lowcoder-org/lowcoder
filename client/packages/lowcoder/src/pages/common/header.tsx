@@ -383,6 +383,8 @@ export default function Header(props: HeaderProps) {
 
   const isModule = appType === AppTypeEnum.Module;
 
+  console.log('header', applicationId);
+
   useEffect(() => {
     if(blockEditing && application && Boolean(application?.editingUserId)) {
       UserApi.getUserDetail(application.editingUserId!)
@@ -536,7 +538,7 @@ export default function Header(props: HeaderProps) {
     ) : (
       <>
         {/* Display a hint about who is editing the app */}
-        {blockEditing && (
+        {blockEditing && Boolean(applicationId) && (
           <>
           <Popover
             style={{ width: 200 }}
@@ -587,7 +589,7 @@ export default function Header(props: HeaderProps) {
           </>
         )}
 
-        {applicationId && (
+        {Boolean(applicationId) && applicationId !== 'public' && (
           <AppPermissionDialog
             applicationId={applicationId}
             visible={permissionDialogVisible}

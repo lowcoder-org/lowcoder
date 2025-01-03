@@ -24,6 +24,7 @@ async function npmLoader(
     : NPM_PLUGIN_ASSETS_BASE_URL;
 
   const entry = `${pluginBaseUrl}/${appId || 'none'}/${packageName}@${localPackageVersion}/index.js`;
+  // const entry = `../../../../../public/package/index.js`;
 
   try {
     const module = await import(

@@ -3,7 +3,7 @@ import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } fro
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { AppSummaryInfo, fetchApplicationInfo } from "redux/reduxActions/applicationActions";
-import { fetchDataSourceByApp, fetchDataSourceTypes } from "redux/reduxActions/datasourceActions";
+import { fetchDataSourceTypes } from "redux/reduxActions/datasourceActions";
 import { getUser } from "redux/selectors/usersSelectors";
 import { useUserViewMode } from "util/hooks";
 import "comps/uiCompRegistry";
@@ -20,37 +20,27 @@ import {
   perfMark,
 } from "util/perfUtils";
 import { useMount, useUnmount } from "react-use";
-import { fetchQueryLibraryDropdown } from "../../redux/reduxActions/queryLibraryActions";
 import { clearGlobalSettings, setGlobalSettings } from "comps/utils/globalSettings";
 import { fetchFolderElements } from "redux/reduxActions/folderActions";
 import { registryDataSourcePlugin } from "constants/queryConstants";
-import { DatasourceApi } from "api/datasourceApi";
 import { useRootCompInstance } from "./useRootCompInstance";
 import EditorSkeletonView from "./editorSkeletonView";
-import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
+import {ErrorBoundary} from 'react-error-boundary';
 import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
 import history from "util/history";
 import Flex from "antd/es/flex";
 import React from "react";
-import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
-import { notificationInstance } from "components/GlobalInstances";
 import { AppState } from "@lowcoder-ee/redux/reducers";
 import { resetIconDictionary } from "@lowcoder-ee/constants/iconConstants";
 import {fetchJsDSPaginationByApp} from "@lowcoder-ee/util/pagination/axios";
-import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
-
-const AppSnapshot = lazy(() => {
-  return import("pages/editor/appSnapshot")
-    .then(moduleExports => ({default: moduleExports.AppSnapshot}));
-});
 
 const AppEditorInternalView = lazy(
   () => import("pages/editor/appEditorInternal")
     .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
 );
 
-const AppEditor = React.memo(() => {
+const AppEditorPublic = React.memo(() => {
   const dispatch = useDispatch();
   const params = useParams<AppPathParams>();
   const isUserViewModeCheck = useUserViewMode();
@@ -72,6 +62,7 @@ const AppEditor = React.memo(() => {
     () => params.applicationId || window.location.pathname.split("/")[2],
     [params.applicationId, window.location.pathname]
   );
+  console.log('viewMode', applicationId);
   const paramViewMode = useMemo(
     () => params.viewMode || window.location.pathname.split("/")[3],
     [params.viewMode, window.location.pathname]
@@ -87,7 +78,7 @@ const AppEditor = React.memo(() => {
   const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
-  const [blockEditing, setBlockEditing] = useState<boolean>(false);
+  const [blockEditing, setBlockEditing] = useState<boolean>(true);
   const [fetchingAppDetails, setFetchingAppDetails] = useState<boolean>(false);
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
@@ -111,23 +102,15 @@ const AppEditor = React.memo(() => {
     id: "",
     appType: AppTypeEnum.Application,
   });
-
-  const readOnly = isUserViewMode;
+  
+  const readOnly = applicationId === 'public' ? false : isUserViewMode;
+  console.log('readOnly', readOnly)
   const compInstance = useRootCompInstance(
     appInfo,
     readOnly,
     isDataSourcePluginRegistered,
     blockEditing,
   );
-
-  useEffect(() => {
-    if (currentUser && application) {
-      const lastEditedAt = dayjs(application?.lastEditedAt);
-      const lastEditedDiff = dayjs().diff(lastEditedAt, 'minutes');
-      const shouldBlockEditing = Boolean(application?.editingUserId) && currentUser.id !== application?.editingUserId && lastEditedDiff < 3;
-      setBlockEditing(shouldBlockEditing);
-    }
-  }, [application, currentUser]);
 
   // fetch dataSource and plugin
   useEffect(() => {
@@ -138,12 +121,6 @@ const AppEditor = React.memo(() => {
     dispatch(fetchFolderElements({}));
   }, [dispatch, orgId, paramViewMode]);
 
-  useEffect(() => {
-    if (applicationId && paramViewMode === "edit") {
-      dispatch(fetchDataSourceByApp({ applicationId: applicationId }));
-      dispatch(fetchQueryLibraryDropdown());
-    }
-  }, [dispatch, applicationId, paramViewMode]);
   
   const fetchJSDataSourceByApp = useCallback(() => {
     fetchJsDSPaginationByApp({
@@ -190,8 +167,8 @@ const AppEditor = React.memo(() => {
               runJavaScriptInHost: runJsInHost,
             },
           });
-          setAppInfo(info);
           console.log(info);
+          setAppInfo(info);
           fetchJSDataSourceByApp();
           setFetchingAppDetails(false);
         },
@@ -236,43 +213,25 @@ const AppEditor = React.memo(() => {
 
   return (
     <ErrorBoundary fallback={fallbackUI}>
-      {/*<PaginationComp*/}
-      {/*    currentPage={currentPage}*/}
-      {/*    pageSize={pageSize}*/}
-      {/*    setPageSize={setPageSize}*/}
-      {/*    setCurrentPage={setCurrentPage}*/}
-      {/*    total={elements.total}*/}
-      {/*/>*/}
-      {showAppSnapshot ? (
-        <Suspense fallback={<EditorSkeletonView />}>
-          <AppSnapshot
-            currentAppInfo={{
-              ...appInfo,
-              dsl: compInstance.comp?.toJsonValue() || {},
-            }}
-          />
-        </Suspense>
-      ) : (
-        <Suspense fallback={<EditorSkeletonView />}>
-          {fetchingAppDetails
-            ? <EditorSkeletonView />
-            : (
-              <AppEditorInternalView
-                appInfo={appInfo}
-                readOnly={readOnly}
-                blockEditing={blockEditing}
-                loading={
-                  !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-                }
-                compInstance={compInstance}
-                fetchApplication={fetchApplication}
-              />
-            )
-          }
-        </Suspense>
-      )}
+      <Suspense fallback={<EditorSkeletonView />}>
+        {fetchingAppDetails
+          ? <EditorSkeletonView />
+          : (
+            <AppEditorInternalView
+              appInfo={appInfo}
+              readOnly={readOnly}
+              blockEditing={blockEditing}
+              loading={
+                !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+              }
+              compInstance={compInstance}
+              fetchApplication={fetchApplication}
+            />
+          )
+        }
+      </Suspense>
     </ErrorBoundary>
   );
 });
 
-export default AppEditor;
+export default AppEditorPublic;
