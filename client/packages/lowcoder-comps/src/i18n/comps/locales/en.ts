@@ -473,6 +473,7 @@ export const en = {
     animationDuration:"Duration",
     animationIterationCount:"IterationCount",
     showVerticalScrollbar:"Show Vertical ScrollBar",
+    showResourceEventsInFreeView:"Show Resource Events In Free View",
     inputFormat: "Input Format",
     reference: "Please Refer to",
   },

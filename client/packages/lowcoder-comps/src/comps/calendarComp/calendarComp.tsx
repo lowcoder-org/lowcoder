@@ -204,6 +204,7 @@ let childrenMap: any = {
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   showVerticalScrollbar: withDefault(BoolControl, false),
+  showResourceEventsInFreeView: withDefault(BoolControl, false),
   initialData: stateComp<JSONObject>({}),
   updatedEvents: stateComp<JSONObject>({}),
   insertedEvents: stateComp<JSONObject>({}),
@@ -248,6 +249,7 @@ let CalendarBasicComp = (function () {
     animationStyle?:any;
     modalStyle?:any;
     showVerticalScrollbar?:boolean;
+    showResourceEventsInFreeView?: boolean;
     initialData: Array<EventType>;
     inputFormat: string;
   }, dispatch: any) => {
@@ -291,12 +293,16 @@ let CalendarBasicComp = (function () {
     ]);
 
     const currentEvents = useMemo(() => {
+      if (props.showResourceEventsInFreeView && Boolean(props.licenseKey)) {
+        return props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
+      }
       return currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
         ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
         : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
     }, [
       currentView,
       props.events,
+      props.showResourceEventsInFreeView,
     ])
 
     // we use one central stack of events for all views
@@ -1072,6 +1078,7 @@ let CalendarBasicComp = (function () {
       modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
       showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
+      showResourceEventsInFreeView: { propertyView: (arg0: { label: string; }) => any; };
       inputFormat: { propertyView: (arg0: {}) => any; };
     }) => {
       const license = children.licenseKey.getView();
@@ -1134,6 +1141,7 @@ let CalendarBasicComp = (function () {
               : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
             {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
             {children.showVerticalScrollbar.propertyView({ label: trans("calendar.showVerticalScrollbar")})}
+            {Boolean(license) && children.showResourceEventsInFreeView.propertyView({ label: trans("calendar.showResourceEventsInFreeView")})}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
