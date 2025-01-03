@@ -19,3 +19,17 @@ export const styleWrapper = (styleContainer: any, themeContainer: any, defaultFo
     "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
   }
 }
+
+export const chartStyleWrapper = (styleContainer: any, themeContainer: any, detailBorderWidth = 0) => {
+
+  return {
+    "shadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
+    "shadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
+    "shadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
+    "shadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2],
+    "borderColor": styleContainer?.chartBorderColor || themeContainer?.borderColor || 'inherit',
+    "borderWidth": styleContainer?.chartBorderWidth || themeContainer?.borderWidth || detailBorderWidth,
+    "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
+    "borderRadius": Number(styleContainer?.chartBorderRadius || themeContainer?.borderRadius),
+  }
+}

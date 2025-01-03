@@ -385,6 +385,10 @@ export const enObj: I18nObjects = {
       ]
   },
   defaultGraphChartOption: {
+     color:{
+       pointColor: "#0000ff",
+       lineColor: "#00000033"
+     },
      categories: [
         {name: "Nodes"},
         {name: "Edges"}

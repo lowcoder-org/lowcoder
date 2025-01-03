@@ -144,6 +144,9 @@ export function getEchartsConfig(
         text: props.echartsTitle,
         top: props.echartsTitleVerticalConfig.top,
         left:props.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
       backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       color: props?.echartsOption.data?.map(data => data.color),

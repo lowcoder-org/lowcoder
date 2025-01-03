@@ -146,7 +146,7 @@ GraphChartTmpComp = withViewFn(GraphChartTmpComp, (comp) => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      theme?.theme?.components?.candleStickChart || {},
+      themeConfig
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
@@ -176,7 +176,6 @@ GraphChartTmpComp = withViewFn(GraphChartTmpComp, (comp) => {
           lazyUpdate
           opts={{ locale: getEchartsLocale() }}
           option={option}
-          theme={mode !== 'map' ? themeConfig : undefined}
           mode={mode}
         />
     </ReactResizeDetector>
