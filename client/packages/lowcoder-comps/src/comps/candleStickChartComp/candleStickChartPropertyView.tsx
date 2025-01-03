@@ -33,15 +33,15 @@ export function candleStickChartPropertyView(
         })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
-        {children.left.propertyView({ label: trans("candleStickChart.left") })}
-        {children.right.propertyView({ label: trans("candleStickChart.right") })}
-        {children.top.propertyView({ label: trans("candleStickChart.top") })}
-        {children.bottom.propertyView({ label: trans("candleStickChart.bottom") })}
-        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title") })}
-        {children.dataZoomVisibility.getView() && children.dataZoomHeight.propertyView({ label: trans("candleStickChart.dataZoomHeight") })}
-        {children.dataZoomVisibility.getView() && children.dataZoomBottom.propertyView({ label: trans("candleStickChart.dataZoomBottom") })}
-        {children.axisFlag.propertyView({label: trans("candleStickChart.axisFlag")})}
-        {children.dataZoomVisibility.propertyView({label: trans("candleStickChart.dataZoomVisibility")})}
+        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("candleStickChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("candleStickChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomHeight.propertyView({ label: trans("candleStickChart.dataZoomHeight"), tooltip: trans("candleStickChart.dataZoomHeightTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomBottom.propertyView({ label: trans("candleStickChart.dataZoomBottom"), tooltip: trans("candleStickChart.dataZoomBottomTooltip") })}
+        {children.axisFlagVisibility.propertyView({label: trans("candleStickChart.axisFlagVisibility"), tooltip: trans("candleStickChart.axisFlagVisibilityTooltip") })}
+        {children.dataZoomVisibility.propertyView({label: trans("candleStickChart.dataZoomVisibility"), tooltip: trans("candleStickChart.dataZoomVisibilityTooltip") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}

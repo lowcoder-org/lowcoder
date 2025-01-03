@@ -2004,6 +2004,15 @@ export const EchartDefaultChartStyle = [
   CHARTBORDERWIDTH,
 ] as const;
 
+export const EchartCandleStickChartStyle = [
+  getBackground("primarySurface"),
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
 export const EchartDefaultDetailStyle = [
   CHARTBACKGROUNDCOLOR,
   DETAILSIZE,

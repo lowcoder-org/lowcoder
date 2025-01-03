@@ -172,7 +172,7 @@ export function getEchartsConfig(
       yAxis: {
         type: "value",
         scale: true,
-        splitArea: props?.axisFlag && {
+        splitArea: props?.axisFlagVisibility && {
           show: true,
           areaStyle: {
             color: props?.echartsOption?.axisColor
@@ -185,7 +185,7 @@ export function getEchartsConfig(
       xAxis: props?.echartsOption && {
         type: 'category',
         data: props?.echartsOption.xAxis.data,
-        splitArea: !props?.axisFlag && {
+        splitArea: !props?.axisFlagVisibility && {
           show: true,
           areaStyle: {
             // Provide multiple colors to alternate through
@@ -213,7 +213,6 @@ export function getEchartsConfig(
           data: props?.echartsOption.data,
           itemStyle: {
             ...props?.echartsOption.itemStyle,
-            borderColor: props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
             borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
             borderRadius: Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),

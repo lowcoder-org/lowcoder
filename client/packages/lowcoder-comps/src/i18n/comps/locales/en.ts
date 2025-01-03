@@ -54,7 +54,7 @@ export const en = {
     tooltip: 'Tooltip',
     legendVisibility: 'Legend Visibility',
     dataZoomVisibility: 'Data Zoom Visibility',
-    axisFlag: 'Axis Flag',
+    axisFlagVisibility: 'Axis Flag',
     left: 'Left',
     defaultLeft:'10',
     right: 'Right',
@@ -66,7 +66,12 @@ export const en = {
     defaultDataZoomBottom: '20',
     dataZoomBottom: 'Data Zoom Bottom',
     defaultDataZoomHeight: '15',
-    dataZoomHeight: 'Data Zoom Height'
+    dataZoomHeight: 'Data Zoom Height',
+    axisFlagVisibilityTooltip: "Divide the area Vertically/horizontally.",
+    dataZoomVisibilityTooltip: "Show or hide the DataZoom of the Chart.",
+    dataZoomHeightTooltip: "Select the Height length of DataZoom.",
+    dataZoomBottomTooltip: "Select the Bottom length of DataZoom."
+
   },
   sankeyChart: {
     sankeyType: 'Sankey Chart Type',
@@ -196,6 +201,8 @@ export const en = {
     positionChart_x_Tooltip: "Change the Horizontal position of the Chart.",
     positionChart_y_Tooltip: "Change the Vertical position of the Chart.",
     topTooltip: "Change the top length of the Chart.",
+    rightTooltip: "Change the right length of the Chart.",
+    leftTooltip: "Change the left length of the Chart.",
     bottomTooltip: "Change the bottom length of the Chart.",
     widthTooltip: "Change the width of the Chart.",
     radiusTooltip: "Set the Radius value of the Chart.",

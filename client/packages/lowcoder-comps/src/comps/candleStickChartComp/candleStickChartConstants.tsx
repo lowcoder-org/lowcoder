@@ -16,7 +16,7 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartDefaultChartStyle,
+  EchartCandleStickChartStyle,
   EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -264,12 +264,12 @@ let chartJsonModeChildren: any = {
   dataZoomHeight:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomHeight')),
   tooltip: withDefault(BoolControl, true),
   dataZoomVisibility: withDefault(BoolControl, true),
-  axisFlag: withDefault(BoolControl, true),
+  axisFlagVisibility: withDefault(BoolControl, true),
 }
-if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
+if (EchartCandleStickChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    chartStyle: styleControl(EchartCandleStickChartStyle, 'chartStyle'),
     titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
     labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
     legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
