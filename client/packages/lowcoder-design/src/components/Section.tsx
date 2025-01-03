@@ -192,5 +192,7 @@ export const sectionNames = {
   legendStyle:trans("prop.legendStyle"),
   detailStyle:trans("prop.detailStyle"),
   axisLabelStyle:trans("prop.axisLabelStyle"),
-  axisLabelStyleOutline:trans("prop.axisLabelStyleOutline")
+  axisLabelStyleOutline:trans("prop.axisLabelStyleOutline"),
+  xAxisStyle:trans("prop.xAxisStyle"),
+  yAxisStyle:trans("prop.yAxisStyle"),
 };

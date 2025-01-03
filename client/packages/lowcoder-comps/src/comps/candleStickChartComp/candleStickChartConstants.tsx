@@ -23,7 +23,7 @@ import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core"
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
 import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxisConfig";
 import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
-import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
+import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
@@ -252,7 +252,7 @@ export const chartUiModeChildren = {
 let chartJsonModeChildren: any = {
   echartsOption: jsonControl(toObject, i18nObjs.defaultCandleStickChartOption),
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
-  echartsLegendConfig: EchartsLegendConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsTitleConfig:EchartsTitleConfig,
   echartsConfig: EchartsOptionComp,
@@ -263,8 +263,8 @@ let chartJsonModeChildren: any = {
   dataZoomBottom:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomBottom')),
   dataZoomHeight:withDefault(NumberControl,trans('candleStickChart.defaultDataZoomHeight')),
   tooltip: withDefault(BoolControl, true),
-  legendVisibility: withDefault(BoolControl, true),
   dataZoomVisibility: withDefault(BoolControl, true),
+  axisFlag: withDefault(BoolControl, true),
 }
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {

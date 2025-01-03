@@ -307,15 +307,22 @@ export const enObj: I18nObjects = {
   },
   defaultCandleStickChartOption: {
     xAxis: {
-    data: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"]
-  },
+      data: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
+    },
+    axisColor: ['#f0f0f0', '#ffffff'],
     data:[
-        [100, 200, 50, 150],
-        [120, 220, 80, 180],
-        [80, 150, 60, 130],
-        [130, 230, 110, 190],
-        [90, 180, 70, 160]
-      ]
+      [22, 25, 18, 26],
+      [25, 23, 22, 27],
+      [23, 24, 21, 25],
+      [24, 26, 23, 27],
+      [23, 21, 20, 25]
+      ],
+    itemStyle: {
+      color: '#ec0000',       // Body color (rising)
+      color0: '#00da3c',      // Body color (falling)
+      borderColor: '#ec0000', // Border color (rising)
+      borderColor0: '#00da3c', // Border color (falling)
+    }
   },
   defaultRadarChartOption: {
     indicator: [
