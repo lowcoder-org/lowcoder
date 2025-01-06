@@ -40,7 +40,7 @@ import {
   recoverSnapshotAction,
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import {
   getSelectedAppSnapshot,
   showAppSnapshotSelector,
@@ -369,6 +369,7 @@ export default function Header(props: HeaderProps) {
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
@@ -382,8 +383,6 @@ export default function Header(props: HeaderProps) {
   const editingCountdown = useRef(setCountdown());
 
   const isModule = appType === AppTypeEnum.Module;
-
-  console.log('header', applicationId);
 
   useEffect(() => {
     if(blockEditing && application && Boolean(application?.editingUserId)) {
@@ -589,7 +588,7 @@ export default function Header(props: HeaderProps) {
           </>
         )}
 
-        {Boolean(applicationId) && applicationId !== 'public' && (
+        {Boolean(applicationId) && !isPublicApp && (
           <AppPermissionDialog
             applicationId={applicationId}
             visible={permissionDialogVisible}

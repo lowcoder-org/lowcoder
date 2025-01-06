@@ -143,7 +143,6 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
   const loading =
     !compInstance || !compInstance.comp || !compInstance.comp.preloaded || props.loading;
 
-  console.log('loading', loading);
   const currentUser = useSelector(getCurrentUser);
 
   return loading ? (

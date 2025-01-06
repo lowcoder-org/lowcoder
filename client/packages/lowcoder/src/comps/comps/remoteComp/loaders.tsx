@@ -1,3 +1,4 @@
+import { PUBLIC_APP_ID } from "@lowcoder-ee/constants/publicApp";
 import { sdkConfig } from "@lowcoder-ee/constants/sdkConfig";
 import { ASSETS_BASE_URL, NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
@@ -23,8 +24,9 @@ async function npmLoader(
     ? `${sdkConfig.baseURL}/${ASSETS_BASE_URL}`
     : NPM_PLUGIN_ASSETS_BASE_URL;
 
-  const entry = `${pluginBaseUrl}/${appId || 'none'}/${packageName}@${localPackageVersion}/index.js`;
-  // const entry = `../../../../../public/package/index.js`;
+  const applicationId = (!appId || appId && appId === PUBLIC_APP_ID) ? 'none' : appId;
+
+  const entry = `${pluginBaseUrl}/${applicationId}/${packageName}@${localPackageVersion}/index.js`;
 
   try {
     const module = await import(

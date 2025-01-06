@@ -34,6 +34,7 @@ import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSele
 import { AppState } from "@lowcoder-ee/redux/reducers";
 import { resetIconDictionary } from "@lowcoder-ee/constants/iconConstants";
 import {fetchJsDSPaginationByApp} from "@lowcoder-ee/util/pagination/axios";
+import { PUBLIC_APP_ID, PUBLIC_APP_ORG_ID } from "@lowcoder-ee/constants/publicApp";
 
 const AppEditorInternalView = lazy(
   () => import("pages/editor/appEditorInternal")
@@ -59,23 +60,24 @@ const AppEditorPublic = React.memo(() => {
     [params.viewMode, isUserViewModeCheck]
   );
   const applicationId = useMemo(
-    () => params.applicationId || window.location.pathname.split("/")[2],
-    [params.applicationId, window.location.pathname]
+    () => {
+      const appId = params.applicationId || window.location.pathname.split("/")[2];
+      return appId === 'public' ? PUBLIC_APP_ID : appId;
+    }, [params.applicationId, window.location.pathname]
   );
-  console.log('viewMode', applicationId);
   const paramViewMode = useMemo(
     () => params.viewMode || window.location.pathname.split("/")[3],
     [params.viewMode, window.location.pathname]
   );
   const viewMode = useMemo(
     () => (paramViewMode === "view" || paramViewMode === "admin")
-      ? "published"
-      : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
+    ? "published"
+    : paramViewMode === "view_marketplace" ? "view_marketplace" : "editing",
     [paramViewMode]
   );
 
   const firstRendered = useRef(false);
-  const orgId = useMemo(() => currentUser.currentOrgId, [currentUser.currentOrgId]);
+  const orgId = PUBLIC_APP_ORG_ID;
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
   const [blockEditing, setBlockEditing] = useState<boolean>(true);
@@ -103,8 +105,8 @@ const AppEditorPublic = React.memo(() => {
     appType: AppTypeEnum.Application,
   });
   
-  const readOnly = applicationId === 'public' ? false : isUserViewMode;
-  console.log('readOnly', readOnly)
+  const readOnly = applicationId === PUBLIC_APP_ID ? false : isUserViewMode;
+
   const compInstance = useRootCompInstance(
     appInfo,
     readOnly,
@@ -114,12 +116,8 @@ const AppEditorPublic = React.memo(() => {
 
   // fetch dataSource and plugin
   useEffect(() => {
-    if (!orgId || paramViewMode !== "edit") {
-      return;
-    }
     dispatch(fetchDataSourceTypes({ organizationId: orgId }));
-    dispatch(fetchFolderElements({}));
-  }, [dispatch, orgId, paramViewMode]);
+  }, [dispatch]);
 
   
   const fetchJSDataSourceByApp = useCallback(() => {
@@ -167,7 +165,6 @@ const AppEditorPublic = React.memo(() => {
               runJavaScriptInHost: runJsInHost,
             },
           });
-          console.log(info);
           setAppInfo(info);
           fetchJSDataSourceByApp();
           setFetchingAppDetails(false);

@@ -191,7 +191,6 @@ const AppEditor = React.memo(() => {
             },
           });
           setAppInfo(info);
-          console.log(info);
           fetchJSDataSourceByApp();
           setFetchingAppDetails(false);
         },

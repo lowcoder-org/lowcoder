@@ -35,6 +35,7 @@ import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
 import { ApplicationMeta, AppTypeEnum } from "constants/applicationConstants";
 import { trans } from "i18n";
+import { PUBLIC_APP_ID, publicAppResponse } from "@lowcoder-ee/constants/publicApp";
 
 export function* fetchHomeDataSaga(action: ReduxAction<HomeDataPayload>) {
   try {
@@ -205,124 +206,8 @@ export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayl
   try {
     
     let response: AxiosResponse<ApplicationResp>;
-    if (action.payload.applicationId === 'public') {
-      response = {
-        status: 200,
-        statusText: 'OK',
-        headers: {},
-        config: {
-          headers: {} as any,
-        },
-        data: {
-          code: 1,
-          success: true,
-          message: "",
-          data: {
-            orgCommonSettings: undefined,
-            applicationDSL: {
-              "ui": {
-                "compType": "normal",
-                "comp": {}
-              },
-              "refTree": {
-                "value": ""
-              },
-              "hooks": [
-                {
-                  "compType": "urlParams",
-                  "comp": {},
-                  "name": "url"
-                },
-                {
-                  "compType": "dayJsLib",
-                  "comp": {},
-                  "name": "dayjs"
-                },
-                {
-                  "compType": "lodashJsLib",
-                  "comp": {},
-                  "name": "_"
-                },
-                {
-                  "compType": "utils",
-                  "comp": {},
-                  "name": "utils"
-                },
-                {
-                  "compType": "message",
-                  "comp": {},
-                  "name": "message"
-                },
-                {
-                  "compType": "toast",
-                  "comp": {},
-                  "name": "toast"
-                },
-                {
-                  "compType": "localStorage",
-                  "comp": {},
-                  "name": "localStorage"
-                },
-                {
-                  "compType": "currentUser",
-                  "comp": {},
-                  "name": "currentUser"
-                },
-                {
-                  "compType": "screenInfo",
-                  "comp": {},
-                  "name": "screenInfo"
-                },
-                {
-                  "compType": "theme",
-                  "comp": {},
-                  "name": "theme"
-                }
-              ],
-              "settings": {
-                "title": "",
-                "description": "",
-                "category": "Business",
-                "showHeaderInPublic": true,
-                "themeId": "default",
-                "preventAppStylesOverwriting": true,
-                "disableCollision": false,
-                "lowcoderCompVersion": "latest",
-                "maxWidth": {
-                  "dropdown": "1920",
-                  "input": 0
-                },
-                "gridRowCount": "Infinity",
-                "gridPaddingX": "20",
-                "gridPaddingY": "20"
-              },
-              "preload": {
-                "script": "",
-                "css": "",
-                "globalCSS": ""
-              }
-            },
-            moduleDSL: {},
-            applicationInfoView: {
-              "orgId": "",
-              "applicationId": "public",
-              "name": "Public App",
-              "createAt": 1735651262539,
-              "createBy": "",
-              "role": "owner",
-              "applicationType": 1,
-              "applicationStatus": "NORMAL",
-              "folderId": '',
-              "lastViewTime": 0,
-              "lastModifyTime": 1735747724691,
-              "lastEditedAt": 1735737886323,
-              "folder": false,
-              "extra": {},
-              "editingUserId": "",
-            },
-          }
-        }
-      };
+    if (action.payload.applicationId === PUBLIC_APP_ID) {
+      response = publicAppResponse as AxiosResponse<ApplicationResp>;
     } else {
       response = yield call(
         ApplicationApi.getApplicationDetail,
