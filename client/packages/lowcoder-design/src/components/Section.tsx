@@ -195,4 +195,5 @@ export const sectionNames = {
   axisLabelStyleOutline:trans("prop.axisLabelStyleOutline"),
   xAxisStyle:trans("prop.xAxisStyle"),
   yAxisStyle:trans("prop.yAxisStyle"),
+  visualMapStyle:trans("prop.visualMapStyle")
 };

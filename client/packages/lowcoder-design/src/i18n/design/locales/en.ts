@@ -47,7 +47,8 @@ export const en = {
     axisLabelStyle: "Axis Label Style",
     axisLabelStyleOutline: "Outline Axis Label Style",
     xAxisStyle: "X-Axis Style",
-    yAxisStyle: "Y-Axis Style"
+    yAxisStyle: "Y-Axis Style",
+    visualMapStyle: "Visual Map Style"
   },
   passwordInput: {
     label: "Password:",
