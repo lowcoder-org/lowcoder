@@ -1,7 +1,7 @@
 import { AppSummaryInfo, updateApplication } from "redux/reduxActions/applicationActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getExternalEditorState } from "redux/selectors/configSelectors";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ExternalEditorContext,
   ExternalEditorContextState,
@@ -26,6 +26,7 @@ import { RootCompInstanceType } from "./useRootCompInstance";
 import { getCurrentUser } from "redux/selectors/usersSelectors";
 import React from "react";
 import { isEqual } from "lodash";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 /**
  * FIXME: optimize the logic of saving comps
@@ -88,6 +89,40 @@ function useSaveComp(
   }, [comp, applicationId, readOnly, dispatch]);
 }
 
+const exportAppToJson = (appDSL?: any) => {
+  if (!appDSL) return;
+
+  const id = `t--export-app-link`;
+  const existingLink = document.getElementById(id);
+  existingLink && existingLink.remove();
+  const link = document.createElement("a");
+  const time = new Date().getTime();
+
+  const applicationName = `test_app_${time}`;
+  const exportObj = {
+    applicationInfo: {
+      name: 'Test App',
+      createAt: time,
+      createBy: '',
+      applicationId: '',
+      applicationType: AppTypeEnum.Application,
+    },
+    applicationDSL: appDSL,
+  };
+  const blob = new Blob([JSON.stringify(exportObj)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  link.href = url;
+  link.download = applicationName + ".json";
+  link.id = id;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  return;
+}
+
 interface AppEditorInternalViewProps {
   readOnly: boolean;
   blockEditing?: boolean;
@@ -100,6 +135,7 @@ interface AppEditorInternalViewProps {
 export const AppEditorInternalView = React.memo((props: AppEditorInternalViewProps) => {
   const isUserViewMode = useUserViewMode();
   const extraExternalEditorState = useSelector(getExternalEditorState);
+  const isPublicApp = useSelector(isPublicApplication);
   const dispatch = useDispatch();
   const { readOnly, blockEditing, appInfo, compInstance, fetchApplication } = props;
 
@@ -111,6 +147,11 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
     appType: AppTypeEnum.Application,
   });
   
+  const exportPublicAppToJson = useCallback(() => {
+    const appDsl = compInstance.comp?.toJsonValue();
+    exportAppToJson(appDsl);
+  }, [compInstance.comp])
+
   useEffect(() => {
     setExternalEditorState((s) => ({
       ...s,
@@ -121,9 +162,11 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
       hideHeader: window.location.pathname.split("/")[3] === "admin",
       blockEditing,
       fetchApplication: fetchApplication,
+      exportPublicAppToJson: isPublicApp ? exportPublicAppToJson : undefined,
       ...extraExternalEditorState,
     }));
   }, [
+    exportPublicAppToJson,
     compInstance?.history,
     extraExternalEditorState,
     readOnly,
