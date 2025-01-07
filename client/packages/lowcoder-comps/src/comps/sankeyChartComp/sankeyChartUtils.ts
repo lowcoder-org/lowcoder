@@ -14,6 +14,7 @@ import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 import parseBackground from "../../util/gradientBackgroundColor";
+import isColorString from "../../util/isColorString";
 
 export function transformData(
   originData: JSONObject[],
@@ -135,6 +136,10 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+  console.log(props.echartsOption && props?.echartsOption?.data?.map(item => ({
+    name: item.name,
+    itemStyle: item.color && {color: item.color}
+  })))
   if (props.mode === "json") {
     let opt={
       title: {
@@ -148,43 +153,46 @@ export function getEchartsConfig(
       backgroundColor: parseBackground(
         props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
       ),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      left: `${props?.left}%`,
-      right: `${props?.right}%`,
-      bottom: `${props?.bottom}%`,
-      top: `${props?.top}%`,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top,
-        ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
+      tooltip: props.tooltip&&{
+        trigger: "item",
+        formatter: "{a} <br/>{b} : {c}%"
       },
-      "data": props.echartsOption?.data?.map(item => ({name: item.name, itemStyle: {color: item.color}})),
-      "links":props.echartsOption.links,
-      emphasis: {
-        focus: props?.focus ? 'adjacency' : undefined,
-      },
-      lineStyle: {
-        ...chartStyleWrapper(props?.lineStyle, theme?.lineStyle),
-        color: 'gradient',
-        curveness: props?.curveness,
-        opacity: props?.opacity,
-      },
-      itemStyle: {
-        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
-      },
-      nodeWidth: props?.nodeWidth,
-      nodeGap: props?.nodeGap,
-      draggable: props?.draggable,
+      series: [
+        {
+          name: props.echartsConfig.type,
+          type: props.echartsConfig.type,
+          left: `${props?.left}%`,
+          right: `${props?.right}%`,
+          bottom: `${props?.bottom}%`,
+          top: `${props?.top}%`,
+          label: {
+            show: true,
+            position: props.echartsLabelConfig.top,
+            ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
+          },
+          data: props.echartsOption && props?.echartsOption?.data?.map(item => ({
+              name: item.name,
+              itemStyle: isColorString(item.color) && {color: item.color}
+          })),
+          links:props.echartsOption.links,
+          emphasis: {
+            focus: props?.focus ? 'adjacency' : undefined,
+          },
+          lineStyle: {
+            ...chartStyleWrapper(props?.lineStyle, theme?.lineStyle),
+            color: 'gradient',
+            curveness: props?.curveness,
+            opacity: props?.opacity,
+          },
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+          },
+          nodeWidth: props?.nodeWidth,
+          nodeGap: props?.nodeGap,
+          draggable: props?.draggable,
+        }
+      ]
     }
-  ]
-}
     return props.echartsOption ? opt : {};
     
   }

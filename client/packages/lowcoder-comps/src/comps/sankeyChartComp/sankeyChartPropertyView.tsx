@@ -46,7 +46,6 @@ export function sankeyChartPropertyView(
         {children.nodeWidth.propertyView({ label: trans("sankeyChart.nodeWidth"), tooltip: trans("sankeyChart.nodeWidthTooltip") })}
         {children.nodeGap.propertyView({ label: trans("sankeyChart.nodeGap"), tooltip: trans("sankeyChart.nodeGapTooltip") })}
 
-
         {children.draggable.propertyView({label: trans("sankeyChart.draggable"), tooltip: trans("sankeyChart.draggableTooltip")})}
         {children.focus.propertyView({label: trans("sankeyChart.focus"), tooltip: trans("sankeyChart.focusTooltip")})}
         {children.tooltip.propertyView({label: trans("sankeyChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
