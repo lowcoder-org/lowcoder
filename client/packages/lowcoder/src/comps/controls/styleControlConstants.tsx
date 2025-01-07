@@ -2013,9 +2013,19 @@ export const EchartCandleStickChartStyle = [
   CHARTBORDERWIDTH,
 ] as const;
 
+export const SankeyLineStyle = [
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
 export const EchartDefaultDetailStyle = [
   CHARTBACKGROUNDCOLOR,
   DETAILSIZE,
+  PADDING,
   CHARTTEXTCOLOR,
   CHARTTEXTSIZE,
   CHARTTEXTWEIGHT,

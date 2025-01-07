@@ -41,6 +41,7 @@ export const en = {
     columnStyle: 'Column Style',
     modalStyle: 'Modal Style',
     chartStyle: "Chart Style",
+    lineStyle: "Line Style",
     titleStyle: "Title Style",
     legendStyle: "Legend Style",
     detailStyle: "Detail Style",

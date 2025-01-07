@@ -292,17 +292,18 @@ export const enObj: I18nObjects = {
   },
   defaultSankeyChartOption: {
     data: [
-      {name: "Show"},
-      {name: "Click"},
-      {name: "Visit"},
-      {name: "Query"},
-      {name: "Buy"}
+      {name: "Category A", color: '#67F9D8'},
+      {name: "Category B", color: '#FFE434'},
+      {name: "Category C", color: '#56A3F1'},
+      {name: "Category D", color: '#FF917C'},
+      {name: "Category E", color: '#FF6347'}
     ],
     links: [
-      {source: "Show", target: "Click", value: 80},
-      {source: "Click", target: "Visit", value: 60},
-      {source: "Visit", target: "Query", value: 40},
-      {source: "Query", target: "Buy", value: 20}
+      { source: 'Category A', target: 'Category B', value: 10 },
+      { source: 'Category A', target: 'Category C', value: 15 },
+      { source: 'Category B', target: 'Category D', value: 25 },
+      { source: 'Category C', target: 'Category D', value: 20 },
+      { source: 'Category D', target: 'Category E', value: 30 }
     ]
   },
   defaultCandleStickChartOption: {

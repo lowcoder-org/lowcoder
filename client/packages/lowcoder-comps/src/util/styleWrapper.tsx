@@ -15,9 +15,9 @@ export const styleWrapper = (styleContainer: any, themeContainer: any, defaultFo
     "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
     "borderRadius": Number(styleContainer?.chartBorderRadius || themeContainer?.borderRadius),
     "backgroundColor": styleContainer?.chartBackgroundColor || themeContainer?.backgroundColor || defaultBackgroundColor,
-    "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0] || 24,
-    "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
-    "padding": styleContainer?.padding?.split('px').filter(Boolean).map(Number) || themeContainer?.padding?.split('px').filter(Boolean).map(Number)
+    "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0],
+    "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1],
+    "padding": styleContainer?.padding?.split('px').filter(Boolean).map(Number) || themeContainer?.padding?.split('px').filter(Boolean).map(Number) || [0,0,0,0]
   }
 }
 

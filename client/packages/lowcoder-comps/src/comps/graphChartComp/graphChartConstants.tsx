@@ -271,7 +271,7 @@ let chartJsonModeChildren: any = {
   arrowFlag: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
     chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
