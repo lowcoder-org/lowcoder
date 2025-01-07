@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -135,12 +137,15 @@ export function getEchartsConfig(
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+      },
+      backgroundColor: parseBackground(props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
   "tooltip": props.tooltip&&{
     "trigger": "axis",
     "axisPointer": {
@@ -152,11 +157,25 @@ export function getEchartsConfig(
       }
     }
   },
+      legend: props.legendVisibility && {
+        "top": props.echartsLegendConfig.top,
+        "left": props.echartsLegendAlignConfig.left,
+        "orient": props.echartsLegendOrientConfig.orient,
+        data: Array.from(new Set(props.echartsOption.data.map(item => item[2]))),
+        textStyle: {
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
+        }
+      },
   "singleAxis": {
+    left: `${props?.left}%`,
+    right: `${props?.right}%`,
+    bottom: `${props?.bottom}%`,
+    top: `${props?.top}%`,
     "type": "time",
-    "bottom": 50,
     "axisTick": {},
-    "axisLabel": {},
+    "axisLabel": {
+      ...styleWrapper(props?.axisStyle, theme?.axisStyle, 13)
+    },
     "splitLine": {},
     "axisPointer": {
       "animation": true,
@@ -165,7 +184,7 @@ export function getEchartsConfig(
         "color": "#fff"
       }
     },
-    "splitNumber": 30
+    "splitNumber": props?.splitNumber
   },
   "series": [
     {
@@ -175,6 +194,9 @@ export function getEchartsConfig(
         "show": true,
         "position": "top",
         "fontSize": 12
+      },
+      itemStyle: {
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
       },
       "emphasis": {
         "itemStyle": {

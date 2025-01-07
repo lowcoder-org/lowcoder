@@ -136,8 +136,6 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
-    console.log(props?.detailStyle?.detailSize?.split('px')[0] || theme?.detailStyle?.detailSize.split('px')[0] || 3,
-      props?.detailStyle?.detailSize?.split('px')[1] || theme?.detailStyle?.detailSize.split('px')[1] || 3)
     let opt={
       title: {
         text: props?.echartsTitle,

@@ -10,6 +10,16 @@ export const en = {
     title: 'Title',
     defaultTitle: 'Themeriver Chart',
     tooltip: 'Tooltip',
+    left: 'Left',
+    defaultLeft:'15',
+    right: 'Right',
+    defaultRight:'10',
+    top: 'Top',
+    defaultTop:'15',
+    bottom: 'Bottom',
+    defaultBottom:'20',
+    splitNumber: 'Split Number',
+    defaultSplitNumber: '3'
   },
   sunburstChart: {
     sunburstType: 'Sunburst Chart Type',

@@ -136,10 +136,6 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-  console.log(props.echartsOption && props?.echartsOption?.data?.map(item => ({
-    name: item.name,
-    itemStyle: item.color && {color: item.color}
-  })))
   if (props.mode === "json") {
     let opt={
       title: {

@@ -31,15 +31,43 @@ export function themeriverChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsTitle.propertyView({ label: trans("themeriverChart.title") })}
+
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
+
+        {children.echartsTitle.propertyView({ label: trans("themeriverChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.splitNumber.propertyView({ label: trans("themeriverChart.splitNumber"), tooltip: trans("echarts.splitNumberTooltip") })}
+        {children.left.propertyView({ label: trans("themeriverChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("themeriverChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("themeriverChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("themeriverChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+
+        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility")})}
         {children.tooltip.propertyView({label: trans("themeriverChart.tooltip")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style?.getPropertyView()}
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
       </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.xAxisStyle}>
+        {children.axisStyle?.getPropertyView()}
+      </Section>
+      {
+        children.legendVisibility.getView() &&
+          <Section name={sectionNames.legendStyle}>
+            {children.legendStyle?.getPropertyView()}
+          </Section>
+      }
+
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
     </>
   );
