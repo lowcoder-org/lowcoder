@@ -325,32 +325,29 @@ export const enObj: I18nObjects = {
     }
   },
   defaultRadarChartOption: {
+    color: ['#6ee1d5', '#a7dd85'],
     indicator: [
-        { name: "Indicator 1", max: 100 },
-        { name: "Indicator 2", max: 100 },
-        { name: "Indicator 3", max: 100 },
-        { name: "Indicator 4", max: 100 },
-        { name: "Indicator 5", max: 100 }
+      { name: "Indicator 1", max: 100 },
+      { name: "Indicator 2", max: 100 },
+      { name: "Indicator 3", max: 100 },
+      { name: "Indicator 4", max: 100 },
+      { name: "Indicator 5", max: 100 },
+      { name: "Indicator 6", max: 100 }
     ],
     series: [
-       {
-      "name": "Data 1",
-      "data": [
-        {
-          "value": [90, 80, 70, 60, 50],
-          "name": "Data 1"
-        }
-      ]
+      {
+        "name": "Data A",
+        "value": [90, 80, 70, 70, 80, 70],
       },
       {
-      "name": "Data 2",
-      "data": [
-        {
-          "value": [70, 60, 50, 40, 30],
-          "name": "Data 2"
-        }
-      ]
-    }
+        name: "Data B",
+        value: [60, 60, 40, 50, 50, 40],
+        areaColor: '#ff00ff77',
+        lineColor: '#ff00ff77',
+        lineWidth: 2,
+        pointSize: 8,
+        pointColor: "#ff00ff77",
+      }
     ]
   },
   defaultHeatmapChartOption: {

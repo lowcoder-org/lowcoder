@@ -144,7 +144,7 @@ export function getEchartsConfig(
           ...styleWrapper(props?.titleStyle, theme?.titleStyle)
         }
       },
-      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
       tooltip: props?.tooltip && {
         position: "top"
       },

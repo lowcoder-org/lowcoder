@@ -1,6 +1,7 @@
 import {
   AlignBottom,
   AlignTop,
+  AlignClose,
   dropdownControl,
   MultiCompBuilder,
 } from "lowcoder-sdk";
@@ -11,6 +12,10 @@ const LegendPositionOptions = [
   {
     label: <AlignBottom />,
     value: "bottom",
+  },
+  {
+    label: <AlignClose />,
+    value: "center",
   },
   {
     label: <AlignTop />,

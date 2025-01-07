@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -134,33 +136,82 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
+    console.log(props?.detailStyle?.detailSize?.split('px')[0] || theme?.detailStyle?.detailSize.split('px')[0] || 3,
+      props?.detailStyle?.detailSize?.split('px')[1] || theme?.detailStyle?.detailSize.split('px')[1] || 3)
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-   "tooltip": {
-    "trigger": "axis",
-    "formatter": function(params) {
-      let tooltipText = params[0].name + '<br/>';
-      params.forEach(function(item) {
-        tooltipText += item.seriesName + ': ' + item.value + '<br/>';
-      });
-      return tooltipText;
-    }
-  },
-     "radar": [
-    {
-      "indicator": props.echartsOption.indicator,
-      "center": ["50%", "50%"],
-      "radius": "60%"
-    }
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+      },
+      legend: props.legendVisibility && {
+        top: props.echartsLegendConfig.top,
+        left: props.echartsLegendAlignConfig.left,
+        orient: props.echartsLegendOrientConfig.orient,
+        textStyle: {
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 15),
+        }
+      },
+      backgroundColor: parseBackground(
+        props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
+      ),
+      color: props.echartsOption.data?.map(data => data.color),
+      tooltip: {
+        trigger: "axis",
+        formatter: function (params) {
+          let tooltipText = params[0].name + '<br/>';
+          params.forEach(function (item) {
+            tooltipText += item.seriesName + ': ' + item.value + '<br/>';
+          });
+          return tooltipText;
+        }
+      },
+      radar: [
+        {
+          indicator: props.echartsOption.indicator,
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          startAngle: props?.startAngle,
+          endAngle: props?.endAngle,
+          splitNumber: props?.splitNumber,
+          radius: `${props.radius}%`,
+          shape: props?.areaFlag ? 'circle' : 'line',
+          axisName: {
+            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 13),
+            show: props?.indicatorVisibility,
+          },
+          splitArea: {
+            areaStyle: {
+              color: props?.echartsOption?.color,
+              ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+            }
+          },
+        }
+      ],
+      series: props?.echartsOption && {
+        data: props?.echartsOption?.series && [
+          ...props?.echartsOption?.series.map(item => ({
+            ...item,
+            areaStyle: item.areaColor && {
+              ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+              color: item.areaColor
+            },
+            lineStyle: {
+              ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+              color: item.lineColor,
+              width: item.lineWidth,
+            },
+            symbolSize: item.pointSize,
+            itemStyle: {
+              color: item.pointColor
+            }
+          }))
         ],
-     "series": props.echartsOption.series.map(option=>{return {...option,type:'radar'}})
-}
+        type: "radar"
+      }
+    }
     return props.echartsOption ? opt : {};
     
   }

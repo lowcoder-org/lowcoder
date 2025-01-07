@@ -2029,6 +2029,22 @@ export const EchartDefaultDetailStyle = [
   CHARTBORDERWIDTH,
 ] as const;
 
+export const RadarLabelStyle = [
+  CHARTBACKGROUNDCOLOR,
+  PADDING,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
 export const CalendarStyle = [
   getBackground("primarySurface"),
   {
