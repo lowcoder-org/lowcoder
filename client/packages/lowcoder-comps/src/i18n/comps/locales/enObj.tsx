@@ -474,6 +474,28 @@ export const enObj: I18nObjects = {
             }
           ]
         }
+    ],
+    levels: [
+      {
+        itemStyle: {
+          color: '#f6e58d'
+        },
+      },
+      {
+        itemStyle: {
+          color: '#12e192'
+        },
+      },
+      {
+        itemStyle: {
+          color: '#ffbe76'
+        },
+      },
+      {
+        itemStyle: {
+          color: '#007979'
+        },
+      }
     ]
   },
   defaultCalendarChartOption: {

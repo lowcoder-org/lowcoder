@@ -26,6 +26,17 @@ export const en = {
     title: 'Title',
     defaultTitle: 'Sunburst Chart',
     tooltip: 'Tooltip',
+    defaultRadiusInline: "20",
+    defaultRadiusOutline: "80",
+    defaultPosition_X: "50",
+    defaultPosition_Y: "50",
+    radiusInline: "Inline Radius",
+    radiusOutline: "Outline Radius",
+    position_x: "Position-X",
+    position_Y: "Position-Y",
+    radiusInlineTooltip: "Set the Inline radius value of the Chart.",
+    radiusOutlineTooltip: "Set the Outline radius value of the Chart.",
+    labelVisibility: "Label"
   },
   treemapChart: {
     treemapType: 'Treemap Chart Type',

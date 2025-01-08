@@ -145,7 +145,7 @@ SunburstChartTmpComp = withViewFn(SunburstChartTmpComp, (comp) => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      theme?.theme?.components?.candleStickChart || {},
+      themeConfig
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
