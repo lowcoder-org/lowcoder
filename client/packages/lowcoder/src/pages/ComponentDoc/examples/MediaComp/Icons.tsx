@@ -7,15 +7,55 @@ export default function IconExample() {
       <>
         <ExampleGroup
           title="Basic Usage"
+          description="The Following Examples Show the Basic Usage of the Icon Component."
         >
           <Example
-            title="Icon"
-            width={'80px'}
-            height={'80px'}
+            title="A simple Icon component"
+            width={120}
+            height={60}
             config={{
-              icon: "/icon:solid/align-justify",
-              iconSize: "20",
-              autoHeight: false,
+              icon: "/icon:antd/homefilled",
+            }}
+            compFactory={IconComp}
+          />
+          <Example
+            title="Hiding the Icon component"
+            width={120}
+            height={60}
+            config={{
+              icon: "/icon:solid/angles-down",
+              hidden: true,
+            }}
+            compFactory={IconComp}
+          />
+          <Example
+            title="Icon Size - Auto"
+            width={120}
+            height={60}
+            config={{
+              icon: "/icon:solid/apple-whole",
+              autoHeight: "auto",
+            }}
+            compFactory={IconComp}
+          />
+          <Example
+            title="Icon Size - Fixed"
+            width={120}
+            height={60}
+            config={{
+              icon: "/icon:solid/arrows-spin",
+              autoHeight: "fixed",
+              iconSize: "30",
+            }}
+            compFactory={IconComp}
+          />
+          <Example
+            title="Icon Size - Fixed"
+            width={120}
+            config={{
+              icon: "/icon:solid/arrows-spin",
+              autoHeight: "fixed",
+              iconSize: "60",
             }}
             compFactory={IconComp}
           />

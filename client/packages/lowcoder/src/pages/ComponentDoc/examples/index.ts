@@ -68,6 +68,32 @@ import QRCodeExample from "./MediaComp/QRCode";
 import StepControlExample from "./selectInputComp/StepControl";
 import CustomCompExample from "./presentationComp/customComponent";
 import ScannerExample from "./MediaComp/Scanner";
+import CandleStickChartExample from "./ChartsComp/CandleStickChart";
+import GridViewExample from "./presentationComp/gridView";
+import ModalExample from "./ChartsComp/Modal";
+import FunnelChartExample from "./ChartsComp/FunnelChart";
+import GaugeChartExample from "./ChartsComp/GaugeChart";
+import GraphChartExample from "./ChartsComp/GraphChart";
+import HeatmapChartExample from "./ChartsComp/HeatmapChart";
+import RadarChartExample from "./ChartsComp/RadarChart";
+import SankeyChartExample from "./ChartsComp/SankeyChart";
+import SunburstChartExample from "./ChartsComp/SunburstChart";
+import ThemeRiverChartExample from "./ChartsComp/ThemeRiverChart";
+import TreeChartExample from "./ChartsComp/TreeChart";
+import TreemapChartExample from "./ChartsComp/TreemapChart";
+import OpenLayersGeoMapChartExample from "./ChartsComp/OpenLayersGeoMap";
+import GeoMapChartExample from "./ChartsComp/GeoMapChart";
+import MermaidChartExample from "./ChartsComp/MermaidChart";
+import MentionCompExample from "./MediaComp/Mention";
+import CalendarExample from "./CalendarInputComp/Calendar";
+import PivotTableExample from "./presentationComp/pivotTable";
+import TurnstileCaptchaExample from "./MediaComp/TurnstileCaptcha";
+import GanttChartExample from "./ChartsComp/GanttChart";
+import KanbanExample from "./presentationComp/Kanban";
+import HillChartExample from "./ChartsComp/HillChart";
+import BPMNEditorExample from "./MediaComp/BPMNEditor";
+import ImageEditorExample from "./presentationComp/imageEditor";
+import DrawerExample from "./ChartsComp/Drawer";
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
@@ -139,6 +165,32 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   step: StepControlExample,
   custom: CustomCompExample,
   scanner: ScannerExample,
+  candleStickChart: CandleStickChartExample,
+  grid: GridViewExample,
+  modal: ModalExample,
+  funnelChart: FunnelChartExample,
+  gaugeChart: GaugeChartExample,
+  graphChart: GraphChartExample,
+  heatmapChart: HeatmapChartExample,
+  radarChart: RadarChartExample,
+  sankeyChart: SankeyChartExample,
+  sunburstChart: SunburstChartExample,
+  themeriverChart: ThemeRiverChartExample,
+  treeChart: TreeChartExample,
+  treemapChart: TreemapChartExample,
+  openLayersGeoMap: OpenLayersGeoMapChartExample,
+  chartsGeoMap: GeoMapChartExample,
+  mermaid: MermaidChartExample,
+  mention: MentionCompExample,
+  calendar: CalendarExample,
+  pivotTable: PivotTableExample,
+  turnstileCaptcha: TurnstileCaptchaExample,
+  ganttChart: GanttChartExample,
+  kanban: KanbanExample,
+  hillchart: HillChartExample,
+  bpmnEditor: BPMNEditorExample,
+  imageEditor: ImageEditorExample,
+  drawer: DrawerExample,
 };
 
 export default examples;

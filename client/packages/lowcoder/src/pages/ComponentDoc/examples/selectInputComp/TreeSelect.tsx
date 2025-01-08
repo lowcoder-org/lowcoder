@@ -140,6 +140,7 @@ export default function TreeSelectExample() {
           title="Show Clear Button"
           config={{
             allowClear:true,
+            defaultValue: "[asia]",
             label: {
               text: "Select Your Place",
             },

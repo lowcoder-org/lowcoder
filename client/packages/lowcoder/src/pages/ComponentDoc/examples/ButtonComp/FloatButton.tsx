@@ -27,18 +27,48 @@ export default function FloatButtonExample() {
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description={trans("componentDoc.basicDemoDescription")}
+        description="The Following Examples Show the Basic Usage of the Float Button Component."
       >
         <Example
-          title={trans("componentDoc.default")}
+          title="A Simple Float Button"
           config={{ 
             buttons: buttons,
-            buttonTheme: "primary",
-            icon: "/icon:antd/questioncircleoutlined",
+        }}
+          compFactory={FloatButtonComp}
+        />
+        <Example
+          title="Hiding the Float Button"
+          config={{ 
+            buttons: buttons,
+            hidden: true,
+        }}
+          compFactory={FloatButtonComp}
+        />
+        <Example
+          title="Different Icon on Float Button"
+          config={{ 
+            buttons: buttons,
+            icon: "/icon:solid/align-justify",
+        }}
+          compFactory={FloatButtonComp}
+        />
+        <Example
+          title="Button Theme - Default"
+          config={{ 
+            buttons: buttons,
+            buttonTheme: "default",
+            icon: "/icon:solid/align-justify",
             includeMargin: true,
             preventStyleOverwriting: false,
-            shape: "circle",
             value: "",
+        }}
+          compFactory={FloatButtonComp}
+        />
+        <Example
+          title="Button Shape - Square"
+          config={{ 
+            buttons: buttons,
+            shape: "square",
         }}
           compFactory={FloatButtonComp}
         />
