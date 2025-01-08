@@ -136,8 +136,6 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
-
-    console.log(props.echartsOption)
     let opt= props.echartsOption && {
       title: {
         text: props?.echartsTitle,
@@ -148,62 +146,62 @@ export function getEchartsConfig(
         }
       },
       backgroundColor: parseBackground(props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
-      "tooltip": props.tooltip&&{
-        "trigger": "axis",
-        "axisPointer": {
-          "type": "line",
-          "lineStyle": {
-            "color": "rgba(0,0,0,0.2)",
-            "width": 2,
-            "type": "solid"
+      tooltip: props.tooltip&&{
+        trigger: "axis",
+        axisPointer: {
+          type: "line",
+          lineStyle: {
+            color: "rgba(0,0,0,0.2)",
+            width: 2,
+            type: "solid"
           }
         }
       },
       legend: props.legendVisibility && {
-        "top": props.echartsLegendConfig.top,
-        "left": props.echartsLegendAlignConfig.left,
-        "orient": props.echartsLegendOrientConfig.orient,
+        top: props.echartsLegendConfig.top,
+        left: props.echartsLegendAlignConfig.left,
+        orient: props.echartsLegendOrientConfig.orient,
         data: props?.echartsOption?.data && Array.from(new Set((props.echartsOption.data).map(item => item[2]))),
         textStyle: {
           ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
         }
       },
-      "singleAxis": {
+      singleAxis: {
         left: `${props?.left}%`,
         right: `${props?.right}%`,
         bottom: `${props?.bottom}%`,
         top: `${props?.top}%`,
-        "type": "time",
-        "axisTick": {},
-        "axisLabel": {
+        type: "time",
+        axisTick: {},
+        axisLabel: {
           ...styleWrapper(props?.axisStyle, theme?.axisStyle, 13)
         },
-        "splitLine": {},
-        "axisPointer": {
-          "animation": true,
-          "label": {
-            "show": true,
-            "color": "#fff"
+        splitLine: {},
+        axisPointer: {
+          animation: true,
+          label: {
+            show: true,
+            color: "#fff"
           }
         },
-        "splitNumber": props?.splitNumber
+        splitNumber: props?.splitNumber
       },
-      "series": [
+      series: [
         {
-          "type": props.echartsConfig.type,
-          "data": props.echartsOption.data,
-          "label": {
-            "show": true,
-            "position": "top",
-            "fontSize": 12
+          type: props.echartsConfig.type,
+          data: props.echartsOption.data,
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 12
           },
           itemStyle: {
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
           },
-          "emphasis": {
-            "itemStyle": {
-              "shadowBlur": 20,
-              "shadowColor": "rgba(0, 0, 0, 0.8)"
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 20,
+              shadowColor: "rgba(0, 0, 0, 0.8)"
             }
           },
           color: props.echartsOption?.color && props.echartsOption.color
