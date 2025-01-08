@@ -45,8 +45,8 @@ export function themeriverChartPropertyView(
         {children.top.propertyView({ label: trans("themeriverChart.top"), tooltip: trans("echarts.topTooltip") })}
         {children.bottom.propertyView({ label: trans("themeriverChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
 
-        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility")})}
-        {children.tooltip.propertyView({label: trans("themeriverChart.tooltip")})}
+        {children.legendVisibility.propertyView({label: trans("echarts.legendVisibility"), tooltip: trans("echarts.legendVisibilityTooltip")})}
+        {children.tooltip.propertyView({label: trans("themeriverChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}

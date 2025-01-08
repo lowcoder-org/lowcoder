@@ -19,7 +19,7 @@ export const en = {
     bottom: 'Bottom',
     defaultBottom:'20',
     splitNumber: 'Split Number',
-    defaultSplitNumber: '3'
+    defaultSplitNumber: '4'
   },
   sunburstChart: {
     sunburstType: 'Sunburst Chart Type',

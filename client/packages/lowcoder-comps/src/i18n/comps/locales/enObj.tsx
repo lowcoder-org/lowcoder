@@ -492,6 +492,7 @@ export const enObj: I18nObjects = {
       ]
   },
   defaultThemeriverChartOption: {
+    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1'],
     data: [
       ['2025-01-01', 12, 'Product A'],
       ['2025-01-01', 10, 'Product B'],
@@ -513,7 +514,7 @@ export const enObj: I18nObjects = {
       ['2025-01-05', 13, 'Product B'],
       ['2025-01-05', 20, 'Product C'],
       ['2025-01-05', 11, 'Product D']
-    ]
+    ],
   },
 
   defaultMapJsonOption: defaultMapData,
