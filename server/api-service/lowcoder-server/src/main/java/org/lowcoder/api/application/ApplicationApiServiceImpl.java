@@ -368,7 +368,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, PUBLISH_APPLICATIONS))
                 .delayUntil(__ -> applicationService.findById(applicationId)
-                        .map(application -> ApplicationRecord.builder()
+                        .map(application -> ApplicationVersion.builder()
                                 .tag(applicationPublishRequest.tag())
                                 .commitMessage(applicationPublishRequest.commitMessage())
                                 .applicationId(application.getId())

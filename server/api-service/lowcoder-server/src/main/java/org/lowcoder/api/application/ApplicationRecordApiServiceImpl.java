@@ -2,13 +2,12 @@ package org.lowcoder.api.application;
 
 import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.home.SessionUserService;
-import org.lowcoder.api.application.ApplicationApiServiceImpl;
 import org.lowcoder.api.application.view.ApplicationRecordMetaView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationCombineId;
-import org.lowcoder.domain.application.model.ApplicationRecord;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.user.service.UserService;
@@ -41,7 +40,7 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
                         return applicationService.getLiveDSLByApplicationId(applicationCombineId.applicationId());
                     }
                     return applicationRecordService.getById(applicationCombineId.applicationRecordId())
-                            .map(ApplicationRecord::getApplicationDSL);
+                            .map(ApplicationVersion::getApplicationDSL);
                 }));
     }
 
@@ -55,7 +54,7 @@ public class ApplicationRecordApiServiceImpl implements ApplicationRecordApiServ
     public Mono<List<ApplicationRecordMetaView>> getByApplicationId(String applicationId) {
         return applicationRecordService.getByApplicationId(applicationId)
                 .flatMap(applicationRecords -> multiBuild(applicationRecords,
-                        ApplicationRecord::getCreatedBy,
+                        ApplicationVersion::getCreatedBy,
                         userService::getByIds,
                         ApplicationRecordMetaView::from
                 ));

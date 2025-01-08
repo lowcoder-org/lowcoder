@@ -4,8 +4,10 @@ import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.github.cloudyrock.mongock.driver.mongodb.springdata.v4.decorator.impl.MongockTemplate;
 import com.github.f4b6a3.uuid.UuidCreator;
+import com.mongodb.MongoNamespace;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoCursor;
+import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.result.DeleteResult;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
@@ -13,7 +15,7 @@ import org.bson.types.ObjectId;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.bundle.model.Bundle;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.model.DatasourceStructureDO;
@@ -438,7 +440,7 @@ public class DatabaseChangelog {
             ObjectId id = document.getObjectId("_id");
             String createdBy = document.getString("createdBy");
             Map<String, Object> dslMap = documentToMap(dsl);
-            ApplicationRecord record = ApplicationRecord.builder()
+            ApplicationVersion record = ApplicationVersion.builder()
                     .applicationId(id.toHexString())
                     .applicationDSL(dslMap)
                     .commitMessage("")
@@ -453,7 +455,28 @@ public class DatabaseChangelog {
     }
     @ChangeSet(order = "029", id = "add-tag-index-to-record", author = "Thomas")
     public void addTagIndexToRecord(MongockTemplate mongoTemplate, CommonConfig commonConfig) {
-        ensureIndexes(mongoTemplate, ApplicationRecord.class, makeIndex("applicationId", "tag").unique());
+        ensureIndexes(mongoTemplate, ApplicationVersion.class, makeIndex("applicationId", "tag").unique());
+    }
+
+    @ChangeSet(order = "030", id = "rename-application-record-collection", author = "Thomas")
+    public void renameApplicationRecordCollection(MongockTemplate mongoTemplate, MongoDatabase mongoDatabase) {
+        String oldCollectionName = "applicationRecord";
+        String newCollectionName = "applicationVersion";
+
+        // Check if the old collection exists
+        boolean collectionExists = mongoDatabase.listCollectionNames()
+                .into(new java.util.ArrayList<>())
+                .contains(oldCollectionName);
+
+        if (collectionExists) {
+            // Rename the collection
+            mongoDatabase.getCollection(oldCollectionName)
+                    .renameCollection(new MongoNamespace(mongoDatabase.getName(), newCollectionName));
+            System.out.println("Collection renamed from " + oldCollectionName + " to " + newCollectionName);
+        } else {
+            System.out.println("Collection " + oldCollectionName + " does not exist, skipping rename.");
+        }
+
     }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {

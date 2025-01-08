@@ -141,7 +141,7 @@ public class Application extends HasIdAndAuditing {
     @JsonIgnore
     public Mono<Map<String, Object>> getLiveApplicationDsl(ApplicationRecordService applicationRecordService) {
         return applicationRecordService.getLatestRecordByApplicationId(this.getId())
-                .map(ApplicationRecord::getApplicationDSL)
+                .map(ApplicationVersion::getApplicationDSL)
                 .switchIfEmpty(Mono.just(editingApplicationDSL));
     }
 
@@ -237,7 +237,7 @@ public class Application extends HasIdAndAuditing {
     }
 
 	public Mono<Map<String, Object>> getPublishedApplicationDSL(ApplicationRecordService applicationRecordService) {
-        return applicationRecordService.getLatestRecordByApplicationId(this.getId()).map(ApplicationRecord::getApplicationDSL);
+        return applicationRecordService.getLatestRecordByApplicationId(this.getId()).map(ApplicationVersion::getApplicationDSL);
 	}
 
 }

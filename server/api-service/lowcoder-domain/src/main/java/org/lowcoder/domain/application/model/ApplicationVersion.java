@@ -14,7 +14,7 @@ import java.util.Map;
 @SuperBuilder
 @Jacksonized
 @NoArgsConstructor
-public class ApplicationRecord extends HasIdAndAuditing {
+public class ApplicationVersion extends HasIdAndAuditing {
 
     private String applicationId;
     private String tag;

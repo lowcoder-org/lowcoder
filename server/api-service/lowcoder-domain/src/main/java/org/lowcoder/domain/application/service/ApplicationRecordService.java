@@ -1,21 +1,21 @@
 package org.lowcoder.domain.application.service;
 
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
 
 public interface ApplicationRecordService {
-    Mono<ApplicationRecord> insert(ApplicationRecord applicationRecord);
+    Mono<ApplicationVersion> insert(ApplicationVersion applicationRecord);
 
-    Mono<List<ApplicationRecord>> getByApplicationId(String applicationId);
+    Mono<List<ApplicationVersion>> getByApplicationId(String applicationId);
 
-    Mono<Map<String, List<ApplicationRecord>>> getByApplicationIdIn(List<String> applicationIdList);
+    Mono<Map<String, List<ApplicationVersion>>> getByApplicationIdIn(List<String> applicationIdList);
 
-    Mono<ApplicationRecord> getById(String id);
+    Mono<ApplicationVersion> getById(String id);
 
-    Mono<ApplicationRecord> getLatestRecordByApplicationId(String applicationId);
+    Mono<ApplicationVersion> getLatestRecordByApplicationId(String applicationId);
 
     Mono<Long> deleteAllApplicationTagByApplicationId(String applicationId);
 
