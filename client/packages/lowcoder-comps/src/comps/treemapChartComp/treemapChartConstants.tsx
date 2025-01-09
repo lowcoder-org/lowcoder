@@ -16,7 +16,9 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  RadarLabelStyle,
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +33,8 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { TreemapChartConfig } from "comps/chartComp/chartConfigs/treemapChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -253,14 +257,25 @@ let chartJsonModeChildren: any = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+
+  left:withDefault(NumberControl,trans('treemapChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('treemapChart.defaultRight')),
+  top:withDefault(NumberControl,trans('treemapChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('treemapChart.defaultBottom')),
+
   tooltip: withDefault(BoolControl, true),
-  legendVisibility: withDefault(BoolControl, true),
+  labelVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+
+if (RadarLabelStyle && EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    detailStyle: styleControl(RadarLabelStyle, 'detailStyle'),
   }
 }
 

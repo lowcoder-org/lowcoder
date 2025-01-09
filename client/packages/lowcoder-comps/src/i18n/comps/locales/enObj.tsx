@@ -423,37 +423,39 @@ export const enObj: I18nObjects = {
   },
   defaultTreemapChartOption: {
     data: [
-        {
-          name: 'nodeA',
-          value: 10,
-          children: [
-            {
-              name: 'nodeAa',
-              value: 4,
-            },
-            {
-              name: 'nodeAb',
-              value: 6
-            }
-          ]
-        },
-        {
-          name: 'nodeB',
-          value: 20,
-          children: [
-            {
-              name: 'nodeBa',
-              value: 20,
-              children: [
-                {
-                  name: 'nodeBa1',
-                  value: 20
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      {
+        name: 'Category A',
+        value: 100,
+        children: [
+          {
+            name: 'Subcategory A1',
+            value: 70,
+            children: [
+              { name: 'Item A1-1', value: 10 },
+              { name: 'Item A1-2', value: 20 },
+              { name: 'Item A1-3', value: 10 },
+              { name: 'Item A1-4', value: 30 }
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Category B',
+        value: 80,
+        children: [
+          {
+            name: 'Subcategory B1',
+            value: 50,
+            children: [
+              { name: 'Item B1-1', value: 20 },
+              { name: 'Item B1-2', value: 15 },
+              { name: 'Item B1-3', value: 15 }
+            ]
+          },
+        ]
+      }
+    ],
+    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1']
   },
   defaultSunburstChartOption: {
     data: [

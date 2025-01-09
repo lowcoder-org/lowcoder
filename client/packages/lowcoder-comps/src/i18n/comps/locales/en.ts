@@ -43,6 +43,14 @@ export const en = {
     title: 'Title',
     defaultTitle: 'Treemap Chart',
     tooltip: 'Tooltip',
+    defaultLeft: "10",
+    left: "Left",
+    defaultRight: "10",
+    right: "Right",
+    defaultTop: "20",
+    top: "Top",
+    defaultBottom: "20",
+    bottom: "Bottom",
   },
   treeChart: {
     treeType: 'Tree Chart Type',
@@ -347,6 +355,7 @@ export const en = {
     axisTickColorTooltip: "Select the Color of Axis Tick",
     axisLabelDistanceTooltip: "Select the Distance between the Axis labels and the Split line",
     tooltipTooltip: "Show or hide the Tooltip of the Chart.",
+    labelVisibility: "Label",
   },
   chart: {
     delete: "Delete",
