@@ -153,9 +153,12 @@ public enum BizError {
     BUNDLE_NAME_CONFLICT(500, 6403),
     ILLEGAL_BUNDLE_PERMISSION_ID(500, 6404),
 
-    //slug 6501 - 6501
+    //slug 6501 - 6502
     SLUG_DUPLICATE_ENTRY(403, 6501),
-    SLUG_INVALID(403, 6502);
+    SLUG_INVALID(403, 6502),
+
+    //flow 6601 - 6601
+    FLOW_ERROR(500, 6601);
 
     static {
         checkDuplicates(values(), BizError::getBizErrorCode);
