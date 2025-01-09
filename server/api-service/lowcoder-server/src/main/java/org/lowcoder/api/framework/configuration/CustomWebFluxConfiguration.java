@@ -7,12 +7,19 @@ import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.i18n.LocaleContext;
+import org.springframework.context.i18n.SimpleLocaleContext;
 import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
 import org.springframework.http.codec.json.Jackson2JsonEncoder;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.reactive.config.DelegatingWebFluxConfiguration;
 import org.springframework.web.reactive.function.server.support.RouterFunctionMapping;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.i18n.LocaleContextResolver;
+
+import java.util.List;
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Configuration
@@ -41,6 +48,30 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 				.jackson2JsonDecoder(new Jackson2JsonDecoder(objectMapper()));
 		configurer.defaultCodecs()
 				.jackson2JsonEncoder(new Jackson2JsonEncoder(objectMapper()));
+	}
+
+	@Bean
+	public LocaleContextResolver localeContextResolver() {
+		return new LocaleContextResolver() {
+			@Override
+			public LocaleContext resolveLocaleContext(ServerWebExchange exchange) {
+				List<String> language = exchange.getRequest().getQueryParams().getOrDefault("lang", List.of("en_US"));
+				String localeStr = language.get(0);
+				String[] parts = localeStr.split("_");
+				if(parts.length == 2) {
+					Locale locale = new Locale(parts[0], parts[1]);
+					return new SimpleLocaleContext(locale);
+				} else {
+					Locale locale = new Locale(parts[0]);
+					return new SimpleLocaleContext(locale);
+				}
+			}
+
+			@Override
+			public void setLocaleContext(ServerWebExchange exchange, LocaleContext localeContext) {
+				throw new UnsupportedOperationException("Cannot change HTTP accept header - use a different locale context resolution strategy");
+			}
+		};
 	}
 
 }

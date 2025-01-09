@@ -21,6 +21,8 @@ public interface ApiFlowEndpoints
 	public record FlowRequest(String path,
 							  String method,
 							  Map<String, Object> data,
-							  Map<String, String> headers) {
+							  Map<String, String> headers,
+							  Integer timeout,
+							  Integer retries) {
 	}
 }
