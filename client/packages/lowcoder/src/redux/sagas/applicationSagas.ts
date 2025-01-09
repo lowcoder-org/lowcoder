@@ -35,6 +35,7 @@ import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
 import { ApplicationMeta, AppTypeEnum } from "constants/applicationConstants";
 import { trans } from "i18n";
+import { PUBLIC_APP_ID, publicAppResponse } from "@lowcoder-ee/constants/publicApp";
 
 export function* fetchHomeDataSaga(action: ReduxAction<HomeDataPayload>) {
   try {
@@ -203,10 +204,16 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
 
 export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayload>) {
   try {
-    const response: AxiosResponse<ApplicationResp> = yield call(
-      ApplicationApi.getApplicationDetail,
-      action.payload
-    );
+    
+    let response: AxiosResponse<ApplicationResp>;
+    if (action.payload.applicationId === PUBLIC_APP_ID) {
+      response = publicAppResponse as AxiosResponse<ApplicationResp>;
+    } else {
+      response = yield call(
+        ApplicationApi.getApplicationDetail,
+        action.payload
+      );
+    }
     const isValidResponse: boolean = doValidResponse(response);
     if (isValidResponse && action.payload) {
       const {

@@ -47,6 +47,8 @@ export interface ExternalEditorContextState {
    */
   fetchApplication?: () => void;
 
+  exportPublicAppToJson?: () => void;
+
   changeExternalState?: (state: Partial<ExternalEditorContextState>) => void;
 }
 

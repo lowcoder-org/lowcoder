@@ -26,6 +26,7 @@ import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -232,6 +233,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   const [isScrolling, setScrolling] = useState(false);
   const [visible, setVisible] = useState(false);
 
+  const isPublicApp = useSelector(isPublicApplication);
   const user = useSelector(getUser);
 
   const { width, ref } = useResizeDetector({ handleHeight: false });
@@ -289,7 +291,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                       onSelect={onSelect}
                     />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
-                    <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} />
+                    {!isPublicApp && <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} /> }
                     <ResButton
                       size={buttonSize}
                       identifier={BottomResTypeEnum.Folder}
@@ -337,7 +339,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}
 
-                {user.orgDev && (
+                {(user.orgDev || isPublicApp) && (
                   <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
                     <LargeBottomResIconWrapper>
                       <AddIcon />
@@ -351,7 +353,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
         </ScrollBar>
       </Content>
       <CreateDataSourceModal
-       open={visible}
+        open={visible}
         onCancel={() => setVisible(false)}
         onCreated={() => setVisible(false)}
       />

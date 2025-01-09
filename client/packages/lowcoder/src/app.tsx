@@ -29,6 +29,7 @@ import {
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
   ADMIN_AUTH_URL,
+  PUBLIC_APP_EDITOR_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -65,6 +66,7 @@ const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"))
 const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
 const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));
 const LazyAppEditor = React.lazy(() => import("pages/editor/AppEditor"));
+const LazyPublicAppEditor = React.lazy(() => import("pages/editor/AppEditorPublic"));
 const LazyAppFromTemplate = React.lazy(() => import("pages/ApplicationV2/AppFromTemplate"));
 const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
@@ -301,6 +303,14 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 path={IMPORT_APP_FROM_TEMPLATE_URL}
                 component={LazyAppFromTemplate}
               />
+
+              <LazyRoute
+                exact
+                fallback="layout"
+                path={PUBLIC_APP_EDITOR_URL}
+                component={LazyPublicAppEditor}
+              />
+
               <LazyRoute
                 fallback="layout"
                 path={APP_EDITOR_URL}

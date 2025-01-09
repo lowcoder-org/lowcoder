@@ -24,6 +24,7 @@ export interface CommonSettingResponseData {
 
 export type SetCommonSettingPayload<T = any> = {
   orgId: string;
+  isPublicApp?: boolean;
   data: {
     key: string;
     value: T;

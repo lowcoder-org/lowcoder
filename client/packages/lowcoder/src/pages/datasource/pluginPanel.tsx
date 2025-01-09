@@ -14,6 +14,10 @@ import {
 import { Search } from "components/Search";
 import { CreateDropdown } from "@lowcoder-ee/pages/ApplicationV2/CreateDropdown";
 import React, { useState } from "react";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import Alert from "antd/es/alert";
+import Flex from "antd/es/flex";
+import { Link } from "react-router-dom";
 
 export const DataSourceButton = styled(AntdButton)`
   &&& {
@@ -115,6 +119,7 @@ interface SectionProps {
   datasourceTypes: DataSourceTypeInfo[];
   searchValue: string;
   onSelect: (t: DataSourceTypeInfo) => void;
+  isPublicApp: boolean;
 }
 
 const categories: Category[] = [
@@ -135,7 +140,7 @@ const categories: Category[] = [
 ];
 
 // Section component
-const Section: React.FC<SectionProps> = ({ label, filter, datasourceTypes, searchValue, onSelect }) => (
+const Section: React.FC<SectionProps> = ({ label, filter, datasourceTypes, searchValue, onSelect, isPublicApp }) => (
   <SectionWrapper>
     <SectionLabel>{label}</SectionLabel>
     <SectionBody>
@@ -143,7 +148,7 @@ const Section: React.FC<SectionProps> = ({ label, filter, datasourceTypes, searc
         .filter(filter)
         .filter((t) => localeContains(t.name, searchValue))
         .map((t) => (
-          <DataSourceButton key={t.id} onClick={() => onSelect(t)}>
+          <DataSourceButton disabled={isPublicApp} key={t.id} onClick={() => onSelect(t)}>
             {t.id && getBottomResIcon(t.id, "large", t.definition?.icon)}
             {t.name}
           </DataSourceButton>
@@ -157,6 +162,7 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
   const currentPage = useCurrentPage();
   const [searchValue, setSearchValue] = useState("");
   const apiList = currentPage === "queryLibrary" ? apiPluginsForQueryLibrary : apiPlugins;
+  const isPublicApp = useSelector(isPublicApplication);
 
   return (
     <PanelWrapper>
@@ -168,6 +174,19 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
           style={{ width: "192px", height: "32px", margin: "0" }}
         />
       </OperationRightWrapper>
+      {isPublicApp && (
+        <Alert
+          showIcon
+          type="info"
+          message={
+            <Flex>
+              <span>You're currently in preview mode.&nbsp;</span>
+              <Link to={`/user/auth/login`}>Sign up</Link>
+              <span>&nbsp;now to unlock the full experience!</span>
+            </Flex>
+          }
+        />
+      )}
       {categories.map(({ label, filter }) => (
         <Section
           key={label}
@@ -176,6 +195,7 @@ export const PluginPanel = (props: { onSelect: (t: DataSourceTypeInfo) => void }
           datasourceTypes={datasourceTypes}
           searchValue={searchValue}
           onSelect={props.onSelect}
+          isPublicApp={isPublicApp}
         />
       ))}
     </PanelWrapper>
