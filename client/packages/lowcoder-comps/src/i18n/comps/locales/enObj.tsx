@@ -417,7 +417,9 @@ export const enObj: I18nObjects = {
             ]
           }
         ]
-      }]
+      }],
+    pointColor: "#380e81",
+    lineColor: "#1a93b8",
   },
   defaultTreemapChartOption: {
     data: [

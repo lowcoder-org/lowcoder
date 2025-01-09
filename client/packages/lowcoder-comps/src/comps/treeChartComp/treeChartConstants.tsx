@@ -16,7 +16,7 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartsStyle, RadarLabelStyle, EchartDefaultChartStyle, EchartDefaultTextStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +31,8 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { TreeChartConfig } from "comps/chartComp/chartConfigs/treeChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -253,14 +255,27 @@ let chartJsonModeChildren: any = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+
+  left:withDefault(NumberControl,trans('treeChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('treeChart.defaultRight')),
+  top:withDefault(NumberControl,trans('treeChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('treeChart.defaultBottom')),
+  pointSize:withDefault(NumberControl,trans('treeChart.defaultPointSize')),
+  lineWidth:withDefault(NumberControl,trans('treeChart.defaultlineWidth')),
+
+  edgeShape: withDefault(BoolControl, true),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+
+if (RadarLabelStyle && EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    detailStyle: styleControl(RadarLabelStyle, 'detailStyle'),
   }
 }
 
