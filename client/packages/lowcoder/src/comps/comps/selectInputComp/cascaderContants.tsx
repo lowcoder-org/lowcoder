@@ -12,6 +12,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { i18nObjs, trans } from "i18n";
@@ -60,6 +61,7 @@ export const CascaderPropertyView = (
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
+        {showDataLoadingIndicatorsPropertyView(children as any)}
       </Section>
     )}
 

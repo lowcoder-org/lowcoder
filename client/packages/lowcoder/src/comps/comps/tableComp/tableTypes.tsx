@@ -227,7 +227,6 @@ const tableChildrenMap = {
   showHorizontalScrollbar: BoolControl,
   data: withIsLoadingMethod(JSONObjectArrayControl),
   newData: stateComp<JSONArray>([]),
-  showDataLoadSpinner: withDefault(BoolPureControl, true),
   columns: ColumnListComp,
   size: dropdownControl(sizeOptions, "middle"),
   selection: SelectionControl,

@@ -18,7 +18,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -128,6 +128,7 @@ let IconBasicComp = (function () {
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 

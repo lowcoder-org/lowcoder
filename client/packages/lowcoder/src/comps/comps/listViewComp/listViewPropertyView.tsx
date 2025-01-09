@@ -4,7 +4,7 @@ import { ListViewImplComp } from "./listViewComp";
 import { ListCompType } from "./listViewUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 
 type Props = {
   comp: InstanceType<typeof ListViewImplComp>;
@@ -56,6 +56,7 @@ export function listPropertyView(compType: ListCompType) {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 

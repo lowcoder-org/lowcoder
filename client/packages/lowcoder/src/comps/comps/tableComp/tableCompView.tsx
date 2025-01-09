@@ -989,7 +989,7 @@ export function TableCompView(props: {
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
   const showTableLoading = loading ||
     // fixme isLoading type
-    ((showDataLoadingIndicators || compChildren.showDataLoadSpinner.getView()) &&
+    ((showDataLoadingIndicators) &&
       (compChildren.data as any).isLoading()) ||
     compChildren.loading.getView();
 
