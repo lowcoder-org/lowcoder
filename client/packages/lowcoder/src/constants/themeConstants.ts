@@ -28,6 +28,7 @@ const theme = {
   animationIterationCount: "",
   showComponentLoadingIndicators: true,
   showDataLoadingIndicators: true,
+  dataLoadingIndicatpr: 'spinner',
   gridBgImageSize: "cover",
   gridBgImagePosition: "center",
   gridBgImageRepeat: "no-repeat",

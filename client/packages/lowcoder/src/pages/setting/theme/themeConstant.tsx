@@ -34,6 +34,7 @@ export const themeTemplateList = [
       padding: "3px",
       showComponentLoadingIndicators: true,
       showDataLoadingIndicators: true,
+      dataLoadingIndicator: 'spinner',
     },
   },
   {
@@ -53,6 +54,7 @@ export const themeTemplateList = [
       padding: "3px",
       showComponentLoadingIndicators: true,
       showDataLoadingIndicators: true,
+      dataLoadingIndicator: 'spinner',
     },
   },
   {
@@ -72,6 +74,7 @@ export const themeTemplateList = [
       padding: "3px",
       showComponentLoadingIndicators: true,
       showDataLoadingIndicators: true,
+      dataLoadingIndicator: 'spinner',
     },
   },
 ];
