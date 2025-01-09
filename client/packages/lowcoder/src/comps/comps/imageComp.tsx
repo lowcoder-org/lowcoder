@@ -24,7 +24,7 @@ import {
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -190,6 +190,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
             {children.supportPreview.propertyView({
               label: trans("image.supportPreview"),
               tooltip: trans("image.supportPreviewTip"),

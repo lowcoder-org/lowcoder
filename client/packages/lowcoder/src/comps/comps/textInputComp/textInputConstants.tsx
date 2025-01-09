@@ -30,6 +30,7 @@ import {
   placeholderPropertyView,
   regexPropertyView,
   requiredPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -221,6 +222,7 @@ export const TextInputInteractionSection = (children: TextInputComp) => (
   <Section name={sectionNames.interaction}>
     {children.onEvent.getPropertyView()}
     {disabledPropertyView(children)}
+    {showDataLoadingIndicatorsPropertyView(children as any)}
   </Section>
 );
 

@@ -7,7 +7,7 @@ import styled, { css } from "styled-components";
 import { UICompBuilder, withDefault } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
 import { textInputChildren } from "../textInputComp/textInputConstants";
-import { disabledPropertyView, hiddenPropertyView, } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView, } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { ColorPicker } from 'antd';
 import { presets } from "./colorPickerConstants";
@@ -108,6 +108,7 @@ export const ColorPickerComp = new UICompBuilder(childrenMap, (props) => {
         <Section name={sectionNames.interaction}>
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section>
 
         <Section name={sectionNames.advanced}>

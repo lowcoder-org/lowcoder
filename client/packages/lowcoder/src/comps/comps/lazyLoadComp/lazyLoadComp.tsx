@@ -1,5 +1,5 @@
 import { default as Skeleton } from "antd/es/skeleton";
-import { simpleMultiComp } from "comps/generators";
+import { simpleMultiComp, withIsLoading } from "comps/generators";
 import { withExposingConfigs } from "comps/generators/withExposing";
 import { GreyTextColor } from "constants/style";
 import log from "loglevel";
@@ -92,7 +92,8 @@ export function lazyLoadComp(
   compName?: string,
   compPath?: string,
   loader?: LazyloadCompLoader,
-  loadingElement?: () => React.ReactNode
+  loadingElement?: () => React.ReactNode,
+  withoutLoading?: boolean,
 ) {
   class LazyLoadComp extends simpleMultiComp({}) {
     compValue: any;
@@ -118,6 +119,8 @@ export function lazyLoadComp(
         log.error("loader not found, lazy load info:", compPath);
         return;
       }
+
+      LazyExportedComp = withoutLoading ? LazyExportedComp : withIsLoading(LazyExportedComp);
 
       const params: CompParams<any> = {
         dispatch: this.dispatch,

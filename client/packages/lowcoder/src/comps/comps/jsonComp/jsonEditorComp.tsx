@@ -5,7 +5,7 @@ import { defaultData } from "./jsonConstants";
 import styled from "styled-components";
 import { jsonValueExposingStateControl } from "comps/controls/codeStateControl";
 import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { LabelControl } from "comps/controls/labelControl";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
@@ -155,15 +155,15 @@ let JsonEditorTmpComp = (function () {
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           <Section name={trans('prop.height')}>
             {children.autoHeight.propertyView({ label: trans('prop.height') })}
           </Section>
-          {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
-  {children.showVerticalScrollbar.propertyView({label: trans('prop.showVerticalScrollbar')})}
-  
-</Section>}
+            {!children.autoHeight.getView()&&<Section name={sectionNames.layout}>
+            {children.showVerticalScrollbar.propertyView({label: trans('prop.showVerticalScrollbar')})}
+          </Section>}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && ( children.label.getPropertyView() )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>

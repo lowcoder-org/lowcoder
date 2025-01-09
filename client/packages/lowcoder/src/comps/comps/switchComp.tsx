@@ -11,7 +11,7 @@ import styled, { css } from "styled-components";
 import { UICompBuilder } from "../generators";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { refMethods } from "comps/generators/withMethodExposing";
@@ -149,6 +149,7 @@ let SwitchTmpComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 

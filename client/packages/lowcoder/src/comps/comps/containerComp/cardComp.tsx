@@ -5,7 +5,7 @@ import { TriContainer } from "../triContainerComp/triContainer";
 import {
   ContainerCompBuilder,
 } from "../triContainerComp/triContainerCompBuilder";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -318,8 +318,9 @@ export const ContainerBaseComp = (function () {
 
               </Section>
               <Section name={sectionNames.interaction}>
-                {hiddenPropertyView(children)}
                 {children.onEvent.getPropertyView()}
+                {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
             </>
           )}

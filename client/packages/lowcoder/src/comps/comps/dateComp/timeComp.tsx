@@ -37,6 +37,7 @@ import {
   minuteStepPropertyView,
   requiredPropertyView,
   SecondStepPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
@@ -240,6 +241,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section></>
       )}
 
@@ -411,6 +413,7 @@ const TimeRangeTmpCmp = (function () {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section></>
         )}
 

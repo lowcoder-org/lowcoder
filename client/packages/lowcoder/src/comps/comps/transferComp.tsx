@@ -6,7 +6,7 @@ import { TransferStyle, TransferStyleType, heightCalculator, widthCalculator } f
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { default as Transfer } from "antd/es/transfer";
@@ -170,9 +170,10 @@ let TransferBasicComp = (function () {
             label: trans("transfer.pageSize"),
           })}
         </Section>
-        <Section name={sectionNames.layout}>
+        <Section name={sectionNames.interaction}>
           {children.onEvent.propertyView()}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section>
         <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
       </>

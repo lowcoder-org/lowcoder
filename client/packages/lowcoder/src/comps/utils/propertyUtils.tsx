@@ -16,6 +16,11 @@ export function isCompWithPropertyView<C extends Comp<any> = Comp<any>>(
   return "propertyView" in comp && typeof (comp as any)["propertyView"] === "function";
 }
 
+export const showDataLoadingIndicatorsPropertyView = (
+  children: {showDataLoadingIndicators: InstanceType<typeof BoolControl> }
+) =>
+  children.showDataLoadingIndicators.propertyView({ label: trans("themeDetail.showDataLoadingIndicators") });
+
 export const hiddenPropertyView = (children: { hidden: InstanceType<typeof BoolCodeControl> }) =>
   children.hidden.propertyView({ label: trans("prop.hide") });
 

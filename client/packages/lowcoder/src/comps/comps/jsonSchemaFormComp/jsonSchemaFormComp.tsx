@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
 import { useContext, useEffect, useRef, useState, createContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -418,6 +418,7 @@ let FormBasicComp = (function () {
               {children.resetAfterSubmit.propertyView({
                 label: trans("jsonSchemaForm.resetAfterSubmit"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (

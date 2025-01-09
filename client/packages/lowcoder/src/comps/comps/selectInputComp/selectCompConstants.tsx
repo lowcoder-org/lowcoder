@@ -48,6 +48,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -342,6 +343,7 @@ export const SelectPropertyView = (
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children as any)}
         </Section>
       </>
     )}

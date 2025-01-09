@@ -491,9 +491,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.onEvent.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
-            {comp.children.showDataLoadSpinner.propertyView({
-              label: trans("table.showDataLoadSpinner"),
-            })}
             {comp.children.selection.getPropertyView()}
             {comp.children.editModeClicks.propertyView({
               label: trans("table.editMode"),
