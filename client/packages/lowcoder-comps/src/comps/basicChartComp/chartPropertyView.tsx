@@ -13,6 +13,7 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 import { examplesUrl, mapExamplesUrl, mapOptionUrl, optionUrl } from "./chartConfigs/chartUrls";
+import {LegendConfig} from "./chartConfigs/legendConfig";
 
 export function chartPropertyView(
   children: ChartCompChildrenType,
@@ -116,6 +117,7 @@ export function chartPropertyView(
       <Section name={sectionNames.layout}>
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.legendConfig.getPropertyView()}
         {children.title.propertyView({ label: trans("chart.title") })}
         {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
         {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}

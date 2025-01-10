@@ -116,6 +116,7 @@ export function chartPropertyView(
       <Section name={sectionNames.layout}>
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.legendConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("chart.title") })}
         {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
         {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}
