@@ -6,53 +6,297 @@ import ExampleGroup from "../../common/ExampleGroup";
 
 const ChartCompWithDefault = uiCompRegistry["funnelChart"].comp;
 
-const defaultDataSource = "[\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Administration\",\n    \"spending\": 9003,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Finance\",\n    \"spending\": 3033,\n    \"budget\": 4000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Sales\",\n    \"spending\": 9230,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Administration\",\n    \"spending\": 13032,\n    \"budget\": 15000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Finance\",\n    \"spending\": 2300,\n    \"budget\": 5000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Sales\",\n    \"spending\": 7323.5,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Administration\",\n    \"spending\": 13000,\n    \"budget\": 16023\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Finance\",\n    \"spending\": 3569.5,\n    \"budget\": 3000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Sales\",\n    \"spending\": 10000,\n    \"budget\": 9932\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Administration\",\n    \"spending\": 18033,\n    \"budget\": 20000\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Finance\",\n    \"spending\": 4890,\n    \"budget\": 4500\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Sales\",\n    \"spending\": 9322,\n    \"budget\": 8000\n  }\n]";
-
-const defaultEchartsJsonOption = "{\n  \"xAxis\": {\n    \"data\": [\n      \"Day 1\",\n      \"Day 2\",\n      \"Day 3\",\n      \"Day 4\",\n      \"Day 5\"\n    ]\n  },\n  \"data\": [\n    [\n      100,\n      200,\n      50,\n      150\n    ],\n    [\n      120,\n      220,\n      80,\n      180\n    ],\n    [\n      80,\n      150,\n      60,\n      130\n    ],\n    [\n      130,\n      230,\n      110,\n      190\n    ],\n    [\n      90,\n      180,\n      70,\n      160\n    ]\n  ]\n}";
-
-const data = JSON.stringify(defaultDataSource);
-const echartsOption = JSON.stringify(defaultEchartsJsonOption);
-
 export default function FunnelChartExample() {
-  const blackListConfig: string[] = ["data", "echartsOption", "series"];
-  const series = [
-    {
-        "columnName": "spending",
-        "seriesName": "Spending",
-        "dataIndex": "f011b34c"
-    },
-    {
-        "columnName": "budget",
-        "seriesName": "Budget",
-        "dataIndex": "30e02269"
-    }
-];
   return (
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description={trans("componentDoc.basicDemoDescription")}
+        description="The Following Examples Show the Basic Usage of the Funnel Chart Component."
       >
         <Example
-          title={trans("componentDoc.default")}
+          title="A simple Funnel Chart"
           width={500}
-          height={300}
-          blackListConfig={blackListConfig}
+          height={350}
           config={{
-            mode: "json",
-            data: data,
-            series: series,
           }}
           compFactory={ChartCompWithDefault}
         />
         <Example
-          title={trans("componentDoc.echart")}
+          title="Setting Opacity - 0.3"
           width={500}
-          height={300}
-          blackListConfig={blackListConfig}
+          height={350}
           config={{
-            mode: "json",
-            echartsOption: echartsOption,
+            opacity: "0.3",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Setting Opacity - 0.6"
+          width={500}
+          height={350}
+          config={{
+            opacity: "0.6",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Setting Opacity - 1"
+          width={500}
+          height={350}
+          config={{
+            opacity: "1",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Gap - 0"
+          width={500}
+          height={350}
+          config={{
+            gap: "0",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Gap - 5"
+          width={500}
+          height={350}
+          config={{
+            gap: "5",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Gap - 10"
+          width={500}
+          height={350}
+          config={{
+            gap: "10",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Alignment & Layout"
+        description="The Following Examples Show the different alignment option on the Funnel Chart Component."
+      >
+        <Example
+          title="Title Position - Left"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleConfig : {
+              "position" : "left",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Center"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleConfig : {
+              "position" : "center",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Right"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleConfig : {
+              "position" : "right",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Legend Position - Top"
+          width={500}
+          height={350}
+          config={{
+            echartsLegendConfig : {
+              "position" : "top",
+            },
+            echartsTitleConfig : {
+              "position" : "left",
+            },
+            echartsTitle: "Funnel",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Lagend Position - Bottom"
+          width={500}
+          height={350}
+          config={{
+            echartsLegendConfig : {
+              "position" : "bottom",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Legend Orientation + Position - Vertical + Left"
+          width={500}
+          height={350}
+          config={{
+            echartsLegendOrientConfig: {
+              orient: "vertical"
+            },
+            echartsLegendAlignConfig: {
+              left: "left"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Legend Orientation + Position - Horizontal + Center"
+          width={500}
+          height={350}
+          config={{
+            echartsLegendOrientConfig: {
+              orient: "horizontal"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Legend Orientation + Position - Vertical + Right"
+          width={500}
+          height={350}
+          config={{
+            echartsLegendOrientConfig: {
+              orient: "vertical"
+            },
+            echartsLegendAlignConfig: {
+              left: "right"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Label Position - Left"
+          width={500}
+          height={350}
+          config={{
+            echartsLabelConfig: {
+              "position": "left"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Label Position - Center"
+          width={500}
+          height={350}
+          config={{
+            echartsLabelConfig: {
+              "position": "center"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Label Position - Right"
+          width={500}
+          height={350}
+          config={{
+            echartsLabelConfig: {
+              "position": "right"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Funnel Chart Sorting - Ascending"
+          width={500}
+          height={350}
+          config={{
+            echartsSortingConfig: {
+              sort: "ascending"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Funnel Chart Sorting - Descending"
+          width={500}
+          height={350}
+          config={{
+            echartsSortingConfig: {
+              sort: "descending"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Funnel Chart Alignment - Left"
+          width={500}
+          height={350}
+          config={{
+            echartsFunnelAlignConfig: {
+              funnelAlign: "left",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Funnel Chart Alignment - Center"
+          width={500}
+          height={350}
+          config={{
+            echartsFunnelAlignConfig: {
+              funnelAlign: "center",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Funnel Chart Alignment - Right"
+          width={500}
+          height={350}
+          config={{
+            echartsFunnelAlignConfig: {
+              funnelAlign: "right",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Properties Visibility"
+        description="The Following Examples Show the visibility of different Properties on the Funnel Chart Component."
+      >
+        <Example
+          title="Hiding the Labels"
+          width={500}
+          height={350}
+          config={{
+            label: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Hiding Legends"
+          width={500}
+          height={350}
+          config={{
+            legendVisibility: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Hiding Tooltip"
+          width={500}
+          height={350}
+          config={{
+            tooltip: false,
           }}
           compFactory={ChartCompWithDefault}
         />

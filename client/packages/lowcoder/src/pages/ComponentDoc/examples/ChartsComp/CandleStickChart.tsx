@@ -6,53 +6,161 @@ import ExampleGroup from "../../common/ExampleGroup";
 
 const ChartCompWithDefault = uiCompRegistry["candleStickChart"].comp;
 
-const defaultDataSource = "[\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Administration\",\n    \"spending\": 9003,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Finance\",\n    \"spending\": 3033,\n    \"budget\": 4000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Sales\",\n    \"spending\": 9230,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Administration\",\n    \"spending\": 13032,\n    \"budget\": 15000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Finance\",\n    \"spending\": 2300,\n    \"budget\": 5000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Sales\",\n    \"spending\": 7323.5,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Administration\",\n    \"spending\": 13000,\n    \"budget\": 16023\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Finance\",\n    \"spending\": 3569.5,\n    \"budget\": 3000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Sales\",\n    \"spending\": 10000,\n    \"budget\": 9932\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Administration\",\n    \"spending\": 18033,\n    \"budget\": 20000\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Finance\",\n    \"spending\": 4890,\n    \"budget\": 4500\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Sales\",\n    \"spending\": 9322,\n    \"budget\": 8000\n  }\n]";
+const defaultEchartsJsonOption = {
+  "xAxis": {
+    "data": [
+      "Day 1",
+      "Day 2",
+      "Day 3",
+      "Day 4",
+      "Day 5"
+    ]
+  },
+  "data": [
+    [
+      150,
+      100,
+      50,
+      200
+    ],
+    [
+      120,
+      220,
+      80,
+      180
+    ],
+    [
+      80,
+      150,
+      60,
+      130
+    ],
+    [
+      230,
+      130,
+      110,
+      190
+    ],
+    [
+      90,
+      180,
+      70,
+      160
+    ]
+  ]
+};
 
-const defaultEchartsJsonOption = "{\n  \"xAxis\": {\n    \"data\": [\n      \"Day 1\",\n      \"Day 2\",\n      \"Day 3\",\n      \"Day 4\",\n      \"Day 5\"\n    ]\n  },\n  \"data\": [\n    [\n      100,\n      200,\n      50,\n      150\n    ],\n    [\n      120,\n      220,\n      80,\n      180\n    ],\n    [\n      80,\n      150,\n      60,\n      130\n    ],\n    [\n      130,\n      230,\n      110,\n      190\n    ],\n    [\n      90,\n      180,\n      70,\n      160\n    ]\n  ]\n}";
-
-const data = JSON.stringify(defaultDataSource);
 const echartsOption = JSON.stringify(defaultEchartsJsonOption);
 
 export default function CandleStickChartExample() {
-  const blackListConfig: string[] = ["data", "echartsOption", "series"];
-  const series = [
-    {
-        "columnName": "spending",
-        "seriesName": "Spending",
-        "dataIndex": "f011b34c"
-    },
-    {
-        "columnName": "budget",
-        "seriesName": "Budget",
-        "dataIndex": "30e02269"
-    }
-];
+  const blackListConfig: string[] = ["echartsOption"];
   return (
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description={trans("componentDoc.basicDemoDescription")}
+        description="The Following Examples show the basic usage of the CandleStick Chart Component."
       >
         <Example
           title={trans("componentDoc.default")}
           width={500}
           height={300}
-          blackListConfig={blackListConfig}
           config={{
-            mode: "json",
-            data: data,
-            series: series,
+            echartsOption: echartsOption,
           }}
           compFactory={ChartCompWithDefault}
         />
         <Example
-          title={trans("componentDoc.echart")}
+          title="Hiding the Tooltip"
           width={500}
           height={300}
-          blackListConfig={blackListConfig}
           config={{
-            mode: "json",
             echartsOption: echartsOption,
+            tooltip: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Chart Position"
+        description="The Following Examples show the Chart Position of the CandleStick Chart Component."
+      >
+        <Example
+          title="Custom Position"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 20,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Title Position"
+        description="The Following Examples show the different title position of the CandleStick Chart Component."
+      >
+        <Example
+          title="Title Position - Left"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            echartsTitleConfig: {
+              "position": "left",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Center"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            echartsTitleConfig: {
+              "position": "center",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Right"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            echartsTitleConfig: {
+              "position": "right",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Top"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            echartsLegendConfig: {
+              "position": "bottom",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Bottom"
+          width={500}
+          height={300}
+          config={{
+            echartsOption: echartsOption,
+            echartsLegendConfig: {
+              "position": "top",
+            },
           }}
           compFactory={ChartCompWithDefault}
         />

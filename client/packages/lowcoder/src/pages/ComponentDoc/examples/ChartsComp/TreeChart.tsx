@@ -45,17 +45,6 @@ export default function TreeChartExample() {
           }}
           compFactory={ChartCompWithDefault}
         />
-        <Example
-          title={trans("componentDoc.echart")}
-          width={500}
-          height={300}
-          blackListConfig={blackListConfig}
-          config={{
-            mode: "json",
-            echartsOption: echartsOption,
-          }}
-          compFactory={ChartCompWithDefault}
-        />
       </ExampleGroup>
     </>
   );
