@@ -159,7 +159,8 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   const option = useMemo(() => {
     return getEchartsConfig(
       childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
-      chartSize
+      chartSize,
+      themeConfig
     );
   }, [chartSize, ...Object.values(echartsConfigChildren)]);
 
