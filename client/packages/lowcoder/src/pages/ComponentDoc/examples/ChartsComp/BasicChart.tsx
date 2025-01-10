@@ -159,17 +159,6 @@ export default function ChartExample() {
           }}
           compFactory={ChartCompWithDefault}
         />
-        <Example
-          title={trans("componentDoc.echart")}
-          width={500}
-          height={300}
-          blackListConfig={blackListConfig}
-          config={{
-            mode: "json",
-            echartsOption: echartsOption,
-          }}
-          compFactory={ChartCompWithDefault}
-        />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.line")}>
@@ -362,26 +351,6 @@ export default function ChartExample() {
             data: data,
             series: series,
             chartConfig: { compType: "pie", comp: { type: "rosePie" } },
-          }}
-          compFactory={ChartCompWithDefault}
-        />
-      </ExampleGroup>
-
-      <ExampleGroup title={trans("componentDoc.pie")}>
-        <Example
-          title={trans("componentDoc.basicPie")}
-          width={500}
-          height={300}
-          nameMap={{ "chartConfig.comp.type": trans("componentDoc.pieChatType") }}
-          blackListConfig={blackListConfig}
-          config={{
-            mode: "map",
-            data: data,
-            series: series,
-            chartConfig: {
-              compType: "bar",
-              comp: { type: "basicBar" },
-            },
           }}
           compFactory={ChartCompWithDefault}
         />

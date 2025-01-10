@@ -1,22 +1,16 @@
+import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { ButtonStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { refMethods } from "@lowcoder-ee/comps/generators/withMethodExposing";
+import { blurMethod, clickMethod, focusWithOptions } from "@lowcoder-ee/comps/utils/methodUtils";
 import { default as Button } from "antd/es/button";
-import {
-  styleControl,
-  ButtonStyleType,
-  ButtonStyle,
-  migrateOldData,
-  refMethods,
-  blurMethod,
-  clickMethod,
-  focusWithOptions,
-  genActiveColor,
-  genHoverColor,
-} from "lowcoder-sdk";
+import { genActiveColor, genHoverColor } from "components/colorSelect/colorUtils";
 import styled, { css } from "styled-components";
 // import { genActiveColor, genHoverColor } from "lowcoder-design";
 
 export function getButtonStyle(buttonStyle: any) {
-  const hoverColor = genHoverColor(buttonStyle.background);
-  const activeColor = genActiveColor(buttonStyle.background);
+  const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
+  const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
     &&& {
       border-radius: ${buttonStyle.radius};

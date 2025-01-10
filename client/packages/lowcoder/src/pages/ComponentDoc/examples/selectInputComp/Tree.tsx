@@ -49,7 +49,7 @@ export default function TreeExample() {
         description={trans("componentDoc.basicDemoDescription")}
       >
         <Example
-          title="Disabling Tree Component"
+          title="Disabling the Tree Component"
           config={{
             disabled: true,
             label: {
@@ -72,6 +72,7 @@ export default function TreeExample() {
           title="Select Type - No Select"
           config={{
             selectType: "none",
+            expanded:"[asia,china]",
             label: {
               text: "Select Your Place",
             },
@@ -82,6 +83,8 @@ export default function TreeExample() {
           title="Select Type - Single"
           config={{
             selectType: "single",
+            defaultExpandAll: true,
+            value: "[china]",
             label: {
               text: "Select Your Place",
             },
@@ -92,6 +95,8 @@ export default function TreeExample() {
           title="Select Type - Multi-Select"
           config={{
             selectType: "multi",
+            defaultExpandAll: true,
+            value: "[asia,china]",
             label: {
               text: "Select Your Place",
             },
@@ -116,7 +121,7 @@ export default function TreeExample() {
             selectType: "check",
             checkStrictly: true,
             expanded:"[asia,china]",
-            value: "[asia]",
+            value: "[asia,china]",
             label: {
               text: "Select Your Place",
             },

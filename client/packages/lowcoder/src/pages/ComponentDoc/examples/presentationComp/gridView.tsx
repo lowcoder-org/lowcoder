@@ -1,4 +1,4 @@
-import { ListViewComp } from "comps/comps/listViewComp/listViewComp";
+import { GridComp } from "comps/comps/listViewComp/gridComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
@@ -95,7 +95,7 @@ const container={
   }
 };
 
-export default function ListViewExample() {
+export default function GridViewExample() {
 
   const blackListConfig: string[] = [
     "container"
@@ -104,68 +104,73 @@ export default function ListViewExample() {
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description="The Following Examples Show the Basic Usage of the ListView Component."
+        description="The Following Examples Show the Basic Usage of the GridView Component."
 
       >
         <Example
-          title="A simple List View Component"
+          title="A simple Grid View Component"
           hideSettings
           config={{
+            noOfColumns: "3",
             container: container,
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
         <Example
-          title="Hiding the List View Component"
+          title="Hiding the Grid View Component"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             hidden: "true",
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
         <Example
-          title="List View Component - Page Size"
+          title="Grid View Component - Page Size"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             pagination:{
               pageSize:"2",
             },
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
       </ExampleGroup>
 
       <ExampleGroup
-        title="ListView - Pagination"
+        title="GridView - Pagination"
         description="The Following Examples Show the usage of Pagination on the ListView Component."
 
       >
         <Example
-          title="List View Component - Page Size"
+          title="Grid View Component - Page Size"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             pagination:{
               pageSize:"2",
             },
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
         <Example
-          title="List View Component - Show Quick Jumper"
+          title="Grid View Component - Show Quick Jumper"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             pagination:{
               pageSize:"2",
               showQuickJumper: true,
@@ -173,13 +178,14 @@ export default function ListViewExample() {
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
         <Example
-          title="List View Component - Show Page Size Changer Option"
+          title="Grid View Component - Show Page Size Changer Option"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             pagination:{
               pageSize:"2",
               showQuickJumper: true,
@@ -190,20 +196,21 @@ export default function ListViewExample() {
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
       </ExampleGroup>
 
       <ExampleGroup
-        title="ListView - Layout"
+        title="GridView - Layout"
         description="The Following Examples Show the usage of Layout Options on the ListView Component."
 
       >
         <Example
-          title="List View Layout - Horizontal"
+          title="Grid View Layout - Horizontal"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             horizontal: true,
             minHorizontalWidth: "200px",
             pagination:{
@@ -212,13 +219,14 @@ export default function ListViewExample() {
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
         <Example
-          title="List View Layout - Vertical"
+          title="Grid View Layout - Vertical"
           hideSettings
           config={{
             container: container,
+            noOfColumns: "3",
             pagination:{
               pageSize:"2",
               showQuickJumper: true,
@@ -226,7 +234,7 @@ export default function ListViewExample() {
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
-          compFactory={ListViewComp}
+          compFactory={GridComp}
         />
       </ExampleGroup>
     </>
