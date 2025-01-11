@@ -307,11 +307,7 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         break;
       }
       case 'direction': {
-        placeholder = '0 0 1 1';
-        break;
-      }
-      case 'direction': {
-        placeholder = '24px 12px';
+        placeholder = '0 0 1px 1px';
         break;
       }
       case 'chartOpacity': {
