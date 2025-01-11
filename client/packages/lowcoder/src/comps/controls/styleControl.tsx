@@ -1020,7 +1020,7 @@ const RadiusPropIcon = styled(BorderRadiusIcon)` width: 24px; margin: 0 11px 0 0
 const BorderPropIcon = styled(BorderWidthIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 const BorderStylePropIcon = styled(BorderStyleIcon)` margin: 0 8px 0 -3px; padding: 3px; color: #888`;
 
-const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 6px 0 0; padding: 2px; color: #888`;
+const StyledBackgroundImageIcon = styled(ImageCompIconSmall)` margin: 0 10px 0 0; padding: 2px; color: #888`;
 const AnimationIterationCountPropIcon = styled(RefreshLineIcon)`
   margin: 0 8px 0 -3px;
   padding: 3px;
@@ -1258,6 +1258,14 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
       );
 
       const showReset = Object.values(childrenToProps(children)).findIndex((item) => item) > -1;
+
+      // helper function to build the tooltip automatically - but check if there is a translation existing at least.
+      const getTooltip = (name: string) => {
+        const tooltipKey = `style.${name}Tip`;
+        const tooltip = trans(tooltipKey);
+        return !tooltip.includes("oups!") ? tooltip : false;
+      };
+
       return (
         <>
           <TitleDiv>
@@ -1365,6 +1373,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                           label: config.label,
                           preInputNode: <RadiusPropIcon title="Radius" />,
                           placeholder: props[name],
+                          tooltip: getTooltip(name),
                         })
                       : name === 'borderWidth'
                         ? (
@@ -1375,6 +1384,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                               <BorderPropIcon title="Border-Width" />
                             ),
                             placeholder: props[name],
+                            tooltip: getTooltip(name),
                           })
                         : name === 'borderStyle'
                           ? (
@@ -1387,6 +1397,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 <BorderStylePropIcon title="Border-Style" />
                               ),
                               placeholder: props[name],
+                              tooltip: getTooltip(name),
                             })
                           : name === 'margin'
                             ? (
@@ -1397,6 +1408,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 label: config.label,
                                 preInputNode: <MarginIcon title="Margin" />,
                                 placeholder: props[name],
+                                tooltip: getTooltip(name),
                               })
                             : name === 'direction'
                               ? (
@@ -1407,6 +1419,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                 label: config.label,
                                 preInputNode: <DirectionIcon title="direction" />,
                                 placeholder: props[name],
+                                tooltip: getTooltip(name),
                               })
                               : name === 'detailSize'
                                 ? (
@@ -1417,6 +1430,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                   label: config.label,
                                   preInputNode: <DirectionIcon title="detailSize" />,
                                   placeholder: props[name],
+                                  tooltip: getTooltip(name),
                                 })
                               : name === 'chartOpacity'
                                 ? (
@@ -1427,6 +1441,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                   label: config.label,
                                   preInputNode: <OpacityPropIcon title="chartOpacity" />,
                                   placeholder: props[name],
+                                  tooltip: getTooltip(name),
                                 })
                                 : name === 'chartBoxShadow'
                                   ? (
@@ -1437,6 +1452,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                     label: config.label,
                                     preInputNode: <BoxShadowPropIcon title="chartBoxShadow" />,
                                     placeholder: props[name],
+                                    tooltip: getTooltip(name),
                                   })
                                   : name === 'chartBorderStyle'
                                     ? (
@@ -1447,6 +1463,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                       label: config.label,
                                       preInputNode: <BorderStylePropIcon title="chartBorderStyle" />,
                                       placeholder: props[name],
+                                      tooltip: getTooltip(name),
                                     })
                                     : name === 'chartBorderRadius'
                                       ? (
@@ -1457,6 +1474,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                         label: config.label,
                                         preInputNode: <RadiusPropIcon title="chartBorderRadius" />,
                                         placeholder: props[name],
+                                        tooltip: getTooltip(name),
                                       })
                                       : name === 'chartBorderWidth'
                                         ? (
@@ -1467,6 +1485,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                           label: config.label,
                                           preInputNode: <BorderPropIcon title="chartBorderWidth" />,
                                           placeholder: props[name],
+                                          tooltip: getTooltip(name),
                                         })
                                         : name === 'chartTextSize'
                                           ? (
@@ -1477,6 +1496,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                             label: config.label,
                                             preInputNode: <StyledTextSizeIcon title="chartTextSize" />,
                                             placeholder: props[name],
+                                            tooltip: getTooltip(name),
                                           })
                                           : name === 'chartTextWeight'
                                             ? (
@@ -1487,6 +1507,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                               label: config.label,
                                               preInputNode: <StyledTextWeightIcon title="chartTextWeight" />,
                                               placeholder: props[name],
+                                              tooltip: getTooltip(name),
                                             })
                                             : name === 'chartFontFamily'
                                               ? (
@@ -1497,6 +1518,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                 label: config.label,
                                                 preInputNode: <StyledFontFamilyIcon title="chartFontFamily" />,
                                                 placeholder: props[name],
+                                                tooltip: getTooltip(name),
                                               })
                                               : name === 'chartFontStyle'
                                                 ? (
@@ -1507,6 +1529,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                   label: config.label,
                                                   preInputNode: <StyledFontStyleIcon title="chartFontStyle" />,
                                                   placeholder: props[name],
+                                                  tooltip: getTooltip(name),
                                                 })
                                                 : name === 'animationIterationCount'
                                                   ? (
@@ -1519,6 +1542,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                         <AnimationIterationCountPropIcon title="AnimationIterationCount-Type" />
                                                       ),
                                                       placeholder: props[name],
+                                                      tooltip: getTooltip(name),
                                                     })
                                                   : name === 'opacity'
                                                     ? (
@@ -1531,6 +1555,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                           <OpacityPropIcon title="Opacity-Type" />
                                                         ),
                                                         placeholder: props[name],
+                                                        tooltip: getTooltip(name),
                                                       })
                                                     : name === 'boxShadowColor'
                                                       ? (
@@ -1543,6 +1568,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                             <BoxShadowColorPropIcon title="BoxShadowColor-Type" />
                                                           ),
                                                           placeholder: props[name],
+                                                          tooltip: getTooltip(name),
                                                         })
                                                       : name === 'chartBackgroundColor'
                                                         ? (
@@ -1555,6 +1581,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                             <ChartBackgroundColorPropIcon title="BoxShadowColor-Type" />
                                                           ),
                                                           placeholder: props[name],
+                                                          tooltip: getTooltip(name),
                                                         })
                                                         : name === 'chartGradientColor'
                                                           ? (
@@ -1567,6 +1594,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                               <ChartGradientColorPropIcon title="BoxShadowColor-Type" />
                                                             ),
                                                             placeholder: props[name],
+                                                            tooltip: getTooltip(name),
                                                           })
                                                           : name === 'chartShadowColor'
                                                             ? (
@@ -1579,6 +1607,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                 <ChartShadowColorPropIcon title="BoxShadowColor-Type" />
                                                               ),
                                                               placeholder: props[name],
+                                                              tooltip: getTooltip(name),
                                                             })
                                                             : name === 'chartBorderColor'
                                                               ? (
@@ -1591,6 +1620,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                   <ChartBorderColorPropIcon title="BoxShadowColor-Type" />
                                                                 ),
                                                                 placeholder: props[name],
+                                                                tooltip: getTooltip(name),
                                                               })
                                                               : name === 'chartTextColor'
                                                                 ? (
@@ -1603,6 +1633,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                     <ChartTextColorPropIcon title="BoxShadowColor-Type" />
                                                                   ),
                                                                   placeholder: props[name],
+                                                                  tooltip: getTooltip(name),
                                                                 })
                                                                   : name === 'boxShadow'
                                                                     ? (
@@ -1615,6 +1646,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                           <BoxShadowPropIcon title="BoxShadow-Type" />
                                                                         ),
                                                                         placeholder: props[name],
+                                                                        tooltip: getTooltip(name),
                                                                       })
                                                                     : name === 'animation'
                                                                       ? (
@@ -1627,6 +1659,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                             <AnimationPropIcon title="Animation-Type" />
                                                                           ),
                                                                           placeholder: props[name],
+                                                                          tooltip: getTooltip(name),
                                                                         })
                                                                       : name === 'animationDelay'
                                                                         ? (
@@ -1639,6 +1672,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                               <AnimationDelayPropIcon title="AnimationDelay-Type" />
                                                                             ),
                                                                             placeholder: props[name],
+                                                                            tooltip: getTooltip(name),
                                                                           })
                                                                         : name === 'animationDuration'
                                                                           ? (
@@ -1651,6 +1685,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                 <AnimationDurationPropIcon title="AnimationDuration-Type" />
                                                                               ),
                                                                               placeholder: props[name],
+                                                                              tooltip: getTooltip(name),
                                                                             })
                                                                             : name === 'padding' ||
                                                                                 name ===
@@ -1670,6 +1705,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                     <PaddingIcon title="Padding" />
                                                                                   ),
                                                                                   placeholder: props[name],
+                                                                                  tooltip: getTooltip(name),
                                                                                 })
                                                                               : name === 'textSize'
                                                                                 ? (
@@ -1684,6 +1720,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                       <StyledTextSizeIcon title="Font Size" />
                                                                                     ),
                                                                                     placeholder: props[name],
+                                                                                    tooltip: getTooltip(name),
                                                                                   })
                                                                                 : name === 'textWeight'
                                                                                   ? (
@@ -1698,6 +1735,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                         <StyledTextWeightIcon title="Font Weight" />
                                                                                       ),
                                                                                       placeholder: props[name],
+                                                                                      tooltip: getTooltip(name),
                                                                                     })
                                                                                   : name === 'fontFamily'
                                                                                     ? (
@@ -1712,6 +1750,7 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                           <StyledFontFamilyIcon title="Font Family" />
                                                                                         ),
                                                                                         placeholder: props[name],
+                                                                                        tooltip: getTooltip(name),
                                                                                       })
                                                                                     : name === 'textDecoration'
                                                                                       ? (
@@ -1725,8 +1764,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                           preInputNode: (
                                                                                             <StyledTextDecorationPropIcon title="Text Decoration" />
                                                                                           ),
-                                                                                          placeholder:
-                                                                                            props[name],
+                                                                                          placeholder: props[name],
+                                                                                          tooltip: getTooltip(name),
                                                                                         })
                                                                                       : name === 'textTransform'
                                                                                         ? (
@@ -1740,8 +1779,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                             preInputNode: (
                                                                                               <StyledTextTransformIcon title="Text Transform" />
                                                                                             ),
-                                                                                            placeholder:
-                                                                                              props[name],
+                                                                                            placeholder: props[name],
+                                                                                            tooltip: getTooltip(name),
                                                                                           })
                                                                                         : name === 'fontStyle'
                                                                                           ? (
@@ -1755,8 +1794,8 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                               preInputNode: (
                                                                                                 <StyledTextStyleIcon title="Font Style" />
                                                                                               ),
-                                                                                              placeholder:
-                                                                                                props[name],
+                                                                                              placeholder: props[name],
+                                                                                              tooltip: getTooltip(name),
                                                                                             })
                                                                                           : name ===
                                                                                                 'backgroundImage' ||
@@ -1776,15 +1815,10 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                                 preInputNode: (
                                                                                                   <StyledBackgroundImageIcon title="Background Image" />
                                                                                                 ),
-                                                                                                placeholder:
-                                                                                                  props[name],
+                                                                                                placeholder: props[name],
+                                                                                                tooltip: getTooltip(name),
                                                                                               })
-                                                                                            : name ===
-                                                                                                  'backgroundImageRepeat' ||
-                                                                                                name ===
-                                                                                                  'headerBackgroundImageRepeat' ||
-                                                                                                name ===
-                                                                                                  'footerBackgroundImageRepeat'
+                                                                                            : name === 'backgroundImageRepeat' || name === 'headerBackgroundImageRepeat' || name === 'footerBackgroundImageRepeat'
                                                                                               ? (
                                                                                                   children[
                                                                                                     name
@@ -1797,48 +1831,77 @@ export function styleControl<T extends readonly SingleColorConfig[]>(
                                                                                                   preInputNode: (
                                                                                                     <StyledBackgroundImageIcon title="Background Image Repeat" />
                                                                                                   ),
-                                                                                                  placeholder:
-                                                                                                    props[name],
-                                                                                                })
-                                                                                              : name ===
-                                                                                                  'rotation'
-                                                                                                ? (
-                                                                                                    children[
-                                                                                                      name
-                                                                                                    ] as InstanceType<
-                                                                                                      typeof StringControl
-                                                                                                    >
-                                                                                                  ).propertyView({
-                                                                                                    label:
-                                                                                                      config.label,
-                                                                                                    preInputNode:
-                                                                                                      (
-                                                                                                        <RotationPropIcon title="Rotation" />
-                                                                                                      ),
-                                                                                                    placeholder:
-                                                                                                      props[name],
-                                                                                                  })
-                                                                                                  : name === 'lineHeight'  // Added lineHeight here
-                                                                                                  ? (
-                                                                                                    children[name] as InstanceType<typeof StringControl>
-                                                                                                  ).propertyView({
-                                                                                                  label: config.label,
-                                                                                                  preInputNode: <LineHeightPropIcon title="Line Height" />,
                                                                                                   placeholder: props[name],
+                                                                                                  tooltip: getTooltip(name),
                                                                                                 })
-                                                                                                : children[
-                                                                                                    name
-                                                                                                  ].propertyView({
-                                                                                                    label:
-                                                                                                      config.label,
-                                                                                                    panelDefaultColor:
-                                                                                                      props[name],
-                                                                                                    // isDep: isDepColorConfig(config),
-                                                                                                    isDep: true,
-                                                                                                    depMsg:
-                                                                                                      depMsg,
-                                                                                                    allowGradient: config.name.includes('background'),
-                                                                                                  })}
+                                                                                                : name === 'backgroundImageSize' ||
+                                                                                                name === 'headerBackgroundImageSize' ||
+                                                                                                name === 'footerBackgroundImageSize'
+                                                                                                ? (children[name] as InstanceType<typeof StringControl>).propertyView({
+                                                                                                    label: config.label,
+                                                                                                    preInputNode: <StyledBackgroundImageIcon title="Background Image Size" />,
+                                                                                                    placeholder: props[name],
+                                                                                                    tooltip: getTooltip(name),
+                                                                                                  })
+                                                                                                : name === 'backgroundImagePosition' ||
+                                                                                                  name === 'headerBackgroundImagePosition' ||
+                                                                                                  name === 'footerBackgroundImagePosition'
+                                                                                                  ? (children[name] as InstanceType<typeof StringControl>).propertyView({
+                                                                                                      label: config.label,
+                                                                                                      preInputNode: <StyledBackgroundImageIcon title="Background Image Position" />,
+                                                                                                      placeholder: props[name],
+                                                                                                      tooltip: getTooltip(name),
+                                                                                                    })
+                                                                                                  : name === 'backgroundImageOrigin' ||
+                                                                                                    name === 'headerBackgroundImageOrigin' ||
+                                                                                                    name === 'footerBackgroundImageOrigin'
+                                                                                                    ? (children[name] as InstanceType<typeof StringControl>).propertyView({
+                                                                                                        label: config.label,
+                                                                                                        preInputNode: <StyledBackgroundImageIcon title="Background Image Origin" />,
+                                                                                                        placeholder: props[name],
+                                                                                                        tooltip: getTooltip(name),
+                                                                                                      })
+
+                                                                                                      : name ===
+                                                                                                          'rotation'
+                                                                                                        ? (
+                                                                                                            children[
+                                                                                                              name
+                                                                                                            ] as InstanceType<
+                                                                                                              typeof StringControl
+                                                                                                            >
+                                                                                                          ).propertyView({
+                                                                                                            label:
+                                                                                                              config.label,
+                                                                                                            preInputNode:
+                                                                                                              (
+                                                                                                                <RotationPropIcon title="Rotation" />
+                                                                                                              ),
+                                                                                                            placeholder: props[name],
+                                                                                                            tooltip: getTooltip(name),
+                                                                                                          })
+                                                                                                          : name === 'lineHeight'  // Added lineHeight here
+                                                                                                          ? (
+                                                                                                            children[name] as InstanceType<typeof StringControl>
+                                                                                                          ).propertyView({
+                                                                                                          label: config.label,
+                                                                                                          preInputNode: <LineHeightPropIcon title="Line Height" />,
+                                                                                                          placeholder: props[name],
+                                                                                                          tooltip: getTooltip(name),
+                                                                                                        })
+                                                                                                        : children[
+                                                                                                            name
+                                                                                                          ].propertyView({
+                                                                                                            label:
+                                                                                                              config.label,
+                                                                                                            panelDefaultColor:
+                                                                                                              props[name],
+                                                                                                            // isDep: isDepColorConfig(config),
+                                                                                                            isDep: true,
+                                                                                                            depMsg:
+                                                                                                              depMsg,
+                                                                                                            allowGradient: config.name.includes('background'),
+                                                                                                          })}
                   </div>
                 );
               })}
