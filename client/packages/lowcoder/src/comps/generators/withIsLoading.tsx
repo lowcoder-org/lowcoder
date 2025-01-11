@@ -40,7 +40,7 @@ const LoadingWrapper = ({
 
   const showLoading = useMemo(() => {
     const themeDataIndicator = currentTheme?.showDataLoadingIndicators;
-    const compDataIndicator = compState.comp?.comp.showDataLoadingIndicators;
+    const compDataIndicator = compState.comp?.comp?.showDataLoadingIndicators;
 
     return isLoading ? (
       compDataIndicator !== 'undefined' ? compDataIndicator : Boolean(themeDataIndicator)
@@ -48,7 +48,7 @@ const LoadingWrapper = ({
   }, [
     isLoading,
     currentTheme?.showDataLoadingIndicators,
-    compState.comp?.comp.showDataLoadingIndicators,
+    compState.comp?.comp?.showDataLoadingIndicators,
   ]);
 
   if (currentTheme?.dataLoadingIndicator === 'skeleton') {
