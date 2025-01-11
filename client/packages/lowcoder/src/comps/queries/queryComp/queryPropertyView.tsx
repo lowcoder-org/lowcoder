@@ -47,7 +47,7 @@ const Wrapper = styled.div`
     font-size: 13px;
     line-height: 1.5;
     color: grey;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
   }
 
   .section {
@@ -567,11 +567,44 @@ const ComponentButton = (props: {
   return (
     <Tooltip title={props.path} placement="top">
       <DataSourceButton onClick={handleClick}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          {Icon && <Icon style={{ width: "32px"}} />}
-          <div>
-            <div style={{ fontSize: "14px", fontWeight: "bold" }}>{props.componentName}</div>
-            <div style={{ fontSize: "12px", fontWeight: "400" }}>{props.componentType}</div>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", width: "100%"}}>
+          <div style={{ flex: 1}}>
+            {Icon && (
+              <Icon style={{ margin: "0px", width: "32px" }} />
+            )}
+          </div>
+          <div style={{ flex: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            <div
+              style={{
+                marginTop: "5px",
+                fontSize: "14px",
+                fontWeight: "bold",
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={props.componentName} // Tooltip to show full name on hover
+            >
+              {props.componentName?.length > 100
+                ? `${props.componentName.slice(0, 100)}...`
+                : props.componentName}
+            </div>
+            <div
+              style={{
+                fontSize: "12px",
+                fontWeight: "400",
+                maxWidth: "100%",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+              title={props.componentType} // Tooltip for type too
+            >
+              {props.componentType?.length > 100
+                ? `${props.componentType.slice(0, 100)}...`
+                : props.componentType}
+            </div>
           </div>
         </div>
       </DataSourceButton>
