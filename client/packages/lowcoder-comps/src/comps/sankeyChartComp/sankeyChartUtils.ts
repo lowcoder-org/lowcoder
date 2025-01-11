@@ -166,11 +166,11 @@ export function getEchartsConfig(
             position: props.echartsLabelConfig.top,
             ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
           },
-          data: props.echartsOption && props?.echartsOption?.data?.map(item => ({
+          data: props?.echartsOption?.data && props?.echartsOption?.data?.map(item => ({
               name: item.name,
               itemStyle: isColorString(item.color) && {color: item.color}
           })),
-          links:props.echartsOption.links,
+          links: props.echartsOption.links,
           emphasis: {
             focus: props?.focus ? 'adjacency' : undefined,
           },

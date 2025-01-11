@@ -266,11 +266,10 @@ let chartJsonModeChildren: any = {
   echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
 
-
-  left:withDefault(NumberControl,trans('candleStickChart.defaultLeft')),
-  right:withDefault(NumberControl,trans('candleStickChart.defaultRight')),
-  top:withDefault(NumberControl,trans('candleStickChart.defaultTop')),
-  bottom:withDefault(NumberControl,trans('candleStickChart.defaultBottom')),
+  left:withDefault(NumberControl,trans('chart.defaultLeft')),
+  right:withDefault(NumberControl,trans('chart.defaultRight')),
+  top:withDefault(NumberControl,trans('chart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('chart.defaultBottom')),
 
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsTitleConfig:EchartsTitleConfig,

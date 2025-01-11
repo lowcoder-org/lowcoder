@@ -300,12 +300,12 @@ export const en = {
     axisTickColor: "AxisTick Color",
     defaultBarometerPointerWidth: "3",
     defaultBarometerPointerLength: "125",
-    defaultBarometerPointer_Y: "-10",
+    defaultBarometerPointer_Y: "-10"
 
   },
   echarts: {
     legendVisibility: 'Legend',
-    defaultTitle: "Data Display",
+    defaultTitle: "Chart",
     legendPosition: "Legend-Y",
     legendOrient: "Legend Orient",
     legendAlign: "Legend-X",
@@ -314,6 +314,7 @@ export const en = {
     titlePositionVertical: "Title-Y",
     funnelAlign: "Funnel Align",
     sort: "Sort",
+    tooltip: "Tooltip",
     changingTitle_x_Tooltip: "Change the Horizontal position of the Title.",
     changingTitle_y_Tooltip: "Change the Vertical position of the Title.",
     changingLegend_x_Tooltip: "Change the Vertical position of the Legend.",
@@ -450,7 +451,16 @@ export const en = {
     ringGauge: "Ring Gauge",
     barometerGauge: "Gauge Barometer chart",
     clockGauge: "Clock",
-    default: "Default"
+    default: "Default",
+    left: 'Left',
+    defaultLeft:'10',
+    right: 'Right',
+    defaultRight:'10',
+    top: 'Top',
+    defaultTop:'20',
+    bottom: 'Bottom',
+    defaultBottom:'20',
+    defaultDataZoomBottom: '20',
   },
   imageEditor: {
     defaultSrc: "",

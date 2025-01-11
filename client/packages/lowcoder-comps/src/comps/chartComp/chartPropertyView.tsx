@@ -118,10 +118,10 @@ export function chartPropertyView(
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.legendConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("chart.title") })}
-        {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
-        {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}
-        {children.top.propertyView({ label: trans("candleStickChart.top"), tooltip: trans("echarts.topTooltip") })}
-        {children.bottom.propertyView({ label: trans("candleStickChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.left.propertyView({ label: trans("chart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("chart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("chart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("chart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
         {children.chartConfig.children.compType.getView() !== "pie" && (
           <>
             {children.xAxisDirection.propertyView({
@@ -133,7 +133,7 @@ export function chartPropertyView(
           </>
         )}
         {hiddenPropertyView(children)}
-        {children.tooltip.propertyView({label: trans("themeriverChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
+        {children.tooltip.propertyView({label: trans("echarts.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
       </Section>
 
       <Section name={sectionNames.chartStyle}>

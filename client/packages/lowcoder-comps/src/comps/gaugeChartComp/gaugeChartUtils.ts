@@ -364,7 +364,7 @@ export function getEchartsConfig(
             showAbove: true,
             size: Number(props?.pointerWidth) * 1.5,
             itemStyle: {
-              color: props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
+              color: props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
             }
           },
           progress: {
@@ -401,6 +401,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 40,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -559,6 +561,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 50,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.ringGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }

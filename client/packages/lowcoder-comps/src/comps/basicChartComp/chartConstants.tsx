@@ -261,10 +261,10 @@ let chartJsonModeChildren: any = {
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsTitleConfig:EchartsTitleConfig,
 
-  left:withDefault(NumberControl,trans('candleStickChart.defaultLeft')),
-  right:withDefault(NumberControl,trans('candleStickChart.defaultRight')),
-  top:withDefault(NumberControl,trans('candleStickChart.defaultTop')),
-  bottom:withDefault(NumberControl,trans('candleStickChart.defaultBottom')),
+  left:withDefault(NumberControl,trans('chart.defaultLeft')),
+  right:withDefault(NumberControl,trans('chart.defaultRight')),
+  top:withDefault(NumberControl,trans('chart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('chart.defaultBottom')),
 
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
