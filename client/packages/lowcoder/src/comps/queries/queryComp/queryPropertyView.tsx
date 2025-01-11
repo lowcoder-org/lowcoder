@@ -31,6 +31,39 @@ import { ResourceDropdown } from "../resourceDropdown";
 import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
 import { StreamQuery } from "../httpQuery/streamQuery";
 import SupaDemoDisplay from "../../utils/supademoDisplay";
+import _ from "lodash";
+import React from "react";
+import styled from "styled-components";
+import { DataSourceButton } from "pages/datasource/pluginPanel";
+import { Tooltip, Divider } from "antd";
+import { uiCompRegistry } from "comps/uiCompRegistry";
+
+const Wrapper = styled.div`
+  width: 100%;
+  padding: 16px;
+  background-color: white;
+
+  .section-title {
+    font-size: 13px;
+    line-height: 1.5;
+    color: grey;
+    margin-bottom: 8px;
+  }
+
+  .section {
+    margin-bottom: 12px;
+
+    &:last-child {
+      margin-bottom: 0px;
+    }
+  }
+`;
+
+const ComponentListWrapper = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+`;
 
 export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> }) {
   const { comp } = props;
@@ -128,6 +161,12 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
                     })}
                   </>
                 </QuerySectionWrapper>
+
+                <QuerySectionWrapper>
+                  <QueryUsagePropertyView comp={comp} />
+                </QuerySectionWrapper>
+
+
               </QueryPropertyViewWrapper>
             ),
           },
@@ -186,16 +225,6 @@ export const QueryGeneralPropertyView = (props: {
     datasourceId = QUICK_REST_API_ID;
     comp.children.datasourceId.dispatchChangeValueAction(QUICK_REST_API_ID);
   }
-
-  // transfer old Lowcoder API datasource to new
-  const oldLowcoderId = useMemo(
-    () =>
-      datasource.find(
-        (d) =>
-          d.datasource.creationSource === 2 && OLD_LOWCODER_DATASOURCE.includes(d.datasource.type)
-      )?.datasource.id,
-    [datasource]
-  );
 
   return (
     <QueryPropertyViewWrapper>
@@ -422,6 +451,195 @@ export const QueryGeneralPropertyView = (props: {
     </QueryPropertyViewWrapper>
   );
 };
+
+function findQueryInNestedStructure(
+  structure: any,
+  queryName: string,
+  visited = new Set()
+) : boolean {
+  if (typeof structure === "object" && structure !== null) {
+    if (visited.has(structure)) {
+      return false;
+    }
+    visited.add(structure);
+  }
+
+  if (typeof structure === "string") {
+    // Regex to match query name in handlebar-like expressions
+    const regex = new RegExp(
+      `{{\\s*[!?]?(\\s*${queryName}\\b(\\.[^}\\s]*)?\\s*)(\\?[^}:]*:[^}]*)?\\s*}}`
+    );
+    return regex.test(structure);
+  }
+
+  if (typeof structure === "object" && structure !== null) {
+    // Recursively check all properties of the object
+    return Object.values(structure).some((value) =>
+      findQueryInNestedStructure(value, queryName, visited)
+    );
+  }
+  return false;
+}
+
+function collectComponentsUsingQuery(comps: any, queryName: string) {
+
+  // Select all active components
+  const components = Object.values(comps);
+
+  // Filter components that reference the query by name
+  const componentsUsingQuery = components.filter((component: any) => {
+    return findQueryInNestedStructure(component.children, queryName);
+  });
+
+  return componentsUsingQuery;
+}
+
+// this function we use to gather informations of the places where a Data Query is used.
+function collectQueryUsageDetails(component: any, queryName: string): any[] {
+  const results: any[] = [];
+  const visited = new WeakSet(); // Track visited objects to avoid circular references
+
+  function traverse(node: any, path: string[] = []): boolean {
+
+    if (!node || typeof node !== "object") { return false; }
+    // Avoid circular references
+    if ( visited.has(node)) { return false; }
+    else { visited.add(node); }
+
+    // Check all properties of the current node
+    for (const [key, value] of Object.entries(node)) {
+      const currentPath = [...path, key];
+      if (typeof value === "string" && !key.includes("__") && key != "exposingValues" && key != "ref" && key != "version" && key != "prevContextVal") {
+        // Check if the string contains the query
+        const regex = new RegExp(`{{\\s*[!?]?(\\s*${queryName}\\b(\\.[^}\\s]*)?\\s*)(\\?[^}:]*:[^}]*)?\\s*}}`);
+        const entriesToRemove = ["children", "comp", "unevaledValue", "value"];
+        if (regex.test(value)) {
+          console.log("tester",component.children);
+          results.push({
+            componentType: component.children.compType?.value || "Unknown Component",
+            componentName: component.children.name?.value || "Unknown Component",
+            path: currentPath.filter(entry => !entriesToRemove.includes(entry)).join(" > "),
+            value,
+          });
+          return true; // Stop traversal of this branch
+        }
+      } else if (typeof value === "object" && !key.includes("__") && key != "exposingValues" && key != "ref" && key != "version" && key != "prevContextVal") {
+        // Traverse deeper only through selected properties.
+        traverse(value, currentPath);
+      }
+    }
+    return false; // Continue traversal if no match is found
+  }
+
+  traverse(component);
+  return results;
+}
+
+function buildQueryUsageDataset(components: any[], queryName: string): any[] {
+  const dataset: any[] = [];
+  const visitedComponents = new WeakSet(); // Prevent revisiting components
+  for (const component of components) {
+    if (visitedComponents.has(component.children.name)) {
+      continue;
+    }
+    visitedComponents.add(component.children.name);
+    const usageDetails = collectQueryUsageDetails(component, queryName);
+    dataset.push(...usageDetails);
+  }
+
+  return dataset;
+}
+
+const ComponentButton = (props: {   
+  componentType: string;
+  componentName: string;
+  path: string;
+  value: string;
+  onSelect: (componentType: string, componentName: string, path: string) => void;
+}) => {
+  const handleClick = () => {
+    props.onSelect(props.componentType, props.componentName, props.path);
+  };
+
+  // Retrieve the component's icon from the registry
+  const Icon = uiCompRegistry[props.componentType]?.icon;
+
+  return (
+    <Tooltip title={props.path} placement="top">
+      <DataSourceButton onClick={handleClick}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {Icon && <Icon style={{ width: "32px"}} />}
+          <div>
+            <div style={{ fontSize: "14px", fontWeight: "bold" }}>{props.componentName}</div>
+            <div style={{ fontSize: "12px", fontWeight: "400" }}>{props.componentType}</div>
+          </div>
+        </div>
+      </DataSourceButton>
+    </Tooltip>
+  );
+};
+
+export function ComponentUsagePanel(props: {
+  components: { componentType: string, componentName: string; path: string; value: string }[];
+  onSelect: (componentType: string, componentName: string, path: string) => void;
+}) {
+  const { components, onSelect } = props;
+
+  return (
+    <Wrapper>
+      <div className="section-title">{trans("query.componentsUsingQuery")}</div>
+      <div className="section">
+        <ComponentListWrapper>
+          {components.map((component, idx) => (
+            <ComponentButton
+              componentType={component.componentType}
+              componentName={component.componentName}
+              path={component.path}
+              value={component.value}
+              onSelect={onSelect}
+            />
+          ))}
+        </ComponentListWrapper>
+      </div>
+    </Wrapper>
+  );
+}
+
+// a usage display to show which components make use of this query
+export const QueryUsagePropertyView = (props: {
+  comp: InstanceType<typeof QueryComp>;
+  placement?: PageType;
+}) => {
+  const { comp, placement = "editor" } = props;
+  const editorState = useContext(EditorContext);
+  const queryName = comp.children.name.getView();
+  const componentsUsingQuery = collectComponentsUsingQuery(editorState.getAllUICompMap(), queryName);
+  
+  const usageObjects = buildQueryUsageDataset(componentsUsingQuery, queryName);
+
+  const handleSelect = (componentType: string,componentName: string, path: string) => {
+    editorState.setSelectedCompNames(new Set([componentName]));
+    // console.log(`Selected Component: ${componentName}, Path: ${path}`);
+  };
+
+  if (usageObjects.length > 0) {
+    return (
+      <>
+        <Divider />
+        <QuerySectionWrapper>
+          <QueryConfigWrapper>
+            <QueryConfigLabel>{trans("query.componentsUsingQueryTitle")}</QueryConfigLabel>
+            <ComponentUsagePanel components={usageObjects} onSelect={handleSelect} />
+          </QueryConfigWrapper>
+        </QuerySectionWrapper>
+      </>
+    );
+  } else {
+    return <div></div>;
+  }
+  
+};
+
 
 function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType) {
   const datasource = useSelector(getDataSource);
