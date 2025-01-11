@@ -140,7 +140,7 @@ export function getEchartsConfig(
     let opt={
       "title": {
         "text": props.echartsTitle,
-        'top': "top",
+        "top": props.echartsTitleVerticalConfig.top,
         "left":props.echartsTitleConfig.top,
         "textStyle": {
           "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
@@ -195,7 +195,7 @@ export function getEchartsConfig(
             "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
             "borderWidth": props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             "borderType": props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
-            "borderRadius": props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius,
+            "borderRadius": Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
             "shadowColor": props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
             "shadowBlur": props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
             "shadowOffsetX": props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],

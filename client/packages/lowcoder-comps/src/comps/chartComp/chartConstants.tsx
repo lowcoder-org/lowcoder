@@ -16,6 +16,9 @@ import {
   ValueFromOption,
   uiChildren,
   clickEvent,
+  EchartDefaultTextStyle,
+  styleControl,
+  EchartDefaultChartStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
@@ -27,6 +30,11 @@ import { ScatterChartConfig } from "./chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "./seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
+import {EchartsTitleVerticalConfig} from "./chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "./chartConfigs/echartsTitleConfig";
+import {EchartsLegendConfig} from "./chartConfigs/echartsLegendConfig";
+import {EchartsLegendOrientConfig} from "./chartConfigs/echartsLegendOrientConfig";
+import {EchartsLegendAlignConfig} from "./chartConfigs/echartsLegendAlignConfig";
 
 export const ChartTypeOptions = [
   {
@@ -251,10 +259,36 @@ export const chartUiModeChildren = {
   legendConfig: LegendConfig,
   chartConfig: ChartOptionComp,
   onUIEvent: eventHandlerControl(UIEventOptions),
+
 };
 
-const chartJsonModeChildren = {
+let chartJsonModeChildren: any = {
+  echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
+
+  left:withDefault(NumberControl,trans('chart.defaultLeft')),
+  right:withDefault(NumberControl,trans('chart.defaultRight')),
+  top:withDefault(NumberControl,trans('chart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('chart.defaultBottom')),
+
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+  echartsLegendConfig: EchartsLegendConfig,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
+  legendVisibility: withDefault(BoolControl, true),
+  tooltip: withDefault(BoolControl, true),
+}
+
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
+  chartJsonModeChildren = {
+    ...chartJsonModeChildren,
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    xAxisStyle: styleControl(EchartDefaultTextStyle, 'xAxis'),
+    yAxisStyle: styleControl(EchartDefaultTextStyle, 'yAxisStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
+  }
 }
 
 const chartMapModeChildren = {

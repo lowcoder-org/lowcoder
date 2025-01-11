@@ -1,7 +1,6 @@
 import {
   AlignBottom,
   AlignTop,
-  AlignClose,
   dropdownControl,
   MultiCompBuilder,
 } from "lowcoder-sdk";
@@ -10,27 +9,23 @@ import { trans } from "i18n/comps";
 
 const LegendPositionOptions = [
   {
-    label: <AlignBottom />,
-    value: "bottom",
-  },
-  {
-    label: <AlignClose />,
-    value: "center",
-  },
-  {
     label: <AlignTop />,
     value: "top",
   },
+  {
+    label: <AlignBottom />,
+    value: "bottom",
+  }
 ] as const;
 
-export const EchartsLegendConfig = (function () {
+export const EchartsTitleVerticalConfig = (function () {
   return new MultiCompBuilder(
     {
-      position: dropdownControl(LegendPositionOptions, "bottom"),
+      position: dropdownControl(LegendPositionOptions, "top"),
     },
     (props): LegendComponentOption => {
       const config: LegendComponentOption = {
-        top: "bottom",
+        top: "top",
         type: "scroll",
       };
       config.top = props.position
@@ -40,7 +35,7 @@ export const EchartsLegendConfig = (function () {
     .setPropertyViewFn((children) => (
       <>
         {children.position.propertyView({
-          label: trans("echarts.legendPosition"),
+          label: trans("echarts.titlePositionVertical"),
           radioButton: true,
           tooltip: trans("echarts.changingLegend_x_Tooltip")
         })}

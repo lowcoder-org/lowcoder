@@ -15,6 +15,7 @@ import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {ba} from "@fullcalendar/core/internal-common";
+import {styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -137,28 +138,7 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
 
-  const styleWrapper = (styleContainer: any, themeContainer: any, defaultFontSize=18, defaultFontColor='#000000', detailBorderWidth = 0, defaultBackgroundColor = "" ) => {
 
-    return {
-      "fontFamily": styleContainer?.chartFontFamily || themeContainer?.fontFamily || 'Arial, sans-serif',
-      "fontSize": styleContainer?.chartTextSize || themeContainer?.fontSize || defaultFontSize,
-      "fontWeight": styleContainer?.chartTextWeight || themeContainer?.fontWeight,
-      "color": styleContainer?.chartTextColor || themeContainer?.fontColor || defaultFontColor,
-      "fontStyle": styleContainer?.chartFontStyle || themeContainer?.fontStyle,
-      "textShadowColor": styleContainer?.chartShadowColor || themeContainer?.shadowColor,
-      "textShadowBlur": styleContainer?.chartBoxShadow?.split('px')[0] || themeContainer?.boxShadow?.split('px')[0],
-      "textShadowOffsetX": styleContainer?.chartBoxShadow?.split('px')[1] || themeContainer?.boxShadow?.split('px')[1],
-      "textShadowOffsetY": styleContainer?.chartBoxShadow?.split('px')[2] || themeContainer?.boxShadow?.split('px')[2],
-      "borderColor": styleContainer?.chartBorderColor || themeContainer?.borderColor || 'inherit',
-      "borderWidth": styleContainer?.chartBorderWidth || themeContainer?.borderWidth || detailBorderWidth,
-      "borderType": styleContainer?.chartBorderStyle || themeContainer?.borderType,
-      "borderRadius": Number(styleContainer?.chartBorderRadius || themeContainer?.borderRadius),
-      "backgroundColor": styleContainer?.chartBackgroundColor || themeContainer?.backgroundColor || defaultBackgroundColor,
-      "width": styleContainer?.detailSize?.split('px')[0] || themeContainer?.detailSize.split('px')[0] || 24,
-      "height": styleContainer?.detailSize?.split('px')[1] || themeContainer?.detailSize.split('px')[1] || 12,
-    }
-
-  }
 
   if (props.mode === "json") {
 
@@ -384,7 +364,7 @@ export function getEchartsConfig(
             showAbove: true,
             size: Number(props?.pointerWidth) * 1.5,
             itemStyle: {
-              color: props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
+              color: props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]["value"].slice(-1)[0]
             }
           },
           progress: {
@@ -421,6 +401,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 40,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -579,6 +561,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 50,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.ringGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }

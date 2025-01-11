@@ -16,7 +16,8 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultTextStyle,
+  EchartDefaultChartStyle
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "./chartConfigs/barChartConfig";
@@ -32,6 +33,8 @@ import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "./chartConfigs/gaugeChartConfig";
 import { FunnelChartConfig } from "./chartConfigs/funnelChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -237,7 +240,7 @@ const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
-  title: StringControl,
+  title: withDefault(StringControl, trans("echarts.defaultTitle")),
   data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
   xAxisKey: valueComp<string>(""), // x-axis, key from data
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
@@ -255,14 +258,25 @@ let chartJsonModeChildren: any = {
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+
+  left:withDefault(NumberControl,trans('chart.defaultLeft')),
+  right:withDefault(NumberControl,trans('chart.defaultRight')),
+  top:withDefault(NumberControl,trans('chart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('chart.defaultBottom')),
+
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    xAxisStyle: styleControl(EchartDefaultTextStyle, 'xAxis'),
+    yAxisStyle: styleControl(EchartDefaultTextStyle, 'yAxisStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 

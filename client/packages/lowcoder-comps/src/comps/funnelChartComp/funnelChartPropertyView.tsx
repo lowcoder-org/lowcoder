@@ -32,8 +32,9 @@ export function funnelChartPropertyView(
           ),
         })}
         {children.echartsTitleConfig.getPropertyView()}
-        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}

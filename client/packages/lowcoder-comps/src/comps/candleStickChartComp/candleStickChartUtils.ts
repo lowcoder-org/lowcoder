@@ -14,6 +14,7 @@ import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import { useContext } from "react";
 import parseBackground from "../../util/gradientBackgroundColor";
+import {styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -138,73 +139,93 @@ export function getEchartsConfig(
 
 
   if (props.mode === "json") {
-    let opt={
-      "title": {
-        "text": props.echartsTitle,
-        'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-        "left":props.echartsTitleConfig.top,
-        "textStyle": {
-          "fontFamily": props?.titleStyle?.chartFontFamily || theme?.titleStyle?.fontFamily,
-          "fontSize": props?.titleStyle?.chartTextSize || theme?.titleStyle?.fontSize || '18',
-          "fontWeight": props?.titleStyle?.chartTextWeight || theme?.titleStyle?.fontWeight,
-          "color": props?.titleStyle?.chartTextColor || theme?.titleStyle?.fontColor || "#000000",
-          "fontStyle": props?.titleStyle?.chartFontStyle || theme?.titleStyle?.fontStyle,
-          "textShadowColor": props?.titleStyle?.chartShadowColor || theme?.titleStyle?.shadowColor,
-          "textShadowBlur": props?.titleStyle?.chartBoxShadow?.split('px')[0] || theme?.titleStyle?.boxShadow?.split('px')[0],
-          "textShadowOffsetX": props?.titleStyle?.chartBoxShadow?.split('px')[1] || theme?.titleStyle?.boxShadow?.split('px')[1],
-          "textShadowOffsetY": props?.titleStyle?.chartBoxShadow?.split('px')[2] || theme?.titleStyle?.boxShadow?.split('px')[2]
+    let opt= {
+      title: {
+        text: props.echartsTitle,
+        top: props.echartsTitleVerticalConfig.top,
+        left:props.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
         }
       },
-      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
-      "color": props?.echartsOption.data?.map(data => data.color),
-      "tooltip": props?.tooltip&&{
-        "trigger": "axis",
-        "axisPointer": {
-          "type": "cross"
+      backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      color: props?.echartsOption.data?.map(data => data.color),
+      tooltip: props?.tooltip && {
+        trigger: "axis",
+        axisPointer: {
+          type: "cross"
         }
       },
-      "grid": {
-        "left": `${props?.left}%`,
-        "right": `${props?.right}%`,
-        "bottom": `${props?.bottom}%`,
-        "top": `${props?.top}%`,
+      grid: {
+        left: `${props?.left}%`,
+        right: `${props?.right}%`,
+        bottom: `${props?.bottom}%`,
+        top: `${props?.top}%`,
       },
-      "dataZoom": [
+      dataZoom: [
         {
-          "show": props?.dataZoomVisibility,
-          "type": 'slider',
-          "start": 0,
-          "end": 100,
-          "bottom": props?.dataZoomBottom,
-          'height': props?.dataZoomHeight
+          show: props?.dataZoomVisibility,
+          type: 'slider',
+          start: 0,
+          end: 100,
+          bottom: props?.dataZoomBottom,
+          height: props?.dataZoomHeight
         }
       ],
-      "xAxis": {
-        "type": "category",
-        "data": props?.echartsOption.xAxis.data
-      },
-      "yAxis": {
-        "type": "value",
-        "scale": true
-      },
-      "series": [
-        {
-          "name": props?.echartsConfig.type,
-          "type": props?.echartsConfig.type,
-          "left": "10%",
-          "top": 60,
-          "bottom": 60,
-          "width": "80%",
-          "min": 0,
-          "max": 100,
-          "gap": 2,
-          "label": {
-            "show": true,
-            "position": props?.echartsLabelConfig.top
-          },
-          "data": props?.echartsOption.data,
+      yAxis: {
+        type: "value",
+        scale: true,
+        splitArea: props?.axisFlagVisibility && {
+          show: true,
+          areaStyle: {
+            color: props?.echartsOption?.axisColor
+          }
+        },
+        axisLabel: {
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13),
         }
-      ]
+      },
+      xAxis: props?.echartsOption && {
+        type: 'category',
+        data:  props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
+        splitArea: !props?.axisFlagVisibility && {
+          show: true,
+          areaStyle: {
+            // Provide multiple colors to alternate through
+            color: props?.echartsOption?.axisColor
+          },
+        },
+        axisLabel: {
+          ...styleWrapper(props?.labelStyle, theme?.labelStyle, 13),
+        },
+        boundaryGap: true,
+        // Turn off x-axis split lines if desired, so you only see colored areas
+        splitLine: {
+          show: false
+        },
+        // Show split areas, each day with a different background color
+      },
+      series:  props?.echartsOption && [
+        {
+          name: props?.echartsConfig.type,
+          type: props?.echartsConfig.type,
+          label: {
+            show: true,
+            position: props?.echartsLabelConfig.top
+          },
+          data: props?.echartsOption.data,
+          itemStyle: {
+            ...props?.echartsOption.itemStyle,
+            borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
+            borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
+            borderRadius: Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
+            shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
+            shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+            shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+            shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+          }
+        },
+      ],
     }
     return props.echartsOption ? opt : {};
 
