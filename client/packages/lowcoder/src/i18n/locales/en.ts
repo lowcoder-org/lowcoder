@@ -2059,7 +2059,21 @@ export const en = {
     "srcDesc": "The Image Source. Can be an URL, Path or Base64 String. for Example: data:image/png;base64, AAA... CCC",
     "supportPreview": "Support Zoom Preview (on Click)",
     "supportPreviewTip": "Effective When the Image Source is Valid",
-    "previewSrc": "HighRes Image Source"
+    "previewSrc": "HighRes Image Source",
+    "clipPath" : "Image Clipping Path",
+    "clipPathTip" : "Use clip-path to define a custom shape for your element based on CSS definition, referencing an SVG mask (via source URL) or using predefined shapes like circle(), ellipse(), polygon(), or inset() for clipping.",
+    "enableOverflow": "Enable Overflow",
+    "enableOverflowTip": "Allows the image to overflow its container, enabling cropping beyond the container's bounds. Useful for maintaining focus on specific parts of the image.",
+    "overflow": "Overflow Behavior (CSS)",
+    "overflowTip": "Defines how the content should behave when overflowing the container. Options like 'hidden', 'scroll', or 'visible' determine visibility of cropped content.",
+    "positionX": "Horizontal Position",
+    "positionXTip": "Specifies the horizontal alignment of the image within its container. Examples: 'left', 'center', 'right', or percentage values.",
+    "positionY": "Vertical Position",
+    "positionYTip": "Specifies the vertical alignment of the image within its container. Examples: 'top', 'center', 'bottom', or percentage values.",
+    "aspectRatio": "Aspect Ratio (CSS)",
+    "aspectRatioTip": "Maintains a consistent width-to-height ratio for the image, such as '16/9' for widescreen or '1/1' for square. Leave blank for natural image dimensions.",
+    "placement": "Image Placement",
+    "placementTip": "Determines where and how the image is displayed within the layout or container. Options include specific alignment or placement logic."
   },
   "progress": {
     "value": "Value",

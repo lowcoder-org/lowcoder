@@ -1887,11 +1887,16 @@ export const NavigationStyle = [
 ] as const;
 
 export const ImageStyle = [
-  getStaticBorder("#00000000"),
-  RADIUS,
-  BORDER_WIDTH,
+  // getStaticBorder("#00000000"),
   MARGIN,
   PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+  OPACITY,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ROTATION
 ] as const;
 
