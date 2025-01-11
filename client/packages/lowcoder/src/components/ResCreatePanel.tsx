@@ -15,8 +15,6 @@ import type { PageType } from "../constants/pageConstants";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Datasource } from "constants/datasourceConstants";
 import {
-  LOWCODER_API_ID,
-  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
@@ -179,15 +177,6 @@ const ResButton = (props: {
         dataSourceId: QUICK_GRAPHQL_ID,
       },
     },
-    lowcoderApi: {
-      icon: LOWCODER_API_INFO.icon,
-      label: LOWCODER_API_INFO.name,
-      type: BottomResTypeEnum.Query,
-      extra: {
-        compType: "lowcoderApi",
-        dataSourceId: LOWCODER_API_ID,
-      },
-    },
   };
 
   if (typeof props.identifier === "object") {
@@ -331,10 +320,6 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
-                {placement === "editor" && (
-                  <ResButton size={buttonSize} identifier={"lowcoderApi"} onSelect={onSelect} />
-                )}
-
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}

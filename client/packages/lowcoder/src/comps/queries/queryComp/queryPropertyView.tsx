@@ -3,7 +3,6 @@ import { manualTriggerResource, ResourceType } from "@lowcoder-ee/constants/quer
 import { PreparedStatementConfig } from "api/datasourceApi";
 import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 import {
-  LOWCODER_API_ID,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "constants/datasourceConstants";
@@ -197,17 +196,6 @@ export const QueryGeneralPropertyView = (props: {
       )?.datasource.id,
     [datasource]
   );
-  if (datasourceId === oldLowcoderId) {
-    datasourceId = LOWCODER_API_ID;
-    datasourceType = "lowcoderApi";
-    dispatch(
-      comp.changeValueAction({
-        ...comp.toJsonValue(),
-        datasourceId: LOWCODER_API_ID,
-        compType: "lowcoderApi",
-      } as any)
-    );
-  }
 
   return (
     <QueryPropertyViewWrapper>
@@ -445,8 +433,7 @@ function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType)
       datasourceType === "streamApi" ||
       datasourceType === "libraryQuery" ||
       datasourceId === QUICK_REST_API_ID ||
-      datasourceId === QUICK_GRAPHQL_ID ||
-      datasourceId === LOWCODER_API_ID
+      datasourceId === QUICK_GRAPHQL_ID
     ) {
       return "";
     }
