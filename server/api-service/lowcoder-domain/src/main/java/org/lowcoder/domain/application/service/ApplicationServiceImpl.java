@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.repository.ApplicationRepository;
@@ -347,7 +347,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     @Override
     public Mono<Map<String, Object>> getLiveDSLByApplicationId(String applicationId) {
         return applicationRecordService.getLatestRecordByApplicationId(applicationId)
-                .map(ApplicationRecord::getApplicationDSL)
+                .map(ApplicationVersion::getApplicationDSL)
                 .switchIfEmpty(findById(applicationId)
                         .map(Application::getEditingApplicationDSL));
     }

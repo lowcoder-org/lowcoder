@@ -1,7 +1,7 @@
 package org.lowcoder.domain.application.service;
 
 import lombok.RequiredArgsConstructor;
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.repository.ApplicationRecordRepository;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -21,7 +21,7 @@ public class ApplicationRecordServiceImpl implements ApplicationRecordService {
     private final ApplicationRecordRepository applicationRecordRepository;
 
     @Override
-    public Mono<ApplicationRecord> insert(ApplicationRecord applicationRecord) {
+    public Mono<ApplicationVersion> insert(ApplicationVersion applicationRecord) {
         return applicationRecordRepository.save(applicationRecord);
     }
 
@@ -29,23 +29,23 @@ public class ApplicationRecordServiceImpl implements ApplicationRecordService {
      * get all published versions
      */
     @Override
-    public Mono<List<ApplicationRecord>> getByApplicationId(String applicationId) {
+    public Mono<List<ApplicationVersion>> getByApplicationId(String applicationId) {
         return applicationRecordRepository.findByApplicationId(applicationId)
-                .sort(Comparator.comparing(ApplicationRecord::getCreatedAt).reversed())
+                .sort(Comparator.comparing(ApplicationVersion::getCreatedAt).reversed())
                 .collectList();
     }
 
     @Override
-    public Mono<Map<String, List<ApplicationRecord>>> getByApplicationIdIn(List<String> applicationIdList) {
+    public Mono<Map<String, List<ApplicationVersion>>> getByApplicationIdIn(List<String> applicationIdList) {
         return applicationRecordRepository.findByApplicationIdIn(applicationIdList)
-                .sort(Comparator.comparing(ApplicationRecord::getCreatedAt).reversed())
+                .sort(Comparator.comparing(ApplicationVersion::getCreatedAt).reversed())
                 .collectList()
                 .map(applicationRecords -> applicationRecords.stream()
-                        .collect(Collectors.groupingBy(ApplicationRecord::getApplicationId)));
+                        .collect(Collectors.groupingBy(ApplicationVersion::getApplicationId)));
     }
 
     @Override
-    public Mono<ApplicationRecord> getById(String id) {
+    public Mono<ApplicationVersion> getById(String id) {
         return applicationRecordRepository.findById(id)
                 .switchIfEmpty(deferredError(APPLICATION_NOT_FOUND, "APPLICATION_NOT_FOUND"));
     }
@@ -54,7 +54,7 @@ public class ApplicationRecordServiceImpl implements ApplicationRecordService {
      * get the latest published version
      */
     @Override
-    public Mono<ApplicationRecord> getLatestRecordByApplicationId(String applicationId) {
+    public Mono<ApplicationVersion> getLatestRecordByApplicationId(String applicationId) {
         return applicationRecordRepository.findTop1ByApplicationIdOrderByCreatedAtDesc(applicationId);
     }
 
