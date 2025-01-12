@@ -550,6 +550,7 @@ function buildQueryUsageDataset(components: any[], queryName: string): any[] {
   return dataset;
 }
 
+
 const ComponentButton = (props: {   
   componentType: string;
   componentName: string;
@@ -567,17 +568,18 @@ const ComponentButton = (props: {
   return (
     <Tooltip title={props.path} placement="top">
       <DataSourceButton onClick={handleClick}>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "5px", width: "100%"}}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: "0px", width: "100%"}}>
           <div style={{ flex: 1}}>
             {Icon && (
-              <Icon style={{ margin: "0px", width: "32px" }} />
+              <Icon style={{ margin: "6px 0px 0 -38px", width: "28px" }} />
             )}
           </div>
-          <div style={{ flex: 2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+          <div style={{ flex: 2, textAlign: "left", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginLeft: "-30px" }}>
             <div
               style={{
-                marginTop: "5px",
-                fontSize: "14px",
+                marginTop: "11px",
+                marginLeft: "0px",
+                fontSize: "12px",
                 fontWeight: "bold",
                 maxWidth: "100%",
                 overflow: "hidden",
@@ -592,7 +594,7 @@ const ComponentButton = (props: {
             </div>
             <div
               style={{
-                fontSize: "12px",
+                fontSize: "11px",
                 fontWeight: "400",
                 maxWidth: "100%",
                 overflow: "hidden",
