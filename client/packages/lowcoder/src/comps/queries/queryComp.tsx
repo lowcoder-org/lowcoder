@@ -72,7 +72,7 @@ import { HttpQuery } from "./httpQuery/httpQuery";
 import { StreamQuery } from "./httpQuery/streamQuery";
 import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
 import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
-import { QueryPropertyView } from "./queryComp/queryPropertyView";
+import { findDependentQueries, QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
@@ -100,6 +100,7 @@ interface AfterExecuteQueryAction {
 export const TriggerTypeOptions = [
   { label: "On Page Load", value: "onPageLoad"},
   { label: "On Input Change", value: "onInputChange"},
+  { label: "On Query Execution", value: "onQueryExecution"},
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
@@ -159,6 +160,7 @@ const childrenMap = {
     },
   }),
   cancelPrevious: withDefault(BoolPureControl, false),
+  depQueryName: SimpleNameComp,
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -639,6 +641,29 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
 const QueryListTmpComp = list(QueryComp);
 
 class QueryListComp extends QueryListTmpComp implements BottomResListComp {
+  override reduce(action: CompAction): this {
+    if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
+      if (action.path?.length ===  1 && !isNaN(parseInt(action.path[0]))) {
+        const queryIdx = parseInt(action.path[0]);
+        const queryComps = this.getView();
+        const queryName = queryComps?.[queryIdx]?.children.name.getView();
+        const dependentQueries = queryComps.filter((query, idx) => {
+          if (queryIdx === idx) return false;
+          if (
+            getTriggerType(query) === 'onQueryExecution'
+            && query.children.depQueryName.getView() === queryName
+          ) {
+            return true; 
+          }
+        })
+        dependentQueries?.forEach((query) => {
+          query.dispatch(deferAction(executeQueryAction({})));
+        })
+      }
+    }
+    return super.reduce(action);
+  }
+
   nameAndExposingInfo(): NameAndExposingInfo {
     const result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {

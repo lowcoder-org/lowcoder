@@ -37,6 +37,7 @@ import styled from "styled-components";
 import { DataSourceButton } from "pages/datasource/pluginPanel";
 import { Tooltip, Divider } from "antd";
 import { uiCompRegistry } from "comps/uiCompRegistry";
+import { InputTypeEnum } from "@lowcoder-ee/comps/comps/moduleContainerComp/ioComp/inputListItemComp";
 
 const Wrapper = styled.div`
   width: 100%;
@@ -233,6 +234,35 @@ export const QueryGeneralPropertyView = (props: {
     return TriggerTypeOptions;
   }, [datasourceType]);
 
+  const getQueryOptions = useMemo(() => {
+    const options: { label: string; value: string }[] =
+      editorState
+        ?.queryCompInfoList()
+        .map((info) => ({
+          label: info.name,
+          value: info.name,
+        }))
+        .filter((option) => {
+          // Filter out the current query under query
+          if (editorState.selectedBottomResType === BottomResTypeEnum.Query) {
+            return option.value !== editorState.selectedBottomResName;
+          }
+          return true;
+        }) || [];
+
+    // input queries
+    editorState
+      ?.getModuleLayoutComp()
+      ?.getInputs()
+      .forEach((i) => {
+        const { name, type } = i.getView();
+        if (type === InputTypeEnum.Query) {
+          options.push({ label: name, value: name });
+        }
+      });
+    return options;
+  }, [editorState]);
+
   return (
     <QueryPropertyViewWrapper>
       <QuerySectionWrapper>
@@ -336,28 +366,29 @@ export const QueryGeneralPropertyView = (props: {
         </QueryConfigWrapper>
 
         {placement === "editor" && (
-          <TriggerTypeStyled>
-            <Dropdown
-              placement={"bottom"}
-              label={trans("query.triggerType")}
-              options={ triggerOptions
-                // [
-                //   { label: "On Page Load", value: "onPageLoad"},
-                //   { label: "On Input Change", value: "onInputChange"},
-                //   {
-                //     label:
-                //       (children.compType.getView() === "js" || children.compType.getView() === "streamApi")
-                //         ? trans("query.triggerTypePageLoad")
-                //         : trans("query.triggerTypeAuto"),
-                //     value: "automatic",
-                //   },
-                //   { label: trans("query.triggerTypeManual"), value: "manual" },
-                // ] as const
-              }
-              value={children.triggerType.getView()}
-              onChange={(value) => children.triggerType.dispatchChangeValueAction(value as TriggerType)}
-            />
-          </TriggerTypeStyled>
+          <>
+            <TriggerTypeStyled>
+              <Dropdown
+                placement={"bottom"}
+                label={trans("query.triggerType")}
+                options={triggerOptions}
+                value={children.triggerType.getView()}
+                onChange={(value) => children.triggerType.dispatchChangeValueAction(value as TriggerType)}
+              />
+            </TriggerTypeStyled>
+            {children.triggerType.getView() === 'onQueryExecution' && (
+              <TriggerTypeStyled>
+                <Dropdown
+                  showSearch={true}
+                  placement={"bottom"}
+                  value={children.depQueryName.getView()}
+                  options={getQueryOptions}
+                  label={trans("eventHandler.selectQuery")}
+                  onChange={(value) => children.depQueryName.dispatchChangeValueAction(value)}
+                />
+              </TriggerTypeStyled>
+            )}
+          </>
         )}
       </QuerySectionWrapper>
 
