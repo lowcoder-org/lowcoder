@@ -39,7 +39,6 @@ public class ApplicationController implements ApplicationEndpoints {
     private final BusinessEventPublisher businessEventPublisher;
     private final SessionUserService sessionUserService;
     private final GidService gidService;
-    private final FolderElementRelationService folderElementRelationService;
     private final ApplicationRecordService applicationRecordService;
 
     @Override
@@ -187,13 +186,6 @@ public class ApplicationController implements ApplicationEndpoints {
                                                                          @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
         var flux = userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name, category)
-                .delayUntil(applicationInfoView -> {
-                    String applicationId = applicationInfoView.getApplicationId();
-                    return folderElementRelationService.getByElementIds(List.of(applicationId))
-                            .doOnNext(folderElement -> {
-                                applicationInfoView.setFolderId(folderElement.folderId());
-                            }).then();
-                })
                 .cache();
         Mono<Long> countMono = flux.count();
         var flux1 = flux.skip((long) (pageNum - 1) * pageSize);
