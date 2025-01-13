@@ -21,6 +21,7 @@ import org.lowcoder.domain.bundle.model.BundleElement;
 import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
 import org.lowcoder.domain.bundle.service.BundleService;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -72,6 +73,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
     private final BundleService bundleService;
     private final ApplicationRecordService applicationRecordService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -607,6 +609,12 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .build()));
                     }
                     return Mono.just(applicationInfoViewBuilder.build());
+        }).delayUntil(applicationInfoView -> {
+            String applicationId = applicationInfoView.getApplicationId();
+            return folderElementRelationService.getByElementIds(List.of(applicationId))
+                    .doOnNext(folderElement -> {
+                        applicationInfoView.setFolderId(folderElement.folderId());
+                    }).then();
         });
     }
 

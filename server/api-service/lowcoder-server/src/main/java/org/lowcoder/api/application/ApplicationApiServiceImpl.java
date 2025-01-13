@@ -28,6 +28,7 @@ import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
@@ -94,6 +95,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final DatasourceService datasourceService;
     private final ApplicationHistorySnapshotService applicationHistorySnapshotService;
     private final ApplicationRecordService applicationRecordService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
@@ -185,10 +187,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return checkApplicationStatus(applicationId, ApplicationStatus.RECYCLED)
                 .then(updateApplicationStatus(applicationId, ApplicationStatus.DELETED))
                 .then(applicationService.findById(applicationId))
-                .map(application -> ApplicationView.builder()
-                        .applicationInfoView(buildView(application))
+                .flatMap(application -> buildView(application).map(appInfoView -> ApplicationView.builder()
+                        .applicationInfoView(appInfoView)
                         .applicationDSL(application.getEditingApplicationDSL())
-                        .build());
+                        .build()));
     }
 
     @Override
@@ -269,13 +271,14 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                                     .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
                             .collectMap(Map.Entry::getKey, Map.Entry::getValue)
                             .flatMap(dependentModuleDsl ->
-                                applicationService.updateById(applicationId, application).map(__ ->
-                                    ApplicationView.builder()
-                                        .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                                        .applicationDSL(application.getEditingApplicationDSL())
-                                        .moduleDSL(dependentModuleDsl)
-                                        .orgCommonSettings(commonSettings)
-                                        .build()));
+                                applicationService.updateById(applicationId, application).flatMap(__ ->
+                                    buildView(application, permission.getResourceRole().getValue()).map(appInfoView ->
+                                        ApplicationView.builder()
+                                            .applicationInfoView(appInfoView)
+                                            .applicationDSL(application.getEditingApplicationDSL())
+                                            .moduleDSL(dependentModuleDsl)
+                                            .orgCommonSettings(commonSettings)
+                                            .build())));
                 });
     }
 
@@ -299,14 +302,15 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                                     .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
                             .collectMap(Map.Entry::getKey, Map.Entry::getValue)
                             .flatMap(dependentModuleDsl ->
-                                application.getLiveApplicationDsl(applicationRecordService).map(liveDsl ->
-                                    ApplicationView.builder()
-                                        .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                                        .applicationDSL(sanitizeDsl(liveDsl))
-                                        .moduleDSL(dependentModuleDsl)
-                                        .orgCommonSettings(commonSettings)
-                                        .templateId(templateId)
-                                        .build())
+                                application.getLiveApplicationDsl(applicationRecordService).flatMap(liveDsl ->
+                                    buildView(application, permission.getResourceRole().getValue()).map(appInfoView ->
+                                        ApplicationView.builder()
+                                            .applicationInfoView(appInfoView)
+                                            .applicationDSL(sanitizeDsl(liveDsl))
+                                            .moduleDSL(dependentModuleDsl)
+                                            .orgCommonSettings(commonSettings)
+                                            .templateId(templateId)
+                                            .build()))
                             );
                 })
                 .delayUntil(applicationView -> {
@@ -346,10 +350,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         applicationId, EDIT_APPLICATIONS))
                 .delayUntil(__ -> checkDatasourcePermissions(application))
                 .flatMap(permission -> doUpdateApplication(applicationId, application)
-                        .map(applicationUpdated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
+                        .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
-                                .build()));
+                                .build())));
     }
 
     private Mono<Application> doUpdateApplication(String applicationId, Application application) {
@@ -376,10 +380,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                                 .build())
                         .flatMap(applicationRecordService::insert))
                 .flatMap(permission -> applicationService.findById(applicationId)
-                        .map(applicationUpdated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
+                        .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
-                                .build()));
+                                .build())));
     }
 
     @Override
@@ -472,10 +476,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(bizThresholdChecker::checkMaxOrgApplicationCount)
                 .flatMap(orgMember -> templateSolutionService.createFromTemplate(templateId, orgMember.getOrgId(), orgMember.getUserId())
-                        .map(applicationCreated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationCreated))
+                        .flatMap(applicationCreated -> buildView(applicationCreated).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationCreated.getEditingApplicationDSL())
-                                .build()));
+                                .build())));
     }
 
     @Override
@@ -547,8 +551,14 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     
     
     
-    private ApplicationInfoView buildView(Application application, String role) {
-        return buildView(application, role, null);
+    private Mono<ApplicationInfoView> buildView(Application application, String role) {
+        return Mono.just(buildView(application, role, null)).delayUntil(applicationInfoView -> {
+            String applicationId = applicationInfoView.getApplicationId();
+            return folderElementRelationService.getByElementIds(List.of(applicationId))
+                    .doOnNext(folderElement -> {
+                        applicationInfoView.setFolderId(folderElement.folderId());
+                    }).then();
+        });
     }
 
     private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
@@ -572,7 +582,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .build();
     }
 
-    private ApplicationInfoView buildView(Application application) {
+    private Mono<ApplicationInfoView> buildView(Application application) {
         return buildView(application, "");
     }
 
