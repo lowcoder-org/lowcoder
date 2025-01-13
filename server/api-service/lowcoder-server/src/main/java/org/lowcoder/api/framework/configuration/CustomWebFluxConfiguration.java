@@ -2,6 +2,7 @@ package org.lowcoder.api.framework.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.plugin.endpoint.ReloadableRouterFunctionMapping;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -55,14 +56,16 @@ public class CustomWebFluxConfiguration extends DelegatingWebFluxConfiguration
 		return new LocaleContextResolver() {
 			@Override
 			public LocaleContext resolveLocaleContext(ServerWebExchange exchange) {
-				List<String> language = exchange.getRequest().getQueryParams().getOrDefault("lang", List.of("en_US"));
+				String defaultLocaleStr = "en_US";
+				List<String> language = exchange.getRequest().getQueryParams().getOrDefault("lang", List.of(defaultLocaleStr));
 				String localeStr = language.get(0);
 				String[] parts = localeStr.split("_");
 				if(parts.length == 2) {
 					Locale locale = new Locale(parts[0], parts[1]);
 					return new SimpleLocaleContext(locale);
 				} else {
-					Locale locale = new Locale(parts[0]);
+					String safeLocaleStr = StringUtils.defaultIfBlank(parts[0], defaultLocaleStr);
+					Locale locale = new Locale(safeLocaleStr);
 					return new SimpleLocaleContext(locale);
 				}
 			}
