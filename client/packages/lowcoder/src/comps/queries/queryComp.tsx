@@ -97,10 +97,18 @@ interface AfterExecuteQueryAction {
   result: QueryResult;
 }
 
-const TriggerTypeOptions = [
+export const TriggerTypeOptions = [
+  { label: "On Page Load", value: "onPageLoad"},
+  { label: "On Input Change", value: "onInputChange"},
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
+
+export const JSTriggerTypeOptions = [
+  { label: trans("query.triggerTypeAuto"), value: "automatic" },
+  { label: trans("query.triggerTypeManual"), value: "manual" },
+];
+
 export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
 
 const EventOptions = [
@@ -174,6 +182,7 @@ export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiB
   ? X
   : never;
 
+let blockInputChangeQueries = true;
 /**
  * Logic to automatically trigger execution
  */
@@ -222,10 +231,16 @@ QueryCompTmp = class extends QueryCompTmp {
     const isJsQuery = this.children.compType.getView() === "js";
     const notExecuted = this.children.lastQueryStartTime.getView() === -1;
     const isAutomatic = getTriggerType(this) === "automatic";
+    const isPageLoadTrigger = getTriggerType(this) === "onPageLoad";
+    const isInputChangeTrigger = getTriggerType(this) === "onInputChange";
 
     if (
       action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      isAutomatic &&
+      (
+        isAutomatic
+        || isInputChangeTrigger
+        || (isPageLoadTrigger && notExecuted)
+      ) &&
       (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
@@ -249,6 +264,18 @@ QueryCompTmp = class extends QueryCompTmp {
 
       const dependsChanged = !_.isEqual(preDepends, depends);
       const dslNotChanged = _.isEqual(preDsl, dsl);
+
+      if(isInputChangeTrigger && blockInputChangeQueries && dependsChanged) {
+        // block executing input change queries initially on page refresh
+        setTimeout(() => {
+          blockInputChangeQueries = false;
+        }, 500)
+        
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
+      }
 
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
@@ -277,7 +304,10 @@ function QueryView(props: QueryViewProps) {
   useEffect(() => {
     // Automatically load when page load
     if (
-      getTriggerType(comp) === "automatic" &&
+      (
+        getTriggerType(comp) === "automatic"
+        || getTriggerType(comp) === "onPageLoad"
+      ) &&
       (comp as any).isDepReady &&
       !comp.children.isNewCreate.value
     ) {
@@ -292,9 +322,9 @@ function QueryView(props: QueryViewProps) {
       getPromiseAfterDispatch(comp.dispatch, executeQueryAction({}), {
         notHandledError: trans("query.fixedDelayError"),
       }),
-    getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
-      ? comp.children.periodicTime.getView()
-      : null
+      getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
+        ? comp.children.periodicTime.getView()
+        : null
   );
 
   return null;

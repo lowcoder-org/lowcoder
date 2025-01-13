@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { EditorContext } from "../../editorState";
-import { QueryComp } from "../queryComp";
+import { JSTriggerTypeOptions, QueryComp, TriggerType, TriggerTypeOptions } from "../queryComp";
 import { ResourceDropdown } from "../resourceDropdown";
 import { NOT_SUPPORT_GUI_SQL_QUERY, SQLQuery } from "../sqlQuery/SQLQuery";
 import { StreamQuery } from "../httpQuery/streamQuery";
@@ -226,6 +226,13 @@ export const QueryGeneralPropertyView = (props: {
     comp.children.datasourceId.dispatchChangeValueAction(QUICK_REST_API_ID);
   }
 
+  const triggerOptions = useMemo(() => {
+    if (datasourceType === "js" || datasourceType === "streamApi") {
+      return JSTriggerTypeOptions;
+    }
+    return TriggerTypeOptions;
+  }, [datasourceType]);
+
   return (
     <QueryPropertyViewWrapper>
       <QuerySectionWrapper>
@@ -333,20 +340,22 @@ export const QueryGeneralPropertyView = (props: {
             <Dropdown
               placement={"bottom"}
               label={trans("query.triggerType")}
-              options={
-                [
-                  {
-                    label:
-                      (children.compType.getView() === "js" || children.compType.getView() === "streamApi")
-                        ? trans("query.triggerTypePageLoad")
-                        : trans("query.triggerTypeAuto"),
-                    value: "automatic",
-                  },
-                  { label: trans("query.triggerTypeManual"), value: "manual" },
-                ] as const
+              options={ triggerOptions
+                // [
+                //   { label: "On Page Load", value: "onPageLoad"},
+                //   { label: "On Input Change", value: "onInputChange"},
+                //   {
+                //     label:
+                //       (children.compType.getView() === "js" || children.compType.getView() === "streamApi")
+                //         ? trans("query.triggerTypePageLoad")
+                //         : trans("query.triggerTypeAuto"),
+                //     value: "automatic",
+                //   },
+                //   { label: trans("query.triggerTypeManual"), value: "manual" },
+                // ] as const
               }
               value={children.triggerType.getView()}
-              onChange={(value) => children.triggerType.dispatchChangeValueAction(value)}
+              onChange={(value) => children.triggerType.dispatchChangeValueAction(value as TriggerType)}
             />
           </TriggerTypeStyled>
         )}
