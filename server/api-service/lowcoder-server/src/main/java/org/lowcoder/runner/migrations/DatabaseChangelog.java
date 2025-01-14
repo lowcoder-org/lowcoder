@@ -359,7 +359,7 @@ public class DatabaseChangelog {
             }
 
             // Delete the migrated records
-            Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
+            Query deleteQuery = new Query(Criteria.where("createdAt").lte(thresholdDate));
             DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
 
             log.info("Deleted {} records from the source collection.", deleteResult.getDeletedCount());
@@ -390,7 +390,7 @@ public class DatabaseChangelog {
                     .toCollection();
 
             // Delete the migrated records
-            Query deleteQuery = new Query(Criteria.where("createdAt").gte(thresholdDate));
+            Query deleteQuery = new Query(Criteria.where("createdAt").lte(thresholdDate));
             DeleteResult deleteResult = mongoTemplate.remove(deleteQuery, ApplicationHistorySnapshot.class);
 
             log.info("Deleted {} records from the source collection.", deleteResult.getDeletedCount());
