@@ -101,12 +101,13 @@ export const TriggerTypeOptions = [
   { label: "On Page Load", value: "onPageLoad"},
   { label: "On Input Change", value: "onInputChange"},
   { label: "On Query Execution", value: "onQueryExecution"},
+  { label: "On Timeout", value: "onTimeout"},
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
 
 export const JSTriggerTypeOptions = [
-  { label: trans("query.triggerTypeAuto"), value: "automatic" },
+  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ];
 
@@ -160,7 +161,13 @@ const childrenMap = {
     },
   }),
   cancelPrevious: withDefault(BoolPureControl, false),
+  // use only for onQueryExecution trigger
   depQueryName: SimpleNameComp,
+  // use only for onTimeout trigger, triggers query after x time passed on page load
+  delayTime: millisecondsControl({
+    left: 0,
+    defaultValue: 5 * 1000,
+  })
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -316,6 +323,12 @@ function QueryView(props: QueryViewProps) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
       }, 300);
+    }
+
+    if(getTriggerType(comp) === "onTimeout") {
+      setTimeout(() => {
+        comp.dispatch(deferAction(executeQueryAction({})));
+      }, comp.children.delayTime.getView());
     }
   }, []);
 
