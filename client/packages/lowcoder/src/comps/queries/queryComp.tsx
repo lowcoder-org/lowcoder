@@ -97,16 +97,21 @@ interface AfterExecuteQueryAction {
   result: QueryResult;
 }
 
+const CommonTriggerOptions = [
+  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
+  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
+  { label: trans("query.triggerTypeTimeout"), value: "onTimeout"},
+]
+
 export const TriggerTypeOptions = [
-  { label: "On Page Load", value: "onPageLoad"},
-  { label: "On Input Change", value: "onInputChange"},
-  { label: "On Query Execution", value: "onQueryExecution"},
-  { label: "On Timeout", value: "onTimeout"},
+  { label: trans("query.triggerTypePageLoad"), value: "onPageLoad"},
+  ...CommonTriggerOptions,
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
 
 export const JSTriggerTypeOptions = [
+  ...CommonTriggerOptions,
   { label: trans("query.triggerTypePageLoad"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ];
@@ -244,13 +249,13 @@ QueryCompTmp = class extends QueryCompTmp {
     const isInputChangeTrigger = getTriggerType(this) === "onInputChange";
 
     if (
-      action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      (
+      action.type === CompActionTypes.UPDATE_NODES_V2
+      && (
         isAutomatic
         || isInputChangeTrigger
         || (isPageLoadTrigger && notExecuted)
-      ) &&
-      (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
+      )
+      // && (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
       const depends = this.children.comp.node()?.dependValues();

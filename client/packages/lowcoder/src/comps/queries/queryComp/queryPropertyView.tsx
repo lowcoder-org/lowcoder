@@ -391,9 +391,8 @@ export const QueryGeneralPropertyView = (props: {
             {children.triggerType.getView() === 'onTimeout' && (
               <TriggerTypeStyled>
                 {children.delayTime.propertyView({
-                  label: trans("query.timeout"),
+                  label: trans("query.delayTime"),
                   placeholder: "5s",
-                  tooltip: trans("query.timeoutTooltip", { maxSeconds: 3600, defaultSeconds: 5 }),
                   placement: "bottom",
                 })}
               </TriggerTypeStyled>
