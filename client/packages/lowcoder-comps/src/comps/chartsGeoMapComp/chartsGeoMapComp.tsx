@@ -118,11 +118,11 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const option = useMemo(() => {
     return getEchartsConfig(
-      childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
+      childrenProps as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
       theme?.theme?.components?.candleStickChart || {},
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   const isMapScriptLoaded = useMemo(() => {
     return mapScriptLoaded || window?.google;
