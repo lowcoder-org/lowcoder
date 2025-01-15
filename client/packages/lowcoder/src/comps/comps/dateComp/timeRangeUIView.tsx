@@ -1,10 +1,10 @@
 import styled from "styled-components";
 import { default as TimePicker } from "antd/es/time-picker";
-import { DateTimeStyleType } from "../../controls/styleControlConstants";
-import { getStyle } from "comps/comps/dateComp/dateCompUtil";
+import { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
+import { getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
-import React, { useContext } from "react";
+import React, { ReactNode, useContext } from "react";
 import type { TimeCompViewProps } from "./timeComp";
 import { EditorContext } from "../../editorState";
 import dayjs from "dayjs";
@@ -66,6 +66,13 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
+      panelRender={(panelNode: ReactNode) => (
+        <StyledPickerPanel
+          $style={props.$childrenInputFieldStyle as ChildrenMultiSelectStyleType}
+        >
+          {panelNode}
+        </StyledPickerPanel>
+      )}
       renderExtraFooter={() => (
         props.timeZone === "UserChoice" && (
           <StyledAntdSelect

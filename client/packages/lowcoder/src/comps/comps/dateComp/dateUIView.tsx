@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
-import { disabledDate, getStyle } from "comps/comps/dateComp/dateCompUtil";
+import { disabledDate, getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import styled from "styled-components";
-import type { DateTimeStyleType } from "../../controls/styleControlConstants";
+import type { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import type { DatePickerProps } from "antd/es/date-picker";
@@ -53,7 +53,7 @@ export const DateUIView = (props: DataUIViewProps) => {
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
-      {...omit(props, "format", "inputFormat")}
+      {...omit(props, "format", "inputFormat", "$childrenInputFieldStyle")}
       multiple={false}
       format={props.inputFormat}
       ref={props.viewRef as any}
@@ -66,6 +66,13 @@ export const DateUIView = (props: DataUIViewProps) => {
       picker={"date"}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
+      panelRender={(panelNode) => (
+        <StyledPickerPanel
+          $style={props.$childrenInputFieldStyle as ChildrenMultiSelectStyleType}
+        >
+          {panelNode}
+        </StyledPickerPanel>
+      )}
       renderExtraFooter={()=>(
         props.timeZone === "UserChoice" && (
           <StyledDiv>

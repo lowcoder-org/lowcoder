@@ -25,7 +25,7 @@ import {
 } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, ChildrenMultiSelectStyle, ChildrenMultiSelectStyleType, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -87,6 +87,7 @@ const commonChildren = {
     'labelStyle',
   ),
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   viewRef: RefControl<CommonPickerMethods>,
@@ -147,6 +148,7 @@ export type TimeCompViewProps = Pick<
   onFocus: () => void;
   onBlur: () => void;
   $style: DateTimeStyleType;
+  $childrenInputFieldStyle: ChildrenMultiSelectStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon?: ReactNode | false;
   placeholder?: string | [string, string];
@@ -190,6 +192,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         value={tempValue?.isValid() ? tempValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
@@ -207,7 +210,8 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
     ),
     showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validate(props),
@@ -271,6 +275,9 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           </Section>
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.childrenInputFieldStyle}>
+            {children.childrenInputFieldStyle.getPropertyView()}
           </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
@@ -342,6 +349,7 @@ const TimeRangeTmpCmp = (function () {
         timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         start={tempStartValue?.isValid() ? tempStartValue : null}
         end={tempEndValue?.isValid() ? tempEndValue : null}
@@ -443,6 +451,9 @@ const TimeRangeTmpCmp = (function () {
             </Section>
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.childrenInputFieldStyle}>
+              {children.childrenInputFieldStyle.getPropertyView()}
             </Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}

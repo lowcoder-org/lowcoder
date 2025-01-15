@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, ChildrenMultiSelectStyle, ChildrenMultiSelectStyleType, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -89,6 +89,7 @@ const commonChildren = {
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
@@ -171,6 +172,7 @@ export type DateCompViewProps = Pick<
   onFocus: () => void;
   onBlur: () => void;
   $style: DateTimeStyleType;
+  $childrenInputFieldStyle: ChildrenMultiSelectStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon: ReactNode;
   placeholder?: string | [string, string];
@@ -214,6 +216,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         hourStep={props.hourStep}
@@ -306,6 +309,9 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
             </Section>
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
+            </Section>
+            <Section name={sectionNames.childrenInputFieldStyle}>
+              {children.childrenInputFieldStyle.getPropertyView()}
             </Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
@@ -400,6 +406,7 @@ let DateRangeTmpCmp = (function () {
         timeZone={props?.timeZone}
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         start={tempStartValue?.isValid() ? tempStartValue : null}
@@ -514,6 +521,9 @@ let DateRangeTmpCmp = (function () {
               </Section>
               <Section name={sectionNames.inputFieldStyle}>
                 {children.inputFieldStyle.getPropertyView()}
+              </Section>
+              <Section name={sectionNames.childrenInputFieldStyle}>
+                {children.childrenInputFieldStyle.getPropertyView()}
               </Section>
             </>
           )}
