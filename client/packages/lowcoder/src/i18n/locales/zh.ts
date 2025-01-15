@@ -1490,6 +1490,7 @@ export const zh: typeof en = {
         dropdown: {
         onlyMenu: "仅菜单",
         textDesc: "当前显示在按钮上的文本",
+        triggerMode: "触发方式"
         },
         textShow: {
         // eslint-disable-next-line only-ascii/only-ascii

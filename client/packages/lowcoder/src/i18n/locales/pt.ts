@@ -1883,6 +1883,7 @@ export const pt = {
 
   "onlyMenu": "Exibir Apenas com Rótulo",
   "textDesc": "Texto Atualmente Exibido no Botão",
+  "triggerMode": "Modo de disparo"
   },
   "textShow": {
     ...en.textShow,

@@ -1883,6 +1883,7 @@ export const it = {
 
   "onlyMenu": "Display con sola etichetta",
   "textDesc": "Testo attualmente visualizzato sul pulsante",
+  "triggerMode": "Modalità di attivazione"
   },
   "textShow": {
     ...en.textShow,

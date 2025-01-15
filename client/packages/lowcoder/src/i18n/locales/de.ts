@@ -1883,6 +1883,7 @@ export const de = {
 
   "onlyMenu": "Anzeige nur mit Etikett",
   "textDesc": "Derzeit auf der Schaltfläche angezeigter Text",
+  "triggerMode": "Triggermodus"
   },
   "textShow": {
     ...en.textShow,

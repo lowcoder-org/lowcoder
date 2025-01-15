@@ -1883,6 +1883,7 @@ export const es = {
 
   "onlyMenu": "Pantalla sólo con etiqueta",
   "textDesc": "Texto que aparece actualmente en el botón",
+  "triggerMode": "Modo de disparo"
   },
   "textShow": {
     ...en.textShow,

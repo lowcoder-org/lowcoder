@@ -1883,6 +1883,7 @@ export const ru = {
 
   "onlyMenu": "Дисплей только с этикеткой",
   "textDesc": "Текст, отображаемый в данный момент на кнопке",
+  "triggerMode": "Режим триггера"
   },
   "textShow": {
     ...en.textShow,
