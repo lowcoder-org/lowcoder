@@ -1989,6 +1989,7 @@ export const it = {
   "type": "Tipo",
   "tableSize": "Dimensione della tabella",
   "hideHeader": "Nascondere l'intestazione della tabella",
+  "hideToolbar": "Nascondere Piè di pagina",
   "fixedHeader": "Intestazione fissa della tabella",
   "fixedHeaderTooltip": "L'intestazione sarà fissa per la tabella a scorrimento verticale",
   "fixedToolbar": "Barra degli strumenti fissa",

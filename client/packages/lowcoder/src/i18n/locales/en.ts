@@ -2035,6 +2035,7 @@ export const en = {
     "type": "Type",
     "tableSize": "Table Size",
     "hideHeader": "Hide Table Header",
+    "hideToolbar": "Hide Table Toolbar (Footer)",
     "fixedHeader": "Fixed Table Header",
     "fixedHeaderTooltip": "Header Will Be Fixed for Vertically Scrollable Table",
     "fixedToolbar": "Fixed Toolbar",

@@ -239,6 +239,7 @@ const tableChildrenMap = {
   rowStyle: styleControl(TableRowStyle, 'rowStyle'),
   summaryRowStyle: styleControl(TableSummaryRowStyle, 'summaryRowStyle'),
   toolbarStyle: styleControl(TableToolbarStyle, 'toolbarStyle'),
+  hideToolbar: withDefault(BoolControl,false),
   headerStyle: styleControl(TableHeaderStyle, 'headerStyle'),
   searchText: StringControl,
   columnsStyle: styleControl(TableColumnStyle, 'columnsStyle'),

@@ -1989,6 +1989,7 @@ export const pt = {
   "type": "Tipo",
   "tableSize": "Tamanho da Tabela",
   "hideHeader": "Ocultar Cabeçalho da Tabela",
+  "hideToolbar": "Ocultar barra de ferramentas",
   "fixedHeader": "Cabeçalho da Tabela Fixo",
   "fixedHeaderTooltip": "O cabeçalho será fixado para tabelas com rolagem vertical",
   "fixedToolbar": "Barra de Ferramentas Fixa",

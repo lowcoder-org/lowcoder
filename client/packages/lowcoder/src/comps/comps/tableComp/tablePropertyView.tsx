@@ -547,6 +547,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
             })}
+            {comp.children.hideToolbar.propertyView({
+              label: trans("table.hideToolbar"),
+            })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),
               tooltip: trans("table.viewModeResizableTooltip"),

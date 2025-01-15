@@ -1592,6 +1592,7 @@ export const zh: typeof en = {
         type: "类型",
         tableSize: "表格尺寸",
         hideHeader: "隐藏表头",
+        hideToolbar: "隐藏表工具栏（页脚）",
         fixedHeader: "固定表头",
         fixedHeaderTooltip: "垂直滚动表格的标题将被固定",
         fixedToolbar: "固定工具栏",
