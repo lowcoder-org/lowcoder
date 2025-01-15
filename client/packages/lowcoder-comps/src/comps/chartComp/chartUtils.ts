@@ -181,7 +181,7 @@ export function getEchartsConfig(
       ...props.legendConfig,
       textStyle: {
         ...styleWrapper(props?.legendStyle, theme?.legendStyle, 15)
-      }
+      },
     },
     tooltip: props.tooltip&&{
       trigger: "axis",
@@ -227,6 +227,9 @@ export function getEchartsConfig(
       ...series,
       itemStyle: {
         ...series.itemStyle,
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      },
+      lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       }
     })),

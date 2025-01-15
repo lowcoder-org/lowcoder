@@ -228,6 +228,9 @@ export function getEchartsConfig(
       itemStyle: {
         ...series.itemStyle,
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      },
+      lineStyle: {
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       }
     })),
   };

@@ -394,8 +394,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, '#ffffff', 0, 'inherit'),
-            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 40,
-            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize && theme?.legendStyle?.detailSize.split('px')[0] || 40,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize && theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.multiTitleGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
@@ -554,8 +554,8 @@ export function getEchartsConfig(
           },
           detail: {
             ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16, 'inherit', 1, ''),
-            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize.split('px')[0] || 50,
-            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize.split('px')[1] || 20,
+            "width": props?.legendStyle?.detailSize?.split('px')[0] || theme?.legendStyle?.detailSize && theme?.legendStyle?.detailSize.split('px')[0] || 50,
+            "height": props?.legendStyle?.detailSize?.split('px')[1] || theme?.legendStyle?.detailSize && theme?.legendStyle?.detailSize.split('px')[1] || 20,
             formatter: props?.ringGaugeOption?.data?.map(data => data.formatter)[0],
           }
         }
