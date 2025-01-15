@@ -709,9 +709,9 @@ export function getEchartsConfig(
                 width: props.progressBarWidth,
                 color: [[1, props?.clockGaugeOption?.data?.map(data => data.outlineColor)[0]]],
                 shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             axisTick: {
@@ -720,9 +720,9 @@ export function getEchartsConfig(
                 width: props.axisTickWidth,
                 color: props.axisTickColor,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             splitLine: {
@@ -731,9 +731,9 @@ export function getEchartsConfig(
                 width: Number(props.axisTickWidth) * 1.5,
                 color: props.axisTickColor,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             axisLabel: {
@@ -754,9 +754,9 @@ export function getEchartsConfig(
               itemStyle: {
                 color: props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.color,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             detail: {
@@ -799,9 +799,9 @@ export function getEchartsConfig(
               itemStyle: {
                 color: props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.color,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             detail: {
@@ -845,9 +845,9 @@ export function getEchartsConfig(
               itemStyle: {
                 color: props?.clockGaugeOption?.data?.map(data => data.second)[0]?.color,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             anchor: {
@@ -857,9 +857,9 @@ export function getEchartsConfig(
               itemStyle: {
                 color: props?.clockGaugeOption?.data?.map(data => data.anchor)[0]?.color,
                 shadowColor: props?.chartStyle?.chartShadowColor + "55" || theme?.chartStyle?.shadowColor + "55",
-                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+                shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[0],
+                shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[1],
+                shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow && theme?.chartStyle?.boxShadow?.split('px')[2]
               }
             },
             detail: {

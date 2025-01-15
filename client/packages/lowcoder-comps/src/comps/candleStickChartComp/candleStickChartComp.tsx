@@ -145,7 +145,7 @@ CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
     return getEchartsConfig(
       childrenProps as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      theme?.theme?.components?.candleStickChart || {},
+      themeConfig
     );
   }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 

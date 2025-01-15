@@ -182,7 +182,7 @@ export function getEchartsConfig(
           }
         },
         axisLabel: {
-          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13),
+          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
         }
       },
       xAxis: props?.echartsOption && {
@@ -196,7 +196,7 @@ export function getEchartsConfig(
           },
         },
         axisLabel: {
-          ...styleWrapper(props?.labelStyle, theme?.labelStyle, 13),
+          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
         },
         boundaryGap: true,
         // Turn off x-axis split lines if desired, so you only see colored areas

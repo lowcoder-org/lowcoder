@@ -56,10 +56,10 @@ export function candleStickChartPropertyView(
         {children.titleStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.xAxisStyle}>
-        {children.labelStyle?.getPropertyView()}
+        {children.xAxisStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.yAxisStyle}>
-        {children.legendStyle?.getPropertyView()}
+        {children.yAxisStyle?.getPropertyView()}
       </Section>
     </>
   );
