@@ -26,8 +26,8 @@ async function npmLoader(
 
   const applicationId = (!appId || appId && appId === PUBLIC_APP_ID) ? 'none' : appId;
 
-  const entry = `${pluginBaseUrl}/${applicationId}/${packageName}@${localPackageVersion}/index.js`;
-
+  // const entry = `${pluginBaseUrl}/${applicationId}/${packageName}@${localPackageVersion}/index.js`;
+  const entry = '../../../../../public/package/index.js';
   try {
     const module = await import(
       /* @vite-ignore */

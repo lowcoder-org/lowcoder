@@ -15,7 +15,7 @@ import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
 import {ba} from "@fullcalendar/core/internal-common";
-import {styleWrapper} from "../../util/styleWrapper";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -195,14 +195,7 @@ export function getEchartsConfig(
           },
           "itemStyle": {
             "opacity": props?.opacity,
-            "borderColor": props?.chartStyle?.chartBorderColor || theme?.chartStyle?.borderColor,
-            "borderWidth": props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
-            "borderType": props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
-            "borderRadius": Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
-            "shadowColor": props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
-            "shadowBlur": props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
-            "shadowOffsetX": props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
-            "shadowOffsetY": props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+            ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
           },
           "progress": {
             "roundCap": props.roundCap,
