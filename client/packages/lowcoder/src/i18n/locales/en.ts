@@ -1927,7 +1927,8 @@ export const en = {
   },
   "dropdown": {
     "onlyMenu": "Display with Label Only",
-    "textDesc": "Text Currently Displayed on Button"
+    "textDesc": "Text Currently Displayed on Button",
+    "triggerMode": "Trigger Mode"
   },
   "textShow": {
     "text": "### 👋 Hello, {name}",

@@ -965,7 +965,7 @@ export const ButtonStyle = [
 ] as const;
 
 export const DropdownStyle = [
-  getBackground('primary'),
+  getBackground(),
   ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
