@@ -16,21 +16,7 @@ export function gaugeChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -74,13 +60,8 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const stageGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.stageGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -95,6 +76,14 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+      </Section>
+    </>
+  );
+
+  const stageGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -138,27 +127,30 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.stageGaugeOption.propertyView({
+        label: trans("chart.echartsOptionLabel"),
+        styleName: "higher",
+        tooltip: (
+          <div>
+            <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionTooltip")}
+            </a>
+            <br />
+            <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+              {trans("chart.echartsOptionExamples")}
+            </a>
+          </div>
+        ),
+      })}
+      </Section>
     </>
   );
 
   const gradeGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.gradeGaugeOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -202,13 +194,8 @@ export function gaugeChartPropertyView(
       {/*  {children.axisLabelStyle?.getPropertyView()}*/}
       {/*</Section>*/}
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const temperatureGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.temperatureGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.gradeGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -223,6 +210,14 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+      </Section>
+    </>
+  );
+
+  const temperatureGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -266,13 +261,8 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const multiGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.multiTitleGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.temperatureGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -287,6 +277,15 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+
+      </Section>
+    </>
+  );
+
+  const multiGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -328,13 +327,8 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const ringGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.ringGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.multiTitleGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -349,6 +343,14 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+      </Section>
+    </>
+  );
+
+  const ringGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -380,13 +382,8 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const barometerGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.barometerGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.ringGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -401,6 +398,14 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+      </Section>
+    </>
+  );
+
+  const barometerGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -436,13 +441,8 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyleOutline?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
-    </>
-  );
-
-  const clockGaugePropertyView = (
-    <>
-      <Section name={trans("chart.config")}>
-        {children.clockGaugeOption.propertyView({
+      <Section name={sectionNames.advanced}>
+        {children.barometerGaugeOption.propertyView({
           label: trans("chart.echartsOptionLabel"),
           styleName: "higher",
           tooltip: (
@@ -457,6 +457,14 @@ export function gaugeChartPropertyView(
             </div>
           ),
         })}
+      </Section>
+    </>
+  );
+
+  const clockGaugePropertyView = (
+    <>
+      <Section name={trans("chart.config")}>
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -487,6 +495,23 @@ export function gaugeChartPropertyView(
         {children.axisLabelStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.clockGaugeOption.propertyView({
+          label: trans("chart.echartsOptionLabel"),
+          styleName: "higher",
+          tooltip: (
+            <div>
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionTooltip")}
+              </a>
+              <br />
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionExamples")}
+              </a>
+            </div>
+          ),
+        })}
+      </Section>
     </>
   );
   

@@ -16,21 +16,7 @@ export function candleStickChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -60,6 +46,23 @@ export function candleStickChartPropertyView(
       </Section>
       <Section name={sectionNames.yAxisStyle}>
         {children.yAxisStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
+          label: trans("chart.echartsOptionLabel"),
+          styleName: "higher",
+          tooltip: (
+            <div>
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionTooltip")}
+              </a>
+              <br />
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionExamples")}
+              </a>
+            </div>
+          ),
+        })}
       </Section>
     </>
   );

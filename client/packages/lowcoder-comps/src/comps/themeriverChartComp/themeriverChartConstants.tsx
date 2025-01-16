@@ -253,6 +253,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: withDefault(StringControl, trans("themeriverChart.defaultTitle")),
   echartsOption: jsonControl(toObject, i18nObjs.defaultThemeriverChartOption),
   echartsTitle: withDefault(StringControl, trans("themeriverChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

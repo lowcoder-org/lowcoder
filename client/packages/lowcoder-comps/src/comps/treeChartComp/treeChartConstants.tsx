@@ -250,6 +250,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: withDefault(StringControl, trans("treeChart.defaultTitle")),
   echartsOption: jsonControl(toObject, i18nObjs.defaultTreeChartOption),
   echartsTitle: withDefault(StringControl, trans("treeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

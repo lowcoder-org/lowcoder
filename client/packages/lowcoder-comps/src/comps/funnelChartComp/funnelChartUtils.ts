@@ -159,7 +159,7 @@ export function getEchartsConfig(
         "left": props.echartsLegendAlignConfig.left,
         "orient": props.echartsLegendOrientConfig.orient,
         "textStyle": {
-          ...styleWrapper(props?.legendStyle, theme?.legendStyle)
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
         }
       },
       "series": [
@@ -182,7 +182,7 @@ export function getEchartsConfig(
           "label": {
             "show": props.label,
             "position": props.echartsLabelConfig.top,
-            ...styleWrapper(props?.labelStyle,theme?.labelStyle),
+            ...styleWrapper(props?.labelStyle,theme?.labelStyle, 13),
           },
           "data": props.echartsOption.data
         }

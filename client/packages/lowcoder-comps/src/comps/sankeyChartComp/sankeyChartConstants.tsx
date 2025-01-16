@@ -253,6 +253,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: withDefault(StringControl, trans("sankeyChart.defaultTitle")),
   echartsOption: jsonControl(toObject, i18nObjs.defaultSankeyChartOption),
   echartsTitle: withDefault(StringControl, trans("sankeyChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

@@ -27,9 +27,7 @@ export function chartPropertyView(
   const uiModePropertyView = (
     <>
       <Section name={trans("chart.data")}>
-        {children.data.propertyView({
-          label: trans("chart.data"),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         <Dropdown
           value={children.chartConfig.children.compType.getView()}
           options={ChartTypeOptions}
@@ -150,6 +148,11 @@ export function chartPropertyView(
       </Section>
       <Section name={sectionNames.legendStyle}>
         {children.legendStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.advanced}>
+        {children.data.propertyView({
+          label: trans("chart.data"),
+        })}
       </Section>
     </>
   );
