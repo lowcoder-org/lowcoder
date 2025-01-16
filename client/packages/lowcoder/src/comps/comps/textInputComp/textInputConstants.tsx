@@ -169,6 +169,7 @@ export const textInputProps = (props: RecordConstructorToView<typeof textInputCh
 export const useTextInputProps = (props: RecordConstructorToView<typeof textInputChildren>) => {
   const [validateState, setValidateState] = useState({});
   const changeRef = useRef(false)
+  const touchRef = useRef(false);
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
@@ -195,9 +196,23 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     changeRef.current = false;
   }, [inputValue]);
 
+  useEffect(() => {
+    if (!touchRef.current) return;
+
+    setValidateState(
+      textInputValidate({
+        ...propsRef.current,
+        value: {
+          value: props.value.value,
+        },
+      })
+    );
+  }, [props.customRule])
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     props.value.onChange(e.target.value);
     changeRef.current = true;
+    touchRef.current = true;
   };
 
   return [
