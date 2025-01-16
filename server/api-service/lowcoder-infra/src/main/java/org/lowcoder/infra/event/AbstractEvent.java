@@ -1,6 +1,7 @@
 package org.lowcoder.infra.event;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.lowcoder.plugin.api.event.LowcoderEvent;
 
@@ -18,6 +19,8 @@ public abstract class AbstractEvent implements LowcoderEvent
 	protected final Boolean isAnonymous;
 	private final String ipAddress;
     protected Map<String, Object> details;
+	@Setter
+	private static String deploymentID;
     
     public Map<String, Object> details()
     {
@@ -33,6 +36,7 @@ public abstract class AbstractEvent implements LowcoderEvent
     			details = new HashMap<>();
     		}
     		this.details.put(name, value);
+			this.details.put("deploymentID", deploymentID);
     		return self();
     	}
     }
@@ -51,5 +55,6 @@ public abstract class AbstractEvent implements LowcoderEvent
             }
 
 		}
+		details.put("deploymentID", deploymentID);
 	}
 }
