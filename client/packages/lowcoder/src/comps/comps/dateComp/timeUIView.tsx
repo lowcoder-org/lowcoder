@@ -44,9 +44,10 @@ export const TimeUIView = (props: TimeUIViewProps) => {
   return useUIView(
     <TimeMobileUIView {...props} />,
     <TimePickerStyled
-      {...omit(props, "format", "$childrenInputFieldStyle")}
+      {...omit(props, "format", "inputFormat", "$childrenInputFieldStyle")}
       ref={props.viewRef}
       hideDisabledOptions
+      format={props.inputFormat}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
       panelRender={(panelNode) => (

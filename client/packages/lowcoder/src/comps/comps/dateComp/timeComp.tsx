@@ -73,6 +73,7 @@ const commonChildren = {
   label: LabelControl,
   placeholder: withDefault(StringControl, trans("time.placeholder")),
   format: StringControl,
+  inputFormat: withDefault(StringControl, TIME_FORMAT),
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   showTime: BoolControl,
@@ -95,7 +96,7 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
+  _.pick(props, "format", "inputFormat", "use12Hours", "minuteStep", "secondStep", "placeholder");
 
 /* const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),
@@ -141,7 +142,7 @@ type secondStepType =  TimePickerProps['secondStep'];
 
 export type TimeCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
-  "disabled" | "use12Hours" | "format" | "viewRef"
+  "disabled" | "use12Hours" | "format" | "inputFormat" | "viewRef"
 > & Pick<
   TimePickerProps, "hourStep" | "minuteStep" | "secondStep"
 > & {
@@ -252,7 +253,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
         <Section name={sectionNames.layout}>
-          {children.format.propertyView({ label: trans("time.format") })}
+          {formatPropertyView({ children, placeholder: TIME_FORMAT })}
           {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
         </Section>
       )}
@@ -428,7 +429,7 @@ const TimeRangeTmpCmp = (function () {
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
-            {children.format.propertyView({ label: trans("time.format") })}
+            {formatPropertyView({ children, placeholder: TIME_FORMAT })}
             {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
           </Section>
         )}

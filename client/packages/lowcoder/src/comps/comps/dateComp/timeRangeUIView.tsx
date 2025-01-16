@@ -56,13 +56,14 @@ export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {
   return useUIView(
     <TimeRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange", "format")}
+      {...omit(props, "onChange", "format", "inputFormat")}
       value={[props.start, props.end]}
       order={true}
       hideDisabledOptions
       onCalendarChange={(time: any) => {
         props.onChange(time?.[0], time?.[1]);
       }}
+      format={props.inputFormat}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
       placeholder={placeholders}
