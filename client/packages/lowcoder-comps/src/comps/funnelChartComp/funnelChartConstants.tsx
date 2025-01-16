@@ -255,7 +255,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: withDefault(StringControl, trans("funnelChart.defaultTitle")),
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,

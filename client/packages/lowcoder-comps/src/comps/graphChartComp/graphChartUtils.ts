@@ -154,8 +154,8 @@ export function getEchartsConfig(
 
           "type": "graph",
           "layout": "force",
-          'categories': props.echartsOption.categories,
-          'links': props.echartsOption.links,
+          'categories': props?.echartsData?.categories || props.echartsOption.categories,
+          'links': props?.echartsData?.links || props.echartsOption.links,
           "force": {
             "repulsion": props.repulsion,
             "gravity": props?.gravity,
@@ -170,7 +170,7 @@ export function getEchartsConfig(
             width: props?.lineWidth || 1,
             curveness: props?.curveness
           },
-          'nodes': props.echartsOption.nodes,
+          'nodes': props?.echartsData?.nodes || props.echartsOption.nodes,
           itemStyle: {
             "color": props.echartsOption?.color?.pointColor || "#0000ff",
             ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
@@ -178,7 +178,7 @@ export function getEchartsConfig(
         }
       ],
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

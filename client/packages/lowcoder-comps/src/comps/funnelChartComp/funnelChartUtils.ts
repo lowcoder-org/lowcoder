@@ -184,11 +184,11 @@ export function getEchartsConfig(
             "position": props.echartsLabelConfig.top,
             ...styleWrapper(props?.labelStyle,theme?.labelStyle, 13),
           },
-          "data": props.echartsOption.data
+          "data": props?.echartsData?.data || props.echartsOption.data
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

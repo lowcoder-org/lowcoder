@@ -146,7 +146,7 @@ export function getEchartsConfig(
         }
       },
       backgroundColor: parseBackground(props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
-      color: props.echartsOption.data?.map(data => data.color), // Node colors from data
+      color: props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
       tooltip: props.tooltip && {
         trigger: "item",
         triggerOn: "mousemove"
@@ -161,7 +161,7 @@ export function getEchartsConfig(
           top: `${props?.top}%`,
           symbol: "circle", // Define the shape of the nodes (e.g., 'circle', 'rect', etc.)
           symbolSize: props?.pointSize || 20, // Control the size of the nodes
-          data: props.echartsOption.data,
+          data: props?.echartsData?.data || props.echartsOption.data,
           label: {
             position: "top",
             verticalAlign: "middle",
@@ -177,17 +177,17 @@ export function getEchartsConfig(
           },
           itemStyle: {
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
-            color: props.echartsOption.pointColor,
+            color: props.echartsData.pointColor || props.echartsOption.pointColor,
           },
           lineStyle: {
             width: props?.lineWidth || 2, // Control the line thickness
-            color: props.echartsOption.lineColor,
+            color: props.echartsData.lineColor || props.echartsOption.lineColor,
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
           }
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

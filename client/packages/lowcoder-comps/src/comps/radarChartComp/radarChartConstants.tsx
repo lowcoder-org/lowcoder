@@ -254,7 +254,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: withDefault(StringControl, trans("radarChart.defaultTitle")),
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultRadarChartOption),
   echartsTitle: withDefault(StringControl, trans("radarChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

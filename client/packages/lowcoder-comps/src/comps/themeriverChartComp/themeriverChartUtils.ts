@@ -161,7 +161,7 @@ export function getEchartsConfig(
         top: props.echartsLegendConfig.top,
         left: props.echartsLegendAlignConfig.left,
         orient: props.echartsLegendOrientConfig.orient,
-        data: props?.echartsOption?.data && Array.from(new Set((props.echartsOption.data).map(item => item[2]))),
+        data: props?.echartsData?.data && Array.from(new Set((props.echartsData.data).map(item => item[2]))) || props?.echartsOption?.data && Array.from(new Set((props.echartsOption.data).map(item => item[2]))),
         textStyle: {
           ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
         }
@@ -189,7 +189,7 @@ export function getEchartsConfig(
       series: [
         {
           type: props.echartsConfig.type,
-          data: props.echartsOption.data,
+          data: props?.echartsData?.data || props.echartsOption.data,
           label: {
             show: true,
             position: "top",
@@ -204,12 +204,12 @@ export function getEchartsConfig(
               shadowColor: "rgba(0, 0, 0, 0.8)"
             }
           },
-          color: props.echartsOption?.color && props.echartsOption.color
+          color: props.echartsData?.color && props.echartsData.color || props.echartsOption?.color && props.echartsOption.color
         },
       ]
     }
 
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

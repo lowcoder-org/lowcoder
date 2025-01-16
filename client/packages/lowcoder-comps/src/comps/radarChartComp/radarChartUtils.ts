@@ -156,7 +156,7 @@ export function getEchartsConfig(
       backgroundColor: parseBackground(
         props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
       ),
-      color: props.echartsOption.data?.map(data => data.color),
+      color: props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
       tooltip: {
         trigger: "axis",
         formatter: function (params) {
@@ -169,7 +169,7 @@ export function getEchartsConfig(
       },
       radar: [
         {
-          indicator: props.echartsOption.indicator,
+          indicator: props.echartsData.indicator || props.echartsOption.indicator,
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           startAngle: props?.startAngle,
           endAngle: props?.endAngle,
@@ -182,13 +182,36 @@ export function getEchartsConfig(
           },
           splitArea: {
             areaStyle: {
-              color: props?.echartsOption?.color,
+              color: props?.echartsData?.color || props?.echartsOption?.color,
               ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
             }
           },
         }
       ],
-      series: props?.echartsOption && {
+      series:
+        props?.echartsData && {
+          data: props?.echartsData?.series && [
+            ...props?.echartsData?.series.map(item => ({
+              ...item,
+              areaStyle: item.areaColor && {
+                ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+                color: item.areaColor
+              },
+              lineStyle: {
+                ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+                color: item.lineColor,
+                width: item.lineWidth,
+              },
+              symbolSize: item.pointSize,
+              itemStyle: {
+                color: item.pointColor
+              }
+            }))
+          ],
+          type: "radar"
+        }
+        ||
+        props?.echartsOption && {
         data: props?.echartsOption?.series && [
           ...props?.echartsOption?.series.map(item => ({
             ...item,
@@ -210,7 +233,7 @@ export function getEchartsConfig(
         type: "radar"
       }
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

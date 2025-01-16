@@ -213,7 +213,7 @@ export function getEchartsConfig(
             show: true,
             position: props?.echartsLabelConfig.top
           },
-          data: props?.echartsOption.data,
+          data: props?.echartsData?.data || props?.echartsOption.data,
           itemStyle: {
             ...props?.echartsOption.itemStyle,
             borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
@@ -227,7 +227,7 @@ export function getEchartsConfig(
         },
       ],
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
 
   }
 

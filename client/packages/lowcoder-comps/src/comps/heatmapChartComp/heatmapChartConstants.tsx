@@ -253,7 +253,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: withDefault(StringControl, trans("heatmapChart.defaultTitle")),
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultHeatmapChartOption),
   echartsTitle: withDefault(StringControl, trans("heatmapChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

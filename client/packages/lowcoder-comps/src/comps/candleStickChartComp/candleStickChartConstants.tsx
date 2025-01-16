@@ -250,7 +250,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultCandleStickChartOption),
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,

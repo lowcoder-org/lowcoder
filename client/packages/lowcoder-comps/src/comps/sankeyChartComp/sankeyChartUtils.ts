@@ -166,11 +166,14 @@ export function getEchartsConfig(
             position: props.echartsLabelConfig.top,
             ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
           },
-          data: props?.echartsOption?.data && props?.echartsOption?.data?.map(item => ({
+          data: props?.echartsData?.data && props?.echartsData?.data?.map(item => ({
               name: item.name,
               itemStyle: isColorString(item.color) && {color: item.color}
+          })) || props?.echartsOption?.data && props?.echartsOption?.data?.map(item => ({
+            name: item.name,
+            itemStyle: isColorString(item.color) && {color: item.color}
           })),
-          links: props.echartsOption.links,
+          links: props.echartsData.links || props.echartsOption.links,
           emphasis: {
             focus: props?.focus ? 'adjacency' : undefined,
           },
@@ -189,7 +192,7 @@ export function getEchartsConfig(
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

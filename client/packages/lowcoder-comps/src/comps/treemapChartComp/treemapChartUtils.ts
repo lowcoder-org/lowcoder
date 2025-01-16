@@ -162,11 +162,11 @@ export function getEchartsConfig(
           right: `${props?.right}%`,
           bottom: `${props?.bottom}%`,
           top: `${props?.top}%`,
-          data: props.echartsOption.data,
+          data: props?.echartsData?.data || props.echartsOption.data,
           breadcrumb: {
             show: true
           },
-          color: props.echartsOption.color,
+          color: props.echartsData.color || props.echartsOption.color,
           itemStyle: {
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
           },
@@ -176,7 +176,7 @@ export function getEchartsConfig(
         }
       ]
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   
