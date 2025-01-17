@@ -140,19 +140,6 @@ export function Layout(props: LayoutProps) {
 
       {/* Desktop Layout */}
       <AntdLayout>
-        <SideBarV2
-          className={CNSidebar}
-          $bgColor={brandingSettings?.adminSidebarColor}
-          $fontColor={brandingSettings?.adminSidebarFontColor}
-          $activeBgColor={brandingSettings?.adminSidebarActiveBgColor}
-          $activeFontColor={brandingSettings?.adminSidebarActiveFontColor}
-        >
-          {props.sections
-            .filter((section) => section.items.length > 0)
-            .map((section, index) => (
-              <SideBarSection key={index} {...section} />
-            ))}
-        </SideBarV2>
         {!isMobile && (
           <SideBarV2 className={`${CNSidebar} desktop-only`}>
             {desktopSections

@@ -49,10 +49,6 @@ export const SideBarSection = (props: SideBarSectionProps) => {
               }
               selectedBgColor={brandingSettings?.adminSidebarActiveBgColor}
               selectedFontColor={brandingSettings?.adminSidebarActiveFontColor}
-              onClick={
-                item.onClick ??
-                (() => currentPath !== item.routePath && history.push(item.routePath))
-              }
               onClick={() => {
                 // Trigger item's onClick if defined
                 item.onClick
