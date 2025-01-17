@@ -16,7 +16,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RadioStyle } from "comps/controls/styleControlConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 
@@ -72,6 +72,7 @@ export const RadioPropertyView = (
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
+        {showDataLoadingIndicatorsPropertyView(children as any)}
       </Section></>
     )}
 

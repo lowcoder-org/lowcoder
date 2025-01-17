@@ -15,8 +15,6 @@ import type { PageType } from "../constants/pageConstants";
 import type { SizeType } from "antd/es/config-provider/SizeContext";
 import { Datasource } from "constants/datasourceConstants";
 import {
-  LOWCODER_API_ID,
-  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "../constants/datasourceConstants";
@@ -26,6 +24,7 @@ import { useSelector } from "react-redux";
 import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -178,15 +177,6 @@ const ResButton = (props: {
         dataSourceId: QUICK_GRAPHQL_ID,
       },
     },
-    lowcoderApi: {
-      icon: LOWCODER_API_INFO.icon,
-      label: LOWCODER_API_INFO.name,
-      type: BottomResTypeEnum.Query,
-      extra: {
-        compType: "lowcoderApi",
-        dataSourceId: LOWCODER_API_ID,
-      },
-    },
   };
 
   if (typeof props.identifier === "object") {
@@ -232,6 +222,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
   const [isScrolling, setScrolling] = useState(false);
   const [visible, setVisible] = useState(false);
 
+  const isPublicApp = useSelector(isPublicApplication);
   const user = useSelector(getUser);
 
   const { width, ref } = useResizeDetector({ handleHeight: false });
@@ -289,7 +280,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                       onSelect={onSelect}
                     />
                     <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
-                    <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} />
+                    {!isPublicApp && <ResButton size={buttonSize} identifier={"libraryQuery"} onSelect={onSelect} /> }
                     <ResButton
                       size={buttonSize}
                       identifier={BottomResTypeEnum.Folder}
@@ -329,15 +320,11 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
-                {placement === "editor" && (
-                  <ResButton size={buttonSize} identifier={"lowcoderApi"} onSelect={onSelect} />
-                )}
-
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
                 ))}
 
-                {user.orgDev && (
+                {(user.orgDev || isPublicApp) && (
                   <DataSourceButton size={buttonSize} onClick={() => setVisible(true)}>
                     <LargeBottomResIconWrapper>
                       <AddIcon />
@@ -351,7 +338,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
         </ScrollBar>
       </Content>
       <CreateDataSourceModal
-       open={visible}
+        open={visible}
         onCancel={() => setVisible(false)}
         onCreated={() => setVisible(false)}
       />

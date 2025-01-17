@@ -3,7 +3,6 @@ import { SQLQuery } from "../comps/queries/sqlQuery/SQLQuery";
 import { HttpQuery } from "../comps/queries/httpQuery/httpQuery";
 import { StreamQuery } from "../comps/queries/httpQuery/streamQuery";
 import { MongoQuery } from "../comps/queries/mongoQuery";
-import { LowcoderQuery } from "../comps/queries/lowcoderQuery";
 import { RedisQuery } from "../comps/queries/redisQuery";
 import { EsQuery } from "../comps/queries/esQuery";
 import { SMTPQuery } from "../comps/queries/smtpQuery";
@@ -21,7 +20,6 @@ export type DatasourceType =
   | "restApi"
   | "streamApi"
   | "postgres"
-  | "lowcoderApi"
   | "redis"
   | "es"
   | "mssql"
@@ -42,7 +40,6 @@ export const QueryMap = {
   streamApi: StreamQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
-  lowcoderApi: LowcoderQuery,
   redis: RedisQuery,
   es: EsQuery,
   mssql: SQLQuery,

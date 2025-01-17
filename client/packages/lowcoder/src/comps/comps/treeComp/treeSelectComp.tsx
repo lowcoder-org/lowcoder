@@ -30,6 +30,7 @@ import { trans } from "i18n";
 import {
   allowClearPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { BaseSelectRef } from "rc-select";
@@ -170,6 +171,7 @@ let TreeBasicComp = (function () {
                 children.checkedStrategy.propertyView({ label: trans("tree.checkedStrategy") })}
               {allowClearPropertyView(children)}
               {showSearchPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           </>
         )}

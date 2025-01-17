@@ -1,10 +1,7 @@
 package org.lowcoder.api.application;
 
 import lombok.RequiredArgsConstructor;
-import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationPermissionView;
-import org.lowcoder.api.application.view.ApplicationView;
-import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
@@ -16,6 +13,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -25,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Objects;
 
 import static org.apache.commons.collections4.SetUtils.emptyIfNull;
 import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
@@ -40,7 +39,7 @@ public class ApplicationController implements ApplicationEndpoints {
     private final BusinessEventPublisher businessEventPublisher;
     private final SessionUserService sessionUserService;
     private final GidService gidService;
-    private final FolderElementRelationService folderElementRelationService;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
@@ -132,9 +131,28 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId) {
+    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
+                                                       @RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.publish(appId)
+                    applicationRecordService.getLatestRecordByApplicationId(applicationId)
+                        .map(applicationRecord -> {
+                            String tag = applicationRecord.getTag(); // Assuming format is 1.0.0
+                            String newtag = "1.0.0";
+
+                            if (tag != null && tag.matches("\\d+\\.\\d+\\.\\d+")) { // Validate tag format
+                                String[] parts = tag.split("\\."); // Split by "."
+                                int major = Integer.parseInt(parts[0]);
+                                int minor = Integer.parseInt(parts[1]);
+                                int patch = Integer.parseInt(parts[2]);
+
+                                patch++; // Increment the patch version
+                                newtag = String.format("%d.%d.%d", major, minor, patch);
+                            }
+
+                            return newtag;
+                        })
+                        .switchIfEmpty(Mono.just("1.0.0"))
+                        .flatMap(newtag -> applicationApiService.publish(appId, Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag))))
                 .map(ResponseView::success));
     }
 
@@ -143,6 +161,12 @@ public class ApplicationController implements ApplicationEndpoints {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.updateEditState(appId, updateEditStateRequest)
                 .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<Application>> updateSlug(@PathVariable String applicationId, @RequestBody String slug) {
+        return applicationApiService.updateSlug(applicationId, slug)
+                .map(ResponseView::success);
     }
 
     @Override
@@ -162,13 +186,6 @@ public class ApplicationController implements ApplicationEndpoints {
                                                                          @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         ApplicationType applicationTypeEnum = applicationType == null ? null : ApplicationType.fromValue(applicationType);
         var flux = userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(applicationTypeEnum, applicationStatus, withContainerSize, name, category)
-                .delayUntil(applicationInfoView -> {
-                    String applicationId = applicationInfoView.getApplicationId();
-                    return folderElementRelationService.getByElementIds(List.of(applicationId))
-                            .doOnNext(folderElement -> {
-                                applicationInfoView.setFolderId(folderElement.folderId());
-                            }).then();
-                })
                 .cache();
         Mono<Long> countMono = flux.count();
         var flux1 = flux.skip((long) (pageNum - 1) * pageSize);

@@ -1,4 +1,4 @@
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
@@ -157,6 +157,7 @@ let JsonLottieTmpComp = (function () {
                 {children.animationStart.propertyView({ label: trans("jsonLottie.animationStart")})}
                  {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
                 {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
             </>
           )}

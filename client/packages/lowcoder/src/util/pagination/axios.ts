@@ -6,11 +6,14 @@ import {
     fetchFolderRequestType,
     fetchGroupUserRequestType, fetchOrgsByEmailRequestType,
     fetchOrgUserRequestType, fetchQueryLibraryPaginationRequestType,
+    GenericApiPaginationResponse,
     orgGroupRequestType
 } from "@lowcoder-ee/util/pagination/type";
 import OrgApi from "@lowcoder-ee/api/orgApi";
-import { DatasourceApi } from "@lowcoder-ee/api/datasourceApi";
+import { DatasourceApi, NodePluginDatasourceInfo } from "@lowcoder-ee/api/datasourceApi";
 import {QueryLibraryApi} from "@lowcoder-ee/api/queryLibraryApi";
+import { AxiosResponse } from "axios";
+import { PUBLIC_APP_ID, publicAppJSDatasourceResponse } from "@lowcoder-ee/constants/publicApp";
 
 export const fetchFolderElements = async (request: fetchFolderRequestType) => {
     try {
@@ -135,7 +138,12 @@ export const fetchQLPaginationByOrg = async (request: fetchQueryLibraryPaginatio
 
 export const fetchJsDSPaginationByApp = async (request: fetchDataSourcePaginationRequestType)=> {
     try {
-        const response = await DatasourceApi.fetchJsDatasourcePaginationByApp(request);
+        let response: AxiosResponse<GenericApiPaginationResponse<NodePluginDatasourceInfo[]>, any>;
+        if (request.appId === PUBLIC_APP_ID) {
+            response = publicAppJSDatasourceResponse;
+        } else {
+            response = await DatasourceApi.fetchJsDatasourcePaginationByApp(request);
+        }
         return {
             success: true,
             data: response.data.data,

@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, IframeStyle, IframeStyleType } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import log from "loglevel";
 
@@ -81,6 +81,7 @@ let IFrameCompBase = new UICompBuilder(
           {children.allowMicrophone.propertyView({ label: trans("iframe.allowMicrophone") })}
           {children.allowCamera.propertyView({ label: trans("iframe.allowCamera") })}
           {children.allowPopup.propertyView({ label: trans("iframe.allowPopup") })}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section>
       )}
 

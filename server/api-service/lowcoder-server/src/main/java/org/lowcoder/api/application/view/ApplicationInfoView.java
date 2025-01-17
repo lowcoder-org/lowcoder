@@ -41,6 +41,20 @@ public class ApplicationInfoView {
 
     private final String editingUserId;
 
+    @JsonInclude(Include.NON_NULL)
+    private final String title;
+    @JsonInclude(Include.NON_NULL)
+    private final String description;
+    @JsonInclude(Include.NON_NULL)
+    private final String category;
+    @JsonInclude(Include.NON_NULL)
+    private final String icon;
+    private final boolean published;
+    @JsonInclude(Include.NON_NULL)
+    private final String publishedVersion;
+    @JsonInclude(Include.NON_NULL)
+    private final Instant lastPublishedTime;
+
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();
     }

@@ -22,18 +22,18 @@ import {
   getButtonStyle,
 } from "./buttonCompConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { dropdownControl } from "@lowcoder-ee/comps/controls/dropdownControl";
 
 const StyledDropdownButton = styled(DropdownButton)`
   width: 100%;
   
   .ant-btn-group {
     width: 100%;
-   
   }
 `;
 
 const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
-  width: calc(100%);
+  flex: 1;
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-right: 0;
   .ant-btn span {
@@ -42,12 +42,11 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   }
   
   .ant-btn {
-    ${(props) => getButtonStyle(props.$buttonStyle)}
+    ${(props) => getButtonStyle(props.$buttonStyle as any)}
     margin: 0 !important;
     height: 100%;
     &.ant-btn-default {
       margin: 0 !important;
-
       ${(props) => `border-radius: ${props.$buttonStyle.radius} 0 0 ${props.$buttonStyle.radius};`}
       ${(props) => `text-transform: ${props.$buttonStyle.textTransform};`}
       ${(props) => `font-weight: ${props.$buttonStyle.textWeight};`}
@@ -65,11 +64,11 @@ const LeftButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
 `;
 
 const RightButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
-  // width: 32px;
+  width: 32px;
   ${(props) => `margin: ${props.$buttonStyle.margin};`}
   margin-left: -1px;
   .ant-btn {
-    ${(props) => getButtonStyle(props.$buttonStyle)}
+    ${(props) => getButtonStyle(props.$buttonStyle as any)}
     margin: 0 !important;
     height: 100%;
     &.ant-btn-default {
@@ -80,10 +79,16 @@ const RightButtonWrapper = styled.div<{ $buttonStyle: DropdownStyleType }>`
   }
 `;
 
+const triggerOptions = [
+  { label: "Hover", value: "hover" },
+  { label: "Click", value: "click" },
+] as const;
+
 const DropdownTmpComp = (function () {
   const childrenMap = {
     text: withDefault(StringControl, trans("menu")),
     onlyMenu: BoolControl,
+    triggerMode: dropdownControl(triggerOptions, "hover"),
     options: DropdownOptionControl,
     disabled: BoolCodeControl,
     onEvent: ButtonEventHandlerControl,
@@ -121,8 +126,9 @@ const DropdownTmpComp = (function () {
           <Dropdown
             disabled={props.disabled}
             dropdownRender={() => menu}
+            trigger={[props.triggerMode]}
           >
-            <Button100 $buttonStyle={props.style} disabled={props.disabled}>
+            <Button100 $buttonStyle={props.style as any} disabled={props.disabled}>
               {props.text || " " /* Avoid button disappearing */}
             </Button100>
           </Dropdown>
@@ -130,6 +136,7 @@ const DropdownTmpComp = (function () {
           <StyledDropdownButton
             disabled={props.disabled}
             dropdownRender={() => menu}
+            trigger={[props.triggerMode]}
             onClick={() => props.onEvent("click")}
             buttonsRender={([left, right]) => [
               <LeftButtonWrapper $buttonStyle={props.style}>
@@ -170,6 +177,10 @@ const DropdownTmpComp = (function () {
           <>
             <Section name={sectionNames.layout}>
               {children.text.propertyView({ label: trans("label") })}
+              {children.triggerMode.propertyView({
+                label: trans("dropdown.triggerMode"),
+                radioButton: true,
+              })}
               {children.onlyMenu.propertyView({ label: trans("dropdown.onlyMenu") })}
             </Section>
             <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>

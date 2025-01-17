@@ -7,15 +7,22 @@ export default function IFrameExample() {
   return (
     <>
       <ExampleGroup
-        title={trans("componentDoc.basicUsage")}
+        title="Basic Usage"
         description={trans("componentDoc.basicDemoDescription")}
       >
         <Example
-          title=""
-          width={1000}
-          height={600}
-          hideSettings={true}
-          config={{}}
+          title="IFrame Component"
+          config={{
+            url: "https://lowcoder.cloud/",
+          }}
+          compFactory={IFrameComp}
+        />
+        <Example
+          title="Hiding the IFrame Component"
+          config={{
+            url: "https://lowcoder.cloud/",
+            hidden: true,
+          }}
           compFactory={IFrameComp}
         />
       </ExampleGroup>

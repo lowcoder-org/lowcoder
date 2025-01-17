@@ -13,7 +13,10 @@ import { DateEdit, formatDate } from "./columnDateComp";
 const childrenMap = {
   text: StringControl,
   format: withDefault(StringControl, DATE_TIME_FORMAT),
+  inputFormat: withDefault(StringControl, DATE_TIME_FORMAT),
 };
+
+let inputFormat = DATE_TIME_FORMAT;
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
@@ -21,6 +24,7 @@ export const DateTimeComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
+      inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return formatDate(value, props.format);
     },
@@ -33,6 +37,7 @@ export const DateTimeComp = (function () {
         onChange={props.onChange}
         onChangeEnd={props.onChangeEnd}
         showTime={true}
+        inputFormat={inputFormat}
       />
     ))
     .setPropertyViewFn((children) => (

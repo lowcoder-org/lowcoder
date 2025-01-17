@@ -31,19 +31,39 @@ export function candleStickChartPropertyView(
             </div>
           ),
         })}
-        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title") })}
-        {children.tooltip.propertyView({label: trans("candleStickChart.tooltip")})}
+        {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
+        {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
+        {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}
+        {children.right.propertyView({ label: trans("candleStickChart.right"), tooltip: trans("echarts.rightTooltip") })}
+        {children.top.propertyView({ label: trans("candleStickChart.top"), tooltip: trans("echarts.topTooltip") })}
+        {children.bottom.propertyView({ label: trans("candleStickChart.bottom"), tooltip: trans("echarts.bottomTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomHeight.propertyView({ label: trans("candleStickChart.dataZoomHeight"), tooltip: trans("candleStickChart.dataZoomHeightTooltip") })}
+        {children.dataZoomVisibility.getView() && children.dataZoomBottom.propertyView({ label: trans("candleStickChart.dataZoomBottom"), tooltip: trans("candleStickChart.dataZoomBottomTooltip") })}
+        {children.axisFlagVisibility.propertyView({label: trans("candleStickChart.axisFlagVisibility"), tooltip: trans("candleStickChart.axisFlagVisibilityTooltip") })}
+        {children.dataZoomVisibility.propertyView({label: trans("candleStickChart.dataZoomVisibility"), tooltip: trans("candleStickChart.dataZoomVisibilityTooltip") })}
       </Section>
       <Section name={sectionNames.interaction}>
         {children.onEvent.propertyView()}
       </Section>
-      <Section name={sectionNames.style}>
-         {children.style?.getPropertyView()}
+      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}
       </Section>
-      <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+
+      <Section name={sectionNames.chartStyle}>
+        {children.chartStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.titleStyle}>
+        {children.titleStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.xAxisStyle}>
+        {children.labelStyle?.getPropertyView()}
+      </Section>
+      <Section name={sectionNames.yAxisStyle}>
+        {children.legendStyle?.getPropertyView()}
+      </Section>
     </>
   );
-  
+
   const getChatConfigByMode = (mode: string) => {
     switch(mode) {
       case "json":

@@ -4,7 +4,7 @@ import { AnimationStyle, AnimationStyleType, startButtonStyle, StartButtonStyleT
 import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Button, Space } from "antd";
 import { countdownEvent, eventHandlerControl, pauseEvent, resetEvent, resumeEvent, startEvent } from "../controls/eventHandlerControl";
@@ -239,8 +239,9 @@ let AvatarGroupBasicComp = (function () {
               })}
             </Section>
             <Section name={sectionNames.interaction}>
-              {hiddenPropertyView(children)}
               {children.onEvent.propertyView()}
+              {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           </>
         )}

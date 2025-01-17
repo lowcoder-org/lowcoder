@@ -84,6 +84,9 @@ import {
 } from "./calendarConstants";
 import { EventOptionControl } from "./eventOptionsControl";
 import { EventImpl } from "@fullcalendar/core/internal";
+import DatePicker from "antd/es/date-picker";
+
+const DATE_TIME_FORMAT = "YYYY-MM-DD HH:mm:ss";
 
 function fixOldData(oldData: any) {
   if(!Boolean(oldData)) return;
@@ -201,10 +204,12 @@ let childrenMap: any = {
   currentPremiumView: dropdownControl(DefaultWithPremiumViewOptions, "resourceTimelineDay"),
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   showVerticalScrollbar: withDefault(BoolControl, false),
+  showResourceEventsInFreeView: withDefault(BoolControl, false),
   initialData: stateComp<JSONObject>({}),
   updatedEvents: stateComp<JSONObject>({}),
   insertedEvents: stateComp<JSONObject>({}),
   deletedEvents: stateComp<JSONObject>({}),
+  inputFormat: withDefault(StringControl, DATE_TIME_FORMAT),
 };
 
 // this should ensure backwards compatibility with older versions of the SDK
@@ -244,7 +249,9 @@ let CalendarBasicComp = (function () {
     animationStyle?:any;
     modalStyle?:any;
     showVerticalScrollbar?:boolean;
+    showResourceEventsInFreeView?: boolean;
     initialData: Array<EventType>;
+    inputFormat: string;
   }, dispatch: any) => {
     const comp = useContext(EditorContext)?.getUICompByName(
       useContext(CompNameContext)
@@ -259,6 +266,7 @@ let CalendarBasicComp = (function () {
     const [licensed, setLicensed] = useState<boolean>(props.licenseKey !== "");
     const [currentSlotLabelFormat, setCurrentSlotLabelFormat] = useState(slotLabelFormat);
     const [initDataMap, setInitDataMap] = useState<Record<string, number>>({});
+    const [hoverEventId, setHoverEvent] = useState<string>();
 
     useEffect(() => {
       setLicensed(props.licenseKey !== "");
@@ -285,12 +293,16 @@ let CalendarBasicComp = (function () {
     ]);
 
     const currentEvents = useMemo(() => {
+      if (props.showResourceEventsInFreeView && Boolean(props.licenseKey)) {
+        return props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
+      }
       return currentView == "resourceTimelineDay" || currentView == "resourceTimeGridDay"
         ? props.events.filter((event: { resourceId: any; }) => Boolean(event.resourceId))
         : props.events.filter((event: { resourceId: any; }) => !Boolean(event.resourceId));
     }, [
       currentView,
       props.events,
+      props.showResourceEventsInFreeView,
     ])
 
     // we use one central stack of events for all views
@@ -485,36 +497,45 @@ let CalendarBasicComp = (function () {
           : "";
       return (
         <Suspense fallback={null}>
-          <Event
-            className={`event ${sizeClass} ${stateClass}`}
-            theme={theme?.theme}
-            $isList={isList}
-            $allDay={Boolean(props.showAllDay)}
-            $style={props.style}
-            $backgroundColor={eventInfo.backgroundColor}
-            $extendedProps={eventInfo?.event?.extendedProps}
+          <Tooltip
+            title={eventInfo?.event?.extendedProps?.detail}
+            open={
+              isList
+              && Boolean(eventInfo?.event?.extendedProps?.detail)
+              && hoverEventId === eventInfo.event.id
+            }
           >
-            <div className="event-time">{eventInfo?.timeText}</div>
-            <div className="event-title">{eventInfo?.event?.title}</div>
-            <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>
-            <Remove
+            <Event
+              className={`event ${sizeClass} ${stateClass}`}
+              theme={theme?.theme}
               $isList={isList}
-              className="event-remove"
-              onClick={(e) => {
-                e.stopPropagation();
-                const events = props.events.filter(
-                  (item: EventType) => item.id !== eventInfo.event.id
-                );
-                handleEventDataChange(events);
-              }}
-              onMouseDown={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
+              $allDay={Boolean(props.showAllDay)}
+              $style={props.style}
+              $backgroundColor={eventInfo.backgroundColor}
+              $extendedProps={eventInfo?.event?.extendedProps}
             >
-              <CalendarDeleteIcon />
-            </Remove>
-          </Event>
+              <div className="event-time">{eventInfo?.timeText}</div>
+              <div className="event-title">{eventInfo?.event?.title }</div>
+              {!isList && <div className="event-detail">{eventInfo?.event?.extendedProps?.detail}</div>}
+              <Remove
+                $isList={isList}
+                className="event-remove"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const events = props.events.filter(
+                    (item: EventType) => item.id !== eventInfo.event.id
+                  );
+                  handleEventDataChange(events);
+                }}
+                onMouseDown={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                }}
+              >
+                <CalendarDeleteIcon />
+              </Remove>
+            </Event>
+          </Tooltip>
         </Suspense>
       );
     }, [
@@ -531,7 +552,14 @@ let CalendarBasicComp = (function () {
       const modalTitle = ifEdit
         ? trans("calendar.editEvent")
         : trans("calendar.creatEvent");
-      form && form.setFieldsValue(event);
+      if (form) {
+        const eventData = {
+          ...event,
+          start: Boolean(event.start) ? dayjs(event.start, props.inputFormat): null,
+          end: Boolean(event.end) ? dayjs(event.end, props.inputFormat): null,
+        }
+        form.setFieldsValue(eventData)
+      }
       const eventId = editEvent.current?.id;
 
       CustomModal.confirm({
@@ -589,13 +617,21 @@ let CalendarBasicComp = (function () {
                   label={trans("calendar.eventStartTime")}
                   name="start"
                 >
-                  <Input />
+                  <DatePicker
+                    showTime
+                    format={props.inputFormat}
+                    popupStyle={{zIndex: 2050}}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventEndTime")}
                   name="end"
                 >
-                  <Input />
+                  <DatePicker
+                    showTime
+                    format={props.inputFormat}
+                    popupStyle={{zIndex: 2050}}
+                  />
                 </Form.Item>
                 <Form.Item
                   label={trans("calendar.eventAllDay")}
@@ -739,7 +775,11 @@ let CalendarBasicComp = (function () {
               animation,
               animationDelay,
               animationDuration,
-              animationIterationCount } = form.getFieldsValue();
+              animationIterationCount,
+              start,
+              end,
+              allDay,
+            } = form.getFieldsValue();
             const idExist = props.events.findIndex(
               (item: EventType) => item.id === id
             );
@@ -757,6 +797,9 @@ let CalendarBasicComp = (function () {
                     label,
                     detail,
                     id,
+                    start: dayjs(start, DateParser).format(),
+                    end: dayjs(end, DateParser).format(),
+                    allDay,
                     ...(groupId !== undefined ? { groupId } : null),
                     ...(resourceId !== undefined ? { resourceId } : null),
                     ...(color !== undefined ? { color } : null),
@@ -779,9 +822,9 @@ let CalendarBasicComp = (function () {
               handleEventDataChange(changeEvents);
             } else {
               const createInfo = {
-                allDay: event.allDay,
-                start: event.start,
-                end: event.end,
+                allDay: allDay,
+                start: dayjs(start, DateParser).format(),
+                end: dayjs(end, DateParser).format(),
                 id,
                 label,
                 detail,
@@ -1007,6 +1050,8 @@ let CalendarBasicComp = (function () {
             }}
             eventDrop={handleDrop}
             eventResize={handleResize}
+            eventMouseEnter={({event}) => setHoverEvent(event.id)}
+            eventMouseLeave={({event}) => setHoverEvent(undefined)}
           />
         </ErrorBoundary>
       </Wrapper>
@@ -1033,6 +1078,8 @@ let CalendarBasicComp = (function () {
       modalStyle: { getPropertyView: () => any; };
       licenseKey: { getView: () => any; propertyView: (arg0: { label: string; }) => any; };
       showVerticalScrollbar: { propertyView: (arg0: { label: string; }) => any; };
+      showResourceEventsInFreeView: { propertyView: (arg0: { label: string; }) => any; };
+      inputFormat: { propertyView: (arg0: {}) => any; };
     }) => {
       const license = children.licenseKey.getView();
       
@@ -1072,12 +1119,29 @@ let CalendarBasicComp = (function () {
             {children.eventMaxStack.propertyView({ label: trans("calendar.eventMaxStack"), tooltip: trans("calendar.eventMaxStackTooltip"), })}
           </Section>
           <Section name={sectionNames.layout}>
+            {children.inputFormat.propertyView({
+              label: trans("calendar.inputFormat"),
+              placeholder: DATE_TIME_FORMAT,
+              tooltip: (
+                <>
+                  {trans("calendar.reference")} &nbsp;
+                  <a
+                    href={`https://day.js.org/docs/en/display/format`}
+                    target={"_blank"}
+                    rel="noreferrer"
+                  >
+                    dayjs format
+                  </a>
+                </>
+              ),
+            })}
             {children.licenseKey.propertyView({ label: trans("calendar.license"), tooltip: trans("calendar.licenseTooltip"), })}
             {license == ""
               ? children.currentFreeView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })
               : children.currentPremiumView.propertyView({ label: trans("calendar.defaultView"), tooltip: trans("calendar.defaultViewTooltip"), })}
             {children.firstDay.propertyView({ label: trans("calendar.startWeek"), })}
             {children.showVerticalScrollbar.propertyView({ label: trans("calendar.showVerticalScrollbar")})}
+            {Boolean(license) && children.showResourceEventsInFreeView.propertyView({ label: trans("calendar.showResourceEventsInFreeView")})}
           </Section>
           <Section name={sectionNames.style}>
             {children.style.getPropertyView()}
@@ -1166,7 +1230,7 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
           },
           execute: (comp, values) => {
               const viewType = values[0] as string || "timeGridWeek"; // Default to "timeGridWeek" if undefined
-              const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
+              const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
               comp.children[viewKey].dispatchChangeValueAction(viewType);
           }
       },*/
@@ -1179,8 +1243,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("resourceTimeGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("resourceTimeGridDay");
           }
         },
         {
@@ -1190,8 +1254,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("resourceTimelineDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("resourceTimelineDay");
           }
         },
         {
@@ -1201,8 +1265,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridWeek");
           }
         },
         {
@@ -1212,8 +1276,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("timeGridWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("timeGridWeek");
           }
         },
         {
@@ -1223,8 +1287,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("timeGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("timeGridDay");
           }
         },
         {
@@ -1234,8 +1298,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridDay");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridDay");
           }
         },
         {
@@ -1245,8 +1309,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("listWeek");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("listWeek");
           }
         },
         {
@@ -1256,8 +1320,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("dayGridMonth");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("dayGridMonth");
           }
         },
         {
@@ -1267,8 +1331,8 @@ let CalendarComp = withMethodExposing(TmpCalendarComp, [
             params: [{ name: "viewType", type: "string" }],
         },
           execute: (comp) => {
-            const viewKey = comp.children.licenseKey.getView() === "" ? 'defaultFreeView' : 'defaultPremiumView';
-            comp.children["viewKey"].dispatchChangeValueAction("multiMonthYear");
+            const viewKey = comp.children.licenseKey.getView() === "" ? 'currentFreeView' : 'currentPremiumView';
+            comp.children[viewKey].dispatchChangeValueAction("multiMonthYear");
           }
         },
         {

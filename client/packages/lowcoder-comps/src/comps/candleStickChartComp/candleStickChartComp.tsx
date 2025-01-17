@@ -168,15 +168,15 @@ CandleStickChartTmpComp = withViewFn(CandleStickChartTmpComp, (comp) => {
       }}
     >
       <ReactECharts
-          ref={(e) => (echartsCompRef.current = e)}
-          style={{ height: "100%" }}
-          notMerge
-          lazyUpdate
-          opts={{ locale: getEchartsLocale() }}
-          option={option}
-          theme={mode !== 'map' ? themeConfig : undefined}
-          mode={mode}
-        />
+        ref={(e) => (echartsCompRef.current = e)}
+        style={{ height: "100%" }}
+        notMerge
+        lazyUpdate
+        opts={{ locale: getEchartsLocale() }}
+        option={option}
+        theme={mode !== 'map' ? themeConfig : undefined}
+        mode={mode}
+      />
     </ReactResizeDetector>
   );
 });

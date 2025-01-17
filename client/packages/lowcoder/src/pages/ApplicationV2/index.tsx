@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   EllipsisTextCss,
   FolderIcon,
+  // EditPopover,
   HomeDataSourceIcon,
   NewsIcon,
   WorkspacesIcon,
@@ -62,6 +63,7 @@ import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configA
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+
 const TabLabel = styled.div`
   font-weight: 500;
 `;
@@ -73,14 +75,6 @@ const DivStyled = styled.div`
       padding: 0;
       max-width: 0 !important;
       min-width: 0 !important;
-    }
-
-    > div {
-      display: none;
-    }
-
-    .ant-layout > div {
-      display: none;
     }
   }
 `;
@@ -96,12 +90,10 @@ export default function ApplicationHome() {
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
-  const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const subscriptions = useSelector(getSubscriptions);
   const deploymentId = useSelector(getDeploymentId);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
-
   const isLicenseActive = useSelector(selectIsLicenseActive);
 
   useEffect(() => {

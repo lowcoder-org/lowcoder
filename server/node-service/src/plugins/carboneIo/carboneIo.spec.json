@@ -1,0 +1,713 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "description": "Carbone Cloud/On-premise Open API reference.\n\nFor requesting:\n- Carbone Cloud API: find your API key on your [Carbone account](https://account.carbone.io). Home page > Copy the `production` or `testing` API key.\n- Carbone On-premise: Update the `Server URL` on the Open API specification.\n\nUseful links:\n- [API Flow](https://carbone.io/api-reference.html#quickstart-api-flow)\n- [Integration / SDKs](https://carbone.io/api-reference.html#api-integration)\n- [Generated document storage](https://carbone.io/api-reference.html#report-storage)\n- [Request timeout](https://carbone.io/api-reference.html#api-timeout)",
+    "version": "1.2.0",
+    "title": "Carbone API",
+    "contact": {
+      "name": "Carbone Support",
+      "email": "support@carbone.io",
+      "url": "https://help.carbone.io"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "https://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "servers": [
+    {
+      "url": "{scheme}://{domain}:{port}{basePath}",
+      "description": "Carbon On-Premises Installation API Access",
+      "variables": {
+          "scheme": {
+              "description": "HTTP scheme",
+              "default": "http",
+              "enum": [
+                  "http",
+                  "https"
+              ]
+          },
+          "domain": {
+              "description": "IP address or domain",
+              "default": "localhost"
+          },
+          "port": {
+              "description": "Port",
+              "default": "8080"
+          },
+          "basePath": {
+              "description": "Base path",
+              "default": "/"
+          }
+      }
+    },
+    {
+        "url": "https://api.carbone.io",
+        "description": "Carbon Cloud: Public API Access (Production)"
+    }
+  ],
+  "tags": [
+    {
+      "name": "template",
+      "description": "Manage templates"
+    },
+    {
+      "name": "render",
+      "description": "Manage renders"
+    },
+    {
+      "name": "status",
+      "description": "API Status"
+    }
+  ],
+  "paths": {
+    "/template": {
+      "post": {
+        "tags": [
+          "template"
+        ],
+        "summary": "Upload a template.",
+        "description": "Documentation: https://carbone.io/api-reference.html#add-templates",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/carboneVersion"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "description": "Template File to upload, supported formats: DOCX, XLSX, PPTX, ODT, ODS, ODP, ODG, XHTML, IDML, HTML or an XML file",
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "template"
+                ],
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                }
+              }
+            },
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "template"
+                ],
+                "properties": {
+                  "template": {
+                    "type": "string",
+                    "example": "base64-encoded file contents"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "On success, the `template ID` is returned.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "templateId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/NotFileError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "415": {
+            "$ref": "#/components/responses/TemplateFormatError"
+          },
+          "422": {
+            "$ref": "#/components/responses/MissingTemplateFieldError"
+          }
+        }
+      }
+    },
+    "/template/{templateId}": {
+      "get": {
+        "description": "Documentation: https://carbone.io/api-reference.html#get-templates",
+        "tags": [
+          "template"
+        ],
+        "summary": "Download a template from a template ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/templateId"
+          },
+          {
+            "$ref": "#/components/parameters/carboneVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "stream of the file content",
+            "headers": {
+              "content-disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "Template name, for instance: 'filename=\"{templateid}.docx\"'."
+              },
+              "content-type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "File type"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/templateIdNotValidError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/TemplateNotFoundError"
+          }
+        }
+      },
+      "delete": {
+        "description": "Documentation: https://carbone.io/api-reference.html#delete-templates",
+        "tags": [
+          "template"
+        ],
+        "summary": "Delete a template from a template ID",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/templateId"
+          },
+          {
+            "$ref": "#/components/parameters/carboneVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The template is deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/templateIdNotValidError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/TemplateNotFoundError"
+          }
+        }
+      }
+    },
+    "/render/{templateId}": {
+      "post": {
+        "summary": "Generate a document from a template ID, and a JSON data-set",
+        "description": "Documentation: https://carbone.io/api-reference.html#render-reports",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "tags": [
+          "render"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/templateId"
+          },
+          {
+            "$ref": "#/components/parameters/carboneVersion"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "data"
+                ],
+                "properties": {
+                  "data": {
+                    "type": "object",
+                    "example": {
+                      "id": "42",
+                      "name": "John",
+                      "type": "invoice"
+                    },
+                    "description": "Required - ï¸\u008fJSON data-set merged into the template to generate a document"
+                  },
+                  "convertTo": {
+                    "type": "string",
+                    "example": "pdf",
+                    "description": "Optional - Convert the document into another format. Accepted values: ods xlsx xls csv pdf txt odp ppt pptx jpg png odt doc docx txt jpg png epub html xml idml. List of supported formats: https://carbone.io/documentation.html#supported-files-and-features-list"
+                  },
+                  "timezone": {
+                    "type": "string",
+                    "example": "Europe/Paris",
+                    "description": "Optional - Convert document dates to a timezone. The default timezone is `Europe/Paris`. The date must be chained with the `:formatD` formatter, for instance `{d.date:formatD(YYYY-MM-DD HH:MM)}`. List of accepted timezones (Column TZ identifier): https://en.wikipedia.org/wiki/List_of_tz_database_time_zones"
+                  },
+                  "lang": {
+                    "type": "string",
+                    "example": "fr-fr",
+                    "description": "Optional - Locale of the generated doocument, it will used for translation `{t()}`, formatting numbers with `:formatN`, and currencies `:formatC`. List of supported locales: https://github.com/carboneio/carbone/blob/master/formatters/_locale.js"
+                  },
+                  "complement": {
+                    "type": "object",
+                    "example": {},
+                    "description": "Optional - Object|Array, extra data accessible in the template with {c.} instead of {d.}"
+                  },
+                  "variableStr": {
+                    "type": "string",
+                    "example": "{#def = d.id}",
+                    "description": "Optional - Predefine alias, related documenation: https://carbone.io/documentation.html#alias"
+                  },
+                  "reportName": {
+                    "type": "string",
+                    "example": "{d.date}.odt",
+                    "description": "Optional - Static or dynamic file name returned on the `content-disposition` header when the generated report is fetched with `GET /report/:renderI`. Multiple Carbone tags are accepted, such as `{d.type}-{d.date}.pdf`"
+                  },
+                  "enum": {
+                    "type": "object",
+                    "example": {},
+                    "description": "Optional - List of enumerations, use it in reports with `convEnum` formatters, documentation: https://carbone.io/documentation.html#convenum-type-"
+                  },
+                  "translations": {
+                    "type": "object",
+                    "example": {
+                      "fr": {
+                        "one": "un"
+                      },
+                      "es": {
+                        "one": "uno"
+                      }
+                    },
+                    "description": "Optional - When the report is generated, all text between `{t( )}` is replaced with the corresponding translation. The `lang` option is required to select the correct translation. Learn more: https://carbone.io/documentation.html#translations"
+                  },
+                  "currencySource": {
+                    "type": "string",
+                    "example": "EUR",
+                    "description": "Optional - Currency source coming from your JSON data. The option is used by `formatC` to convert the currency based on the `currencyTarget` and `currencyRates`. Learn more: https://carbone.io/documentation.html#formatc-precisionorformat-"
+                  },
+                  "currencyTarget": {
+                    "type": "string",
+                    "example": "USD",
+                    "description": "Optional - Target currency when the document is generated. The option is used by `formatC` to convert the currency based on the `currencySource` and `currencyRates`. Learn more: https://carbone.io/documentation.html#formatc-precisionorformat-"
+                  },
+                  "currencyRates": {
+                    "type": "object",
+                    "example": {
+                      "EUR": 1,
+                      "USD": 1.2
+                    },
+                    "description": "Optional - Currency exchange rates for conversions from `currencySource` to `currencyTarget`. Learn more: https://carbone.io/documentation.html#formatc-precisionorformat-"
+                  },
+                  "hardRefresh": {
+                    "type": "boolean",
+                    "example": false,
+                    "description": "Optional - If true, the report content is refreshed at the end of the rendering process. To use this option, `convertTo` has to be defined. It is mostly used to refresh a table of content."
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "On success, a `render ID` is returned, a unique identifier for the generated document.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean",
+                      "default": true
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "renderId": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/NotJsonError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/TemplateNotFoundError"
+          },
+          "422": {
+            "$ref": "#/components/responses/MissingDataFieldError"
+          },
+          "500": {
+            "$ref": "#/components/responses/GenerateReportError"
+          }
+        }
+      }
+    },
+    "/render/{renderId}": {
+      "get": {
+        "summary": "Retreive a generated document from a render ID.",
+        "description": "Documentation: https://carbone.io/api-reference.html#download-rendered-reports",
+        "tags": [
+          "render"
+        ],
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/renderId"
+          },
+          {
+            "$ref": "#/components/parameters/carboneVersion"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream of the generated document",
+            "headers": {
+              "content-disposition": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "File name, for instance: 'filename=\"report.pdf\"'. The default value is 'report'. The file name can be changed dynamically thanks to the `reportName` option when generating a document with `POST /render/:templateId`."
+              },
+              "content-type": {
+                "schema": {
+                  "type": "string"
+                },
+                "description": "File type"
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/RenderIdNotValidError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "404": {
+            "$ref": "#/components/responses/FileDoesNotExistError"
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "tags": [
+          "status"
+        ],
+        "summary": "Fetch the API status and version",
+        "responses": {
+          "200": {
+            "description": "Check the API status and version",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "example": {
+                    "success": true,
+                    "code": 200,
+                    "message": "OK",
+                    "version": "4.13.0"
+                  },
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "code": {
+                      "type": "number"
+                    },
+                    "message": {
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Something went wrong, contact support on the chat"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "description": "Get you test or production API Key on https://account.carbone.io",
+        "scheme": "bearer",
+        "bearerFormat": "eyJhbGci..."
+      }
+    },
+    "parameters": {
+      "carboneVersion": {
+        "name": "carbone-version",
+        "description": "Carbone version",
+        "in": "header",
+        "required": true,
+        "schema": {
+          "type": "integer",
+          "format": "int32",
+          "default": 4
+        }
+      },
+      "templateId": {
+        "in": "path",
+        "name": "templateId",
+        "description": "Unique identifier of the template",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      },
+      "renderId": {
+        "in": "path",
+        "name": "renderId",
+        "description": "Unique identifier of the report",
+        "schema": {
+          "type": "string"
+        },
+        "required": true
+      }
+    },
+    "responses": {
+      "CResponseError": {
+        "description": "Error response when the request is invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "default": false
+                },
+                "data": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UnauthorizedError": {
+        "description": "Unauthorized, please provide a correct API key on the `Authorization ` header. The API key is available on your Carbone account: https://account.carbone.io",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Unauthorized, please provide a valid API key on the 'Authorization' header"
+              }
+            }
+          }
+        }
+      },
+      "NotJsonError": {
+        "description": "The body request type is not correct, it must be a JSON type and the `Content-type` header must be `application/json`",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "'Content-Type' header is not 'application/json'"
+              }
+            }
+          }
+        }
+      },
+      "TemplateNotFoundError": {
+        "description": "The template is not found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Template not found"
+              }
+            }
+          }
+        }
+      },
+      "MissingDataFieldError": {
+        "description": "The 'data' property is missing on the body request.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Missing 'data' property in body"
+              }
+            }
+          }
+        }
+      },
+      "GenerateReportError": {
+        "description": "Something went wrong when merging the JSON data-set into the template. The design of the template has an issue.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Error while rendering template"
+              }
+            }
+          }
+        }
+      },
+      "NotFileError": {
+        "description": "The body request type is not correct, it must be a FormData or a JSON. The `Content-type` header must be either `application/json` or `multipart/form-data`",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Content-Type header should be multipart/form-data or application/json"
+              }
+            }
+          }
+        }
+      },
+      "TemplateFormatError": {
+        "description": "Template format not supported, it must be an XML-based document: DOCX, XLSX, PPTX, ODT, ODS, ODP, ODG, XHTML, IDML, HTML or an XML file",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Template format not supported"
+              }
+            }
+          }
+        }
+      },
+      "MissingTemplateFieldError": {
+        "description": "The `template` field is empty on the body request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "'template' field is empty"
+              }
+            }
+          }
+        }
+      },
+      "templateIdNotValidError": {
+        "description": "The `template ID` is not valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Invalid templateId"
+              }
+            }
+          }
+        }
+      },
+      "FileDoesNotExistError": {
+        "description": "The file does not exist.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "File not found"
+              }
+            }
+          }
+        }
+      },
+      "RenderIdNotValidError": {
+        "description": "The `render ID` is not valid",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "example": {
+                "success": false,
+                "error": "Invalid render ID"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

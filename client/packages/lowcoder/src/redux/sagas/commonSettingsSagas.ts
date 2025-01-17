@@ -39,6 +39,17 @@ export function* fetchCommonSettingsSaga(action: ReduxAction<FetchCommonSettingP
 
 export function* setCommonSettingsSaga(action: ReduxAction<SetCommonSettingPayload>) {
   try {
+    // in case of public application, add data without sending request to BE
+    if (action.payload.isPublicApp) {
+      yield put({
+        type: ReduxActionTypes.SET_COMMON_SETTING_SUCCESS,
+        payload: {
+          [action.payload.data.key]: action.payload.data.value,
+        },
+      });
+      return;
+    }
+
     const response: AxiosResponse<SetCommonSettingResponse> = yield call(
       CommonSettingApi.setCommonSetting,
       action.payload

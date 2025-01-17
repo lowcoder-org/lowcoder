@@ -69,8 +69,20 @@ export const Wrapper = styled.div<{
   .fc-list {
     .fc-list-table {
       table-layout: fixed;
+      thead {
+        position: relative;
+        left: unset;
+        visibility: hidden;
+      }
       th {
         background-color: ${(props) => props.$style.background};
+
+        &:first-child {
+          width: 150px;
+        }
+        &:nth-child(2) {
+          width: 300px;
+        }
       }
     }
     .fc-list-event-graphic {
@@ -116,7 +128,6 @@ export const Wrapper = styled.div<{
         box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.15);
         border-width: 1px;
         margin: 2px 5px;
-        height: 20px;
         .event-title {
           margin-left: 15px;
         }
@@ -128,8 +139,6 @@ export const Wrapper = styled.div<{
     .fc-event {
       font-size: 13px;
       line-height: 20px;
-      display: flex;
-      align-items: center;
       &.no-time {
         padding-left: 19px;
       }
@@ -142,21 +151,15 @@ export const Wrapper = styled.div<{
       box-sizing: content-box;
     }
     .fc-list-event-title {
-      min-width: 266px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
       padding: 0 14px 0 0;
       cursor: pointer;
       .event {
         font-size: 13px;
-        height: 18px;
         line-height: 18px;
         margin: 3px 5px;
         border-width: 0;
         align-items: center;
         &::before {
-          height: 14px;
           top: 2px;
           left: 3px;
         }
@@ -165,9 +168,6 @@ export const Wrapper = styled.div<{
         }
         .event-title {
           margin-left: 16px;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          white-space: nowrap;
         }
         .event-remove {
           background-color: inherit;

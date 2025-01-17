@@ -172,7 +172,7 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
     this.setState({
       theme: {
         ...this.state.theme,
-        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.gridColumns || params.gridRowHeight || params.gridRowCount || params.gridPaddingX || params.gridPaddingY || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
+        [params.themeSettingKey]: params.color || params.radius || params.chart || params.margin || params.padding  || params.borderWidth || params.borderStyle || params.fontFamily || params.showComponentLoadingIndicators || params.showDataLoadingIndicators || params.dataLoadingIndicator || params.gridColumns || params.gridRowHeight || params.gridRowCount || params.gridPaddingX || params.gridPaddingY || params.gridBgImage || params.gridBgImageRepeat || params.gridBgImageSize || params.gridBgImagePosition || params.gridBgImageOrigin,
       },
     });
   }
@@ -312,6 +312,13 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
             desc: '',
             type: "showDataLoadingIndicators",
             value: this.state.theme?.showDataLoadingIndicators,
+          },
+          {
+            settingsKey: 'dataLoadingIndicator',
+            name: trans('themeDetail.dataLoadingIndicator'),
+            desc: '',
+            type: "dataLoadingIndicator",
+            value: this.state.theme?.dataLoadingIndicator,
           },
         ]
       },
@@ -778,6 +785,17 @@ class ThemeDetailPage extends React.Component<ThemeDetailPageProps, ThemeDetailP
                                   configChange={(params) => {
                                     this.configChange(params);
                                   }}
+                                />
+                              }
+                              {layoutSettingsItem.type == "dataLoadingIndicator" && 
+                                <ThemeSettingsSelector
+                                  themeSettingKey={layoutSettingsItem.settingsKey}
+                                  name={layoutSettingsItem.name}
+                                  dataLoadingIndicator={layoutSettingsItem.value as string}
+                                  configChange={(params) => {
+                                    this.configChange(params);
+                                  }}
+                                  showVarName={false}
                                 />
                               }
                           </List.Item>

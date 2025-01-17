@@ -491,9 +491,6 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             {comp.children.onEvent.getPropertyView()}
             {hiddenPropertyView(comp.children)}
             {loadingPropertyView(comp.children)}
-            {comp.children.showDataLoadSpinner.propertyView({
-              label: trans("table.showDataLoadSpinner"),
-            })}
             {comp.children.selection.getPropertyView()}
             {comp.children.editModeClicks.propertyView({
               label: trans("table.editMode"),
@@ -549,6 +546,9 @@ export function compTablePropertyView<T extends MultiBaseComp<TableChildrenType>
             })}
             {comp.children.hideHeader.propertyView({
               label: trans("table.hideHeader"),
+            })}
+            {comp.children.hideToolbar.propertyView({
+              label: trans("table.hideToolbar"),
             })}
             {comp.children.viewModeResizable.propertyView({
               label: trans("table.viewModeResizable"),

@@ -166,4 +166,10 @@ public class OrganizationController implements OrganizationEndpoints
                 .map(ResponseView::success));
     }
 
+    @Override
+    public Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug) {
+        return organizationService.updateSlug(orgId, slug)
+                .map(ResponseView::success);
+    }
+
 }

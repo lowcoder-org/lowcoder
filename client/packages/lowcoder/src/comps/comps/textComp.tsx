@@ -11,7 +11,7 @@ import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators
 import { markdownCompCss, TacoMarkDown } from "lowcoder-design";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
 
@@ -171,6 +171,7 @@ const TextPropertyView = React.memo((props: {
         <Section name={sectionNames.interaction}>
           {hiddenPropertyView(props.children)}
           {props.children.onEvent.getPropertyView()}
+          {showDataLoadingIndicatorsPropertyView(props.children)}
         </Section>
       )}
 

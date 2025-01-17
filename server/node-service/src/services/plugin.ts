@@ -219,9 +219,10 @@ export async function runPluginQuery(
       dataSourceConfig["OAUTH_ACCESS_TOKEN"] = value
     } else if (dataSourceConfig.dynamicParamsConfig && key in dataSourceConfig.dynamicParamsConfig) {
       const valueKey = `${key}.value`;
-      dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value
+      dataSourceConfig.dynamicParamsConfig[valueKey] = value[0].value;
     }
-  })
+  });
+
   const result = await plugin.run(action, dataSourceConfig, pluginContext);
 
   return {
