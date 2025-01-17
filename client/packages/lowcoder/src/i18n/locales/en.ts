@@ -231,6 +231,7 @@ export const en = {
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
     "timeZone": "TimeZone",
+    "pickerMode": "Picker Mode",
   },
   "autoHeightProp": {
     "auto": "Auto",

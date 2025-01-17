@@ -57,6 +57,13 @@ import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
+const PickerModeOptions = [
+  { label: "Date", value: "date" },
+  { label: "Week", value: "week" },
+  { label: "Month", value: "month" },
+  { label: "Quarter", value: "quarter" },
+  { label: "Year", value: "year" },
+]
 
 const validationChildren = {
   showValidationWhenEmpty: BoolControl,
@@ -91,11 +98,12 @@ const commonChildren = {
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
   childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
+  pickerMode: dropdownControl(PickerModeOptions, 'date'), 
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "inputFormat", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
+  _.pick(props, "format", "inputFormat", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder", "pickerMode");
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
   children.showTime.propertyView({ label: trans("date.showTime") }),
@@ -168,6 +176,7 @@ export type DateCompViewProps = Pick<
   | "secondStep"
   | "viewRef"
   | "timeZone"
+  | "pickerMode"
 > & {
   onFocus: () => void;
   onBlur: () => void;
@@ -177,6 +186,41 @@ export type DateCompViewProps = Pick<
   suffixIcon: ReactNode;
   placeholder?: string | [string, string];
 };
+
+const getFormattedDate = (
+  time: dayjs.Dayjs | null | undefined,
+  showTime: boolean,
+  pickerMode: string,
+) => {
+  let updatedTime = undefined;
+  if (time?.isValid()) {
+    switch(pickerMode) {
+      case 'week': {
+        updatedTime = dayjs(time).day(0);
+        break;
+      }
+      case 'month': {
+        updatedTime = dayjs(time).set('date', 1);
+        break;
+      }
+      case 'quarter': {
+        updatedTime = dayjs(time).set('date', 1);
+        break;
+      }
+      case 'year': {
+        updatedTime = dayjs(time).set('date', 1).set('month', 1);
+        break;
+      }
+      default: {
+        updatedTime = time;
+        break;
+      }
+    }
+  }
+  return updatedTime
+    ? updatedTime.format(showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+    : "";
+}
 
 const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
   const defaultValue = { ...props.defaultValue }.value;
@@ -226,9 +270,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         value={tempValue?.isValid() ? tempValue : null}
         onChange={(time) => {
           handleDateChange(
-            time && time.isValid()
-              ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : "",
+            getFormattedDate(time, props.showTime, props.pickerMode),
             props.value.onChange,
             props.onEvent
           );
@@ -255,9 +297,12 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
             placeholder: "2022-04-07 21:39:59",
             tooltip: trans("date.formatTip")
           })}
+          {children.pickerMode.propertyView({
+            label: trans("prop.pickerMode")
+          })}
           {children.timeZone.propertyView({
             label: trans("prop.timeZone")
-            })}
+          })}
         </Section>
 
         <FormDataPropertyView {...children} />
@@ -417,12 +462,10 @@ let DateRangeTmpCmp = (function () {
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         onChange={(start, end) => {
           props.start.onChange(
-            start && start.isValid()
-              ? start.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : ""
+            getFormattedDate(start, props.showTime, props.pickerMode)
           );
           props.end.onChange(
-            end && end.isValid() ? end.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : ""
+            getFormattedDate(end, props.showTime, props.pickerMode)
           );
           props.onEvent("change");
         }}
@@ -467,6 +510,9 @@ let DateRangeTmpCmp = (function () {
               label: trans("date.end"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
+            })}
+            {children.pickerMode.propertyView({
+              label: trans("prop.pickerMode")
             })}
             {children.timeZone.propertyView({
             label: trans("prop.timeZone")

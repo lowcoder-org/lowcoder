@@ -53,7 +53,7 @@ export const DateUIView = (props: DataUIViewProps) => {
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
-      {...omit(props, "format", "inputFormat", "$childrenInputFieldStyle")}
+      {...omit(props, "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
       multiple={false}
       format={props.inputFormat}
       ref={props.viewRef as any}
@@ -63,7 +63,7 @@ export const DateUIView = (props: DataUIViewProps) => {
       minuteStep={props.minuteStep as any}
       secondStep={props.secondStep as any}
       disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
-      picker={"date"}
+      picker={props.pickerMode as any}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
       panelRender={(panelNode) => (
