@@ -187,7 +187,7 @@ TransferBasicComp = class extends TransferBasicComp {
   }
 };
 
-export const TransferComp = withExposingConfigs(TransferBasicComp, [
+export const transferComp = withExposingConfigs(TransferBasicComp, [
   new NameConfig("items", trans("transfer.items")),
   new NameConfig("targetKeys", trans("transfer.targetKeys")),
   new NameConfig("targerObject", trans("transfer.targerObject")),

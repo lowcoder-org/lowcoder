@@ -1,4 +1,4 @@
-import { TransferComp } from "comps/comps/transferComp";
+import { transferComp } from "comps/comps/transferComp";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
@@ -12,7 +12,7 @@ export default function TransferExample() {
             title="Default Audio Component"
             config={{ 
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
         </ExampleGroup>
       </>
