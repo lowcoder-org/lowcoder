@@ -116,6 +116,7 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   }, [mapScriptLoaded]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+  const childrenProps = childrenToProps(echartsConfigChildren);
   const option = useMemo(() => {
     return getEchartsConfig(
       childrenProps as ToViewReturn<typeof echartsConfigChildren>,

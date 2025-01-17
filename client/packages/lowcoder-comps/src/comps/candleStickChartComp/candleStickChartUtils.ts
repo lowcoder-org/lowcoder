@@ -187,7 +187,7 @@ export function getEchartsConfig(
       },
       xAxis: props?.echartsOption && {
         type: 'category',
-        data:  props?.echartsData.xAxis && props?.echartsOption.xAxis.data,
+        data: props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
         splitArea: !props?.axisFlagVisibility && {
           show: true,
           areaStyle: {
@@ -205,7 +205,7 @@ export function getEchartsConfig(
         },
         // Show split areas, each day with a different background color
       },
-      series: props?.echartsData || props?.echartsOption && [
+      series: props?.echartsOption && [
         {
           name: props?.echartsConfig.type,
           type: props?.echartsConfig.type,
