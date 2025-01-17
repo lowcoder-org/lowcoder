@@ -165,14 +165,14 @@ export function getEchartsConfig(
           edgeSymbolSize: [0, props?.arrowSize],
           symbolSize: props?.pointSize,
           lineStyle: {
-            color: props.echartsOption?.color?.lineColor || "#00000033",
+            color: props.echartsData?.color?.lineColor || props.echartsOption?.color?.lineColor || "#00000033",
             ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
             width: props?.lineWidth || 1,
             curveness: props?.curveness
           },
           'nodes': props?.echartsData?.nodes || props.echartsOption.nodes,
           itemStyle: {
-            "color": props.echartsOption?.color?.pointColor || "#0000ff",
+            "color": props.echartsData?.color?.pointColor || props.echartsOption?.color?.pointColor || "#0000ff",
             ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
           },
         }

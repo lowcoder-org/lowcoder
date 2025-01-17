@@ -148,13 +148,13 @@ export function getEchartsConfig(
         }
       },
       "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
-      "color": props.echartsOption.data?.map(data => data.color),
+      "color": props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
       "tooltip": props.tooltip&&{
         "trigger": "item",
         "formatter": "{a} <br/>{b} : {c}%"
       },
       "legend":props.legendVisibility&& {
-        "data": props.echartsOption.data?.map(data=>data.name),
+        "data": props.echartsData.data?.map(data=>data.name) || props.echartsOption.data?.map(data=>data.name),
         "top": props.echartsLegendConfig.top,
         "left": props.echartsLegendAlignConfig.left,
         "orient": props.echartsLegendOrientConfig.orient,

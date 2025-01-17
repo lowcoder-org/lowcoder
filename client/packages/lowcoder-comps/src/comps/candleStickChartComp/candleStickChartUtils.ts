@@ -149,7 +149,7 @@ export function getEchartsConfig(
         }
       },
       backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
-      color: props?.echartsOption.data?.map(data => data.color),
+      color: props?.echartsData.data?.map(data => data.color) || props?.echartsOption.data?.map(data => data.color),
       tooltip: props?.tooltip && {
         trigger: "axis",
         axisPointer: {
@@ -178,7 +178,7 @@ export function getEchartsConfig(
         splitArea: props?.axisFlagVisibility && {
           show: true,
           areaStyle: {
-            color: props?.echartsOption?.axisColor
+            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
           }
         },
         axisLabel: {
@@ -187,12 +187,12 @@ export function getEchartsConfig(
       },
       xAxis: props?.echartsOption && {
         type: 'category',
-        data:  props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
+        data:  props?.echartsData.xAxis && props?.echartsOption.xAxis.data,
         splitArea: !props?.axisFlagVisibility && {
           show: true,
           areaStyle: {
             // Provide multiple colors to alternate through
-            color: props?.echartsOption?.axisColor
+            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
           },
         },
         axisLabel: {
@@ -205,7 +205,7 @@ export function getEchartsConfig(
         },
         // Show split areas, each day with a different background color
       },
-      series:  props?.echartsOption && [
+      series: props?.echartsData || props?.echartsOption && [
         {
           name: props?.echartsConfig.type,
           type: props?.echartsConfig.type,
@@ -214,7 +214,16 @@ export function getEchartsConfig(
             position: props?.echartsLabelConfig.top
           },
           data: props?.echartsData?.data || props?.echartsOption.data,
-          itemStyle: {
+          itemStyle: props?.echartsData.itemStyle ? {
+            ...props?.echartsData.itemStyle,
+            borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
+            borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
+            borderRadius: Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
+            shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
+            shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+            shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+            shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+          } : {
             ...props?.echartsOption.itemStyle,
             borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
             borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,

@@ -83,7 +83,7 @@ export function gaugeChartPropertyView(
   const stageGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.gradeGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -150,7 +150,7 @@ export function gaugeChartPropertyView(
   const gradeGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.gradeGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -217,7 +217,7 @@ export function gaugeChartPropertyView(
   const temperatureGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.temperatureGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -285,7 +285,7 @@ export function gaugeChartPropertyView(
   const multiGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.multiTitleGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -350,7 +350,7 @@ export function gaugeChartPropertyView(
   const ringGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.ringGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -405,7 +405,7 @@ export function gaugeChartPropertyView(
   const barometerGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.barometerGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}
@@ -464,7 +464,7 @@ export function gaugeChartPropertyView(
   const clockGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.clockGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}

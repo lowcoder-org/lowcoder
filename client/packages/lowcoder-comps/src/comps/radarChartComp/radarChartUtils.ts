@@ -189,6 +189,7 @@ export function getEchartsConfig(
         }
       ],
       series:
+      props?.echartsData?.series ?
         props?.echartsData && {
           data: props?.echartsData?.series && [
             ...props?.echartsData?.series.map(item => ({
@@ -210,7 +211,7 @@ export function getEchartsConfig(
           ],
           type: "radar"
         }
-        ||
+        :
         props?.echartsOption && {
         data: props?.echartsOption?.series && [
           ...props?.echartsOption?.series.map(item => ({
