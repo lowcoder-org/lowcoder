@@ -2323,7 +2323,6 @@ export const pt = {
   "appUsage": "Logs de Uso do Aplicativo",
   "environments": "Ambientes",
   "premium": "Prémio",
-  "AppUsage": "Uso Global do Aplicativo",
   },
   "memberSettings": {
     ...en.memberSettings,

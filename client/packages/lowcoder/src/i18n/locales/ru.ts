@@ -2323,7 +2323,6 @@ export const ru = {
   "appUsage": "Журналы использования приложений",
   "environments": "Окружающая среда",
   "premium": "Премиум",
-  "AppUsage": "Глобальное использование приложений",
   },
   "memberSettings": {
     ...en.memberSettings,

@@ -219,7 +219,7 @@ export default function ApplicationHome() {
                   },
                 ],
               },
-              isLicenseActive ? {
+              /* isLicenseActive ? {
                 items: [
                   {
                     text: <TabLabel>{trans("settings.AppUsage")}</TabLabel>,
@@ -230,7 +230,7 @@ export default function ApplicationHome() {
                     visible: ({ user }) => user.orgDev,
                   },
                 ],
-              } : { items: [] },
+              } : { items: [] }, */
 
               supportSubscription && user.orgDev ? {
                 items: [

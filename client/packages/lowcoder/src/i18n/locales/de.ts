@@ -2323,7 +2323,6 @@ export const de = {
   "appUsage": "App-Nutzungsprotokolle",
   "environments": "Umgebungen",
   "premium": "Prämie",
-  "AppUsage": "Globale App-Nutzung",
   },
   "memberSettings": {
     ...en.memberSettings,

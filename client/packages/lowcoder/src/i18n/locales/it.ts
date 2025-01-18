@@ -2323,7 +2323,6 @@ export const it = {
   "appUsage": "Registri di utilizzo delle app",
   "environments": "Ambienti",
   "premium": "Premio",
-  "AppUsage": "Utilizzo globale delle app",
   },
   "memberSettings": {
     ...en.memberSettings,

@@ -2358,7 +2358,6 @@ export const en = {
     "appUsage": "App Usage Logs",
     "environments": "Environments",
     "premium": "Premium",
-    "AppUsage": "Global App Usage",
   },
 
   "subscription": {

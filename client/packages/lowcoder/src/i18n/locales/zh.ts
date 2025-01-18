@@ -1840,7 +1840,6 @@ export const zh: typeof en = {
         appUsage: "应用程序使用日志",
         environments: "环境",
         premium: "高级版",
-        "AppUsage": "全球应用程序使用情况",
     },
     memberSettings: {
         ...en.memberSettings,
