@@ -2,30 +2,44 @@ import React from "react";
 import ReactECharts from "echarts-for-react";
 
 interface Props {
-  data: Array<any>; // replace any with the actual type of data item
+  data: Array<any>; 
+  eventTypeLabels : any;
 }
 
-const EventTypeTimeChart = ({ data }: Props) => {
-
+const EventTypeTimeChart = ({ data, eventTypeLabels }: Props) => {
   const getChartOptions = () => {
-    
-    const groupedData = data.reduce((acc : any, log: any) => {
-      const date = new Date(log.event_time).toISOString().split("T")[0];
-      if (!acc[date]) acc[date] = {};
-      acc[date][log.event_type] = (acc[date][log.event_type] || 0) + 1;
+    // Group data by date and eventType
+    const groupedData = data.reduce((acc: any, log: any) => {
+      // Validate and parse eventTime
+      const eventTime = log.eventTime ? new Date(log.eventTime) : null;
+
+      if (eventTime && !isNaN(eventTime.getTime())) {
+        const date = eventTime.toISOString().split("T")[0]; // Extract date part
+        if (!acc[date]) acc[date] = {};
+        acc[date][log.eventType] = (acc[date][log.eventType] || 0) + 1;
+      } else {
+        console.warn("Invalid or missing eventTime:", log.eventTime);
+      }
+
       return acc;
     }, {});
 
+    // Extract sorted dates and unique event types
     const dates = Object.keys(groupedData).sort();
-    const eventTypes = [...new Set(data.map((log: any) => log.event_type))];
+    const eventTypes = [...new Set(data.map((log: any) => log.eventType))];
+
+    console.log("Dates:", dates);
+    console.log("Event Types:", eventTypes);
 
     // Prepare series data for each event type
     const series = eventTypes.map((eventType) => ({
-      name: eventType,
+      name: eventTypeLabels[eventType] || eventType,
       type: "bar",
       stack: "total",
       data: dates.map((date) => groupedData[date][eventType] || 0), // Fill gaps with 0
     }));
+
+    console.log("Series Data:", series);
 
     return {
       title: { text: "Event Types Over Time", left: "center" },
@@ -48,7 +62,7 @@ const EventTypeTimeChart = ({ data }: Props) => {
   };
 
   return (
-    <ReactECharts 
+    <ReactECharts
       option={getChartOptions()}
       style={{ height: "400px", marginBottom: "20px" }}
     />

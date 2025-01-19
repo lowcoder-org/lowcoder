@@ -2360,6 +2360,11 @@ export const en = {
     "premium": "Premium",
   },
 
+  "enterprise" : {
+    "AuditLogTitle": "Audit Log Dasboard",
+    "AuditLogOverview": "Overview",
+  },
+
   "subscription": {
     "details": "Subscription Details",
     "productDetails": "Product Details",
