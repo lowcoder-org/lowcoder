@@ -250,6 +250,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultCandleStickChartOption),
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
@@ -271,8 +272,8 @@ if (EchartCandleStickChartStyle && EchartDefaultTextStyle) {
     ...chartJsonModeChildren,
     chartStyle: styleControl(EchartCandleStickChartStyle, 'chartStyle'),
     titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
-    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
-    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
+    xAxisStyle: styleControl(EchartDefaultTextStyle, 'xAxisStyle'),
+    yAxisStyle: styleControl(EchartDefaultTextStyle, 'yAxisStyle'),
   }
 }
 

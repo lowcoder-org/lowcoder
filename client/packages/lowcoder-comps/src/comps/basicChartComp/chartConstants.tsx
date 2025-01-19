@@ -253,6 +253,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toJSONObjectArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultEchartsJsonOption),
   echartsTitle: withDefault(StringControl, trans("echarts.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

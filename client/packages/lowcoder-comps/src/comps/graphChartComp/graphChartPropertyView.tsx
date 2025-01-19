@@ -16,21 +16,7 @@ export function graphChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.echartsTitle.propertyView({ label: trans("graphChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
@@ -56,6 +42,23 @@ export function graphChartPropertyView(
         {children.titleStyle?.getPropertyView()}
       </Section>
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
+          label: trans("chart.echartsOptionLabel"),
+          styleName: "higher",
+          tooltip: (
+            <div>
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionTooltip")}
+              </a>
+              <br />
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionExamples")}
+              </a>
+            </div>
+          ),
+        })}
+      </Section>
     </>
   );
   

@@ -212,9 +212,7 @@ export function getEchartsConfig(
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
   const transformedData =
-    yAxisConfig.type === "category" || yAxisConfig.type === "time"
-      ? props.data
-      : transformData(props.data, props.xAxisKey, seriesColumnNames);
+    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsData.length && props.echartsData || props.data : transformData(props.echartsData.length && props.echartsData || props.data, props.xAxisKey, seriesColumnNames);
   config = {
     ...config,
     dataset: [
@@ -227,6 +225,9 @@ export function getEchartsConfig(
       ...series,
       itemStyle: {
         ...series.itemStyle,
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      },
+      lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       }
     })),
