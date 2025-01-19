@@ -258,7 +258,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
               {org.orgName}
             </StyledCard>
           ))}
-          {orgList.length > 10 ?
+          {elements.total > 10 ?
               <PaginationComp
                   currentPage={currentPage}
                   pageSize={pageSize}

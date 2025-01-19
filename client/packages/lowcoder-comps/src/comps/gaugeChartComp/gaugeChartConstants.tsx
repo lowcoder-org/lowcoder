@@ -268,6 +268,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toObject),
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
   stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
   gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
@@ -276,6 +277,14 @@ let chartJsonModeChildren: any = {
   ringGaugeOption: jsonControl(toObject, i18nObjs.defaultRingGaugeChartOption),
   clockGaugeOption: jsonControl(toObject, i18nObjs.defaultClockGaugeChartOption),
   barometerGaugeOption: jsonControl(toObject, i18nObjs.defaultBarometerGaugeChartOption),
+
+  stageGaugeData:jsonControl(toObject),
+  gradeGaugeData:jsonControl(toObject),
+  temperatureGaugeData:jsonControl(toObject),
+  multiTitleGaugeData:jsonControl(toObject),
+  ringGaugeData:jsonControl(toObject),
+  clockGaugeData:jsonControl(toObject),
+  barometerGaugeData:jsonControl(toObject),
 
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),

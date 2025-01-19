@@ -171,7 +171,7 @@ export function getEchartsConfig(
       },
       xAxis: {
         type: "category",
-        data: props?.echartsOption && props?.echartsOption.xAxis,
+        data: props?.echartsData?.xAxis || props?.echartsOption && props?.echartsOption.xAxis,
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
         },
@@ -181,7 +181,7 @@ export function getEchartsConfig(
       },
       yAxis: {
         type: "category",
-        data: props?.echartsOption && props?.echartsOption.yAxis,
+        data: props?.echartsData?.yAxis || props?.echartsOption && props?.echartsOption.yAxis,
         axisLabel: {
           ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
         },
@@ -193,7 +193,7 @@ export function getEchartsConfig(
         {
           name: 'Heatmap',
           type: 'heatmap',
-          data: props?.echartsOption && props?.echartsOption.data,
+          data: props?.echartsData?.data || props?.echartsOption && props?.echartsOption.data,
           label: {
             show: props?.labelVisibility,
             ...styleWrapper(props?.labelStyle, theme?.labelStyle, 12),

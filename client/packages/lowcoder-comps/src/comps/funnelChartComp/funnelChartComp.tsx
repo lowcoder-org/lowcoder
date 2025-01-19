@@ -141,13 +141,14 @@ FunnelChartTmpComp = withViewFn(FunnelChartTmpComp, (comp) => {
   }, [onUIEvent]);
 
   let echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+  const childrenProps = childrenToProps(echartsConfigChildren);
   const option = useMemo(() => {
     return getEchartsConfig(
-      childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
+      childrenProps as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
       themeConfig,
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren), theme]);
+  }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))

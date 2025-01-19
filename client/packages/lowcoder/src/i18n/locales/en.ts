@@ -741,7 +741,7 @@ export const en = {
     "triggerTypeManual": "Only when you trigger it manually",
     "triggerTypeInputChange": "When Inputs Change",
     "triggerTypeQueryExec": "After Query Execution",
-    "triggerTypeTimeout": "After the Timeout Interval",
+    "triggerTypeTimeout": "After Application (Page) loads and Timeout",
     "delayTime": "Delay Time",
     "chooseDataSource": "Choose Data Source",
     "method": "Method",

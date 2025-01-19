@@ -149,7 +149,7 @@ export function getEchartsConfig(
       backgroundColor: parseBackground(
         props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
       ),
-      color: props.echartsOption.data?.map(data => data.color),
+      color: props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
       tooltip: props.tooltip&&{
         trigger: "item",
         formatter: "{b}: {c}"
@@ -160,8 +160,8 @@ export function getEchartsConfig(
           radius: [`${props?.radiusInline}%`, `${props?.radiusOutline}%`],
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           symbolSize: 7,
-          data: props.echartsOption.data,
-          levels: props.echartsOption.levels,
+          data: props?.echartsData?.data || props.echartsOption.data,
+          levels: props.echartsData.levels || props.echartsOption.levels,
           itemStyle: {
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
           },
@@ -173,7 +173,7 @@ export function getEchartsConfig(
         }
       ],
     }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   
