@@ -2,6 +2,7 @@ import numbro from "numbro";
 import Papa from "papaparse";
 import * as uuid from "uuid";
 import * as supabase from "@supabase/supabase-js";
+import * as alasql from "alasql";
 
 import * as styledNameExports from "styled-components";
 import styledDefault from "styled-components";
@@ -136,3 +137,4 @@ window.numbro = numbro;
 window.Papa = Papa;
 window.uuid = uuid;
 window.supabase = supabase;
+window.alasql = alasql;

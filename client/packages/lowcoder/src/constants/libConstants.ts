@@ -1,1 +1,1 @@
-export const libNames = new Set(["uuid", "numbro", "Papa", "supabase"]);
+export const libNames = new Set(["uuid", "numbro", "Papa", "supabase", "alasql"]);
