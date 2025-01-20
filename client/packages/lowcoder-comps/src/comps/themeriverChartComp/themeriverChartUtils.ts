@@ -189,7 +189,7 @@ export function getEchartsConfig(
       series: [
         {
           type: props.echartsConfig.type,
-          data: props?.echartsData?.data || props.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
           label: {
             show: true,
             position: "top",

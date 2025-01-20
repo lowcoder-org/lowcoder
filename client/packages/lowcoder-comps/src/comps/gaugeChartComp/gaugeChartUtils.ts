@@ -218,13 +218,13 @@ export function getEchartsConfig(
             "position": props.echartsLabelConfig.top,
           },
           "data":
-            props.echartsData.data?.map(item => ({
+            props?.echartsData.length !== 0 && props?.echartsData?.map(item => ({
             "value": item.value,
             "name": item.name,
             title: {
               ...styleWrapper(props?.labelStyle, theme?.labelStyle, 18, "#000000"),
             }}))
-            ||
+              ||
             props.echartsOption.data?.map(item => ({
               "value": item.value,
               "name": item.name,
@@ -282,7 +282,7 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.stageGaugeData?.data?.map(data => data.value) || props?.stageGaugeOption?.data?.map(data => data.value)
+                value: props?.stageGaugeData.length !== 0 && props?.stageGaugeData?.map(data => data.value) || props?.stageGaugeOption?.data?.map(data => data.value)
               }
             ]
           }
@@ -342,8 +342,8 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.gradeGaugeData?.data?.map(data => data.value) || props?.gradeGaugeOption?.data?.map(data => data.value),
-                name: props?.gradeGaugeData?.data?.map(data => data.name)[0] || props?.gradeGaugeOption?.data?.map(data => data.name)[0],
+                value: props?.gradeGaugeData.length !== 0 && props?.gradeGaugeData?.map(data => data.value) || props?.gradeGaugeOption?.data?.map(data => data.value),
+                name: props?.gradeGaugeData.length !== 0 && props?.gradeGaugeData?.map(data => data.name)[0] || props?.gradeGaugeOption?.data?.map(data => data.name)[0],
               }
             ]
           }
@@ -370,28 +370,8 @@ export function getEchartsConfig(
           },
 
           data:
-            props?.multiTitleGaugeData?.data && props?.multiTitleGaugeData?.data[0]?.value?.map(item => ({
-            value: item.value,
-            name: item.title,
-            title: {
-              offsetCenter: item.titlePosition
-            },
-            detail: {
-              offsetCenter: item.valuePosition,
-
-            },
-            itemStyle: {
-              color: item.color
-            },
-            pointer: {
-              itemStyle: {
-                color: item.color
-              }
-            }
-          }))
-            ||
-            props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]?.value?.map(item => ({
-              value: item.value,
+            props?.multiTitleGaugeOption?.data && props?.multiTitleGaugeOption?.data[0]?.value?.map((item, index) => ({
+              value: props?.multiTitleGaugeData.length !== 0 && props?.multiTitleGaugeData[index] || item.value,
               name: item.title,
               title: {
                 offsetCenter: item.titlePosition
@@ -476,7 +456,7 @@ export function getEchartsConfig(
           },
           data: [
             {
-              value: props?.temperatureGaugeData?.data?.map(data => data.value) || props?.temperatureGaugeOption?.data?.map(data => data.value)
+              value: props?.temperatureGaugeData.length !== 0 && props?.temperatureGaugeData?.map(data => data.value) || props?.temperatureGaugeOption?.data?.map(data => data.value)
             }
           ]
         },
@@ -557,27 +537,8 @@ export function getEchartsConfig(
             show: false
           },
           data:
-            props?.ringGaugeData?.data && props?.ringGaugeData?.data[0]?.value.map(item => ({
-            value: item.value,
-            name: item.title,
-            title: {
-              offsetCenter: item.titlePosition
-            },
-            detail: {
-              offsetCenter: item.valuePosition
-            },
-            itemStyle: {
-              color: item.color
-            },
-            pointer: {
-              itemStyle: {
-                color: item.color
-              }
-            }
-          }))
-              ||
-            props?.ringGaugeOption?.data && props?.ringGaugeOption?.data[0]?.value.map(item => ({
-          value: item.value,
+            props?.ringGaugeOption?.data && props?.ringGaugeOption?.data[0]?.value.map((item, index) => ({
+            value: props?.ringGaugeData.length !== 0 && props?.ringGaugeData[index] || item.value,
           name: item.title,
           title: {
             offsetCenter: item.titlePosition
@@ -610,130 +571,6 @@ export function getEchartsConfig(
     let barometerGaugeOpt = {
       ...basic,
       series:
-        props?.barometerGaugeData?.data && [
-          {
-            ...basicSeries,
-            type: 'gauge',
-            min: props?.barometerGaugeData?.data[0]?.outline?.period[0],
-            max: props?.barometerGaugeData?.data[0]?.outline?.period[1],
-            center: [`${props?.position_x}%`, `${props?.position_y}%`],
-            splitNumber: props?.barometerGaugeData?.data[0]?.outline?.splitNumber,
-            radius: props?.barometerGaugeData?.data[0]?.outline?.radius,
-            axisLine: {
-              lineStyle: {
-                color: [[1, props?.barometerGaugeData?.data[0]?.outline?.color]],
-                width: props?.barometerGaugeData?.data[0]?.outline?.progressBarWidth
-              }
-            },
-            splitLine: {
-              distance: -Number(props?.barometerGaugeData?.data[0]?.outline?.progressBarWidth),
-              length: -Number(props?.barometerGaugeData?.data[0]?.outline?.axisTickLength) * 2,
-              lineStyle: {
-                color: props?.barometerGaugeData?.data[0]?.outline?.color,
-                width: Number(props?.barometerGaugeData?.data[0]?.outline?.axisTickWidth) * 1.5
-              }
-            },
-            axisTick: {
-              distance: -Number(props?.barometerGaugeData?.data[0]?.outline?.progressBarWidth),
-              length: -Number(props?.barometerGaugeData?.data[0]?.outline?.axisTickLength),
-              lineStyle: {
-                color: props?.barometerGaugeData?.data[0]?.outline?.color,
-                width: props?.barometerGaugeData?.data[0]?.outline?.axisTickWidth
-              }
-            },
-            axisLabel: {
-              distance: Number(props?.barometerGaugeData?.data[0]?.outline?.progressBarWidth) - 20,
-              ...styleWrapper(props?.axisLabelStyle, theme?.axisLabelStyle, 13, '#c80707')
-            },
-            pointer: {
-              ...basicSeries.pointer,
-              icon: props?.barometerPointerIcon,
-              length: `${props?.barometerPointerLength}%`,
-              width: props?.barometerPointerWidth,
-              offsetCenter: [0, `${-Number(props.barometerPointer_Y)}%`],
-              itemStyle: {
-                color: props?.barometerGaugeData?.data[0]?.inline?.color
-              }
-            },
-            anchor: {
-              show: true,
-              size: 10,
-              itemStyle: {
-                borderColor: '#000',
-                borderWidth: 1
-              }
-            },
-            detail: {
-              valueAnimation: true,
-              precision: 2,        // Increase precision or keep as is
-              ...styleWrapper(props?.legendStyle, theme?.legendStyle, 16),
-              offsetCenter: [0, '40%'],
-              formatter: props?.barometerGaugeData?.data?.map(data => data.formatter)[0],
-            },
-            title: {
-              offsetCenter: [0, '-40%'],  // Adjust title placement for smaller chart
-              ...styleWrapper(props?.labelStyle, theme?.labelStyle, 13)
-            },
-            data: [
-              {
-                value: props?.barometerGaugeData?.data[0]?.value,
-                name: props?.barometerGaugeData?.data[0]?.name,
-              }
-            ]
-          },
-          {
-            ...basicSeries,
-            type: 'gauge',
-            min: props?.barometerGaugeData?.data[0]?.inline?.period[0],
-            max: props?.barometerGaugeData?.data[0]?.inline?.period[1],
-            center: [`${props?.position_x}%`, `${props?.position_y}%`],
-            splitNumber: props?.barometerGaugeData?.data[0]?.inline?.splitNumber,
-            radius: props?.barometerGaugeData?.data[0]?.inline?.radius,
-            anchor: {
-              show: true,
-              size: 6,
-              itemStyle: {
-                color: '#000'
-              }
-            },
-            axisLine: {
-              lineStyle: {
-                color: [[1, props?.barometerGaugeData?.data[0]?.inline?.color]],
-                width: props?.barometerGaugeData?.data[0]?.inline?.progressBarWidth
-              }
-            },
-            splitLine: {
-              distance: -2,          // Adjust spacing
-              length: Number(props?.barometerGaugeData?.data[0]?.inline?.axisTickLength) * 2,
-              lineStyle: {
-                color: props?.barometerGaugeData?.data[0]?.inline?.color,
-                width: Number(props?.barometerGaugeData?.data[0]?.inline?.axisTickWidth) * 1.5
-              }
-            },
-            axisTick: {
-              distance: 0,
-              length: props?.barometerGaugeData?.data[0]?.inline?.axisTickLength,
-              lineStyle: {
-                color: props?.barometerGaugeData?.data[0]?.inline?.color,
-                width: props?.barometerGaugeData?.data[0]?.inline?.axisTickWidth
-              }
-            },
-            axisLabel: {
-              distance: Number(props?.barometerGaugeData?.data[0]?.inline?.progressBarWidth) + 6,
-              ...styleWrapper(props?.axisLabelStyleOutline, theme?.axisLabelStyleOutline, 13, '#000'),
-            },
-            pointer: {
-              show: false
-            },
-            title: {
-              show: false
-            },
-            detail: {
-              show: false
-            }
-          }
-        ]
-          ||
         props?.barometerGaugeOption?.data && [
           {
             ...basicSeries,
@@ -800,8 +637,8 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.barometerGaugeOption?.data[0]?.value,
-                name: props?.barometerGaugeOption?.data[0]?.name,
+                value: props?.barometerGaugeData.length !== 0 && props?.barometerGaugeData[0]?.value || props?.barometerGaugeOption?.data[0]?.value,
+                name: props?.barometerGaugeData.length !== 0 && props?.barometerGaugeData[0]?.name || props?.barometerGaugeOption?.data[0]?.name,
               }
             ]
           },
@@ -938,7 +775,7 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.clockGaugeData?.data?.map(data => data.hour)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.value
+                value: props?.clockGaugeData.length !== 0 && props?.clockGaugeData?.map(data => data.hour)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.hour)[0]?.value
               }
             ]
           },
@@ -983,7 +820,7 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.clockGaugeData?.data?.map(data => data.minute)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.value
+                value: props?.clockGaugeData.length !== 0 && props?.clockGaugeData?.map(data => data.minute)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.minute)[0]?.value
               }
             ]
           },
@@ -1041,7 +878,7 @@ export function getEchartsConfig(
             },
             data: [
               {
-                value: props?.clockGaugeData?.data?.map(data => data.second)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.second)[0]?.value
+                value: props?.clockGaugeData.length !== 0 && props?.clockGaugeData?.map(data => data.second)[0]?.value || props?.clockGaugeOption?.data?.map(data => data.second)[0]?.value
               }
             ]
           }

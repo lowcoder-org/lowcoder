@@ -213,7 +213,7 @@ export function getEchartsConfig(
             show: true,
             position: props?.echartsLabelConfig.top
           },
-          data: props?.echartsData?.data || props?.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props?.echartsOption.data,
           itemStyle: props?.echartsData.itemStyle ? {
             ...props?.echartsData.itemStyle,
             borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
