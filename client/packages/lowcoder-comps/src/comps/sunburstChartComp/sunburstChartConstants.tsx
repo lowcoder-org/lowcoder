@@ -18,7 +18,8 @@ import {
   styleControl,
   EchartDefaultChartStyle,
   EchartDefaultTextStyle,
-  RadarLabelStyle
+  RadarLabelStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -252,7 +253,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toObject),
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultSunburstChartOption),
   echartsTitle: withDefault(StringControl, trans("sunburstChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

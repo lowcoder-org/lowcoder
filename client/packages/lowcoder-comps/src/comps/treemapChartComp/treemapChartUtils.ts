@@ -162,7 +162,7 @@ export function getEchartsConfig(
           right: `${props?.right}%`,
           bottom: `${props?.bottom}%`,
           top: `${props?.top}%`,
-          data: props?.echartsData?.data || props.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
           breadcrumb: {
             show: true
           },

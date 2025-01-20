@@ -189,10 +189,10 @@ export function getEchartsConfig(
         }
       ],
       series:
-      props?.echartsData?.series ?
-        props?.echartsData && {
-          data: props?.echartsData?.series && [
-            ...props?.echartsData?.series.map(item => ({
+        props?.echartsData.length !== 0 ?
+        {
+          data: props?.echartsData && [
+            ...props?.echartsData.map(item => ({
               ...item,
               areaStyle: item.areaColor && {
                 ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),

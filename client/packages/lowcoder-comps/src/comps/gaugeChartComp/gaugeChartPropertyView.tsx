@@ -83,7 +83,7 @@ export function gaugeChartPropertyView(
   const stageGaugePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.gradeGaugeData.propertyView({ label: trans("chart.data") })}
+        {children.stageGaugeData.propertyView({ label: trans("chart.data") })}
         {children.chartType.propertyView({label: trans("gaugeChart.chartType"), tooltip: trans("gaugeChart.chartTypeTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("gaugeChart.title"), tooltip: trans("echarts.titleTooltip") })}

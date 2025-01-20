@@ -155,7 +155,7 @@ export function getEchartsConfig(
           "type": "graph",
           "layout": "force",
           'categories': props?.echartsData?.categories || props.echartsOption.categories,
-          'links': props?.echartsData?.links || props.echartsOption.links,
+          'links': props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.links,
           "force": {
             "repulsion": props.repulsion,
             "gravity": props?.gravity,
