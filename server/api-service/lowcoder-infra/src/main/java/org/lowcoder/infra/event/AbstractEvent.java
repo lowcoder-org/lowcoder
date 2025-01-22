@@ -20,7 +20,7 @@ public abstract class AbstractEvent implements LowcoderEvent
 	private final String ipAddress;
     protected Map<String, Object> details;
 	@Setter
-	private static String deploymentID;
+	private static String environmentID;
     
     public Map<String, Object> details()
     {
@@ -36,7 +36,7 @@ public abstract class AbstractEvent implements LowcoderEvent
     			details = new HashMap<>();
     		}
     		this.details.put(name, value);
-			this.details.put("deploymentID", deploymentID);
+			this.details.put("environmentId", environmentID);
     		return self();
     	}
     }
@@ -55,6 +55,6 @@ public abstract class AbstractEvent implements LowcoderEvent
             }
 
 		}
-		details.put("deploymentID", deploymentID);
+		details.put("environmentId", environmentID);
 	}
 }
