@@ -17,7 +17,8 @@ import {
   clickEvent,
   styleControl,
   EchartDefaultChartStyle,
-  EchartDefaultTextStyle
+  EchartDefaultTextStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -37,6 +38,7 @@ import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleCon
 import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
 import { EchartsLegendAlignConfig } from "../chartComp/chartConfigs/echartsLegendAlignConfig";
 import { EchartsLegendOrientConfig } from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 
 export const ChartTypeOptions = [
   {
@@ -254,12 +256,14 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
-  echartsLegendConfig: EchartsLegendConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsSortingConfig: EchartsSortingConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
+  echartsLegendConfig: EchartsLegendConfig,
   echartsLegendOrientConfig: EchartsLegendOrientConfig,
   echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,

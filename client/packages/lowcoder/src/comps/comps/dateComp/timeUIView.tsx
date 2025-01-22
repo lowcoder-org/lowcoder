@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { default as TimePicker } from "antd/es/time-picker";
-import { DateTimeStyleType } from "../../controls/styleControlConstants";
-import { getStyle } from "comps/comps/dateComp/dateCompUtil";
+import { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
+import { getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
@@ -44,21 +44,30 @@ export const TimeUIView = (props: TimeUIViewProps) => {
   return useUIView(
     <TimeMobileUIView {...props} />,
     <TimePickerStyled
-      {...omit(props, "format")}
+      {...omit(props, "format", "inputFormat", "$childrenInputFieldStyle")}
       ref={props.viewRef}
       hideDisabledOptions
+      format={props.inputFormat}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
-      renderExtraFooter={()=>(
-      props.timeZone === "UserChoice" && (
-        <StyledAntdSelect
-          placeholder="Select Time Zone"
-          options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
-          onChange={props?.handleTimeZoneChange}
-          defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
-          />
-        )
+      panelRender={(panelNode) => (
+        <StyledPickerPanel
+          $style={props.$childrenInputFieldStyle as ChildrenMultiSelectStyleType}
+        >
+          {panelNode}
+        </StyledPickerPanel>
       )}
+      renderExtraFooter={()=>(
+        props.timeZone === "UserChoice" && (
+          <StyledAntdSelect
+            placeholder="Select Time Zone"
+            options={timeZoneOptions.filter(option => option.value !== 'UserChoice')} // Filter out 'userChoice'
+            onChange={props?.handleTimeZoneChange}
+            defaultValue={Intl.DateTimeFormat().resolvedOptions().timeZone}
+            />
+          )
+        )
+      }
     />   
   );
 };

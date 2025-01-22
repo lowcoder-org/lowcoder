@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
-import { disabledDate, getStyle } from "comps/comps/dateComp/dateCompUtil";
+import { disabledDate, getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import styled from "styled-components";
-import type { DateTimeStyleType } from "../../controls/styleControlConstants";
+import type { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import type { DatePickerProps } from "antd/es/date-picker";
@@ -53,8 +53,9 @@ export const DateUIView = (props: DataUIViewProps) => {
   return useUIView(
     <DateMobileUIView {...props} />,
     <DatePickerStyled
-      {...omit(props, "format")}
+      {...omit(props, "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
       multiple={false}
+      format={props.inputFormat}
       ref={props.viewRef as any}
       minDate={props.minDate ? dayjs(props.minDate, DateParser) : undefined}
       maxDate={props.maxDate ? dayjs(props.maxDate, DateParser) : undefined}
@@ -62,9 +63,16 @@ export const DateUIView = (props: DataUIViewProps) => {
       minuteStep={props.minuteStep as any}
       secondStep={props.secondStep as any}
       disabledDate={(current) => disabledDate(current, props.minDate, props.maxDate)}
-      picker={"date"}
+      picker={props.pickerMode as any}
       inputReadOnly={checkIsMobile(editorState?.getAppSettings().maxWidth)}
       placeholder={placeholder}
+      panelRender={(panelNode) => (
+        <StyledPickerPanel
+          $style={props.$childrenInputFieldStyle as ChildrenMultiSelectStyleType}
+        >
+          {panelNode}
+        </StyledPickerPanel>
+      )}
       renderExtraFooter={()=>(
         props.timeZone === "UserChoice" && (
           <StyledDiv>

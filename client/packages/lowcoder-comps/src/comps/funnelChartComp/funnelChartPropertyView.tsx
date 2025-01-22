@@ -16,24 +16,12 @@ export function funnelChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsOption.propertyView({
-          label: trans("chart.echartsOptionLabel"),
-          styleName: "higher",
-          tooltip: (
-            <div>
-              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionTooltip")}
-              </a>
-              <br />
-              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
-                {trans("chart.echartsOptionExamples")}
-              </a>
-            </div>
-          ),
-        })}
+        {children.echartsData.propertyView({ label: trans("chart.data") })}
+
         {children.echartsTitleConfig.getPropertyView()}
-        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
+        {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}
+        {children.legendVisibility.getView() && children.echartsLegendConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendOrientConfig.getPropertyView()}
         {children.echartsSortingConfig.getPropertyView()}
         {children.label.getView()&& children.echartsLabelConfig.getPropertyView()}
@@ -73,6 +61,23 @@ export function funnelChartPropertyView(
         </Section> : <></>
       }
       <Section name={sectionNames.layout}>{hiddenPropertyView(children)}</Section>
+      <Section name={sectionNames.advanced}>
+        {children.echartsOption.propertyView({
+          label: trans("chart.echartsOptionLabel"),
+          styleName: "higher",
+          tooltip: (
+            <div>
+              <a href={optionUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionTooltip")}
+              </a>
+              <br />
+              <a href={examplesUrl} target="_blank" rel="noopener noreferrer">
+                {trans("chart.echartsOptionExamples")}
+              </a>
+            </div>
+          ),
+        })}
+      </Section>
     </>
   );
   

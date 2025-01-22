@@ -3,7 +3,6 @@ import { SQLQuery } from "../comps/queries/sqlQuery/SQLQuery";
 import { HttpQuery } from "../comps/queries/httpQuery/httpQuery";
 import { StreamQuery } from "../comps/queries/httpQuery/streamQuery";
 import { MongoQuery } from "../comps/queries/mongoQuery";
-import { LowcoderQuery } from "../comps/queries/lowcoderQuery";
 import { RedisQuery } from "../comps/queries/redisQuery";
 import { EsQuery } from "../comps/queries/esQuery";
 import { SMTPQuery } from "../comps/queries/smtpQuery";
@@ -14,6 +13,7 @@ import { GraphqlQuery } from "../comps/queries/httpQuery/graphqlQuery";
 import { toPluginQuery } from "comps/queries/pluginQuery/pluginQuery";
 import { MultiCompConstructor } from "lowcoder-core";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
+import { AlaSqlQuery } from "@lowcoder-ee/comps/queries/httpQuery/alasqlQuery";
 
 export type DatasourceType =
   | "mysql"
@@ -21,7 +21,6 @@ export type DatasourceType =
   | "restApi"
   | "streamApi"
   | "postgres"
-  | "lowcoderApi"
   | "redis"
   | "es"
   | "mssql"
@@ -31,18 +30,19 @@ export type DatasourceType =
   | "googleSheets"
   | "graphql"
   | "snowflake"
-  | "mariadb";
+  | "mariadb"
+  | "alasql";
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
 export const QueryMap = {
   js: JSQuery,
   mysql: SQLQuery,
+  alasql: AlaSqlQuery,
   restApi: HttpQuery,
   streamApi: StreamQuery,
   mongodb: MongoQuery,
   postgres: SQLQuery,
-  lowcoderApi: LowcoderQuery,
   redis: RedisQuery,
   es: EsQuery,
   mssql: SQLQuery,

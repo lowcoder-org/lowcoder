@@ -18,7 +18,7 @@ import {
   withExposingConfigs,
 } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
@@ -41,9 +41,9 @@ const Container = styled.div<{
   ${(props) =>
     props.$style &&
     css`
-      height: calc(100% - ${props.$style.margin});
-      width: calc(100% - ${props.$style.margin});
-      padding: ${props.$style.padding};
+      height: calc(100% - ${props.$style.margin ?? '0px'});
+      width: calc(100% - ${props.$style.margin ?? '0px'});
+      padding: ${props.$style.padding ?? '0px'};
       margin: ${props.$style.margin};
       border: ${props.$style.borderWidth} solid ${props.$style.border};
       border-radius: ${props.$style.radius};
@@ -128,6 +128,7 @@ let IconBasicComp = (function () {
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 

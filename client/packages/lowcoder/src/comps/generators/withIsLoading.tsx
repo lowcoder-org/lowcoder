@@ -11,6 +11,11 @@ import {
 import styled from "styled-components";
 import { codeControl } from "comps/controls/codeControl";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
+import Skeleton from "antd/es/skeleton";
+import { ReactNode, useContext, useMemo } from "react";
+import { CompContext } from "../utils/compContext";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
+import { ThemeContext } from "../utils/themeContext";
 
 const Wrapper = styled.div`
   &,
@@ -23,6 +28,50 @@ const Wrapper = styled.div`
 
 const __WITH_IS_LOADING = "__WITH_IS_LOADING";
 
+const LoadingWrapper = ({
+  isLoading,
+  children,
+}: {
+  isLoading: boolean,
+  children: ReactNode,
+}) => {
+  const compState = useContext(CompContext);
+  const currentTheme = useContext(ThemeContext)?.theme;
+
+  const showLoading = useMemo(() => {
+    const themeDataIndicator = currentTheme?.showDataLoadingIndicators;
+    const compDataIndicator = compState.comp?.comp?.showDataLoadingIndicators;
+
+    return isLoading ? (
+      compDataIndicator !== 'undefined' ? compDataIndicator : Boolean(themeDataIndicator)
+    ) : false;
+  }, [
+    isLoading,
+    currentTheme?.showDataLoadingIndicators,
+    compState.comp?.comp?.showDataLoadingIndicators,
+  ]);
+
+  if (currentTheme?.dataLoadingIndicator === 'skeleton') {
+    return (
+      <Wrapper>
+        <Skeleton active loading={showLoading}>
+          {children}
+        </Skeleton>
+      </Wrapper>
+    );
+  }
+
+  return (
+    <Wrapper>
+      <Spin
+        spinning={showLoading}
+        indicator={<LoadingOutlined style={{ fontSize: 15 }} spin />}
+      >
+        {children}
+      </Spin>
+    </Wrapper>
+  )
+}
 /**
  * Unified increase isLoading effect
  */
@@ -38,16 +87,16 @@ export function withIsLoading<T extends MultiCompConstructor>(VariantComp: T): T
         },
         updateNodeFields: (value: any) => {
           const fetchInfo = value[__WITH_IS_LOADING] as FetchInfo;
-          return { isLoading: fetchInfo.isFetching };
+          return { isLoading: fetchInfo?.isFetching };
         },
       });
     }
 
     override getView() {
       return (
-        <Wrapper>
-          <Spin spinning={this.isLoading}>{super.getView()}</Spin>
-        </Wrapper>
+        <LoadingWrapper isLoading={this.isLoading}>
+          {super.getView()}
+        </LoadingWrapper>
       );
     }
   }

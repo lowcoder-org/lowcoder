@@ -16,6 +16,11 @@ export function isCompWithPropertyView<C extends Comp<any> = Comp<any>>(
   return "propertyView" in comp && typeof (comp as any)["propertyView"] === "function";
 }
 
+export const showDataLoadingIndicatorsPropertyView = (
+  children: {showDataLoadingIndicators: InstanceType<typeof BoolControl> }
+) =>
+  children.showDataLoadingIndicators.propertyView({ label: trans("themeDetail.showDataLoadingIndicators") });
+
 export const hiddenPropertyView = (children: { hidden: InstanceType<typeof BoolCodeControl> }) =>
   children.hidden.propertyView({ label: trans("prop.hide") });
 
@@ -99,24 +104,49 @@ export const showLabelPropertyView = (children: { showLabel: InstanceType<typeof
   children.showLabel.propertyView({ label: trans("prop.showLabel") });
 
 export const formatPropertyView = (params: {
-  children: { format: InstanceType<typeof StringControl> };
+  children: {
+    format: InstanceType<typeof StringControl>,
+    inputFormat: InstanceType<typeof StringControl>
+  };
   placeholder?: string;
-}) =>
-  params.children.format.propertyView({
-    label: trans("date.format"),
-    placeholder: params.placeholder,
-    tooltip: (
-      <>
-        {trans("date.reference")} &nbsp;
-        <a
-          href={`${
-            language === "zh" ? "https://day.js.org/docs/zh-CN" : "https://day.js.org/docs/en"
-          }/display/format`}
-          target={"_blank"}
-          rel="noreferrer"
-        >
-          dayjs format
-        </a>
-      </>
-    ),
-  }); // FIXME: need verification
+}) => {
+  return [
+    params.children.format.propertyView({
+      label: trans("date.format"),
+      placeholder: params.placeholder,
+      tooltip: (
+        <>
+          {trans("date.reference")} &nbsp;
+          <a
+            href={`${
+              language === "zh" ? "https://day.js.org/docs/zh-CN" : "https://day.js.org/docs/en"
+            }/display/format`}
+            target={"_blank"}
+            rel="noreferrer"
+          >
+            dayjs format
+          </a>
+        </>
+      ),
+    }), // FIXME: need verification
+    params.children.inputFormat.propertyView({
+      label: trans("date.inputFormat"),
+      placeholder: params.placeholder,
+      tooltip: (
+        <>
+          {trans("date.reference")} &nbsp;
+          <a
+            href={`${
+              language === "zh" ? "https://day.js.org/docs/zh-CN" : "https://day.js.org/docs/en"
+            }/display/format`}
+            target={"_blank"}
+            rel="noreferrer"
+          >
+            dayjs format
+          </a>
+        </>
+      ),
+    })
+  ]
+}
+

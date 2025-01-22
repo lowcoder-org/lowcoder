@@ -23,6 +23,7 @@ import { RecommendedJSLibraryMeta } from "api/jsLibraryApi";
 import log from "loglevel";
 import { TacoMarkDown } from "components/markdown";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const ModalLabel = styled.div`
   display: flex;
@@ -232,12 +233,15 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
   const [url, setURL] = useState("");
   const [urlError, setURLError] = useState<string | undefined>(undefined);
   const [installError, setInstallError] = useState<URLErrorType>(undefined);
+  const isPublicApp = useSelector(isPublicApplication);
 
   const dispatch = useDispatch();
 
   const recommends = useSelector(recommendJSLibrarySelector);
 
   useEffect(() => {
+    if (isPublicApp) return;
+
     dispatch(fetchJSLibraryRecommendsAction());
   }, [dispatch]);
 

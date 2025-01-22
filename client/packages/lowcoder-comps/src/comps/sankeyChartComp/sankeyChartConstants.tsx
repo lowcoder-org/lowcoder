@@ -16,7 +16,11 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  SankeyLineStyle,
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  RadarLabelStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +35,8 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { SankeyChartConfig } from "../chartComp/chartConfigs/sankeyChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -248,19 +254,37 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultSankeyChartOption),
   echartsTitle: withDefault(StringControl, trans("sankeyChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+
+  left:withDefault(NumberControl,trans('sankeyChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('sankeyChart.defaultRight')),
+  top:withDefault(NumberControl,trans('sankeyChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('sankeyChart.defaultBottom')),
+  curveness:withDefault(NumberControl,trans('sankeyChart.defaultCurveness')),
+  opacity:withDefault(NumberControl,trans('sankeyChart.defaultOpacity')),
+  nodeWidth:withDefault(NumberControl,trans('sankeyChart.defaultNodeWidth')),
+  nodeGap:withDefault(NumberControl,trans('sankeyChart.defaultNodeGap')),
+
+  draggable: withDefault(BoolControl, true),
+  focus: withDefault(BoolControl, true),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+
+if (EchartDefaultChartStyle && EchartDefaultTextStyle && RadarLabelStyle && SankeyLineStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    lineStyle: styleControl(SankeyLineStyle, 'lineStyle'),
+    detailStyle: styleControl(RadarLabelStyle, 'detailStyle'),
   }
 }
 

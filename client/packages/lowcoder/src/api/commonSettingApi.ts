@@ -24,6 +24,7 @@ export interface CommonSettingResponseData {
 
 export type SetCommonSettingPayload<T = any> = {
   orgId: string;
+  isPublicApp?: boolean;
   data: {
     key: string;
     value: T;
@@ -78,6 +79,7 @@ export interface ThemeDetail {
   components?: Record<string, JSONObject>;
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  dataLoadingIndicator?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {

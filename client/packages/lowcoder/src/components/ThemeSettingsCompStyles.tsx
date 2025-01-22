@@ -103,6 +103,7 @@ const isColorStyle = (styleKey: string) => {
     styleKey !== 'containerFooterPadding' &&
     styleKey !== 'containerBodyPadding' &&
     styleKey !== 'direction' &&
+    styleKey !== 'detailSize' &&
     styleKey !== 'chartOpacity' &&
     styleKey !== 'chartBoxShadow' &&
     styleKey !== 'chartBorderStyle' &&
@@ -309,6 +310,10 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         placeholder = '0 0 1 1';
         break;
       }
+      case 'detailSize': {
+        placeholder = '24px 12px';
+        break;
+      }
       case 'chartOpacity': {
         placeholder = '1';
         break;
@@ -472,6 +477,10 @@ export default function ThemeSettingsCompStyles(props: CompStyleProps) {
         break;
       }
       case 'direction': {
+        icon = <ExpandIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
+        break;
+      }
+      case 'detailSize': {
         icon = <ExpandIcon style={{width: "16px", margin: "5px 0 0 5px", padding: "0px"}}/>;
         break;
       }

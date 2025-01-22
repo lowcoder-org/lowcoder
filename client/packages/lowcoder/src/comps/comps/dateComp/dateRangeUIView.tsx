@@ -1,11 +1,11 @@
 import dayjs from "dayjs";
 import type { DateCompViewProps } from "./dateComp";
-import { disabledDate, getStyle } from "comps/comps/dateComp/dateCompUtil";
+import { disabledDate, getStyle, StyledPickerPanel } from "comps/comps/dateComp/dateCompUtil";
 import { useUIView } from "../../utils/useUIView";
 import { checkIsMobile } from "util/commonUtils";
 import React, { useContext } from "react";
 import styled from "styled-components";
-import type { DateTimeStyleType } from "../../controls/styleControlConstants";
+import type { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
 import { EditorContext } from "../../editorState";
 import { default as DatePicker } from "antd/es/date-picker";
 import { hasIcon } from "comps/utils";
@@ -61,8 +61,10 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
   return useUIView(
     <DateRangeMobileUIView {...props} />,
     <RangePickerStyled
-      {...omit(props, "onChange" , "format")}
+      {...omit(props, "onChange" , "format", "inputFormat", "pickerMode", "$childrenInputFieldStyle")}
+      format={props.inputFormat}
       ref={props.viewRef as any}
+      picker={props.pickerMode as any}
       value={[props.start, props.end]}
       disabledDate={(current: any) => disabledDate(current, props.minDate, props.maxDate)}
       onCalendarChange={(time: any) => {
@@ -76,6 +78,13 @@ export const DateRangeUIView = (props: DateRangeUIViewProps) => {
       hourStep={props.hourStep as any}
       minuteStep={props.minuteStep as any}
       secondStep={props.secondStep as any}
+      panelRender={(panelNode) => (
+        <StyledPickerPanel
+          $style={props.$childrenInputFieldStyle as ChildrenMultiSelectStyleType}
+        >
+          {panelNode}
+        </StyledPickerPanel>
+      )}
       renderExtraFooter={() => (
         props.timeZone === "UserChoice" && (
           <StyledDiv>

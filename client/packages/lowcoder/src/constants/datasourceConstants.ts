@@ -15,6 +15,7 @@ export const databasePlugins: Partial<DatasourceType>[] = [
   "clickHouse",
   "snowflake",
   "mariadb",
+  "alasql",
 ];
 
 export const apiPluginsForQueryLibrary: Partial<DatasourceType>[] = [
@@ -42,9 +43,4 @@ export interface Datasource {
 
 export const QUICK_REST_API_ID = "#QUICK_REST_API";
 export const QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
-export const LOWCODER_API_ID = "#LOWCODER_API";
-export const LOWCODER_API_INFO = {
-  icon: getBottomResIcon("lowcoderApi"),
-  name: trans("query.lowcoderAPI"),
-};
 export const OLD_LOWCODER_DATASOURCE: Partial<DatasourceType>[] = [];

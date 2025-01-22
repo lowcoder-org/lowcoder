@@ -97,10 +97,25 @@ interface AfterExecuteQueryAction {
   result: QueryResult;
 }
 
-const TriggerTypeOptions = [
+const CommonTriggerOptions = [
+  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
+  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
+  { label: trans("query.triggerTypeTimeout"), value: "onTimeout"},
+]
+
+export const TriggerTypeOptions = [
+  { label: trans("query.triggerTypePageLoad"), value: "onPageLoad"},
+  ...CommonTriggerOptions,
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
+
+export const JSTriggerTypeOptions = [
+  ...CommonTriggerOptions,
+  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
+  { label: trans("query.triggerTypeManual"), value: "manual" },
+];
+
 export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
 
 const EventOptions = [
@@ -151,6 +166,13 @@ const childrenMap = {
     },
   }),
   cancelPrevious: withDefault(BoolPureControl, false),
+  // use only for onQueryExecution trigger
+  depQueryName: SimpleNameComp,
+  // use only for onTimeout trigger, triggers query after x time passed on page load
+  delayTime: millisecondsControl({
+    left: 0,
+    defaultValue: 5 * 1000,
+  })
 };
 
 let QueryCompTmp = withTypeAndChildren<typeof QueryMap, ToInstanceType<typeof childrenMap>>(
@@ -174,6 +196,7 @@ export type QueryChildrenType = InstanceType<typeof QueryCompTmp> extends MultiB
   ? X
   : never;
 
+let blockInputChangeQueries = true;
 /**
  * Logic to automatically trigger execution
  */
@@ -222,11 +245,17 @@ QueryCompTmp = class extends QueryCompTmp {
     const isJsQuery = this.children.compType.getView() === "js";
     const notExecuted = this.children.lastQueryStartTime.getView() === -1;
     const isAutomatic = getTriggerType(this) === "automatic";
+    const isPageLoadTrigger = getTriggerType(this) === "onPageLoad";
+    const isInputChangeTrigger = getTriggerType(this) === "onInputChange";
 
     if (
-      action.type === CompActionTypes.UPDATE_NODES_V2 &&
-      isAutomatic &&
-      (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
+      action.type === CompActionTypes.UPDATE_NODES_V2
+      && (
+        isAutomatic
+        || isInputChangeTrigger
+        || (isPageLoadTrigger && notExecuted)
+      )
+      // && (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
       const depends = this.children.comp.node()?.dependValues();
@@ -249,6 +278,18 @@ QueryCompTmp = class extends QueryCompTmp {
 
       const dependsChanged = !_.isEqual(preDepends, depends);
       const dslNotChanged = _.isEqual(preDsl, dsl);
+
+      if(isInputChangeTrigger && blockInputChangeQueries && dependsChanged) {
+        // block executing input change queries initially on page refresh
+        setTimeout(() => {
+          blockInputChangeQueries = false;
+        }, 500)
+        
+        return setFieldsNoTypeCheck(next, {
+          [lastDependsKey]: depends,
+          [lastDslKey]: dsl,
+        });
+      }
 
       // If the dsl has not changed, but the dependent node value has changed, then trigger the query execution
       // FIXME, this should be changed to a reference judgement, but for unknown reasons if the reference is modified once, it will change twice.
@@ -277,13 +318,22 @@ function QueryView(props: QueryViewProps) {
   useEffect(() => {
     // Automatically load when page load
     if (
-      getTriggerType(comp) === "automatic" &&
+      (
+        getTriggerType(comp) === "automatic"
+        || getTriggerType(comp) === "onPageLoad"
+      ) &&
       (comp as any).isDepReady &&
       !comp.children.isNewCreate.value
     ) {
       setTimeout(() => {
         comp.dispatch(deferAction(executeQueryAction({})));
       }, 300);
+    }
+
+    if(getTriggerType(comp) === "onTimeout") {
+      setTimeout(() => {
+        comp.dispatch(deferAction(executeQueryAction({})));
+      }, comp.children.delayTime.getView());
     }
   }, []);
 
@@ -292,9 +342,9 @@ function QueryView(props: QueryViewProps) {
       getPromiseAfterDispatch(comp.dispatch, executeQueryAction({}), {
         notHandledError: trans("query.fixedDelayError"),
       }),
-    getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
-      ? comp.children.periodicTime.getView()
-      : null
+      getTriggerType(comp) === "automatic" && comp.children.periodic.getView()
+        ? comp.children.periodicTime.getView()
+        : null
   );
 
   return null;
@@ -609,6 +659,29 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
 const QueryListTmpComp = list(QueryComp);
 
 class QueryListComp extends QueryListTmpComp implements BottomResListComp {
+  override reduce(action: CompAction): this {
+    if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
+      if (action.path?.length ===  1 && !isNaN(parseInt(action.path[0]))) {
+        const queryIdx = parseInt(action.path[0]);
+        const queryComps = this.getView();
+        const queryName = queryComps?.[queryIdx]?.children.name.getView();
+        const dependentQueries = queryComps.filter((query, idx) => {
+          if (queryIdx === idx) return false;
+          if (
+            getTriggerType(query) === 'onQueryExecution'
+            && query.children.depQueryName.getView() === queryName
+          ) {
+            return true; 
+          }
+        })
+        dependentQueries?.forEach((query) => {
+          query.dispatch(deferAction(executeQueryAction({})));
+        })
+      }
+    }
+    return super.reduce(action);
+  }
+
   nameAndExposingInfo(): NameAndExposingInfo {
     const result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {

@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -133,33 +135,45 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{b}: {c}"
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "top": "10%",
-      "left": "10%",
-      "bottom": "10%",
-      "right": "10%",
-      "symbolSize": 7,
-      'data': props.echartsOption.data,
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+      },
+      backgroundColor: parseBackground(
+        props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
+      ),
+      color: props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
+      tooltip: props.tooltip&&{
+        trigger: "item",
+        formatter: "{b}: {c}"
+      },
+      series: [
+        {
+          type: props.echartsConfig.type,
+          radius: [`${props?.radiusInline}%`, `${props?.radiusOutline}%`],
+          center: [`${props?.position_x}%`, `${props?.position_y}%`],
+          symbolSize: 7,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
+          levels: props.echartsData.levels || props.echartsOption.levels,
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+          },
+          label: {
+            show: props?.labelVisibility,
+            rotate: 'tangential',
+            ...styleWrapper(props?.detailStyle, theme?.detailStyle,11)
+          },
+        }
+      ],
     }
-  ]
-}
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

@@ -48,6 +48,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   placeholderPropertyView,
+  showDataLoadingIndicatorsPropertyView,
   showSearchPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
@@ -190,7 +191,7 @@ const Select = styled(AntdSelect) <{ $style: SelectStyleType & MultiSelectStyleT
   ${(props) => props.$inputFieldStyle && getStyle(props.$inputFieldStyle)}
 `;
 
-const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
+export const DropdownStyled = styled.div<{ $style: ChildrenMultiSelectStyleType }>`
     background: ${props => props.$style?.background};
     border: ${props => props.$style?.border};
     border-style: ${props => props.$style?.borderStyle};
@@ -342,6 +343,7 @@ export const SelectPropertyView = (
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children as any)}
         </Section>
       </>
     )}

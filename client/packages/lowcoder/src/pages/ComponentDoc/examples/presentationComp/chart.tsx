@@ -4,7 +4,7 @@ import { chartColorPalette } from "lowcoder-design";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
-const ChartCompWithDefault = uiCompRegistry["chart"].comp;
+const ChartCompWithDefault = uiCompRegistry["basicChart"].comp;
 
 const defaultDataSource = [
   {

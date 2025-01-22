@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "2.5.4",
+  "version": "2.6.1",
   "type": "module",
   "license": "MIT",
   "dependencies": {

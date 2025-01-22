@@ -16,7 +16,9 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultTextStyle,
+  EchartDefaultChartStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -25,12 +27,16 @@ import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
 import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
 import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
 import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
+import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
 import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { HeatmapChartConfig } from "comps/chartComp/chartConfigs/heatmapChartConfig";
+import {EchartsLegendOrientConfig} from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import {EchartsLegendAlignConfig} from "../chartComp/chartConfigs/echartsLegendAlignConfig";
 
 export const ChartTypeOptions = [
   {
@@ -248,19 +254,39 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultHeatmapChartOption),
   echartsTitle: withDefault(StringControl, trans("heatmapChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,
   // style: styleControl(EchartsStyle, 'style'),
+
+  left:withDefault(NumberControl,trans('heatmapChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('heatmapChart.defaultRight')),
+  top:withDefault(NumberControl,trans('heatmapChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('heatmapChart.defaultBottom')),
+  min:withDefault(NumberControl,trans('heatmapChart.defaultMin')),
+  max:withDefault(NumberControl,trans('heatmapChart.defaultMax')),
+
   tooltip: withDefault(BoolControl, true),
-  legendVisibility: withDefault(BoolControl, true),
+  xAxisVisibility: withDefault(BoolControl, true),
+  yAxisVisibility: withDefault(BoolControl, true),
+  labelVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    xAxisStyle: styleControl(EchartDefaultTextStyle, 'xAxisStyle'),
+    yAxisStyle: styleControl(EchartDefaultTextStyle, 'yAxisStyle'),
+    visualMapStyle: styleControl(EchartDefaultTextStyle, 'visualMapStyle'),
   }
 }
 

@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -135,32 +137,46 @@ export function getEchartsConfig(
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": [],
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{b}: {c}",
-    "axisPointer": {
-      "type": "shadow"
-    },
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      'data': props.echartsOption.data,
-      "breadcrumb": {
-        "show": true
-      }
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
+      },
+      backgroundColor: parseBackground(props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      color: [],
+      tooltip: props.tooltip&&{
+        trigger: "item",
+        formatter: "{b}: {c}",
+        axisPointer: {
+          type: "shadow"
+        },
+      },
+      series: [
+        {
+          name: props.echartsConfig.type,
+          type: props.echartsConfig.type,
+          left: `${props?.left}%`,
+          right: `${props?.right}%`,
+          bottom: `${props?.bottom}%`,
+          top: `${props?.top}%`,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
+          breadcrumb: {
+            show: true
+          },
+          color: props.echartsData.color || props.echartsOption.color,
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+          },
+          label: {
+            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 12),
+          }
+        }
+      ]
     }
-  ]
-    }
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

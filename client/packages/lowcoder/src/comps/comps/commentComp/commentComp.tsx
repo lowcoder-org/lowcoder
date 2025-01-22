@@ -12,7 +12,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 // Right-side attribute subframe
 import { Section, sectionNames } from "lowcoder-design";
 // Switch indicating whether the component is hidden or not
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 // Right property switch
 import { BoolControl } from "comps/controls/boolControl";
 import { styleControl } from "comps/controls/styleControl"; //样式输入框
@@ -406,6 +406,7 @@ let CommentBasicComp = (function () {
               {children.deleteAble.propertyView({
                 label: trans("comment.deleteAble"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           </>
         )}

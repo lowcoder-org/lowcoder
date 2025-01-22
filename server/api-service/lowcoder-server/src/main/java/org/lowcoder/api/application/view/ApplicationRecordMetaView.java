@@ -1,6 +1,6 @@
 package org.lowcoder.api.application.view;
 
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.user.model.User;
 
 public record ApplicationRecordMetaView(String id,
@@ -10,7 +10,7 @@ public record ApplicationRecordMetaView(String id,
                                         long createTime,
                                         String creatorName) {
 
-    public static ApplicationRecordMetaView from(ApplicationRecord applicationRecord) {
+    public static ApplicationRecordMetaView from(ApplicationVersion applicationRecord) {
         return new ApplicationRecordMetaView(applicationRecord.getId(),
                 applicationRecord.getApplicationId(),
                 applicationRecord.getTag(),
@@ -19,7 +19,7 @@ public record ApplicationRecordMetaView(String id,
                 null);
     }
 
-    public static ApplicationRecordMetaView from(ApplicationRecord applicationRecord, User applicationRecordCreator) {
+    public static ApplicationRecordMetaView from(ApplicationVersion applicationRecord, User applicationRecordCreator) {
         return new ApplicationRecordMetaView(applicationRecord.getId(),
                 applicationRecord.getApplicationId(),
                 applicationRecord.getTag(),

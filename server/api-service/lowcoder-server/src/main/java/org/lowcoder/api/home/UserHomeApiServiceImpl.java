@@ -4,7 +4,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationInfoView.ApplicationInfoViewBuilder;
 import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -12,7 +11,7 @@ import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.api.usermanagement.view.OrgAndVisitorRoleView;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
 import org.lowcoder.domain.application.model.Application;
-import org.lowcoder.domain.application.model.ApplicationRecord;
+import org.lowcoder.domain.application.model.ApplicationVersion;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
@@ -22,6 +21,7 @@ import org.lowcoder.domain.bundle.model.BundleElement;
 import org.lowcoder.domain.bundle.model.BundleStatus;
 import org.lowcoder.domain.bundle.service.BundleElementRelationServiceImpl;
 import org.lowcoder.domain.bundle.service.BundleService;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.interaction.UserApplicationInteraction;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.OrgMember;
@@ -38,7 +38,6 @@ import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.infra.util.NetworkUtils;
 import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.sdk.config.CommonConfig;
-import org.lowcoder.sdk.models.VersionedModel;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -74,6 +73,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
     private final BundleElementRelationServiceImpl bundleElementRelationServiceImpl;
     private final BundleService bundleService;
     private final ApplicationRecordService applicationRecordService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<UserProfileView> buildUserProfileView(User user, ServerWebExchange exchange) {
@@ -574,7 +574,7 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                 .zipWith(application.getIcon(applicationRecordService), TupleUtils::merge)
                 .zipWith(applicationRecordService.getLatestRecordByApplicationId(application.getId()).map(Optional::of).switchIfEmpty(Mono.just(Optional.empty())), TupleUtils::merge)
                 .flatMap(tuple -> {
-                    Optional<ApplicationRecord> lastAppRecord = tuple.getT5();
+                    Optional<ApplicationVersion> lastAppRecord = tuple.getT5();
                     ApplicationInfoView.ApplicationInfoViewBuilder applicationInfoViewBuilder = ApplicationInfoView.builder()
                         .applicationId(application.getId())
                         .applicationGid(application.getGid())
@@ -585,8 +585,8 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                         .category(tuple.getT3())
                         .icon(tuple.getT4())
                         .published(lastAppRecord.isPresent())
-                        .publishedVersion(lastAppRecord.map(ApplicationRecord::version).orElse(null))
-                        .lastPublishedTime(lastAppRecord.map(ApplicationRecord::getCreatedAt).orElse(null))
+                        .publishedVersion(lastAppRecord.map(ApplicationVersion::version).orElse(null))
+                        .lastPublishedTime(lastAppRecord.map(ApplicationVersion::getCreatedAt).orElse(null))
                         .createBy(Optional.ofNullable(userMap.get(application.getCreatedBy()))
                                 .map(User::getName)
                                 .orElse(""))
@@ -609,6 +609,12 @@ public class UserHomeApiServiceImpl implements UserHomeApiService {
                                         .build()));
                     }
                     return Mono.just(applicationInfoViewBuilder.build());
+        }).delayUntil(applicationInfoView -> {
+            String applicationId = applicationInfoView.getApplicationId();
+            return folderElementRelationService.getByElementIds(List.of(applicationId))
+                    .doOnNext(folderElement -> {
+                        applicationInfoView.setFolderId(folderElement.folderId());
+                    }).then();
         });
     }
 

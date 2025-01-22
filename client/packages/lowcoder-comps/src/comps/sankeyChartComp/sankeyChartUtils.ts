@@ -12,6 +12,9 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
+import isColorString from "../../util/isColorString";
 
 export function transformData(
   originData: JSONObject[],
@@ -135,38 +138,61 @@ export function getEchartsConfig(
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
-      "data": props.echartsOption.data,
-      "links":props.echartsOption.links
+      backgroundColor: parseBackground(
+        props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"
+      ),
+      tooltip: props.tooltip&&{
+        trigger: "item",
+        formatter: "{a} <br/>{b} : {c}%"
+      },
+      series: [
+        {
+          name: props.echartsConfig.type,
+          type: props.echartsConfig.type,
+          left: `${props?.left}%`,
+          right: `${props?.right}%`,
+          bottom: `${props?.bottom}%`,
+          top: `${props?.top}%`,
+          label: {
+            show: true,
+            position: props.echartsLabelConfig.top,
+            ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
+          },
+          data: props?.echartsData.length !== 0 && props?.echartsData?.map(item => ({
+              name: item.name,
+              itemStyle: isColorString(item.color) && {color: item.color}
+          })) || props?.echartsOption?.data && props?.echartsOption?.data?.map(item => ({
+            name: item.name,
+            itemStyle: isColorString(item.color) && {color: item.color}
+          })),
+          links: props.echartsData.links || props.echartsOption.links,
+          emphasis: {
+            focus: props?.focus ? 'adjacency' : undefined,
+          },
+          lineStyle: {
+            ...chartStyleWrapper(props?.lineStyle, theme?.lineStyle),
+            color: 'gradient',
+            curveness: props?.curveness,
+            opacity: props?.opacity,
+          },
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+          },
+          nodeWidth: props?.nodeWidth,
+          nodeGap: props?.nodeGap,
+          draggable: props?.draggable,
+        }
+      ]
     }
-  ]
-}
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

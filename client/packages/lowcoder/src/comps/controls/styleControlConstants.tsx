@@ -185,6 +185,10 @@ export type DirectionConfig = CommonColorConfig & {
   readonly direction: string;
 };
 
+export type DetailSizeConfig = CommonColorConfig & {
+  readonly detailSize: string;
+};
+
 export type ChartOpacityConfig = CommonColorConfig & {
   readonly chartOpacity: string;
 };
@@ -260,6 +264,7 @@ export type SingleColorConfig =
   | FontStyleConfig
   | MarginConfig
   | DirectionConfig
+  | DetailSizeConfig
   | ChartOpacityConfig
   | ChartBoxShadowConfig
   | ChartBorderStyleConfig
@@ -655,6 +660,12 @@ const DIRECTION = {
   direction: "direction",
 } as const;
 
+const DETAILSIZE = {
+  name: "detailSize",
+  label: trans("style.detailSize"),
+  detailSize: "detailSize",
+} as const;
+
 const CHARTOPACITY = {
   name: "chartOpacity",
   label: trans("style.opacity"),
@@ -954,7 +965,7 @@ export const ButtonStyle = [
 ] as const;
 
 export const DropdownStyle = [
-  getBackground('primary'),
+  getBackground(),
   ...STYLING_FIELDS_SEQUENCE.filter(style=>style.name!=='rotation'),
 ] as const;
 
@@ -1876,11 +1887,16 @@ export const NavigationStyle = [
 ] as const;
 
 export const ImageStyle = [
-  getStaticBorder("#00000000"),
-  RADIUS,
-  BORDER_WIDTH,
+  // getStaticBorder("#00000000"),
   MARGIN,
   PADDING,
+  BORDER,
+  BORDER_STYLE,
+  RADIUS,
+  BORDER_WIDTH,
+  OPACITY,
+  BOXSHADOW,
+  BOXSHADOWCOLOR,
   ROTATION
 ] as const;
 
@@ -1980,6 +1996,57 @@ export const EchartDefaultChartStyle = [
   // CHARTGRADIENTCOLOR,
   // DIRECTION,
   // CHARTOPACITY,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const EchartCandleStickChartStyle = [
+  getBackground("primarySurface"),
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const SankeyLineStyle = [
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const EchartDefaultDetailStyle = [
+  CHARTBACKGROUNDCOLOR,
+  DETAILSIZE,
+  PADDING,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
+  CHARTSHADOWCOLOR,
+  CHARTBOXSHADOW,
+  CHARTBORDERCOLOR,
+  CHARTBORDERSTYLE,
+  CHARTBORDERRADIUS,
+  CHARTBORDERWIDTH,
+] as const;
+
+export const RadarLabelStyle = [
+  CHARTBACKGROUNDCOLOR,
+  PADDING,
+  CHARTTEXTCOLOR,
+  CHARTTEXTSIZE,
+  CHARTTEXTWEIGHT,
+  CHARTFONTFAMILY,
+  CHARTFONTSTYLE,
   CHARTSHADOWCOLOR,
   CHARTBOXSHADOW,
   CHARTBORDERCOLOR,

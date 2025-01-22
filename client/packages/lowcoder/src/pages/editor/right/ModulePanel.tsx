@@ -30,6 +30,7 @@ import { showAppSnapshotSelector} from "@lowcoder-ee/redux/selectors/appSnapshot
 import {DraggableTreeNode, DraggableTreeNodeItemRenderProps} from "@lowcoder-ee/components/DraggableTree/types";
 import { EmptyContent } from "components/EmptyContent";
 import {deleteFolder, moveToFolder, updateFolder} from "@lowcoder-ee/redux/reduxActions/folderActions";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 const ItemWrapper = styled.div`
   display: flex;
   flex-direction: row;
@@ -77,7 +78,7 @@ type NodeType = {
 
 
 function buildTree(elementRecord: Record<string, Array<ApplicationMeta | FolderMeta>>): NodeType {
-    const elements = elementRecord[""];
+    const elements = elementRecord[""] || [];
     const elementMap: Record<string, NodeType> = {};
     let rootNode: NodeType = {
         name: "root",
@@ -366,24 +367,6 @@ interface ModuleSidebarItemProps extends DraggableTreeNodeItemRenderProps {
     setSelectedType: (id: boolean) => void;
 }
 
-const empty = (
-    <EmptyContent
-        text={
-            <>
-                <p>{trans("rightPanel.emptyModules")}</p>
-                <CreateAppButton
-                    type={AppTypeEnum.Module}
-                    onSuccess={(app) => {
-                        const appId = app.applicationInfoView.applicationId;
-                        const url = APPLICATION_VIEW_URL(appId, "edit");
-                        window.open(url);
-                    }}
-                />
-            </>
-        }
-    />
-);
-
 function ModuleSidebarItem(props: ModuleSidebarItemProps) {
     const dispatch = useDispatch();
     const {
@@ -499,6 +482,7 @@ function ModuleSidebarItem(props: ModuleSidebarItemProps) {
 export default function ModulePanel() {
     const dispatch = useDispatch();
     let elements = useSelector(folderElementsSelector);
+    const isPublicApp = useSelector(isPublicApplication);
     const { searchValue } = useContext(RightContext);
     const [selectedID, setSelectedID] = useState("");
     const [selectedType, setSelectedType] = useState(false);
@@ -510,8 +494,10 @@ export default function ModulePanel() {
     let popedItemSourceId = "";
 
     useEffect(() => {
+        if (isPublicApp) return;
+
         dispatch(fetchAllModules({}));
-    }, [dispatch]);
+    }, [dispatch, isPublicApp]);
 
     const moveModule = () => {
         try{
@@ -740,7 +726,25 @@ export default function ModulePanel() {
                         />
                     );
                 }}
-            /> : empty}
+            /> : (
+                <EmptyContent
+                    text={
+                        <>
+                            <p>{trans("rightPanel.emptyModules")}</p>
+                            {!isPublicApp && (
+                                <CreateAppButton
+                                    type={AppTypeEnum.Module}
+                                    onSuccess={(app) => {
+                                        const appId = app.applicationInfoView.applicationId;
+                                        const url = APPLICATION_VIEW_URL(appId, "edit");
+                                        window.open(url);
+                                    }}
+                                />
+                            )}
+                        </>
+                    }
+                />
+            )}
         </>
     );
 }

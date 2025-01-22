@@ -15,7 +15,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { playIcon } from "lowcoder-design";
 import { RangeControl } from "../../controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { Video } from "lowcoder-design";
 import type ReactPlayer from "react-player";
@@ -146,6 +146,7 @@ let VideoBasicComp = (function () {
             <><Section name={sectionNames.interaction}>
                 {children.onEvent.getPropertyView()}
                 {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
               <Section name={sectionNames.advanced}>
                 {children.poster.propertyView({

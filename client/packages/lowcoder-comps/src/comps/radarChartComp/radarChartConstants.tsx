@@ -16,7 +16,10 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  RadarLabelStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +34,10 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { RadarChartConfig } from "comps/chartComp/chartConfigs/radarChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
+import {EchartsLegendOrientConfig} from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import {EchartsLegendAlignConfig} from "../chartComp/chartConfigs/echartsLegendAlignConfig";
 
 export const ChartTypeOptions = [
   {
@@ -248,19 +255,36 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultRadarChartOption),
   echartsTitle: withDefault(StringControl, trans("radarChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
   echartsConfig: EchartsOptionComp,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
+
+  position_x:withDefault(NumberControl,trans('radarChart.defaultPosition_X')),
+  position_y:withDefault(NumberControl,trans('radarChart.defaultPosition_Y')),
+  radius:withDefault(NumberControl,trans('radarChart.defaultRadius')),
+  splitNumber:withDefault(NumberControl,trans('radarChart.defaultSplitNumber')),
+  startAngle:withDefault(NumberControl,trans('radarChart.defaultStartAngle')),
   // style: styleControl(EchartsStyle, 'style'),
+  areaFlag:withDefault(BoolControl, true),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  indicatorVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+
+if (EchartDefaultChartStyle && EchartDefaultTextStyle && RadarLabelStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
+    detailStyle: styleControl(RadarLabelStyle, 'detailStyle'),
   }
 }
 
