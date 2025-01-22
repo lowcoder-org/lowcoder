@@ -31,6 +31,6 @@ public class AppEventListener {
         );
         log.info("check BizError duplicates: {}", BizError.values().length);
         String deploymentId = (String)(serverConfigRepository.findByKey("deployment.id").map(ServerConfig::getValue).switchIfEmpty(Mono.just("")).block());
-        AbstractEvent.setDeploymentID(deploymentId);
+        AbstractEvent.setEnvironmentID(deploymentId);
     }
 }
