@@ -734,6 +734,7 @@ function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType)
       datasourceType === "js" ||
       datasourceType === "streamApi" ||
       datasourceType === "libraryQuery" ||
+      datasourceType === "alasql" ||
       datasourceId === QUICK_REST_API_ID ||
       datasourceId === QUICK_GRAPHQL_ID
     ) {
