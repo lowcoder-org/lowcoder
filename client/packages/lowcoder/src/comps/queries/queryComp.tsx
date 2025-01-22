@@ -75,6 +75,7 @@ import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesCompl";
 
 const latestExecution: Record<string, string> = {};
 
@@ -153,6 +154,7 @@ const childrenMap = {
     defaultValue: 10 * 1000,
   }),
   confirmationModal: QueryConfirmationModal,
+  variables: VariablesComp,
   periodic: BoolPureControl,
   periodicTime: millisecondsControl({
     defaultValue: Number.NaN,

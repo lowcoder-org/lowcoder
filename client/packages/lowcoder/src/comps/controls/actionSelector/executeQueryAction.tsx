@@ -7,10 +7,13 @@ import { BranchDiv, Dropdown } from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
+import {keyValueListControl, keyValueListToSearchStr, withDefault} from "lowcoder-sdk";
+import {KeyValue} from "@lowcoder-ee/types/common";
 
 const ExecuteQueryTmpAction = (function () {
   const childrenMap = {
     queryName: SimpleNameComp,
+    query: withDefault(keyValueListControl(false, [], "string"), [{ key: "", value: "" }])
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => Promise.resolve(undefined as unknown);
@@ -22,6 +25,8 @@ const ExecuteQueryTmpAction = (function () {
 export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   override getView() {
     const queryName = this.children.queryName.getView();
+    const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
+    console.log(queryParams, queryName);
     if (!queryName) {
       return () => Promise.resolve();
     }
@@ -80,21 +85,29 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
       return options;
     };
     return (
-      <BranchDiv $type={"inline"}>
-        <EditorContext.Consumer>
-          {(editorState) => (
-            <>
-              <Dropdown
-                showSearch={true}
-                value={this.children.queryName.getView()}
-                options={getQueryOptions(editorState)}
-                label={trans("eventHandler.selectQuery")}
-                onChange={(value) => this.dispatchChangeValueAction({ queryName: value })}
-              />
-            </>
-          )}
-        </EditorContext.Consumer>
-      </BranchDiv>
+      <>
+        <BranchDiv $type={"inline"}>
+          <EditorContext.Consumer>
+            {(editorState) => (
+              <>
+                <Dropdown
+                  showSearch={true}
+                  value={this.children.queryName.getView()}
+                  options={getQueryOptions(editorState)}
+                  label={trans("eventHandler.selectQuery")}
+                  onChange={(value) => this.dispatchChangeValueAction({ queryName: value })}
+                />
+              </>
+            )}
+          </EditorContext.Consumer>
+        </BranchDiv>
+        <BranchDiv>
+          {this.children.query.propertyView({
+            label: trans("eventHandler.queryParams"),
+            layout: "vertical",
+          })}
+        </BranchDiv>
+      </>
     );
   }
 }

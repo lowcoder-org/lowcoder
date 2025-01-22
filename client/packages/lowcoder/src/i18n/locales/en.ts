@@ -705,6 +705,7 @@ export const en = {
     "newDatasource": "New Data Source",
     "generalTab": "General",
     "notificationTab": "Notification",
+    "variablesTab": "Variables",
     "advancedTab": "Advanced",
     "showFailNotification": "Show Notification on Failure",
     "failCondition": "Failure Conditions",
