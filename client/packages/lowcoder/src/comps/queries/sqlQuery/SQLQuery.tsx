@@ -255,6 +255,7 @@ export const NOT_SUPPORT_GUI_SQL_QUERY: string[] = [
   "snowflake",
   "tdengine",
   "dameng",
+  "alasql",
 ];
 const SUPPORT_UPSERT_SQL_QUERY: string[] = [
   "mysql",

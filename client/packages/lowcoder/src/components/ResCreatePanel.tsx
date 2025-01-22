@@ -169,6 +169,13 @@ const ResButton = (props: {
         compType: "streamApi",
       },
     },
+    alasql: {
+      label: trans("query.quickAlasql"),
+      type: BottomResTypeEnum.Query,
+      extra: {
+        compType: "alasql",
+      },
+    },
     graphql: {
       label: trans("query.quickGraphql"),
       type: BottomResTypeEnum.Query,
@@ -319,6 +326,7 @@ export function ResCreatePanel(props: ResCreateModalProps) {
               <DataSourceListWrapper $placement={placement}>
                 <ResButton size={buttonSize} identifier={"restApi"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"streamApi"} onSelect={onSelect} />
+                <ResButton size={buttonSize} identifier={"alasql"} onSelect={onSelect} />
                 <ResButton size={buttonSize} identifier={"graphql"} onSelect={onSelect} />
                 {datasource.map((i) => (
                   <ResButton size={buttonSize} key={i.id} identifier={i} onSelect={onSelect} />
