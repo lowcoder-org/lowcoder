@@ -97,13 +97,14 @@ public class BusinessEventPublisher {
                 });
     }
 
-    public Mono<Void> publishApplicationCommonEvent(String applicationId, @Nullable String folderId, EventType eventType) {
+    public Mono<Void> publishApplicationCommonEvent(String applicationId, @Nullable String folderIdFrom, @Nullable String folderId, EventType eventType) {
         return applicationService.findByIdWithoutDsl(applicationId)
                 .map(application -> {
                     ApplicationInfoView applicationInfoView = ApplicationInfoView.builder()
                             .applicationId(applicationId)
                             .name(application.getName())
                             .folderId(folderId)
+                            .folderIdFrom(folderIdFrom)
                             .build();
                     return ApplicationView.builder()
                             .applicationInfoView(applicationInfoView)
@@ -129,6 +130,15 @@ public class BusinessEventPublisher {
                                         .map(Optional::of)
                                         .onErrorReturn(Optional.empty());
                             }))
+                            .zipWith(Mono.defer(() -> {
+                                String folderId = applicationView.getApplicationInfoView().getFolderIdFrom();
+                                if (StringUtils.isBlank(folderId)) {
+                                    return Mono.just(Optional.<Folder> empty());
+                                }
+                                return folderService.findById(folderId)
+                                        .map(Optional::of)
+                                        .onErrorReturn(Optional.empty());
+                            }), TupleUtils::merge)
                             .zipWith(sessionUserService.getVisitorToken())
                             .zipWith(Mono.defer(() -> {
                                 String appId = applicationView.getApplicationInfoView().getApplicationId();
@@ -144,6 +154,7 @@ public class BusinessEventPublisher {
                             .doOnNext(tuple -> {
                                 OrgMember orgMember = tuple.getT1().getT1();
                                 Optional<Folder> optional = tuple.getT1().getT2();
+                                Optional<Folder> optionalFrom = tuple.getT1().getT3();
                                 String token = tuple.getT2();
                                 String category = tuple.getT3().getLeft();
                                 String description = tuple.getT3().getRight();
@@ -159,6 +170,8 @@ public class BusinessEventPublisher {
                                         .type(eventType)
                                         .folderId(optional.map(Folder::getId).orElse(null))
                                         .folderName(optional.map(Folder::getName).orElse(null))
+                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                         .build();

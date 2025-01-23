@@ -1,9 +1,6 @@
 package org.lowcoder.api.home;
 
-import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_MOVE;
-import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
-import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
-
+import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -11,6 +8,7 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
@@ -18,9 +16,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.APPLICATION_MOVE;
+import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
+import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
 @RequiredArgsConstructor
 @RestController
@@ -31,6 +33,7 @@ public class FolderController implements FolderEndpoints
     private final FolderApiService folderApiService;
     private final BusinessEventPublisher businessEventPublisher;
     private final GidService gidService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
@@ -89,10 +92,11 @@ public class FolderController implements FolderEndpoints
     @Override
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
-        return gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
-            folderApiService.move(applicationLikeId, objectId.orElse(null))
-                .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, objectId.orElse(null), APPLICATION_MOVE))
-                .then(Mono.fromSupplier(() -> ResponseView.success(null))));
+        return folderElementRelationService.getByElementIds(List.of(applicationLikeId)).next().flatMap(folderElement ->
+                gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
+                    folderApiService.move(applicationLikeId, objectId.orElse(null))
+                        .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
+                        .then(Mono.fromSupplier(() -> ResponseView.success(null)))));
     }
 
     @Override

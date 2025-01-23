@@ -29,6 +29,9 @@ public class ApplicationInfoView {
     private final Object containerSize; // for module size
     @Nullable
     private String folderId;
+    @Nullable
+    @JsonInclude(Include.NON_NULL)
+    private String folderIdFrom;
 
     @Nullable
     private final Instant lastViewTime; // user last visit time for this app

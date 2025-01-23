@@ -19,6 +19,10 @@ public class ApplicationCommonEvent extends AbstractEvent {
     private final String folderId;
     @Nullable
     private final String folderName;
+    @Nullable
+    private final String oldFolderId;
+    @Nullable
+    private final String oldFolderName;
 
     @Override
     public EventType getEventType() {
