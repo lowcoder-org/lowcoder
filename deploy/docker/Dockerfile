@@ -1,7 +1,7 @@
 ##
 ## Build Lowcoder api-service application
 ##
-FROM maven:3.9-eclipse-temurin-17 AS build-api-service
+FROM maven:3-eclipse-temurin-23 AS build-api-service
 
 # Build lowcoder-api
 COPY ./server/api-service /lowcoder-server
