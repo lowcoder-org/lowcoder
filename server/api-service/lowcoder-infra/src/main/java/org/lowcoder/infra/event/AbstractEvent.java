@@ -24,6 +24,7 @@ public abstract class AbstractEvent implements LowcoderEvent
     
     public Map<String, Object> details()
     {
+		this.details.put("environmentId", environmentID);
     	return this.details;
     }
 
