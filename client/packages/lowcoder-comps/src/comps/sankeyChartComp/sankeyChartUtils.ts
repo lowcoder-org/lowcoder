@@ -166,7 +166,7 @@ export function getEchartsConfig(
             position: props.echartsLabelConfig.top,
             ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
           },
-          data: props?.echartsData?.data && props?.echartsData?.data?.map(item => ({
+          data: props?.echartsData.length !== 0 && props?.echartsData?.map(item => ({
               name: item.name,
               itemStyle: isColorString(item.color) && {color: item.color}
           })) || props?.echartsOption?.data && props?.echartsOption?.data?.map(item => ({

@@ -193,7 +193,7 @@ export function getEchartsConfig(
         {
           name: 'Heatmap',
           type: 'heatmap',
-          data: props?.echartsData?.data || props?.echartsOption && props?.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props?.echartsOption && props?.echartsOption.data,
           label: {
             show: props?.labelVisibility,
             ...styleWrapper(props?.labelStyle, theme?.labelStyle, 12),

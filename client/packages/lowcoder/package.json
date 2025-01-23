@@ -1,6 +1,6 @@
 {
   "name": "lowcoder",
-  "version": "2.5.4",
+  "version": "2.6.0",
   "private": true,
   "type": "module",
   "main": "src/index.sdk.ts",
@@ -36,6 +36,7 @@
     "@types/react-signature-canvas": "^1.0.2",
     "@types/react-test-renderer": "^18.0.0",
     "@types/react-virtualized": "^9.21.21",
+    "alasql": "^4.6.2",
     "animate.css": "^4.1.1",
     "antd": "^5.20.0",
     "axios": "^1.7.7",

@@ -19,7 +19,8 @@ import {
   EchartDefaultChartStyle,
   EchartDefaultTextStyle,
   ColorControl,
-  EchartDefaultDetailStyle
+  EchartDefaultDetailStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -268,7 +269,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toObject),
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
   stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
   gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
@@ -278,13 +279,13 @@ let chartJsonModeChildren: any = {
   clockGaugeOption: jsonControl(toObject, i18nObjs.defaultClockGaugeChartOption),
   barometerGaugeOption: jsonControl(toObject, i18nObjs.defaultBarometerGaugeChartOption),
 
-  stageGaugeData:jsonControl(toObject),
-  gradeGaugeData:jsonControl(toObject),
-  temperatureGaugeData:jsonControl(toObject),
-  multiTitleGaugeData:jsonControl(toObject),
-  ringGaugeData:jsonControl(toObject),
-  clockGaugeData:jsonControl(toObject),
-  barometerGaugeData:jsonControl(toObject),
+  stageGaugeData:jsonControl(toArray),
+  gradeGaugeData:jsonControl(toArray),
+  temperatureGaugeData:jsonControl(toArray),
+  multiTitleGaugeData:jsonControl(toArray),
+  ringGaugeData:jsonControl(toArray),
+  clockGaugeData:jsonControl(toArray),
+  barometerGaugeData:jsonControl(toArray),
 
   chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),

@@ -160,7 +160,7 @@ export function getEchartsConfig(
           radius: [`${props?.radiusInline}%`, `${props?.radiusOutline}%`],
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           symbolSize: 7,
-          data: props?.echartsData?.data || props.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
           levels: props.echartsData.levels || props.echartsOption.levels,
           itemStyle: {
             ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)

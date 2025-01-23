@@ -9,5 +9,6 @@ declare global {
     numbro: any;
     Papa: any;
     uuid: any;
+    alasql: any;
   }
 }

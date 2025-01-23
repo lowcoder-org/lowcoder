@@ -161,7 +161,7 @@ export function getEchartsConfig(
           top: `${props?.top}%`,
           symbol: "circle", // Define the shape of the nodes (e.g., 'circle', 'rect', etc.)
           symbolSize: props?.pointSize || 20, // Control the size of the nodes
-          data: props?.echartsData?.data || props.echartsOption.data,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
           label: {
             position: "top",
             verticalAlign: "middle",

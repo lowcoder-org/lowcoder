@@ -184,7 +184,7 @@ export function getEchartsConfig(
             "position": props.echartsLabelConfig.top,
             ...styleWrapper(props?.labelStyle,theme?.labelStyle, 13),
           },
-          "data": props?.echartsData?.data || props.echartsOption.data
+          "data": props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data
         }
       ]
     }

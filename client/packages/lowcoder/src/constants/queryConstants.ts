@@ -13,6 +13,7 @@ import { GraphqlQuery } from "../comps/queries/httpQuery/graphqlQuery";
 import { toPluginQuery } from "comps/queries/pluginQuery/pluginQuery";
 import { MultiCompConstructor } from "lowcoder-core";
 import { DataSourcePluginMeta } from "lowcoder-sdk/dataSource";
+import { AlaSqlQuery } from "@lowcoder-ee/comps/queries/httpQuery/alasqlQuery";
 
 export type DatasourceType =
   | "mysql"
@@ -29,13 +30,15 @@ export type DatasourceType =
   | "googleSheets"
   | "graphql"
   | "snowflake"
-  | "mariadb";
+  | "mariadb"
+  | "alasql";
 
 export type ResourceType = DatasourceType | "js" | "libraryQuery" | "view";
 
 export const QueryMap = {
   js: JSQuery,
   mysql: SQLQuery,
+  alasql: AlaSqlQuery,
   restApi: HttpQuery,
   streamApi: StreamQuery,
   mongodb: MongoQuery,

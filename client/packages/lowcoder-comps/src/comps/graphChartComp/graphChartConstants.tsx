@@ -19,6 +19,7 @@ import {
   EchartsStyle,
   EchartDefaultChartStyle,
   EchartDefaultTextStyle,
+  toArray
 } from "lowcoder-sdk";
 
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -253,7 +254,7 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toObject),
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultGraphChartOption),
   echartsTitle: withDefault(StringControl, trans("graphChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

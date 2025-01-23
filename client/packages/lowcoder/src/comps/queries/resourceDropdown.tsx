@@ -102,6 +102,11 @@ const QuickGraphqlValue: ResourceOptionValue = {
   type: "graphql",
 };
 
+const QuickAlasqlValue: ResourceOptionValue = {
+  id: "",
+  type: "alasql",
+};
+
 interface ResourceDropdownProps {
   changeResource: (datasourceId: string, value: string) => void;
   selectedResource: ResourceOptionValue;
@@ -263,6 +268,17 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
           <SelectOptionContains>
             {getBottomResIcon("restApi")}
             <SelectOptionLabel>{trans("query.quickStreamAPI")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
+        
+        <SelectOption
+          key={JSON.stringify(QuickAlasqlValue)}
+          label={trans("query.quickAlasql")}
+          value={JSON.stringify(QuickAlasqlValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickAlasql")} </SelectOptionLabel>
           </SelectOptionContains>
         </SelectOption>
 
