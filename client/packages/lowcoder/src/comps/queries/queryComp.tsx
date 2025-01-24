@@ -75,7 +75,7 @@ import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesCompl";
+import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesComp";
 
 const latestExecution: Record<string, string> = {};
 
@@ -137,6 +137,7 @@ const childrenMap = {
   isFetching: stateComp<boolean>(false),
   lastQueryStartTime: stateComp<number>(-1), // The last execution time of the query, in order to avoid multiple executions overwriting each other, not persistent
   latestEndTime: stateComp<number>(0), // The time when the query was last executed
+  variable: stateComp<number>(0), // The time when the query was last executed
   runTime: stateComp<number>(0), // query run time
 
   datasourceId: StringControl,
@@ -406,16 +407,21 @@ QueryCompTmp = class extends QueryCompTmp {
     return this;
   }
 
+
+
+
   /**
    * Process the execution result
    */
   private processResult(result: QueryResult, action: ExecuteQueryAction, startTime: number) {
     const lastQueryStartTime = this.children.lastQueryStartTime.getView();
+
     if (lastQueryStartTime > startTime) {
       // There are more new requests, ignore this result
       // FIXME: cancel this request in advance in the future
       return;
     }
+
     const changeAction = multiChangeAction({
       code: this.children.code.changeValueAction(result.code ?? QUERY_EXECUTION_OK),
       success: this.children.success.changeValueAction(result.success ?? true),
@@ -424,6 +430,24 @@ QueryCompTmp = class extends QueryCompTmp {
       extra: this.children.extra.changeValueAction(result.extra ?? {}),
       isFetching: this.children.isFetching.changeValueAction(false),
       latestEndTime: this.children.latestEndTime.changeValueAction(Date.now()),
+      variable: this.children.variable.changeValueAction(
+
+        Object.values(this.children?.variables?.children?.variables?.children || {})
+          .filter(
+            (item: any) =>
+              item?.children?.key?.children?.text?.unevaledValue !== "" &&
+              item?.children?.value?.children?.text?.unevaledValue !== ""
+          )
+          .reduce((acc: any, item: any) => {
+            const key = item?.children?.key?.children?.text?.unevaledValue;
+            const value = item?.children?.value?.children?.text?.unevaledValue;
+            if (key !== undefined && value !== undefined) {
+              acc[key] = value;
+            }
+            return acc;
+          }, {})
+      ),
+
       runTime: this.children.runTime.changeValueAction(result.runTime ?? 0),
     });
     getPromiseAfterDispatch(this.dispatch, changeAction, {
@@ -655,6 +679,7 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
+  new NameConfig("variable", trans("query.variables")),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 

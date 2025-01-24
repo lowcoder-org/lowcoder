@@ -25,8 +25,14 @@ const ExecuteQueryTmpAction = (function () {
 export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   override getView() {
     const queryName = this.children.queryName.getView();
-    const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
-    console.log(queryParams, queryName);
+    // const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
+    const result = Object.values(this.children.query.children as Record<string, {
+      children: {
+        key: { unevaledValue: string },
+        value: { unevaledValue: string }
+      }}>)
+      .filter(item => item.children.key.unevaledValue !== "" && item.children.value.unevaledValue !== "")
+      .map(item => ({[item.children.key.unevaledValue]: item.children.value.unevaledValue}));
     if (!queryName) {
       return () => Promise.resolve();
     }
