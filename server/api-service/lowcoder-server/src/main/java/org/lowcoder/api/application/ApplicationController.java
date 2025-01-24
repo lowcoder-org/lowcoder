@@ -59,7 +59,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.recycle(appId)
-                    .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, APPLICATION_RECYCLED))
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, null, APPLICATION_RECYCLED))
                     .map(ResponseView::success));
     }
 
@@ -67,7 +67,7 @@ public class ApplicationController implements ApplicationEndpoints {
     public Mono<ResponseView<Boolean>> restore(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.restore(appId)
-                .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, APPLICATION_RESTORE))
+                .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, null, APPLICATION_RESTORE))
                 .map(ResponseView::success));
     }
 
