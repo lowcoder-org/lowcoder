@@ -32,7 +32,9 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
         value: { unevaledValue: string }
       }}>)
       .filter(item => item.children.key.unevaledValue !== "" && item.children.value.unevaledValue !== "")
-      .map(item => ({[item.children.key.unevaledValue]: item.children.value.unevaledValue}));
+      .map(item => ({[item.children.key.unevaledValue]: item.children.value.unevaledValue}))
+      .reduce((acc, curr) => Object.assign(acc, curr), {});
+    console.log(result);
     if (!queryName) {
       return () => Promise.resolve();
     }
