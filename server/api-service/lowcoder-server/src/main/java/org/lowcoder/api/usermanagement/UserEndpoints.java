@@ -25,12 +25,20 @@ import reactor.core.publisher.Mono;
 
 @RestController
 @RequestMapping(value = {Url.USER_URL, NewUrl.USER_URL})
-public interface UserEndpoints 
+public interface UserEndpoints
 {
 	public static final String TAG_USER_MANAGEMENT = "User APIs";
 	public static final String TAG_USER_PASSWORD_MANAGEMENT = "User Password APIs";
 	public static final String TAG_USER_PROFILE_PHOTO_MANAGEMENT = "User Profile Photo APIs";
-	
+	@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "createUserAndAddToOrg",
+			summary = "Create user and add to the org",
+			description = "Create a new user and add to specified organization."
+	)
+	@PostMapping("/new/{orgId}")
+	public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, @RequestBody CreateUserRequest request);
+
 	@Operation(
 			tags = TAG_USER_MANAGEMENT,
 		    operationId = "getUserProfile",
@@ -180,5 +188,8 @@ public interface UserEndpoints
 
     public record MarkUserStatusRequest(String type, Object value) {
     }
+
+	public record CreateUserRequest(String email, String password) {
+	}
 
 }

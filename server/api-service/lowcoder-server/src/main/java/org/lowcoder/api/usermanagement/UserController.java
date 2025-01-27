@@ -3,17 +3,21 @@ package org.lowcoder.api.usermanagement;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
+import org.lowcoder.api.authentication.service.AuthenticationApiService;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.constant.UserStatusType;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -35,6 +39,19 @@ public class UserController implements UserEndpoints
     private final UserStatusService userStatusService;
     private final UserApiService userApiService;
     private final CommonConfig commonConfig;
+    private final AuthenticationApiService authenticationApiService;
+    private final OrgMemberService orgMemberService;
+
+    @Override
+    public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ ->
+                        authenticationApiService.authenticateByForm(request.email(), request.password(),
+                                AuthSourceConstants.EMAIL, true, null, orgId))
+                .flatMap(authUser -> userService.createNewUserByAuthUser(authUser, false))
+                .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER))
+                .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
+                .map(ResponseView::success);
+    }
 
     @Override
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {

@@ -158,7 +158,8 @@ public class OrgApiServiceImpl implements OrgApiService {
                         MemberRole.fromValue(updateRoleRequest.getRole())));
     }
 
-    private Mono<OrgMember> checkVisitorAdminRole(String orgId) {
+    @Override
+    public Mono<OrgMember> checkVisitorAdminRole(String orgId) {
         return sessionUserService.getVisitorId()
                 .flatMap(visitor -> orgMemberService.getOrgMember(orgId, visitor))
                 .filter(it -> it.getRole() == MemberRole.ADMIN || it.getRole() == MemberRole.SUPER_ADMIN)
@@ -177,14 +178,17 @@ public class OrgApiServiceImpl implements OrgApiService {
     @Override
     public Mono<Boolean> switchCurrentOrganizationTo(String nextCurrentOrgId) {
         return sessionUserService.getVisitorId()
-                .flatMap(it -> orgMemberService.getAllActiveOrgs(it).collectList())
+                .flatMap(it -> switchCurrentOrganizationTo(it, nextCurrentOrgId));
+    }
+
+    @Override
+    public Mono<Boolean> switchCurrentOrganizationTo(String userId, String nextCurrentOrgId) {
+        return orgMemberService.getAllActiveOrgs(userId).collectList()
                 .defaultIfEmpty(Collections.emptyList())
                 .flatMap(orgMembers -> {
                     if (!collectSet(orgMembers, OrgMember::getOrgId).contains(nextCurrentOrgId)) {
                         return Mono.error(new BizException(BizError.INVALID_ORG_ID, "INVALID_ORG_ID"));
                     }
-
-                    String userId = orgMembers.get(0).getUserId();
 
                     Optional<OrgMember> previousCurrentOrgMember = orgMembers.stream()
                             .filter(OrgMember::isCurrentOrg)
