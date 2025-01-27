@@ -115,9 +115,24 @@ public class UserController implements UserEndpoints
     }
 
     @Override
+    public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .zipWith(fileMono)
+                .flatMap(tuple -> userService.saveProfilePhoto(tuple.getT2(), tuple.getT1()))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Void>> deleteProfilePhoto() {
         return sessionUserService.getVisitor()
                 .flatMap(visitor -> userService.deleteProfilePhoto(visitor)
+                        .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .flatMap(user -> userService.deleteProfilePhoto(user)
                         .map(ResponseView::success));
     }
 

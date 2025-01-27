@@ -95,12 +95,30 @@ public interface UserEndpoints
 
 	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
-		    operationId = "deleteUserProfilePhoto",
-		    summary = "Delete current users profile photo",
-		    description = "Remove the profile Photo associated with the current User within Lowcoder."
+			operationId = "uploadUserProfilePhotoById",
+			summary = "Upload specific Users profile photo",
+			description = "Upload or change specific profile photo within Lowcoder for personalization."
 	)
-    @DeleteMapping("/photo")
-    public Mono<ResponseView<Void>> deleteProfilePhoto();
+	@PostMapping(value = "/photo/{orgId}/{userId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono);
+
+	@Operation(
+			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
+		    operationId = "deleteUserProfilePhotoById",
+		    summary = "Delete specific users profile photo",
+		    description = "Remove the profile Photo associated with the specific User within Lowcoder."
+	)
+
+	@DeleteMapping("/photo/{orgId}/{userId}")
+    public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId);
+	@Operation(
+			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
+			operationId = "deleteUserProfilePhoto",
+			summary = "Delete current users profile photo",
+			description = "Remove the profile Photo associated with the current User within Lowcoder."
+	)
+	@DeleteMapping("/photo")
+	public Mono<ResponseView<Void>> deleteProfilePhoto();
 
 	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
