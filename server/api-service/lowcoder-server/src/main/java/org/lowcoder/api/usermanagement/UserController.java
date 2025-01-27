@@ -84,19 +84,27 @@ public class UserController implements UserEndpoints
     @Override
     public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
         return sessionUserService.getVisitorId()
-                .flatMap(uid -> {
-                    User updateUser = new User();
-                    if (StringUtils.isNotBlank(updateUserRequest.getName())) {
-                        updateUser.setName(updateUserRequest.getName());
-                        updateUser.setHasSetNickname(true);
-                    }
-                    if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
-                        updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
-                    }
-                    return userService.update(uid, updateUser);
-                })
-                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
-                .map(ResponseView::success);
+                .flatMap(uid -> updateUser(uid, updateUserRequest, exchange));
+    }
+
+    @Override
+    public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(__ -> updateUser(userId, updateUserRequest, exchange));
+    }
+
+    public Mono<ResponseView<UserProfileView>> updateUser(String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        User updateUser = new User();
+        if (StringUtils.isNotBlank(updateUserRequest.getName())) {
+            updateUser.setName(updateUserRequest.getName());
+            updateUser.setHasSetNickname(true);
+        }
+        if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+            updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
+        }
+        return userService.update(userId, updateUser)
+            .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
+            .map(ResponseView::success);
     }
 
     @Override

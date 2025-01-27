@@ -76,6 +76,15 @@ public interface UserEndpoints
     public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange);
 
 	@Operation(
+			tags = TAG_USER_MANAGEMENT,
+			operationId = "updateUser",
+			summary = "Update selected User",
+			description = "Update specified user profile information within Lowcoder, ensuring accuracy and relevance."
+	)
+	@PutMapping("/{orgId}/{userId}")
+	public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange);
+
+	@Operation(
 			tags = TAG_USER_PROFILE_PHOTO_MANAGEMENT,
 		    operationId = "uploadUserProfilePhoto",
 		    summary = "Upload current Users profile photo",
