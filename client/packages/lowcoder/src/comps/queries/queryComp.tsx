@@ -135,9 +135,9 @@ const childrenMap = {
   data: stateComp<JSONValue>(null),
   extra: stateComp<JSONValue>({}),
   isFetching: stateComp<boolean>(false),
+  variable: stateComp<JSONObject>({}),
   lastQueryStartTime: stateComp<number>(-1), // The last execution time of the query, in order to avoid multiple executions overwriting each other, not persistent
   latestEndTime: stateComp<number>(0), // The time when the query was last executed
-  variable: stateComp<number>(0), // The time when the query was last executed
   runTime: stateComp<number>(0), // query run time
 
   datasourceId: StringControl,
@@ -364,6 +364,14 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
+      let variableVal = {};
+      if(action.args) variableVal = action.args;
+      else variableVal = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      //Update query.variable
+      const changeValAction = this.children.variable.changeValueAction(variableVal);
+      const changeValAction2 = this.changeChildAction("variable", variableVal)
+      this.dispatch(changeValAction2);
+      console.log("changed value: ", this.children.variable.toJsonValue());
       return this.executeQuery(action);
     }
     if (action.type === CompActionTypes.CHANGE_VALUE) {
@@ -430,24 +438,6 @@ QueryCompTmp = class extends QueryCompTmp {
       extra: this.children.extra.changeValueAction(result.extra ?? {}),
       isFetching: this.children.isFetching.changeValueAction(false),
       latestEndTime: this.children.latestEndTime.changeValueAction(Date.now()),
-      variable: this.children.variable.changeValueAction(
-
-        Object.values(this.children?.variables?.children?.variables?.children || {})
-          .filter(
-            (item: any) =>
-              item?.children?.key?.children?.text?.unevaledValue !== "" &&
-              item?.children?.value?.children?.text?.unevaledValue !== ""
-          )
-          .reduce((acc: any, item: any) => {
-            const key = item?.children?.key?.children?.text?.unevaledValue;
-            const value = item?.children?.value?.children?.text?.unevaledValue;
-            if (key !== undefined && value !== undefined) {
-              acc[key] = value;
-            }
-            return acc;
-          }, {})
-      ),
-
       runTime: this.children.runTime.changeValueAction(result.runTime ?? 0),
     });
     getPromiseAfterDispatch(this.dispatch, changeAction, {

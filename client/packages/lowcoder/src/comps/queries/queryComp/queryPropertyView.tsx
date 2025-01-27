@@ -274,8 +274,6 @@ export const QueryGeneralPropertyView = (props: {
     return options;
   }, [editorState]);
 
-  console.log(children.variable)
-
   return (
     <QueryPropertyViewWrapper>
       <QuerySectionWrapper>

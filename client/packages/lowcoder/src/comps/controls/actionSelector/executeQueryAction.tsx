@@ -34,7 +34,6 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
       .filter(item => item.children.key.unevaledValue !== "" && item.children.value.unevaledValue !== "")
       .map(item => ({[item.children.key.unevaledValue]: item.children.value.unevaledValue}))
       .reduce((acc, curr) => Object.assign(acc, curr), {});
-    console.log(result);
     if (!queryName) {
       return () => Promise.resolve();
     }
@@ -43,9 +42,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
         this.dispatch,
         routeByNameAction(
           queryName,
-          executeQueryAction({
-            // can add context in the future
-          })
+          executeQueryAction({args: result})
         ),
         { notHandledError: trans("eventHandler.notHandledError") }
       );
