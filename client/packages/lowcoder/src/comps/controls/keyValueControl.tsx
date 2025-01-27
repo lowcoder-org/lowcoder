@@ -47,6 +47,8 @@ export type KeyValueControlParams = ControlParams & {
   typeTooltip?: ReactNode;
   keyFlexBasics?: number;
   valueFlexBasics?: number;
+  isStatic?: boolean;
+  keyFixed?: boolean;
 };
 
 /**
@@ -82,16 +84,20 @@ function keyValueControl<T extends OptionsType>(
       return (
         <KeyValueWrapper>
           <KeyWrapper $flexBasics={params.keyFlexBasics}>
-            {this.children.key.propertyView({ placeholder: "key", indentWithTab: false })}
-            {hasType && params.showType && (
-              <TypeWrapper>
-                {this.children.type.propertyView({
-                  placeholder: "key",
-                  indentWithTab: false,
-                  tooltip: params.typeTooltip,
-                })}
-              </TypeWrapper>
-            )}
+            {params.keyFixed?
+              <>{this.children.key.getView()}</>
+            :<>
+              {this.children.key.propertyView({ placeholder: "key", indentWithTab: false })}
+              {hasType && params.showType && (
+                <TypeWrapper>
+                  {this.children.type.propertyView({
+                    placeholder: "key",
+                    indentWithTab: false,
+                    tooltip: params.typeTooltip,
+                  })}
+                </TypeWrapper>
+              )}
+            </>}
           </KeyWrapper>
           <ValueWrapper $flexBasics={params.valueFlexBasics}>
             {this.children.value.propertyView({
@@ -136,6 +142,7 @@ export function keyValueListControl<T extends OptionsType>(
             list={this.getView().map((child) => child.propertyView(params))}
             onAdd={() => this.dispatch(this.pushAction({}))}
             onDelete={(item, index) => this.dispatch(this.deleteAction(index))}
+            isStatic={params.isStatic}
           />
         </ControlPropertyViewWrapper>
       );

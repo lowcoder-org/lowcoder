@@ -76,6 +76,7 @@ export const KeyValueList = (props: {
   list: ReactNode[];
   onAdd: () => void;
   onDelete: (item: ReactNode, index: number) => void;
+  isStatic?: boolean;
 }) => (
   <>
     {props.list.map((item, index) => (
@@ -87,9 +88,11 @@ export const KeyValueList = (props: {
         />
       </KeyValueListItem>
     ))}
+    {!props.isStatic && 
     <AddBtn onClick={props.onAdd}>
       <AddIcon />
       {trans("addItem")}
     </AddBtn>
+    }
   </>
 );

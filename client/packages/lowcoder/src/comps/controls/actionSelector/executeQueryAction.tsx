@@ -89,6 +89,24 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
         });
       return options;
     };
+    const getVariableOptions = (editorState?: EditorState) => {
+      const options =
+        editorState
+          ?.getQueriesComp()
+          .getView()
+          .filter(
+            // Filter out the current query under query
+            (option) => {
+              return option.children.name.getView() === this.children.queryName.getView();
+            }
+          ) || [];
+      return this.children.query.propertyView({
+        label: trans("eventHandler.queryParams"),
+        layout: "vertical",
+        isStatic: true,
+        keyFixed: true,
+      });
+    }
     return (
       <>
         <BranchDiv $type={"inline"}>
@@ -107,10 +125,9 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
           </EditorContext.Consumer>
         </BranchDiv>
         <BranchDiv>
-          {this.children.query.propertyView({
-            label: trans("eventHandler.queryParams"),
-            layout: "vertical",
-          })}
+          <EditorContext.Consumer>
+            {(editorState) => getVariableOptions(editorState)}
+          </EditorContext.Consumer>
         </BranchDiv>
       </>
     );
