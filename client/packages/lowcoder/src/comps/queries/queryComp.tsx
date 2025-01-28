@@ -67,7 +67,7 @@ import { JSONObject, JSONValue } from "../../util/jsonTypes";
 import { BoolPureControl } from "../controls/boolControl";
 import { millisecondsControl } from "../controls/millisecondControl";
 import { paramsMillisecondsControl } from "../controls/paramsControl";
-import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { DepsConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { HttpQuery } from "./httpQuery/httpQuery";
 import { StreamQuery } from "./httpQuery/streamQuery";
 import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
@@ -135,7 +135,6 @@ const childrenMap = {
   data: stateComp<JSONValue>(null),
   extra: stateComp<JSONValue>({}),
   isFetching: stateComp<boolean>(false),
-  variable: stateComp<JSONObject>({}),
   lastQueryStartTime: stateComp<number>(-1), // The last execution time of the query, in order to avoid multiple executions overwriting each other, not persistent
   latestEndTime: stateComp<number>(0), // The time when the query was last executed
   runTime: stateComp<number>(0), // query run time
@@ -364,14 +363,8 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
-      let variableVal = {};
-      if(action.args) variableVal = action.args;
-      else variableVal = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
-      //Update query.variable
-      const changeValAction = this.children.variable.changeValueAction(variableVal);
-      const changeValAction2 = this.changeChildAction("variable", variableVal)
-      this.dispatch(changeValAction2);
-      console.log("changed value: ", this.children.variable.toJsonValue());
+      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+
       return this.executeQuery(action);
     }
     if (action.type === CompActionTypes.CHANGE_VALUE) {
@@ -486,6 +479,7 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationId: applicationId,
           applicationPath: parentApplicationPath,
           args: action.args,
+          variables: action.args,
           timeout: this.children.timeout,
           callback: (result) => this.processResult(result, action, startTime)
         });
@@ -669,7 +663,23 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
-  new NameConfig("variable", trans("query.variables")),
+  new DepsConfig(
+    "variable",
+    (children: any) => {
+      return {data: children.variables.children.variables.node()};
+    },
+    (input) => {
+      if (!input.data) {
+        return undefined;
+      }
+      const newNode = Object.values(input.data)
+        .filter((kvNode: any) => kvNode.key.text.value)
+        .map((kvNode: any) => ({[kvNode.key.text.value]: kvNode.value.text.value}))
+        .reduce((prev, obj) => ({...prev, ...obj}), {});
+      return newNode;
+    },
+    trans("query.variables")
+  ),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
