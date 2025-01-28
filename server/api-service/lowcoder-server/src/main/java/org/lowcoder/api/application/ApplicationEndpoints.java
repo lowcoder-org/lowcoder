@@ -1,6 +1,7 @@
 package org.lowcoder.api.application;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
@@ -12,6 +13,7 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
+import org.lowcoder.sdk.config.JsonViews;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -156,6 +158,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user."
 	)
     @GetMapping("/home")
+	@JsonView(JsonViews.Public.class)
     public Mono<ResponseView<UserHomepageView>> getUserHomePage(@RequestParam(required = false, defaultValue = "0") int applicationType);
 
     @Operation(
