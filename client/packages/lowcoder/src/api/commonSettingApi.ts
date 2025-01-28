@@ -82,34 +82,34 @@ export interface ThemeDetail {
   dataLoadingIndicator?: string;
 }
 
-export interface BrandingSettings {
-  logo: string | null;
-  squareLogo: string | null;
-  mainBrandingColor: string;
-  appHeaderColor: string;
-  adminSidebarColor: string;
-  adminSidebarFontColor: string;
-  adminSidebarActiveBgColor: string;
-  adminSidebarActiveFontColor: string;
-  editorSidebarColor: string;
-  editorSidebarFontColor: string;
-  editorSidebarActiveBgColor: string;
-  editorSidebarActiveFontColor: string;
-  font: string;
-  errorPageText: string;
-  errorPageImage: string | null;
-  signUpPageText: string;
-  signUpPageImage: string | null;
-  loggedOutPageText: string;
-  loggedOutPageImage: string | null;
-  standardDescription: string;
-  standardTitle: string;
-  showDocumentation: boolean;
-  documentationLink: string | null;
-  submitIssue: boolean;
-  whatsNew: boolean;
-  whatsNewLink: string | null;
-}
+// export interface BrandingSettings {
+//   logo: string | null;
+//   squareLogo: string | null;
+//   mainBrandingColor: string;
+//   appHeaderColor: string;
+//   adminSidebarColor: string;
+//   adminSidebarFontColor: string;
+//   adminSidebarActiveBgColor: string;
+//   adminSidebarActiveFontColor: string;
+//   editorSidebarColor: string;
+//   editorSidebarFontColor: string;
+//   editorSidebarActiveBgColor: string;
+//   editorSidebarActiveFontColor: string;
+//   font: string;
+//   errorPageText: string;
+//   errorPageImage: string | null;
+//   signUpPageText: string;
+//   signUpPageImage: string | null;
+//   loggedOutPageText: string;
+//   loggedOutPageImage: string | null;
+//   standardDescription: string;
+//   standardTitle: string;
+//   showDocumentation: boolean;
+//   documentationLink: string | null;
+//   submitIssue: boolean;
+//   whatsNew: boolean;
+//   whatsNewLink: string | null;
+// }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
   switch (key) {

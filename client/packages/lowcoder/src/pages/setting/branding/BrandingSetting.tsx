@@ -1,8 +1,8 @@
 import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
-import { TacoButton, CustomSelect, messageInstance } from "lowcoder-design";
-import React, { useEffect, useState } from "react";
+import { TacoButton, CustomSelect, messageInstance, Dropdown } from "lowcoder-design";
+import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
@@ -21,8 +21,9 @@ import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { fetchCommonSettings, setCommonSettings } from "@lowcoder-ee/redux/reduxActions/commonSettingsActions";
 import { useShallowEqualSelector } from "@lowcoder-ee/util/hooks";
-import { BrandingSettings } from "@lowcoder-ee/api/commonSettingApi";
-import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+// import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import { Org } from "@lowcoder-ee/constants/orgConstants";
+import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@lowcoder-ee/api/enterpriseApi";
 
 const { TextArea } = Input;
 
@@ -83,6 +84,14 @@ const defaultSettings = {
   whatsNew: false,
   whatsNewLink : null,
 };
+
+const defaultBrandingConfig = {
+  org_id: '',
+  user_id: '',
+  config_name: '',
+  config_description: '',
+  config_set: defaultSettings,
+}
 
 // type FileType = Parameters<UploadProps["beforeUpload"]>[0] | undefined;
 
@@ -169,7 +178,11 @@ const beforeUpload = (file: RcFile) => {
 };
 
 export function BrandingSetting() {
+  // const [configName, setConfigName] = useState<string>('');
+  // const [configDescription, setConfigDescription] = useState<string>('');
+  const [configOrgId, setConfigOrgId] = useState<string>('');
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
+  const [brandingConfig, setBrandingConfig] = useState<BrandingConfig>();
   const [loading, setLoading] = useState({
     [SettingsEnum.LOGO]: false,
     [SettingsEnum.SQUARE_LOGO]: false,
@@ -179,18 +192,56 @@ export function BrandingSetting() {
   });
   const currentUser = useSelector(getUser);
   const dispatch = useDispatch();
-  const brandingSettings = useShallowEqualSelector(getBrandingSettings);
+  // const brandingSettings = useShallowEqualSelector(getBrandingSettings);
+
+  const orgsList = useMemo(() => {
+    const list: Array<{label: string, value: string}> = [{
+      label: 'Global',
+      value: '',
+    }];
+    currentUser?.orgs?.forEach((org: Org) => {
+      list.push({
+        value: org.id,
+        label: org.name,
+      });
+    });
+    return list;
+  }, [currentUser]);
 
   useEffect(() => {
-    setSettings(brandingSettings ?? defaultSettings);
-  }, [brandingSettings]);
+    const fetchBrandingDetails = async() => {
+      try {
+        const branding = await getBranding(configOrgId);
+        setBrandingConfig({
+          ...branding,
+          config_set: JSON.parse(branding.config_set),
+        });
+      } catch(e) {
+        setBrandingConfig(undefined);
+      }
+    }
 
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  }, [currentUser.currentOrgId, dispatch]);
+    fetchBrandingDetails();
+  }, [configOrgId]);
+
+  // useEffect(() => {
+  //   setSettings(brandingSettings ?? defaultSettings);
+  // }, [brandingSettings]);
+
+  // useEffect(() => {
+  //   // dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
+  //   getBranding();
+  // }, [currentUser.currentOrgId, dispatch]);
 
   const updateSettings = (key: keyof BrandingSettings, value: any) => {
-    setSettings((prev) => ({ ...prev, [key]: value }));
+    // setSettings((prev) => ({ ...prev, [key]: value }));
+    setBrandingConfig((branding) => ({
+      ...branding,
+      config_set: {
+        ...branding?.config_set,
+        [key]: value
+      }
+    }));
   };
 
   const handleUpload = async (options: any, imageType: keyof BrandingSettings) => {
@@ -224,19 +275,46 @@ export function BrandingSetting() {
     }
   }
 
-  const handleSave = () => {
-    dispatch(
-      setCommonSettings({
-        orgId: currentUser.currentOrgId,
-        data: {
-          key: 'branding',
-          value: settings,
-        },
-        onSuccess: () => {
-          messageInstance.success(trans("advanced.saveSuccess"));
-        },
-      })
-    );
+  const handleSave = async () => {
+    // const response = await createBranding({
+    //   config_name: configName,
+    //   config_description: configDescription,
+    //   // config_icon: "http://example.com/icon.png",
+    //   config_set: settings,
+    //   org_id: configOrgId,
+    //   user_id: currentUser.id,
+    // });
+    const response = await createBranding({
+      ...brandingConfig,
+      org_id: configOrgId,
+    });
+    console.log(response);
+    // dispatch(
+    //   setCommonSettings({
+    //     orgId: currentUser.currentOrgId,
+    //     data: {
+    //       key: 'branding',
+    //       value: settings,
+    //     },
+    //     onSuccess: () => {
+    //       messageInstance.success(trans("advanced.saveSuccess"));
+    //     },
+    //   })
+    // );
+
+    // dispatch(
+    //   setCommonSettings({
+    //     orgId: currentUser.currentOrgId,
+    //     data: {
+    //       key: 'branding',
+    //       value: settings,
+    //     },
+    //     onSuccess: () => {
+    //       messageInstance.success(trans("advanced.saveSuccess"));
+    //     },
+    //   })
+    // );
+
   }
 
   const uploadButton = (loading: boolean) => (
@@ -253,8 +331,60 @@ export function BrandingSetting() {
           <span>{trans("branding.title")}</span>
         </HeaderBack>
       </Header>
-
       <DetailContent>
+      <BrandingSettingContent>
+          <StyleThemeSettingsCover>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.general")}</h2>
+          </StyleThemeSettingsCover>
+          <Card>
+            <div>
+              <h3>{trans("branding.selectWorkspace")}</h3>
+              <Dropdown
+                style={{ width: '300px' }}
+                placeholder={trans("branding.selectWorkspace")}
+                options={orgsList}
+                allowClear
+                onChange={(value) => {
+                  setConfigOrgId(value);
+                }}
+                value={configOrgId}
+              />
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <h3>{trans("branding.brandingName")}</h3>
+              <Input
+                placeholder={trans("branding.brandingNamePlaceholder")}
+                value={brandingConfig?.config_name}
+                onChange={(e) => {
+                  setBrandingConfig((branding) => ({
+                    ...(branding || {}),
+                    config_name: e.target.value
+                  }))
+                }}
+                style={{ marginBottom: 12 }}
+              />
+              {/* <HelpText>{trans("branding.documentationLinkHelp")}</HelpText> */}
+            </div>
+
+            <div style={{ marginTop: "20px" }}>
+              <h3>{trans("branding.brandingDescription")}</h3>
+              <Input
+                placeholder={trans("branding.brandingDescriptionPlaceholder")}
+                value={brandingConfig?.config_description}
+                onChange={(e) => {
+                  setBrandingConfig((branding) => ({
+                    ...(branding || {}),
+                    config_description: e.target.value
+                  }))
+                }}
+                style={{ marginBottom: 12 }}
+              />
+              {/* <HelpText>{trans("branding.documentationLinkHelp")}</HelpText> */}
+            </div>
+          </Card>
+        </BrandingSettingContent>
+
         <BrandingSettingContent>
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.logoSection")}</h2>
@@ -272,8 +402,8 @@ export function BrandingSetting() {
                   maxCount={1}
                   customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
                 >
-                  {Boolean(settings[SettingsEnum.LOGO])
-                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.LOGO]!)} alt="logo" />
+                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGO])
+                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGO]!)} alt="logo" />
                     : uploadButton(loading[SettingsEnum.LOGO])
                   }
                 </Upload>
@@ -293,8 +423,8 @@ export function BrandingSetting() {
                   maxCount={1}
                   customRequest={(options) => handleUpload(options, SettingsEnum.SQUARE_LOGO)}
                 >
-                  {Boolean(settings[SettingsEnum.SQUARE_LOGO])
-                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
+                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO])
+                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
                     : uploadButton(loading[SettingsEnum.SQUARE_LOGO])
                   }
                 </Upload>
@@ -313,7 +443,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.mainBrandingColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.mainBrandingColor}
+                value={brandingConfig?.config_set?.mainBrandingColor}
                 showText
                 allowClear
                 format="hex"
@@ -326,7 +456,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.editorHeaderColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.appHeaderColor}
+                value={brandingConfig?.config_set?.appHeaderColor}
                 showText
                 allowClear
                 format="hex"
@@ -339,7 +469,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.adminSidebarColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.adminSidebarColor}
+                value={brandingConfig?.config_set?.adminSidebarColor}
                 showText
                 allowClear
                 format="hex"
@@ -352,7 +482,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.adminSidebarFontColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.adminSidebarFontColor}
+                value={brandingConfig?.config_set?.adminSidebarFontColor}
                 showText
                 allowClear
                 format="hex"
@@ -365,7 +495,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.adminSidebarActiveBgColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.adminSidebarActiveBgColor}
+                value={brandingConfig?.config_set?.adminSidebarActiveBgColor}
                 showText
                 allowClear
                 format="hex"
@@ -378,7 +508,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.adminSidebarActiveFontColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.adminSidebarActiveFontColor}
+                value={brandingConfig?.config_set?.adminSidebarActiveFontColor}
                 showText
                 allowClear
                 format="hex"
@@ -391,7 +521,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.editorSidebarColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.editorSidebarColor}
+                value={brandingConfig?.config_set?.editorSidebarColor}
                 showText
                 allowClear
                 format="hex"
@@ -404,7 +534,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.editorSidebarFontColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.editorSidebarFontColor}
+                value={brandingConfig?.config_set?.editorSidebarFontColor}
                 showText
                 allowClear
                 format="hex"
@@ -417,7 +547,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.editorSidebarActiveBgColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.editorSidebarActiveBgColor}
+                value={brandingConfig?.config_set?.editorSidebarActiveBgColor}
                 showText
                 allowClear
                 format="hex"
@@ -430,7 +560,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.editorSidebarActiveFontColor")}</h3>
               <ColorPicker
                 getPopupContainer={(node: any) => node.parentNode}
-                value={settings.editorSidebarActiveFontColor}
+                value={brandingConfig?.config_set?.editorSidebarActiveFontColor}
                 showText
                 allowClear
                 format="hex"
@@ -443,7 +573,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.font")}</h3>
               <CustomSelect
                 options={[] /* Dynamically populate Google Fonts */}
-                value={settings.font}
+                value={brandingConfig?.config_set?.font}
                 onChange={(font) => updateSettings(SettingsEnum.FONT, font)}
               />
               <HelpText>{trans("branding.fontHelp")}</HelpText>
@@ -460,7 +590,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.errorPage")}</h3>
               <TextArea
                 rows={4}
-                value={settings.errorPageText || ""}
+                value={brandingConfig?.config_set?.errorPageText || ""}
                 onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
@@ -476,8 +606,8 @@ export function BrandingSetting() {
                   maxCount={1}
                   customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
                 >
-                  {Boolean(settings[SettingsEnum.ERROR_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
+                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
                     : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
                   }
                 </Upload>
@@ -488,7 +618,7 @@ export function BrandingSetting() {
               <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPage")}</h3>
               <TextArea
                 rows={4}
-                value={settings.signUpPageText || ""}
+                value={brandingConfig?.config_set?.signUpPageText || ""}
                 onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
@@ -504,8 +634,8 @@ export function BrandingSetting() {
                   maxCount={1}
                   customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
                 >
-                  {Boolean(settings[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
+                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
                     : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
                   }
                 </Upload>
@@ -516,7 +646,7 @@ export function BrandingSetting() {
               <h3 style={{marginTop : "20px"}}>{trans("branding.loggedOutPage")}</h3>
               <TextArea
                 rows={4}
-                value={settings.loggedOutPageText || ""}
+                value={brandingConfig?.config_set?.loggedOutPageText || ""}
                 onChange={(e) => updateSettings(SettingsEnum.LOGGED_OUT_PAGE_TEXT, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
@@ -532,8 +662,8 @@ export function BrandingSetting() {
                   maxCount={1}
                   customRequest={(options) => handleUpload(options, SettingsEnum.LOGOUT_PAGE_IMAGE)}
                 >
-                  {Boolean(settings[SettingsEnum.LOGOUT_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(settings[SettingsEnum.LOGOUT_PAGE_IMAGE]!)} alt="logout_page_image" />
+                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGOUT_PAGE_IMAGE])
+                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGOUT_PAGE_IMAGE]!)} alt="logout_page_image" />
                     : uploadButton(loading[SettingsEnum.LOGOUT_PAGE_IMAGE])
                   }
                 </Upload>
@@ -544,7 +674,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.standardDescription")}</h3>
               <TextArea
                 rows={2}
-                value={settings.standardDescription || ""}
+                value={brandingConfig?.config_set?.standardDescription || ""}
                 onChange={(e) => updateSettings(SettingsEnum.STANDARD_DESCRIPTION, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
@@ -554,7 +684,7 @@ export function BrandingSetting() {
               <h3>{trans("branding.standardTitle")}</h3>
               <TextArea
                 rows={2}
-                value={settings.standardTitle || ""}
+                value={brandingConfig?.config_set?.standardTitle || ""}
                 onChange={(e) => updateSettings(SettingsEnum.STANDARD_TITLE, e.target.value)}
                 style={{ marginBottom: 12 }}
               />
@@ -563,7 +693,7 @@ export function BrandingSetting() {
             <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.submitIssue")}</h3>
               <Switch
-                checked={settings.submitIssue}
+                checked={brandingConfig?.config_set?.submitIssue}
                 onChange={(checked) => updateSettings(SettingsEnum.SUBMIT_ISSUE, checked)}
               />
             </div>
@@ -580,16 +710,16 @@ export function BrandingSetting() {
             <div>
               <h3>{trans("branding.showDocumentation")}</h3>
               <Switch
-                checked={settings.showDocumentation}
+                checked={brandingConfig?.config_set?.showDocumentation}
                 onChange={(checked) => updateSettings(SettingsEnum.SHOW_DOCUMENTATION, checked)}
               />
             </div>
-            {settings.showDocumentation && (
+            {brandingConfig?.config_set?.showDocumentation && (
               <div style={{ marginTop: "20px" }}>
                 <h3>{trans("branding.documentationLink")}</h3>
                 <Input
                   placeholder={trans("branding.documentationLinkPlaceholder")}
-                  value={settings.documentationLink || ""}
+                  value={brandingConfig?.config_set?.documentationLink || ""}
                   onChange={(e) => updateSettings(SettingsEnum.DOCUMENTATION_LINK, e.target.value)}
                   style={{ marginBottom: 12 }}
                 />
@@ -607,16 +737,16 @@ export function BrandingSetting() {
             <div>
               <h3>{trans("branding.whatsNew")}</h3>
               <Switch
-                checked={settings.whatsNew}
+                checked={brandingConfig?.config_set?.whatsNew}
                 onChange={(checked) => updateSettings(SettingsEnum.WHATS_NEW, checked)}
               />
             </div>
-            {settings.whatsNew && (
+            {brandingConfig?.config_set?.whatsNew && (
               <div style={{ marginTop: "20px" }}>
                 <h3>{trans("branding.whatsNewLink")}</h3>
                 <Input
                   placeholder={trans("branding.whatsNewLinkPlaceholder")}
-                  value={settings.whatsNewLink || ""}
+                  value={brandingConfig?.config_set?.whatsNewLink || ""}
                   onChange={(e) => updateSettings(SettingsEnum.WHATS_NEW_LINK, e.target.value)}
                   style={{ marginBottom: 12 }}
                 />

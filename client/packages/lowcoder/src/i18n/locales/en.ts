@@ -2850,6 +2850,7 @@ export const en = {
 
   "branding": {
     "title": "Branding Settings",
+    "selectWorkspace": "Select Workspace",
     "logoSection": "Logos",
     "logo": "Logo",
     "logoHelp": "Upload your company's logo in SVG or PNG format.",

@@ -64,7 +64,7 @@ import Avatar from 'antd/es/avatar';
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
-import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+// import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 
 const { Countdown } = Statistic;
@@ -380,7 +380,7 @@ export default function Header(props: HeaderProps) {
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
-  const brandingSettings = useSelector(getBrandingSettings);
+  const brandingSettings = {}; //useSelector(getBrandingSettings);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -694,7 +694,7 @@ export default function Header(props: HeaderProps) {
 // header in manager page
 export function AppHeader() {
   const user = useSelector(getUser);
-  const brandingSettings = useSelector(getBrandingSettings);
+  const brandingSettings = {}; //useSelector(getBrandingSettings);
 
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>

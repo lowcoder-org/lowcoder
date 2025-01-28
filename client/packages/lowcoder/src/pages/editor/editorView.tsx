@@ -55,7 +55,10 @@ import {
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
-import { getBrandingSettings, getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import {
+  // getBrandingSettings,
+  getCommonSettings
+} from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
 // import { BottomSkeleton } from "./bottom/BottomContent";
@@ -314,7 +317,7 @@ function EditorView(props: EditorViewProps) {
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const brandingSettings = useSelector(getBrandingSettings);
+  const brandingSettings = {}; //useSelector(getBrandingSettings);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),

@@ -28,6 +28,6 @@ export const getDefaultHomePage = (state: AppState) => {
   return state.ui.commonSettings.settings.defaultHomePage;
 };
 
-export const getBrandingSettings = (state: AppState) => {
-  return state.ui.commonSettings.settings.branding;
-}
+// export const getBrandingSettings = (state: AppState) => {
+//   return state.ui.commonSettings.settings.branding;
+// }
