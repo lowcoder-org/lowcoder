@@ -76,20 +76,25 @@ export const KeyValueList = (props: {
   list: ReactNode[];
   onAdd: () => void;
   onDelete: (item: ReactNode, index: number) => void;
+  isStatic?: boolean;
 }) => (
   <>
     {props.list.map((item, index) => (
       <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
         {item}
-        <DelIcon
-          onClick={() => props.list.length > 1 && props.onDelete(item, index)}
-          $forbidden={props.list.length === 1}
-        />
+        {!props.isStatic &&
+          <DelIcon
+            onClick={() => props.list.length > 1 && props.onDelete(item, index)}
+            $forbidden={props.list.length === 1}
+          />
+        }
       </KeyValueListItem>
     ))}
+    {!props.isStatic && 
     <AddBtn onClick={props.onAdd}>
       <AddIcon />
       {trans("addItem")}
     </AddBtn>
+    }
   </>
 );

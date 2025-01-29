@@ -20,7 +20,7 @@ const childrenMap = {
 };
 
 export const GoToURLAction = new MultiCompBuilder(childrenMap, (props) => {
-  return () => {
+  return () => {  
     const queryParams = keyValueListToSearchStr(
       props.query.map((i) => i.getView() as KeyValue)
     );
