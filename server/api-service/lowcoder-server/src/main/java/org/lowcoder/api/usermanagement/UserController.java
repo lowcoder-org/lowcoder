@@ -3,17 +3,21 @@ package org.lowcoder.api.usermanagement;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.authentication.dto.OrganizationDomainCheckResult;
+import org.lowcoder.api.authentication.service.AuthenticationApiService;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.usermanagement.view.UpdateUserRequest;
 import org.lowcoder.api.usermanagement.view.UserProfileView;
+import org.lowcoder.domain.organization.model.MemberRole;
+import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.user.constant.UserStatusType;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.model.UserDetail;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.domain.user.service.UserStatusService;
 import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.AuthSourceConstants;
 import org.lowcoder.sdk.exception.BizError;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
@@ -35,6 +39,19 @@ public class UserController implements UserEndpoints
     private final UserStatusService userStatusService;
     private final UserApiService userApiService;
     private final CommonConfig commonConfig;
+    private final AuthenticationApiService authenticationApiService;
+    private final OrgMemberService orgMemberService;
+
+    @Override
+    public Mono<ResponseView<?>> createUserAndAddToOrg(@PathVariable String orgId, CreateUserRequest request) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ ->
+                        authenticationApiService.authenticateByForm(request.email(), request.password(),
+                                AuthSourceConstants.EMAIL, true, null, orgId))
+                .flatMap(authUser -> userService.createNewUserByAuthUser(authUser, false))
+                .delayUntil(user -> orgMemberService.tryAddOrgMember(orgId, user.getId(), MemberRole.MEMBER))
+                .delayUntil(user -> orgApiService.switchCurrentOrganizationTo(user.getId(), orgId))
+                .map(ResponseView::success);
+    }
 
     @Override
     public Mono<ResponseView<?>> getUserProfile(ServerWebExchange exchange) {
@@ -67,19 +84,27 @@ public class UserController implements UserEndpoints
     @Override
     public Mono<ResponseView<UserProfileView>> update(@RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
         return sessionUserService.getVisitorId()
-                .flatMap(uid -> {
-                    User updateUser = new User();
-                    if (StringUtils.isNotBlank(updateUserRequest.getName())) {
-                        updateUser.setName(updateUserRequest.getName());
-                        updateUser.setHasSetNickname(true);
-                    }
-                    if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
-                        updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
-                    }
-                    return userService.update(uid, updateUser);
-                })
-                .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
-                .map(ResponseView::success);
+                .flatMap(uid -> updateUser(uid, updateUserRequest, exchange));
+    }
+
+    @Override
+    public Mono<ResponseView<UserProfileView>> update(@PathVariable String orgId, @PathVariable String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        return orgApiService.checkVisitorAdminRole(orgId)
+                .flatMap(__ -> updateUser(userId, updateUserRequest, exchange));
+    }
+
+    public Mono<ResponseView<UserProfileView>> updateUser(String userId, @RequestBody UpdateUserRequest updateUserRequest, ServerWebExchange exchange) {
+        User updateUser = new User();
+        if (StringUtils.isNotBlank(updateUserRequest.getName())) {
+            updateUser.setName(updateUserRequest.getName());
+            updateUser.setHasSetNickname(true);
+        }
+        if (StringUtils.isNotBlank(updateUserRequest.getUiLanguage())) {
+            updateUser.setUiLanguage(updateUserRequest.getUiLanguage());
+        }
+        return userService.update(userId, updateUser)
+            .flatMap(user -> userHomeApiService.buildUserProfileView(user, exchange))
+            .map(ResponseView::success);
     }
 
     @Override
@@ -90,9 +115,24 @@ public class UserController implements UserEndpoints
     }
 
     @Override
+    public Mono<ResponseView<Boolean>> uploadProfilePhotoById(@PathVariable String orgId, @PathVariable String userId, @RequestPart("file") Mono<Part> fileMono) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .zipWith(fileMono)
+                .flatMap(tuple -> userService.saveProfilePhoto(tuple.getT2(), tuple.getT1()))
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<Void>> deleteProfilePhoto() {
         return sessionUserService.getVisitor()
                 .flatMap(visitor -> userService.deleteProfilePhoto(visitor)
+                        .map(ResponseView::success));
+    }
+
+    @Override
+    public Mono<ResponseView<Void>> deleteProfilePhotoById(@PathVariable String orgId, @PathVariable String userId) {
+        return orgApiService.checkVisitorAdminRole(orgId).flatMap(__ -> userService.findById(userId))
+                .flatMap(user -> userService.deleteProfilePhoto(user)
                         .map(ResponseView::success));
     }
 
