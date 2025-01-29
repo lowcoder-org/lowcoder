@@ -277,6 +277,7 @@ export const en = {
     "moduleEvent": "Module Event",
     "goToApp": "Go to an other App",
     "queryParams": "Query Parameters",
+    "queryVariables": "Query Variables",
     "hashParams": "Hash Parameters",
     "showNotification": "Show a Notification",
     "text": "Text",

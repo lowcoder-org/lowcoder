@@ -57,7 +57,7 @@ const ExecuteQueryPropertyView = ({
 
   const getVariableOptions = useCallback((editorState?: EditorState) => {
     return comp.children.queryVariables.propertyView({
-      label: trans("eventHandler.queryParams"),
+      label: trans("eventHandler.queryVariables"),
       layout: "vertical",
       isStatic: true,
       keyFixed: true,
