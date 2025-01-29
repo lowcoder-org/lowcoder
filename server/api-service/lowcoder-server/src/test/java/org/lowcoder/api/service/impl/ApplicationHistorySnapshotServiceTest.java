@@ -84,5 +84,9 @@ public class ApplicationHistorySnapshotServiceTest {
                 })
                 .verifyComplete();
 
+        StepVerifier.create(service.countByApplicationIdArchived(applicationId))
+                .expectNext(0L)
+                .verifyComplete();
+
     }
 }
