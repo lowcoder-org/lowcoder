@@ -9,11 +9,98 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
 import {keyValueListControl, keyValueListToSearchStr, withDefault} from "lowcoder-sdk";
 import {KeyValue} from "@lowcoder-ee/types/common";
+import { useCallback, useContext, useEffect, useMemo } from "react";
 
+const ExecuteQueryPropertyView = ({
+  comp,
+  placement,
+}: {
+  comp: any,
+  placement?: "query" | "table"
+}) => {
+  const getQueryOptions = useCallback((editorState?: EditorState) => {
+    const options: { label: string; value: string; variable?: Record<string, string> }[] =
+      editorState
+        ?.queryCompInfoList()
+        .map((info) => {
+          return {
+            label: info.name,
+            value: info.name,
+            variable: info.data.variable,
+          }
+      })
+        .filter(
+          // Filter out the current query under query
+          (option) => {
+            if (
+              placement === "query" &&
+              editorState.selectedBottomResType === BottomResTypeEnum.Query
+            ) {
+              return option.value !== editorState.selectedBottomResName;
+            }
+            return true;
+          }
+        ) || [];
+
+    // input queries
+    editorState
+      ?.getModuleLayoutComp()
+      ?.getInputs()
+      .forEach((i) => {
+        const { name, type } = i.getView();
+        if (type === InputTypeEnum.Query) {
+          options.push({ label: name, value: name });
+        }
+      });
+    return options;
+  }, [placement]);
+
+  const getVariableOptions = useCallback((editorState?: EditorState) => {
+    return comp.children.queryVariables.propertyView({
+      label: trans("eventHandler.queryParams"),
+      layout: "vertical",
+      isStatic: true,
+      keyFixed: true,
+    });
+  }, [comp.children.queryVariables.getView()])
+  
+  return (
+    <>
+      <BranchDiv $type={"inline"}>
+        <EditorContext.Consumer>
+          {(editorState) => (
+            <>
+              <Dropdown
+                showSearch={true}
+                value={comp.children.queryName.getView()}
+                options={getQueryOptions(editorState)}
+                label={trans("eventHandler.selectQuery")}
+                onChange={(value) => {
+                  const options = getQueryOptions(editorState);
+                  const selectedQuery = options.find(option => option.value === value);
+                  const variables = selectedQuery ? Object.keys(selectedQuery.variable || {}) : [];
+                  comp.dispatchChangeValueAction({
+                    queryName: value,
+                    queryVariables: variables.map((variable) => ({key: variable, value: ''})),
+                  });
+                }}
+              />
+            </>
+          )}
+        </EditorContext.Consumer>
+      </BranchDiv>
+      <BranchDiv>
+        <EditorContext.Consumer>
+          {(editorState) => getVariableOptions(editorState)}
+        </EditorContext.Consumer>
+      </BranchDiv>
+    </>
+  );
+}
 const ExecuteQueryTmpAction = (function () {
   const childrenMap = {
     queryName: SimpleNameComp,
-    query: withDefault(keyValueListControl(false, [], "string"), [{ key: "", value: "" }])
+    queryVariables: withDefault(keyValueListControl(false, [], "string"), [])
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => Promise.resolve(undefined as unknown);
@@ -26,7 +113,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   override getView() {
     const queryName = this.children.queryName.getView();
     // const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
-    const result = Object.values(this.children.query.children as Record<string, {
+    const result = Object.values(this.children.queryVariables.children as Record<string, {
       children: {
         key: { unevaledValue: string },
         value: { unevaledValue: string }
@@ -56,80 +143,11 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   }
 
   propertyView({ placement }: { placement?: "query" | "table" }) {
-    const getQueryOptions = (editorState?: EditorState) => {
-      const options: { label: string; value: string }[] =
-        editorState
-          ?.queryCompInfoList()
-          .map((info) => ({
-            label: info.name,
-            value: info.name,
-          }))
-          .filter(
-            // Filter out the current query under query
-            (option) => {
-              if (
-                placement === "query" &&
-                editorState.selectedBottomResType === BottomResTypeEnum.Query
-              ) {
-                return option.value !== editorState.selectedBottomResName;
-              }
-              return true;
-            }
-          ) || [];
-
-      // input queries
-      editorState
-        ?.getModuleLayoutComp()
-        ?.getInputs()
-        .forEach((i) => {
-          const { name, type } = i.getView();
-          if (type === InputTypeEnum.Query) {
-            options.push({ label: name, value: name });
-          }
-        });
-      return options;
-    };
-    const getVariableOptions = (editorState?: EditorState) => {
-      const options =
-        editorState
-          ?.getQueriesComp()
-          .getView()
-          .filter(
-            // Filter out the current query under query
-            (option) => {
-              return option.children.name.getView() === this.children.queryName.getView();
-            }
-          ) || [];
-      return this.children.query.propertyView({
-        label: trans("eventHandler.queryParams"),
-        layout: "vertical",
-        isStatic: true,
-        keyFixed: true,
-      });
-    }
     return (
-      <>
-        <BranchDiv $type={"inline"}>
-          <EditorContext.Consumer>
-            {(editorState) => (
-              <>
-                <Dropdown
-                  showSearch={true}
-                  value={this.children.queryName.getView()}
-                  options={getQueryOptions(editorState)}
-                  label={trans("eventHandler.selectQuery")}
-                  onChange={(value) => this.dispatchChangeValueAction({ queryName: value })}
-                />
-              </>
-            )}
-          </EditorContext.Consumer>
-        </BranchDiv>
-        <BranchDiv>
-          <EditorContext.Consumer>
-            {(editorState) => getVariableOptions(editorState)}
-          </EditorContext.Consumer>
-        </BranchDiv>
-      </>
-    );
+      <ExecuteQueryPropertyView
+        comp={this}
+        placement={placement}
+      />
+    )
   }
 }
