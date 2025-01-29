@@ -3147,7 +3147,7 @@ export const it = {
   "jsLibraryDownloadError": "Errore nel download della libreria JavaScript",
   "jsLibraryInstallSuccess": "Libreria JavaScript installata con successo",
   "jsLibraryInstallFailed": "Installazione della libreria JavaScript non riuscita",
-  "jsLibraryInstallFailedCloud": "Forse la libreria non è disponibile nella Sandbox, [Documentazione](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+  "jsLibraryInstallFailedCloud": "Forse la libreria non è disponibile nella Sandbox, [Documentazione](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
   "jsLibraryInstallFailedHost": "{message}",
   "add": "Aggiungi nuovo",
   "jsHelpText": "Aggiungere un metodo o una variabile globale all'applicazione corrente.",
