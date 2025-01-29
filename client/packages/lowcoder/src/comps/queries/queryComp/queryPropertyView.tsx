@@ -171,6 +171,17 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
               </QueryPropertyViewWrapper>
             ),
           },
+          {
+            key: "variables",
+            title: trans("query.variablesTab"),
+            children: (
+              <QueryPropertyViewWrapper>
+                <QuerySectionWrapper>
+                  {children.variables.getPropertyView()}
+                </QuerySectionWrapper>
+              </QueryPropertyViewWrapper>
+            ),
+          },
         ] as const
       }
       tabTitle={children.name.getView()}
@@ -497,6 +508,29 @@ export const QueryGeneralPropertyView = (props: {
           )} */}
         </QuerySectionWrapper>
       )}
+    </QueryPropertyViewWrapper>
+  );
+};
+
+export const QueryVariablesPropertyView = (props: {
+  comp: InstanceType<typeof QueryComp>;
+  placement?: PageType;
+}) => {
+  const { comp, placement = "editor" } = props;
+
+  const children = comp.children;
+  let datasourceId = children.datasourceId.getView();
+
+  console.log(children.datasourceId);
+  return (
+    <QueryPropertyViewWrapper>
+      <QuerySectionWrapper>
+        {isCompWithPropertyView(children.comp)
+          ? children.comp.propertyView({
+            datasourceId: datasourceId,
+          })
+          : children.comp.getPropertyView()}
+      </QuerySectionWrapper>
     </QueryPropertyViewWrapper>
   );
 };

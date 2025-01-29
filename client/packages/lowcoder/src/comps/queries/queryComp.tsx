@@ -67,7 +67,7 @@ import { JSONObject, JSONValue } from "../../util/jsonTypes";
 import { BoolPureControl } from "../controls/boolControl";
 import { millisecondsControl } from "../controls/millisecondControl";
 import { paramsMillisecondsControl } from "../controls/paramsControl";
-import { NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { DepsConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { HttpQuery } from "./httpQuery/httpQuery";
 import { StreamQuery } from "./httpQuery/streamQuery";
 import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
@@ -75,6 +75,7 @@ import { QueryNotificationControl } from "./queryComp/queryNotificationControl";
 import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesComp";
 
 const latestExecution: Record<string, string> = {};
 
@@ -153,6 +154,7 @@ const childrenMap = {
     defaultValue: 10 * 1000,
   }),
   confirmationModal: QueryConfirmationModal,
+  variables: VariablesComp,
   periodic: BoolPureControl,
   periodicTime: millisecondsControl({
     defaultValue: Number.NaN,
@@ -361,6 +363,8 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
+      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+
       return this.executeQuery(action);
     }
     if (action.type === CompActionTypes.CHANGE_VALUE) {
@@ -404,16 +408,21 @@ QueryCompTmp = class extends QueryCompTmp {
     return this;
   }
 
+
+
+
   /**
    * Process the execution result
    */
   private processResult(result: QueryResult, action: ExecuteQueryAction, startTime: number) {
     const lastQueryStartTime = this.children.lastQueryStartTime.getView();
+
     if (lastQueryStartTime > startTime) {
       // There are more new requests, ignore this result
       // FIXME: cancel this request in advance in the future
       return;
     }
+
     const changeAction = multiChangeAction({
       code: this.children.code.changeValueAction(result.code ?? QUERY_EXECUTION_OK),
       success: this.children.success.changeValueAction(result.success ?? true),
@@ -470,6 +479,7 @@ QueryCompTmp = class extends QueryCompTmp {
           applicationId: applicationId,
           applicationPath: parentApplicationPath,
           args: action.args,
+          variables: action.args,
           timeout: this.children.timeout,
           callback: (result) => this.processResult(result, action, startTime)
         });
@@ -653,6 +663,23 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
+  new DepsConfig(
+    "variable",
+    (children: any) => {
+      return {data: children.variables.children.variables.node()};
+    },
+    (input) => {
+      if (!input.data) {
+        return undefined;
+      }
+      const newNode = Object.values(input.data)
+        .filter((kvNode: any) => kvNode.key.text.value)
+        .map((kvNode: any) => ({[kvNode.key.text.value]: kvNode.value.text.value}))
+        .reduce((prev, obj) => ({...prev, ...obj}), {});
+      return newNode;
+    },
+    trans("query.variables")
+  ),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
