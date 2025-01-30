@@ -49,6 +49,7 @@ export type KeyValueControlParams = ControlParams & {
   valueFlexBasics?: number;
   isStatic?: boolean;
   keyFixed?: boolean;
+  indicatorForAll?: boolean;
 };
 
 /**
@@ -143,6 +144,7 @@ export function keyValueListControl<T extends OptionsType>(
             onAdd={() => this.dispatch(this.pushAction({}))}
             onDelete={(item, index) => this.dispatch(this.deleteAction(index))}
             isStatic={params.isStatic}
+            indicatorForAll={params.indicatorForAll}
           />
         </ControlPropertyViewWrapper>
       );

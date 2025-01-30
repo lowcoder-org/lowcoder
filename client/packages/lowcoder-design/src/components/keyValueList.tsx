@@ -4,6 +4,7 @@ import { TacoButton } from "./button";
 import { ReactNode } from "react";
 import { BluePlusIcon } from "icons";
 import { trans } from "i18n/design";
+import { BranchDiv } from "./Trees";
 
 const KeyValueListItem = styled.div`
   display: flex;
@@ -77,18 +78,23 @@ export const KeyValueList = (props: {
   onAdd: () => void;
   onDelete: (item: ReactNode, index: number) => void;
   isStatic?: boolean;
-}) => (
-  <>
+  indicatorForAll?: boolean;
+}) => {
+  let IndicatorWrapper = ({children}: any) => (<>{children}</>);
+  if(props.indicatorForAll) IndicatorWrapper = BranchDiv;
+  return <>
     {props.list.map((item, index) => (
-      <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
-        {item}
-        {!props.isStatic &&
-          <DelIcon
-            onClick={() => props.list.length > 1 && props.onDelete(item, index)}
-            $forbidden={props.list.length === 1}
-          />
-        }
-      </KeyValueListItem>
+      <IndicatorWrapper $type={"inline"} key={index}>
+        <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
+          {item}
+          {!props.isStatic &&
+            <DelIcon
+              onClick={() => props.list.length > 1 && props.onDelete(item, index)}
+              $forbidden={props.list.length === 1}
+            />
+          }
+        </KeyValueListItem>
+      </IndicatorWrapper>
     ))}
     {!props.isStatic && 
     <AddBtn onClick={props.onAdd}>
@@ -97,4 +103,4 @@ export const KeyValueList = (props: {
     </AddBtn>
     }
   </>
-);
+};
