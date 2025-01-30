@@ -11,12 +11,18 @@ import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.user.model.User;
+import org.lowcoder.domain.user.service.EmailCommunicationService;
+import org.lowcoder.domain.user.service.EmailCommunicationServiceImpl;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.exception.BizException;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+import java.util.Set;
+
+import static org.lowcoder.domain.organization.service.OrganizationService.INVITATION_EMAIL_TEMPLATE_DEFAULT;
 import static org.lowcoder.sdk.exception.BizError.INVITED_ORG_DELETED;
 import static org.lowcoder.sdk.exception.BizError.INVITER_NOT_FOUND;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
@@ -33,6 +39,7 @@ public class InvitationApiServiceImpl implements InvitationApiService {
     private final OrganizationService organizationService;
     private final OrgMemberService orgMemberService;
     private final AbstractBizThresholdChecker bizThresholdChecker;
+    private final EmailCommunicationService emailCommunicationService;
 
     @Override
     public Mono<Boolean> inviteUser(String invitationId) {
@@ -107,6 +114,29 @@ public class InvitationApiServiceImpl implements InvitationApiService {
                             .invitedOrganizationId(orgId)
                             .build();
                     return invitationService.create(invitation)
+                            .flatMap(i -> Mono.just(InvitationVO.from(i, user, org)));
+                });
+    }
+
+    @Override
+    public Mono<InvitationVO> createByEmails(String orgId, Set<String> emails) {
+        return sessionUserService.getVisitor()
+                .zipWith(organizationService.getById(orgId)
+                        .switchIfEmpty(Mono.error(new BizException(BizError.INVALID_ORG_ID, "INVALID_ORG_ID"))))
+                .flatMap(tuple2 -> {
+                    User user = tuple2.getT1();
+                    Organization org = tuple2.getT2();
+                    Invitation invitation = Invitation
+                            .builder()
+                            .createUserId(user.getId())
+                            .invitedOrganizationId(orgId)
+                            .invitedEmails(emails)
+                            .build();
+                    return invitationService.create(invitation)
+                            .doOnNext(i -> {
+                                boolean ret = emailCommunicationService.sendInvitationEmail(i, emails, INVITATION_EMAIL_TEMPLATE_DEFAULT);
+                                if(!ret) throw new BizException(BizError.INVITE_FAILED, "INVITE_FAILED");
+                            })
                             .flatMap(i -> Mono.just(InvitationVO.from(i, user, org)));
                 });
     }

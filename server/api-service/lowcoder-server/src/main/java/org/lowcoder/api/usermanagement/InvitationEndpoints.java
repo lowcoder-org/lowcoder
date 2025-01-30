@@ -1,18 +1,18 @@
 package org.lowcoder.api.usermanagement;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.annotation.Nullable;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.InvitationVO;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import io.swagger.v3.oas.annotations.Operation;
 import reactor.core.publisher.Mono;
+
+import java.util.Map;
+import java.util.Set;
 
 @RestController
 @RequestMapping(value = {Url.INVITATION_URL, NewUrl.INVITATION_URL})
@@ -46,5 +46,17 @@ public interface InvitationEndpoints
 	)
     @GetMapping("/{invitationId}/invite")
     public Mono<ResponseView<?>> inviteUser(@PathVariable String invitationId);
+
+	@Operation(
+			tags = TAG_INVITATION_MANAGEMENT,
+			operationId = "inviteUserByEmail",
+			summary = "Invite users by their email addresses",
+			description = "Invite users and send invitation link to user's email addresses"
+	)
+	@PostMapping("/email")
+	public Mono<ResponseView<?>> inviteUserByEmail(@RequestBody InviteByEmailRequest inviteByEmailRequest);
+
+	public record InviteByEmailRequest(@JsonProperty("orgId") String organizationId, Set<String> emails) {
+	}
 
 }

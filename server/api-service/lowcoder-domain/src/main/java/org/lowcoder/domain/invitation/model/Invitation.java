@@ -25,4 +25,6 @@ public class Invitation extends HasIdAndAuditing {
      */
     private final Set<String> invitedUserIds;
 
+    private final Set<String> invitedEmails;
+
 }

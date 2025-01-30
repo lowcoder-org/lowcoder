@@ -18,6 +18,10 @@ public interface OrganizationService {
             "Here is the link to reset your password: %s<br/>" +
             "Please note that the link will expire after 12 hours.<br/><br/></p>";
 
+    public static final String INVITATION_EMAIL_TEMPLATE_DEFAULT = "<p>Hi, sir<br/>" +
+            "Here is the link to your invitation: %s<br/>" +
+            "Please note that the link will expire after 12 hours.<br/><br/></p>";
+
     @PossibleEmptyMono
     Mono<Organization> getOrganizationInEnterpriseMode();
 

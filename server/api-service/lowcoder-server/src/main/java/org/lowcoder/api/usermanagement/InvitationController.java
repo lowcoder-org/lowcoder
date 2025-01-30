@@ -9,6 +9,7 @@ import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.InvitationVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -48,6 +49,12 @@ public class InvitationController implements InvitationEndpoints
                                     .map(ResponseView::success);
                         }
                 );
+    }
+
+    @Override
+    public Mono<ResponseView<?>> inviteUserByEmail(@RequestBody InviteByEmailRequest inviteByEmailRequest) {
+        return invitationApiService.createByEmails(inviteByEmailRequest.organizationId(), inviteByEmailRequest.emails())
+                .map(ResponseView::success);
     }
 
 }
