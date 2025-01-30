@@ -23,6 +23,7 @@ import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
+import org.lowcoder.domain.invitation.service.InvitationService;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationDomain;
@@ -41,6 +42,8 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -69,6 +72,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private final OrgMemberService orgMemberService;
     private final JWTUtils jwtUtils;
     private final AuthProperties authProperties;
+    private final InvitationService invitationService;
 
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
@@ -120,7 +124,18 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     @Override
     public Mono<Void> loginOrRegister(AuthUser authUser, ServerWebExchange exchange,
                                       String invitationId, boolean linKExistingUser) {
-        return updateOrCreateUser(authUser, linKExistingUser, false)
+        Mono<Boolean> expiryCheckMono;
+        if(invitationId != null && !invitationId.trim().isEmpty()) {
+            expiryCheckMono = invitationService.getById(invitationId)
+                    .handle((invitation, sink) -> {
+                        boolean expired = Instant.now().isAfter(invitation.getCreatedAt().plus(Duration.ofHours(12)));
+                        if(expired) sink.error(new BizException(LINK_EXPIRED, "LINK_EXPIRED"));
+                        sink.next(true);
+                    });
+        } else {
+            expiryCheckMono = Mono.just(true);
+        }
+        return expiryCheckMono.then(updateOrCreateUser(authUser, linKExistingUser, false)
                 .delayUntil(user -> ReactiveSecurityContextHolder.getContext()
                         .doOnNext(securityContext -> securityContext.setAuthentication(AuthenticationUtils.toAuthentication(user))))
                 // save token and set cookie
@@ -148,7 +163,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     return invitationApiService.inviteUser(invitationId);
                 })
                 // publish event
-                .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource()));
+                .then(businessEventPublisher.publishUserLoginEvent(authUser.getSource())));
     }
 
     public Mono<User> updateOrCreateUser(AuthUser authUser, boolean linkExistingUser, boolean isSuperAdmin) {
