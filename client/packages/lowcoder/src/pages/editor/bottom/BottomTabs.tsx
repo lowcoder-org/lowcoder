@@ -278,6 +278,7 @@ export function BottomTabs<T extends TabsConfigType>(props: {
             }}
             onChange={(value) => setError(editorState.checkRename(tabTitle, value))}
             onEditStateChange={(editing) => setEditing(editing)}
+            style={{ maxWidth: '100%', width: '100%' }}
           />
           <PopupCard
             editorFocus={!!error && editing}

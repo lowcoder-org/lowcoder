@@ -108,6 +108,7 @@ export const EditText = (props: EditTextProps) => {
           $hasPrefix={!!props.prefixIcon}
           ref={inputRef}
           defaultValue={props.text}
+          style={props.style}
           onClick={(e) => e.stopPropagation()}
           onChange={(e) => props.onChange?.((e.target as HTMLInputElement).value)}
           onBlur={(e) => {
