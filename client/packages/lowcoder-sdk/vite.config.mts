@@ -9,6 +9,7 @@ import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 import dynamicImport from 'vite-plugin-dynamic-import';
 import { visualizer } from "rollup-plugin-visualizer";
 import { terser } from 'rollup-plugin-terser';
+import strip from "@rollup/plugin-strip";
 
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
@@ -54,6 +55,12 @@ export const viteConfig: UserConfig = {
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {
+      treeshake: {
+        moduleSideEffects: false, 
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false, 
+        unknownGlobalSideEffects: false, 
+      },
       external: ["react", "react-dom"],
       output: {
         chunkFileNames: "chunks/[name]-[hash].js",
@@ -181,7 +188,11 @@ export const viteConfig: UserConfig = {
         minChunkSize: 300000, // 📏 Force smaller chunks (~300KB)
       },
       plugins: [
-        terser()
+        terser(),
+        strip({
+          functions: ["console.log", "debugger"], // ✅ Remove logs
+          sourceMap: true,
+        }),
       ],
       onwarn: (warning, warn) => {
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {

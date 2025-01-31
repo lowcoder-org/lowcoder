@@ -3663,6 +3663,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@rollup/plugin-strip@npm:^3.0.4":
+  version: 3.0.4
+  resolution: "@rollup/plugin-strip@npm:3.0.4"
+  dependencies:
+    "@rollup/pluginutils": ^5.0.1
+    estree-walker: ^2.0.2
+    magic-string: ^0.30.3
+  peerDependencies:
+    rollup: ^1.20.0||^2.0.0||^3.0.0||^4.0.0
+  peerDependenciesMeta:
+    rollup:
+      optional: true
+  checksum: 77a839dedbe46ec2f2a1834428277a9c8addc28989fc013f39c638019fff2aaf7b1c64d79ed8f4361a9f21094cd5d819197e88c9b6483f5a6232282c8e310174
+  languageName: node
+  linkType: hard
+
 "@rollup/plugin-typescript@npm:^12.1.0":
   version: 12.1.0
   resolution: "@rollup/plugin-typescript@npm:12.1.0"
@@ -14061,6 +14077,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@rollup/plugin-json": ^5.0.1
     "@rollup/plugin-node-resolve": ^14.1.0
     "@rollup/plugin-replace": ^5.0.1
+    "@rollup/plugin-strip": ^3.0.4
     "@rollup/plugin-url": ^7.0.0
     "@svgr/rollup": ^6.3.1
     "@vitejs/plugin-react": ^2.2.0
