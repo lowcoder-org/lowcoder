@@ -61,6 +61,7 @@ const ExecuteQueryPropertyView = ({
       layout: "vertical",
       isStatic: true,
       keyFixed: true,
+      indicatorForAll: true,
     });
   }, [comp.children.queryVariables.getView()])
   
@@ -89,11 +90,9 @@ const ExecuteQueryPropertyView = ({
           )}
         </EditorContext.Consumer>
       </BranchDiv>
-      <BranchDiv>
-        <EditorContext.Consumer>
-          {(editorState) => getVariableOptions(editorState)}
-        </EditorContext.Consumer>
-      </BranchDiv>
+      <EditorContext.Consumer>
+        {(editorState) => getVariableOptions(editorState)}
+      </EditorContext.Consumer>
     </>
   );
 }
