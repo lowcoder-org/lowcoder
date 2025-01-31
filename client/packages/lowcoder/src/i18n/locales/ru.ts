@@ -3116,7 +3116,7 @@ export const ru = {
   "jsLibraryDownloadError": "Ошибка загрузки библиотеки JavaScript",
   "jsLibraryInstallSuccess": "Библиотека JavaScript успешно установлена",
   "jsLibraryInstallFailed": "Не удалось установить библиотеку JavaScript",
-  "jsLibraryInstallFailedCloud": "Возможно, библиотека недоступна в песочнице, [Документация](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+  "jsLibraryInstallFailedCloud": "Возможно, библиотека недоступна в песочнице, [Документация](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
   "jsLibraryInstallFailedHost": "{message}",
   "add": "Добавить новый",
   "jsHelpText": "Добавьте глобальный метод или переменную в текущее приложение.",

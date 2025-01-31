@@ -2521,7 +2521,7 @@ export const zh: typeof en = {
         jsLibraryDownloadError: "JavaScript库下载错误",
         jsLibraryInstallSuccess: "JavaScript库安装成功",
         jsLibraryInstallFailed: "JavaScript库安装失败",
-        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
         jsLibraryInstallFailedHost: "{message}",
         add: "新增",
         jsHelpText: "向当前应用程序添加全局方法或变量.",
