@@ -31,8 +31,7 @@
     "lib"
   ],
   "exports": {
-    "import": "./lib/index.js",
-    "require": "./lib/index.cjs"
+    "import": "./lib/index.js"
   },
   "author": "Lowcoder"
 }
