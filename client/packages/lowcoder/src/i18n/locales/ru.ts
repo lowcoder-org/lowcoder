@@ -737,7 +737,7 @@ export const ru = {
   "importFromQueryLibrary": "Импорт из библиотеки запросов",
   "importFromFile": "Импорт из файла",
   "triggerType": "Срабатывает, когда...",
-  "triggerTypeAuto": "Изменяются входные данные или при загрузке страницы",
+  "triggerTypeAuto": "При изменении входных данных или после загрузки приложения (страницы)",
   "triggerTypePageLoad": "После загрузки приложения (страницы)",
   "triggerTypeManual": "Только при ручном запуске",
   "triggerTypeInputChange": "Когда изменяются входные данные",

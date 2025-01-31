@@ -737,7 +737,7 @@ export const de = {
   "importFromQueryLibrary": "von Abfragebibliothek",
   "importFromFile": "Aus Datei importieren",
   "triggerType": "Ausgelöst, wenn...",
-  "triggerTypeAuto": "Eingaben ändern sich oder beim Laden der Seite",
+  "triggerTypeAuto": "Eingaben ändern sich oder nach dem Laden der Seite",
   "triggerTypePageLoad": "Nach dem Laden der Anwendung (Seite)",
   "triggerTypeManual": "Manuell auslösen",
   "triggerTypeInputChange": "Wenn sich Eingaben ändern",

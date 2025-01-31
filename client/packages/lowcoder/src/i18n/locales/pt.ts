@@ -737,7 +737,7 @@ export const pt = {
   "importFromQueryLibrary": "Importar da Biblioteca de Consultas",
   "importFromFile": "Importar de Arquivo",
   "triggerType": "Disparado quando...",
-  "triggerTypeAuto": "Mudança de entradas ou ao carregar a página",
+  "triggerTypeAuto": "Quando as entradas mudam ou após o carregamento da aplicação (página)",
   "triggerTypePageLoad": "Após o carregamento da aplicação (página)",
   "triggerTypeManual": "Somente quando você aciona manualmente",
   "triggerTypeInputChange": "Quando as entradas mudam",

@@ -99,22 +99,22 @@ interface AfterExecuteQueryAction {
 }
 
 const CommonTriggerOptions = [
-  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
-  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
   { label: trans("query.triggerTypeTimeout"), value: "onTimeout"},
+  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
+  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
 ]
 
 export const TriggerTypeOptions = [
+  { label: trans("query.triggerTypeManual"), value: "manual" },
   { label: trans("query.triggerTypePageLoad"), value: "onPageLoad"},
   ...CommonTriggerOptions,
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
-  { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
 
 export const JSTriggerTypeOptions = [
-  ...CommonTriggerOptions,
-  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
+  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
+  ...CommonTriggerOptions,
 ];
 
 export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
