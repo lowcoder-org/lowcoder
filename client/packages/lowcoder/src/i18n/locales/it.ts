@@ -738,7 +738,7 @@ export const it = {
   "importFromFile": "Importazione da file",
   "triggerType": "Attivato quando...",
   "triggerTypeAuto": "Cambiamenti negli input o al caricamento della pagina",
-  "triggerTypePageLoad": "Quando si carica l'applicazione (pagina)",
+  "triggerTypePageLoad": "Dopo il caricamento dell'applicazione (pagina)",
   "triggerTypeManual": "Solo quando lo attivi manualmente",
   "triggerTypeInputChange": "Quando cambiano gli input",
   "triggerTypeQueryExec": "Dopo l'esecuzione della query",

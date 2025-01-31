@@ -690,7 +690,7 @@ export const zh: typeof en = {
         importFromFile: "从文件导入",
         "triggerType": "触发条件...",
         "triggerTypeAuto": "输入更改或页面加载时",
-        "triggerTypePageLoad": "当应用程序（页面）加载时",
+        "triggerTypePageLoad": "应用程序（页面）加载后",
         "triggerTypeManual": "仅当您手动触发时",
         "triggerTypeInputChange": "当输入更改时",
         "triggerTypeQueryExec": "查询执行后",

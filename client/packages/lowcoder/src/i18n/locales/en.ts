@@ -742,7 +742,7 @@ export const en = {
     "importFromFile": "Import from File",
     "triggerType": "Triggered when...",
     "triggerTypeAuto": "Inputs Change or On Page Load",
-    "triggerTypePageLoad": "When the Application (Page) loads",
+    "triggerTypePageLoad": "After the Application (Page) loads",
     "triggerTypeManual": "Only when you trigger it manually",
     "triggerTypeInputChange": "When Inputs Change",
     "triggerTypeQueryExec": "After Query Execution",
