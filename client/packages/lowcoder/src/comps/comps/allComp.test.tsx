@@ -51,7 +51,7 @@ const COMPS_MAP = {
   string: StringControl,
   test: TestComp,
   input: InputComp,
-  query: QueryComp,
+  // query: QueryComp,
   js: JSQuery,
   mysql: SQLQuery,
   params: ParamsStringControl,
