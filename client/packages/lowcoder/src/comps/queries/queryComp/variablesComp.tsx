@@ -1,5 +1,5 @@
 import {MultiCompBuilder, withDefault} from "../../generators";
-import {keyValueListControl} from "lowcoder-sdk";
+import { keyValueListControl } from "../../controls/keyValueListControl";
 
 export const VariablesComp = new MultiCompBuilder(
   {

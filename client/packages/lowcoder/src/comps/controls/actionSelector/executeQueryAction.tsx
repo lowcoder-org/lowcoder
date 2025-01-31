@@ -7,9 +7,9 @@ import { BranchDiv, Dropdown } from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
-import {keyValueListControl, keyValueListToSearchStr, withDefault} from "lowcoder-sdk";
-import {KeyValue} from "@lowcoder-ee/types/common";
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { withDefault } from "comps/generators";
+import { keyValueListControl} from "comps/controls/keyValueListControl";
+import { useCallback } from "react";
 
 const ExecuteQueryPropertyView = ({
   comp,
