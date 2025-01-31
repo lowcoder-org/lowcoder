@@ -856,7 +856,7 @@ export const en = {
     "categoryRPA" : "Robotic Process Automation",
     "componentsUsingQueryTitle" : "Query Usage",
     "componentsUsingQuery" : "Where is this Query in use",
-    "query.variables" : "Variables"
+    "variables" : "Variables"
   },
 
 

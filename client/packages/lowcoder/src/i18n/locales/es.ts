@@ -850,6 +850,9 @@ export const es = {
   "categoryWebscrapers": "Raspadores Web & Open Data",
   "categoryDocumentHandling": "Generación de Informes y Documentos",
   "categoryRPA": "Automatización de Procesos Robóticos",
+  "componentsUsingQueryTitle": "Uso de la consulta",
+  "componentsUsingQuery": "Dónde se usa esta consulta",
+  "variables": "Variables"
   },
   "sqlQuery": {
     ...en.sqlQuery,

@@ -849,7 +849,10 @@ export const pt = {
   "categoryEcommerce": "Comércio Eletrônico",
   "categoryWebscrapers": "Raspadores Web & Open Data",
   "categoryDocumentHandling": "Geração de Relatórios e Documentos",
-  "categoryRPA": "Automação de Processos Robóticos"
+  "categoryRPA": "Automação de Processos Robóticos",
+  "componentsUsingQueryTitle": "Uso da Consulta",
+  "componentsUsingQuery": "Onde esta consulta está em uso",
+  "variables": "Variáveis"
   },
   "sqlQuery": {
     ...en.sqlQuery,

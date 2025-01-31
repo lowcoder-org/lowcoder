@@ -849,7 +849,10 @@ export const ru = {
   "categoryEcommerce": "Электронная коммерция",
   "categoryWebscrapers": "Веб-скраперы",
   "categoryDocumentHandling": "Создание отчетов и документов",
-  "categoryRPA": "Роботизированная автоматизация процессов"
+  "categoryRPA": "Роботизированная автоматизация процессов",
+  "componentsUsingQueryTitle": "Использование запроса",
+  "componentsUsingQuery": "Где используется этот запрос",
+  "variables": "Переменные"
   },
   "sqlQuery": {
     ...en.sqlQuery,

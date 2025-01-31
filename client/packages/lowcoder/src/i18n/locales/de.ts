@@ -849,7 +849,10 @@ export const de = {
   "categoryEcommerce": "E-Commerce",
   "categoryWebscrapers": "Web-Scraper & Open Data",
   "categoryDocumentHandling": "Bericht & Dokumentenerstellung",
-  "categoryRPA": "Roboter Prozess Automatisierung"
+  "categoryRPA": "Roboter Prozess Automatisierung",
+  "componentsUsingQueryTitle": "Abfrageverwendung",
+  "componentsUsingQuery": "Wo wird diese Abfrage verwendet",
+  "variables": "Variablen"
   },
   "sqlQuery": {
     ...en.sqlQuery,

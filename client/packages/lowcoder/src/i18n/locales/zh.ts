@@ -814,7 +814,10 @@ export const zh: typeof en = {
         "categoryEcommerce": "电子商务",
         "categoryWebscrapers": "网络爬虫",
         "categoryDocumentHandling": "报告与文档生成",
-        "categoryRPA": "机器人流程自动化"
+        "categoryRPA": "机器人流程自动化",
+        "componentsUsingQueryTitle": "查询使用情况",
+        "componentsUsingQuery": "此查询在哪里使用",
+        "variables": "变量"
     },
 
     sqlQuery: {
