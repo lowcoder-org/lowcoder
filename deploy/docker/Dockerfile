@@ -110,7 +110,7 @@ CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
 ##
 ## Build lowcoder client application
 ##
-FROM node:20.2-slim AS build-client
+FROM node:23.7-slim AS build-client
 
 # curl is required for yarn build to succeed, because it calls it while building client
 RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
