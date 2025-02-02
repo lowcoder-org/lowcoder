@@ -40,7 +40,7 @@ import {
   recoverSnapshotAction,
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import {
   getSelectedAppSnapshot,
   showAppSnapshotSelector,
@@ -369,10 +369,11 @@ export default function Header(props: HeaderProps) {
   const { left, bottom, right } = props.panelStatus;
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const selectedSnapshot = useSelector(getSelectedAppSnapshot);
+  const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -512,7 +513,8 @@ export default function Header(props: HeaderProps) {
                     recoverSnapshotAction(
                       application.applicationId,
                       selectedSnapshot.snapshotId,
-                      selectedSnapshot.createTime
+                      selectedSnapshot.createTime,
+                      isArchivedSnapshot,
                     )
                   );
                 },
@@ -535,7 +537,7 @@ export default function Header(props: HeaderProps) {
     ) : (
       <>
         {/* Display a hint about who is editing the app */}
-        {blockEditing && (
+        {blockEditing && Boolean(applicationId) && (
           <>
           <Popover
             style={{ width: 200 }}
@@ -586,7 +588,7 @@ export default function Header(props: HeaderProps) {
           </>
         )}
 
-        {applicationId && (
+        {Boolean(applicationId) && !isPublicApp && (
           <AppPermissionDialog
             applicationId={applicationId}
             visible={permissionDialogVisible}

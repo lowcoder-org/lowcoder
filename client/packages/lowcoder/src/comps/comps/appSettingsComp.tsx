@@ -25,6 +25,7 @@ import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { ColorControl } from "../controls/colorControl";
 import { DEFAULT_ROW_COUNT } from "@lowcoder-ee/layout/calculateUtils";
 import { AppSettingContext } from "../utils/appSettingContext";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const TITLE = trans("appSetting.title");
 const USER_DEFINE = "__USER_DEFINE";
@@ -216,7 +217,7 @@ const childrenMap = {
   lowcoderCompVersion: withDefault(StringControl, 'latest'),
   maxWidth: dropdownInputSimpleControl(OPTIONS, USER_DEFINE, "1920"),
   gridColumns: RangeControl.closed(8, 48, 24),
-  gridRowHeight: RangeControl.closed(6, 20, 8),
+  gridRowHeight: RangeControl.closed(4, 100, 8),
   gridRowCount: withDefault(NumberControl, DEFAULT_ROW_COUNT),
   gridPaddingX: withDefault(NumberControl, 20),
   gridPaddingY: withDefault(NumberControl, 20),
@@ -337,6 +338,7 @@ function AppGeneralSettingsModal(props: ChildrenInstance) {
 }
 
 function AppCanvasSettingsModal(props: ChildrenInstance) {
+  const isPublicApp = useSelector(isPublicApplication);
   const {
     themeList,
     defaultTheme,
@@ -415,13 +417,15 @@ function AppCanvasSettingsModal(props: ChildrenInstance) {
             placement="bottom"
             itemNode={(value) => <DropdownItem value={value} />}
             preNode={() => (
-              <>
-                <CreateDiv onClick={() => window.open(THEME_SETTING)}>
-                  <StyledAddIcon />
-                  {trans("appSetting.themeCreate")}
-                </CreateDiv>
-                <DividerStyled />
-              </>
+              isPublicApp ? <></> : (
+                <>
+                  <CreateDiv onClick={() => window.open(THEME_SETTING)}>
+                    <StyledAddIcon />
+                    {trans("appSetting.themeCreate")}
+                  </CreateDiv>
+                  <DividerStyled />
+                </>
+              )
             )}
             allowClear
             onChange={(value) => {

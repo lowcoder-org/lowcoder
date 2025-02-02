@@ -323,7 +323,7 @@ const HighlightBorder = styled.div<{ $active: boolean; $foldable: boolean; $leve
   max-width: 100%;
   flex: 1;
   display: flex;
-  padding-left: ${(props) => props.$level * 20 + (props.$foldable ? 0 : 14)}px;
+  padding-left: ${(props) => props.$level * 10 + (props.$foldable ? 0 : 14)}px;
   border-radius: 4px;
   border: 1px solid ${(props) => (props.$active ? BorderActiveColor : "transparent")};
   align-items: center;

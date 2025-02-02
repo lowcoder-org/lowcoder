@@ -1,6 +1,7 @@
 import {
   AlignBottom,
   AlignTop,
+  AlignClose,
   dropdownControl,
   MultiCompBuilder,
 } from "lowcoder-sdk";
@@ -11,6 +12,10 @@ const LegendPositionOptions = [
   {
     label: <AlignBottom />,
     value: "bottom",
+  },
+  {
+    label: <AlignClose />,
+    value: "center",
   },
   {
     label: <AlignTop />,
@@ -37,6 +42,7 @@ export const EchartsLegendConfig = (function () {
         {children.position.propertyView({
           label: trans("echarts.legendPosition"),
           radioButton: true,
+          tooltip: trans("echarts.changingLegend_x_Tooltip")
         })}
       </>
     ))

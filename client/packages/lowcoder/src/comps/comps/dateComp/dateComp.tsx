@@ -20,7 +20,7 @@ import { UICompBuilder, withDefault } from "../../generators";
 import { CommonNameConfig, depsConfig, withExposingConfigs } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import {  AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import {  AnimationStyle, ChildrenMultiSelectStyle, ChildrenMultiSelectStyleType, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -34,6 +34,7 @@ import {
   minuteStepPropertyView,
   requiredPropertyView,
   SecondStepPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_FORMAT, DATE_TIME_FORMAT, DateParser, PickerMode } from "util/dateTimeUtils";
@@ -50,10 +51,19 @@ import { DateRangeUIView } from "comps/comps/dateComp/dateRangeUIView";
 import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 
 
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
+const PickerModeOptions = [
+  { label: "Date", value: "date" },
+  { label: "Week", value: "week" },
+  { label: "Month", value: "month" },
+  { label: "Quarter", value: "quarter" },
+  { label: "Year", value: "year" },
+]
 
 const validationChildren = {
   showValidationWhenEmpty: BoolControl,
@@ -68,6 +78,7 @@ const commonChildren = {
   label: LabelControl,
   placeholder: withDefault(StringControl, trans("date.placeholder")),
   format: StringControl,
+  inputFormat: withDefault(StringControl, DATE_FORMAT),
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   showTime: BoolControl,
@@ -85,12 +96,14 @@ const commonChildren = {
   ...validationChildren,
   viewRef: RefControl<CommonPickerMethods>,
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
+  pickerMode: dropdownControl(PickerModeOptions, 'date'), 
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
 const datePickerProps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder");
+  _.pick(props, "format", "inputFormat", "showTime", "use12Hours", "hourStep", "minuteStep", "secondStep", "placeholder", "pickerMode");
 
 const timeFields = (children: CommonChildrenType, isMobile?: boolean) => [
   children.showTime.propertyView({ label: trans("date.showTime") }),
@@ -142,6 +155,7 @@ function validate(
 }
 
 const childrenMap = {
+  defaultValue: stringExposingStateControl("defaultValue"),
   value: stringExposingStateControl("value"),
   userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
   ...commonChildren,
@@ -151,6 +165,7 @@ export type DateCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
   | "disabled"
   | "format"
+  | "inputFormat"
   | "minDate"
   | "maxDate"
   | "suffixIcon"
@@ -161,27 +176,71 @@ export type DateCompViewProps = Pick<
   | "secondStep"
   | "viewRef"
   | "timeZone"
+  | "pickerMode"
 > & {
   onFocus: () => void;
   onBlur: () => void;
   $style: DateTimeStyleType;
+  $childrenInputFieldStyle: ChildrenMultiSelectStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon: ReactNode;
   placeholder?: string | [string, string];
 };
 
-export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
+const getFormattedDate = (
+  time: dayjs.Dayjs | null | undefined,
+  showTime: boolean,
+  pickerMode: string,
+) => {
+  let updatedTime = undefined;
+  if (time?.isValid()) {
+    switch(pickerMode) {
+      case 'week': {
+        updatedTime = dayjs(time).day(0);
+        break;
+      }
+      case 'month': {
+        updatedTime = dayjs(time).set('date', 1);
+        break;
+      }
+      case 'quarter': {
+        updatedTime = dayjs(time).set('date', 1);
+        break;
+      }
+      case 'year': {
+        updatedTime = dayjs(time).set('date', 1).set('month', 1);
+        break;
+      }
+      default: {
+        updatedTime = time;
+        break;
+      }
+    }
+  }
+  return updatedTime
+    ? updatedTime.format(showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
+    : "";
+}
+
+const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
+  const defaultValue = { ...props.defaultValue }.value;
+  const value = { ...props.value }.value;
+    
   let time: dayjs.Dayjs | null = null;
-  if (props.value.value !== '') {
-    time = dayjs(props.value.value, DateParser);
+  if (value !== '') {
+    time = dayjs(value, DateParser);
   }
   
   const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
   useEffect(() => {
-    const value = props.value.value ? dayjs(props.value.value, DateParser) : null;
-    setTempValue(value);
-  }, [props.value.value])
+    props.value.onChange(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
+    const newValue = value ? dayjs(value, DateParser) : null;
+    setTempValue(newValue);
+  }, [value])
 
   const handleDateZoneChange = (newTimeZone: any) => {
     props.userTimeZone.onChange(newTimeZone)
@@ -201,6 +260,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         viewRef={props.viewRef}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         hourStep={props.hourStep}
@@ -210,9 +270,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
         value={tempValue?.isValid() ? tempValue : null}
         onChange={(time) => {
           handleDateChange(
-            time && time.isValid()
-              ? time.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : "",
+            getFormattedDate(time, props.showTime, props.pickerMode),
             props.value.onChange,
             props.onEvent
           );
@@ -234,14 +292,17 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
     return (
       <>
         <Section name={sectionNames.basic}>
-          {children.value.propertyView({
+          {children.defaultValue.propertyView({
             label: trans("prop.defaultValue"),
             placeholder: "2022-04-07 21:39:59",
             tooltip: trans("date.formatTip")
           })}
+          {children.pickerMode.propertyView({
+            label: trans("prop.pickerMode")
+          })}
           {children.timeZone.propertyView({
             label: trans("prop.timeZone")
-            })}
+          })}
         </Section>
 
         <FormDataPropertyView {...children} />
@@ -260,6 +321,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           </>
         )}
@@ -269,7 +331,7 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
-            {formatPropertyView({ children })}
+            {formatPropertyView({ children, placeholder: DATE_FORMAT })}
             {children.placeholder.propertyView({ label: trans("date.placeholderText") })}
           </Section>
         )}
@@ -293,6 +355,9 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
             </Section>
+            <Section name={sectionNames.childrenInputFieldStyle}>
+              {children.childrenInputFieldStyle.getPropertyView()}
+            </Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
             </Section>
@@ -304,9 +369,33 @@ export const datePickerControl = new UICompBuilder(childrenMap, (props) => {
   .setExposeMethodConfigs(dateRefMethods)
   .build();
 
-export const dateRangeControl = (function () {
+export const datePickerControl = migrateOldData(DatePickerTmpCmp, fixOldInputCompData);
+
+export function fixOldDateOrTimeRangeData(oldData: any) {
+  if (!oldData) return oldData;
+
+  let {defaultStart, defaultEnd} = oldData
+  if (Boolean(oldData.start) && !Boolean(oldData.defaultStart)) {
+    defaultStart = oldData.start;
+  }
+  if (Boolean(oldData.end) && !Boolean(oldData.defaultEnd)) {
+    defaultEnd = oldData.end;
+  }
+  return {
+    ...oldData,
+    defaultStart,
+    defaultEnd,
+    start: '',
+    end: '',
+  };
+  // return oldData;
+}
+
+let DateRangeTmpCmp = (function () {
   const childrenMap = {
+    defaultStart: stringExposingStateControl("defaultStart"),
     start: stringExposingStateControl("start"),
+    defaultEnd: stringExposingStateControl("defaultEnd"),
     end: stringExposingStateControl("end"),
     userRangeTimeZone: stringExposingStateControl("userRangeTimeZone" , Intl.DateTimeFormat().resolvedOptions().timeZone),
     ...formDataChildren,
@@ -314,28 +403,42 @@ export const dateRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
+    const defaultStart = { ...props.defaultStart }.value;
+    const startValue = { ...props.start }.value;
+
+    const defaultEnd = { ...props.defaultEnd }.value;
+    const endValue = { ...props.end }.value;
+
     let start: dayjs.Dayjs | null = null;
-    if (props.start.value !== '') {
-      start = dayjs(props.start.value, DateParser);
+    if (startValue !== '') {
+      start = dayjs(startValue, DateParser);
     }
     
     let end: dayjs.Dayjs | null = null;
-    if (props.end.value !== '') {
-      end = dayjs(props.end.value, DateParser);
+    if (endValue !== '') {
+      end = dayjs(endValue, DateParser);
     }
 
     const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
     const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
 
     useEffect(() => {
-      const value = props.start.value ? dayjs(props.start.value, DateParser) : null;
-      setTempStartValue(value);
-    }, [props.start.value])
+      props.start.onChange(defaultStart);
+    }, [defaultStart]);
 
     useEffect(() => {
-      const value = props.end.value ? dayjs(props.end.value, DateParser) : null;
+      props.end.onChange(defaultEnd);
+    }, [defaultEnd]);
+
+    useEffect(() => {
+      const value = startValue ? dayjs(startValue, DateParser) : null;
+      setTempStartValue(value);
+    }, [startValue])
+
+    useEffect(() => {
+      const value = endValue ? dayjs(endValue, DateParser) : null;
       setTempEndValue(value);
-    }, [props.end.value])
+    }, [endValue])
 
 
     const handleDateRangeZoneChange = (newTimeZone: any) => {
@@ -348,6 +451,7 @@ export const dateRangeControl = (function () {
         timeZone={props?.timeZone}
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         {...datePickerProps(props)}
         start={tempStartValue?.isValid() ? tempStartValue : null}
@@ -358,12 +462,10 @@ export const dateRangeControl = (function () {
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
         onChange={(start, end) => {
           props.start.onChange(
-            start && start.isValid()
-              ? start.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT)
-              : ""
+            getFormattedDate(start, props.showTime, props.pickerMode)
           );
           props.end.onChange(
-            end && end.isValid() ? end.format(props.showTime ? DATE_TIME_FORMAT : DATE_FORMAT) : ""
+            getFormattedDate(end, props.showTime, props.pickerMode)
           );
           props.onEvent("change");
         }}
@@ -399,15 +501,18 @@ export const dateRangeControl = (function () {
       return (
         <>
           <Section name={sectionNames.basic}>
-            {children.start.propertyView({
+            {children.defaultStart.propertyView({
               label: trans("date.start"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
             })}
-            {children.end.propertyView({
+            {children.defaultEnd.propertyView({
               label: trans("date.end"),
               placeholder: "2022-04-07 21:39:59",
               tooltip: trans("date.formatTip"),
+            })}
+            {children.pickerMode.propertyView({
+              label: trans("prop.pickerMode")
             })}
             {children.timeZone.propertyView({
             label: trans("prop.timeZone")
@@ -430,6 +535,7 @@ export const dateRangeControl = (function () {
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
                 {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
             </>
           )}
@@ -462,6 +568,9 @@ export const dateRangeControl = (function () {
               <Section name={sectionNames.inputFieldStyle}>
                 {children.inputFieldStyle.getPropertyView()}
               </Section>
+              <Section name={sectionNames.childrenInputFieldStyle}>
+                {children.childrenInputFieldStyle.getPropertyView()}
+              </Section>
             </>
           )}
 
@@ -470,6 +579,8 @@ export const dateRangeControl = (function () {
     })
     .build();
 })();
+
+export const dateRangeControl = migrateOldData(DateRangeTmpCmp, fixOldDateOrTimeRangeData);
 
 const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
   const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;

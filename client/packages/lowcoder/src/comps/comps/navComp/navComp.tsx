@@ -17,7 +17,7 @@ import {
   AnimationStyleType,
   NavigationStyle,
 } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 import { useContext } from "react";
@@ -241,6 +241,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 

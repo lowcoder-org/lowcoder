@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -65,29 +67,29 @@ export function isAxisChart(type: CharOptionCompType) {
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
-  const visibleSeries = props.series.filter((s) => !s.getView().hide);
+  const visibleSeries = props?.series.filter((s) => !s.getView().hide);
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type)) {
+    if (isAxisChart(props?.chartConfig.type)) {
       let encodeX: string, encodeY: string;
-      const horizontalX = props.xAxisDirection === "horizontal";
-      let itemStyle = props.chartConfig.itemStyle;
+      const horizontalX = props?.xAxisDirection === "horizontal";
+      let itemStyle = props?.chartConfig.itemStyle;
       // FIXME: need refactor... chartConfig returns a function with paramters
-      if (props.chartConfig.type === "bar") {
+      if (props?.chartConfig.type === "bar") {
         // barChart's border radius, depend on x-axis direction and stack state
         const borderRadius = horizontalX ? [2, 2, 0, 0] : [0, 2, 2, 0];
-        if (props.chartConfig.stack && index === visibleSeries.length - 1) {
+        if (props?.chartConfig.stack && index === visibleSeries.length - 1) {
           itemStyle = { ...itemStyle, borderRadius: borderRadius };
-        } else if (!props.chartConfig.stack) {
+        } else if (!props?.chartConfig.stack) {
           itemStyle = { ...itemStyle, borderRadius: borderRadius };
         }
       }
       if (horizontalX) {
-        encodeX = props.xAxisKey;
+        encodeX = props?.xAxisKey;
         encodeY = s.getView().columnName;
       } else {
         encodeX = s.getView().columnName;
-        encodeY = props.xAxisKey;
+        encodeY = props?.xAxisKey;
       }
       return {
         name: s.getView().seriesName,
@@ -102,24 +104,24 @@ export function getSeriesConfig(props: EchartsConfigProps) {
           y: encodeY,
         },
         // each type of chart's config
-        ...props.chartConfig,
+        ...props?.chartConfig,
         itemStyle: itemStyle,
         label: {
-          ...props.chartConfig.label,
+          ...props?.chartConfig.label,
           ...(!horizontalX && { position: "outside" }),
         },
       };
     } else {
       // pie
-      const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
+      const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props?.chartConfig);
       return {
-        ...props.chartConfig,
+        ...props?.chartConfig,
         radius: radiusAndCenter.radius,
         center: radiusAndCenter.center,
         name: s.getView().seriesName,
         selectedMode: "single",
         encode: {
-          itemName: props.xAxisKey,
+          itemName: props?.xAxisKey,
           value: s.getView().columnName,
         },
       };
@@ -127,61 +129,86 @@ export function getSeriesConfig(props: EchartsConfigProps) {
   });
 }
 
-// https://echarts.apache.org/en/option.html
 export function getEchartsConfig(
   props: EchartsConfigProps,
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-  if (props.mode === "json") {
-    let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-     "tooltip": props.tooltip&&{
-    "position": "top"
-  },
-  "grid": {
-    "height": "50%",
-    "top": "10%"
-  },
-   "visualMap": {
-    "min": 0,
-    "max": 100,
-    "calculable": true,
-    "orient": "horizontal",
-    "left": "center",
-    "bottom": "15%"
-  },
-  "legend": {
-    "data": ["Heatmap"],
-    "left": "left"
-  },
-      'xAxis': {
-        "type": "category",
-        'data':props.echartsOption.xAxis.data
+  if (props?.mode === "json") {
+    let opt= {
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
-      'yAxis': {
-        "type": "category",
-        data: props.echartsOption.yAxis.data
+      backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      tooltip: props?.tooltip && {
+        position: "top"
       },
-      'series': [
+      grid: {
+        left: `${props?.left}%`,
+        right: `${props?.right}%`,
+        bottom: `${props?.bottom}%`,
+        top: `${props?.top}%`,
+      },
+      visualMap: {
+        min: props?.min,
+        max: props?.max,
+        calculable: true,
+        top: props?.echartsLegendConfig.top,
+        left: props?.echartsLegendAlignConfig.left,
+        orient: props?.echartsLegendOrientConfig.orient,
+        bottom: "5%",
+        inRange: {
+          color: props?.echartsOption?.color || ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8']
+        },
+        textStyle: {
+          ...styleWrapper(props?.visualMapStyle, theme?.visualMapStyle, 13),
+        }
+      },
+      xAxis: {
+        type: "category",
+        data: props?.echartsData?.xAxis || props?.echartsOption && props?.echartsOption.xAxis,
+        axisLabel: {
+          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
+        },
+        splitArea: {
+          show: props?.xAxisVisibility
+        }
+      },
+      yAxis: {
+        type: "category",
+        data: props?.echartsData?.yAxis || props?.echartsOption && props?.echartsOption.yAxis,
+        axisLabel: {
+          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
+        },
+        splitArea: {
+          show: props?.yAxisVisibility
+        }
+      },
+      series: [
         {
-          'name': 'Heatmap',
-          'type': 'heatmap',
-          'data':props.echartsOption.data
-       }
-     ]
-}
-    return props.echartsOption ? opt : {};
+          name: 'Heatmap',
+          type: 'heatmap',
+          data: props?.echartsData.length !== 0 && props?.echartsData || props?.echartsOption && props?.echartsOption.data,
+          label: {
+            show: props?.labelVisibility,
+            ...styleWrapper(props?.labelStyle, theme?.labelStyle, 12),
+          },
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+          }
+        }
+      ]
+    }
+    return props?.echartsOption ? opt : {};
     
   }
   
-  if(props.mode === "map") {
+  if(props?.mode === "map") {
     const {
       mapZoomLevel,
       mapCenterLat,
@@ -203,41 +230,41 @@ export function getEchartsConfig(
     }
   }
   // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type);
+  const axisChart = isAxisChart(props?.chartConfig.type);
   const gridPos = {
     left: 20,
-    right: props.legendConfig.left === "right" ? "10%" : 20,
+    right: props?.legendConfig.left === "right" ? "10%" : 20,
     top: 50,
     bottom: 35,
   };
   let config: EChartsOptionWithMap = {
-    title: { text: props.title, left: "center" },
+    title: { text: props?.title, left: "center" },
     tooltip: {
       confine: true,
       trigger: axisChart ? "axis" : "item",
     },
-    legend: props.legendConfig,
+    legend: props?.legendConfig,
     grid: {
       ...gridPos,
       containLabel: true,
     },
   };
-  if (props.data.length <= 0) {
+  if (props?.data.length <= 0) {
     // no data
     return {
       ...config,
       ...(axisChart ? noDataAxisConfig : noDataPieChartConfig),
     };
   }
-  const yAxisConfig = props.yConfig();
-  const seriesColumnNames = props.series
+  const yAxisConfig = props?.yConfig();
+  const seriesColumnNames = props?.series
     .filter((s) => !s.getView().hide)
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
   const transformedData =
     yAxisConfig.type === "category" || yAxisConfig.type === "time"
-      ? props.data
-      : transformData(props.data, props.xAxisKey, seriesColumnNames);
+      ? props?.data
+      : transformData(props?.data, props?.xAxisKey, seriesColumnNames);
   config = {
     ...config,
     dataset: [
@@ -265,10 +292,10 @@ export function getEchartsConfig(
       };
     }
     const finalXyConfig = calcXYConfig(
-      props.xConfig,
+      props?.xConfig,
       yAxisConfig,
-      props.xAxisDirection,
-      transformedData.map((d) => d[props.xAxisKey]),
+      props?.xAxisDirection,
+      transformedData.map((d) => d[props?.xAxisKey]),
       chartRealSize
     );
     config = {

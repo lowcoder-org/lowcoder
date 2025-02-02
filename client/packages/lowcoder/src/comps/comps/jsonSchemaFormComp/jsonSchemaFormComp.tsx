@@ -20,20 +20,27 @@ import { UICompBuilder, withDefault } from "../../generators";
 import DateWidget from "./dateWidget";
 import ErrorBoundary from "./errorBoundary";
 import { Theme } from "@rjsf/antd";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { AutoHeightControl } from "../../controls/autoHeightControl";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef, useState, createContext } from "react";
 import { EditorContext } from "comps/editorState";
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
 
+
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
 const Form = withTheme(Theme);
 
 const EventOptions = [submitEvent] as const;
+
+const ContainerWidthContext = createContext(0);
+
+const useContainerWidth = () => {
+  return useContext(ContainerWidthContext);
+};
 
 const Container = styled.div<{
   $style: JsonSchemaFormStyleType;
@@ -216,6 +223,7 @@ function onSubmit(props: {
   });
 }
 
+
 let FormBasicComp = (function () {
   const childrenMap = {
     resetAfterSubmit: BoolControl,
@@ -228,6 +236,7 @@ let FormBasicComp = (function () {
     style: styleControl(JsonSchemaFormStyle , 'style'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
   };
+
   return new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
     const buttonOptions = props?.uiSchema?.[
@@ -236,51 +245,83 @@ let FormBasicComp = (function () {
 
     const schema = props.schema;
 
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [containerWidth, setContainerWidth] = useState(0);
+
+    // Monitor the container's width
+    useEffect(() => {
+      const updateWidth = () => {
+        if (containerRef.current) {
+          setContainerWidth(containerRef.current.offsetWidth);
+        }
+      };
+  
+      const resizeObserver = new ResizeObserver(() => {
+        updateWidth();
+      });
+  
+      if (containerRef.current) {
+        resizeObserver.observe(containerRef.current);
+      }
+  
+      // Initial update
+      updateWidth();
+  
+      // Cleanup observer on unmount
+      return () => {
+        resizeObserver.disconnect();
+      };
+    }, []);
+
     return (
-      <Container $style={props.style} $animationStyle={props.animationStyle}>
-        <ScrollBar
-            style={{
-              height: props.autoHeight ? "auto" : "100%",
-              margin: "0px",
-              padding: "0px",
-            }}
-            overflow={"hidden"}
-            hideScrollbar={!props.showVerticalScrollbar}
-          >
-        <ErrorBoundary>
-          <Title level={2} style={{ marginBottom: '24px' }}>
-            {schema.title as string | number}
-          </Title>
-          <Form
-            validator={validator}
-            schema={props.schema}
-            uiSchema={props.uiSchema}
-            formData={convertData(props.schema, props.data.value)}
-            onSubmit={() => onSubmit(props)}
-            onChange={(e) => props.data.onChange(e.formData)}
-            transformErrors={(errors) => transformErrors(errors)}
-            templates={{
-              ObjectFieldTemplate: ObjectFieldTemplate,
-              ArrayFieldTemplate: ArrayFieldTemplate,
-            }}
-            widgets={{ searchableSelect: SearchableSelectWidget }}
-            // ErrorList={ErrorList}
-            children={
-              <Button
-                hidden={buttonOptions?.norender}
-                disabled={buttonOptions?.props?.disabled}
-                className={buttonOptions?.props?.className}
-                type="primary"
-                htmlType="submit"
-                style={{ float: "right" }}
-              >
-                {buttonOptions?.submitText ?? trans("event.submit")}
-              </Button>
-            }
-          />
-        </ErrorBoundary>
-        </ScrollBar>
-      </Container>
+      <ContainerWidthContext.Provider value={containerWidth}>
+        <Container $style={props.style} $animationStyle={props.animationStyle} ref={containerRef}>
+          <ScrollBar
+              style={{
+                height: props.autoHeight ? "auto" : "100%",
+                margin: "0px",
+                padding: "0px",
+              }}
+              overflow={"hidden"}
+              hideScrollbar={!props.showVerticalScrollbar}
+            >
+          <ErrorBoundary>
+            <Title level={2} style={{ marginBottom: '24px' }}>
+              {schema.title as string | number}
+            </Title>
+            <Form
+              validator={validator}
+              schema={props.schema}
+              uiSchema={props.uiSchema}
+              formData={convertData(props.schema, props.data.value)}
+              onSubmit={() => onSubmit(props)}
+              onChange={(e) => props.data.onChange(e.formData)}
+              transformErrors={(errors) => transformErrors(errors)}
+              templates={{
+                ObjectFieldTemplate: ObjectFieldTemplate,
+                ArrayFieldTemplate: ArrayFieldTemplate,
+                // FieldTemplate: LayoutFieldTemplate,
+              }}
+              widgets={{ searchableSelect: SearchableSelectWidget }}
+              // ErrorList={ErrorList}
+              children={
+                <Button
+                  hidden={buttonOptions?.norender}
+                  disabled={buttonOptions?.props?.disabled}
+                  className={buttonOptions?.props?.className}
+                  type="primary"
+                  htmlType="submit"
+                  style={{ float: "right" }}
+                >
+                  {buttonOptions?.submitText ?? trans("event.submit")}
+                </Button>
+              }
+            />
+          </ErrorBoundary>
+          </ScrollBar>
+        </Container>
+      </ContainerWidthContext.Provider>
+
     );
   })
     .setPropertyViewFn((children) => {
@@ -377,6 +418,7 @@ let FormBasicComp = (function () {
               {children.resetAfterSubmit.propertyView({
                 label: trans("jsonSchemaForm.resetAfterSubmit"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
@@ -439,5 +481,5 @@ FormTmpComp = withMethodExposing(FormTmpComp, [
       }),
   },
 ]);
-
 export const JsonSchemaFormComp = FormTmpComp;
+export { FormTmpComp, useContainerWidth };

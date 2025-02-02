@@ -4,11 +4,11 @@ In this article, you will be guided through how to host OpenFlower on your own s
 
 There are multiple ways of installation. We directly support:
 
-* [Single Docker Image](https://github.com/Flowerappeng-org/openflower/deploy/docker) to run with a single line of command.
-* Multi-Docker Image deployment for scaling scenarios with [Docker Compose](https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml)
-* Kubernetes-based deployment with [HELM Charts](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/helm).
-* [Heroku based deployment](heroku.md)
-* [Google Cloud Platform](google-cloud-platform.md)
+- [Single Docker Image](https://github.com/Flowerappeng-org/openflower/deploy/docker) to run with a single line of command.
+- Multi-Docker Image deployment for scaling scenarios with [Docker Compose](https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml)
+- Kubernetes-based deployment with [HELM Charts](https://github.com/Flowerappeng-org/openflower/tree/main/deploy/helm).
+- [Heroku based deployment](heroku.md)
+- [Google Cloud Platform](google-cloud-platform.md)
 
 ## 1) Start easy:
 
@@ -18,8 +18,8 @@ For easy setup and deployment, we provide an [all-in-one image](https://hub.dock
 
 #### Prerequisites
 
-* [Docker](https://docs.docker.com/get-docker/) (version 20.10.7 or above)
-* [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
+- [Docker](https://docs.docker.com/get-docker/) (version 20.10.7 or above)
+- [Docker Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
 
 {% hint style="info" %}
 Recommended system spec: 1-core CPU and 2 GB RAM.
@@ -37,12 +37,13 @@ cd openflower
 #### Deploy
 
 {% tabs %}
-{% tab title="Docker-Compose (Recommended)" %}
+{% tab title="Docker Compose (Recommended)" %}
 Follow the steps below:
 
 1. Download the configuration file by clicking [docker-compose.yml](https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/docker/docker-compose.yaml) or running the curl command:
 
 {% code overflow="wrap" %}
+
 ```
 curl https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/docker/docker-compose.yaml -o $PWD/docker-compose.yml
 ```
@@ -52,13 +53,14 @@ curl https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/d
 2.  Start the Docker container by running this command:
 
     ```bash
-    docker-compose up -d
+    docker compose up -d
     ```
 
     \
     The docker image, about 400 MB, is downloaded during the initial start-up.
 
     After downloading, it usually takes less than 30 seconds to start the service.
+
 3.  Check the logs by running this command:
 
     ```bash
@@ -66,16 +68,19 @@ curl https://raw.githubusercontent.com/Flowerappeng-org/openflower/main/deploy/d
     ```
 
     When you see `frontend`, `backend`, `redis`, and `mongo` `entered the RUNNING state`, the OpenFlower service has officially started:
-4. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
-{% endtab %}
+
+4.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+    {% endtab %}
 
 {% tab title="Docker" %}
 Run the command below:
 
 {% code overflow="wrap" %}
+
 ```bash
 docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
+
 {% endcode %}
 {% endtab %}
 {% endtabs %}
@@ -86,22 +91,24 @@ docker run -d --name openflower -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" f
 {% tab title="Docker-Compose" %}
 Run the following commands to update to the latest OpenFlower image:
 
-```bash
+`````bash
 docker-compose pull
 docker-compose rm -fsv openflower
 docker-compose up -d
-```
+
 {% endtab %}
 
 {% tab title="Docker" %}
 Run the following commands to update to the latest OpenFlower image:
 
 {% code overflow="wrap" %}
+
 ```bash
 docker pull flowerappengorg/openflower
 docker rm -fv OpenFlower
 docker run -d --name OpenFlower -p 3000:3000 -v "$PWD/stacks:/OpenFlower-stacks" flowerappengorg/openflower
 ```
+
 {% endcode %}
 {% endtab %}
 {% endtabs %}
@@ -117,15 +124,15 @@ Multi-Image Installation to scale. API-Service & Node-Service can get scaled ind
 
 For bigger expected loads that need scaling in a cluster environment, we offer separate images for stateless containers of the backend and frontend service with a customizable Dockerfile. A well-functioning OpenFlower deployment consists of below services:
 
-* **api-service**: Backend service.
-* **node-service**: Backend service.
-* **frontend**: Frontend service.
-* **MongoDB**: Used for persisting data of users, apps, data sources, etc.
-* **Redis**: Used for maintaining user sessions, rate-limiter, etc.
+- **api-service**: Backend service.
+- **node-service**: Backend service.
+- **frontend**: Frontend service.
+- **MongoDB**: Used for persisting data of users, apps, data sources, etc.
+- **Redis**: Used for maintaining user sessions, rate-limiter, etc.
 
 #### Prerequisites
 
-* [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
+- [Docker-Compose](https://docs.docker.com/compose/install/) (version 1.29.2 or above)
 
 #### Deploy
 
@@ -135,22 +142,25 @@ For bigger expected loads that need scaling in a cluster environment, we offer s
     mkdir openflower
     cd openflower
     ```
+
 2.  Download the configuration file by clicking [docker-compose-multi.yml](https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml) or running the curl command:
 
     <pre class="language-bash" data-overflow="wrap"><code class="lang-bash"><strong>curl https://github.com/Flowerappeng-org/openflower/blob/main/deploy/docker/docker-compose-multi.yaml -o $PWD/docker-compose-multi.yml
     </strong></code></pre>
-3. Modify service configurations in the downloaded Dockerfile according to your needs:
-   * **mongodb**: Start a new MongoDB instance on your host. You can delete this part and modify the environment variable `MONGODB_URI` of the **api-service** to use your own MongoDB.
-   * **redis**: Start a new Redis instance on your host. You can delete this part and modify the environment variable `REDIS_URI` of the **api-service** to use your own Redis.
-   * **api-service**: Required.
-   * **node-service**: Required.
-   * **frontend**: Required. Can be optional if you deploy the frontend on CDN.
+
+3.  Modify service configurations in the downloaded Dockerfile according to your needs:
+    - **mongodb**: Start a new MongoDB instance on your host. You can delete this part and modify the environment variable `MONGODB_URI` of the **api-service** to use your own MongoDB.
+    - **redis**: Start a new Redis instance on your host. You can delete this part and modify the environment variable `REDIS_URI` of the **api-service** to use your own Redis.
+    - **api-service**: Required.
+    - **node-service**: Required.
+    - **frontend**: Required. Can be optional if you deploy the frontend on CDN.
 4.  Start Docker containers by running this command:
 
     ```bash
     docker-compose -f docker-compose-multi.yml up -d
     ```
-5. Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
+
+5.  Visit [**http://localhost:3000**](http://localhost:3000) and click **Sign up**. OpenFlower will automatically create a workspace for you, then you can start building your apps and invite members to your workspace.
 
 ## 3) Update to the latest version <a href="#update-multi" id="update-multi"></a>
 
@@ -191,6 +201,7 @@ docker stop openflower
 docker rm openflower
 # run your new docker run command
 ```
+
 {% endtab %}
 {% endtabs %}
 
@@ -214,9 +225,11 @@ Add environment variables `MONGODB_URI` and `REDIS_URI` in `docker-compose.yml` 
 Add environment variables `MONGODB_URI` and `REDIS_URI` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
+
 ```bash
 docker run -d --name openflower -e MONGODB_URI=YOUR_MONGODB_URI REDIS_URI=YOUR_REDIS_URI -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks flowerappengorg/openflower
 ```
+
 {% endcode %}
 {% endtab %}
 {% endtabs %}
@@ -235,9 +248,11 @@ Add an environment variable `LOCAL_USER_ID` in `docker-compose.yml` downloaded i
 Add an environment variable `LOCAL_USER_ID` to the deployment command, as shown below:
 
 {% code overflow="wrap" %}
+
 ```bash
 docker run -d --name openflower -e LOCAL_USER_ID=10010 -p 3000:3000 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
+
 {% endcode %}
 {% endtab %}
 {% endtabs %}
@@ -250,19 +265,23 @@ With an SSL certificate, you can securely visit self-hosted OpenFlower with HTTP
 
 {% tabs %}
 {% tab title="Docker-Compose" %}
+
 1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
 2. In `$PWD/docker-compose.yml`, change the value of `ports` to `"3443:3443"`.\
 
 {% endtab %}
 
 {% tab title="Docker" %}
+
 1. Copy `fullchain.pem` and `privkey.pem` to the `$PWD/stacks/ssl` directory.
 2. Change the `ports` in the deployment command to `3443:3443`, as shown below:
 
 {% code overflow="wrap" %}
+
 ```bash
 docker run -d --name openflower -p 3443:3443 -v "$PWD/stacks:/lowcoder-stacks" flowerappengorg/openflower
 ```
+
 {% endcode %}
 {% endtab %}
 {% endtabs %}
@@ -311,32 +330,31 @@ You can check the health of the running API Service and it's connected MongoDB &
 ```
 GET /api/status/health HTTP/1.1
 ```
-````
+`````
 
 In response, you will get a 200 Status code if the service is up and running and a JSON like this:
 
 ```json
 {
-    "status": "UP",
-    "components": {
-        "mongo": {
-            "status": "UP",
-            "components": {
-                "reactiveMongoSlaveTemplate": {
-                    "status": "UP"
-                },
-                "reactiveMongoTemplate": {
-                    "status": "UP"
-                }
-            }
+  "status": "UP",
+  "components": {
+    "mongo": {
+      "status": "UP",
+      "components": {
+        "reactiveMongoSlaveTemplate": {
+          "status": "UP"
         },
-        "ping": {
-            "status": "UP"
-        },
-        "redis": {
-            "status": "UP"
+        "reactiveMongoTemplate": {
+          "status": "UP"
         }
+      }
+    },
+    "ping": {
+      "status": "UP"
+    },
+    "redis": {
+      "status": "UP"
     }
+  }
 }
 ```
-

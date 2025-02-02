@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import { CloseIcon } from "lowcoder-design";
+import { CloseIcon, ArchiveIcon, Tabs } from "lowcoder-design";
 import { AppSnapshotIcon } from "lowcoder-design";
 import {
   fetchSnapshotDslAction,
@@ -9,7 +9,7 @@ import {
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
 import dayjs from "dayjs";
-import { Suspense, lazy, useCallback, useEffect, useState } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from "react";
 import { currentApplication } from "redux/selectors/applicationSelector";
 import {
   appSnapshotCountSelector,
@@ -88,6 +88,10 @@ const StyledSnapshotIcon = styled(AppSnapshotIcon)`
   margin-right: 4px;
 `;
 
+const StyledSnapshotArchiveIcon = styled(ArchiveIcon)`
+  margin-right: 4px;
+`;
+
 const StyledCloseIcon = styled(CloseIcon)`
   margin-left: auto;
   cursor: pointer;
@@ -151,21 +155,26 @@ export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }
   const [appInfo, setAppInfo] = useState<AppSummaryInfo>(currentAppInfo);
   const isSnapshotDslLoading = useSelector(isAppSnapshotDslFetching);
   const compInstance = useRootCompInstance(appInfo, true, true);
+  const [activeTab, setActiveTab] = useState("recent");
 
-  const fetchSnapshotList = (page: number, onSuccess?: (snapshots: AppSnapshotList) => void) => {
-    dispatch(setSelectSnapshotId(""));
+  const isArchivedSnapshot = useMemo(() => activeTab === 'archive', [activeTab]);
+
+  const fetchSnapshotList = useCallback((page: number, onSuccess?: (snapshots: AppSnapshotList) => void) => {
+    dispatch(setSelectSnapshotId("", isArchivedSnapshot));
     application &&
       dispatch(
         fetchSnapshotsAction({
           applicationId: application.applicationId,
           page: page,
           size: PAGE_SIZE,
+          archived: isArchivedSnapshot,
           onSuccess: onSuccess,
         })
       );
-  };
+  }, [application, activeTab]);
 
-  useMount(() => {
+
+  useEffect(() => {
     if (!application) {
       return;
     }
@@ -174,12 +183,17 @@ export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }
         return;
       }
       dispatch(
-        fetchSnapshotDslAction(application.applicationId, snapshots.list[0].snapshotId, (res) => {
-          setLatestDsl(res);
-        })
+        fetchSnapshotDslAction(
+          application.applicationId,
+          snapshots.list[0].snapshotId,
+          isArchivedSnapshot,
+          (res) => {
+            setLatestDsl(res);
+          }
+        )
       );
     });
-  });
+  }, [application, activeTab]);
 
   useEffect(() => {
     currentDsl &&
@@ -193,7 +207,10 @@ export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }
         return;
       }
       setSelectedItemKey(snapshotId);
-      dispatch(setSelectSnapshotId(snapshotId === CURRENT_ITEM_KEY ? "" : snapshotId));
+      dispatch(setSelectSnapshotId(
+        snapshotId === CURRENT_ITEM_KEY ? "" : snapshotId,
+        isArchivedSnapshot,
+      ));
       if (snapshotId === CURRENT_ITEM_KEY) {
         setAppInfo(currentAppInfo);
         return;
@@ -202,56 +219,108 @@ export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }
         return;
       }
       dispatch(
-        fetchSnapshotDslAction(application.applicationId, snapshotId, (dsl) => {
-          setAppInfo((i) => ({
-            ...i,
-            dsl: dsl.applicationsDsl,
-            moduleDsl: dsl.moduleDSL,
-          }));
-        })
+        fetchSnapshotDslAction(
+          application.applicationId,
+          snapshotId,
+          isArchivedSnapshot,
+          (dsl) => {
+            setAppInfo((i) => ({
+              ...i,
+              dsl: dsl.applicationsDsl,
+              moduleDsl: dsl.moduleDSL,
+            }));
+          }
+        )
       );
     },
-    [application, currentAppInfo, dispatch, setAppInfo, selectedItemKey]
+    [application, currentAppInfo, dispatch, setAppInfo, selectedItemKey, activeTab]
   );
 
-  let snapShotContent;
-  if (snapshotsFetching || (currentPage === 1 && appSnapshots.length > 0 && !latestDsl)) {
-    snapShotContent = <Skeleton style={{ padding: "0 16px" }} active paragraph={{ rows: 10 }} />;
-  } else if (appSnapshots.length <= 0 || !application) {
-    snapShotContent = <EmptyContent text={trans("history.emptyHistory")} />;
-  } else {
-    let snapshotItems: SnapshotItemProps[] = appSnapshots.map((snapshot, index) => {
-      return {
-        selected: selectedItemKey === snapshot.snapshotId,
-        title:
-          `${
-            !latestDslChanged && currentPage === 1 && index === 0
-              ? trans("history.currentVersionWithBracket")
-              : ""
-          }` + getOperationDesc(snapshot.context),
-        timeInfo: timestampToHumanReadable(snapshot.createTime),
-        userName: snapshot.userName,
-        onClick: () => {
-          onSnapshotItemClick(snapshot.snapshotId);
-        },
-      };
-    });
-    if (currentPage === 1 && latestDslChanged) {
-      snapshotItems = [
-        {
-          selected: selectedItemKey === CURRENT_ITEM_KEY,
-          title: trans("history.currentVersion"),
-          timeInfo: trans("history.justNow"),
-          userName: user.username,
+  const snapShotContent = useMemo(() => {
+    if (snapshotsFetching || (currentPage === 1 && appSnapshots.length > 0 && !latestDsl)) {
+      return <Skeleton style={{ padding: "0 16px" }} active paragraph={{ rows: 10 }} />;
+    } else if (appSnapshots.length <= 0 || !application) {
+      return <EmptyContent text={trans("history.emptyHistory")} />;
+    } else {
+      let snapshotItems: SnapshotItemProps[] = appSnapshots.map((snapshot, index) => {
+        return {
+          selected: selectedItemKey === snapshot.snapshotId,
+          title:
+            `${
+              !latestDslChanged && currentPage === 1 && index === 0
+                ? trans("history.currentVersionWithBracket")
+                : ""
+            }` + getOperationDesc(snapshot.context),
+          timeInfo: timestampToHumanReadable(snapshot.createTime),
+          userName: snapshot.userName,
           onClick: () => {
-            onSnapshotItemClick(CURRENT_ITEM_KEY);
+            onSnapshotItemClick(snapshot.snapshotId);
           },
-        },
-        ...snapshotItems,
-      ];
+        };
+      });
+      if (currentPage === 1 && latestDslChanged) {
+        snapshotItems = [
+          {
+            selected: selectedItemKey === CURRENT_ITEM_KEY,
+            title: trans("history.currentVersion"),
+            timeInfo: trans("history.justNow"),
+            userName: user.username,
+            onClick: () => {
+              onSnapshotItemClick(CURRENT_ITEM_KEY);
+            },
+          },
+          ...snapshotItems,
+        ];
+      }
+      return <SnapshotList items={snapshotItems} />;
     }
-    snapShotContent = <SnapshotList items={snapshotItems} />;
-  }
+  }, [
+    user,
+    snapshotsFetching,
+    currentPage,
+    appSnapshots,
+    latestDsl,
+    application,
+    selectedItemKey,
+    latestDslChanged,
+    onSnapshotItemClick,
+  ]);
+
+  const TabContent = useMemo(() => (
+    <>
+      <ScrollBar height={`calc(100% - ${headerHeight + footerHeight}px)`}>
+        <SnapshotContent>{snapShotContent}</SnapshotContent>
+      </ScrollBar>
+      <SnapshotFooter>
+        <TacoPagination
+          current={currentPage}
+          showLessItems
+          onChange={(page) => {
+            setCurrentPage(page);
+            fetchSnapshotList(page);
+          }}
+          total={totalCount}
+          pageSize={PAGE_SIZE}
+          showSizeChanger={false}
+        />
+      </SnapshotFooter>
+    </>
+  ), [headerHeight, footerHeight, snapShotContent, currentPage, totalCount]);
+
+  const tabConfigs = useMemo(() => [
+    {
+      key: "recent",
+      title: "Recent",
+      icon: <StyledSnapshotIcon />,
+      content: TabContent,
+    },
+    {
+      key: "archive",
+      title: "Archive",
+      icon: <StyledSnapshotArchiveIcon />,
+      content: TabContent,
+    }
+  ], [TabContent]);
 
   return (
     <Suspense fallback={<EditorSkeletonView />}>
@@ -262,31 +331,13 @@ export const AppSnapshot = React.memo((props: { currentAppInfo: AppSummaryInfo }
         compInstance={compInstance}
       />
       <AppSnapshotPanel>
-        <SnapshotHeader>
-          <StyledSnapshotIcon />
-          <span>{trans("history.history")}</span>
-          <StyledCloseIcon
-            onClick={() => {
-              dispatch(setShowAppSnapshot(false));
-            }}
-          />
-        </SnapshotHeader>
-        <ScrollBar height={`calc(100% - ${headerHeight + footerHeight}px)`}>
-          <SnapshotContent>{snapShotContent}</SnapshotContent>
-        </ScrollBar>
-        <SnapshotFooter>
-          <TacoPagination
-            current={currentPage}
-            showLessItems
-            onChange={(page) => {
-              setCurrentPage(page);
-              fetchSnapshotList(page);
-            }}
-            total={totalCount}
-            pageSize={PAGE_SIZE}
-            showSizeChanger={false}
-          />
-        </SnapshotFooter>
+        <Tabs
+          onChange={(key) => {
+            setActiveTab(key);
+          }}
+          tabsConfig={tabConfigs}
+          activeKey={activeTab}
+        />
       </AppSnapshotPanel>
     </Suspense>
   );

@@ -18,8 +18,8 @@ import { RefControl } from "comps/controls/refControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { useContext, useState, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 const sizeOptions = [
   {
@@ -193,7 +193,7 @@ let StepControlBasicComp = (function () {
             >
               {props.options.map((option, index) => (
                 <Steps.Step 
-                  style={{minWidth:props.minHorizontalWidth || '100%'}}
+                  style={{minWidth:props.minHorizontalWidth || 'auto'}}
                   key={index}
                   title={option.label}
                   subTitle={option.subTitle}

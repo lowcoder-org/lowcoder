@@ -44,19 +44,22 @@ import { sourceMappingKeys } from "../OAuthForms/GenericOAuthForm";
 import Flex from "antd/es/flex";
 
 type IdSourceDetailProps = {
-  location: Location & { state: ConfigItem };
+  location: Location & { state: { config: ConfigItem, totalEnabledConfigs: number }};
 };
 
 export const IdSourceDetail = (props: IdSourceDetailProps) => {
-  const configDetail = props.location.state;
+  const {
+    config: configDetail,
+    totalEnabledConfigs,
+  } = props.location.state;
   const [form] = useForm();
   const [lock, setLock] = useState(() => {
-    const config = props.location.state;
+    const { config } = props.location.state;
     return !config.ifLocal;
   });
   const [saveLoading, setSaveLoading] = useState(false);
   const [saveDisable, setSaveDisable] = useState(() => {
-    const config = props.location.state;
+    const { config } = props.location.state;
     if (
       (config.authType === AuthType.Form && !config.enable) ||
       (!config.ifLocal && !config.enable)
@@ -321,12 +324,15 @@ export const IdSourceDetail = (props: IdSourceDetailProps) => {
             <Manual type={configDetail.authType} />
           </>
         )}
-        {configDetail.enable && (
-          <>
-            <Divider />
-            <DeleteConfig id={configDetail.id} />
-          </>
-        )}
+        <>
+          <Divider />
+          <DeleteConfig
+            id={configDetail.id}
+            allowDelete={configDetail.authType !== AuthType.Form}
+            allowDisable={configDetail.enable}
+            isLastEnabledConfig={totalEnabledConfigs === 1 && configDetail.enable}
+          />
+        </>
       </Content>
     </DetailContainer>
   );

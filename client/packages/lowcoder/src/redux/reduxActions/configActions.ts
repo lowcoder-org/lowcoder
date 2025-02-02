@@ -20,3 +20,9 @@ export const setEditorExternalStateAction = (state: Partial<ExternalEditorContex
     payload: state,
   };
 };
+
+export const fetchDeploymentIdAction = () => {
+  return {
+    type: ReduxActionTypes.FETCH_DEPLOYMENT_ID_INIT,
+  };
+};

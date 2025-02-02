@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-cli-template-typescript",
-  "version": "0.0.20",
+  "version": "0.0.22",
   "type": "module",
   "scripts": {
     "start": "NODE_OPTIONS=--max_old_space_size=6144 vite",
@@ -22,7 +22,9 @@
     }
   },
   "dependencies": {
+    "@observablehq/inspector": "^5.0.1",
     "@observablehq/runtime": "^4.8.2",
+    "@observablehq/stdlib": "^5.8.8",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
     "lowcoder-cli": "^0.0.30",

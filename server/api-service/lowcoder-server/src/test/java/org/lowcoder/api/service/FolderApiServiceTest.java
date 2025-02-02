@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles("testFolder")
 //@RunWith(SpringRunner.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class FolderApiServiceTest {
@@ -137,7 +137,7 @@ public class FolderApiServiceTest {
     public void move() {
 
         Mono<? extends List<?>> mono = folderApiService.move("app01", "folder02")
-                .then(folderApiService.getElements("folder02", null, null).collectList());
+                .then(folderApiService.getElements("folder02", null, null, null).collectList());
 
         StepVerifier.create(mono)
                 .assertNext(list -> {

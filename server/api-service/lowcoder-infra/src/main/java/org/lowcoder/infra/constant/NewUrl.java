@@ -18,6 +18,7 @@ public final class NewUrl {
     public static final String CUSTOM_AUTH = PREFIX + "/auth";
     public static final String INVITATION_URL = PREFIX + "/invitation";
     public static final String APPLICATION_URL = PREFIX + "/applications";
+    public static final String APPLICATION_RECORD_URL = PREFIX + "/application-records";
 
     public static final String APPLICATION_HISTORY_URL = PREFIX + "/application/history-snapshots";
     public static final String QUERY_URL = PREFIX + "/query";
@@ -34,4 +35,6 @@ public final class NewUrl {
     public static final String MATERIAL_URL = PREFIX + "/materials";
     public static final String CONTACT_SYNC = PREFIX + "/sync";
     public static final String NPM_REGISTRY = PREFIX + "/npm";
+
+    public static final String PLUGINS_URL = PREFIX + "/plugins";
 }

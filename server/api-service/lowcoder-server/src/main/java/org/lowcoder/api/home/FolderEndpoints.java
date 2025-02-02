@@ -1,9 +1,9 @@
 package org.lowcoder.api.home;
 
-import java.util.List;
 import java.util.Set;
 
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
@@ -68,9 +68,12 @@ public interface FolderEndpoints
 		    description = "Retrieve the contents of an Application Folder within Lowcoder, including Applications and Subfolders."
 	)
     @GetMapping("/elements")
-    public Mono<ResponseView<List<?>>> getElements(@RequestParam(value = "id", required = false) String folderId,
-            @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
-			@RequestParam(required = false) String name);
+    public Mono<PageResponseView<?>> getElements(@RequestParam(value = "id", required = false) String folderId,
+												 @RequestParam(value = "applicationType", required = false) ApplicationType applicationType,
+												 @RequestParam(required = false) String name,
+												 @RequestParam(required = false) String category,
+												 @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+												 @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_FOLDER_MANAGEMENT,

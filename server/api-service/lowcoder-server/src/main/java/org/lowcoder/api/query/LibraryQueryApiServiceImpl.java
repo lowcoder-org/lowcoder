@@ -87,7 +87,10 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
         Flux<LibraryQuery> libraryQueryFlux = libraryQueryService.getByOrganizationId(orgId)
                 .cache();
 
-        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> libraryQuery.getQuery().getDatasourceId())
+        Mono<List<String>> datasourceIdListMono = libraryQueryFlux.map(libraryQuery -> {
+                    var datasourceId = libraryQuery.getQuery().getDatasourceId();
+                    return Objects.requireNonNullElse(datasourceId, "");
+                })
                 .filter(StringUtils::isNotBlank)
                 .collectList()
                 .cache();

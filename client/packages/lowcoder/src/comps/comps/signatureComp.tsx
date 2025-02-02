@@ -15,7 +15,7 @@ import {
   SignatureContainerStyle
 } from "comps/controls/styleControlConstants";
 import { stateComp, withDefault } from "comps/generators/simpleGenerators";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
@@ -215,6 +215,7 @@ let SignatureTmpComp = (function () {
               {hiddenPropertyView(children)}
               {children.showUndo.propertyView({ label: trans("signature.showUndo") })}
               {children.showClear.propertyView({ label: trans("signature.showClear") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 

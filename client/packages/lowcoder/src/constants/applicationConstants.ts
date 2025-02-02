@@ -9,10 +9,11 @@ export enum AppTypeEnum {
   Application = 1,
   Module = 2,
   NavLayout = 3,
-  // 4 folder, 5 mobile
   MobileTabLayout = 6,
+  // Folder = 4,
+  // Mobile = 5,
   // WorkflowScreen = 7,
-  // Slide = 8,
+  // Bundle = 8,
 }
 
 export enum ApplicationCategoriesEnum {

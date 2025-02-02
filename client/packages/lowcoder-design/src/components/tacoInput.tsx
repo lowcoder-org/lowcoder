@@ -331,12 +331,14 @@ const FormInput = (props: {
     check: (value: string) => boolean;
   };
   formName?: string;
+  onBlur?: () => void;
   onChange?: (value: string, valid: boolean) => void;
   className?: string;
   inputRef?: Ref<InputRef>;
   msg?: string;
+  defaultValue?: string;
 }) => {
-  const { mustFill, checkRule, label, placeholder, onChange, formName, className, inputRef } =
+  const { mustFill, checkRule, label, placeholder, onBlur, onChange, formName, className, inputRef, defaultValue } =
     props;
   const [valueValid, setValueValid] = useState(true);
   return (
@@ -350,6 +352,7 @@ const FormInput = (props: {
         ref={inputRef}
         name={formName}
         placeholder={placeholder}
+        defaultValue={defaultValue}
         onChange={(e) => {
           let valid = true;
           if (checkRule) {
@@ -358,6 +361,7 @@ const FormInput = (props: {
           }
           onChange && onChange(e.target.value, valid);
         }}
+        onBlur={() => onBlur?.()}
       />
     </FormInputFiled>
   );

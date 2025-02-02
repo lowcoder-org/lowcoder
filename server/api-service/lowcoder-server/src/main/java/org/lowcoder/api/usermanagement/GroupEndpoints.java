@@ -5,12 +5,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 
 import org.lowcoder.api.framework.view.ResponseView;
-import org.lowcoder.api.usermanagement.view.AddMemberRequest;
-import org.lowcoder.api.usermanagement.view.CreateGroupRequest;
-import org.lowcoder.api.usermanagement.view.GroupMemberAggregateView;
-import org.lowcoder.api.usermanagement.view.GroupView;
-import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
-import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.api.usermanagement.view.*;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -68,7 +63,8 @@ public interface GroupEndpoints
 		    description = "Retrieve a list of User Groups within Lowcoder, providing an overview of available groups, based on the access rights of the currently impersonated User."
 	)
     @GetMapping("/list")
-    public Mono<ResponseView<List<GroupView>>> getOrgGroups();
+    public Mono<GroupListResponseView<List<GroupView>>> getOrgGroups(@RequestParam(required = false, defaultValue = "1") Integer pageNum,
+			@RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,
@@ -78,8 +74,8 @@ public interface GroupEndpoints
 	)
     @GetMapping("/{groupId}/members")
     public Mono<ResponseView<GroupMemberAggregateView>> getGroupMembers(@PathVariable String groupId,
-            @RequestParam(name = "page", required = false, defaultValue = "1") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "100") int count);
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
+            @RequestParam(required = false, defaultValue = "100") int pageSize);
 
 	@Operation(
 			tags = TAG_GROUP_MEMBERS,

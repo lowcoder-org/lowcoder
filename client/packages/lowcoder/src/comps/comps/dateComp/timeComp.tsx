@@ -25,7 +25,7 @@ import {
 } from "../../generators/withExposing";
 import { formDataChildren, FormDataPropertyView } from "../formComp/formDataConstants";
 import { styleControl } from "comps/controls/styleControl";
-import { AnimationStyle, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
+import { AnimationStyle, ChildrenMultiSelectStyle, ChildrenMultiSelectStyleType, DateTimeStyle, DateTimeStyleType, InputFieldStyle, LabelStyle } from "comps/controls/styleControlConstants";
 import { withMethodExposing } from "../../generators/withMethodExposing";
 import {
   disabledPropertyView,
@@ -37,6 +37,7 @@ import {
   minuteStepPropertyView,
   requiredPropertyView,
   SecondStepPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { TIME_FORMAT, TimeParser } from "util/dateTimeUtils";
@@ -54,7 +55,9 @@ import { TimePickerProps } from "antd/es/time-picker";
 import { EditorContext } from "comps/editorState";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { timeZoneOptions } from "./timeZone";
-
+import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import { fixOldDateOrTimeRangeData } from "./dateComp";
 
 const EventOptions = [changeEvent, focusEvent, blurEvent] as const;
 
@@ -70,6 +73,7 @@ const commonChildren = {
   label: LabelControl,
   placeholder: withDefault(StringControl, trans("time.placeholder")),
   format: StringControl,
+  inputFormat: withDefault(StringControl, TIME_FORMAT),
   disabled: BoolCodeControl,
   onEvent: eventHandlerControl(EventOptions),
   showTime: BoolControl,
@@ -84,6 +88,7 @@ const commonChildren = {
     'labelStyle',
   ),
   inputFieldStyle: styleControl(DateTimeStyle, 'inputFieldStyle'),
+  childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   viewRef: RefControl<CommonPickerMethods>,
@@ -91,7 +96,7 @@ const commonChildren = {
 };
 
 const timePickerComps = (props: RecordConstructorToView<typeof commonChildren>) =>
-  _.pick(props, "format", "use12Hours", "minuteStep", "secondStep", "placeholder");
+  _.pick(props, "format", "inputFormat", "use12Hours", "minuteStep", "secondStep", "placeholder");
 
 /* const commonBasicSection = (children: RecordConstructorToComp<typeof commonChildren>) => [
   formatPropertyView({ children }),
@@ -124,6 +129,7 @@ function validate(
 }
 
 const childrenMap = {
+  defaultValue: stringExposingStateControl("defaultValue"),
   value: stringExposingStateControl("value"),
   userTimeZone: stringExposingStateControl("userTimeZone", Intl.DateTimeFormat().resolvedOptions().timeZone),
   ...commonChildren,
@@ -136,31 +142,39 @@ type secondStepType =  TimePickerProps['secondStep'];
 
 export type TimeCompViewProps = Pick<
   RecordConstructorToView<typeof childrenMap>,
-  "disabled" | "use12Hours" | "format" | "viewRef"
+  "disabled" | "use12Hours" | "format" | "inputFormat" | "viewRef"
 > & Pick<
   TimePickerProps, "hourStep" | "minuteStep" | "secondStep"
 > & {
   onFocus: () => void;
   onBlur: () => void;
   $style: DateTimeStyleType;
+  $childrenInputFieldStyle: ChildrenMultiSelectStyleType;
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon?: ReactNode | false;
   placeholder?: string | [string, string];
   timeZone:string
 };
 
-export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
+const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
+  const defaultValue = { ...props.defaultValue }.value;
+  const value = { ...props.value }.value;
+
   let time: dayjs.Dayjs | null = null;
-  if(props.value.value !== '') {
-    time = dayjs(props.value.value, TimeParser);
+  if(value !== '') {
+    time = dayjs(value, TimeParser);
   }
   
   const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(time);
 
   useEffect(() => {
-    const value = props.value.value ? dayjs(props.value.value, TimeParser) : null;
-    setTempValue(value);
-  }, [props.value.value])
+    props.value.onChange(defaultValue);
+  }, [defaultValue]);
+
+  useEffect(() => {
+    const newValue = value ? dayjs(value, TimeParser) : null;
+    setTempValue(newValue);
+  }, [value])
 
   const handleTimeZoneChange = (newTimeZone: any) => {
     props.userTimeZone.onChange(newTimeZone)
@@ -179,6 +193,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         value={tempValue?.isValid() ? tempValue : null}
         disabledTime={() => disabledTime(props.minTime, props.maxTime)}
@@ -196,7 +211,8 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+      />
     ),
     showValidationWhenEmpty: props.showValidationWhenEmpty,
     ...validate(props),
@@ -205,7 +221,7 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
   .setPropertyViewFn((children) => (
     <>
       <Section name={sectionNames.basic}>
-        {children.value.propertyView({
+        {children.defaultValue.propertyView({
           label: trans("prop.defaultValue"),
           tooltip: trans("time.formatTip"),
         })}
@@ -230,13 +246,14 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
           {children.onEvent.getPropertyView()}
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
+          {showDataLoadingIndicatorsPropertyView(children)}
         </Section></>
       )}
 
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
       {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
         <Section name={sectionNames.layout}>
-          {children.format.propertyView({ label: trans("time.format") })}
+          {formatPropertyView({ children, placeholder: TIME_FORMAT })}
           {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
         </Section>
       )}
@@ -260,6 +277,9 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
           <Section name={sectionNames.inputFieldStyle}>
             {children.inputFieldStyle.getPropertyView()}
           </Section>
+          <Section name={sectionNames.childrenInputFieldStyle}>
+            {children.childrenInputFieldStyle.getPropertyView()}
+          </Section>
           <Section name={sectionNames.animationStyle} hasTooltip={true}>
             {children.animationStyle.getPropertyView()}
           </Section>
@@ -270,9 +290,13 @@ export const timePickerControl = new UICompBuilder(childrenMap, (props) => {
   .setExposeMethodConfigs(dateRefMethods)
   .build();
 
-export const timeRangeControl = (function () {
+export const timePickerControl = migrateOldData(TimePickerTmpCmp, fixOldInputCompData);
+
+const TimeRangeTmpCmp = (function () {
   const childrenMap = {
+    defaultStart: stringExposingStateControl("defaultStart"),
     start: stringExposingStateControl("start"),
+    defaultEnd: stringExposingStateControl("defaultEnd"),
     end: stringExposingStateControl("end"),
     userRangeTimeZone: stringExposingStateControl("userRangeTimeZone" , Intl.DateTimeFormat().resolvedOptions().timeZone),
     ...formDataChildren,
@@ -280,27 +304,41 @@ export const timeRangeControl = (function () {
   };
 
   return new UICompBuilder(childrenMap, (props) => {
+    const defaultStart = { ...props.defaultStart }.value;
+    const startValue = { ...props.start }.value;
+
+    const defaultEnd = { ...props.defaultEnd }.value;
+    const endValue = { ...props.end }.value;
+
     let start: dayjs.Dayjs | null = null;
-    if(props.start.value !== '') {
-      start = dayjs(props.start.value, TimeParser);
+    if(startValue !== '') {
+      start = dayjs(startValue, TimeParser);
     }
     let end: dayjs.Dayjs | null = null;
-    if(props.end.value !== '') {
-      end = dayjs(props.end.value, TimeParser);
+    if(endValue !== '') {
+      end = dayjs(endValue, TimeParser);
     }
 
     const [tempStartValue, setTempStartValue] = useState<dayjs.Dayjs | null>(start);
     const [tempEndValue, setTempEndValue] = useState<dayjs.Dayjs | null>(end);
 
     useEffect(() => {
-      const value = props.start.value ? dayjs(props.start.value, TimeParser) : null;
-      setTempStartValue(value);
-    }, [props.start.value])
+      props.start.onChange(defaultStart);
+    }, [defaultStart]);
 
     useEffect(() => {
-      const value = props.end.value ? dayjs(props.end.value, TimeParser) : null;
+      props.end.onChange(defaultEnd);
+    }, [defaultEnd]);
+
+    useEffect(() => {
+      const value = startValue ? dayjs(startValue, TimeParser) : null;
+      setTempStartValue(value);
+    }, [startValue])
+
+    useEffect(() => {
+      const value = endValue ? dayjs(endValue, TimeParser) : null;
       setTempEndValue(value);
-    }, [props.end.value])
+    }, [endValue])
 
     const handleTimeRangeZoneChange = (newTimeZone: any) => {
       props.userRangeTimeZone.onChange(newTimeZone)
@@ -312,6 +350,7 @@ export const timeRangeControl = (function () {
         timeZone={props?.timeZone} 
         viewRef={props.viewRef}
         $style={props.inputFieldStyle}
+        $childrenInputFieldStyle={props.childrenInputFieldStyle}
         disabled={props.disabled}
         start={tempStartValue?.isValid() ? tempStartValue : null}
         end={tempEndValue?.isValid() ? tempEndValue : null}
@@ -354,11 +393,11 @@ export const timeRangeControl = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.start.propertyView({
+          {children.defaultStart.propertyView({
             label: trans("time.start"),
             tooltip: trans("time.formatTip"),
           })}
-          {children.end.propertyView({
+          {children.defaultEnd.propertyView({
             label: trans("time.end"),
             tooltip: trans("time.formatTip"),
           })}
@@ -383,13 +422,14 @@ export const timeRangeControl = (function () {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section></>
         )}
 
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && children.label.getPropertyView()}
         {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.layout}>
-            {children.format.propertyView({ label: trans("time.format") })}
+            {formatPropertyView({ children, placeholder: TIME_FORMAT })}
             {children.placeholder.propertyView({ label: trans("time.placeholderText") })}
           </Section>
         )}
@@ -413,6 +453,9 @@ export const timeRangeControl = (function () {
             <Section name={sectionNames.inputFieldStyle}>
               {children.inputFieldStyle.getPropertyView()}
             </Section>
+            <Section name={sectionNames.childrenInputFieldStyle}>
+              {children.childrenInputFieldStyle.getPropertyView()}
+            </Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}
             </Section>
@@ -422,6 +465,8 @@ export const timeRangeControl = (function () {
     ))
     .build();
 })();
+
+export const timeRangeControl = migrateOldData(TimeRangeTmpCmp, fixOldDateOrTimeRangeData);
 
 const getTimeZoneInfo = (timeZone: any, otherTimeZone: any) => {
   const tz = timeZone === 'UserChoice' ? otherTimeZone : timeZone;

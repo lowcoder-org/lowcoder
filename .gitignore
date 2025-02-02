@@ -21,3 +21,4 @@ server/api-service/lowcoder-server/src/main/resources/application-local-dev.yaml
 translations/locales/node_modules/
 .vscode/settings.json
 deploy/docker/openflower-stacks/
+server/api-service/lowcoder-server/src/main/resources/application-local-dev-ee.yaml

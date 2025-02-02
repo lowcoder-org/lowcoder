@@ -3,16 +3,13 @@ import { User } from "constants/userConstants";
 import { AddIcon, ArrowIcon, CustomSelect, PackUpIcon, SuperUserIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import ProfileImage from "pages/common/profileImage";
-import React, { useEffect, useMemo } from "react";
-import { connect, useDispatch } from "react-redux";
-import { AppState } from "redux/reducers";
+import React, { useMemo } from "react";
+import { useDispatch } from "react-redux";
 import {
   deleteGroupUserAction,
-  fetchGroupUsersAction,
   quitGroupAction,
   updateUserGroupRoleAction,
 } from "redux/reduxActions/orgActions";
-import { getUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import { formatTimestamp } from "util/dateTimeUtils";
 import { currentOrgAdmin, isGroupAdmin } from "util/permissionUtils";
@@ -44,14 +41,15 @@ type GroupPermissionProp = {
   group: OrgGroup;
   orgId: string;
   groupUsers: GroupUser[];
-  groupUsersFetching: boolean;
   currentUserGroupRole: string;
   currentUser: User;
+  setModify?: any;
+  modify?: boolean;
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
   const { Column } = TableStyled;
-  const { group, orgId, groupUsersFetching, groupUsers, currentUserGroupRole, currentUser } = props;
+  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -65,9 +63,6 @@ function GroupUsersPermission(props: GroupPermissionProp) {
     });
   }, [groupUsers]);
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(fetchGroupUsersAction({ groupId: group.groupId }));
-  }, []);
   return (
     <>
       <PermissionHeaderWrapper>
@@ -85,6 +80,8 @@ function GroupUsersPermission(props: GroupPermissionProp) {
             groupUsers={groupUsers}
             orgId={orgId}
             groupId={group.groupId}
+            setModify={setModify}
+            modify={modify}
             trigger={
               <AddMemberButton buttonType="primary" icon={<StyledAddIcon />}>
                 {trans("memberSettings.addMember")}
@@ -100,7 +97,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsersFetching}
+        loading={groupUsers.length === 0}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
@@ -147,6 +144,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                     groupId: group.groupId,
                   })
                 );
+                  setTimeout(() => {
+                      setModify(!modify);
+                  }, 200);
               }}
             >
               {TacoRoles.map((role) => (
@@ -177,6 +177,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                           dispatch(
                             quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
                           );
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.exitGroup")}
@@ -192,6 +195,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                               groupId: group.groupId,
                             })
                           );
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.moveOutGroup")}
@@ -208,13 +214,4 @@ function GroupUsersPermission(props: GroupPermissionProp) {
   );
 }
 
-const mapStateToProps = (state: AppState) => {
-  return {
-    groupUsers: state.ui.org.groupUsers,
-    groupUsersFetching: state.ui.org.groupUsersFetching,
-    currentUser: getUser(state),
-    currentUserGroupRole: state.ui.org.currentUserGroupRole,
-  };
-};
-
-export default connect(mapStateToProps)(GroupUsersPermission);
+export default GroupUsersPermission;

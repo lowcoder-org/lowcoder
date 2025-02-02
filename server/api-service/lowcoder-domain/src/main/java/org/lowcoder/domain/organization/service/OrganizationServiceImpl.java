@@ -16,7 +16,7 @@ import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSet
 import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.repository.UserRepository;
-import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.domain.util.SlugUtils;
 import org.lowcoder.infra.annotation.PossibleEmptyMono;
 import org.lowcoder.infra.mongo.MongoUpsertHelper;
 import org.lowcoder.sdk.config.CommonConfig;
@@ -35,10 +35,8 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 
-import static org.lowcoder.domain.authentication.AuthenticationService.DEFAULT_AUTH_CONFIG;
 import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.domain.organization.model.OrganizationState.DELETED;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -91,9 +89,6 @@ public class OrganizationServiceImpl implements OrganizationService {
                         if (Boolean.TRUE.equals(join)) {
                             return Mono.empty();
                         }
-                        OrganizationDomain organizationDomain = new OrganizationDomain();
-                        organizationDomain.setConfigs(List.of(DEFAULT_AUTH_CONFIG));
-                        organization.setOrganizationDomain(organizationDomain);
                         return create(organization, user.getId(), isSuperAdmin);
                     });
         });
@@ -175,7 +170,7 @@ public class OrganizationServiceImpl implements OrganizationService {
         if(FieldName.isGID(id))
             return repository.findByGidAndState(id, ACTIVE)
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
-        return repository.findByIdAndState(id, ACTIVE)
+        return repository.findBySlugAndState(id, ACTIVE).switchIfEmpty(repository.findByIdAndState(id, ACTIVE))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"));
     }
 
@@ -185,7 +180,7 @@ public class OrganizationServiceImpl implements OrganizationService {
             return repository.findByGidAndState(orgId, ACTIVE)
                     .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                     .map(Organization::getCommonSettings);
-        return repository.findByIdAndState(orgId, ACTIVE)
+        return repository.findBySlugAndState(orgId, ACTIVE).switchIfEmpty(repository.findByIdAndState(orgId, ACTIVE))
                 .switchIfEmpty(deferredError(UNABLE_TO_FIND_VALID_ORG, "INVALID_ORG_ID"))
                 .map(Organization::getCommonSettings);
     }
@@ -194,7 +189,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Flux<Organization> getByIds(Collection<String> ids) {
         if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
             return repository.findByGidInAndState(ids, ACTIVE);
-        return repository.findByIdInAndState(ids, ACTIVE);
+        return repository.findBySlugInAndState(ids, ACTIVE).switchIfEmpty(repository.findByIdInAndState(ids, ACTIVE));
     }
 
     @Override
@@ -227,7 +222,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     public Mono<Boolean> deleteLogo(String organizationId) {
         Mono<Organization> organizationMono;
         if(FieldName.isGID(organizationId)) organizationMono = repository.findByGidAndState(organizationId, ACTIVE);
-        else organizationMono = repository.findByIdAndState(organizationId, ACTIVE);
+        else organizationMono = repository.findBySlugAndState(organizationId, ACTIVE).switchIfEmpty(repository.findByIdAndState(organizationId, ACTIVE));
         return organizationMono
                 .flatMap(organization -> {
                     // delete from asset repo.
@@ -293,5 +288,22 @@ public class OrganizationServiceImpl implements OrganizationService {
 
     private String buildCommonSettingsUpdateTimeKey(String key) {
         return key + "_updateTime";
+    }
+
+    @Override
+    public Mono<Organization> updateSlug(String organizationId, String newSlug) {
+        return repository.existsBySlug(newSlug).flatMap(exists -> {
+            if (!SlugUtils.validate(newSlug)) {
+                return Mono.error(new BizException(BizError.SLUG_INVALID, "SLUG_INVALID"));
+            }
+            if (exists) {
+                return Mono.error(new BizException(BizError.SLUG_DUPLICATE_ENTRY, "SLUG_DUPLICATE_ENTRY"));
+            }
+            return repository.findById(organizationId)
+                    .flatMap(organization -> {
+                        organization.setSlug(newSlug);
+                        return repository.save(organization);
+                    });
+        });
     }
 }

@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-frontend",
-  "version": "2.4.12",
+  "version": "2.6.0",
   "type": "module",
   "private": true,
   "workspaces": [

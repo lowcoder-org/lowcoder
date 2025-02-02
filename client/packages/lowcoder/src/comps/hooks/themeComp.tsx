@@ -6,6 +6,7 @@ import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { getCurrentTheme } from "comps/utils/themeUtil";
 import { trans } from "i18n";
+import { isEqual } from "lodash";
 import { useContext, useEffect, useMemo } from "react";
 import { getThemeList } from "redux/selectors/commonSettingSelectors";
 import { useSelector } from "redux/store/store";
@@ -47,12 +48,28 @@ let ThemeTempComp = withViewFn(
     const editorState = useContext(EditorContext);
     const appThemeId = editorState?.getAppSettings().themeId;
     const currentTheme = getCurrentTheme(themeList, appThemeId);
-    useEffect(() => {
+    const stateValue = useMemo(() => comp.children.stateValue.getView(), [comp.children.stateValue]);
+    
+    const themeValue = useMemo(() => {
+      if (
+        currentTheme?.id !== stateValue.id
+        || currentTheme?.id !== stateValue.name
+        || !isEqual(themeList, stateValue.allThemes)
+      ) {
+        return {
+          ...exposingTheme(currentTheme),
+          allThemes: themeList.map((t) => exposingTheme(t)),
+        }
+      }
+      return stateValue;
+    }, [themeList, currentTheme, stateValue])
+
+    if (!isEqual(themeValue, stateValue)) {
       comp.children.stateValue.dispatchChangeValueAction({
         ...exposingTheme(currentTheme),
         allThemes: themeList.map((t) => exposingTheme(t)),
-      });
-    }, [themeList, currentTheme]);
+      })
+    }
     return null;
   }
 );

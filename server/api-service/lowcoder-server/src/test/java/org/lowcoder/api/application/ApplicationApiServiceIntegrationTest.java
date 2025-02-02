@@ -73,7 +73,6 @@ public class ApplicationApiServiceIntegrationTest {
                         "org01",
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
                         null))
                 .delayUntil(__ -> deleteMono)
@@ -108,7 +107,6 @@ public class ApplicationApiServiceIntegrationTest {
                         "org01",
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
-                        Map.of("comp", "table"),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
                         null))
                 .delayUntil(__ -> deleteMono)
@@ -131,7 +129,7 @@ public class ApplicationApiServiceIntegrationTest {
     @Test
     @WithMockUser
     public void testUpdateEditingStateSuccess() {
-        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "table"), Map.of("comp", "list"), null));
+        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null));
         Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
         Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId()));
         StepVerifier.create(app)

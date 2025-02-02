@@ -24,7 +24,7 @@ import {
   heightCalculator,
   widthCalculator,
 } from "comps/controls/styleControlConstants";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { AutoHeightControl } from "comps/controls/autoHeightControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -34,23 +34,58 @@ import { DEFAULT_IMG_URL } from "util/stringUtils";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
+import { PositionControl } from "comps/controls/dropdownControl";
 
-const Container = styled.div<{ $style: ImageStyleType | undefined,$animationStyle:AnimationStyleType }>`
+const Container = styled.div<{ 
+  $style: ImageStyleType | undefined, 
+  $animationStyle: AnimationStyleType,
+  $clipPath: string,
+  $enableOverflow: boolean,
+  $overflow: string,
+  $positionX: string,
+  $positionY: string,
+  $aspectRatio: string | undefined,
+  $placement: string // New property to control image placement
+}>`
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: ${(props) =>
+    props.$placement.includes("bottom")
+      ? "flex-end"
+      : props.$placement.includes("top")
+      ? "flex-start"
+      : "center"};
+  justify-content: ${(props) =>
+    props.$placement.includes("right")
+      ? "flex-end"
+      : props.$placement.includes("left")
+      ? "flex-start"
+      : "center"};
+  overflow: ${(props) => (props.$enableOverflow ? props.$overflow : "hidden")};
+
   .ant-image,
   img {
-    width: 100%;
-    height: 100%;
-  }
-
-  img {
-    object-fit: contain;
-    pointer-events: auto;
-    ${props=>props.$animationStyle}
+    ${(props) =>
+      props.$enableOverflow
+        ? `
+        aspect-ratio: ${props.$aspectRatio};
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      `
+        : `
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+      `}
+    
+    object-position: ${(props) => `${props.$positionX} ${props.$positionY}`};
+    ${props => props.$clipPath && `clip-path: ${props.$clipPath};`};
+    ${props => props.$style?.opacity !== undefined && `opacity: ${props.$style?.opacity};`};
+    ${props => props.$animationStyle};
   }
 
   ${(props) => props.$style && getStyle(props.$style)}
@@ -60,6 +95,7 @@ const getStyle = (style: ImageStyleType) => {
   return css`
     img {
       border: ${(props) => (style.borderWidth ? style.borderWidth : "1px")} solid ${style.border};
+      box-shadow: ${props=>`${style?.boxShadow} ${style?.boxShadowColor}`};
       border-radius: ${style.radius};
       margin: ${style.margin};
       padding: ${style.padding};
@@ -107,8 +143,6 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 
   // on safari
   const setStyle = (height: string, width: string) => {
-    // console.log(width, height);
-
     const img = imgRef.current;
     const imgDiv = img?.getElementsByTagName("div")[0];
     const imgCurrent = img?.getElementsByTagName("img")[0];
@@ -123,7 +157,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
   const onResize = () => {
     const img = imgRef.current;
     const container = conRef.current;
-    if (!img?.clientWidth || !img?.clientHeight || props.autoHeight || !width) {
+    if (!props.enableOverflow && (!img?.clientWidth || !img?.clientHeight || props.autoHeight || !width)) {
       return;
     }
     // fixme border style bug on safari
@@ -136,11 +170,23 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
       setStyle("auto", "100%");
     }
   };
+
   return (
     <ReactResizeDetector
       onResize={onResize}
       render={() => (
-        <Container ref={conRef} $style={props.style} $animationStyle={props.animationStyle}>
+        <Container 
+          ref={conRef}
+          $style={props.style}
+          $animationStyle={props.animationStyle}
+          $clipPath={props.clipPath}
+          $overflow={props.enableOverflow ? props.overflow : "hidden"}
+          $positionX={props.positionX}
+          $positionY={props.positionY}
+          $enableOverflow={props.enableOverflow}
+          $aspectRatio={props.aspectRatio || "16 / 9"}
+          $placement={props.placement}
+        >
           <div
             ref={imgRef}
             style={
@@ -151,7 +197,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
               src={props.src.value}
               referrerPolicy="same-origin"
               draggable={false}
-              preview={props.supportPreview}
+              preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
               fallback={DEFAULT_IMG_URL}
               onClick={() => props.onEvent("click")}
             />
@@ -168,9 +214,17 @@ const childrenMap = {
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(ImageStyle , 'style'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  clipPath: withDefault(StringControl, "none"),
   autoHeight: withDefault(AutoHeightControl, "fixed"),
   supportPreview: BoolControl,
-  restrictPaddingOnRotation:withDefault(StringControl, 'image')
+  previewSrc: StringControl,
+  restrictPaddingOnRotation:withDefault(StringControl, 'image'),
+  enableOverflow: withDefault(BoolControl, false),
+  aspectRatio: withDefault(StringControl, "16 / 9"),
+  placement: withDefault(PositionControl, "top"),
+  overflow: withDefault(StringControl, "hidden"),
+  positionX: withDefault(StringControl, "center"),
+  positionY: withDefault(StringControl, "center"),
 };
 
 let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
@@ -189,9 +243,13 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           <Section name={sectionNames.interaction}>
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
             {children.supportPreview.propertyView({
               label: trans("image.supportPreview"),
               tooltip: trans("image.supportPreviewTip"),
+            })}
+            {children.supportPreview.getView() && children.previewSrc.propertyView({
+               label: trans("image.previewSrc")
             })}
           </Section>
         )}
@@ -199,10 +257,52 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
         {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
           <>
             <Section name={sectionNames.layout}>
+
               {children.autoHeight.getPropertyView()}
+
+              {children.autoHeight.getView() == false && (
+                children.placement.propertyView({
+                  label: trans("image.placement"),
+                  radioButton: true
+              }))}
+  
+              {children.autoHeight.getView() == false  && (
+                children.enableOverflow.propertyView({
+                  label: trans("image.enableOverflow"),
+                  tooltip: trans("image.enableOverflowTip")
+              }))}
+  
+              {children.autoHeight.getView() == false && children.enableOverflow.getView() == true && (
+                children.overflow.propertyView({
+                  label: trans("image.overflow"),
+                  tooltip: trans("image.overflowTip")
+              }))}
+
+              {children.autoHeight.getView() == false && children.enableOverflow.getView() == true && (
+                children.positionX.propertyView({
+                  label: trans("image.positionX"),
+                  tooltip: trans("image.positionXTip")
+              }))}
+
+              {children.autoHeight.getView() == false && children.enableOverflow.getView() == true && (
+                children.positionY.propertyView({
+                  label: trans("image.positionY"),
+                  tooltip: trans("image.positionYTip")
+              }))}
+
+              {children.autoHeight.getView() == false && children.enableOverflow.getView() == true && (
+                  children.aspectRatio.propertyView({
+                    label: trans("image.aspectRatio"),
+                    tooltip: trans("image.aspectRatioTip")
+              }))}
             </Section>
+
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}
+              {children.clipPath.propertyView({
+                label: trans("image.clipPath"),
+                tooltip: trans("image.clipPathTip")
+              })}
             </Section>
             <Section name={sectionNames.animationStyle} hasTooltip={true}>
               {children.animationStyle.getPropertyView()}

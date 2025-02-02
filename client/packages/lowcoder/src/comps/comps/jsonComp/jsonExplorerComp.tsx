@@ -7,13 +7,13 @@ import styled from "styled-components";
 import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ArrayOrJSONObjectControl, NumberControl } from "comps/controls/codeControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { useContext, useEffect } from "react";
 import { AnimationStyle, AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 /**
  * JsonExplorer Comp
@@ -90,6 +90,7 @@ let JsonExplorerTmpComp = (function () {
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
               {children.expandToggle.propertyView({ label: trans("jsonExplorer.expandToggle") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 

@@ -12,7 +12,7 @@ import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConst
 import { styleControl } from "comps/controls/styleControl";
 import {  AnimationStyle, InputFieldStyle, LabelStyle, RatingStyle, RatingStyleType } from "comps/controls/styleControlConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 
 import { useContext, useEffect, useRef } from "react";
@@ -78,7 +78,7 @@ const RatingBasicComp = (function () {
       children: (
         <RateStyled
           count={props.max}
-          value={props.value.value}
+          value={value}
           onChange={(e) => {
             props.value.onChange(e);
             changeRef.current = true;
@@ -107,6 +107,7 @@ const RatingBasicComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
               <Section name={sectionNames.advanced}>
                 {children.allowHalf.propertyView({

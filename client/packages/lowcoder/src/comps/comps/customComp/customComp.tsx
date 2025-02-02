@@ -9,7 +9,7 @@ import { useEffect, useRef, useContext } from "react";
 import styled from "styled-components";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { EventData, EventTypeEnum } from "./types";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
@@ -244,6 +244,7 @@ const CustomCompBase = new UICompBuilder(childrenMap, (props, dispatch) => {
               {children.model.propertyView({ label: trans("customComp.data") })}
               {children.code.propertyView({ label: trans("customComp.code"), language: "html" })}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
             <Section name={sectionNames.style}>
               {children.style.getPropertyView()}

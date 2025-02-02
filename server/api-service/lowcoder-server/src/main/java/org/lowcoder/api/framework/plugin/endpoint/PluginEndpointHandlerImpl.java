@@ -132,7 +132,10 @@ public class PluginEndpointHandlerImpl implements PluginEndpointHandler
 		});
 
 		return decisionMono.<EndpointResponse>handle((authorizationDecision, sink) -> {
-			if(!authorizationDecision.isGranted()) sink.error(new BizException(NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+			if(!authorizationDecision.isGranted()) {
+				sink.error(new BizException(NOT_AUTHORIZED, "NOT_AUTHORIZED"));
+				return;
+			}
 			try {
 				sink.next((EndpointResponse) handler.invoke(endpoint, PluginServerRequest.fromServerRequest(request)));
 			} catch (IllegalAccessException | InvocationTargetException e) {

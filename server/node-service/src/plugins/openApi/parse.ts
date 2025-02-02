@@ -209,11 +209,19 @@ export async function parseOpenApi(
    */
   specId?: string
 ): Promise<OpenAPIParseResult> {
+
   let spec = specJsonOrObj;
   if (typeof specJsonOrObj === "string") {
     spec = JSON.parse(specJsonOrObj);
   }
-  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: { circular: "ignore" } });
+  const openApiDoc = await SwaggerParser.dereference(spec, { dereference: {
+      circular: true, // Retains circular references
+    },
+    resolve: {
+      external: false,
+      http: false,
+    },
+  });
   const actions: ActionConfig[] = [];
   const categories: ActionCategory[] = [];
   if (!openApiDoc.paths) {

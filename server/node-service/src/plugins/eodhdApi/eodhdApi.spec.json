@@ -1,0 +1,1751 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "EOD Historical Data API",
+        "description": "Comprehensive OpenAPI Specification for the EOD Historical Data Service, merging abstract endpoints and detailed examples into a structured format with dynamic parameters. Find here the information about procing and Sign Up to obtain your API Key.",
+        "version": "1.0.1",
+        "contact": {
+            "email": "support@eodhistoricaldata.com"
+        },
+        "license": {
+            "name": "GPL-3.0"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://eodhistoricaldata.com/api",
+            "description": "Main API server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "EOD (End Of Day) Data",
+            "description": "Endpoints for historical end-of-day data."
+        },
+        {
+            "name": "Live (Delayed) Data",
+            "description": "Endpoints for live and delayed market data."
+        },
+        {
+            "name": "Dividends and Splits Data",
+            "description": "Endpoints for accessing dividend and split data."
+        },
+        {
+            "name": "Technical Indicators",
+            "description": "Endpoints for technical indicator data."
+        },
+        {
+            "name": "Fundamental Data",
+            "description": "Endpoints for fundamental data of assets."
+        },
+        {
+            "name": "Intraday Data",
+            "description": "Endpoints for intraday market data."
+        },
+        {
+            "name": "Historical Market Capitalization",
+            "description": "Endpoints for market capitalization data."
+        },
+        {
+            "name": "Insider Transactions Data",
+            "description": "Endpoints for insider transaction data."
+        },
+        {
+            "name": "Financial Calendar",
+            "description": "Endpoints for earnings and IPO calendars."
+        },
+        {
+            "name": "Bonds Data",
+            "description": "Endpoints for bond fundamentals and EOD data."
+        },
+        {
+            "name": "Bulk Data",
+            "description": "Endpoints for bulk EOD data."
+        },
+        {
+            "name": "Exchanges",
+            "description": "Endpoints for exchange data and symbol lists."
+        },
+        {
+            "name": "Stock Market Screener",
+            "description": "Endpoints for screening stocks."
+        },
+        {
+            "name": "Stock Market Search",
+            "description": "Endpoints for searching stock market data."
+        },
+        {
+            "name": "Sentiment Data",
+            "description": "Endpoints for sentiment analysis from news and tweets."
+        },
+        {
+            "name": "Economic Events Data",
+            "description": "Endpoints for economic events and indicators."
+        },
+        {
+            "name": "Macroeconomic Data",
+            "description": "Endpoints for macroeconomic data like bonds and exchange rates."
+        }
+    ],
+    "paths": {
+        "/eod/{ticker}": {
+            "get": {
+                "tags": [
+                    "EOD (End Of Day) Data"
+                ],
+                "summary": "Get End of Day Historical Quotes",
+                "description": "Fetch historical end-of-day data for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset (e.g., AAPL, TSLA).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing historical data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EODQuote"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request parameters."
+                    },
+                    "401": {
+                        "description": "Unauthorized or missing API token."
+                    }
+                }
+            }
+        },
+        "/real-time/{ticker}": {
+            "get": {
+                "tags": [
+                    "Live (Delayed) Data"
+                ],
+                "summary": "Get Live or Delayed Quotes",
+                "description": "Fetch live or delayed data for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Format of the response (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing live data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ticker": {
+                                            "type": "string"
+                                        },
+                                        "price": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/div/{ticker}": {
+            "get": {
+                "tags": [
+                    "Dividends and Splits Data"
+                ],
+                "summary": "Get Dividend Data",
+                "description": "Fetch dividend data for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string",
+                            "format": "date"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing dividend data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ticker": {
+                                            "type": "string"
+                                        },
+                                        "dividends": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "date": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "amount": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/intraday/{ticker}": {
+            "get": {
+                "tags": [
+                    "Intraday Data"
+                ],
+                "summary": "Get Intraday Data",
+                "description": "Fetch intraday data for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "interval",
+                        "in": "query",
+                        "required": false,
+                        "description": "Interval for the intraday data (e.g., 1m, 5m, 1h).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date or timestamp for the data.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date or timestamp for the data.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing intraday data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/EODQuote"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/fundamentals/{symbol}.{exchange_code}": {
+            "get": {
+                "tags": [
+                    "Fundamental Data"
+                ],
+                "summary": "Get Asset Fundamentals",
+                "description": "Fetch fundamental data for a specific asset.",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "description": "Symbol name of the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "exchange_code",
+                        "in": "path",
+                        "required": true,
+                        "description": "Exchange code for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing fundamental data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Symbol"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/historical-market-cap/{symbol}.{exchange_code}": {
+            "get": {
+                "tags": [
+                    "Historical Market Capitalization"
+                ],
+                "summary": "Get Historical Market Cap",
+                "description": "Fetch historical market capitalization data for a specific asset.",
+                "parameters": [
+                    {
+                        "name": "symbol",
+                        "in": "path",
+                        "required": true,
+                        "description": "Symbol name of the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "exchange_code",
+                        "in": "path",
+                        "required": true,
+                        "description": "Exchange code for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing historical market cap data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/EODQuote"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/insider-transactions": {
+            "get": {
+                "tags": [
+                    "Insider Transactions Data"
+                ],
+                "summary": "Get Insider Transactions",
+                "description": "Fetch insider transactions data for various assets.",
+                "parameters": [
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the transactions in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the transactions in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "Number of transactions to return.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing insider transactions.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Symbol"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/splits/{ticker}": {
+            "get": {
+                "tags": [
+                    "Dividends and Splits Data"
+                ],
+                "summary": "Get Split Data",
+                "description": "Fetch split data for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing split data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ticker": {
+                                            "type": "string"
+                                        },
+                                        "splits": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "date": {
+                                                        "type": "string",
+                                                        "format": "date"
+                                                    },
+                                                    "ratio": {
+                                                        "type": "string"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/technical/{ticker}": {
+            "get": {
+                "tags": [
+                    "Technical Indicators"
+                ],
+                "summary": "Get Technical Indicators",
+                "description": "Fetch technical indicators for a specified ticker.",
+                "parameters": [
+                    {
+                        "name": "ticker",
+                        "in": "path",
+                        "required": true,
+                        "description": "Ticker symbol for the asset.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "indicator",
+                        "in": "query",
+                        "required": true,
+                        "description": "Indicator type (e.g., SMA, EMA).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "period",
+                        "in": "query",
+                        "required": false,
+                        "description": "Period for the indicator.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing indicator data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ticker": {
+                                            "type": "string"
+                                        },
+                                        "indicator": {
+                                            "type": "object",
+                                            "properties": {
+                                                "value": {
+                                                    "type": "number"
+                                                },
+                                                "date": {
+                                                    "type": "string",
+                                                    "format": "date"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/calendar/earnings": {
+            "get": {
+                "tags": [
+                    "Financial Calendar"
+                ],
+                "summary": "Get Earnings Calendar",
+                "description": "Fetch the earnings calendar.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the calendar in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the calendar in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing the earnings calendar.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/calendar/trends": {
+            "get": {
+                "tags": [
+                    "Financial Calendar"
+                ],
+                "summary": "Get Calendar Trends",
+                "description": "Fetch financial calendar trends.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "symbols",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated list of symbols.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing trends data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "trend": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/calendar/ipos": {
+            "get": {
+                "tags": [
+                    "Financial Calendar"
+                ],
+                "summary": "Get IPO Calendar",
+                "description": "Fetch the IPO calendar.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing IPO data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "ipo_date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/bond-fundamentals/{symbol_name}": {
+            "get": {
+                "tags": [
+                    "Bonds Data"
+                ],
+                "summary": "Get Bond Fundamentals",
+                "description": "Fetch fundamental data for a specific bond.",
+                "parameters": [
+                    {
+                        "name": "symbol_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Symbol name of the bond.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing bond fundamentals.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "symbol": {
+                                            "type": "string"
+                                        },
+                                        "details": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/eod-bulk-last-day/{exchange_code}": {
+            "get": {
+                "tags": [
+                    "Bulk Data"
+                ],
+                "summary": "Get Bulk EOD Data for Last Day",
+                "description": "Fetch end-of-day bulk data for the last trading day for a specific exchange.",
+                "parameters": [
+                    {
+                        "name": "exchange_code",
+                        "in": "path",
+                        "required": true,
+                        "description": "Code of the exchange (e.g., NASDAQ, NYSE).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "required": false,
+                        "description": "Type of data (e.g., splits, dividends).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "date",
+                        "in": "query",
+                        "required": false,
+                        "description": "Date for the bulk data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "symbols",
+                        "in": "query",
+                        "required": false,
+                        "description": "Comma-separated list of symbols.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Format of the response (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing bulk EOD data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/exchanges-list": {
+            "get": {
+                "tags": [
+                    "Exchanges"
+                ],
+                "summary": "Get List of Supported Exchanges",
+                "description": "Fetch a list of all supported exchanges.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Format of the response (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing a list of exchanges.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "exchange_code": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/exchange-symbol-list/{exchange_name}": {
+            "get": {
+                "tags": [
+                    "Exchanges"
+                ],
+                "summary": "Get Symbol List for an Exchange",
+                "description": "Fetch a list of symbols for a specific exchange.",
+                "parameters": [
+                    {
+                        "name": "exchange_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Name of the exchange.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "delisted",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include delisted symbols (1 for true, 0 for false).",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Format of the response (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing a list of symbols.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/exchange-details/{exchange_code}": {
+            "get": {
+                "tags": [
+                    "Exchanges"
+                ],
+                "summary": "Get Exchange Details",
+                "description": "Fetch details about a specific exchange, including working hours and market holidays.",
+                "parameters": [
+                    {
+                        "name": "exchange_code",
+                        "in": "path",
+                        "required": true,
+                        "description": "Code of the exchange.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date for the data in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Format of the response (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing exchange details.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "exchange_code": {
+                                            "type": "string"
+                                        },
+                                        "details": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/screener": {
+            "get": {
+                "tags": [
+                    "Stock Market Screener"
+                ],
+                "summary": "Screen Stocks",
+                "description": "Fetch stock market screener results based on various filters.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "sort",
+                        "in": "query",
+                        "required": false,
+                        "description": "Sorting order for the screener results (e.g., market_capitalization.desc).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "filters",
+                        "in": "query",
+                        "required": false,
+                        "description": "Filters for the screener results in JSON format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of results to return.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "description": "Offset for pagination.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing screener results.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "data": {
+                                                "type": "object"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/search/{symbol_name}": {
+            "get": {
+                "tags": [
+                    "Stock Market Search"
+                ],
+                "summary": "Search for Symbols",
+                "description": "Fetch search results for a specified symbol or name.",
+                "parameters": [
+                    {
+                        "name": "symbol_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Symbol or name to search for.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of results to return.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing search results.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "name": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/sentiments": {
+            "get": {
+                "tags": [
+                    "Sentiment Data"
+                ],
+                "summary": "Get Sentiments",
+                "description": "Fetch sentiment data for specified symbols.",
+                "parameters": [
+                    {
+                        "name": "s",
+                        "in": "query",
+                        "required": true,
+                        "description": "Comma-separated list of symbols.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing sentiment data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "sentiment": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/tweets-sentiments": {
+            "get": {
+                "tags": [
+                    "Sentiment Data"
+                ],
+                "summary": "Get Tweets Sentiments",
+                "description": "Fetch sentiment data from tweets for specified symbols.",
+                "parameters": [
+                    {
+                        "name": "s",
+                        "in": "query",
+                        "required": true,
+                        "description": "Comma-separated list of symbols.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "from",
+                        "in": "query",
+                        "required": false,
+                        "description": "Start date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "to",
+                        "in": "query",
+                        "required": false,
+                        "description": "End date in YYYY-MM-DD format.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing tweet sentiment data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "symbol": {
+                                                "type": "string"
+                                            },
+                                            "sentiment": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/economic-events": {
+            "get": {
+                "tags": [
+                    "Economic Events Data"
+                ],
+                "summary": "Get Economic Events",
+                "description": "Fetch economic events data.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of results to return.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "country",
+                        "in": "query",
+                        "required": false,
+                        "description": "Country code (e.g., US, FR).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing economic events.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "event": {
+                                                "type": "string"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/news": {
+            "get": {
+                "tags": [
+                    "Financial News API"
+                ],
+                "summary": "Get Financial News",
+                "description": "Fetch financial news articles.",
+                "parameters": [
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "s",
+                        "in": "query",
+                        "required": false,
+                        "description": "Symbol or topic to filter news.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "required": false,
+                        "description": "Offset for pagination.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "required": false,
+                        "description": "Maximum number of results to return.",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "t",
+                        "in": "query",
+                        "required": false,
+                        "description": "Topic to filter news.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing news articles.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "title": {
+                                                "type": "string"
+                                            },
+                                            "date": {
+                                                "type": "string",
+                                                "format": "date"
+                                            },
+                                            "content": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/macro-indicator/{indicator_name}": {
+            "get": {
+                "tags": [
+                    "Macro Indicators Data"
+                ],
+                "summary": "Get Macro Indicator Data",
+                "description": "Fetch data for a specific macroeconomic indicator.",
+                "parameters": [
+                    {
+                        "name": "indicator_name",
+                        "in": "path",
+                        "required": true,
+                        "description": "Name of the macroeconomic indicator.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "api_token",
+                        "in": "query",
+                        "required": true,
+                        "description": "API authentication token.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "fmt",
+                        "in": "query",
+                        "required": false,
+                        "description": "Response format (e.g., json, csv).",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response containing macro indicator data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "indicator": {
+                                            "type": "string"
+                                        },
+                                        "value": {
+                                            "type": "number"
+                                        },
+                                        "date": {
+                                            "type": "string",
+                                            "format": "date"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "EODQuote": {
+                "type": "object",
+                "properties": {
+                    "date": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "open": {
+                        "type": "number"
+                    },
+                    "high": {
+                        "type": "number"
+                    },
+                    "low": {
+                        "type": "number"
+                    },
+                    "close": {
+                        "type": "number"
+                    },
+                    "volume": {
+                        "type": "integer"
+                    }
+                },
+                "required": [
+                    "date",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "volume"
+                ]
+            },
+            "Symbol": {
+                "type": "object",
+                "properties": {
+                    "code": {
+                        "type": "string"
+                    },
+                    "name": {
+                        "type": "string"
+                    },
+                    "exchange": {
+                        "type": "string"
+                    },
+                    "currency": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "code",
+                    "name",
+                    "exchange"
+                ]
+            }
+        }
+    }
+}

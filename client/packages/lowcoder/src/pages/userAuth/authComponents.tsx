@@ -219,7 +219,7 @@ export const TermsAndPrivacyInfo = (props: { onCheckChange: (e: CheckboxChangeEv
   }
   return (
     <TermsAndPrivacyContent>
-      <CheckBox defaultChecked onChange={(e) => props.onCheckChange(e)} />
+      <CheckBox data-testid="agree-terms-checkbox" defaultChecked onChange={(e) => props.onCheckChange(e)} />
       <TermsAndPrivacyLabel>
         {trans("userAuth.registerHint")}{`: `}
         <StyledLink href={termsUrl} target="_blank">

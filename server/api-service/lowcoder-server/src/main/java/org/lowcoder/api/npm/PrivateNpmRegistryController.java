@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.domain.application.service.ApplicationServiceImpl;
+import org.lowcoder.domain.organization.model.OrgMember;
+import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberServiceImpl;
 import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.infra.constant.NewUrl;
@@ -35,8 +37,8 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
     private final ApplicationServiceImpl applicationServiceImpl;
 
     @Override
-    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String name) {
-        return forwardToNodeService(applicationId, name, NPM_REGISTRY_METADATA);
+    public Mono<ResponseEntity<Resource>> getNpmPackageMeta(String applicationId, String path) {
+        return forwardToNodeService(applicationId, path, NPM_REGISTRY_METADATA);
     }
 
     @Override
@@ -49,23 +51,39 @@ public class PrivateNpmRegistryController implements PrivateNpmRegistryEndpoint{
 
         String withoutLeadingSlash = path.startsWith("/") ? path.substring(1) : path;
         if(applicationId.equals("none")) {
-            return sessionUserService.getVisitorOrgMemberCache().flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId()).flatMap(organizationCommonSettings -> {
-                Map<String, Object> config = Map.of("npmRegistries", Objects.requireNonNullElse(organizationCommonSettings.get("npmRegistries"), new ArrayList<>(0)), "workspaceId", orgMember.getOrgId());
-                return WebClientBuildHelper.builder()
-                        .systemProxy()
-                        .build()
-                        .post()
-                        .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body(BodyInserters.fromValue(config))
-                        .retrieve().toEntity(Resource.class)
-                        .map(response -> {
-                            return ResponseEntity
-                                    .status(response.getStatusCode())
-                                    .headers(response.getHeaders())
-                                    .body(response.getBody());
-                        });
-            }));
+            return sessionUserService.getVisitorOrgMemberCache()
+                    .onErrorResume(e -> Mono.just(OrgMember.builder().orgId("default").build()))
+                    .flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getOrgId())
+                            .onErrorResume(e -> {
+                                // Handle errors fetching organization settings and provide defaults
+                                Organization.OrganizationCommonSettings defaultSettings = new Organization.OrganizationCommonSettings();
+                                defaultSettings.put("npmRegistries", new ArrayList<>(0));
+                                return Mono.just(defaultSettings);
+                            })
+                            .flatMap(organizationCommonSettings -> {
+                                Map<String, Object> config = Map.of(
+                                        "npmRegistries", Objects.requireNonNullElse(
+                                                organizationCommonSettings.get("npmRegistries"),
+                                                new ArrayList<>(0)
+                                        ),
+                                        "workspaceId", orgMember.getOrgId()
+                                );
+                                return WebClientBuildHelper.builder()
+                                        .systemProxy()
+                                        .build()
+                                        .post()
+                                        .uri(nodeServerHelper.createUri(prefix + "/" + withoutLeadingSlash))
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .body(BodyInserters.fromValue(config))
+                                        .retrieve()
+                                        .toEntity(Resource.class)
+                                        .map(response -> ResponseEntity
+                                                .status(response.getStatusCode())
+                                                .headers(response.getHeaders())
+                                                .body(response.getBody())
+                                        );
+                            }));
+
         } else{
             return applicationServiceImpl.findById(applicationId).flatMap(application -> organizationService.getById(application.getOrganizationId())).flatMap(orgMember -> organizationService.getOrgCommonSettings(orgMember.getId()).flatMap(organizationCommonSettings -> {
                 Map<String, Object> config = Map.of("npmRegistries", Objects.requireNonNullElse(organizationCommonSettings.get("npmRegistries"), new ArrayList<>(0)), "workspaceId", orgMember.getId());

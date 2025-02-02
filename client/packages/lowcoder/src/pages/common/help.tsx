@@ -27,6 +27,7 @@ import { ShortcutListPopup } from "./shortcutListPopup";
 import { QuestionIcon, UpgradeIcon } from "lowcoder-design";
 import { trans } from "i18n";
 import { localEnv } from "util/envUtils";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const StyledMenu = styled(DropdownMenu)<{ $edit: boolean | string }>`
   ${(props) =>
@@ -189,6 +190,8 @@ function HelpDropdownComp(props: HelpDropdownProps) {
   const [videoVisible, setVideoVisible] = useState(false);
   const [toolTipContent, setToolTipContent] = useState<React.ReactNode>(null);
   const [showDropdown, setShowDropdown] = useState(false);
+  const isPublicApp = useSelector(isPublicApplication);
+
   const closeTooltip = () => {
     // turn of tooltip
     setToolTipContent(null);
@@ -238,6 +241,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
           !props.isEdit && setShowHelp(false);
           return;
         case "editorTutorial":
+          if (isPublicApp) return;
           dispatch(
             createApplication({
               applicationName: trans("help.appName"),

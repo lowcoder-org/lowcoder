@@ -10,4 +10,7 @@ import lombok.Getter;
 public class GroupMemberAggregateView {
     private String visitorRole;
     private List<GroupMemberView> members;
+    private Integer total;
+    private Integer pageNum;
+    private Integer pageSize;
 }

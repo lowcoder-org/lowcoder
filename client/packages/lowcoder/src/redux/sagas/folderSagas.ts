@@ -84,14 +84,16 @@ export function* deleteFolderSaga(action: ReduxActionWithCallbacks<DeleteFolderP
 
 export function* moveToFolderSaga(action: ReduxActionWithCallbacks<MoveToFolderPayload, any, any>) {
   try {
+    const { moveFlag } = action.payload;
+    delete action.payload.moveFlag;
     const response: AxiosResponse<GenericApiResponse<void>> = yield FolderApi.moveToFolder(
       action.payload
     );
     const isValidResponse: boolean = validateResponse(response);
-
+    const type = moveFlag ? ReduxActionTypes.MOVE_TO_FOLDER2_SUCCESS : ReduxActionTypes.MOVE_TO_FOLDER_SUCCESS;
     if (isValidResponse) {
       yield put({
-        type: ReduxActionTypes.MOVE_TO_FOLDER_SUCCESS,
+        type,
         payload: action.payload,
       });
       action.onSuccessCallback && action.onSuccessCallback(response);

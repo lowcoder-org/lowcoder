@@ -1,8 +1,8 @@
 import styled from "styled-components";
 import { EditPopover, PointIcon, Search, TacoButton } from "lowcoder-design";
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getDataSource, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
+import { getDataSource, getDataSourceLoading, getDataSourceTypesMap } from "../../redux/selectors/datasourceSelectors";
 import { deleteDatasource } from "../../redux/reduxActions/datasourceActions";
 import { isEmpty } from "lodash";
 import history from "../../util/history";
@@ -16,6 +16,11 @@ import { trans } from "../../i18n";
 import { DatasourcePermissionDialog } from "../../components/PermissionDialog/DatasourcePermissionDialog";
 import DataSourceIcon from "components/DataSourceIcon";
 import { Helmet } from "react-helmet";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import {DatasourceInfo} from "@lowcoder-ee/api/datasourceApi";
+import {fetchDatasourcePagination} from "@lowcoder-ee/util/pagination/axios";
+import {getUser} from "@lowcoder-ee/redux/selectors/usersSelectors";
 
 const DatasourceWrapper = styled.div`
   display: flex;
@@ -102,10 +107,54 @@ const StyledTable = styled(Table)`
 export const DatasourceList = () => {
   const dispatch = useDispatch();
   const [searchValue, setSearchValue] = useState("");
+  const [searchValues, setSearchValues] = useState("");
   const [isCreateFormShow, showCreateForm] = useState(false);
   const [shareDatasourceId, setShareDatasourceId] = useState<string | undefined>(undefined);
-  const datasource = useSelector(getDataSource);
+  const [modify, setModify] = useState(false);
+  const currentUser = useSelector(getUser);
+  const orgId = currentUser.currentOrgId;
+  const datasourceLoading = useSelector(getDataSourceLoading);
   const plugins = useSelector(getDataSourceTypesMap);
+  interface ElementsState {
+    elements: DatasourceInfo[];
+    total: number;
+  }
+
+  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+
+  useEffect(()=> {
+    const timer = setTimeout(() => {
+      if (searchValue.length > 2 || searchValue === "")
+        setSearchValues(searchValue)
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchValue])
+
+  useEffect( () => {
+    fetchDatasourcePagination(
+      {
+        orgId: orgId,
+        pageNum: currentPage,
+        pageSize: pageSize,
+        name: searchValues
+      }
+    ).then((result: any) => {
+      if (result.success){
+        setElements({elements: result.data || [], total: result.total || 1})
+      }
+      else
+        console.error("ERROR: fetchFolderElements", result.error)
+    })
+  }, [currentPage, pageSize, searchValues, modify]
+  )
+
+  useEffect( () => {
+        if (searchValues !== "")
+          setCurrentPage(1);
+      }, [searchValues]
+  );
 
   return (
     <>
@@ -145,7 +194,10 @@ export const DatasourceList = () => {
         </HeaderWrapper>
         <BodyWrapper>
           <StyledTable
-            loading={!datasource.length}
+            loading={{
+              spinning: datasourceLoading,
+              indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
+            }}
             rowClassName={(record: any) => (!record.edit ? "datasource-can-not-edit" : "")}
             tableLayout={"auto"}
             scroll={{ x: "100%" }}
@@ -249,6 +301,10 @@ export const DatasourceList = () => {
                               text: trans("delete"),
                               onClick: () => {
                                 dispatch(deleteDatasource({ datasourceId: record.id }));
+                                setTimeout(() => {
+                                  setModify(!modify);
+                                }, 500);
+
                               },
                               type: "delete",
                             },
@@ -262,19 +318,7 @@ export const DatasourceList = () => {
                 ),
               },
             ]}
-            dataSource={datasource
-              .filter((info) => {
-                if (info.datasource.creationSource === 2) {
-                  return false;
-                }
-                if (!isEmpty(searchValue)) {
-                  return (
-                    info.datasource.name.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
-                    info.datasource.type.toLowerCase().includes(searchValue.trim().toLowerCase())
-                  );
-                }
-                return true;
-              })
+            dataSource={elements.elements
               .map((info, i) => ({
                 key: i,
                 id: info.datasource.id,
@@ -291,6 +335,13 @@ export const DatasourceList = () => {
                 creator: info.creatorName,
                 edit: info.edit,
               }))} />
+          { !!elements.elements.length ? <PaginationComp
+            currentPage={currentPage}
+            pageSize={pageSize}
+            setPageSize={setPageSize}
+            setCurrentPage={setCurrentPage}
+            total={elements.total}
+          /> : <></>}
         </BodyWrapper>
         {shareDatasourceId && (
           <DatasourcePermissionDialog
@@ -300,6 +351,8 @@ export const DatasourceList = () => {
               !visible && setShareDatasourceId(undefined);
             } } />
         )}
-      </DatasourceWrapper></>
+      </DatasourceWrapper>
+
+    </>
   );
 };

@@ -15,11 +15,11 @@ if not using OpenFlower v1.1.8 or the latest Openblocks released version (v1.1.8
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}
-`docker-compose down`
+`docker compose down`
 {% endtab %}
 
 {% tab title="Multi-Image Deployment" %}
-`docker-compose -f docker-compose-multi.yaml down`
+`docker compose -f docker-compose-multi.yaml down`
 {% endtab %}
 {% endtabs %}
 
@@ -49,10 +49,10 @@ MONGODB_URL:
 
 {% tabs %}
 {% tab title="All-in-one Docker image" %}
-`docker-compose up -d`
+`docker compose up -d`
 {% endtab %}
 
 {% tab title="Multi-Image Deployment" %}
-`docker-compose -f docker-compose-multi.yaml up -d`
+`docker compose -f docker-compose-multi.yaml up -d`
 {% endtab %}
 {% endtabs %}

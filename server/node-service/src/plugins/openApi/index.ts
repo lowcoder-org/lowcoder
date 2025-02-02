@@ -62,7 +62,14 @@ async function getDefinitions(
     const specList = Array.isArray(spec) ? spec : [{ spec, id: "" }];
     return await Promise.all(
       specList.map(async ({id, spec}) => {
-        const deRefedSpec = await SwaggerParser.dereference(spec);
+        const deRefedSpec = await SwaggerParser.dereference(spec, { dereference: {
+          circular: true, // Retains circular references
+        },
+        resolve: {
+          external: false,
+          http: false,
+        },
+      });
         return {
           def: deRefedSpec,
           id,
@@ -81,8 +88,6 @@ export async function runOpenApi(
 ) {
   const { actionName, ...otherActionData } = actionData;
   const { serverURL } = dataSourceConfig;
-
-
 
   let operation, realOperationId, definition: OpenAPI.Document | undefined;
 

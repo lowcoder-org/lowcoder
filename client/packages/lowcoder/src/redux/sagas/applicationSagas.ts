@@ -35,6 +35,7 @@ import { SERVER_ERROR_CODES } from "constants/apiConstants";
 import history from "util/history";
 import { ApplicationMeta, AppTypeEnum } from "constants/applicationConstants";
 import { trans } from "i18n";
+import { PUBLIC_APP_ID, publicAppResponse } from "@lowcoder-ee/constants/publicApp";
 
 export function* fetchHomeDataSaga(action: ReduxAction<HomeDataPayload>) {
   try {
@@ -203,10 +204,16 @@ export function* publishApplicationSaga(action: ReduxAction<PublishApplicationPa
 
 export function* fetchApplicationDetailSaga(action: ReduxAction<FetchAppInfoPayload>) {
   try {
-    const response: AxiosResponse<ApplicationResp> = yield call(
-      ApplicationApi.getApplicationDetail,
-      action.payload
-    );
+    
+    let response: AxiosResponse<ApplicationResp>;
+    if (action.payload.applicationId === PUBLIC_APP_ID) {
+      response = publicAppResponse as AxiosResponse<ApplicationResp>;
+    } else {
+      response = yield call(
+        ApplicationApi.getApplicationDetail,
+        action.payload
+      );
+    }
     const isValidResponse: boolean = doValidResponse(response);
     if (isValidResponse && action.payload) {
       const {
@@ -403,6 +410,23 @@ function* setAppEditingStateSaga(action: ReduxAction<SetAppEditingStatePayload>)
   }
 }
 
+export function* fetchServerSettingsSaga() {
+  try {
+    const response: AxiosResponse<GenericApiResponse<Record<string,string>>> = yield call(
+      ApplicationApi.fetchServerSettings
+    );
+    if (Boolean(response.data)) {
+      yield put({
+        type: ReduxActionTypes.FETCH_SERVER_SETTINGS_SUCCESS,
+        payload: response.data,
+      });
+    }
+  } catch (error: any) {
+    log.debug("fetch server settings error: ", error);
+    messageInstance.error(error.message);
+  }
+}
+
 export default function* applicationSagas() {
   yield all([
     takeLatest(ReduxActionTypes.FETCH_HOME_DATA, fetchHomeDataSaga),
@@ -429,5 +453,6 @@ export default function* applicationSagas() {
       fetchAllMarketplaceAppsSaga,
     ),
     takeLatest(ReduxActionTypes.SET_APP_EDITING_STATE, setAppEditingStateSaga),
+    takeLatest(ReduxActionTypes.FETCH_SERVER_SETTINGS, fetchServerSettingsSaga),
   ]);
 }

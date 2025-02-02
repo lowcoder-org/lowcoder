@@ -16,7 +16,9 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +33,10 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { ThemeriverChartConfig } from "comps/chartComp/chartConfigs/themeriverChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
+import {EchartsLegendOrientConfig} from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import {EchartsLegendAlignConfig} from "../chartComp/chartConfigs/echartsLegendAlignConfig";
 
 export const ChartTypeOptions = [
   {
@@ -248,19 +254,33 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultThemeriverChartOption),
   echartsTitle: withDefault(StringControl, trans("themeriverChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
+
+  splitNumber:withDefault(NumberControl,trans('themeriverChart.defaultSplitNumber')),
+  left:withDefault(NumberControl,trans('themeriverChart.defaultLeft')),
+  right:withDefault(NumberControl,trans('themeriverChart.defaultRight')),
+  top:withDefault(NumberControl,trans('themeriverChart.defaultTop')),
+  bottom:withDefault(NumberControl,trans('themeriverChart.defaultBottom')),
+
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    axisStyle: styleControl(EchartDefaultTextStyle, 'axisStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 const chartMapModeChildren = {

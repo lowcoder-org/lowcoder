@@ -16,7 +16,13 @@ export default function DividerExample() {
         title={trans("componentDoc.basicUsage")}
         description={trans("componentDoc.basicDemoDescription")}
       >
-        <Example title="" hideSettings={true} config={{}} compFactory={DividerComp} />
+      <Example 
+        title="" 
+        config={{
+          style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
+        }} 
+        compFactory={DividerComp} 
+      />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.titleAlign")}>
@@ -24,9 +30,9 @@ export default function DividerExample() {
           title={trans("componentDoc.left")}
           nameMap={nameMap}
           config={{
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
             title: trans("componentDoc.imADivider"),
             align: "left",
-            color: "#222222",
           }}
           compFactory={DividerComp}
         />
@@ -36,7 +42,7 @@ export default function DividerExample() {
           config={{
             title: trans("componentDoc.imADivider"),
             align: "center",
-            color: "#222222",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
           }}
           compFactory={DividerComp}
         />
@@ -46,30 +52,39 @@ export default function DividerExample() {
           config={{
             title: trans("componentDoc.imADivider"),
             align: "right",
-            color: "#222222",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
           }}
           compFactory={DividerComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.style")}>
         <Example
-          title={trans("componentDoc.dashed")}
-          nameMap={nameMap}
-          config={{
-            title: trans("componentDoc.imADivider"),
-            align: "left",
-            color: "#222222",
-            dashed: true,
-          }}
-          compFactory={DividerComp}
-        />
-        <Example
-          title={trans("componentDoc.color")}
+          title="Dashed Border"
           nameMap={nameMap}
           config={{
             title: trans("componentDoc.imADivider"),
             align: "center",
-            color: "#666666",
+            style: {borderStyle: "dashed", border: "#000",borderWidth: "2px"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Solid Border"
+          nameMap={nameMap}
+          config={{
+            title: trans("componentDoc.imADivider"),
+            align: "center",
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Vertical Divider"
+          nameMap={nameMap}
+          config={{
+            style: {borderStyle: "solid", border: "#000",borderWidth: "2px"},
+            type: true,
           }}
           compFactory={DividerComp}
         />

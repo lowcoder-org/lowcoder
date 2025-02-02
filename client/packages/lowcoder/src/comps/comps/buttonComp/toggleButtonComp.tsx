@@ -5,6 +5,7 @@ import {
   disabledPropertyView,
   hiddenPropertyView,
   loadingPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { Section, sectionNames } from "lowcoder-design";
 import { trans } from "i18n";
@@ -109,6 +110,7 @@ const ToggleTmpComp = (function () {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}

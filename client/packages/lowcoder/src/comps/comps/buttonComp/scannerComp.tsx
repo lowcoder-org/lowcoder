@@ -16,7 +16,7 @@ import { UICompBuilder } from "comps/generators/uiCompBuilder";
 import { CustomModal, Section, sectionNames } from "lowcoder-design";
 import styled from "styled-components";
 import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generators/withExposing";
-import { hiddenPropertyView, disabledPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, disabledPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import React, { Suspense, useEffect, useRef, useState, useContext } from "react";
 import { arrayStringExposingStateControl } from "comps/controls/codeStateControl";
@@ -223,6 +223,7 @@ const ScannerTmpComp = (function () {
                 {children.onEvent.getPropertyView()}
                 {disabledPropertyView(children)}
                 {hiddenPropertyView(children)}
+                {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
               <Section name={sectionNames.advanced}>
               {children.continuous.propertyView({ label: trans("scanner.continuous") })}

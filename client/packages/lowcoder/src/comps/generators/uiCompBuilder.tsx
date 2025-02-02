@@ -38,6 +38,7 @@ import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 export type NewChildren<ChildrenCompMap extends Record<string, Comp<unknown>>> =
   ChildrenCompMap & {
     hidden: InstanceType<typeof BoolCodeControl>;
+    showDataLoadingIndicators: InstanceType<typeof BoolControl>,
     className: InstanceType<typeof StringControl>;
     dataTestId: InstanceType<typeof StringControl>;
     preventStyleOverwriting: InstanceType<typeof BoolControl>;
@@ -78,7 +79,7 @@ export const ExtendedPropertyView = React.memo(<
   const editorState = useContext(EditorContext);
   const selectedComp = values(editorState?.selectedComps())[0];
   const compType = selectedComp?.children?.compType?.getView() as UICompType;
-  
+
   useEffect(() => {
     setCompName(uiCompRegistry[compType]?.compName || '');
   }, [compType]);
@@ -139,6 +140,7 @@ export function uiChildren<
   return {
     ...childrenMap,
     hidden: BoolCodeControl,
+    showDataLoadingIndicators: withDefault(BoolControl, false),
     className: StringControl,
     dataTestId: StringControl,
     preventStyleOverwriting: withDefault(BoolControl, false),

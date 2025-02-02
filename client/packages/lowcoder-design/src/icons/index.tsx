@@ -1,4 +1,5 @@
 export { ReactComponent as AppSnapshotIcon } from "./v1/app-snapshot.svg";
+export { ReactComponent as ArchiveIcon } from "./remix/archive-fill.svg";
 export { ReactComponent as HookCompDropIcon } from "./v1/hook-comp-drop.svg";
 export { ReactComponent as HookCompIcon } from "./v1/hook-comp.svg";
 
@@ -249,6 +250,8 @@ export { ReactComponent as MarketplaceIcon } from "./v1/icon-application-marketp
 export { ReactComponent as FavoritesIcon } from "./v1/icon-application-favorites.svg";
 export { ReactComponent as HomeSettingIcon } from "./remix/settings-4-line.svg";
 export { ReactComponent as EnterpriseIcon } from "./remix/earth-line.svg";
+export { ReactComponent as VerticalIcon } from "./remix/vertical.svg";
+export { ReactComponent as HorizontalIcon } from "./remix/horizontal.svg";
 
 
 // components

@@ -4,6 +4,7 @@ import { UserGuideLocationState } from "pages/tutorials/tutorialsConstant";
 import { DatasourceType } from "@lowcoder-ee/constants/queryConstants";
 
 export const BASE_URL = "/";
+export const ADMIN_AUTH_URL = "/admin/login";
 export const USER_AUTH_URL = "/user/auth";
 export const USER_PROFILE_URL = "/user/profile";
 export const NEWS_URL = "/news";
@@ -25,7 +26,9 @@ export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
 
 export const PERMISSION_SETTING_DETAIL = `${PERMISSION_SETTING}/:groupId`;
 export const ORGANIZATION_SETTING_DETAIL = `${ORGANIZATION_SETTING}/:orgId`;
+
 export const SUBSCRIPTION_SUCCESS = `${SUBSCRIPTION_SETTING}/success`;
+export const SUBSCRIPTION_CANCEL = `${SUBSCRIPTION_SETTING}/cancel`;
 export const SUBSCRIPTION_ERROR = `${SUBSCRIPTION_SETTING}/error`;
 export const SUBSCRIPTION_DETAIL = `${SUBSCRIPTION_SETTING}/details/:subscriptionId/:productId`;
 export const SUBSCRIPTION_INFO = `${SUBSCRIPTION_SETTING}/info/:productId`;
@@ -47,6 +50,7 @@ export const FOLDERS_URL = `/folders`;
 export const TRASH_URL = `/trash`;
 export const IMPORT_APP_FROM_TEMPLATE_URL = `${ALL_APPLICATIONS_URL}/template-import/:templateId`;
 export const APP_EDITOR_URL = `${ALL_APPLICATIONS_URL}/:applicationId/:viewMode/:appPageId?`;
+export const PUBLIC_APP_EDITOR_URL = `/editor/public`;
 
 export const AUTH_BIND_URL = `${USER_AUTH_URL}/bind`;
 export const AUTH_LOGIN_URL = `${USER_AUTH_URL}/login`;

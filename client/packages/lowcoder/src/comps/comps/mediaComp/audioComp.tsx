@@ -11,7 +11,7 @@ import { TacoAudio } from "lowcoder-design";
 import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "../../generators/simpleGenerators";
 import { trans } from "i18n";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { mediaCommonChildren, mediaMethods } from "./mediaUtils";
 import { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
@@ -97,6 +97,7 @@ let AudioBasicComp = (function () {
               {children.loop.propertyView({
                 label: trans("audio.loop"),
               })}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           <Section name={sectionNames.style}>

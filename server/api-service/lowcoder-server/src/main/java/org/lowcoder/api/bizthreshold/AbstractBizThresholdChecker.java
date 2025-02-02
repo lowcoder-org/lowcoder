@@ -98,7 +98,7 @@ public abstract class AbstractBizThresholdChecker {
 
     public Mono<Void> checkMaxDeveloperCount(String orgId, String developGroupId, String userId) {
         return orgMemberService.getAllOrgAdmins(orgId)
-                .zipWith(groupMemberService.getGroupMembers(developGroupId, 1, 100))
+                .zipWith(groupMemberService.getGroupMembers(developGroupId))
                 .zipWith(getMaxDeveloperCount(), TupleUtils::merge)
                 .flatMap(tuple -> {
                     List<OrgMember> t1 = tuple.getT1();

@@ -28,7 +28,8 @@ import { SelectEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
-import { AutoHeightControl } from "@lowcoder-ee/index.sdk";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
+import { showDataLoadingIndicatorsPropertyView } from "@lowcoder-ee/comps/utils/propertyUtils";
 
 type TreeStyleType = StyleConfigType<typeof TreeStyle>;
 
@@ -151,6 +152,7 @@ let TreeBasicComp = (function () {
               {children.onEvent.getPropertyView()}
               {children.hidden.propertyView({ label: trans("prop.hide") })}
               {children.disabled.propertyView({ label: trans("prop.disabled") })}
+              {showDataLoadingIndicatorsPropertyView(children)}
               {children.selectType.propertyView({ label: trans("tree.selectType") })}
               {children.selectType.getView() !== "none" && valuePropertyView(children)}
               {children.selectType.getView() === "check" &&

@@ -15,7 +15,7 @@ const Wrapper = styled.div<{
   $itemHeight?: number;
 }>`
   position: relative;
-  width: 100%;
+  width: auto;
   height: ${(props) => props.$itemHeight ?? 30}px;
   /* border: 1px solid #d7d9e0; */
   border-radius: 4px;

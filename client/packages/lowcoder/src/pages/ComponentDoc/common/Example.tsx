@@ -90,6 +90,7 @@ interface IBoundProps {
 const Bound = styled.div<IBoundProps>`
   padding: 5px;
   border: ${({ show }) => `1px dashed ${show ? "rgb(51, 119, 255)" : "transparent"}`};
+  transform: translate(0);
 `;
 
 const StyledBorderIcon = styled(ShowBorderIcon)`

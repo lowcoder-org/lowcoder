@@ -34,7 +34,7 @@ import { wrapWithPromiseHandling } from "util/promiseUtils";
 import ModuleInputComp from "./moduleInputComp";
 import { MethodConfigInfo, withMethodExposing } from "comps/generators/withMethodExposing";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { ModuleLoading } from "components/ModuleLoading";
 import { trans } from "i18n";
 import { ParamsConfig, ParamType } from "comps/controls/actionSelector/executeCompTypes";
@@ -85,6 +85,7 @@ const childrenMap = {
   events: eventHandlerControl(),
   autoHeight: AutoHeightControl,
   scrollbars: withDefault(BoolControl, false),
+  loadModuleInDomWhenHide: withDefault(BoolControl, true),
 };
 
 type DataType = ToDataType<ToInstanceType<typeof childrenMap>>;
@@ -118,15 +119,19 @@ class ModuleTmpComp extends ModuleCompBase {
     return (
       <>
         {inputPropertyView && <Section name={sectionNames.basic}>{inputPropertyView}</Section>}
-        {eventConfigs.length > 0 && (
-          <Section name={sectionNames.interaction}>{eventsPropertyView}</Section>
-        )}
+        <Section name={sectionNames.interaction}>
+          {eventConfigs.length > 0 && eventsPropertyView}
+          {showDataLoadingIndicatorsPropertyView(this.children)}
+        </Section>
         <Section name={sectionNames.layout}>
           {!this.autoScaleCompHeight() && this.children.autoHeight.getPropertyView()}
           {!this.autoScaleCompHeight() && this.children.scrollbars.propertyView({
             label: trans("prop.scrollbar"),
           })}
           {hiddenPropertyView(this.children)}
+          {this.children.hidden.getView() && this.children.loadModuleInDomWhenHide.propertyView({
+            label: "Load module in DOM when hidden",
+          })}
         </Section>
       </>
     );
@@ -524,6 +529,9 @@ const ModuleCompWithView = withViewFn(ModuleTmpComp, (comp) => {
 
   if (error) {
     return <Placeholder>{error}</Placeholder>;
+  }
+  if (comp.children.hidden.getView() && !comp.children.loadModuleInDomWhenHide.getView()) {
+    return null;
   }
 
   let content: ReactNode = appId ? <ModuleLoading /> : <Placeholder />;

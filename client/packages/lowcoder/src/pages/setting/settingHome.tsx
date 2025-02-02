@@ -130,6 +130,62 @@ export function SettingHome() {
     //     (!isSelfDomain(config) && !isEnterpriseMode(config)),
     // },
 
+    // {
+    //   key: SettingPageEnum.Environments,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.environments")}</span>
+    //       <FreeLimitTag text={trans("settings.premium")} />
+    //     </span>
+    //   ),
+    //   disabled: true,
+    // },
+    // {
+    //   key: SettingPageEnum.AppUsage,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.appUsage")}</span>
+    //       <FreeLimitTag text={trans("settings.premium")} />
+    //     </span>
+    //   ),
+    //   disabled: true,
+    // },
+    // {
+    //   key: SettingPageEnum.Audit,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.audit")}</span>
+    //       {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+    //         <FreeLimitTag text={trans("settings.premium")} />
+    //       )}
+    //     </span>
+    //   ),
+    //   disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+    // },
+    // {
+    //   key: SettingPageEnum.Branding,
+    //   label: (
+    //     <span>
+    //       <span className="text">{trans("settings.branding")}</span>
+    //       {(!isEE() ||
+    //         !currentOrgAdmin(user) ||
+    //         !enableCustomBrand(config) ||
+    //         (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+    //         <FreeLimitTag text={trans("settings.premium")} />
+    //       )}
+    //     </span>
+    //   ),
+    //   disabled:
+    //     !isEE() ||
+    //     !currentOrgAdmin(user) ||
+    //     !enableCustomBrand(config) ||
+    //     (!isSelfDomain(config) && !isEnterpriseMode(config)),
+    // },
+    // { 
+    //   key: SettingPageEnum.Subscription,
+    //   label: trans("settings.subscription"),
+    //   icon: <SubscriptionIcon width={"20px"}/>, 
+    // }
   ];
 
   return (
@@ -154,10 +210,11 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Organization && <Organization />}
         {selectKey === SettingPageEnum.Theme && <ThemeHome />}
         {selectKey === SettingPageEnum.OAuthProvider && <IdSourceHome />}
-        {selectKey === SettingPageEnum.Audit && <AuditSetting />}
-        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
-        {selectKey === SettingPageEnum.Subscription && <Subscription />}
+        {/* {selectKey === SettingPageEnum.Audit && <AuditSetting />}
+        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
+        
+        {selectKey === SettingPageEnum.Subscription && <Subscription />} */}
       </TwoColumnSettingPageContent>
     </>
   );

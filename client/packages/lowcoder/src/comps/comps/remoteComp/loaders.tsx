@@ -1,4 +1,6 @@
-import { NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
+import { PUBLIC_APP_ID } from "@lowcoder-ee/constants/publicApp";
+import { sdkConfig } from "@lowcoder-ee/constants/sdkConfig";
+import { ASSETS_BASE_URL, NPM_PLUGIN_ASSETS_BASE_URL } from "constants/npmPlugins";
 import { trans } from "i18n";
 import { CompConstructor } from "lowcoder-core";
 import {
@@ -17,7 +19,14 @@ async function npmLoader(
   // Falk: removed "packageVersion = "latest" as default value fir packageVersion - to ensure no automatic version jumping.
   const localPackageVersion = remoteInfo.packageVersion || "latest";
   const { packageName, packageVersion, compName } = remoteInfo;
-  const entry = `${NPM_PLUGIN_ASSETS_BASE_URL}/${appId}/${packageName}@${localPackageVersion}/index.js`;
+
+  const pluginBaseUrl = REACT_APP_BUNDLE_TYPE === 'sdk' && sdkConfig.baseURL
+    ? `${sdkConfig.baseURL}/${ASSETS_BASE_URL}`
+    : NPM_PLUGIN_ASSETS_BASE_URL;
+
+  const applicationId = (!appId || appId && appId === PUBLIC_APP_ID) ? 'none' : appId;
+
+  const entry = `${pluginBaseUrl}/${applicationId}/${packageName}@${localPackageVersion}/index.js`;
 
   try {
     const module = await import(

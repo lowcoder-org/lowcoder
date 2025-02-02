@@ -174,6 +174,20 @@ export default function SelectExample() {
           blackListConfig={blackListConfig}
           compFactory={SelectComp}
         />
+        <Example
+          title="Not Search-able"
+          config={{
+            value: trans("componentDoc.noValue"),
+            options: options,
+            label: {
+              text: trans("componentDoc.favoriteFruits"),
+            },
+            allowClear: true,
+            showSearch: false,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={SelectComp}
+        />
       </ExampleGroup>
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example

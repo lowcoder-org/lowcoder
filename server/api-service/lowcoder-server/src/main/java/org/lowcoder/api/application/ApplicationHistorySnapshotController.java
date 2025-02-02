@@ -10,14 +10,17 @@ import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshot;
 import org.lowcoder.domain.application.model.ApplicationHistorySnapshotTS;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.service.ResourcePermissionService;
+import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -37,6 +40,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
     private final SessionUserService sessionUserService;
     private final UserService userService;
     private final ApplicationService applicationService;
+    private final ApplicationRecordService applicationRecordService;
 
     @Override
     public Mono<ResponseView<Boolean>> create(@RequestBody ApplicationHistorySnapshotRequest request) {
@@ -54,7 +58,7 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
 
     @Override
     public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfo(@PathVariable String applicationId,
-            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam String compName,
             @RequestParam String theme,
@@ -67,43 +71,6 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
                         ResourceAction.EDIT_APPLICATIONS))
                 .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfo(applicationId, compName, theme, from, to, pagination.toPageRequest()))
-                .flatMap(snapshotList -> {
-                    Mono<List<ApplicationHistorySnapshotBriefInfo>> snapshotBriefInfoList = multiBuild(snapshotList,
-                            ApplicationHistorySnapshotTS::getCreatedBy,
-                            userService::getByIds,
-                            (applicationHistorySnapshotTS, user) -> new ApplicationHistorySnapshotBriefInfo(
-                                    applicationHistorySnapshotTS.getId(),
-                                    applicationHistorySnapshotTS.getContext(),
-                                    applicationHistorySnapshotTS.getCreatedBy(),
-                                    user.getName(),
-                                    user.getAvatarUrl(),
-                                    applicationHistorySnapshotTS.getCreatedAt().toEpochMilli()
-                            )
-                    );
-
-                    Mono<Long> applicationHistorySnapshotCount = applicationHistorySnapshotService.countByApplicationId(applicationId);
-
-                    return Mono.zip(snapshotBriefInfoList, applicationHistorySnapshotCount)
-                            .map(tuple -> ImmutableMap.of("list", tuple.getT1(), "count", tuple.getT2()));
-                })
-                .map(ResponseView::success);
-    }
-
-    @Override
-    public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfoArchived(@PathVariable String applicationId,
-                                                                                   @RequestParam(defaultValue = "0") int page,
-                                                                                   @RequestParam(defaultValue = "10") int size,
-                                                                                   @RequestParam String compName,
-                                                                                   @RequestParam String theme,
-                                                                                   @RequestParam Instant from,
-                                                                                   @RequestParam Instant to) {
-
-        Pagination pagination = Pagination.of(page, size).check();
-
-        return sessionUserService.getVisitorId()
-                .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
-                        ResourceAction.EDIT_APPLICATIONS))
-                .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfoArchived(applicationId, compName, theme, from, to, pagination.toPageRequest()))
                 .flatMap(snapshotList -> {
                     Mono<List<ApplicationHistorySnapshotBriefInfo>> snapshotBriefInfoList = multiBuild(snapshotList,
                             ApplicationHistorySnapshot::getCreatedBy,
@@ -127,23 +94,63 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
     }
 
     @Override
+    public Mono<ResponseView<Map<String, Object>>> listAllHistorySnapshotBriefInfoArchived(@PathVariable String applicationId,
+                                                                                   @RequestParam(defaultValue = "1") int page,
+                                                                                   @RequestParam(defaultValue = "10") int size,
+                                                                                   @RequestParam String compName,
+                                                                                   @RequestParam String theme,
+                                                                                   @RequestParam Instant from,
+                                                                                   @RequestParam Instant to) {
+
+        Pagination pagination = Pagination.of(page, size).check();
+
+        return sessionUserService.getVisitorId()
+                .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
+                        ResourceAction.EDIT_APPLICATIONS))
+                .flatMap(__ -> applicationHistorySnapshotService.listAllHistorySnapshotBriefInfoArchived(applicationId, compName, theme, from, to, pagination.toPageRequest()))
+                .flatMap(snapshotList -> {
+                    Mono<List<ApplicationHistorySnapshotBriefInfo>> snapshotBriefInfoList = multiBuild(snapshotList,
+                            ApplicationHistorySnapshotTS::getCreatedBy,
+                            userService::getByIds,
+                            (applicationHistorySnapshotTS, user) -> new ApplicationHistorySnapshotBriefInfo(
+                                    applicationHistorySnapshotTS.getId(),
+                                    applicationHistorySnapshotTS.getContext(),
+                                    applicationHistorySnapshotTS.getCreatedBy(),
+                                    user.getName(),
+                                    user.getAvatarUrl(),
+                                    applicationHistorySnapshotTS.getCreatedAt().toEpochMilli()
+                            )
+                    );
+
+                    Mono<Long> applicationHistorySnapshotCount = applicationHistorySnapshotService.countByApplicationIdArchived(applicationId);
+
+                    return Mono.zip(snapshotBriefInfoList, applicationHistorySnapshotCount)
+                            .map(tuple -> ImmutableMap.of("list", tuple.getT1(), "count", tuple.getT2()));
+                })
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<HistorySnapshotDslView>> getHistorySnapshotDsl(@PathVariable String applicationId,
             @PathVariable String snapshotId) {
         return sessionUserService.getVisitorId()
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
                         ResourceAction.EDIT_APPLICATIONS))
                 .flatMap(__ -> applicationHistorySnapshotService.getHistorySnapshotDetail(snapshotId))
-                .map(ApplicationHistorySnapshotTS::getDsl)
+                .map(ApplicationHistorySnapshot::getDsl)
                 .zipWhen(applicationService::getAllDependentModulesFromDsl)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     Map<String, Object> applicationDsl = tuple.getT1();
                     List<Application> dependentModules = tuple.getT2();
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, Application::getLiveApplicationDsl, (a, b) -> b));
-                    return HistorySnapshotDslView.builder()
-                            .applicationsDsl(applicationDsl)
-                            .moduleDSL(dependentModuleDsl)
-                            .build();
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), dsl)))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .map(dependentModuleDsl ->
+                                HistorySnapshotDslView.builder()
+                                    .applicationsDsl(applicationDsl)
+                                    .moduleDSL(dependentModuleDsl)
+                                    .build());
                 })
                 .map(ResponseView::success);
     }
@@ -155,17 +162,20 @@ public class ApplicationHistorySnapshotController implements ApplicationHistoryS
                 .delayUntil(visitor -> resourcePermissionService.checkResourcePermissionWithError(visitor, applicationId,
                         ResourceAction.EDIT_APPLICATIONS))
                 .flatMap(__ -> applicationHistorySnapshotService.getHistorySnapshotDetailArchived(snapshotId))
-                .map(ApplicationHistorySnapshot::getDsl)
+                .map(ApplicationHistorySnapshotTS::getDsl)
                 .zipWhen(applicationService::getAllDependentModulesFromDsl)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     Map<String, Object> applicationDsl = tuple.getT1();
                     List<Application> dependentModules = tuple.getT2();
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, Application::getLiveApplicationDsl, (a, b) -> b));
-                    return HistorySnapshotDslView.builder()
-                            .applicationsDsl(applicationDsl)
-                            .moduleDSL(dependentModuleDsl)
-                            .build();
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), dsl)))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .map(dependentModuleDsl ->
+                                HistorySnapshotDslView.builder()
+                                    .applicationsDsl(applicationDsl)
+                                    .moduleDSL(dependentModuleDsl)
+                                    .build());
                 })
                 .map(ResponseView::success);
     }

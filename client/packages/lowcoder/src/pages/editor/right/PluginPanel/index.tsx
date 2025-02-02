@@ -11,6 +11,7 @@ import { getNpmPackageMeta, normalizeNpmPackage, validateNpmPackage } from "comp
 import { ComListTitle, ExtensionContentWrapper } from "../styledComponent";
 import { EmptyContent } from "components/EmptyContent";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const Footer = styled.div`
   display: flex;
@@ -25,6 +26,7 @@ export default function PluginPanel() {
   const [newPluginName, setNewPluginName] = useState("");
   const user = useSelector(getUser);
   const commonSettings = useSelector(getCommonSettings);
+  const isPublicApp = useSelector(isPublicApplication);
 
   const plugins = useMemo(
     () =>
@@ -40,6 +42,7 @@ export default function PluginPanel() {
     dispatch(
       setCommonSettings({
         orgId: user.currentOrgId,
+        isPublicApp,
         data: {
           key: "npmPlugins",
           value: nextNpmPlugins,

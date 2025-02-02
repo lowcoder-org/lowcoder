@@ -4,7 +4,7 @@ import { ConfigItem, Radius, Margin, Padding, GridColumns, BorderWidth, BorderSt
 import { isValidColor, isValidGradient, toHex } from "components/colorSelect/colorUtils";
 import { ColorSelect } from "components/colorSelect";
 import { TacoInput } from "components/tacoInput";
-import { Slider, Switch } from "antd";
+import { Segmented, Slider, Switch } from "antd";
 import { 
   ExpandIcon, 
   CompressIcon,
@@ -28,6 +28,7 @@ export type configChangeParams = {
   components?: Record<string, object>,
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  dataLoadingIndicator?: string;
   gridColumns?: string;
   gridRowHeight?: string;
   gridRowCount?: number;
@@ -58,6 +59,7 @@ type ColorConfigProps = {
   padding?: string;
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  dataLoadingIndicator?: string;
   gridColumns?: string;
   gridRowHeight?: string;
   gridRowCount?: number;
@@ -87,6 +89,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
     fontFamily: defaultFontFamily,
     showComponentLoadingIndicators: defaultShowComponentLoaders,
     showDataLoadingIndicators: defaultShowDataLoaders,
+    dataLoadingIndicator: defaultDataLoadingIndicator,
     gridColumns: defaultGridColumns,
     gridRowHeight: defaultGridRowHeight,
     gridRowCount: defaultGridRowCount,
@@ -110,6 +113,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   const [fontFamily, setFontFamily] = useState(defaultFontFamily);
   const [showComponentLoaders, setComponentLoaders] = useState(defaultShowComponentLoaders);
   const [showDataLoaders, setDataLoaders] = useState(defaultShowDataLoaders);
+  const [dataLoadingIndicator, setDataLoadingIndicator] = useState(defaultDataLoadingIndicator);
   const [gridColumns, setGridColumns] = useState(defaultGridColumns); 
   const [gridRowHeight, setGridRowHeight] = useState(defaultGridRowHeight); 
   const [gridRowCount, setGridRowCount] = useState(defaultGridRowCount); 
@@ -347,6 +351,10 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
   }, [defaultShowDataLoaders]);
 
   useEffect(() => {
+    setDataLoadingIndicator(defaultDataLoadingIndicator);
+  }, [defaultDataLoadingIndicator]);
+
+  useEffect(() => {
     setGridPaddingX(defaultGridPaddingX);
   }, [defaultGridPaddingX]);
 
@@ -375,6 +383,7 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         themeSettingKey !== "fontFamily" && 
         themeSettingKey !== "showComponentLoadingIndicators" && 
         themeSettingKey !== "showDataLoadingIndicators" &&
+        themeSettingKey !== "dataLoadingIndicator" &&
         themeSettingKey !== "gridColumns" &&
         themeSettingKey !== "gridRowHeight" &&
         themeSettingKey !== "gridRowCount" &&
@@ -551,6 +560,25 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
         </div>
       )}
 
+      {themeSettingKey === "dataLoadingIndicator" && (
+        <div style={{
+          marginTop: '6px',
+        }}>
+          <Segmented
+            block
+            value={dataLoadingIndicator}
+            options={[
+              { value: 'spinner', label: 'Spinner' },
+              { value: 'skeleton', label: 'Skeleton' },
+            ]}
+            onChange={(value) => {
+              setDataLoadingIndicator(value)
+              configChange({ themeSettingKey, dataLoadingIndicator: value});
+            }}
+          />
+        </div>
+      )}
+
       {themeSettingKey === "gridColumns" && (
         <div className="config-input">
           <GridColumns $gridColumns={defaultGridColumns || "24"}>
@@ -576,8 +604,8 @@ export default function ThemeSettingsSelector(props: ColorConfigProps) {
 
           <Slider 
             style={{ width: "90%", margin: "8px 5% 0 5%"}}
-            min={6}  // Define the minimum value for the slider
-            max={20} // Define the maximum value for the slider
+            min={4}  // Define the minimum value for the slider
+            max={100} // Define the maximum value for the slider
             value={parseInt(gridRowHeight || "8")}
             onChange={(value) => setGridRowHeight(value.toString())}
             onChangeComplete={(value) => gridSizeInputBlur(value.toString())}

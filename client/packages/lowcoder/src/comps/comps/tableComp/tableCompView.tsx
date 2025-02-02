@@ -772,6 +772,7 @@ export function TableCompView(props: {
   const rowStyle = compChildren.rowStyle.getView();
   const headerStyle = compChildren.headerStyle.getView();
   const toolbarStyle = compChildren.toolbarStyle.getView();
+  const hideToolbar = compChildren.hideToolbar.getView()
   const rowAutoHeight = compChildren.rowAutoHeight.getView();
   const tableAutoHeight = comp.getTableAutoHeight();
   const showHorizontalScrollbar = compChildren.showHorizontalScrollbar.getView();
@@ -935,7 +936,7 @@ export function TableCompView(props: {
     [viewMode, compChildren.onEvent, compChildren.columns]
   );
 
-  const toolbarView = (
+  const toolbarView = !hideToolbar && (
     <TableToolbar
       toolbar={toolbar}
       $style={toolbarStyle}
@@ -989,7 +990,7 @@ export function TableCompView(props: {
   const hideScrollbar = !showHorizontalScrollbar && !showVerticalScrollbar;
   const showTableLoading = loading ||
     // fixme isLoading type
-    ((showDataLoadingIndicators || compChildren.showDataLoadSpinner.getView()) &&
+    ((showDataLoadingIndicators) &&
       (compChildren.data as any).isLoading()) ||
     compChildren.loading.getView();
 
@@ -1003,7 +1004,7 @@ export function TableCompView(props: {
         $showVerticalScrollbar={showVerticalScrollbar}
         $fixedToolbar={toolbar.fixedToolbar}
       >
-        {toolbar.position === "above" && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
+        {toolbar.position === "above" && !hideToolbar && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
         <ScrollBar
           className="table-scrollbar-wrapper"
           style={{ height: "100%", margin: "0px", padding: "0px" }}
@@ -1068,7 +1069,7 @@ export function TableCompView(props: {
             </SlotConfigContext.Provider>
           </TableWrapper>
         </ScrollBar>
-        {toolbar.position === "below" && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
+        {toolbar.position === "below" && !hideToolbar && (toolbar.fixedToolbar || (tableAutoHeight && showHorizontalScrollbar)) && toolbarView}
       </BackgroundWrapper>
 
     </BackgroundColorContext.Provider>

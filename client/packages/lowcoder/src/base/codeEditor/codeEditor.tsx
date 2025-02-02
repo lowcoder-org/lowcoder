@@ -220,11 +220,13 @@ function useCodeMirror(
   const showLineNum = props.showLineNum ?? getStyle(props.styleName).showLineNum;
 
   const handleChange = useCallback(
-    debounce((state: EditorState) => {
+    (state: EditorState) => {
       window.clearTimeout(isTypingRef.current);
-      isTypingRef.current = window.setTimeout(() => (isTypingRef.current = 0), 100);
-      onChange?.(state);
-    }, 1000)
+      isTypingRef.current = window.setTimeout(() => {
+        isTypingRef.current = 0;
+        onChange?.(state);
+      }, 500);
+    }
     , [onChange]
   );
 

@@ -36,6 +36,20 @@ export default function RangeSliderExample() {
           }}
           compFactory={RangeSliderComp}
         />
+        <Example
+          title={trans("componentDoc.default")}
+          config={{
+            value: "60",
+            disabled: "false",
+            start: "10",
+            end: "70",
+            min: "0",
+            max: "100",
+            step: "10",
+            vertical: true,
+          }}
+          compFactory={RangeSliderComp}
+        />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.labelText")} description="">

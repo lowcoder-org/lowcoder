@@ -8,11 +8,12 @@ import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
-import { AutoHeightControl, BoolControl } from "@lowcoder-ee/index.sdk";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AutoHeightControl } from "../controls/autoHeightControl";
+import { BoolControl } from "../controls/boolControl";
 
 const getStyle = (style: FileViewerStyleType) => {
   return css`
@@ -111,6 +112,7 @@ let FileViewerBasicComp = (function () {
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           <Section name={sectionNames.layout}>

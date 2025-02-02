@@ -4,6 +4,7 @@ import java.util.List;
 
 import jakarta.validation.Valid;
 
+import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.OrgView;
@@ -44,7 +45,9 @@ public interface OrganizationEndpoints
 		    description = "Get a list of specified user's organization"
 	)
     @GetMapping("/byuser/{email}")
-    public Mono<ResponseView<List<OrgView>>> getOrganizationByUser(@PathVariable String email);
+    public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
+														   @RequestParam(required = false, defaultValue = "1") Integer pageNum,
+														   @RequestParam(required = false, defaultValue = "0") Integer pageSize);
 
 	@Operation(
 			tags = TAG_ORGANIZATION_MANAGEMENT,
@@ -92,8 +95,8 @@ public interface OrganizationEndpoints
 	)
     @GetMapping("/{orgId}/members")
     public Mono<ResponseView<OrgMemberListView>> getOrgMembers(@PathVariable String orgId,
-            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
-            @RequestParam(name = "count", required = false, defaultValue = "1000") int count);
+            @RequestParam(required = false, defaultValue = "1") int pageNum,
+            @RequestParam(required = false, defaultValue = "1000") int pageSize);
 
 	@Operation(
 			tags = TAG_ORGANIZATION_MEMBERS,
@@ -177,6 +180,9 @@ public interface OrganizationEndpoints
 	)
 	@GetMapping("/{orgId}/api-usage")
 	public Mono<ResponseView<Long>> getOrgApiUsageCount(@PathVariable String orgId, @RequestParam(required = false) Boolean lastMonthOnly);
+
+	@PutMapping("/{orgId}/slug")
+    Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug);
 
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 

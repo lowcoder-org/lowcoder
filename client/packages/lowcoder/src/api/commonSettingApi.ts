@@ -24,6 +24,7 @@ export interface CommonSettingResponseData {
 
 export type SetCommonSettingPayload<T = any> = {
   orgId: string;
+  isPublicApp?: boolean;
   data: {
     key: string;
     value: T;
@@ -52,6 +53,7 @@ export interface ThemeDetail {
   borderStyle?: string;
   chart?: string;
   margin?: string;
+  direction?: string;
   padding?: string;
   gridPaddingX?: number;
   gridPaddingY?: number;
@@ -77,6 +79,7 @@ export interface ThemeDetail {
   components?: Record<string, JSONObject>;
   showComponentLoadingIndicators?: boolean;
   showDataLoadingIndicators?: boolean;
+  dataLoadingIndicator?: string;
 }
 
 export function getThemeDetailName(key: keyof ThemeDetail) {
@@ -91,7 +94,8 @@ export function getThemeDetailName(key: keyof ThemeDetail) {
     case "borderWidth": return trans("themeDetail.borderWidth");
     case "borderStyle": return trans("themeDetail.borderStyle");
     case "fontFamily": return trans("themeDetail.fontFamily");
-    case "margin": return trans("style.margin");	
+    case "margin": return trans("style.margin");
+    case "direction": return trans("style.direction");
     case "padding":	return trans("style.padding");
     case "gridColumns": return trans("themeDetail.gridColumns");
     case "textSize": return trans("style.textSize");
@@ -114,7 +118,8 @@ export function isThemeColorKey(key: string) {
     case "borderWidth":
     case "borderStyle":
     case "fontFamily":
-    case "margin":	
+    case "margin":
+    case "direction":
     case "padding":
     case "gridColumns":
     case "textSize":

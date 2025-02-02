@@ -63,7 +63,7 @@ public class SuggestAppAdminSolutionServiceImpl implements SuggestAppAdminSoluti
 
         Set<String> adminUserIdSet = newHashSet(adminUserIds);
         return Flux.fromIterable(adminGroupIds)
-                .flatMap(groupId -> groupMemberService.getGroupMembers(groupId, 1, 100))
+                .flatMap(groupMemberService::getGroupMembers)
                 .flatMapIterable(list -> list)
                 .map(GroupMember::getUserId)
                 .filter(it -> !adminUserIdSet.contains(it))

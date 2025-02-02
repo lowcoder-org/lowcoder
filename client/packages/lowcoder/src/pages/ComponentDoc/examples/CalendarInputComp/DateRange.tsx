@@ -72,6 +72,7 @@ export default function DateRangeExample() {
           compFactory={DateRangeComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
           title={trans("componentDoc.leftLeftAlign")}
@@ -132,6 +133,7 @@ export default function DateRangeExample() {
           compFactory={DateRangeComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")}>
         <Example
           title={trans("componentDoc.required")}
@@ -159,6 +161,37 @@ export default function DateRangeExample() {
             },
             minDate: "2022-03-01",
             maxDate: "2022-04-01",
+          }}
+          nameMap={nameMap}
+          blackListConfig={blackListConfig.slice(0, 3)}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Show Time"
+          config={{
+            required: true,
+            showTime: true,
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          nameMap={nameMap}
+          blackListConfig={blackListConfig.slice(0, 3)}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Show Time ( 12 hours format )"
+          config={{
+            required: true,
+            showTime: true,
+            use12Hours: true,
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
           }}
           nameMap={nameMap}
           blackListConfig={blackListConfig.slice(0, 3)}

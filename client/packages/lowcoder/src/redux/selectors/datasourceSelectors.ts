@@ -6,6 +6,10 @@ export const getDataSource = (state: AppState) => {
   return state.entities.datasource.data;
 };
 
+export const getDataSourceLoading = (state: AppState) => {
+  return state.entities.datasource.loadingStates.fetchingDatasources;
+};
+
 export const getDataSourceTypes = (state: AppState) => {
   return state.entities.plugins.data;
 };

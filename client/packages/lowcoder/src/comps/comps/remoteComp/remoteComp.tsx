@@ -16,7 +16,7 @@ import { CompContext } from "@lowcoder-ee/comps/utils/compContext";
 import React from "react";
 import type { AppState } from "@lowcoder-ee/redux/reducers";
 import { useSelector } from "react-redux";
-import { useApplicationId } from "@lowcoder-ee/util/hooks";
+import { ExternalEditorContext } from "@lowcoder-ee/util/context/ExternalEditorContext";
 
 const ViewError = styled.div`
   display: flex;
@@ -63,7 +63,8 @@ const RemoteCompView = React.memo((props: React.PropsWithChildren<RemoteCompView
   const [error, setError] = useState<any>("");
   const editorState = useContext(EditorContext);
   const compState = useContext(CompContext);
-  const appId = useApplicationId();
+  const externalEditorState = useContext(ExternalEditorContext);
+  const appId = externalEditorState.applicationId;
   const lowcoderCompPackageVersion = editorState?.getAppSettings().lowcoderCompVersion || 'latest';
   const latestLowcoderCompsVersion = useSelector((state: AppState) => state.npmPlugin.packageVersion['lowcoder-comps']);
 

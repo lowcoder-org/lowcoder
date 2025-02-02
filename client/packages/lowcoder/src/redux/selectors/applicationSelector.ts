@@ -1,5 +1,6 @@
 import { AppState } from "redux/reducers";
 import { ApplicationMeta, AppPermissionInfo } from "constants/applicationConstants";
+import { PUBLIC_APP_ID } from "@lowcoder-ee/constants/publicApp";
 
 export const normalAppListSelector = (state: AppState): ApplicationMeta[] =>
   state.ui.application.applicationList.filter((app) => app.applicationStatus === "NORMAL");
@@ -42,4 +43,13 @@ export const isApplicationPublishing = (state: AppState): boolean => {
 
 export const getTemplateId = (state: AppState): any => {
   return state.ui.application.templateId;
+};
+
+export const getServerSettings = (state: AppState): Record<string,string> => {
+  return state.ui.application.serverSettings || {};
+}
+
+// an app to work on public editor
+export const isPublicApplication = (state: AppState): boolean => {
+  return state.ui.application.currentApplication?.applicationId === PUBLIC_APP_ID
 };

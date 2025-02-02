@@ -61,6 +61,7 @@ const childrenMap = {
   onEvent: eventHandlerControl(EVENT_OPTIONS),
   disabled: BoolCodeControl,
   showHeader: withDefault(BoolControl, true),
+  destroyInactiveTab: withDefault(BoolControl, false),
   style: styleControl(TabContainerStyle , 'style'),
   headerStyle: styleControl(ContainerHeaderStyle , 'headerStyle'),
   bodyStyle: styleControl(TabBodyStyle , 'bodyStyle'),
@@ -196,6 +197,7 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     headerStyle,
     bodyStyle,
     horizontalGridCells,
+    destroyInactiveTab,
   } = props;
 
   const visibleTabs = tabs.filter((tab) => !tab.hidden);
@@ -242,7 +244,8 @@ const TabbedContainer = (props: TabbedContainerProps) => {
     return {
       label,
       key: tab.key,                                                                            
-      forceRender: true,
+      forceRender: !destroyInactiveTab,
+      destroyInactiveTabPane: destroyInactiveTab,
       children: (
         <BackgroundColorContext.Provider value={bodyStyle.background}>
           <ScrollBar style={{ height: props.autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={!props.showVerticalScrollbar} overflow={props.autoHeight ? 'hidden':'scroll'}>
@@ -315,8 +318,9 @@ export const TabbedContainerBaseComp = (function () {
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
-              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
               {hiddenPropertyView(children)}
+              {children.showHeader.propertyView({ label: trans("tabbedContainer.showTabs") })}
+              {children.destroyInactiveTab.propertyView({ label: trans("tabbedContainer.destroyInactiveTab") })}
             </Section>
           )}
 

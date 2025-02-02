@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { trans } from "i18n";
 import { searchCustomerTickets, createTicket } from "@lowcoder-ee/api/supportApi";
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Helmet } from "react-helmet";
 import { useUserDetails } from "./useUserDetails";
 import StepModal from "components/StepModal";
@@ -14,7 +14,11 @@ import { Input } from "antd";
 import ReactQuill from "react-quill";
 import 'react-quill/dist/quill.snow.css';
 import { Spin } from "antd";
-
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
+import { useSimpleSubscriptionContext } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
+import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { useSelector } from "react-redux";
 
 const SupportWrapper = styled.div`
   display: flex;
@@ -95,6 +99,17 @@ const toolbarOptions = [
   [{ 'align': [] }] // Text alignment
 ];
 
+const getStatusColor = (statusName: string) => {
+  if (statusName.toLowerCase() === "to do") {
+    return "red";
+  } else if (statusName.toLowerCase().includes("in progress")) {
+    return "orange";
+  } else if (statusName.toLowerCase() === "done") {
+    return "green";
+  }
+  return "#8b8fa3"; // Default color if no match
+};
+
 
 function formatDateToMinute(dateString: string): string {
   // Create a Date object from the string
@@ -117,7 +132,7 @@ const handleEditClick = (ticketId: string) => {
 };
 
 export function SupportOverview() {
-  const { orgID, currentUser, domain } = useUserDetails();
+  const { orgID, orgName, currentUser, domain } = useUserDetails();
   const [supportTickets, setSupportTickets] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +144,12 @@ export function SupportOverview() {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isReloadDisabled, setIsReloadDisabled] = useState<boolean>(false); // State to disable/enable reload button
   const [lastReloadTime, setLastReloadTime] = useState<number | null>(null);
+  const { subscriptions } = useSimpleSubscriptionContext();
+  const deploymentId = useSelector(getDeploymentId);
+
+  const SupportSubscription = subscriptions.filter(
+    sub => sub.product === SubscriptionProductsEnum.SUPPORT && sub.status === 'active'
+  );
 
   // Capture global errors using window.onerror
   useEffect(() => {
@@ -150,7 +171,7 @@ export function SupportOverview() {
   const fetchSupportTickets = async () => {
     setLoading(true); // Set loading to true while fetching data
     try {
-      const ticketData = await searchCustomerTickets(orgID, currentUser.id, domain);
+      const ticketData = await searchCustomerTickets(deploymentId, orgID, currentUser.id);
       setSupportTickets(ticketData);
     } catch (err) {
       setError("Failed to fetch support tickets.");
@@ -179,15 +200,16 @@ export function SupportOverview() {
     }
   };
 
-  const filteredTickets = supportTickets.filter((ticket: any) => {
-    if (searchValue) {
+  const filteredTickets = useMemo(() => {
+    if (!Boolean(searchValue)) return supportTickets;
+
+    return supportTickets.filter((ticket: any) => {
       return (
-        ticket.title.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
-        ticket.description.toLowerCase().includes(searchValue.trim().toLowerCase())
-      );
-    }
-    return true;
-  });
+        ticket.title?.toLowerCase().includes(searchValue.trim().toLowerCase()) ||
+        ticket.description?.toLowerCase().includes(searchValue.trim().toLowerCase())
+      )
+    });
+  }, [searchValue, supportTickets]);
 
   const handleCreateTicket = async () => {
     if (summary.length > 150) {
@@ -197,7 +219,7 @@ export function SupportOverview() {
 
     setIsSubmitting(true); 
     try {
-      const result = await createTicket(orgID, currentUser.id, 'subscription-id', domain, summary, description, capturedErrors.join("\n"));
+      const result = await createTicket(domain, deploymentId, orgID, orgName, currentUser.id, SupportSubscription[0]?.id, summary, description, capturedErrors.join("\n"));
       if (result) {
         showCreateForm(false);
         setSummary("");
@@ -262,8 +284,9 @@ export function SupportOverview() {
                       buttonType={summary ? "primary" : "normal"}
                       onClick={handleCreateTicket}
                       disabled={isSubmitting || !summary}
+                      loading={isSubmitting}
                     >
-                      {isSubmitting ? <Spin /> : trans("support.createTicketSubmit")}
+                      {trans("support.createTicketSubmit")}
                     </TacoButton>
                     <div>
                       <div style={{ margin: "20px 0 0 0" }}>{trans("support.createTicketInfoText")}</div>
@@ -293,7 +316,10 @@ export function SupportOverview() {
         </HeaderWrapper>
         <BodyWrapper>
             <StyledTable
-              loading={loading}
+              loading={{
+                spinning: loading,
+                indicator: <LoadingOutlined spin style={{ fontSize: 30 }} />
+              }}
               rowClassName="datasource-can-not-edit"
               tableLayout={"auto"}
               scroll={{ x: "100%" }}
@@ -326,7 +352,7 @@ export function SupportOverview() {
                         }>
                         <Avatar src={assignee.avatar} alt={assignee.email} />
                       </Tooltip>
-                      <StatusDot active={assignee.active} />
+                      <StatusDot active={assignee.active.toString()} />
                     </SubColumnCell>
                   ),
                 },
@@ -336,7 +362,11 @@ export function SupportOverview() {
                   ellipsis: true,
                   width: "220px",
                   sorter: (a: any, b: any) => a.status.name.localeCompare(b.status.name),
-                  render: (status: any) => <SubColumnCell>{status.name}</SubColumnCell>,
+                  render: (status: any) => (
+                    <SubColumnCell style={{ color: getStatusColor(status.name) }}>
+                      {status.name}
+                    </SubColumnCell>
+                  ),
                 },
                 {
                   title: trans("support.updatedTime"),

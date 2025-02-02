@@ -69,7 +69,7 @@ const StyleNewsContent = styled.div`
     }
 `;
 
-var devNetLink = "https://prod-us1.openflower.org/apps/67321bec4671ef070cff80d7/view?template=1";
+var devNetLink = "https://flower-us1.bitwebservices.com/apps/674b66e92e2ca82a90890f3f/view";
 const buildId = REACT_APP_BUILD_ID;
 
 if (buildId) {

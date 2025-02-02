@@ -19,6 +19,15 @@ export default function ButtonExample() {
           compFactory={TextAreaComp}
         />
         <Example
+          title="Default Value"
+          config={{
+            placeholder: trans("componentDoc.pleaseInputName"),
+            disabled: false,
+            defaultValue: "Enter your details!",
+          }}
+          compFactory={TextAreaComp}
+        />
+        <Example
           title={trans("componentDoc.disabled")}
           config={{
             placeholder: trans("componentDoc.pleaseInputName"),
@@ -54,6 +63,7 @@ export default function ButtonExample() {
           compFactory={TextAreaComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")} description="">
         <Example
           title={trans("componentDoc.required")}
@@ -76,7 +86,20 @@ export default function ButtonExample() {
           }}
           compFactory={TextAreaComp}
         />
+        <Example
+          title="Show Clear Button & Show Validation on Empty/Reset"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            defaultValue: "Enter your details",
+            required: true,
+            allowClear: true,
+            showValidationWhenEmpty: true,
+          }}
+          compFactory={TextAreaComp}
+        />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.autoHeight")} description="">
         <Example
           title={trans("componentDoc.fixed")}
@@ -84,6 +107,7 @@ export default function ButtonExample() {
           config={{
             label: { text: trans("componentDoc.userName") },
             autoHeight: "fixed",
+            textAreaScrollBar: true,
           }}
           compFactory={TextAreaComp}
         />

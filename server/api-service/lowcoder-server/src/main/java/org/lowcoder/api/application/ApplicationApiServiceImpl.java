@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.bizthreshold.AbstractBizThresholdChecker;
 import org.lowcoder.api.home.FolderApiService;
@@ -23,9 +24,11 @@ import org.lowcoder.api.permission.view.PermissionItemView;
 import org.lowcoder.api.usermanagement.OrgDevChecker;
 import org.lowcoder.domain.application.model.*;
 import org.lowcoder.domain.application.service.ApplicationHistorySnapshotService;
+import org.lowcoder.domain.application.service.ApplicationRecordService;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
+import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.interaction.UserApplicationInteractionService;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.service.OrgMemberService;
@@ -91,6 +94,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     private final PermissionHelper permissionHelper;
     private final DatasourceService datasourceService;
     private final ApplicationHistorySnapshotService applicationHistorySnapshotService;
+    private final ApplicationRecordService applicationRecordService;
+    private final FolderElementRelationService folderElementRelationService;
 
     @Override
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
@@ -100,7 +105,6 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
-                createApplicationRequest.publishedApplicationDSL(),
                 createApplicationRequest.editingApplicationDSL(),
                 false, false, false, "", Instant.now());
 
@@ -169,8 +173,8 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Flux<ApplicationInfoView> getRecycledApplications(String name) {
-        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name);
+    public Flux<ApplicationInfoView> getRecycledApplications(String name, String category) {
+        return userHomeApiService.getAllAuthorisedApplications4CurrentOrgMember(null, ApplicationStatus.RECYCLED, false, name, category);
     }
 
     private Mono<Void> checkCurrentUserApplicationPermission(String applicationId, ResourceAction action) {
@@ -183,10 +187,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         return checkApplicationStatus(applicationId, ApplicationStatus.RECYCLED)
                 .then(updateApplicationStatus(applicationId, ApplicationStatus.DELETED))
                 .then(applicationService.findById(applicationId))
-                .map(application -> ApplicationView.builder()
-                        .applicationInfoView(buildView(application))
+                .flatMap(application -> buildView(application).map(appInfoView -> ApplicationView.builder()
+                        .applicationInfoView(appInfoView)
                         .applicationDSL(application.getEditingApplicationDSL())
-                        .build());
+                        .build()));
     }
 
     @Override
@@ -262,15 +266,19 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                     List<Application> dependentModules = tuple.getT3();
                     Map<String, Object> commonSettings = tuple.getT4();
 
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, Application::getLiveApplicationDsl, (a, b) -> b));
-                    return applicationService.updateById(applicationId, application).map(__ ->
-                        ApplicationView.builder()
-                            .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                            .applicationDSL(application.getEditingApplicationDSL())
-                            .moduleDSL(dependentModuleDsl)
-                            .orgCommonSettings(commonSettings)
-                            .build());
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .flatMap(dependentModuleDsl ->
+                                applicationService.updateById(applicationId, application).flatMap(__ ->
+                                    buildView(application, permission.getResourceRole().getValue()).map(appInfoView ->
+                                        ApplicationView.builder()
+                                            .applicationInfoView(appInfoView)
+                                            .applicationDSL(application.getEditingApplicationDSL())
+                                            .moduleDSL(dependentModuleDsl)
+                                            .orgCommonSettings(commonSettings)
+                                            .build())));
                 });
     }
 
@@ -283,24 +291,30 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .zipWith(getTemplateIdFromApplicationId(applicationId), TupleUtils::merge)
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     ResourcePermission permission = tuple.getT1();
                     Application application = tuple.getT2();
                     List<Application> dependentModules = tuple.getT3();
                     Map<String, Object> commonSettings = tuple.getT4();
                     String templateId = tuple.getT5();
-                    Map<String, Map<String, Object>> dependentModuleDsl = dependentModules.stream()
-                            .collect(Collectors.toMap(Application::getId, app -> sanitizeDsl(app.getLiveApplicationDsl()), (a, b) -> b));
-                    return ApplicationView.builder()
-                            .applicationInfoView(buildView(application, permission.getResourceRole().getValue()))
-                            .applicationDSL(sanitizeDsl(application.getLiveApplicationDsl()))
-                            .moduleDSL(dependentModuleDsl)
-                            .orgCommonSettings(commonSettings)
-                            .templateId(templateId)
-                            .build();
+                    return Flux.fromIterable(dependentModules)
+                            .flatMap(app -> app.getLiveApplicationDsl(applicationRecordService)
+                                    .map(dsl -> Map.entry(app.getId(), sanitizeDsl(dsl))))
+                            .collectMap(Map.Entry::getKey, Map.Entry::getValue)
+                            .flatMap(dependentModuleDsl ->
+                                application.getLiveApplicationDsl(applicationRecordService).flatMap(liveDsl ->
+                                    buildView(application, permission.getResourceRole().getValue()).map(appInfoView ->
+                                        ApplicationView.builder()
+                                            .applicationInfoView(appInfoView)
+                                            .applicationDSL(sanitizeDsl(liveDsl))
+                                            .moduleDSL(dependentModuleDsl)
+                                            .orgCommonSettings(commonSettings)
+                                            .templateId(templateId)
+                                            .build()))
+                            );
                 })
                 .delayUntil(applicationView -> {
-                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.COMPOUND_APPLICATION.getValue()) {
+                    if (applicationView.getApplicationInfoView().getApplicationType() == ApplicationType.NAV_LAYOUT.getValue()) {
                         return compoundApplicationDslFilter.removeSubAppsFromCompoundDsl(applicationView.getApplicationDSL());
                     }
                     return Mono.empty();
@@ -336,10 +350,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                         applicationId, EDIT_APPLICATIONS))
                 .delayUntil(__ -> checkDatasourcePermissions(application))
                 .flatMap(permission -> doUpdateApplication(applicationId, application)
-                        .map(applicationUpdated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
+                        .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
-                                .build()));
+                                .build())));
     }
 
     private Mono<Application> doUpdateApplication(String applicationId, Application application) {
@@ -352,16 +366,24 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> publish(String applicationId) {
+    public Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest) {
         return checkApplicationStatus(applicationId, NORMAL)
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, PUBLISH_APPLICATIONS))
-                .flatMap(permission -> applicationService.publish(applicationId)
-                        .map(applicationUpdated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationUpdated, permission.getResourceRole().getValue()))
-                                .applicationDSL(applicationUpdated.getLiveApplicationDsl())
-                                .build()));
+                .delayUntil(__ -> applicationService.findById(applicationId)
+                        .map(application -> ApplicationVersion.builder()
+                                .tag(applicationPublishRequest.tag())
+                                .commitMessage(applicationPublishRequest.commitMessage())
+                                .applicationId(application.getId())
+                                .applicationDSL(application.getEditingApplicationDSL())
+                                .build())
+                        .flatMap(applicationRecordService::insert))
+                .flatMap(permission -> applicationService.findById(applicationId)
+                        .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
+                                .applicationDSL(applicationUpdated.getEditingApplicationDSL())
+                                .build())));
     }
 
     @Override
@@ -454,10 +476,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .delayUntil(orgMember -> orgDevChecker.checkCurrentOrgDev())
                 .delayUntil(bizThresholdChecker::checkMaxOrgApplicationCount)
                 .flatMap(orgMember -> templateSolutionService.createFromTemplate(templateId, orgMember.getOrgId(), orgMember.getUserId())
-                        .map(applicationCreated -> ApplicationView.builder()
-                                .applicationInfoView(buildView(applicationCreated))
+                        .flatMap(applicationCreated -> buildView(applicationCreated).map(appInfoView -> ApplicationView.builder()
+                                .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationCreated.getEditingApplicationDSL())
-                                .build()));
+                                .build())));
     }
 
     @Override
@@ -529,8 +551,14 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     
     
     
-    private ApplicationInfoView buildView(Application application, String role) {
-        return buildView(application, role, null);
+    private Mono<ApplicationInfoView> buildView(Application application, String role) {
+        return Mono.just(buildView(application, role, null)).delayUntil(applicationInfoView -> {
+            String applicationId = applicationInfoView.getApplicationId();
+            return folderElementRelationService.getByElementIds(List.of(applicationId))
+                    .doOnNext(folderElement -> {
+                        applicationInfoView.setFolderId(folderElement.folderId());
+                    }).then();
+        });
     }
 
     private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
@@ -554,7 +582,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .build();
     }
 
-    private ApplicationInfoView buildView(Application application) {
+    private Mono<ApplicationInfoView> buildView(Application application) {
         return buildView(application, "");
     }
 
@@ -580,6 +608,11 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .then(checkApplicationStatus(applicationId, NORMAL))
                 .then(applicationService.setApplicationAsAgencyProfile
                         (applicationId, agencyProfile));
+    }
+
+    @Override
+    public Mono<Application> updateSlug(String applicationId, String slug) {
+        return applicationService.updateSlug(applicationId, slug);
     }
 
     private Map<String, Object> sanitizeDsl(Map<String, Object> applicationDsl) {

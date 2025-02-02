@@ -29,6 +29,8 @@ import {
   ORG_AUTH_FORGOT_PASSWORD_URL,
   ORG_AUTH_RESET_PASSWORD_URL,
   DEVELOPER_NETWORK_URL,
+  ADMIN_AUTH_URL,
+  PUBLIC_APP_EDITOR_URL,
 } from "constants/routesURL";
 import React from "react";
 import { createRoot } from "react-dom/client";
@@ -56,7 +58,7 @@ import { getBrandingConfig } from "./redux/selectors/configSelectors";
 import { buildMaterialPreviewURL } from "./util/materialUtils";
 import GlobalInstances from 'components/GlobalInstances';
 // import posthog from 'posthog-js'
-import { fetchHomeData } from "./redux/reduxActions/applicationActions";
+import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
 
@@ -65,6 +67,7 @@ const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"))
 const LazyComponentDoc = React.lazy(() => import("pages/ComponentDoc"));
 const LazyComponentPlayground = React.lazy(() => import("pages/ComponentPlayground"));
 const LazyAppEditor = React.lazy(() => import("pages/editor/AppEditor"));
+const LazyPublicAppEditor = React.lazy(() => import("pages/editor/AppEditorPublic"));
 const LazyAppFromTemplate = React.lazy(() => import("pages/ApplicationV2/AppFromTemplate"));
 const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
@@ -95,6 +98,7 @@ type AppIndexProps = {
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   fetchLowcoderCompVersions: () => void;
   getCurrentUser: () => void;
+  fetchServerSettings: () => void;
   favicon: string;
   brandName: string;
   uiLanguage: string;
@@ -103,6 +107,7 @@ type AppIndexProps = {
 class AppIndex extends React.Component<AppIndexProps, any> {
   componentDidMount() {
     this.props.getCurrentUser();
+    this.props.fetchServerSettings();
     // if (!this.props.currentUserAnonymous) {
     //   this.props.fetchHomeData(this.props.currentUserAnonymous);
     // }
@@ -127,10 +132,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     // we check if we are on the public cloud
     const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
     const isLocalhost = window.location.hostname === 'localhost';
-    
-    /* if (isLocalhost || isLowCoderDomain) {
-      posthog.init('phc_lD36OXeppUehLgI33YFhioTpXqThZ5QqR8IWeKvXP7f', { api_host: 'https://eu.i.posthog.com', person_profiles: 'always' });
-    } */
 
     // make sure all users in this app have checked login info
     if (!this.props.isFetchUserFinished || (this.props.currentUserId && !this.props.fetchHomeDataFinished)) {
@@ -141,7 +142,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       // if the user just logged in, we send the event to posthog
       if (isLocalhost || isLowCoderDomain) {
         if (sessionStorage.getItem('_just_logged_in_')) {
-          // posthog.identify(this.props.currentUserId);
           sessionStorage.removeItem('_just_logged_in_');
         }
       }
@@ -239,7 +239,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             rel="apple-touch-startup-image"
             href="https://raw.githubusercontent.com/lowcoder-org/lowcoder-media-assets/main/images/Lowcoder%20Logo%20512.png"
           />
-
           <meta
             key="application-name"
             name="application-name"
@@ -295,12 +294,6 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               rel="stylesheet"
             />,
             // adding Clearbit Support for Analytics
-            <script
-              key="clearbit-script"
-              src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js"
-              referrerPolicy="strict-origin-when-cross-origin"
-              type="text/javascript"
-            ></script>,
           ]}
         </Helmet>
         <SystemWarning />
@@ -311,6 +304,14 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 path={IMPORT_APP_FROM_TEMPLATE_URL}
                 component={LazyAppFromTemplate}
               />
+
+              <LazyRoute
+                exact
+                fallback="layout"
+                path={PUBLIC_APP_EDITOR_URL}
+                component={LazyPublicAppEditor}
+              />
+
               <LazyRoute
                 fallback="layout"
                 path={APP_EDITOR_URL}
@@ -339,6 +340,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 // component={ApplicationListPage}
                 component={LazyApplicationHome}
               />
+              <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute
                 path={ORG_AUTH_LOGIN_URL}
@@ -439,6 +441,9 @@ const mapDispatchToProps = (dispatch: any) => ({
       dispatch(setLowcoderCompsLoading(false));
     }
   },
+  fetchServerSettings: () => {
+    dispatch(fetchServerSettingsAction());
+  }
 });
 
 const AppIndexWithProps = connect(mapStateToProps, mapDispatchToProps)(AppIndex);

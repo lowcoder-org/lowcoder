@@ -16,7 +16,7 @@ export default function RatingExample() {
         <Example
           title={trans("componentDoc.default")}
           config={{
-            value: "4",
+            defaultValue: "4",
             disabled: "false",
           }}
           compFactory={RatingComp}
@@ -25,7 +25,7 @@ export default function RatingExample() {
           title={trans("componentDoc.notSelect")}
           config={{
             disabled: "false",
-            value: "0",
+            defaultValue: "0",
           }}
           compFactory={RatingComp}
         />
@@ -33,7 +33,7 @@ export default function RatingExample() {
           title={trans("componentDoc.disabled")}
           config={{
             disabled: "true",
-            value: "4",
+            defaultValue: "2",
           }}
           compFactory={RatingComp}
         />
@@ -48,7 +48,7 @@ export default function RatingExample() {
               position: "row",
               align: "left",
             },
-            value: "4",
+            defaultValue: "4",
           }}
           compFactory={RatingComp}
         />
@@ -60,7 +60,7 @@ export default function RatingExample() {
               position: "row",
               align: "right",
             },
-            value: "4",
+            defaultValue: "4",
           }}
           compFactory={RatingComp}
         />
@@ -72,7 +72,7 @@ export default function RatingExample() {
               position: "column",
               align: "left",
             },
-            value: "4",
+            defaultValue: "4",
           }}
           compFactory={RatingComp}
         />
@@ -84,16 +84,17 @@ export default function RatingExample() {
               position: "column",
               align: "right",
             },
-            value: "4",
+            defaultValue: "4",
           }}
           compFactory={RatingComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.style")}>
         <Example
           title={trans("componentDoc.maxRating")}
           config={{
-            value: "4",
+            defaultValue: "4",
             max: "6",
           }}
           nameMap={nameMap}
@@ -102,7 +103,8 @@ export default function RatingExample() {
         <Example
           title={trans("componentDoc.halfSelect")}
           config={{
-            value: "4.5",
+            max: "6",
+            defaultValue: "3.5",
             allowHalf: "true",
           }}
           compFactory={RatingComp}

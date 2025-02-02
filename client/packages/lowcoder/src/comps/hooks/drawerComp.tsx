@@ -45,9 +45,19 @@ const StyledDrawer = styled(Drawer)<{$titleAlign?: string, $drawerScrollbar: boo
   .ant-drawer-header-title {
     margin: 0px 20px !important;
     text-align: ${(props) => props.$titleAlign || "center"};
+
+    .ant-drawer-title {
+      position: relative;
+      z-index: 11;
+    }
   }
-  div.ant-drawer-body div.react-grid-layout::-webkit-scrollbar {
-    display: ${(props) => props.$drawerScrollbar ? "block" : "none"};
+
+  div.ant-drawer-body div.react-grid-layout {
+    overflow: auto;
+
+    &::-webkit-scrollbar {
+      display: ${(props) => props.$drawerScrollbar ? "block" : "none"};
+    }
   }
 `;
 
@@ -102,7 +112,8 @@ let TmpDrawerComp = (function () {
       closePosition: withDefault(LeftRightControl, "left"),
       maskClosable: withDefault(BoolControl, true),
       showMask: withDefault(BoolControl, true),
-      toggleClose:withDefault(BoolControl,true)
+      toggleClose:withDefault(BoolControl,true),
+      escapeClosable: withDefault(BoolControl, true),
     },
     (props, dispatch) => {
       const isTopBom = ["top", "bottom"].includes(props.placement);
@@ -143,6 +154,7 @@ let TmpDrawerComp = (function () {
               $titleAlign={props.titleAlign}
               $drawerScrollbar={props.drawerScrollbar}
               closable={false}
+              keyboard={props.escapeClosable}
               placement={props.placement}
               open={props.visible.value}
               getContainer={() => document.querySelector(`#${CanvasContainerID}`) || document.body}
@@ -223,6 +235,9 @@ let TmpDrawerComp = (function () {
           })}
           {children.toggleClose.propertyView({
             label: trans("prop.toggleClose"),
+          })}
+          {children.escapeClosable.propertyView({
+            label: trans("prop.escapeClose"),
           })}
         </Section>
         <Section name={sectionNames.interaction}>{children.onEvent.getPropertyView()}</Section>

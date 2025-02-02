@@ -3,6 +3,7 @@ package org.lowcoder.api.application;
 import jakarta.annotation.Nonnull;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationRequestType;
@@ -17,7 +18,7 @@ import java.util.Set;
 public interface ApplicationApiService {
     Mono<ApplicationView> create(ApplicationEndpoints.CreateApplicationRequest createApplicationRequest);
 
-    Flux<ApplicationInfoView> getRecycledApplications(String name);
+    Flux<ApplicationInfoView> getRecycledApplications(String name, String category);
 
     Mono<ApplicationView> delete(String applicationId);
 
@@ -33,7 +34,7 @@ public interface ApplicationApiService {
 
     Mono<ApplicationView> update(String applicationId, Application application);
 
-    Mono<ApplicationView> publish(String applicationId);
+    Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest);
 
     Mono<Boolean> updateEditState(String applicationId, ApplicationEndpoints.UpdateEditStateRequest updateEditStateRequest);
 
@@ -61,4 +62,6 @@ public interface ApplicationApiService {
 
     // Falk: why we have request.publicToMarketplace() - but here only agencyProfile? Not from request?
     Mono<Boolean> setApplicationAsAgencyProfile(String applicationId, boolean agencyProfile);
+
+    Mono<Application> updateSlug(String applicationId, String slug);
 }

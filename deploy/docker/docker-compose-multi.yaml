@@ -1,6 +1,4 @@
-version: "3"
 services:
-
   ##
   ## Start services required for OpenFlower (MongoDB and Redis)
   ##
@@ -14,18 +12,38 @@ services:
     volumes:
       - ./openflower-stacks/data/mongodb:/data/db
     restart: unless-stopped
+    healthcheck: # https://github.com/rodrigobdz/docker-compose-healthchecks?tab=readme-ov-file#mongo
+      #test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb:27017/test --quiet
+      # test:
+      #   [
+      #     "CMD",
+      #     "mongosh",
+      #     "--quiet",
+      #     "127.0.0.1/test",
+      #     "--eval",
+      #     "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+      #   ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
 
   redis:
     image: redis:7-alpine
     container_name: redis
     restart: unless-stopped
-
+    healthcheck: # https://stackoverflow.com/a/71504657
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
 
   ##
   ## Start OpenFlower backend services (api-service and node-service)
   ##
   openflower-api-service:
-    image: flowerappengorg/openflower-api-service:latest
+    image: flowerappengorg/openflower-api-service:beta1
     container_name: openflower-api-service
     # Enabled ports to be able to access backend from host
     # ports:
@@ -44,8 +62,8 @@ services:
       LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
       #
       # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
-      # 
-      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
+      #
+      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used
       #    to encrypt sensitive data in database so it is important to change the defaults
       #
       LOWCODER_DB_ENCRYPTION_PASSWORD: "openflower.org"
@@ -82,15 +100,25 @@ services:
       LOWCODER_SUPERUSER_PASSWORD:
     restart: unless-stopped
     depends_on:
-      - mongodb
-      - redis
+      mongodb:
+        condition: service_healthy
+      #restart: true
+      redis:
+        condition: service_healthy
+        #restart: true
     volumes:
       - ./openflower-stacks:/lowcoder-stacks
       - ./openflower-stacks/assets:/lowcoder/assets
-
+      # - ./lowcoder-stacks:/lowcoder-stacks
+      # - ./lowcoder-stacks/assets:/lowcoder/assets
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://openflower-api-service:8080  | grep -c "API is up and runnig" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
   openflower-node-service:
-    image: flowerappengorg/openflower-node-service:latest
+    image: flowerappengorg/openflower-node-service:beta1
     container_name: openflower-node-service
     # Enabled ports to be able to access backend from host
     # ports:
@@ -101,13 +129,20 @@ services:
       LOWCODER_API_SERVICE_URL: "http://openflower-api-service:8080"
     restart: unless-stopped
     depends_on:
-      - openflower-api-service
+      openflower-api-service:
+        condition: service_healthy
+        #restart: true
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://openflower-node-service:6060  | grep -c "Node Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
 
   ##
   ## Start OpenFlower web frontend
   ##
   openflower-frontend:
-    image: flowerappengorg/openflower-frontend:latest
+    image: flowerappengorg/openflower-frontend:beta1
     container_name: openflower-frontend
     ports:
       - "3000:3000"
@@ -119,13 +154,22 @@ services:
       LOWCODER_API_SERVICE_URL: "http://openflower-api-service:8080"
       LOWCODER_NODE_SERVICE_URL: "http://openflower-node-service:6060"
     restart: unless-stopped
-    depends_on:
-      - openflower-node-service
-      - openflower-api-service
-    volumes:
-      - ./openflower-stacks/assets:/lowcoder/assets
     # Uncomment to serve local files as static assets
     # volumes:
     #   - ./static-assets:/openflower/assets
 
-
+    depends_on:
+      openflower-node-service:
+        condition: service_healthy
+        #restart: true
+      openflower-api-service:
+        condition: service_healthy
+        #restart: true
+    volumes:
+      - ./openflower-stacks/assets:/lowcoder/assets
+    healthcheck:
+      test: curl --fail http://openflower-frontend:3000 || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 10s
+      timeout: 10s

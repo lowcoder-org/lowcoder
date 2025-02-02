@@ -1,5 +1,5 @@
 import { createReducer } from "util/reducerUtils";
-import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
+import { ReduxAction, ReduxActionErrorTypes, ReduxActionTypes } from "constants/reduxActionConstants";
 import { DatasourceInfo, DatasourceStructure } from "api/datasourceApi";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import { DatasourcePermissionInfo } from "../../../api/datasourcePermissionApi";
@@ -13,15 +13,34 @@ export interface DatasourceDataState {
   data: DatasourceInfo[];
   structure: Record<string, DatasourceStructure[]>;
   permissionInfo: Record<string, DatasourcePermissionInfo>;
+  loadingStates: {
+    fetchingDatasources?: boolean;
+    fetchingStructure?: boolean;
+  };
 }
 
 const initialState: DatasourceDataState = {
   data: [],
   structure: {},
   permissionInfo: {},
+  loadingStates: {
+    fetchingDatasources: false,
+    fetchingStructure: false,
+  }
 };
 
 const datasourceReducer = createReducer(initialState, {
+  [ReduxActionTypes.FETCH_DATASOURCE_INIT]: (
+    state: DatasourceDataState
+  ): DatasourceDataState => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingDatasources: true,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_DATASOURCE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<DatasourceInfo[]>
@@ -29,9 +48,23 @@ const datasourceReducer = createReducer(initialState, {
     return {
       ...state,
       data: action.payload,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingDatasources: false,
+      },
     };
   },
-
+  [ReduxActionErrorTypes.FETCH_DATASOURCE_ERROR]: (
+    state: DatasourceDataState,
+  ):  DatasourceDataState => {
+    return {
+      ...state,
+      loadingStates: {
+        ...state.loadingStates,
+        fetchingDatasources: false,
+      },
+    };
+  },
   [ReduxActionTypes.FETCH_DATASOURCE_STRUCTURE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<Record<string, DatasourceStructure[]>>

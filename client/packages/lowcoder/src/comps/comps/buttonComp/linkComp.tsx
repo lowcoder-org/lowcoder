@@ -14,6 +14,7 @@ import {
   hiddenPropertyView,
   disabledPropertyView,
   loadingPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { IconControl } from "comps/controls/iconControl";
@@ -129,6 +130,7 @@ const LinkTmpComp = (function () {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {loadingPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
               <Section name={sectionNames.advanced}>
                 {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}

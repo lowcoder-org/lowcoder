@@ -6,13 +6,15 @@ import { useParams } from "react-router-dom";
 import { Descriptions, Tag, Avatar, Skeleton, Button, Typography, List, Table, Progress, Input, Upload, message } from "antd";
 import { UploadOutlined } from '@ant-design/icons';
 import history from "util/history";
-import { getTicket, updateTicketDescription, addComment, uploadAttachment } from '@lowcoder-ee/api/supportApi'; // Placeholder for your API functions
+import { getTicket, updateTicketDescription, addComment, uploadAttachment } from '@lowcoder-ee/api/supportApi';
 import { Level1SettingPageContent, Level1SettingPageTitle } from "../setting/styled";
 import { HeaderBack } from "../setting/permission/styledComponents";
 import { SUPPORT_URL } from "constants/routesURL";
 import { TacoMarkDown } from "lowcoder-design";
 import remarkGfm from 'remark-gfm';
 import { contrastColor } from "comps/controls/styleControlConstants";
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -64,6 +66,14 @@ const StyledImage = styled.div`
 const AttachmentWrapper = styled.div`
   margin-bottom: 16px;
 `;
+
+const toolbarOptions = [
+  ['bold', 'italic', 'underline'], // Basic formatting options
+  [{ 'list': 'ordered' }, { 'list': 'bullet' }], // Lists
+  [{ 'header': [1, 2, 3, false] }], // Headers
+  ['link'], // Links
+  [{ 'align': [] }] // Text alignment
+];
 
 // Function to convert Jira syntax to Markdown
 const convertJiraToMarkdown = (content: string) => {
@@ -122,6 +132,67 @@ const convertJiraToMarkdown = (content: string) => {
   content = content.replace(/^\*\s+/gm, '- ');
 
   return content;
+};
+
+const convertJiraToHtml = (content : any) => {
+  // Convert bold text: `*text*` to `<strong>text</strong>`
+  content = content.replace(/\*(.+?)\*/g, '<strong>$1</strong>');
+
+  // Convert italic text: `_text_` to `<em>text</em>`
+  content = content.replace(/_(.+?)_/g, '<em>$1</em>');
+
+  // Convert ordered lists: `# item` to `<ol><li>item</li></ol>`
+  content = content.replace(/(?:^|\n)#\s+(.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
+  content = content.replace(/<\/ol>\s*<ol>/g, ''); // Merge consecutive lists
+
+  // Convert unordered lists: `* item` to `<ul><li>item</li></ul>`
+  content = content.replace(/(?:^|\n)\*\s+(.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
+  content = content.replace(/<\/ul>\s*<ul>/g, ''); // Merge consecutive lists
+
+  // Convert headers: `h1. Header` to `<h1>Header</h1>`
+  content = content.replace(/^h1\.\s(.*?)(?=\n|$)/gm, '<h1>$1</h1>');
+  content = content.replace(/^h2\.\s(.*?)(?=\n|$)/gm, '<h2>$1</h2>');
+  content = content.replace(/^h3\.\s(.*?)(?=\n|$)/gm, '<h3>$1</h3>');
+
+  // Convert line breaks
+  content = content.replace(/\n/g, '<br>');
+
+  return content;
+};
+
+ // Function to convert HTML to Jira syntax
+ const convertHtmlToJiraMarkdown = (html:any) => {
+  // Convert bold tags to Jira bold
+  html = html.replace(/<strong>(.*?)<\/strong>/g, '*$1*');
+
+  // Convert italic tags to Jira italic
+  html = html.replace(/<em>(.*?)<\/em>/g, '_$1_');
+
+  // Convert ordered list items to Jira syntax
+  html = html.replace(/<ol>(.*?)<\/ol>/gs, (match: any, inner: string) => {
+    return inner.replace(/<li>(.*?)<\/li>/g, '# $1\n');
+  });
+
+  // Convert unordered list items to Jira syntax
+  html = html.replace(/<ul>(.*?)<\/ul>/gs, (match: any, inner: string) => {
+    return inner.replace(/<li>(.*?)<\/li>/g, '* $1\n');
+  });
+
+  // Convert headings
+  html = html.replace(/<h1>(.*?)<\/h1>/g, 'h1. $1');
+  html = html.replace(/<h2>(.*?)<\/h2>/g, 'h2. $1');
+  html = html.replace(/<h3>(.*?)<\/h3>/g, 'h3. $1');
+
+  // Convert paragraphs
+  html = html.replace(/<p>(.*?)<\/p>/g, '$1\n');
+
+  // Handle line breaks
+  html = html.replace(/<br\s*\/?>/g, '\n');
+
+  // Remove any remaining HTML tags
+  html = html.replace(/<\/?[^>]+(>|$)/g, "");
+
+  return html.trim();
 };
 
 // Helper to render the description markdown
@@ -216,7 +287,9 @@ export function SupportDetail() {
       const ticketData = await getTicket(ticketId);
       if (ticketData && ticketData.length === 1) {
         setTicket(ticketData[0]);
-        setNewDescription(ticketData[0].fields.description || '');
+        if (ticketData[0].fields.description) {
+          setNewDescription(convertJiraToHtml(ticketData[0].fields.description) || '');
+        }
       } else {
         setError(trans("support.ticketNotFound"));
       }
@@ -240,7 +313,8 @@ export function SupportDetail() {
   const handleSaveDescription = async () => {
     setIsSavingDescription(true); // Start loading state
     try {
-      await updateTicketDescription(ticketId, newDescription);
+      const jiraFormattedDescription = convertHtmlToJiraMarkdown(newDescription);
+      await updateTicketDescription(ticketId, jiraFormattedDescription);
       message.success(trans("support.ticketDescriptionUpdated"));
       setIsEditingDescription(false);
     } catch (error) {
@@ -309,9 +383,8 @@ export function SupportDetail() {
     } else {
       message.warning(trans("support.ticketAttachmentEmpty"));
     }
-  };
-  
-  
+  };  
+
 
   if (loading) {
     return (
@@ -376,10 +449,17 @@ export function SupportDetail() {
         <DescriptionWrapper>
           {isEditingDescription ? (
             <>
-              <TextArea
+              {/* <TextArea
                 rows={4}
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
+              /> */}
+              <ReactQuill
+                theme="snow"
+                value={newDescription}
+                onChange={setNewDescription}
+                modules={{ toolbar: toolbarOptions }}
+                style={{ marginBottom: '8px' }}
               />
               <Button 
                 type="primary" 
@@ -398,7 +478,7 @@ export function SupportDetail() {
           ) : (
             <>
               {renderMarkdown(newDescription || trans("support.noDescription"))}
-              <Button onClick={() => setIsEditingDescription(true)} style={{ marginTop: '8px' }}>
+              <Button type="primary" onClick={() => setIsEditingDescription(true)} style={{ marginTop: '8px' }}>
                 {trans('support.edit')}
               </Button>
             </>

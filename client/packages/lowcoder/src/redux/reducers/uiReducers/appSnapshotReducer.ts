@@ -14,6 +14,7 @@ const initialState: AppSnapshotState = {
   showAppSnapshot: false,
   snapshotDslFetching: false,
   selectedSnapshotId: "",
+  isSelectedSnapshotIdArchived: false,
 };
 
 const appSnapshotReducer = createReducer(initialState, {
@@ -28,11 +29,12 @@ const appSnapshotReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.SET_SELECT_SNAPSHOT_ID]: (
     state: AppSnapshotState,
-    action: ReduxAction<{ snapshotId: string }>
+    action: ReduxAction<{ snapshotId: string, archived?: boolean }>
   ): AppSnapshotState => {
     return {
       ...state,
       selectedSnapshotId: action.payload.snapshotId,
+      isSelectedSnapshotIdArchived: action.payload.archived,
     };
   },
   [ReduxActionTypes.FETCH_APP_SNAPSHOT_DSL]: (state: AppSnapshotState): AppSnapshotState => {
@@ -115,6 +117,7 @@ export interface AppSnapshotState {
   appSnapshotCount: number;
   showAppSnapshot: boolean;
   selectedSnapshotId: string;
+  isSelectedSnapshotIdArchived?: boolean;
 }
 
 export default appSnapshotReducer;

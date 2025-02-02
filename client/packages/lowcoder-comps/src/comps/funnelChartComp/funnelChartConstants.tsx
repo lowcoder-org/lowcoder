@@ -16,7 +16,9 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -24,14 +26,19 @@ import { XAxisConfig, YAxisConfig } from "../chartComp/chartConfigs/cartesianAxi
 import { LegendConfig } from "../chartComp/chartConfigs/legendConfig";
 import { EchartsLegendConfig } from "../chartComp/chartConfigs/echartsLegendConfig";
 import { EchartsLabelConfig } from "../chartComp/chartConfigs/echartsLabelConfig";
+import { EchartsFunnelAlignConfig } from "../chartComp/chartConfigs/echartsFunnelAlignConfig";
 import { LineChartConfig } from "../chartComp/chartConfigs/lineChartConfig";
 import { PieChartConfig } from "../chartComp/chartConfigs/pieChartConfig";
 import { ScatterChartConfig } from "../chartComp/chartConfigs/scatterChartConfig";
 import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
-import { FunnelChartConfig } from "../chartComp/chartConfigs/funnelChartConfig";
+import { FunnelChartConfig} from "../chartComp/chartConfigs/funnelChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
+import { EchartsSortingConfig } from "../chartComp/chartConfigs/echartsSortingConfig";
+import { EchartsLegendAlignConfig } from "../chartComp/chartConfigs/echartsLegendAlignConfig";
+import { EchartsLegendOrientConfig } from "../chartComp/chartConfigs/echartsLegendOrientConfig";
+import { EchartsTitleVerticalConfig } from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 
 export const ChartTypeOptions = [
   {
@@ -249,10 +256,16 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultFunnelChartOption),
   echartsTitle: withDefault(StringControl, trans("funnelChart.defaultTitle")),
-  echartsLegendConfig: EchartsLegendConfig,
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsSortingConfig: EchartsSortingConfig,
   echartsLabelConfig: EchartsLabelConfig,
+  echartsFunnelAlignConfig: EchartsFunnelAlignConfig,
+  echartsLegendConfig: EchartsLegendConfig,
+  echartsLegendOrientConfig: EchartsLegendOrientConfig,
+  echartsLegendAlignConfig: EchartsLegendAlignConfig,
   echartsConfig: EchartsOptionComp,
   echartsTitleConfig:EchartsTitleConfig,
   // style: styleControl(EchartsStyle, 'style'),
@@ -265,12 +278,17 @@ let chartJsonModeChildren: any = {
   width:withDefault(NumberControl,trans('funnelChart.defaultWidth')),
   min:withDefault(NumberControl,trans('funnelChart.defaultMin')),
   max:withDefault(NumberControl,trans('funnelChart.defaultMax')),
-  gap:withDefault(NumberControl,trans('funnelChart.defaultGap'))
+  gap:withDefault(NumberControl,trans('funnelChart.defaultGap')),
+  opacity:withDefault(NumberControl,trans('funnelChart.defaultOpacity'))
 }
-if (EchartsStyle) {
+
+if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
 }
 

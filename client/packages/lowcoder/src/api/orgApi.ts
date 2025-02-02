@@ -10,6 +10,15 @@ import {
   UpdateUserOrgRolePayload,
 } from "redux/reduxActions/orgActions";
 import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {
+  ApiPaginationResponse,
+  fetchGroupUserRequestType,
+  fetchOrgsByEmailRequestType,
+  fetchOrgUserRequestType,
+  GenericApiPaginationResponse,
+  GroupUsersPaginationResponse,
+  orgGroupRequestType, OrgUsersPaginationResponse
+} from "@lowcoder-ee/util/pagination/type";
 
 export interface GroupUsersResponse extends ApiResponse {
   data: {
@@ -52,6 +61,7 @@ export class OrgApi extends Api {
   static deleteOrgURL = (orgId: string) => `/organizations/${orgId}`;
   static updateOrgURL = (orgId: string) => `/organizations/${orgId}/update`;
   static fetchUsage = (orgId: string) => `/organizations/${orgId}/api-usage`;
+  static fetchOrgsByEmailURL = (email: string) => `organizations/byuser/${email}`;
 
   static createGroup(request: { name: string }): AxiosPromise<GenericApiResponse<OrgGroup>> {
     return Api.post(OrgApi.createGroupURL, request);
@@ -63,6 +73,10 @@ export class OrgApi extends Api {
 
   static fetchGroup(): AxiosPromise<GenericApiResponse<OrgGroup[]>> {
     return Api.get(OrgApi.fetchGroupURL);
+  }
+
+  static fetchGroupPagination(request: orgGroupRequestType): AxiosPromise<GenericApiPaginationResponse<OrgGroup[]>> {
+    return Api.get(OrgApi.fetchGroupURL, {...request});
   }
 
   static deleteGroup(groupId: string): AxiosPromise<ApiResponse> {
@@ -87,8 +101,18 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchOrgUsersURL(orgId));
   }
 
+  static fetchOrgUsersPagination(request:fetchOrgUserRequestType): AxiosPromise<OrgUsersPaginationResponse> {
+    const {orgId, ...res} = request;
+    return Api.get(OrgApi.fetchOrgUsersURL(orgId), {...res});
+  }
+
   static fetchGroupUsers(groupId: string): AxiosPromise<GroupUsersResponse> {
     return Api.get(OrgApi.fetchGroupUsersURL(groupId));
+  }
+
+  static fetchGroupUsersPagination(request: fetchGroupUserRequestType): AxiosPromise<GroupUsersPaginationResponse> {
+    const {groupId, ...res} = request;
+    return Api.get(OrgApi.fetchGroupUsersURL(groupId), {...res});
   }
 
   static deleteGroupUser(request: RemoveGroupUserPayload): AxiosPromise<ApiResponse> {
@@ -141,6 +165,14 @@ export class OrgApi extends Api {
     return Api.get(OrgApi.fetchUsage(orgId), { lastMonthOnly: true });
   }
 
+  static fetchOrgsByEmail(email: string): AxiosPromise<ApiResponse> {
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email));
+  }
+
+  static fetchOrgsPaginationByEmail(request: fetchOrgsByEmailRequestType): AxiosPromise<ApiPaginationResponse> {
+    const { email, ...rest } = request;
+    return Api.get(OrgApi.fetchOrgsByEmailURL(email), {...rest});
+  }
 }
 
 export default OrgApi;

@@ -12,6 +12,9 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import opacityToHex from "../../util/opacityToHex";
+import parseBackground from "../../util/gradientBackgroundColor";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -133,43 +136,59 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+
   if (props.mode === "json") {
     let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":props.echartsTitleConfig.top
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-  "tooltip": props.tooltip&&{
-    "trigger": "item",
-    "formatter": "{a} <br/>{b} : {c}%"
-  },
-  "legend":props.legendVisibility&& {
-    "data": props.echartsOption.data?.map(data=>data.name),
-    "top": props.echartsLegendConfig.top,
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": `${props.left}%`,
-      "top": props.top,
-      "bottom": props.bottom,
-      "width":  `${props.left}%`,
-      "min": props.min,
-      "max": props.max,
-      "gap": props.gap,
-      "label": {
-        "show": props.label,
-        "position": props.echartsLabelConfig.top
+      "title": {
+        "text": props.echartsTitle,
+        "top": props.echartsTitleVerticalConfig.top,
+        "left":props.echartsTitleConfig.top,
+        "textStyle": {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
-      "data": props.echartsOption.data
+      "backgroundColor": parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      "color": props.echartsData.data?.map(data => data.color) || props.echartsOption.data?.map(data => data.color),
+      "tooltip": props.tooltip&&{
+        "trigger": "item",
+        "formatter": "{a} <br/>{b} : {c}%"
+      },
+      "legend":props.legendVisibility&& {
+        "data": props.echartsData.data?.map(data=>data.name) || props.echartsOption.data?.map(data=>data.name),
+        "top": props.echartsLegendConfig.top,
+        "left": props.echartsLegendAlignConfig.left,
+        "orient": props.echartsLegendOrientConfig.orient,
+        "textStyle": {
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
+        }
+      },
+      "series": [
+        {
+          "name": props.echartsConfig.type,
+          "type": props.echartsConfig.type,
+          "left": `${props.left}%`,
+          "top": props.top,
+          "bottom": props.bottom,
+          "width":  `${props.left}%`,
+          "min": props.min,
+          "max": props.max,
+          "gap": props.gap,
+          "funnelAlign": props.echartsFunnelAlignConfig.funnelAlign,
+          "sort": props.echartsSortingConfig.sort,
+          "itemStyle": {
+            "opacity": props.opacity,
+            ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
+          },
+          "label": {
+            "show": props.label,
+            "position": props.echartsLabelConfig.top,
+            ...styleWrapper(props?.labelStyle,theme?.labelStyle, 13),
+          },
+          "data": props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data
+        }
+      ]
     }
-  ]
-}
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

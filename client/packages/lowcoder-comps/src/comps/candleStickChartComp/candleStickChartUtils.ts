@@ -13,6 +13,8 @@ import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
 import { useContext } from "react";
+import parseBackground from "../../util/gradientBackgroundColor";
+import {styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -134,64 +136,117 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
+
+
   if (props.mode === "json") {
-    let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-   "tooltip": props.tooltip&&{
-    "trigger": "axis",
-    "axisPointer": {
-      "type": "cross"
-    }
-  },
-  "grid": {
-    "left": "10%",
-    "right": "10%",
-    "bottom": "10%",
-  },
-  "xAxis": {
-    "type": "category",
-    "data": props.echartsOption.xAxis.data
-  },
-  "yAxis": {
-    "type": "value",
-    "scale": true
-  },
-  "series": [
-    {
-      "name": props.echartsConfig.type,
-      "type": props.echartsConfig.type,
-      "left": "10%",
-      "top": 60,
-      "bottom": 60,
-      "width": "80%",
-      "min": 0,
-      "max": 100,
-      "gap": 2,
-      "label": {
-        "show": true,
-        "position": props.echartsLabelConfig.top
+    let opt= {
+      title: {
+        text: props.echartsTitle,
+        top: props.echartsTitleVerticalConfig.top,
+        left:props.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
+        }
       },
-      "data": props.echartsOption.data,
+      backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      color: props?.echartsData.data?.map(data => data.color) || props?.echartsOption.data?.map(data => data.color),
+      tooltip: props?.tooltip && {
+        trigger: "axis",
+        axisPointer: {
+          type: "cross"
+        }
+      },
+      grid: {
+        left: `${props?.left}%`,
+        right: `${props?.right}%`,
+        bottom: `${props?.bottom}%`,
+        top: `${props?.top}%`,
+      },
+      dataZoom: [
+        {
+          show: props?.dataZoomVisibility,
+          type: 'slider',
+          start: 0,
+          end: 100,
+          bottom: props?.dataZoomBottom,
+          height: props?.dataZoomHeight
+        }
+      ],
+      yAxis: {
+        type: "value",
+        scale: true,
+        splitArea: props?.axisFlagVisibility && {
+          show: true,
+          areaStyle: {
+            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
+          }
+        },
+        axisLabel: {
+          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 13),
+        }
+      },
+      xAxis: props?.echartsOption && {
+        type: 'category',
+        data: props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
+        splitArea: !props?.axisFlagVisibility && {
+          show: true,
+          areaStyle: {
+            // Provide multiple colors to alternate through
+            color: props?.echartsData?.axisColor || props?.echartsOption?.axisColor
+          },
+        },
+        axisLabel: {
+          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 13),
+        },
+        boundaryGap: true,
+        // Turn off x-axis split lines if desired, so you only see colored areas
+        splitLine: {
+          show: false
+        },
+        // Show split areas, each day with a different background color
+      },
+      series: props?.echartsOption && [
+        {
+          name: props?.echartsConfig.type,
+          type: props?.echartsConfig.type,
+          label: {
+            show: true,
+            position: props?.echartsLabelConfig.top
+          },
+          data: props?.echartsData.length !== 0 && props?.echartsData || props?.echartsOption.data,
+          itemStyle: props?.echartsData.itemStyle ? {
+            ...props?.echartsData.itemStyle,
+            borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
+            borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
+            borderRadius: Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
+            shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
+            shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+            shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+            shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+          } : {
+            ...props?.echartsOption.itemStyle,
+            borderWidth: props?.chartStyle?.chartBorderWidth || theme?.chartStyle?.borderWidth,
+            borderType: props?.chartStyle?.chartBorderStyle || theme?.chartStyle?.borderType,
+            borderRadius: Number(props?.chartStyle?.chartBorderRadius || theme?.chartStyle?.borderRadius),
+            shadowColor: props?.chartStyle?.chartShadowColor || theme?.chartStyle?.shadowColor,
+            shadowBlur: props?.chartStyle?.chartBoxShadow?.split('px')[0] || theme?.chartStyle?.boxShadow?.split('px')[0],
+            shadowOffsetX: props?.chartStyle?.chartBoxShadow?.split('px')[1] || theme?.chartStyle?.boxShadow?.split('px')[1],
+            shadowOffsetY: props?.chartStyle?.chartBoxShadow?.split('px')[2] || theme?.chartStyle?.boxShadow?.split('px')[2]
+          }
+        },
+      ],
     }
-  ]
-}
-    return props.echartsOption ? opt : {};
-    
+    return props.echartsData || props.echartsOption ? opt : {};
+
   }
-  
+
   if(props.mode === "map") {
     const {
       mapZoomLevel,
       mapCenterLat,
       mapCenterLng,
-      mapOptions, 
-      showCharts, 
+      mapOptions,
+      showCharts,
     } = props;
 
     const echartsOption = mapOptions && showCharts ? mapOptions : {};

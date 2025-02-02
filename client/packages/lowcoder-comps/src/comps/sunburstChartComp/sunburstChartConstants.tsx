@@ -16,7 +16,10 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  RadarLabelStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -31,6 +34,8 @@ import { SeriesListComp } from "../chartComp/seriesComp";
 import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { SunburstChartConfig } from "comps/chartComp/chartConfigs/sunburstChartConfig";
+import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
+import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
@@ -248,19 +253,28 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultSunburstChartOption),
   echartsTitle: withDefault(StringControl, trans("sunburstChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsConfig: EchartsOptionComp,
-  // style: styleControl(EchartsStyle, 'style'),
+  echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
+  echartsTitleConfig:EchartsTitleConfig,
+
+  radiusInline:withDefault(NumberControl,trans('sunburstChart.defaultRadiusInline')),
+  radiusOutline:withDefault(NumberControl,trans('sunburstChart.defaultRadiusOutline')),
+  position_x:withDefault(StringControl,trans('sunburstChart.defaultPosition_X')),
+  position_y:withDefault(StringControl,trans('sunburstChart.defaultPosition_Y')),
   tooltip: withDefault(BoolControl, true),
-  legendVisibility: withDefault(BoolControl, true),
+  labelVisibility: withDefault(BoolControl, true),
 }
-if (EchartsStyle) {
+if (RadarLabelStyle && EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    detailStyle: styleControl(RadarLabelStyle, 'detailStyle'),
   }
 }
 

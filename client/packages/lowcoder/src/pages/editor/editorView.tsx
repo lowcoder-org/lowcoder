@@ -42,7 +42,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -304,6 +304,7 @@ function EditorView(props: EditorViewProps) {
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const commonSettings = useSelector(getCommonSettings);
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
@@ -446,7 +447,8 @@ function EditorView(props: EditorViewProps) {
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
             // adding Clearbit Support for Analytics
-            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>,
+            <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
@@ -505,11 +507,17 @@ function EditorView(props: EditorViewProps) {
         draggingUtils.clearData();
       } }
     >
-        <Header
-          togglePanel={togglePanel}
-          panelStatus={panelStatus}
-          toggleEditorModeStatus={toggleEditorModeStatus}
-          editorModeStatus={editorModeStatus} />
+        {isPublicApp
+          ? <PreviewHeader />
+          : (
+            <Header
+              togglePanel={togglePanel}
+              panelStatus={panelStatus}
+              toggleEditorModeStatus={toggleEditorModeStatus}
+              editorModeStatus={editorModeStatus}
+            />
+          )
+        }
 
         {showNewUserGuide && <EditorTutorials />}
         <EditorGlobalHotKeys

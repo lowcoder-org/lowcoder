@@ -9,7 +9,7 @@ import {  AnimationStyle, InputFieldStyle, LabelStyle, SliderStyle, SliderStyleT
 import styled, { css } from "styled-components";
 import { default as Slider } from "antd/es/slider";
 import { darkenColor, fadeColor } from "lowcoder-design";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { IconControl } from "comps/controls/iconControl";
 import { trans } from "i18n";
 
@@ -102,6 +102,7 @@ export const SliderPropertyView = (
         {children.onEvent.getPropertyView()}
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
+        {showDataLoadingIndicatorsPropertyView(children as any)}
       </Section>
     )}
 

@@ -36,6 +36,9 @@ import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import { notificationInstance } from "components/GlobalInstances";
 import { AppState } from "@lowcoder-ee/redux/reducers";
+import { resetIconDictionary } from "@lowcoder-ee/constants/iconConstants";
+import {fetchJsDSPaginationByApp} from "@lowcoder-ee/util/pagination/axios";
+import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
 
 const AppSnapshot = lazy(() => {
   return import("pages/editor/appSnapshot")
@@ -56,6 +59,9 @@ const AppEditor = React.memo(() => {
   const fetchOrgGroupsFinished = useSelector(getFetchOrgGroupsFinished);
   const isCommonSettingsFetching = useSelector(getIsCommonSettingFetching);
   const application = useSelector(currentApplication);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [elements, setElements] = useState({ elements: [], total: 1 })
   const isLowcoderCompLoading = useSelector((state: AppState) => state.npmPlugin.loading.lowcoderComps);
 
   const isUserViewMode = useMemo(
@@ -82,6 +88,7 @@ const AppEditor = React.memo(() => {
   const [isDataSourcePluginRegistered, setIsDataSourcePluginRegistered] = useState(false);
   const [appError, setAppError] = useState('');
   const [blockEditing, setBlockEditing] = useState<boolean>(false);
+  const [fetchingAppDetails, setFetchingAppDetails] = useState<boolean>(false);
 
   setGlobalSettings({ applicationId, isViewMode: paramViewMode === "view" });
 
@@ -139,8 +146,13 @@ const AppEditor = React.memo(() => {
   }, [dispatch, applicationId, paramViewMode]);
   
   const fetchJSDataSourceByApp = useCallback(() => {
-    DatasourceApi.fetchJsDatasourceByApp(applicationId).then((res) => {
-      res.data.data.forEach((i) => {
+    fetchJsDSPaginationByApp({
+      appId: applicationId,
+      pageNum: currentPage,
+      pageSize: pageSize
+    }).then((res) => {
+      setElements({elements: [], total: res.total || 1})
+      res.data!.forEach((i: any) => {
         registryDataSourcePlugin(i.type, i.id, i.pluginDefinition);
       });
       setIsDataSourcePluginRegistered(true);
@@ -152,6 +164,8 @@ const AppEditor = React.memo(() => {
     setIsDataSourcePluginRegistered,
     setShowAppSnapshot,
     dispatch,
+    currentPage,
+    pageSize
   ]);
 
   useEffect(() => {
@@ -161,6 +175,7 @@ const AppEditor = React.memo(() => {
   }, [dispatch, fetchOrgGroupsFinished, orgId]);
 
   const fetchApplication = useCallback(() => {
+    setFetchingAppDetails(true);
     dispatch(
       fetchApplicationInfo({
         type: viewMode,
@@ -177,9 +192,11 @@ const AppEditor = React.memo(() => {
           });
           setAppInfo(info);
           fetchJSDataSourceByApp();
+          setFetchingAppDetails(false);
         },
         onError: (errorMessage) => {
           setAppError(errorMessage);
+          setFetchingAppDetails(false);
         }
       })
     );
@@ -188,6 +205,7 @@ const AppEditor = React.memo(() => {
   useEffect(() => {
     if(!isLowcoderCompLoading) {
       fetchApplication();
+      resetIconDictionary();
     }
   }, [isLowcoderCompLoading, fetchApplication]);
 
@@ -217,6 +235,13 @@ const AppEditor = React.memo(() => {
 
   return (
     <ErrorBoundary fallback={fallbackUI}>
+      {/*<PaginationComp*/}
+      {/*    currentPage={currentPage}*/}
+      {/*    pageSize={pageSize}*/}
+      {/*    setPageSize={setPageSize}*/}
+      {/*    setCurrentPage={setCurrentPage}*/}
+      {/*    total={elements.total}*/}
+      {/*/>*/}
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot
@@ -228,16 +253,21 @@ const AppEditor = React.memo(() => {
         </Suspense>
       ) : (
         <Suspense fallback={<EditorSkeletonView />}>
-          <AppEditorInternalView
-            appInfo={appInfo}
-            readOnly={readOnly}
-            blockEditing={blockEditing}
-            loading={
-              !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
-            }
-            compInstance={compInstance}
-            fetchApplication={fetchApplication}
-          />
+          {fetchingAppDetails
+            ? <EditorSkeletonView />
+            : (
+              <AppEditorInternalView
+                appInfo={appInfo}
+                readOnly={readOnly}
+                blockEditing={blockEditing}
+                loading={
+                  !fetchOrgGroupsFinished || !isDataSourcePluginRegistered || isCommonSettingsFetching
+                }
+                compInstance={compInstance}
+                fetchApplication={fetchApplication}
+              />
+            )
+          }
         </Suspense>
       )}
     </ErrorBoundary>

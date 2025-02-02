@@ -35,6 +35,7 @@ import { isFetchingFolderElements } from "../../redux/selectors/folderSelector";
 import { checkIsMobile } from "util/commonUtils";
 import { default as Divider } from "antd/es/divider";
 import { ApplicationCategoriesEnum } from "constants/applicationConstants";
+import { Pagination } from 'antd';
 
 const Wrapper = styled.div`
   display: flex;
@@ -50,7 +51,7 @@ const HeaderWrapper = styled.div`
   padding: 0 36px;
   align-items: center;
   flex-shrink: 0;
-  @media screen and (max-width: 500px) {
+  @media screen and (max-width: 720px) {
     padding: 0 24px;
   }
 `;
@@ -60,11 +61,13 @@ const OperationWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 32px;
+  height: auto;
   padding: 0 36px;
   margin: 8px 0 20px 0;
-  @media screen and (max-width: 500px) {
-    padding: 0 24px;
+  @media screen and (max-width: 850px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
   }
 `;
 
@@ -89,17 +92,9 @@ const Breadcrumb = styled(AntdBreadcrumb)`
     flex-direction: column;
     justify-content: center;
   }
-`;
 
-const OperationRightWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: auto;
-  @media screen and (max-width: 500px) {
-    > Button {
-      display: none;
-    }
+  @media screen and (max-width: 720px) {
+    display:none
   }
 `;
 
@@ -199,11 +194,17 @@ const EmptyView = styled.div`
     }
   }
 `;
+const PaginationLayout = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 20px;  
+`
 
 const LayoutSwitcher = styled.div`
   position: absolute;
-  right: 36px;
-  top: 6px;
+  left: 20px;
+  top: 40px;
   cursor: pointer;
   width: 32px;
   height: 16px;
@@ -215,10 +216,6 @@ const LayoutSwitcher = styled.div`
 
   &:hover {
     background-color: #f5f5f6;
-  }
-
-  @media screen and (max-width: 500px) {
-    display: none;
   }
 `;
 
@@ -242,27 +239,21 @@ const StyleHomeCover = styled.div`
     border-radius:10px 10px 0 0;
 `;
 
-const StyleHomeContent = styled.div` 
-    position: relative;
-    margin-top:-50px;
-    display: flex;
-    align-items: end;
-    gap: 20px;
+const SearchWrapper = styled.div`
+  width: auto;
 
-    .subtitle {
-        color: #8b8fa3;
-    }
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: auto;
 
-    .button-end {
-        margin-left: auto;
+  @media screen and (max-width: 980px) {
+    width: 100%;
+    > Button {
+      display: none;
     }
-    
-    svg {
-        margin-right: 5px;
-        vertical-align: middle;
-    }
+  }
 `;
-
 
 function showNewUserGuide(user: User) {
   return (
@@ -301,11 +292,51 @@ export interface HomeLayoutProps {
   localMarketplaceApps?: Array<ApplicationMeta>;
   globalMarketplaceApps?: Array<ApplicationMeta>;
   mode: HomeLayoutMode;
+  setCurrentPage?: any;
+  setPageSize?: any;
+  currentPage?: number;
+  pageSize?: number;
+  total?: number;
+  searchValue?: string;
+  setSearchValue?: any;
+  setTypeFilterPagination?: any;
+  setCategoryFilterPagination?: any;
+  setIsCreated?: any;
+  isCreated?: boolean;
+  setModify?: any;
+  modify?: boolean;
 }
 
 export function HomeLayout(props: HomeLayoutProps) {
+  const { breadcrumb = [],
+    elements = [],
+    localMarketplaceApps = [],
+    globalMarketplaceApps = [],
+    mode ,
+    setCurrentPage,
+    setPageSize,
+    pageSize,
+    currentPage,
+    searchValue,
+    setSearchValue,
+    total,
+    setTypeFilterPagination,
+    setCategoryFilterPagination,
+    setModify,
+    modify,
+    setIsCreated,
+    isCreated
 
-  const { breadcrumb = [], elements = [], localMarketplaceApps = [], globalMarketplaceApps = [], mode } = props;
+  } = props;
+
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (current: number, size: number) => {
+    setPageSize(size);
+  };
 
   const categoryOptions = [
     { label: <FilterMenuItem>{trans("home.allCategories")}</FilterMenuItem>, value: 'All' },
@@ -324,7 +355,7 @@ export function HomeLayout(props: HomeLayoutProps) {
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const [typeFilter, setTypeFilter] = useState<HomeResKey>("All");
   const [categoryFilter, setCategoryFilter] = useState<ApplicationCategoriesEnum | "All">("All");
-  const [searchValue, setSearchValue] = useState("");
+  const [visibility, setVisibility] = useState(mode === "view" || mode === "trash" || mode === "folder");
   const [layout, setLayout] = useState<HomeLayoutType>(
     checkIsMobile(window.innerWidth) ? "card" : getHomeLayout()
   );
@@ -342,7 +373,15 @@ export function HomeLayout(props: HomeLayoutProps) {
     return null;
   }
 
-  var displayElements = elements;
+  var displayElements = elements.sort((a, b) => {
+    if (a.folder && !b.folder) {
+      return -1;
+    } else if (!a.folder && b.folder) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 
   if (mode === "marketplace" && isSelfHost) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
@@ -354,36 +393,34 @@ export function HomeLayout(props: HomeLayoutProps) {
     const markedLocalApps = localMarketplaceApps.map(app => ({ ...app, isLocalMarketplace: true }));
     displayElements = [...markedLocalApps];
   }
-
   const resList: HomeRes[] = displayElements
-    .filter((e) =>
-      searchValue
-        ? e.name?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase()) ||
-          e.createBy?.toLocaleLowerCase().includes(searchValue?.toLocaleLowerCase())
-        : true
-    )
     .filter((e) => {
-      if (HomeResTypeEnum[typeFilter].valueOf() === HomeResTypeEnum.All) {
-        return true;
-      }
-      if (e.folder) {
-        return HomeResTypeEnum[typeFilter] === HomeResTypeEnum.Folder;
-      } else {
-        if (typeFilter === "Navigation") {
-          return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
+      if (!visibility) {
+        if (searchValue) {
+          const lowerCaseSearchValue = searchValue.toLocaleLowerCase();
+          return e.name?.toLocaleLowerCase().includes(lowerCaseSearchValue) ||
+              e.createBy?.toLocaleLowerCase().includes(lowerCaseSearchValue);
         }
-        return HomeResTypeEnum[typeFilter].valueOf() === e.applicationType;
-      }
-    })
-    .filter((e) => {
-      // If "All" is selected, do not filter out any elements based on category
-      if (categoryFilter === 'All' || !categoryFilter) {
         return true;
       }
-      // Otherwise, filter elements based on the selected category
-      return !e.folder && e.category === categoryFilter.toString();
+      return true;
     })
-    
+    .filter((e) => {
+      if(!visibility) {
+        if (HomeResTypeEnum[typeFilter].valueOf() === HomeResTypeEnum.All) {
+          return true;
+        }
+        if (e.folder) {
+          return HomeResTypeEnum[typeFilter] === HomeResTypeEnum.Folder;
+        } else {
+          if (typeFilter === "Navigation") {
+            return NavigationTypes.map((t) => t.valueOf()).includes(e.applicationType);
+          }
+          return HomeResTypeEnum[typeFilter].valueOf() === e.applicationType;
+        }
+      }
+      return true;
+      })
     .map((e) =>
       e.folder
         ? {
@@ -480,17 +517,37 @@ export function HomeLayout(props: HomeLayoutProps) {
                 <FilterDropdown
                   variant="borderless"
                   value={typeFilter}
-                  onChange={(value: any) => setTypeFilter(value as HomeResKey)}
+                  onChange={(value: any) => {
+                    setTypeFilter(value as HomeResKey);
+                    if(visibility)
+                      setTypeFilterPagination(HomeResTypeEnum[value])
+                  }
+                  }
                   options={[
                     getFilterMenuItem(HomeResTypeEnum.All),
                     getFilterMenuItem(HomeResTypeEnum.Application),
                     getFilterMenuItem(HomeResTypeEnum.Module),
-                    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation)] : []),
-                    ...(mode !== "trash" && mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
+                    ...(mode !== "marketplace" ? [getFilterMenuItem(HomeResTypeEnum.Navigation), getFilterMenuItem(HomeResTypeEnum.MobileTabLayout)] : []),
+                    ...(mode !== "trash" && mode !== "marketplace" && mode !== "folder" ? [getFilterMenuItem(HomeResTypeEnum.Folder)] : []),
                   ]}
                   getPopupContainer={(node: any) => node}
                   suffixIcon={<ArrowSolidIcon />} />
               )}
+              {(mode === "view" || mode === "folder") &&
+                <FilterDropdown
+                    style={{ minWidth: "220px" }}
+                    variant="borderless"
+                    value={categoryFilter}
+                    onChange={(value: any) => {
+                      setCategoryFilter(value as ApplicationCategoriesEnum)
+                      setCategoryFilterPagination(value as ApplicationCategoriesEnum);
+                      }
+
+                    }
+                    options={categoryOptions}
+                  // getPopupContainer={(node) => node}
+                    suffixIcon={<ArrowSolidIcon />}
+                />}
               {mode === "marketplace" && (
                 <FilterDropdown
                   style={{ minWidth: "220px" }}
@@ -502,17 +559,28 @@ export function HomeLayout(props: HomeLayoutProps) {
                   suffixIcon={<ArrowSolidIcon />} />
               )}
 
-              <OperationRightWrapper>
+              <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
+                {layout === "list" ? <HomeCardIcon/> : <HomeListIcon/>}
+              </LayoutSwitcher>
+
+              <SearchWrapper>
                 <Search
                   placeholder={trans("search")}
-                  value={searchValue}
+                  value={searchValue || ""}
                   onChange={(e) => setSearchValue(e.target.value)}
                   style={{ width: "192px", height: "32px", margin: "0" }}
                 />
-                {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
-                  <CreateDropdown defaultVisible={showNewUserGuide(user)} mode={mode} />
-                )}
-              </OperationRightWrapper>
+              
+
+              {mode !== "trash" && mode !== "marketplace" && user.orgDev && (
+                <CreateDropdown 
+                  defaultVisible={showNewUserGuide(user)} 
+                  mode={mode} 
+                  setModify={setIsCreated} 
+                  modify={isCreated!} />
+              )}
+              </SearchWrapper>
+
             </OperationWrapper>
 
             <Divider />
@@ -526,13 +594,10 @@ export function HomeLayout(props: HomeLayoutProps) {
                   {resList.length > 0 ? (
                     <>
                       {mode === "trash" ? (
-                        <TrashTableView resources={resList} />
+                        <TrashTableView resources={resList} setModify={setModify} modify={modify!}/>
                       ) : (
                         <>
-                          <LayoutSwitcher onClick={() => setLayout(layout === "list" ? "card" : "list")}>
-                            {layout === "list" ? <HomeCardIcon style={{marginRight: "-11px"}}/> : <HomeListIcon style={{marginTop: "-30px"}}/>}
-                          </LayoutSwitcher>
-                        
+                          
                           {mode === "marketplace" && (
                             <>
                               {layout === "list" ? (
@@ -575,9 +640,9 @@ export function HomeLayout(props: HomeLayoutProps) {
                           {mode !== "marketplace" && (
                             <>
                               {layout === "list" ? (
-                                <HomeTableView resources={resList} />
+                                <HomeTableView resources={resList} setModify={setModify} modify={modify!} mode={mode}/>
                               ) : (
-                                <HomeCardView resources={resList} />
+                                <HomeCardView resources={resList} setModify={setModify} modify={modify!} mode={mode} />
                               )}
                             </>
                           )}
@@ -597,16 +662,27 @@ export function HomeLayout(props: HomeLayoutProps) {
                           ? trans("home.projectEmptyCanAdd")
                           : trans("home.projectEmpty")}
                       </div>
-                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} />}
+                      {mode !== "trash" && mode !== "marketplace" && user.orgDev && <CreateDropdown mode={mode} setModify={setIsCreated} modify={isCreated!}/>}
                     </EmptyView>
                   )}
                 </>
               )}
             </ContentWrapper>
-
+            {visibility && resList.length ? <div>
+              <PaginationLayout>
+                <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    onChange={handlePageChange}
+                    onShowSizeChange={handlePageSizeChange}
+                    total={total}
+                    showSizeChanger
+                />
+              </PaginationLayout>
+            </div> : null}
           </Card>  
           
-        </HomeView> 
+        </HomeView>
       
     </Wrapper>
   );

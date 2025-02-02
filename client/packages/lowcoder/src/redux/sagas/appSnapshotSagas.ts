@@ -42,7 +42,11 @@ export function* fetchAppSnapshotsSaga(action: ReduxAction<FetchSnapshotsPayload
     const response: AxiosResponse<AppSnapshotsResp> = yield call(
       AppSnapshotApi.getSnapshots,
       action.payload.applicationId,
-      { page: action.payload.page, size: action.payload.size }
+      {
+        page: action.payload.page,
+        size: action.payload.size,
+      },
+      action.payload.archived,
     );
     if (validateResponse(response)) {
       action.payload.onSuccess && action.payload.onSuccess(response.data.data);
@@ -63,7 +67,8 @@ export function* fetchAppSnapshotDslSaga(action: ReduxAction<FetchSnapshotDslPay
     const response: AxiosResponse<AppSnapshotDslResp> = yield call(
       AppSnapshotApi.getSnapshotDsl,
       action.payload.applicationId,
-      action.payload.snapshotId
+      action.payload.snapshotId,
+      action.payload.archived,
     );
     if (validateResponse(response)) {
       // replace dsl
@@ -81,11 +86,12 @@ export function* fetchAppSnapshotDslSaga(action: ReduxAction<FetchSnapshotDslPay
 
 export function* recoverAppSnapshotSaga(action: ReduxAction<RecoverSnapshotPayload>) {
   try {
-    const { applicationId, snapshotId, snapshotCreateTime } = action.payload;
+    const { applicationId, snapshotId, snapshotCreateTime, isArchivedSnapshot } = action.payload;
     const response: AxiosResponse<AppSnapshotDslResp> = yield call(
       AppSnapshotApi.getSnapshotDsl,
       applicationId,
-      snapshotId
+      snapshotId,
+      isArchivedSnapshot,
     );
     if (validateResponse(response)) {
       // record history record

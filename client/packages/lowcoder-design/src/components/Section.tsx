@@ -187,4 +187,14 @@ export const sectionNames = {
   badgeStyle:trans("prop.badgeStyle"),
   columnStyle:trans("prop.columnStyle"),
   modalStyle:trans("prop.modalStyle"),
+  chartStyle:trans("prop.chartStyle"),
+  lineStyle:trans("prop.lineStyle"),
+  titleStyle:trans("prop.titleStyle"),
+  legendStyle:trans("prop.legendStyle"),
+  detailStyle:trans("prop.detailStyle"),
+  axisLabelStyle:trans("prop.axisLabelStyle"),
+  axisLabelStyleOutline:trans("prop.axisLabelStyleOutline"),
+  xAxisStyle:trans("prop.xAxisStyle"),
+  yAxisStyle:trans("prop.yAxisStyle"),
+  visualMapStyle:trans("prop.visualMapStyle")
 };

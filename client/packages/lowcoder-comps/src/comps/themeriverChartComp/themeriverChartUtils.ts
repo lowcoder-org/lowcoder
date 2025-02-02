@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import parseBackground from "../../util/gradientBackgroundColor";
 
 export function transformData(
   originData: JSONObject[],
@@ -134,59 +136,80 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
-    let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "tooltip": props.tooltip&&{
-    "trigger": "axis",
-    "axisPointer": {
-      "type": "line",
-      "lineStyle": {
-        "color": "rgba(0,0,0,0.2)",
-        "width": 2,
-        "type": "solid"
-      }
-    }
-  },
-  "singleAxis": {
-    "type": "time",
-    "bottom": 50,
-    "axisTick": {},
-    "axisLabel": {},
-    "splitLine": {},
-    "axisPointer": {
-      "animation": true,
-      "label": {
-        "show": true,
-        "color": "#fff"
-      }
-    },
-    "splitNumber": 30
-  },
-  "series": [
-    {
-      "type": props.echartsConfig.type,
-      "data": props.echartsOption.data,
-      "label": {
-        "show": true,
-        "position": "top",
-        "fontSize": 12
-      },
-      "emphasis": {
-        "itemStyle": {
-          "shadowBlur": 20,
-          "shadowColor": "rgba(0, 0, 0, 0.8)"
+    let opt= props.echartsOption && {
+      title: {
+        text: props?.echartsTitle,
+        top: props?.echartsTitleVerticalConfig.top,
+        left: props?.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
         }
-      }
+      },
+      backgroundColor: parseBackground(props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      tooltip: props.tooltip&&{
+        trigger: "axis",
+        axisPointer: {
+          type: "line",
+          lineStyle: {
+            color: "rgba(0,0,0,0.2)",
+            width: 2,
+            type: "solid"
+          }
+        }
+      },
+      legend: props.legendVisibility && {
+        top: props.echartsLegendConfig.top,
+        left: props.echartsLegendAlignConfig.left,
+        orient: props.echartsLegendOrientConfig.orient,
+        data: props?.echartsData?.data && Array.from(new Set((props.echartsData.data).map(item => item[2]))) || props?.echartsOption?.data && Array.from(new Set((props.echartsOption.data).map(item => item[2]))),
+        textStyle: {
+          ...styleWrapper(props?.legendStyle, theme?.legendStyle, 13)
+        }
+      },
+      singleAxis: {
+        left: `${props?.left}%`,
+        right: `${props?.right}%`,
+        bottom: `${props?.bottom}%`,
+        top: `${props?.top}%`,
+        type: "time",
+        axisTick: {},
+        axisLabel: {
+          ...styleWrapper(props?.axisStyle, theme?.axisStyle, 13)
+        },
+        splitLine: {},
+        axisPointer: {
+          animation: true,
+          label: {
+            show: true,
+            color: "#fff"
+          }
+        },
+        splitNumber: props?.splitNumber
+      },
+      series: [
+        {
+          type: props.echartsConfig.type,
+          data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
+          label: {
+            show: true,
+            position: "top",
+            fontSize: 12
+          },
+          itemStyle: {
+            ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle),
+          },
+          emphasis: {
+            itemStyle: {
+              shadowBlur: 20,
+              shadowColor: "rgba(0, 0, 0, 0.8)"
+            }
+          },
+          color: props.echartsData?.color && props.echartsData.color || props.echartsOption?.color && props.echartsOption.color
+        },
+      ]
     }
-  ]
-}
 
-    return props.echartsOption ? opt : {};
+    return props.echartsData || props.echartsOption ? opt : {};
     
   }
   

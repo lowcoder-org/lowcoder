@@ -17,6 +17,7 @@ COPY server/api-service/lowcoder-server/src/main/resources/application.yaml /low
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
 COPY deploy/docker/api-service/init.sh /lowcoder/api-service/init.sh
+ENV JAVA_OPTS="-Xmx2G -Xms512M"
 RUN chmod +x /lowcoder/api-service/*.sh
 
 ##

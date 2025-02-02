@@ -4,16 +4,24 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang.StringUtils;
 import org.lowcoder.api.authentication.request.AuthException;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.lowcoder.sdk.util.JsonUtils;
 import org.lowcoder.sdk.webclient.WebClientBuildHelper;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.server.i18n.AcceptHeaderLocaleContextResolver;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 import static org.lowcoder.api.authentication.util.AuthenticationUtils.mapToAuthToken;
@@ -38,7 +46,11 @@ public class ApiFlowController implements ApiFlowEndpoints
                     .body(BodyInserters.fromValue(jsonBody))
                     .headers(httpHeaders -> flowRequest.headers().forEach(httpHeaders::add))
                     .retrieve()
-                    .bodyToMono(String.class);
+                    .bodyToMono(String.class)
+                    .onErrorResume(Mono::error)
+                    .retryWhen(Retry.backoff(Objects.requireNonNullElse(flowRequest.retries(), 0),
+                                    Duration.of(Objects.requireNonNullElse(flowRequest.timeout(), HTTP_TIMEOUT), ChronoUnit.SECONDS))
+                            .onRetryExhaustedThrow(((retryBackoffSpec, retrySignal) -> new BizException(BizError.FLOW_ERROR, "FLOW_ERROR", retrySignal.failure().getMessage()))));
         } catch (Exception e) {
             return Mono.error(e);
         }

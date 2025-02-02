@@ -9,7 +9,7 @@ import {
   // MODULE_APPLICATIONS_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
-  SUPPORT_URL,
+  //SUPPORT_URL,
   TRASH_URL,
   NEWS_URL,
   ORG_HOME_URL,
@@ -38,7 +38,7 @@ import {
 } from "lowcoder-design";
 import React, { useCallback, useEffect, useState } from "react";
 import { fetchAllApplications, fetchHomeData } from "redux/reduxActions/applicationActions";
-import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
+//import { fetchSubscriptionsAction } from "redux/reduxActions/subscriptionActions";
 import { getHomeOrg, normalAppListSelector } from "redux/selectors/applicationSelector";
 import { DatasourceHome } from "../datasource";
 import { clearStyleEval, evalStyle } from "lowcoder-core";
@@ -55,7 +55,7 @@ import { FolderView } from "./FolderView";
 import { TrashView } from "./TrashView";
 import { MarketplaceView } from "./MarketplaceView";
 // import { SideBarItemType } from "../../components/layout/SideBarSection";
-import { RootFolderListView } from "./RootFolderListView";
+//import { RootFolderListView } from "./RootFolderListView";
 // import InviteDialog from "../common/inviteDialog";
 import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/folderActions";
 // import { ModuleView } from "./ModuleView";
@@ -63,12 +63,12 @@ import { fetchFolderElements, updateFolder } from "../../redux/reduxActions/fold
 import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
-import { Support } from "pages/support";
+//import { Support } from "pages/support";
 // import { TypographyText } from "../../components/TypographyText";
 // import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
-import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
-import { SubscriptionProducts } from '@lowcoder-ee/api/subscriptionApi';
+//import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
+//import { SubscriptionProducts } from '@lowcoder-ee/api/subscriptionApi';
 import { ReduxActionTypes } from '@lowcoder-ee/constants/reduxActionConstants';
 
 // adding App Editor, so we can show Apps inside the Admin Area
@@ -167,16 +167,16 @@ export default function ApplicationHome() {
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
   const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
-  const subscriptions = useSelector(getSubscriptions);
+  //const subscriptions = useSelector(getSubscriptions);
 
   const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     dispatch(fetchHomeData({}));
-    dispatch(fetchSubscriptionsAction());
+    //dispatch(fetchSubscriptionsAction());
   }, [user.currentOrgId]);
 
-  const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
+  //const supportSubscription = subscriptions.some(sub => sub.product === SubscriptionProducts.SUPPORT);
 
   useEffect(() => {
     if (!org) {
@@ -256,12 +256,12 @@ export default function ApplicationHome() {
 
           {
             items: [
-              {
-                text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
-                routePath: FOLDERS_URL,
-                routeComp: RootFolderListView,
-                icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
-              },
+              // {
+              //   text: <MoreFoldersWrapper>{trans("home.allFolders")}</MoreFoldersWrapper>,
+              //   routePath: FOLDERS_URL,
+              //   routeComp: RootFolderListView,
+              //   icon: ({ selected, ...otherProps }) => selected ? <FolderIcon {...otherProps} width={"24px"}/> : <FolderIcon {...otherProps} width={"24px"}/>,
+              // },
               {
                 text: <TabLabel>{trans("home.allApplications")}</TabLabel>,
                 routePath: ALL_APPLICATIONS_URL,

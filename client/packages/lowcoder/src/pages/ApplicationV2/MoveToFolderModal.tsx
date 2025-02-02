@@ -40,7 +40,8 @@ const MoveModalFooter = styled.div`
   gap: 8px;
 `;
 
-export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void }) => {
+export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void, setModify: any, modify: boolean }) => {
+  const {setModify, modify} = props;
   const [form] = Form.useForm();
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -83,6 +84,9 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
                     () => setLoading(false)
                   )
                 );
+                  setTimeout(() => {
+                      setModify(!modify);
+                  }, 200);
               });
             }}
           >

@@ -17,7 +17,7 @@ Suppose you currently run v4 and want to update to v7- these are the necessary s
 Stop your OpenFlower instance and wait for it to completely stop the service.
 
 ```bash
-docker-compose down
+docker compose down
 ```
 
 ### 2) Create a Backup Copy of the **lowcoder-stacks** folder
@@ -33,7 +33,7 @@ Update MongoDB from v4 to v5
 {% endfile %}
 
 ```bash
-docker-compose -f upgrade-mongo-4x-to-5x.yaml up -d && sleep 30
+docker compose -f upgrade-mongo-4x-to-5x.yaml up -d && sleep 30
 ```
 
 ### 4) Set MongoDB Compatibility-Version to 5
@@ -45,7 +45,7 @@ docker exec mongodb-5 /usr/bin/mongosh --eval 'use admin' --eval 'db.adminComman
 ### 5) Stop and remove MongoDB 5 Update-Container
 
 ```bash
-docker-compose -f upgrade-mongo-4x-to-5x.yaml down
+docker compose -f upgrade-mongo-4x-to-5x.yaml down
 ```
 
 ### 6) Run upgrade-mongo-5x-to-6x docker compose file
@@ -55,7 +55,7 @@ Update MongoDB from v5 to v6
 {% endfile %}
 
 ```bash
-docker-compose -f upgrade-mongo-5x-to-6x.yaml up -d && sleep 30
+docker compose -f upgrade-mongo-5x-to-6x.yaml up -d && sleep 30
 ```
 
 ### 7) Set MongoDB Compatibility-Version to 6
@@ -67,7 +67,7 @@ docker exec mongodb-6 /usr/bin/mongosh --eval 'use admin' --eval 'db.adminComman
 ### 8) Stop and remove MongoDB 6 Update-Container&#x20;
 
 ```bash
-docker-compose -f upgrade-mongo-5x-to-6x.yaml down
+docker compose -f upgrade-mongo-5x-to-6x.yaml down
 ```
 
 ### 9) Run upgrade-mongo-6x-to-7x docker compose file
@@ -77,13 +77,13 @@ Update MongoDB from v6 to v7
 {% endfile %}
 
 ```bash
-docker-compose -f upgrade-mongo-6x-to-7x.yaml up -d && sleep 30
+docker compose -f upgrade-mongo-6x-to-7x.yaml up -d && sleep 30
 ```
 
 ### 10) Stop and remove MongoDB 7 Update-Container
 
 ```bash
-docker-compose -f upgrade-mongo-6x-to-7x.yaml down
+docker compose -f upgrade-mongo-6x-to-7x.yaml down
 ```
 
 As result your MongoDB is now updated to Version 7 without Data loss.

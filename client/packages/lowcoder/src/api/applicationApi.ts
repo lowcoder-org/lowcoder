@@ -12,7 +12,7 @@ import {
   SetAppEditingStatePayload,
   UpdateAppPermissionPayload,
 } from "redux/reduxActions/applicationActions";
-import { ApiResponse, GenericApiResponse } from "./apiResponses";
+import {ApiResponse, GenericApiResponse} from "./apiResponses";
 import { JSONObject, JSONValue } from "util/jsonTypes";
 import {
   ApplicationDetail,
@@ -24,6 +24,7 @@ import {
 } from "constants/applicationConstants";
 import { CommonSettingResponseData } from "./commonSettingApi";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
+import {fetchAppRequestType, GenericApiPaginationResponse} from "@lowcoder-ee/util/pagination/type";
 
 export interface HomeOrgMeta {
   id: string;
@@ -98,6 +99,7 @@ class ApplicationApi extends Api {
   static publicToMarketplaceURL = (applicationId: string) => `/applications/${applicationId}/public-to-marketplace`;
   static getMarketplaceAppURL = (applicationId: string) => `/applications/${applicationId}/view_marketplace`;
   static setAppEditingStateURL = (applicationId: string) => `/applications/editState/${applicationId}`;
+  static serverSettingsURL = () => `/serverSettings`;
 
   static fetchHomeData(request: HomeDataPayload): AxiosPromise<HomeDataResponse> {
     return Api.get(ApplicationApi.fetchHomeDataURL, request);
@@ -105,6 +107,10 @@ class ApplicationApi extends Api {
 
   static fetchAllApplications(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
     return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false });
+  }
+
+  static fetchAllApplicationsPagination(request: fetchAppRequestType): AxiosPromise<GenericApiPaginationResponse<ApplicationMeta[]>> {
+    return Api.get(ApplicationApi.newURLPrefix + "/list", { ...request, withContainerSize: false, applicationStatus: "RECYCLED" });
   }
 
   static fetchAllModules(request: HomeDataPayload): AxiosPromise<ApplicationMeta[]> {
@@ -239,6 +245,10 @@ class ApplicationApi extends Api {
     return Api.put(ApplicationApi.setAppEditingStateURL(applicationId), {
       editingFinished,
     });
+  }
+
+  static fetchServerSettings(): AxiosPromise<any> {
+    return Api.get(ApplicationApi.serverSettingsURL());
   }
 }
 

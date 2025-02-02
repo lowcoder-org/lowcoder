@@ -12,7 +12,7 @@ import reactor.core.publisher.Mono;
 
 public interface GroupMemberService {
 
-    Mono<List<GroupMember>> getGroupMembers(String groupId, int page, int count);
+    Mono<List<GroupMember>> getGroupMembers(String groupId);
 
     Mono<Boolean> addMember(String orgId, String groupId, String userId, MemberRole memberRole);
 

@@ -62,6 +62,7 @@ import { selectCompModifierKeyPressed } from "util/keyUtils";
 import { defaultLayout, GridItemComp, GridItemDataType } from "../gridItemComp";
 import { ThemeContext } from "comps/utils/themeContext";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import { ExpandViewContext } from "../tableComp/expansionControl";
 
 const childrenMap = {
   layout: valueComp<Layout>({}),
@@ -224,9 +225,10 @@ const onDrop = async (
     const nameGenerator = editorState.getNameGenerator();
     const compInfo = parseCompType(compType);
     const compName = nameGenerator.genItemName(compInfo.compName);
+    const isLazyLoadComp = uiCompRegistry[compType as UICompType]?.lazyLoad;
     let defaultDataFn = undefined;
     
-    if (!compInfo.isRemote) {
+    if (isLazyLoadComp) {
       const {
         defaultDataFnName,
         defaultDataFnPath,
@@ -236,6 +238,8 @@ const onDrop = async (
         const module = await import(`../../${defaultDataFnPath}.tsx`);
         defaultDataFn = module[defaultDataFnName];
       }
+    } else if(!compInfo.isRemote) {
+      defaultDataFn = uiCompRegistry[compType as UICompType]?.defaultDataFn;
     }
 
     const widgetValue: GridItemDataType = {
@@ -357,11 +361,12 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       || String(DEFAULT_GRID_COLUMNS);
   }, [horizontalGridCells, positionParams.cols]);
 
+  const isExpandView = useContext(ExpandViewContext);
   const isDroppable =
-    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly;
-  const isDraggable = !readOnly && (_.isNil(props.isDraggable) || props.isDraggable);
-  const isResizable = !readOnly && (_.isNil(props.isResizable) || props.isResizable);
-  const isSelectable = !readOnly && (_.isNil(props.isSelectable) || props.isSelectable);
+    useContext(IsDroppable) && (_.isNil(props.isDroppable) || props.isDroppable) && !readOnly && !isExpandView;
+  const isDraggable = !readOnly  && !isExpandView && (_.isNil(props.isDraggable) || props.isDraggable);
+  const isResizable = !readOnly  && !isExpandView && (_.isNil(props.isResizable) || props.isResizable);
+  const isSelectable = !readOnly  && !isExpandView && (_.isNil(props.isSelectable) || props.isSelectable);
   const extraLayout = useMemo(
     () =>
       getExtraLayout(
@@ -484,7 +489,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       setRowCount(Infinity);
       onRowCountChange?.(0);
     }
-  }, [isRowCountLocked, onRowCountChange]);
+  }, [isRowCountLocked, positionParams.rowHeight, onRowCountChange]);
 
   // log.info("rowCount:", currentRowCount, "rowHeight:", currentRowHeight);
 
