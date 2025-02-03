@@ -1,9 +1,8 @@
-import { EmptyContent } from "components/EmptyContent";
 import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
 import { TacoButton, CustomSelect, messageInstance, Dropdown } from "lowcoder-design";
 import React, { useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { default as ColorPicker } from "antd/es/color-picker";
@@ -19,9 +18,6 @@ import MaterialApi, { MaterialUploadTypeEnum } from "@lowcoder-ee/api/materialAp
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
-import { fetchCommonSettings, setCommonSettings } from "@lowcoder-ee/redux/reduxActions/commonSettingsActions";
-import { useShallowEqualSelector } from "@lowcoder-ee/util/hooks";
-// import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { Org } from "@lowcoder-ee/constants/orgConstants";
 import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@lowcoder-ee/api/enterpriseApi";
 
@@ -84,14 +80,6 @@ const defaultSettings = {
   whatsNew: false,
   whatsNewLink : null,
 };
-
-const defaultBrandingConfig = {
-  org_id: '',
-  user_id: '',
-  config_name: '',
-  config_description: '',
-  config_set: defaultSettings,
-}
 
 // type FileType = Parameters<UploadProps["beforeUpload"]>[0] | undefined;
 
@@ -178,8 +166,6 @@ const beforeUpload = (file: RcFile) => {
 };
 
 export function BrandingSetting() {
-  // const [configName, setConfigName] = useState<string>('');
-  // const [configDescription, setConfigDescription] = useState<string>('');
   const [configOrgId, setConfigOrgId] = useState<string>('');
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
   const [brandingConfig, setBrandingConfig] = useState<BrandingConfig>();
@@ -191,8 +177,6 @@ export function BrandingSetting() {
     [SettingsEnum.SIGNUP_PAGE_IMAGE]: false,
   });
   const currentUser = useSelector(getUser);
-  const dispatch = useDispatch();
-  // const brandingSettings = useShallowEqualSelector(getBrandingSettings);
 
   const orgsList = useMemo(() => {
     const list: Array<{label: string, value: string}> = [{
@@ -212,10 +196,7 @@ export function BrandingSetting() {
     const fetchBrandingDetails = async() => {
       try {
         const branding = await getBranding(configOrgId);
-        setBrandingConfig({
-          ...branding,
-          config_set: JSON.parse(branding.config_set),
-        });
+        setBrandingConfig(branding);
       } catch(e) {
         setBrandingConfig(undefined);
       }
@@ -224,17 +205,7 @@ export function BrandingSetting() {
     fetchBrandingDetails();
   }, [configOrgId]);
 
-  // useEffect(() => {
-  //   setSettings(brandingSettings ?? defaultSettings);
-  // }, [brandingSettings]);
-
-  // useEffect(() => {
-  //   // dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  //   getBranding();
-  // }, [currentUser.currentOrgId, dispatch]);
-
   const updateSettings = (key: keyof BrandingSettings, value: any) => {
-    // setSettings((prev) => ({ ...prev, [key]: value }));
     setBrandingConfig((branding) => ({
       ...branding,
       config_set: {
@@ -276,45 +247,10 @@ export function BrandingSetting() {
   }
 
   const handleSave = async () => {
-    // const response = await createBranding({
-    //   config_name: configName,
-    //   config_description: configDescription,
-    //   // config_icon: "http://example.com/icon.png",
-    //   config_set: settings,
-    //   org_id: configOrgId,
-    //   user_id: currentUser.id,
-    // });
     const response = await createBranding({
       ...brandingConfig,
       org_id: configOrgId,
     });
-    console.log(response);
-    // dispatch(
-    //   setCommonSettings({
-    //     orgId: currentUser.currentOrgId,
-    //     data: {
-    //       key: 'branding',
-    //       value: settings,
-    //     },
-    //     onSuccess: () => {
-    //       messageInstance.success(trans("advanced.saveSuccess"));
-    //     },
-    //   })
-    // );
-
-    // dispatch(
-    //   setCommonSettings({
-    //     orgId: currentUser.currentOrgId,
-    //     data: {
-    //       key: 'branding',
-    //       value: settings,
-    //     },
-    //     onSuccess: () => {
-    //       messageInstance.success(trans("advanced.saveSuccess"));
-    //     },
-    //   })
-    // );
-
   }
 
   const uploadButton = (loading: boolean) => (

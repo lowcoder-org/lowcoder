@@ -1,19 +1,27 @@
 import { AppState } from "../reducers";
 
 export const selectEnterpriseEditionStatus = (state: AppState) =>
-  state.ui.enterprise?.eeActive ?? false;
+  state.ui.enterprise?.enterprise?.eeActive ?? false;
 
 export const selectRemainingAPICalls = (state: AppState) =>
-  state.ui.enterprise?.remainingAPICalls ?? 0;
+  state.ui.enterprise?.enterprise?.remainingAPICalls ?? 0;
 
 export const selectEnterpriseLicenses = (state: AppState) =>
-  state.ui.enterprise?.eeLicenses ?? [];
+  state.ui.enterprise?.enterprise?.eeLicenses ?? [];
 
 export const selectIsLicenseActive = (state: AppState) => {
   const enterprise = state.ui.enterprise;
-  return enterprise?.eeActive && enterprise?.remainingAPICalls > 0;
+  return enterprise?.enterprise?.eeActive && enterprise?.enterprise?.remainingAPICalls > 0;
 };
 
-// export const getBrandingSettings = (state: AppState) => {
-//   return state.ui.commonSettings.settings.branding;
-// }
+export const getBrandingSetting = (state: AppState) => {
+  return state.ui.enterprise?.workspaceBranding || state.ui.enterprise?.globalBranding;
+}
+
+export const getGlobalBrandingSetting = (state: AppState) => {
+  return state.ui.enterprise?.globalBranding;
+}
+
+export const getWorkspaceBrandingSetting = (state: AppState) => {
+  return state.ui.enterprise?.workspaceBranding;
+}

@@ -149,7 +149,7 @@ export default function ApplicationHome() {
   return (
     <DivStyled>
       <LoadingBarHideTrigger />
-      <EnterpriseProvider>
+      {/* <EnterpriseProvider> */}
         <SimpleSubscriptionContextProvider>
           <Layout
             sections={[
@@ -285,7 +285,7 @@ export default function ApplicationHome() {
             ]}
           />
         </SimpleSubscriptionContextProvider>
-      </EnterpriseProvider>
+      {/* </EnterpriseProvider> */}
     </DivStyled>
   );
 }

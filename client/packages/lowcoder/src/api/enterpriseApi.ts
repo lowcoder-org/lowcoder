@@ -1,5 +1,8 @@
 import axios from 'axios';
 
+export interface FetchBrandingSettingPayload {
+  orgId?: string;
+}
 export interface BrandingSettings {
   logo?: string | null;
   squareLogo?: string | null;
@@ -38,6 +41,18 @@ export interface BrandingConfig {
   id?: string,
 }
 
+export interface BrandingSettingResponse extends BrandingConfig {};
+
+export interface EnterpriseLicenseResponse {
+  eeActive: boolean;
+  remainingAPICalls: number;
+  eeLicenses: Array<{
+    uuid: string;
+    issuedTo: string;
+    apiCallsLimit: number;
+  }>;
+}
+
 // Existing functions
 export const getEnterpriseLicense = async () => {
   const response = await axios.get('/api/plugins/enterprise/license');
@@ -69,7 +84,14 @@ export const getAppUsageStatistics = async (groupByParam : string) => {
 
 export const getBranding = async (orgId: string = '') => {
   const response = await axios.get('/api/plugins/enterprise/branding?orgId='+orgId);
-  return response.data;
+  const data = response.data;
+  if (Boolean(data.error)) {
+    return {};
+  }
+  return {
+    ...data,
+    config_set: JSON.parse(data.config_set),
+  };
 };
 
 export const createBranding = async (brandingData : any) => {
