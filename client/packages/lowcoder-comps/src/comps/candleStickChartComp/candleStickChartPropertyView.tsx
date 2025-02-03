@@ -18,6 +18,7 @@ export function candleStickChartPropertyView(
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
         {children.echartsTitleConfig.getPropertyView()}
+        {children.echartsTitleData.propertyView({ label: trans("chart.xAxisLabels"), tooltip: trans("chart.xAxisLabelsTooltip") })}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.echartsTitle.propertyView({ label: trans("candleStickChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.left.propertyView({ label: trans("candleStickChart.left"), tooltip: trans("echarts.leftTooltip") })}

@@ -374,6 +374,8 @@ export const en = {
     dataColumns: "Data Columns",
     title: "Title",
     tooltip:'Tooltip',
+    xAxisLabels: "Labels-X",
+    xAxisLabelsTooltip: "Label data for Axis-X (JSON Array)",
     xAxisDirection: "X-axis Direction",
     xAxisName: "X-axis Name",
     xAxisType: "X-axis Type",

@@ -254,6 +254,7 @@ let chartJsonModeChildren: any = {
   echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultCandleStickChartOption),
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
+  echartsTitleData: jsonControl(toArray),
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsTitleConfig:EchartsTitleConfig,
