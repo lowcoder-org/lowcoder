@@ -55,9 +55,12 @@ import {
 } from "util/localStorageUtil";
 import { isAggregationApp } from "util/appUtils";
 import EditorSkeletonView from "./editorSkeletonView";
-import { getBrandingSettings, getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
+import {
+  getCommonSettings
+} from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -314,7 +317,7 @@ function EditorView(props: EditorViewProps) {
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const brandingSettings = useSelector(getBrandingSettings);
+  const brandingSettings = useSelector(getBrandingSetting);
   const [showShortcutList, setShowShortcutList] = useState(false);
   const toggleShortcutList = useCallback(
     () => setShowShortcutList(!showShortcutList),
@@ -534,10 +537,10 @@ function EditorView(props: EditorViewProps) {
         >
           <Body>
             <SiderWrapper
-              $bgColor={brandingSettings?.editorSidebarColor}
-              $fontColor={brandingSettings?.editorSidebarFontColor}
-              $activeBgColor={brandingSettings?.editorSidebarActiveBgColor}
-              $activeFontColor={brandingSettings?.editorSidebarActiveFontColor}
+              $bgColor={brandingSettings?.config_set?.editorSidebarColor}
+              $fontColor={brandingSettings?.config_set?.editorSidebarFontColor}
+              $activeBgColor={brandingSettings?.config_set?.editorSidebarActiveBgColor}
+              $activeFontColor={brandingSettings?.config_set?.editorSidebarActiveFontColor}
             >
               <Sider width={40}>
                 <Menu

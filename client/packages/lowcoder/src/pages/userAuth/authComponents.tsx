@@ -8,10 +8,13 @@ import { StyledLink } from "pages/common/styledComponent";
 import { trans } from "i18n";
 import { favicon } from "assets/images";
 import { Col, Row, Typography } from "antd";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+import { useSelector } from "react-redux";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 
-const StyledBrandingColumn = styled(Col)`
+const StyledBrandingColumn = styled(Col)<{$bgImage?: string | null}>`
   background-color: rgb(234, 234, 234);
-  background-image: url(https://images.unsplash.com/photo-1589810264340-0ce27bfbf751?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D);
+  background-image: url(${props => props.$bgImage});
   background-size: cover;
   background-repeat: no-repeat;
   padding: 28px 36px;
@@ -178,14 +181,19 @@ const BrandingWrapper = (props: {
   isEE?: boolean;
   children: ReactNode;
 }) => {
+  const brandingSettings = useSelector(getBrandingSetting);
+  const brandingImage = buildMaterialPreviewURL(brandingSettings?.config_set?.signUpPageImage || '');
+  const brandingText = brandingSettings?.config_set?.signUpPageText;
+
   if (!props.isEE) {
     return <>{props.children}</>
   }
+
   return (
     <Row style={{minHeight: '500px'}}>
-      <StyledBrandingColumn md={12} sm={24}>
+      <StyledBrandingColumn md={12} sm={24} $bgImage={brandingImage}>
         <StyledBrandingText>
-          Join us today to explore new opportunities!
+          {brandingText}
         </StyledBrandingText>
       </StyledBrandingColumn>
       <StyledRightColumn md={12} sm={24}>

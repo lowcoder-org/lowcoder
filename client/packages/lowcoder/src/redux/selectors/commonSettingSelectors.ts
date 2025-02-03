@@ -27,7 +27,3 @@ export const getDefaultTheme = (state: AppState) => {
 export const getDefaultHomePage = (state: AppState) => {
   return state.ui.commonSettings.settings.defaultHomePage;
 };
-
-export const getBrandingSettings = (state: AppState) => {
-  return state.ui.commonSettings.settings.branding;
-}

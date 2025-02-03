@@ -10,7 +10,6 @@ import { CNMainContent, CNSidebar } from "constants/styleSelectors";
 import { SideBarSection, SideBarSectionProps } from "./SideBarSection";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import { getBrandingSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
 
@@ -58,7 +57,6 @@ const DrawerContentWrapper = styled.div`
 `;
 
 export function Layout(props: LayoutProps) {
-  const brandingSettings = useSelector(getBrandingSettings);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
