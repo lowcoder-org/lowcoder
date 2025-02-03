@@ -17,6 +17,7 @@ export function sankeyChartPropertyView(
     <>
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsLinks.propertyView({ label: trans("chart.links") })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}

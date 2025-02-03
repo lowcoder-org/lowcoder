@@ -17,7 +17,7 @@ export function radarChartPropertyView(
     <>
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
-
+        {children.echartsIndicators.propertyView({ label: trans("radarChart.indicators") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.legendVisibility.getView() && children.echartsLegendAlignConfig.getPropertyView()}

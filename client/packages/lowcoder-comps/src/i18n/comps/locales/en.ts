@@ -7,6 +7,7 @@ export const en = {
   },
   themeriverChart: {
     themeriverType: 'Themeriver Chart Type',
+    colors: 'Colors',
     title: 'Title',
     defaultTitle: 'Themeriver Chart',
     tooltip: 'Tooltip',
@@ -23,6 +24,7 @@ export const en = {
   },
   sunburstChart: {
     sunburstType: 'Sunburst Chart Type',
+    levels: 'Levels',
     title: 'Title',
     defaultTitle: 'Sunburst Chart',
     tooltip: 'Tooltip',
@@ -73,6 +75,9 @@ export const en = {
     lineWidthTooltip: "Set the Line Width of the Chart."
   },
   graphChart: {
+    categories: 'Categories',
+    nodes: 'Nodes',
+    links: 'Links',
     graphType: 'Graph Chart Type',
     title: 'Title',
     defaultTitle: 'Graph Chart',
@@ -105,6 +110,9 @@ export const en = {
   },
   heatmapChart: {
     heatmapType: 'Heatmap Chart Type',
+    color: 'Colors',
+    xAxisData: 'X-Axis Data',
+    yAxisData: 'Y-Axis Data',
     title: 'Title',
     left: 'Left',
     defaultLeft:'15',
@@ -145,6 +153,7 @@ export const en = {
     areaFlagTooltip: "Divide the area into a Line or a Circle.",
     indicatorVisibility: "Indicator",
     indicatorVisibilityTooltip: "Show or hide the Indicator of the Chart.",
+    indicators: 'Indicators',
   },
   candleStickChart: {
     candleStickType: 'CandleStick Chart Type',
@@ -361,6 +370,7 @@ export const en = {
   chart: {
     delete: "Delete",
     data: "Data",
+    links: "Links",
     mode: "Mode",
     config: "Configuration",
     UIMode: "UI Mode",

@@ -169,7 +169,7 @@ export function getEchartsConfig(
       },
       radar: [
         {
-          indicator: props.echartsData.indicator || props.echartsOption.indicator,
+          indicator: (props.echartsIndicators.length !== 0 && props.echartsIndicators) || props.echartsOption.indicator,
           center: [`${props?.position_x}%`, `${props?.position_y}%`],
           startAngle: props?.startAngle,
           endAngle: props?.endAngle,

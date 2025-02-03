@@ -17,6 +17,7 @@ export function themeriverChartPropertyView(
     <>
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsColors.propertyView({ label: trans("themeriverChart.colors") })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
