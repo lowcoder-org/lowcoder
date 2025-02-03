@@ -251,9 +251,10 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toArray),
+  echartsData: jsonControl(toArray, i18nObjs.defaultCandleStickChartOption.data),
   echartsOption: jsonControl(toObject, i18nObjs.defaultCandleStickChartOption),
   echartsTitle: withDefault(StringControl, trans("candleStickChart.defaultTitle")),
+  echartsTitleData: jsonControl(toArray, i18nObjs.defaultCandleStickChartOption.xAxis.data),
   echartsTitleVerticalConfig: EchartsTitleVerticalConfig,
   echartsLabelConfig: EchartsLabelConfig,
   echartsTitleConfig:EchartsTitleConfig,

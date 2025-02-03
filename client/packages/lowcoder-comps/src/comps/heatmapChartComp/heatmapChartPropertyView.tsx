@@ -17,6 +17,9 @@ export function heatmapChartPropertyView(
     <>
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsDataX.propertyView({ label: trans("heatmapChart.xAxisData") })}
+        {children.echartsDataY.propertyView({ label: trans("heatmapChart.yAxisData") })}
+        {children.echartsColor.propertyView({ label: trans("heatmapChart.color") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}
         {children.echartsLegendAlignConfig.getPropertyView()}

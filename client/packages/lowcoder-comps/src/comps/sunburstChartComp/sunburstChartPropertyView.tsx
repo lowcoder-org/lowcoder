@@ -17,6 +17,7 @@ export function sunburstChartPropertyView(
     <>
       <Section name={trans("chart.config")}>
         {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsLevels.propertyView({ label: trans("sunburstChart.levels") })}
 
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}

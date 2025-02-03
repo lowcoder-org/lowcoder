@@ -253,7 +253,8 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toArray),
+  echartsData: jsonControl(toArray, i18nObjs.defaultSunburstChartOption.data),
+  echartsLevels: jsonControl(toArray, i18nObjs.defaultSunburstChartOption.levels),
   echartsOption: jsonControl(toObject, i18nObjs.defaultSunburstChartOption),
   echartsTitle: withDefault(StringControl, trans("sunburstChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
