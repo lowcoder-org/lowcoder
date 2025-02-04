@@ -33,7 +33,7 @@
     "@aws-sdk/client-appconfig": "^3.533.0",
     "@aws-sdk/client-appconfigdata": "^3.726.1",
     "@aws-sdk/client-athena": "^3.333.0",
-    "@aws-sdk/client-dynamodb": "^3.332.0",
+    "@aws-sdk/client-dynamodb": "^3.738.0",
     "@aws-sdk/client-lambda": "^3.332.0",
     "@aws-sdk/client-s3": "^3.332.0",
     "@aws-sdk/s3-request-presigner": "^3.332.0",
