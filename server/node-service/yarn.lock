@@ -4945,9 +4945,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ali-oss@npm:^6.20.0":
-  version: 6.21.0
-  resolution: "ali-oss@npm:6.21.0"
+"ali-oss@npm:^6.22.0":
+  version: 6.22.0
+  resolution: "ali-oss@npm:6.22.0"
   dependencies:
     address: ^1.2.2
     agentkeepalive: ^3.4.1
@@ -4974,7 +4974,7 @@ __metadata:
     urllib: ^2.44.0
     utility: ^1.18.0
     xml2js: ^0.6.2
-  checksum: 26424e96c4a927e08d6aa9480a0f9db6da00b0188a7a45672f3244344f5cf6ff81aee72a8e46dcd240c98f168d09e2853ac84ae9e5764bc673b4d959a11a5e51
+  checksum: 7120edb25dc92311b25a9dd782b7482a4a6d835a5cf212a6f57f6d3df153f9e09a6317a8b2bedad04b7e343a8e1be057bc032779ec06ef6df353f2a02cdf235c
   languageName: node
   linkType: hard
 
@@ -8546,7 +8546,7 @@ __metadata:
     "@types/morgan": ^1.9.3
     "@types/node": ^22.10.5
     "@types/node-fetch": ^2.6.2
-    ali-oss: ^6.20.0
+    ali-oss: ^6.22.0
     axios: ^1.7.9
     base64-arraybuffer: ^1.0.2
     bluebird: ^3.7.2
