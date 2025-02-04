@@ -688,7 +688,11 @@ const QueryListTmpComp = list(QueryComp);
 class QueryListComp extends QueryListTmpComp implements BottomResListComp {
   override reduce(action: CompAction): this {
     if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
-      if (action.path?.length ===  1 && !isNaN(parseInt(action.path[0]))) {
+      if (
+        action.path?.length ===  1
+        && !isNaN(parseInt(action.path[0]))
+        && action.value.result.success
+      ) {
         const queryIdx = parseInt(action.path[0]);
         const queryComps = this.getView();
         const queryName = queryComps?.[queryIdx]?.children.name.getView();
