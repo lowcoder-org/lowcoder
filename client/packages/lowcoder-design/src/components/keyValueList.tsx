@@ -100,7 +100,7 @@ export const KeyValueList = (props: {
   return (
     <>
       {props.list.map((item, index) => (
-        <IndicatorWrapper key={index}>
+        <IndicatorWrapper key={index} indicatorForAll={props.indicatorForAll}>
           <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
             {item}
             {!props.isStatic &&
