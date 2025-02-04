@@ -29,7 +29,8 @@ import { CompConstructor } from "lowcoder-core";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { ControlParams, ControlType } from "comps/controls/controlParams";
 import MarkdownTooltip from "lowcoder-design/src/components/MarkdownTooltip";
-import { KeyValueControlParams, keyValueListControl } from "comps/controls/keyValueControl";
+import { KeyValueControlParams } from "comps/controls/keyValueControl";
+import { keyValueListControl } from "comps/controls/keyValueListControl";
 import { VariablesControl } from "../httpQuery/graphqlQuery";
 import { HttpHeaderPropertyView } from "../httpQuery/httpQueryConstants";
 

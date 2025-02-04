@@ -5,11 +5,13 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.AddMemberRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.domain.application.service.ApplicationRecordServiceImpl;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
@@ -40,6 +42,7 @@ import org.lowcoder.infra.event.groupmember.GroupMemberRemoveEvent;
 import org.lowcoder.infra.event.groupmember.GroupMemberRoleUpdateEvent;
 import org.lowcoder.infra.event.user.UserLoginEvent;
 import org.lowcoder.infra.event.user.UserLogoutEvent;
+import org.lowcoder.infra.util.TupleUtils;
 import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.LocaleUtils;
@@ -65,6 +68,7 @@ public class BusinessEventPublisher {
     private final ApplicationService applicationService;
     private final DatasourceService datasourceService;
     private final ResourcePermissionService resourcePermissionService;
+    private final ApplicationRecordServiceImpl applicationRecordServiceImpl;
 
     public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, EventType eventType) {
 
@@ -93,13 +97,14 @@ public class BusinessEventPublisher {
                 });
     }
 
-    public Mono<Void> publishApplicationCommonEvent(String applicationId, @Nullable String folderId, EventType eventType) {
+    public Mono<Void> publishApplicationCommonEvent(String applicationId, @Nullable String folderIdFrom, @Nullable String folderId, EventType eventType) {
         return applicationService.findByIdWithoutDsl(applicationId)
                 .map(application -> {
                     ApplicationInfoView applicationInfoView = ApplicationInfoView.builder()
                             .applicationId(applicationId)
                             .name(application.getName())
                             .folderId(folderId)
+                            .folderIdFrom(folderIdFrom)
                             .build();
                     return ApplicationView.builder()
                             .applicationInfoView(applicationInfoView)
@@ -125,11 +130,34 @@ public class BusinessEventPublisher {
                                         .map(Optional::of)
                                         .onErrorReturn(Optional.empty());
                             }))
+                            .zipWith(Mono.defer(() -> {
+                                String folderId = applicationView.getApplicationInfoView().getFolderIdFrom();
+                                if (StringUtils.isBlank(folderId)) {
+                                    return Mono.just(Optional.<Folder> empty());
+                                }
+                                return folderService.findById(folderId)
+                                        .map(Optional::of)
+                                        .onErrorReturn(Optional.empty());
+                            }), TupleUtils::merge)
                             .zipWith(sessionUserService.getVisitorToken())
+                            .zipWith(Mono.defer(() -> {
+                                String appId = applicationView.getApplicationInfoView().getApplicationId();
+                                return applicationService.findById(appId)
+                                        .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                        .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))
+                                        .map(tuple -> {
+                                            String category = tuple.getT1().getT2();
+                                            String description = tuple.getT2();
+                                            return Pair.of(category, description);
+                                        });
+                            }), TupleUtils::merge)
                             .doOnNext(tuple -> {
                                 OrgMember orgMember = tuple.getT1().getT1();
                                 Optional<Folder> optional = tuple.getT1().getT2();
+                                Optional<Folder> optionalFrom = tuple.getT1().getT3();
                                 String token = tuple.getT2();
+                                String category = tuple.getT3().getLeft();
+                                String description = tuple.getT3().getRight();
                                 ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
                                 ApplicationCommonEvent event = ApplicationCommonEvent.builder()
                                         .orgId(orgMember.getOrgId())
@@ -137,9 +165,13 @@ public class BusinessEventPublisher {
                                         .applicationId(applicationInfoView.getApplicationId())
                                         .applicationGid(applicationInfoView.getApplicationGid())
                                         .applicationName(applicationInfoView.getName())
+                                        .applicationCategory(category)
+                                        .applicationDescription(description)
                                         .type(eventType)
                                         .folderId(optional.map(Folder::getId).orElse(null))
                                         .folderName(optional.map(Folder::getName).orElse(null))
+                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                         .build();

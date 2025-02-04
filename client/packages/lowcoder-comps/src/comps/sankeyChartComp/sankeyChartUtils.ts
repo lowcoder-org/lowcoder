@@ -173,7 +173,7 @@ export function getEchartsConfig(
             name: item.name,
             itemStyle: isColorString(item.color) && {color: item.color}
           })),
-          links: props.echartsData.links || props.echartsOption.links,
+          links: (props.echartsLinks.length !== 0 && props.echartsLinks) || props.echartsOption.links,
           emphasis: {
             focus: props?.focus ? 'adjacency' : undefined,
           },

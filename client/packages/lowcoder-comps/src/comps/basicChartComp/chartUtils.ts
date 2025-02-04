@@ -146,8 +146,11 @@ export function getEchartsConfig(
       mapOptions,
       showCharts,
     } = props;
+    let newMapOptions: any = {...mapOptions};
+    newMapOptions.series = [{...newMapOptions.series[0]}];
+    if(props.echartsData && props.echartsData.length > 0) newMapOptions.series[0].data = props.echartsData;
 
-    const echartsOption = mapOptions && showCharts ? mapOptions : {};
+    const echartsOption = newMapOptions && showCharts ? newMapOptions : {};
     return {
       gmap: {
         center: [mapCenterLng, mapCenterLat],

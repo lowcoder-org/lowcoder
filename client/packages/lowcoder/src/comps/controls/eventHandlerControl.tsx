@@ -167,12 +167,18 @@ const EventHandlerControlPropertyView = (props: {
     if (eventConfigs.length === 0) {
       return;
     }
+    
+    const queryVariables = editorState
+      ?.selectedOrFirstQueryComp()
+      ?.children.variables.children.variables.toJsonValue();
+
     const queryExecHandler = {
       compType: "executeQuery",
       comp: {
         queryName: editorState
           ?.selectedOrFirstQueryComp()
           ?.children.name.getView(),
+        queryVariables: queryVariables?.map((variable) => ({...variable, value: ''})),
       },
     };
     const messageHandler = {

@@ -5,7 +5,7 @@ import { QueryConfigItemWrapper, QueryConfigLabel, QueryConfigWrapper } from "co
 import { simpleMultiComp } from "comps/generators/multi";
 import { ReactNode } from "react";
 import { JSONValue } from "../../../util/jsonTypes";
-import { keyValueListControl } from "../../controls/keyValueControl";
+import { keyValueListControl } from "../../controls/keyValueListControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { list } from "../../generators/list";
 import { valueComp, withDefault } from "../../generators/simpleGenerators";

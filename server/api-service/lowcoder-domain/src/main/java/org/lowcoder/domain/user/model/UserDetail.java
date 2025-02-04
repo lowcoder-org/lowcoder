@@ -31,4 +31,5 @@ public class UserDetail {
     private String ip;
     private List<Map<String, String>> groups;
     private Map<String, Object> extra;
+    private Map<String, Object> userAuth;
 }

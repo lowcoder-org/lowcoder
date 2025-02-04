@@ -143,6 +143,15 @@ public interface AuthenticationEndpoints
     @GetMapping("/api-keys")
     public Mono<ResponseView<List<APIKey>>> getAllAPIKeys();
 
+	@Operation(
+			tags = TAG_AUTHENTICATION,
+			operationId = "bindEmail",
+			summary = "Bind current User to email",
+			description = "Bind current user to email"
+	)
+	@PostMapping("/email/bind")
+	public Mono<ResponseView<?>> bindEmail(@RequestParam String email);
+
     /**
      * @param loginId phone number or email for now.
      * @param register register or login

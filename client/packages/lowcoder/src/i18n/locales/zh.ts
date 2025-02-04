@@ -689,8 +689,8 @@ export const zh: typeof en = {
         importFromQueryLibrary: "从查询库导入",
         importFromFile: "从文件导入",
         "triggerType": "触发条件...",
-        "triggerTypeAuto": "输入更改或页面加载时",
-        "triggerTypePageLoad": "当应用程序（页面）加载时",
+        "triggerTypeAuto": "当输入更改或应用程序（页面）加载后",
+        "triggerTypePageLoad": "应用程序（页面）加载后",
         "triggerTypeManual": "仅当您手动触发时",
         "triggerTypeInputChange": "当输入更改时",
         "triggerTypeQueryExec": "查询执行后",
@@ -814,7 +814,10 @@ export const zh: typeof en = {
         "categoryEcommerce": "电子商务",
         "categoryWebscrapers": "网络爬虫",
         "categoryDocumentHandling": "报告与文档生成",
-        "categoryRPA": "机器人流程自动化"
+        "categoryRPA": "机器人流程自动化",
+        "componentsUsingQueryTitle": "查询使用情况",
+        "componentsUsingQuery": "此查询在哪里使用",
+        "variables": "变量"
     },
 
     sqlQuery: {
@@ -2521,7 +2524,7 @@ export const zh: typeof en = {
         jsLibraryDownloadError: "JavaScript库下载错误",
         jsLibraryInstallSuccess: "JavaScript库安装成功",
         jsLibraryInstallFailed: "JavaScript库安装失败",
-        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+        jsLibraryInstallFailedCloud: "可能该库在沙盒中不可用,[文档](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
         jsLibraryInstallFailedHost: "{message}",
         add: "新增",
         jsHelpText: "向当前应用程序添加全局方法或变量.",

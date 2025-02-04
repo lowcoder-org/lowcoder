@@ -254,7 +254,9 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
-  echartsData: jsonControl(toArray),
+  echartsCategories: jsonControl(toArray, i18nObjs.defaultGraphChartOption.categories),
+  echartsLinks: jsonControl(toArray, i18nObjs.defaultGraphChartOption.links),
+  echartsNodes: jsonControl(toArray, i18nObjs.defaultGraphChartOption.nodes),
   echartsOption: jsonControl(toObject, i18nObjs.defaultGraphChartOption),
   echartsTitle: withDefault(StringControl, trans("graphChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,

@@ -187,7 +187,7 @@ export function getEchartsConfig(
       },
       xAxis: props?.echartsOption && {
         type: 'category',
-        data: props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
+        data: props?.echartsTitleData.length && props?.echartsTitleData || props?.echartsData.xAxis && props?.echartsData.xAxis.data || props?.echartsOption.xAxis && props?.echartsOption.xAxis.data,
         splitArea: !props?.axisFlagVisibility && {
           show: true,
           areaStyle: {

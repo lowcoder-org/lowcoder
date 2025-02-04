@@ -737,8 +737,8 @@ export const ru = {
   "importFromQueryLibrary": "Импорт из библиотеки запросов",
   "importFromFile": "Импорт из файла",
   "triggerType": "Срабатывает, когда...",
-  "triggerTypeAuto": "Изменяются входные данные или при загрузке страницы",
-  "triggerTypePageLoad": "Когда загружается приложение (страница)",
+  "triggerTypeAuto": "При изменении входных данных или после загрузки приложения (страницы)",
+  "triggerTypePageLoad": "После загрузки приложения (страницы)",
   "triggerTypeManual": "Только при ручном запуске",
   "triggerTypeInputChange": "Когда изменяются входные данные",
   "triggerTypeQueryExec": "После выполнения запроса",
@@ -849,7 +849,10 @@ export const ru = {
   "categoryEcommerce": "Электронная коммерция",
   "categoryWebscrapers": "Веб-скраперы",
   "categoryDocumentHandling": "Создание отчетов и документов",
-  "categoryRPA": "Роботизированная автоматизация процессов"
+  "categoryRPA": "Роботизированная автоматизация процессов",
+  "componentsUsingQueryTitle": "Использование запроса",
+  "componentsUsingQuery": "Где используется этот запрос",
+  "variables": "Переменные"
   },
   "sqlQuery": {
     ...en.sqlQuery,
@@ -3116,7 +3119,7 @@ export const ru = {
   "jsLibraryDownloadError": "Ошибка загрузки библиотеки JavaScript",
   "jsLibraryInstallSuccess": "Библиотека JavaScript успешно установлена",
   "jsLibraryInstallFailed": "Не удалось установить библиотеку JavaScript",
-  "jsLibraryInstallFailedCloud": "Возможно, библиотека недоступна в песочнице, [Документация](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+  "jsLibraryInstallFailedCloud": "Возможно, библиотека недоступна в песочнице, [Документация](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
   "jsLibraryInstallFailedHost": "{message}",
   "add": "Добавить новый",
   "jsHelpText": "Добавьте глобальный метод или переменную в текущее приложение.",

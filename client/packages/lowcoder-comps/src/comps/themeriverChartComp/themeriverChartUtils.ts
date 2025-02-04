@@ -204,12 +204,12 @@ export function getEchartsConfig(
               shadowColor: "rgba(0, 0, 0, 0.8)"
             }
           },
-          color: props.echartsData?.color && props.echartsData.color || props.echartsOption?.color && props.echartsOption.color
+          color: props.echartsColors.length !== 0 && props.echartsColors || props.echartsOption?.color && props.echartsOption.color
         },
       ]
     }
 
-    return props.echartsData || props.echartsOption ? opt : {};
+    return props.echartsOption ? opt : {};
     
   }
   

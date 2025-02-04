@@ -737,8 +737,8 @@ export const pt = {
   "importFromQueryLibrary": "Importar da Biblioteca de Consultas",
   "importFromFile": "Importar de Arquivo",
   "triggerType": "Disparado quando...",
-  "triggerTypeAuto": "Mudança de entradas ou ao carregar a página",
-  "triggerTypePageLoad": "Quando a aplicação (página) carrega",
+  "triggerTypeAuto": "Quando as entradas mudam ou após o carregamento da aplicação (página)",
+  "triggerTypePageLoad": "Após o carregamento da aplicação (página)",
   "triggerTypeManual": "Somente quando você aciona manualmente",
   "triggerTypeInputChange": "Quando as entradas mudam",
   "triggerTypeQueryExec": "Após a execução da consulta",
@@ -849,7 +849,10 @@ export const pt = {
   "categoryEcommerce": "Comércio Eletrônico",
   "categoryWebscrapers": "Raspadores Web & Open Data",
   "categoryDocumentHandling": "Geração de Relatórios e Documentos",
-  "categoryRPA": "Automação de Processos Robóticos"
+  "categoryRPA": "Automação de Processos Robóticos",
+  "componentsUsingQueryTitle": "Uso da Consulta",
+  "componentsUsingQuery": "Onde esta consulta está em uso",
+  "variables": "Variáveis"
   },
   "sqlQuery": {
     ...en.sqlQuery,
@@ -3116,7 +3119,7 @@ export const pt = {
   "jsLibraryDownloadError": "Erro ao baixar a biblioteca JavaScript",
   "jsLibraryInstallSuccess": "Biblioteca JavaScript instalada com sucesso",
   "jsLibraryInstallFailed": "Falha na instalação da biblioteca JavaScript",
-  "jsLibraryInstallFailedCloud": "Talvez a biblioteca não esteja disponível na Sandbox, [Documentação](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+  "jsLibraryInstallFailedCloud": "Talvez a biblioteca não esteja disponível na Sandbox, [Documentação](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
   "jsLibraryInstallFailedHost": "{mensagem}",
   "add": "Adicionar Novo",
   "jsHelpText": "Adicione um método ou variável global ao aplicativo atual.",

@@ -737,8 +737,8 @@ export const de = {
   "importFromQueryLibrary": "von Abfragebibliothek",
   "importFromFile": "Aus Datei importieren",
   "triggerType": "Ausgelöst, wenn...",
-  "triggerTypeAuto": "Eingaben ändern sich oder beim Laden der Seite",
-  "triggerTypePageLoad": "Beim Laden der Anwendung (Seite)",
+  "triggerTypeAuto": "Eingaben ändern sich oder nach dem Laden der Seite",
+  "triggerTypePageLoad": "Nach dem Laden der Anwendung (Seite)",
   "triggerTypeManual": "Manuell auslösen",
   "triggerTypeInputChange": "Wenn sich Eingaben ändern",
   "triggerTypeQueryExec": "Nach Ausführung einer Daten-Abfrage",
@@ -849,7 +849,10 @@ export const de = {
   "categoryEcommerce": "E-Commerce",
   "categoryWebscrapers": "Web-Scraper & Open Data",
   "categoryDocumentHandling": "Bericht & Dokumentenerstellung",
-  "categoryRPA": "Roboter Prozess Automatisierung"
+  "categoryRPA": "Roboter Prozess Automatisierung",
+  "componentsUsingQueryTitle": "Abfrageverwendung",
+  "componentsUsingQuery": "Wo wird diese Abfrage verwendet",
+  "variables": "Variablen"
   },
   "sqlQuery": {
     ...en.sqlQuery,
@@ -3116,7 +3119,7 @@ export const de = {
   "jsLibraryDownloadError": "Fehler beim Herunterladen der JavaScript-Bibliothek",
   "jsLibraryInstallSuccess": "Die JavaScript-Bibliothek wurde erfolgreich installiert",
   "jsLibraryInstallFailed": "Installation der JavaScript-Bibliothek fehlgeschlagen",
-  "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+  "jsLibraryInstallFailedCloud": "Vielleicht ist die Bibliothek in der Sandbox nicht verfügbar, [Dokumentation](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
   "jsLibraryInstallFailedHost": "{Nachricht}",
   "add": "Neu hinzufügen",
   "jsHelpText": "Füge eine globale Methode oder Variable zur aktuellen Anwendung hinzu.",

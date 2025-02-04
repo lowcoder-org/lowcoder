@@ -43,6 +43,7 @@ export class AlaSqlQuery extends AlaSqlTmpQuery {
 
     const sqlQuery = children.sql.children.text.unevaledValue.replace(/  +/g, ' ');
     const isCreateDBQuery = sqlQuery.toUpperCase().startsWith('CREATE DATABASE');
+    const isDropDBQuery = sqlQuery.toUpperCase().startsWith('DROP DATABASE');
 
     return async (p: { args?: Record<string, unknown> }): Promise<QueryResult> => {
       try {
@@ -52,8 +53,11 @@ export class AlaSqlQuery extends AlaSqlTmpQuery {
         if (databaseType === 'localDB' && isCreateDBQuery) {
           const updatedQuery = `${sqlQuery.slice(0, 6)} ${selectedDB} ${sqlQuery.slice(6)}`;
           const tableName = updatedQuery.split(' ').pop()?.replace(';', '');
-          result = alasql(updatedQuery);
-          result = alasql(`ATTACH ${selectedDB} DATABASE ${tableName};`);
+          result = await alasql.promise(updatedQuery);
+          result = await alasql.promise(`ATTACH ${selectedDB} DATABASE ${tableName};`);
+        } else if (databaseType === 'localDB' && isDropDBQuery) {
+          const updatedQuery = `${sqlQuery.slice(0, 4)} ${selectedDB} ${sqlQuery.slice(4)}`;
+          result = await alasql(updatedQuery);
         } else {
           let segments = getDynamicStringSegments(sqlQuery);
           let dataArr: any = [];
@@ -65,7 +69,7 @@ export class AlaSqlQuery extends AlaSqlTmpQuery {
             }
             return segment;
           })
-          result = alasql(segments.join(' '), dataArr);
+          result = await alasql.promise(segments.join(' '), dataArr);
         }
 
         return {

@@ -266,7 +266,7 @@ export function BottomTabs<T extends TabsConfigType>(props: {
             </React.Fragment>
           ))}
 
-        <div style={{ margin: "auto" }}>
+        <div style={{ margin: "auto", width: 0, flexGrow: 1, minWidth: '16ch' }}>
           <EditText
             disabled={readOnly}
             text={tabTitle}
@@ -278,6 +278,7 @@ export function BottomTabs<T extends TabsConfigType>(props: {
             }}
             onChange={(value) => setError(editorState.checkRename(tabTitle, value))}
             onEditStateChange={(editing) => setEditing(editing)}
+            style={{ maxWidth: '100%', width: '100%' }}
           />
           <PopupCard
             editorFocus={!!error && editing}

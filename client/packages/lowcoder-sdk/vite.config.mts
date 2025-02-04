@@ -8,6 +8,8 @@ import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
 import dynamicImport from 'vite-plugin-dynamic-import';
 import { visualizer } from "rollup-plugin-visualizer";
+import { terser } from 'rollup-plugin-terser';
+import strip from "@rollup/plugin-strip";
 
 const isVisualizerEnabled = !!process.env.ENABLE_VISUALIZER;
 
@@ -34,6 +36,18 @@ export const viteConfig: UserConfig = {
   },
   base: ensureLastSlash(process.env.PUBLIC_URL),
   build: {
+    minify: "terser",  
+    terserOptions: {
+      compress: {
+        drop_console: true,  
+        drop_debugger: true, 
+        pure_funcs: ["console.info", "console.debug", "console.log"], 
+      },
+      format: {
+        comments: false, 
+      },
+    },
+    chunkSizeWarningLimit: 500,
     lib: {
       formats: ["es"],
       entry: "./src/index.ts",
@@ -41,10 +55,145 @@ export const viteConfig: UserConfig = {
       fileName: "lowcoder-sdk",
     },
     rollupOptions: {
+      treeshake: {
+        moduleSideEffects: false, 
+        propertyReadSideEffects: false,
+        tryCatchDeoptimization: false, 
+        unknownGlobalSideEffects: false, 
+      },
       external: ["react", "react-dom"],
       output: {
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "chunks/[name]-[hash].js",
+        entryFileNames: "entry/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash].[ext]",
+        manualChunks: (id) => {
+          if (id.includes("node_modules")) {
+            // CORE FRAMEWORK CHUNKS
+            if (id.includes("react")) return "react";
+            if (id.includes("react-dom")) return "react-dom";
+            if (id.includes("react-router")) return "react-router";
+            if (id.includes("react-redux")) return "react-redux";
+            if (id.includes("redux")) return "redux";
+            if (id.includes("redux-saga")) return "redux-saga";
+        
+            // UI LIBRARIES
+            if (id.includes("@ant-design/icons")) return "ant-design-icons";
+            if (id.includes("antd")) return "antd";
+            if (id.includes("styled-components")) return "styled-components";
+
+            // 🔹 BARCODE & QR CODE PROCESSING
+            if (id.includes("zxing") || id.includes("Barcode") || id.includes("QRCode") || id.includes("PDF417")) return "barcode";
+        
+            // CHARTING & DATA VISUALIZATION
+            if (id.includes("echarts")) return "echarts";
+            if (id.includes("echarts-wordcloud")) return "echarts-wordcloud";
+            if (id.includes("d3")) return "d3";
+        
+            // TEXT EDITORS & PARSERS
+            if (id.includes("codemirror")) return "codemirror";
+            if (id.includes("quill")) return "quill";
+            if (id.includes("react-json-view")) return "react-json-view";
+            if (id.includes("react-markdown")) return "react-markdown";
+            if (id.includes("react-quill")) return "react-quill";
+            if (id.includes("remark") || id.includes("rehype") || id.includes("markdown")) return "markdown-parsers";
+            if (id.includes("remark-gfm")) return "remark-gfm";
+            if (id.includes("rehype-raw")) return "rehype-raw";
+            if (id.includes("rehype-sanitize")) return "rehype-sanitize";
+        
+            // DRAG & DROP
+            if (id.includes("@dnd-kit")) return "dnd-kit";
+            if (id.includes("react-draggable")) return "react-draggable";
+            if (id.includes("react-grid-layout")) return "react-grid-layout";
+            if (id.includes("react-sortable-hoc")) return "react-sortable-hoc";
+        
+            // ICONS & FONTS
+            if (id.includes("@fortawesome")) return "fontawesome";
+            if (id.includes("@remixicon")) return "remixicon";
+        
+            // DATE/TIME HANDLING
+            if (id.includes("moment")) return "moment";
+            if (id.includes("date-fns")) return "date-fns";
+            if (id.includes("dayjs")) return "dayjs";
+        
+            // UTILITIES & HELPERS
+            if (id.includes("clsx")) return "clsx";
+            if (id.includes("immer")) return "immer";
+            if (id.includes("lodash")) return "lodash";
+            if (id.includes("lodash-es")) return "lodash-es";
+            if (id.includes("uuid")) return "uuid";
+            if (id.includes("ua-parser-js")) return "ua-parser-js";
+            if (id.includes("html2canvas")) return "ua-parser-js";
+            if (id.includes("numbro")) return "numbro";
+        
+            // FILE & DATA PROCESSING
+            if (id.includes("buffer")) return "buffer";
+            if (id.includes("file-saver")) return "file-saver";
+            if (id.includes("papaparse")) return "papaparse";
+            if (id.includes("parse5")) return "parse5";
+            if (id.includes("xlsx")) return "xlsx";
+            if (id.includes("alasql")) return "alasql";
+            if (id.includes("sql-formatter")) return "sql-formatter";
+            if (id.includes("tern")) return "tern";
+        
+            // NETWORK & HTTP
+            if (id.includes("axios")) return "axios";
+            if (id.includes("fetch")) return "fetch";
+            if (id.includes("http")) return "http-modules";
+            if (id.includes("https")) return "https-modules";
+        
+            // WEB SOCKETS & STREAMING
+            if (id.includes("sockjs")) return "websockets";
+            if (id.includes("websocket")) return "websockets";
+        
+            // STATE MANAGEMENT
+            if (id.includes("react-error-boundary")) return "react-error-boundary";
+            if (id.includes("redux-devtools-extension")) return "redux-devtools";
+        
+            // POLYFILLS & BROWSER COMPATIBILITY
+            if (id.includes("core-js")) return "core-js";
+            if (id.includes("regenerator-runtime")) return "regenerator-runtime";
+            if (id.includes("eslint4b-prebuilt-2")) return "eslint4b-prebuilt-2";
+
+            // MISCELLANEOUS
+            if (id.includes("cnchar")) return "cnchar";
+            if (id.includes("hotkeys-js")) return "hotkeys-js";
+            if (id.includes("loglevel")) return "loglevel";
+            if (id.includes("qrcode-react")) return "qrcode-react";
+            if (id.includes("react-joyride")) return "react-joyride";
+            if (id.includes("rc-trigger")) return "rc-trigger";
+            if (id.includes("really-relaxed-json")) return "really-relaxed-json";
+            if (id.includes("simplebar-react")) return "simplebar-react";
+            return "vendor";
+          }
+          if (id.includes("src/api")) return "api";
+          if (id.includes("src/appView")) return "appView";
+          if (id.includes("src/base")) return "base";
+          if (id.includes("src/constants")) return "constants";
+          if (id.includes("src/i18n")) return "i18n";
+          if (id.includes("src/ide")) return "ide";
+          if (id.includes("src/layout")) return "layout";
+          if (id.includes("src/pages")) return "pages";
+          if (id.includes("src/redux")) return "app_redux";
+          if (id.includes("src/comps")) return "comps";
+          if (id.includes("comps/comps")) return "comps2";
+          if (id.includes("comps/controls")) return "controls";
+          if (id.includes("comps/queries")) return "queries";
+          if (id.includes("comps/utils")) return "utils";
+          if (id.includes("src/hooks")) return "hooks";
+          if (id.includes("src/util")) return "util";
+          return "common"; // 📦 Internal app shared code
+        },
       },
+      experimental: {
+        minChunkSize: 300000, // 📏 Force smaller chunks (~300KB)
+      },
+      plugins: [
+        terser(),
+        strip({
+          functions: ["console.log", "debugger"], // ✅ Remove logs
+          sourceMap: true,
+        }),
+      ],
       onwarn: (warning, warn) => {
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
           return
@@ -53,6 +202,7 @@ export const viteConfig: UserConfig = {
       },
     },
     commonjsOptions: {
+      transformMixedEsModules : true,
       defaultIsModuleExports: (id) => {
         if (id.indexOf("antd/lib") !== -1) {
           return false;

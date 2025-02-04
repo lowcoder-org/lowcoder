@@ -277,6 +277,7 @@ export const en = {
     "moduleEvent": "Module Event",
     "goToApp": "Go to an other App",
     "queryParams": "Query Parameters",
+    "queryVariables": "Query Variables",
     "hashParams": "Hash Parameters",
     "showNotification": "Show a Notification",
     "text": "Text",
@@ -705,6 +706,7 @@ export const en = {
     "newDatasource": "New Data Source",
     "generalTab": "General",
     "notificationTab": "Notification",
+    "variablesTab": "Variables",
     "advancedTab": "Advanced",
     "showFailNotification": "Show Notification on Failure",
     "failCondition": "Failure Conditions",
@@ -739,8 +741,8 @@ export const en = {
     "importFromQueryLibrary": "Import from Query Library",
     "importFromFile": "Import from File",
     "triggerType": "Triggered when...",
-    "triggerTypeAuto": "Inputs Change or On Page Load",
-    "triggerTypePageLoad": "When the Application (Page) loads",
+    "triggerTypeAuto": "When Inputs Change or after Application (Page) loads",
+    "triggerTypePageLoad": "After the Application (Page) loads",
     "triggerTypeManual": "Only when you trigger it manually",
     "triggerTypeInputChange": "When Inputs Change",
     "triggerTypeQueryExec": "After Query Execution",
@@ -853,7 +855,8 @@ export const en = {
     "categoryDocumentHandling" : "Report & Document Generation",
     "categoryRPA" : "Robotic Process Automation",
     "componentsUsingQueryTitle" : "Query Usage",
-    "componentsUsingQuery" : "Where is this Query in use"
+    "componentsUsingQuery" : "Where is this Query in use",
+    "variables" : "Variables"
   },
 
 
@@ -3192,7 +3195,7 @@ export const en = {
     "jsLibraryDownloadError": "JavaScript Library Download Error",
     "jsLibraryInstallSuccess": "JavaScript Library Installed Successfully",
     "jsLibraryInstallFailed": "JavaScript Library Installation Failed",
-    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://docs.lowcoder.cloud/build-apps/write-javascript/use-third-party-libraries#manually-import-libraries)\n{message}",
+    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
     "jsLibraryInstallFailedHost": "{message}",
     "add": "Add New",
     "jsHelpText": "Add a Global Method or Variable to the Current Application.",
