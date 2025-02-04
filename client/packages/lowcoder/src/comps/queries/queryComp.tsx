@@ -664,7 +664,7 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
   new DepsConfig(
-    "variable",
+    "variables",
     (children: any) => {
       return {data: children.variables.children.variables.node()};
     },
@@ -673,8 +673,8 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
         return undefined;
       }
       const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key.text.value)
-        .map((kvNode: any) => ({[kvNode.key.text.value]: kvNode.value.text.value}))
+        .filter((kvNode: any) => kvNode.key.value)
+        .map((kvNode: any) => ({[kvNode.key.value]: kvNode.value.value}))
         .reduce((prev, obj) => ({...prev, ...obj}), {});
       return newNode;
     },

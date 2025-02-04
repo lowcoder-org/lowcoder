@@ -73,6 +73,23 @@ const AddBtn = styled(TacoButton)`
   }
 `;
 
+const IndicatorWrapper = ({
+  indicatorForAll,
+  children,
+}: {
+  indicatorForAll?: boolean;
+  children: ReactNode,
+}) => {
+  if (indicatorForAll) {
+    return (
+      <BranchDiv $type={"inline"}>
+        {children}
+      </BranchDiv>
+    )
+  }
+  return (<>{children}</>);
+};
+
 export const KeyValueList = (props: {
   list: ReactNode[];
   onAdd: () => void;
@@ -80,27 +97,28 @@ export const KeyValueList = (props: {
   isStatic?: boolean;
   indicatorForAll?: boolean;
 }) => {
-  let IndicatorWrapper = ({children}: any) => (<>{children}</>);
-  if(props.indicatorForAll) IndicatorWrapper = BranchDiv;
-  return <>
-    {props.list.map((item, index) => (
-      <IndicatorWrapper $type={"inline"} key={index}>
-        <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
-          {item}
-          {!props.isStatic &&
-            <DelIcon
-              onClick={() => props.list.length > 1 && props.onDelete(item, index)}
-              $forbidden={props.list.length === 1}
-            />
-          }
-        </KeyValueListItem>
-      </IndicatorWrapper>
-    ))}
-    {!props.isStatic && 
-    <AddBtn onClick={props.onAdd}>
-      <AddIcon />
-      {trans("addItem")}
-    </AddBtn>
-    }
-  </>
+  return (
+    <>
+      {props.list.map((item, index) => (
+        <IndicatorWrapper key={index}>
+          <KeyValueListItem key={index /* FIXME: find a proper key instead of `index` */}>
+            {item}
+            {!props.isStatic &&
+              <DelIcon
+                onClick={() => props.list.length > 1 && props.onDelete(item, index)}
+                $forbidden={props.list.length === 1}
+              />
+            }
+          </KeyValueListItem>
+        </IndicatorWrapper>
+      ))}
+      {!props.isStatic && (
+        <AddBtn onClick={props.onAdd}>
+          <AddIcon />
+          {trans("addItem")}
+        </AddBtn>
+
+      )}
+    </>
+  )
 };
