@@ -7,11 +7,11 @@ In Enterprise Mode, there is only One Workspace that gets created automatically 
 1.  In Local Setup, we have a Root Admin User, that we can configure in docker-compose-multi.yml file. This user will be created by default and it will Super Admin of the default Workspace.\
 
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1) (1).png" alt=""><figcaption></figcaption></figure>
 2.  Set LOWCODER\_WORKSPACE\_MODE to "ENTERPRISE" in docker-compose-multi.yml file. \
 
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (3).png" alt=""><figcaption></figcaption></figure>
+    <figure><img src="../../.gitbook/assets/frame_generic_light (3) (1).png" alt=""><figcaption></figcaption></figure>
 3. In the above screenshot, you can see three configuration variables regarding Email and Workspace creation on Sign up. Let's go through these one by one.&#x20;
    1. **LOWCODER\_EMAIL\_SIGNUP\_ENABLED**\
       \

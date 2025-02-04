@@ -32,13 +32,34 @@ Lowcoder evaluates your query statement with JavaScript code inside `{{ }}` in r
 
 Lowcoder triggers your queries in two modes: it runs automatically when "inputs change or on page load" or manually (and so invoked in other event handlers for example).&#x20;
 
-### Inputs change or on page load
+Sometimes, we need to trigger a query in relation to an event, e.g. After Page/App loads or After some query has been executed or after some Timeout interval. In Lowcoder app, we provide these options to fulfil such requirements. You can Trigger the query using the "Triggered when" dropdown field inside a Query, as follow :&#x20;
 
-Queries set to this mode automatically run when dependent inputs change or on page load. For example, the query result of `select * from users where customer_id = {{input.value}}` updates immediately when `input.value` changes. \*\*\*\* This mode to run a query is recommended for queries reading data from data sources.
+<figure><img src="../../.gitbook/assets/frame_generic_light.png" alt=""><figcaption><p>Options to Trigger a query</p></figcaption></figure>
+
+### Automatic Mode : Inputs change or on page load
+
+In Automatic Mode, we have following Query Trigger options :&#x20;
+
+* **When Inputs Change**
+* **When the Application ( Page ) loads**
+* **After Application ( Page ) loads and Timeout**
+* **After Query Execution**
+
+1. **When Inputs Change :** \
+   Queries set to this mode automatically run when dependent inputs change. For example, the query result of `select * from users where customer_id = {{input.value}}` updates immediately when `input.value` changes. \*\*\*\* This mode to run a query is recommended for queries reading data from data sources.
 
 {% hint style="warning" %}
 Consider carefully when to trigger a query. Data Queries that may take longer to respond may block the application visuals from loading properly and displaying your data.&#x20;
 {% endhint %}
+
+2. **When the Application ( Page ) loads :** \
+   Queries set to this mode automatically run when the Application starts loading. For example, showing latest news feed on an App, we would like to trigger the query to fetch the latest news as soon as App starts loading.\
+
+3. **After Application ( Page ) loads and Timeout :** \
+   Queries set to this mode automatically run when we require to trigger a query after an App has loaded or Timeout happened. For example, you have some list of Users that you don't want to load with the App , but after some Time delay e.g. 10 sec .\
+
+4. **After Query Execution :**\
+   Queries set to this mode automatically run after a dependent query has been executed. For example, a query B is dependant on a query A's data, so we need to execute query B after query A has been successfully executed. Think of a scenario where Query A validates the access token of a User, and based on the Query A output, Query B executes and show User some specific data.
 
 ### Manually invoked
 

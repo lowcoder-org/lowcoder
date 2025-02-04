@@ -26,7 +26,7 @@ More details related to Supabase RealTime can be be found here on their official
 
 First, make sure Realtime is enabled in your Supabase project. This is usually done in the Supabase dashboard by toggling on the Realtime feature for specific tables or schemas.
 
-<figure><img src="../../../../.gitbook/assets/frame_generic_light.png" alt=""><figcaption><p>Enabling RealTime on a Supabase Table</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/frame_generic_light (3).png" alt=""><figcaption><p>Enabling RealTime on a Supabase Table</p></figcaption></figure>
 
 #### 2. Client Side Subscription / Initiating Connection
 

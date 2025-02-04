@@ -25,6 +25,12 @@ You can access the values in an array by index. The index always starts at 0, so
 
 The **Data** property of **Table** component is an array of objects. This GIF shows how to access the value of `first_name` in the first element of the **data** array in `table1`.
 
+## Query Usage Display
+
+While developing, we often lose track the components where we have used the queries, and have to look for the components when we need to perform CRUD operations on queries. It is a time taking process and we can lose track of where our queries are utilised. To tackle this, we have introduced Query Usage Display, showing you exactly where each query is used across your app. You will find it at each Data Query in the "Advanced" tab :&#x20;
+
+<figure><img src="../../.gitbook/assets/frame_generic_light (1).png" alt=""><figcaption><p>Query Usage Display</p></figcaption></figure>
+
 ## Transform data
 
 You can leverage built-in JS functions and third-party libraries in `{{ }}` to transform data, such as `filter()`, `map()` and `reduce()` operations.

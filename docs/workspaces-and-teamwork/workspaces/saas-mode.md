@@ -23,7 +23,7 @@ In SAAS Mode, User can create multiple Workspaces. With some other settings, Adm
        LOWCODE\_EMAIL\_SIGNUP\_ENABLED = **true**\
 
 
-       <figure><img src="../../.gitbook/assets/frame_generic_light (1) (1).png" alt=""><figcaption></figcaption></figure>
+       <figure><img src="../../.gitbook/assets/frame_generic_light (1) (1) (1).png" alt=""><figcaption></figcaption></figure>
 
        LOWCODE\_EMAIL\_SIGNUP\_ENABLED = **false**\
 

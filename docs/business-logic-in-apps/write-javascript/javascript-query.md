@@ -53,7 +53,7 @@ Use `return` syntax to return result. For example, the following code returns `3
 return Math.floor(3.4)
 ```
 
-The result returned can also be a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise) object. For example, `query2.run()` returns a Promise object.
+The result returned can also be a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) object. For example, `query2.run()` returns a Promise object.
 
 ```javascript
 return query2.run()
@@ -81,7 +81,7 @@ input1.setValue("Hello");
 ```
 
 {% hint style="warning" %}
-The `input1.setValue()` method (or other component methods) is asynchronous and returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global\_Objects/Promise) object. Accessing `input1.value` immediately after setting the value of `input1` does not return the updated value.
+The `input1.setValue()` method (or other component methods) is asynchronous and returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise) object. Accessing `input1.value` immediately after setting the value of `input1` does not return the updated value.
 {% endhint %}
 
 ## Run query
@@ -172,6 +172,18 @@ Then trigger this query in **Run JavaScript** of event handlers in each of the i
 **Demo 2**
 
 You can find another demo for using passed-in paramter queries [here](https://cloud.lowcoder.dev/apps/637f38daa899fe1ffcb17f0b/view).
+
+## Trigger a query
+
+Sometimes, we need to trigger a query in relation to an event, e.g. After Page/App loads or After some query has been executed or after some Timeout interval. In Lowcoder app, we provide these options to fulfil such requirements :&#x20;
+
+<figure><img src="../../.gitbook/assets/frame_generic_light.png" alt=""><figcaption><p>Options to Trigger a query</p></figcaption></figure>
+
+1. **When Inputs Change**
+2. **After Query Execution**
+3. **After Application ( Page ) loads and Timeout**
+4. **When the Application ( Page ) loads**
+5. **Only when you trigger it manually**
 
 ## Declare a function
 
