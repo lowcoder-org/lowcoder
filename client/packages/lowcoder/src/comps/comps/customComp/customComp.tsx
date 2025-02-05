@@ -191,7 +191,7 @@ function InnerCustomComponent(props: IProps) {
     window.addEventListener("message", handleMessage);
     iframe.addEventListener("load", handleIFrameLoad);
 
-    const src = iframe.getAttribute("src");
+    const src = iframe.getAttribute("src") || trans('customComponent.entryUrl');
     if (src && reloadFlagRef) {
       reloadFlagRef.current = false;
       const url = new URL("?_t=" + Date.now(), src);
@@ -210,7 +210,6 @@ function InnerCustomComponent(props: IProps) {
       <iframe
         ref={iframeRef}
         title="custom-comp"
-        src={trans('customComponent.entryUrl')}
       />
     </Wrapper>
   );
