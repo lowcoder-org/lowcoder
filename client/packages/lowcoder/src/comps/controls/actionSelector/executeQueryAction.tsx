@@ -99,7 +99,7 @@ const ExecuteQueryPropertyView = ({
 const ExecuteQueryTmpAction = (function () {
   const childrenMap = {
     queryName: SimpleNameComp,
-    queryVariables: withDefault(keyValueListControl(false, [], "string"), [])
+    queryVariables: withDefault(keyValueListControl(false, [], "variable"), [])
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => Promise.resolve(undefined as unknown);
