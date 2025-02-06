@@ -2,6 +2,7 @@ import { JSONObject } from "lowcoder-sdk";
 import { XAXisComponentOption } from "echarts";
 
 export type I18nObjects = {
+  defaultBarChartOption: Record<string, unknown>;
   defaultDataSource: JSONObject[];
   defaultEchartsJsonOption: Record<string, unknown>;
   defaultGaugeChartOption: Record<string, unknown>;
