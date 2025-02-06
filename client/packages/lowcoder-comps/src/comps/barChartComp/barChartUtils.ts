@@ -210,11 +210,15 @@ export function getEchartsConfig(
       if(typeof item[seriesColumnNames[0]] === 'number') return acc + item[seriesColumnNames[0]];
       else return acc;
     }, 0)
+    const total = sum;
     transformedData.map(d => {
       d[`${seriesColumnNames[0]}_placeholder`] = sum - d[seriesColumnNames[0]];
       sum = d[`${seriesColumnNames[0]}_placeholder`];
     })
+    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total}, ...transformedData]
   }
+
+  console.log("TransformedData", transformedData);
 
   config = {
     ...config,
@@ -236,10 +240,10 @@ export function getEchartsConfig(
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
-      }
+      },
+      data: transformedData.map((i: any) => i[series.name])
     })),
   };
-  console.log("Series", config.series);
   if (axisChart) {
     // pure chart's size except the margin around
     let chartRealSize;
@@ -270,7 +274,8 @@ export function getEchartsConfig(
         ...finalXyConfig.xConfig,
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        }
+        },
+        data: finalXyConfig.xConfig.type === "category"?props?.xAxisData:undefined,
       },
       // @ts-ignore
       yAxis: {
@@ -280,6 +285,8 @@ export function getEchartsConfig(
         }
       },
     };
+    console.log("Config", config);
+    console.log("Props", props);
   }
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;

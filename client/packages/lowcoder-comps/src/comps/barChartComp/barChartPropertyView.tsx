@@ -35,6 +35,9 @@ export function barChartPropertyView(
             dispatch(changeChildAction("xAxisKey", value));
           }}
         />
+        {children.chartConfig.getView().subtype === "waterfall" && children.xAxisData.propertyView({
+          label: "X-Label-Data"
+        })}
         <Option
           items={series}
           title={trans("chart.chartSeries")}

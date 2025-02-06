@@ -245,6 +245,7 @@ export const chartUiModeChildren = {
   data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
   xAxisKey: valueComp<string>(""), // x-axis, key from data
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
+  xAxisData: jsonControl(toArray, []),
   series: SeriesListComp,
   xConfig: XAxisConfig,
   yConfig: YAxisConfig,
