@@ -218,6 +218,23 @@ export function getEchartsConfig(
     transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total}, ...transformedData]
   }
 
+  if(props.chartConfig.subtype === "polar") {
+    config = {
+      ...config,
+      polar: {
+        radius: [props.chartConfig.polarData.polarRadiusDeg, `${props.chartConfig.polarData.polarRadiusSize}%`],
+      },
+      radiusAxis: {
+        max: props.chartConfig.polarData.radiusAxisMax,
+      },
+      angleAxis: {
+        type: 'category',
+        data: props.chartConfig.polarData.labelData,
+        startAngle: 75
+      },
+    }
+  }
+
   console.log("TransformedData", transformedData);
 
   config = {
