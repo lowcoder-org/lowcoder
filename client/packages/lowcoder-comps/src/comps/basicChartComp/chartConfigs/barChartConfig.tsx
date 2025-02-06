@@ -7,6 +7,8 @@ import {
   showLabelPropertyView,
   ColorControl,
   Dropdown,
+  toArray,
+  jsonControl,
 } from "lowcoder-sdk";
 import { changeChildAction, CompAction } from "lowcoder-core";
 import { BarSeriesOption } from "echarts";
@@ -25,6 +27,10 @@ const BarTypeOptions = [
     label: trans("chart.waterfallBar"),
     value: "waterfall",
   },
+  {
+    label: trans("chart.polar"),
+    value: "polar",
+  },
 ] as const;
 
 export const BarChartConfig = (function () {
@@ -35,6 +41,10 @@ export const BarChartConfig = (function () {
       barWidth: withDefault(NumberControl, i18nObjs.defaultBarChartOption.barWidth),
       showBackground: BoolControl,
       backgroundColor: withDefault(ColorControl, i18nObjs.defaultBarChartOption.barBg),
+      radiusAxisMax: withDefault(NumberControl, 4),
+      polarRadiusDeg: withDefault(NumberControl, 30),
+      polarRadiusSize: withDefault(NumberControl, 80),
+      labelData: jsonControl(toArray, []),
     },
     (props): BarSeriesOption => {
       const config: BarSeriesOption = {
@@ -48,6 +58,12 @@ export const BarChartConfig = (function () {
         showBackground: props.showBackground,
         backgroundStyle: {
           color: props.backgroundColor,
+        },
+        polarData: {
+          radiusAxisMax: props.radiusAxisMax,
+          polarRadiusDeg: props.polarRadiusDeg,
+          polarRadiusSize: props.polarRadiusSize,
+          labelData: props.labelData,
         }
 
       };
@@ -57,6 +73,9 @@ export const BarChartConfig = (function () {
       if (props.type === "waterfall") {
         config.label = undefined;
         config.stack = "stackValue";
+      }
+      if (props.type === "polar") {
+        config.coordinateSystem = 'polar';
       }
       return config;
     }
@@ -80,6 +99,18 @@ export const BarChartConfig = (function () {
         })}
         {children.showBackground.getView() && children.backgroundColor.propertyView({
           label: trans("barChart.bgColor"),
+        })}
+        {children.type.getView()  === "polar" && children.radiusAxisMax.propertyView({
+          label: trans("barChart.radiusAxisMax"),
+        })}
+        {children.type.getView()  === "polar" && children.polarRadiusDeg.propertyView({
+          label: trans("barChart.polarRadiusDeg"),
+        })}
+        {children.type.getView()  === "polar" && children.polarRadiusSize.propertyView({
+          label: trans("barChart.polarRadiusSize"),
+        })}
+        {children.type.getView()  === "polar" && children.labelData.propertyView({
+          label: trans("barChart.polarLabelData"),
         })}
       </>
     ))
