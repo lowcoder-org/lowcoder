@@ -355,6 +355,7 @@ export default function ChartExample() {
           compFactory={ChartCompWithDefault}
         />
       </ExampleGroup>
+
     </>
   );
 }

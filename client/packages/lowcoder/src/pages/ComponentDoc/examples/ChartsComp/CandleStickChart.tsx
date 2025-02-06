@@ -6,54 +6,45 @@ import ExampleGroup from "../../common/ExampleGroup";
 
 const ChartCompWithDefault = uiCompRegistry["candleStickChart"].comp;
 
-const defaultEchartsJsonOption = {
-  "xAxis": {
-    "data": [
-      "Day 1",
-      "Day 2",
-      "Day 3",
-      "Day 4",
-      "Day 5"
-    ]
-  },
-  "data": [
-    [
-      150,
-      100,
-      50,
-      200
-    ],
-    [
-      120,
-      220,
-      80,
-      180
-    ],
-    [
-      80,
-      150,
-      60,
-      130
-    ],
-    [
-      230,
-      130,
-      110,
-      190
-    ],
-    [
-      90,
-      180,
-      70,
-      160
-    ]
-  ]
-};
+const chartStyle= {
+  background: "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+  chartBorderColor: "#FDFAFA",
+  chartBorderStyle: "solid",
+  chartBorderWidth: "2",
+  chartBoxShadow: "200",
+  chartShadowColor: "#3377FF"
+}
 
-const echartsOption = JSON.stringify(defaultEchartsJsonOption);
+const titleStyle = {
+  chartBoxShadow: "9",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFBD01",
+  chartTextColor: "#36B389",
+  chartTextSize: "30",
+  chartTextWeight: "Bold"
+}
+
+const labelStyle = {
+  chartBoxShadow: "5",
+  chartFontFamily: "serif",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#020101",
+  chartTextColor: "#FFFFFF",
+  chartTextSize: "20",
+  chartTextWeight: "bold"
+}
+
+const legendStyle = {
+  chartBoxShadow: "5",
+  chartFontFamily: "serif",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFD701",
+  chartTextColor: "#7A7A7B",
+  chartTextSize: "20",
+  chartTextWeight: "bold"
+}
 
 export default function CandleStickChartExample() {
-  const blackListConfig: string[] = ["echartsOption"];
   return (
     <>
       <ExampleGroup
@@ -65,7 +56,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
           }}
           compFactory={ChartCompWithDefault}
         />
@@ -74,7 +64,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             tooltip: false,
           }}
           compFactory={ChartCompWithDefault}
@@ -90,7 +79,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             top: 20,
             right: 20,
             bottom: 20,
@@ -109,7 +97,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             echartsTitleConfig: {
               "position": "left",
             },
@@ -121,7 +108,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             echartsTitleConfig: {
               "position": "center",
             },
@@ -133,7 +119,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             echartsTitleConfig: {
               "position": "right",
             },
@@ -145,7 +130,6 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             echartsLegendConfig: {
               "position": "bottom",
             },
@@ -157,13 +141,58 @@ export default function CandleStickChartExample() {
           width={500}
           height={300}
           config={{
-            echartsOption: echartsOption,
             echartsLegendConfig: {
               "position": "top",
             },
           }}
           compFactory={ChartCompWithDefault}
         />
+      </ExampleGroup>
+
+      <ExampleGroup
+              title="Styling Properties"
+              description="The Following Examples Show the Styling Properties on the Funnel Chart Component."
+            >
+              <Example
+                title="Chart Styling - Background Color, Box Shadow, Border"
+                width={500}
+                height={350}
+                hideSettings={true}
+                config={{
+                  chartStyle: chartStyle,
+                }}
+                compFactory={ChartCompWithDefault}
+              />
+              <Example
+                title="Title Styling - Text, Fonts & Box Shadow"
+                width={500}
+                height={350}
+                hideSettings={true}
+                config={{
+                  titleStyle: titleStyle,
+                }}
+                compFactory={ChartCompWithDefault}
+              />
+              <Example
+                title="Label Styling - Text, Fonts & Box Shadow"
+                width={500}
+                height={350}
+                hideSettings={true}
+                config={{
+                  labelStyle: labelStyle,
+                }}
+                compFactory={ChartCompWithDefault}
+              />
+              <Example
+                title="Lagend Styling - Text, Fonts & Box Shadow"
+                width={500}
+                height={350}
+                hideSettings={true}
+                config={{
+                  legendStyle: legendStyle,
+                }}
+                compFactory={ChartCompWithDefault}
+              />
       </ExampleGroup>
     </>
   );
