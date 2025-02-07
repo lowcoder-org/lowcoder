@@ -142,7 +142,7 @@ public class Application extends HasIdAndAuditing {
     public Mono<Map<String, Object>> getLiveApplicationDsl(ApplicationRecordService applicationRecordService) {
         return applicationRecordService.getLatestRecordByApplicationId(this.getId())
                 .map(ApplicationVersion::getApplicationDSL)
-                .switchIfEmpty(Mono.just(editingApplicationDSL));
+                .switchIfEmpty(Mono.just(getEditingApplicationDSL()));
     }
 
     public String getOrganizationId() {
