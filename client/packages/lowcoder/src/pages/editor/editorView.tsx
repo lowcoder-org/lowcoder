@@ -30,10 +30,12 @@ import {
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  ReactNode,
   Suspense,
   lazy,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -58,6 +60,7 @@ import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
+import Flex from "antd/es/flex";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -251,6 +254,13 @@ export const EditorWrapper = styled.div`
   flex: 1 1 0;
 `;
 
+const DeviceWrapperInner = styled(Flex)`
+  margin: 20px 0 0;
+  .screen {
+    overflow: auto;
+  }
+`;
+
 interface EditorViewProps {
   uiComp: InstanceType<typeof UIComp>;
   preloadComp: InstanceType<typeof PreloadComp>;
@@ -297,6 +307,64 @@ const aggregationSiderItems = [
     icon: <LeftSettingIcon />,
   }
 ];
+
+const DeviceWrapper = ({
+  deviceType,
+  deviceOrientation,
+  children,
+}: {
+  deviceType: string,
+  deviceOrientation: string,
+  children: ReactNode,
+}) => {
+  const [Wrapper, setWrapper] = useState<React.ElementType | null>(null);
+
+  useEffect(() => {
+    const loadWrapper = async () => {
+      if (deviceType === "tablet") {
+        await import('html5-device-mockups/dist/device-mockups.min.css');
+        const { IPad } = await import("react-device-mockups");
+        setWrapper(() => IPad);
+      } else if (deviceType === "mobile") {
+        await import('html5-device-mockups/dist/device-mockups.min.css');
+        const { IPhone7 } = await import("react-device-mockups");
+        setWrapper(() => IPhone7);
+      } else {
+        setWrapper(() => null);
+      }
+    };
+
+    loadWrapper();
+  }, [deviceType]);
+
+  const deviceWidth = useMemo(() => {
+    if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
+      return 700;
+    }
+    if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
+      return 1000;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
+      return 400;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
+      return 800;
+    }
+  }, [deviceType, deviceOrientation]);
+
+  if (!Wrapper) return <>{children}</>;
+
+  return (
+    <DeviceWrapperInner justify="center">
+      <Wrapper
+        orientation={deviceOrientation}
+        width={deviceWidth}
+      >
+        {children}
+      </Wrapper>
+    </DeviceWrapperInner>
+  );
+}
 
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
@@ -416,6 +484,24 @@ function EditorView(props: EditorViewProps) {
     uiComp,
   ]);
 
+  const uiCompViewWrapper = useMemo(() => {
+    if (isViewMode) return uiComp.getView();
+
+    return (
+      <DeviceWrapper
+        deviceType={editorState.deviceType}
+        deviceOrientation={editorState.deviceOrientation}
+      >
+        {uiComp.getView()}
+      </DeviceWrapper>
+    )
+  }, [
+    uiComp,
+    isViewMode,
+    editorState.deviceType,
+    editorState.deviceOrientation,
+  ]);
+
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
@@ -455,7 +541,7 @@ function EditorView(props: EditorViewProps) {
           {!hideBodyHeader && <PreviewHeader />}
           <EditorContainerWithViewMode>
             <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-              {uiComp.getView()}
+              {uiCompViewWrapper}
             </ViewBody>
             <div style={{ zIndex: Layers.hooksCompContainer }}>
               {hookCompViews}

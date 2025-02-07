@@ -11455,6 +11455,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"html5-device-mockups@npm:^3.2.1":
+  version: 3.2.1
+  resolution: "html5-device-mockups@npm:3.2.1"
+  checksum: abba0bccc6398313102a9365203092a7c0844879d1b0492168279c516c9462d2a7e016045be565bc183e3405a1ae4929402eaceb1952abdbf16f1580afa68df3
+  languageName: node
+  linkType: hard
+
 "http-cache-semantics@npm:^4.1.1":
   version: 4.1.1
   resolution: "http-cache-semantics@npm:4.1.1"
@@ -14159,6 +14166,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     file-saver: ^2.0.5
     github-markdown-css: ^5.1.0
     hotkeys-js: ^3.8.7
+    html5-device-mockups: ^3.2.1
     http-proxy-middleware: ^2.0.6
     immer: ^9.0.7
     less: ^4.1.3
@@ -14175,6 +14183,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ^18.2.0
     react-best-gradient-color-picker: ^3.0.10
     react-colorful: ^5.5.1
+    react-device-mockups: ^0.1.12
     react-documents: ^1.2.1
     react-dom: ^18.2.0
     react-draggable: ^4.4.4
@@ -17669,6 +17678,18 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">= 16.3.0"
   checksum: c9a9776737a469e68beb035b81334879bac2e7d8edb1721f97d115d7b88e87d6ad62fc99083e329650b4416fe33d85b33211719afd531b83399e12d7ded25f89
+  languageName: node
+  linkType: hard
+
+"react-device-mockups@npm:^0.1.12":
+  version: 0.1.12
+  resolution: "react-device-mockups@npm:0.1.12"
+  peerDependencies:
+    html5-device-mockups: ^3.2.1
+    prop-types: ^15.5.4
+    react: ^15.0.0 || ^16.0.0 || ^17.0.0
+    react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0
+  checksum: 738e969802c32810c2ca3ca3bd6c9bacf9b3d7adda0569c4f5c7fb1d68bab860ac7bb5a50aa2677d852143cb30ab8520e556c4dc7f53be154fd16ca08a9ba32c
   languageName: node
   linkType: hard
 

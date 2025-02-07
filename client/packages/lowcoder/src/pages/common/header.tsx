@@ -22,6 +22,7 @@ import {
   Layout,
   Left,
   Middle,
+  MobileAppIcon,
   ModuleIcon,
   PackUpIcon,
   RefreshIcon,
