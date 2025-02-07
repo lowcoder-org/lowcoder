@@ -14,7 +14,6 @@ import { trans } from "i18n";
 import { EditorContext } from "comps/editorState";
 import { AnimationStyle, AnimationStyleType, CustomStyle, CustomStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
-
 // TODO: eventually to embedd in container so we have styling?
 // TODO: support different starter templates for different frameworks (react, ANT, Flutter, Angular, etc)
 
@@ -191,7 +190,11 @@ function InnerCustomComponent(props: IProps) {
     window.addEventListener("message", handleMessage);
     iframe.addEventListener("load", handleIFrameLoad);
 
-    const src = iframe.getAttribute("src") || trans('customComponent.entryUrl');
+    // in dev, load from sdk bundle and on prod load from build package
+    const src = import.meta.env.DEV
+      ? trans('customComponent.entryUrl')
+      : `${window.location.origin}/custom_component/custom_component.html`;
+
     if (src && reloadFlagRef) {
       reloadFlagRef.current = false;
       const url = new URL("?_t=" + Date.now(), src);
