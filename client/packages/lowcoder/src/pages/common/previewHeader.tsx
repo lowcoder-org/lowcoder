@@ -220,7 +220,7 @@ const PreviewHeaderComp = () => {
       />
 
       {/* Orientation */}
-      {editorState.deviceType !== 'desktop' && (
+      {/* editorState.deviceType !== 'desktop' && (
         <Segmented<DeviceOrientation>
           options={[
             { value: 'portrait', label: "Portrait" },
@@ -231,7 +231,7 @@ const PreviewHeaderComp = () => {
             editorState.setDeviceOrientation(value);
           }}
         />
-      )}
+      ) */}
     </>
   );
 

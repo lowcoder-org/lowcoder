@@ -255,7 +255,7 @@ export const EditorWrapper = styled.div`
 `;
 
 const DeviceWrapperInner = styled(Flex)`
-  margin: 20px 0 0;
+  margin: 2% 0 0;
   .screen {
     overflow: auto;
   }
@@ -323,8 +323,8 @@ const DeviceWrapper = ({
     const loadWrapper = async () => {
       if (deviceType === "tablet") {
         await import('html5-device-mockups/dist/device-mockups.min.css');
-        const { IPad } = await import("react-device-mockups");
-        setWrapper(() => IPad);
+        const { IPadPro } = await import("react-device-mockups");
+        setWrapper(() => IPadPro);
       } else if (deviceType === "mobile") {
         await import('html5-device-mockups/dist/device-mockups.min.css');
         const { IPhone7 } = await import("react-device-mockups");
@@ -342,20 +342,20 @@ const DeviceWrapper = ({
       return 700;
     }
     if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
-      return 1000;
+      return 900;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
-      return 400;
+      return 450;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
-      return 800;
+      return 900;
     }
   }, [deviceType, deviceOrientation]);
 
   if (!Wrapper) return <>{children}</>;
 
   return (
-    <DeviceWrapperInner justify="center">
+    <DeviceWrapperInner justify="center" >
       <Wrapper
         orientation={deviceOrientation}
         width={deviceWidth}
@@ -488,12 +488,36 @@ function EditorView(props: EditorViewProps) {
     if (isViewMode) return uiComp.getView();
 
     return (
-      <DeviceWrapper
-        deviceType={editorState.deviceType}
-        deviceOrientation={editorState.deviceOrientation}
-      >
-        {uiComp.getView()}
-      </DeviceWrapper>
+      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+        <div style={{ 
+          display: "flex",
+          flexDirection: "row", // Arrange side by side
+          gap: "20px", // Spacing between the two DeviceWrappers
+          justifyContent: "center", // Center horizontally
+          alignItems: "center", // Center vertically
+          height: "auto", // Full viewport height for vertical centering
+          width: "100%", // Full viewport width
+          
+          }}>
+          <DeviceWrapper
+            deviceType={editorState.deviceType}
+            deviceOrientation="portrait"
+          >
+            {uiComp.getView()}
+          </DeviceWrapper>
+          
+          <DeviceWrapper
+            deviceType={editorState.deviceType}
+            deviceOrientation="landscape"
+          >
+            {uiComp.getView()}
+          </DeviceWrapper>
+        </div>
+      ) : (
+        <div>
+          {uiComp.getView()}
+        </div>
+      )
     )
   }, [
     uiComp,
