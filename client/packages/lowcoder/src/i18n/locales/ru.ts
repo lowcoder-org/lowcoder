@@ -3804,6 +3804,8 @@ export const ru = {
   "columnStyle": "Стиль колонны",
   "minWidth": "Мин. Ширина",
   "rowBreak": "Перерыв между рядами",
+  "useComponentWidth": "Использовать собственный размер",
+  "useComponentWidthDesc": "Используйте ширину контейнера вместо ширины приложения",
   "matchColumnsHeight": "Соответствие высоты столбцов",
   "rowLayout": "Расположение рядов",
   "columnsLayout": "Макет колонок",

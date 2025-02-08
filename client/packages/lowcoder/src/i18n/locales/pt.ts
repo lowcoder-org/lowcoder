@@ -3804,6 +3804,8 @@ export const pt = {
   "columnStyle": "Estilo de Coluna",
   "minWidth": "Largura Mín.",
   "rowBreak": "Quebra de Linha",
+  "useComponentWidth": "Usar tamanho próprio",
+  "useComponentWidthDesc": "Use a largura do contêiner em vez da largura do aplicativo",
   "matchColumnsHeight": "Corresponder Altura das Colunas",
   "rowLayout": "Layout de Linha",
   "columnsLayout": "Layout de Colunas",

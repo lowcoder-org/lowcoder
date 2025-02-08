@@ -2184,6 +2184,27 @@ export const ResponsiveLayoutColStyle = [
   PADDING,
 ] as const;
 
+export const SplitLayoutRowStyle = [
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+  ROTATION
+] as const;
+
+export const SplitLayoutColStyle = [
+  getBackground("canvas"),
+  getStaticBorder("transparent"),
+  RADIUS,
+  BORDER_WIDTH,
+  BORDER_STYLE,
+  MARGIN,
+  PADDING,
+] as const;
+
 export const NavLayoutStyle = [
   ...getBgBorderRadiusByBg(),
   {
@@ -2343,6 +2364,14 @@ export type ResponsiveLayoutRowStyleType = StyleConfigType<
 export type ResponsiveLayoutColStyleType = StyleConfigType<
   typeof ResponsiveLayoutColStyle
 >;
+
+export type SplitLayoutRowStyleType = StyleConfigType<
+  typeof SplitLayoutRowStyle
+>;
+export type SplitLayoutColStyleType = StyleConfigType<
+  typeof SplitLayoutColStyle
+>;
+
 export type NavLayoutStyleType = StyleConfigType<typeof NavLayoutStyle>;
 export type NavLayoutItemStyleType = StyleConfigType<typeof NavLayoutItemStyle>;
 export type NavLayoutItemHoverStyleType = StyleConfigType<

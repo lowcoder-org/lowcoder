@@ -3804,6 +3804,8 @@ export const de = {
   "columnStyle": "Säulenstil",
   "minWidth": "Min. Breite",
   "rowBreak": "Reihenpause",
+  "useComponentWidth": "Eigene Größe verwenden",
+  "useComponentWidthDesc": "Verwende die Containerbreite anstelle der App-Breite",
   "matchColumnsHeight": "Höhe der Säulen anpassen",
   "rowLayout": "Zeilenlayout",
   "columnsLayout": "Spalten Layout",

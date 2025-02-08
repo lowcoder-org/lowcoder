@@ -3804,6 +3804,8 @@ export const it = {
   "columnStyle": "Stile colonna",
   "minWidth": "Min. Larghezza",
   "rowBreak": "Interruzione della fila",
+  "useComponentWidth": "Usa dimensione propria",
+  "useComponentWidthDesc": "Utilizza la larghezza del contenitore invece della larghezza dell'app",
   "matchColumnsHeight": "Abbinare l'altezza delle colonne",
   "rowLayout": "Disposizione delle file",
   "columnsLayout": "Layout delle colonne",

@@ -3803,6 +3803,8 @@ export const es = {
   "columnStyle": "Estilo columna",
   "minWidth": "Mín. Anchura",
   "rowBreak": "Row Break",
+  "useComponentWidth": "Usar tamaño propio",
+  "useComponentWidthDesc": "Usa el ancho del contenedor en lugar del ancho de la aplicación",
   "matchColumnsHeight": "Igualar la altura de las columnas",
   "rowLayout": "Disposición de filas",
   "columnsLayout": "Disposición de las columnas",

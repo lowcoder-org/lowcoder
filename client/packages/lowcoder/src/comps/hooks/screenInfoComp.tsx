@@ -19,14 +19,14 @@ type ScreenInfo = {
   isMobile?: boolean;
 }
 
-function useScreenInfo() {
+export function useScreenInfo() {
   const canvasContainer = document.getElementById(CanvasContainerID);
   const canvas = document.getElementsByClassName('lowcoder-app-canvas')?.[0];
   const canvasWidth = canvasContainer?.clientWidth || canvas?.clientWidth;
 
   const getDeviceType = (width: number) => {
     if (width < 768) return ScreenTypes.Mobile;
-    if (width < 889) return ScreenTypes.Tablet;
+    if (width < 1024) return ScreenTypes.Tablet;
     return ScreenTypes.Desktop;
   }
   const getFlagsByDeviceType = (deviceType: ScreenType) => {

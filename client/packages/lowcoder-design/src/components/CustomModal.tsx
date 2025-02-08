@@ -220,10 +220,13 @@ const DEFAULT_PROPS = {
   autoFocusButton: "ok",
 } as const;
 
-function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
+function CustomModalRender(props: Omit<CustomModalProps & ModalFuncProps, "width"> & { width?: string | number }) {
   return (
     <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper $width={props.width} $customStyles={props?.customStyles}>
+      <ModalWrapper 
+        $width={props.width}
+        $customStyles={props?.customStyles}
+      >
         <>
           <ModalHeaderWrapper className="handle" $draggable={props.draggable}>
             <ModalHeader
@@ -249,19 +252,20 @@ function CustomModalRender(props: CustomModalProps & ModalFuncProps) {
   );
 }
 
+
 /**
  * an antd modal capsulation
  */
-
 function CustomModal(props: CustomModalProps) {
   return (
     <AntdModal
       {...props}
-      width="fit-content"
-      modalRender={() => <CustomModalRender {...DEFAULT_PROPS} {...props} />}
+      width={typeof props.width === "object" ? undefined : props.width} // Ensure valid type
+      modalRender={() => <CustomModalRender {...props} width={typeof props.width === "object" ? undefined : props.width} />}
     />
   );
 }
+
 
 const TitleIcon = {
   error: <ErrorIcon />,
@@ -285,6 +289,8 @@ CustomModal.confirm = (props: {
   customStyles?:React.CSSProperties;
 }): any => {
 
+  const fixedWidth = typeof props.width === "object" ? undefined : props.width;
+
   const defaultConfirmProps: ModalFuncProps = {
     ...DEFAULT_PROPS,
     okText: trans("ok"),
@@ -301,7 +307,7 @@ CustomModal.confirm = (props: {
   };
   // create model
   const model = modalInstance.confirm({
-    width: "fit-content",
+    width: fixedWidth,
     style: props.style,
     centered: true,
     onCancel: () => {

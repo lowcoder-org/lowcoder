@@ -3867,6 +3867,8 @@ export const en = {
     "columnStyle": "Column Style",
     "minWidth": "Min. Width",
     "rowBreak": "Row Break",
+    "useComponentWidth" : "Use Self Size",
+    "useComponentWidthDesc" : "Use the container width instead the App width",
     "matchColumnsHeight": "Match Columns Height",
     "rowLayout": "Row Layout",
     "columnsLayout": "Columns Layout",

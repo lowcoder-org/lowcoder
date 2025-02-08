@@ -3217,6 +3217,8 @@ export const zh: typeof en = {
         columnStyle: "栏目样式",
         minWidth: "分钟。宽度",
         rowBreak: "断行",
+        "useComponentWidth": "使用自身尺寸",
+        "useComponentWidthDesc": "使用容器宽度而不是应用宽度",
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
