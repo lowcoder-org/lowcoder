@@ -469,6 +469,23 @@ export var uiCompMap: Registry = {
       delayCollision: true,
     },
   },
+  splitLayout: {
+    name: trans("uiComp.responsiveLayoutCompName"),
+    enName: "Split Layout",
+    description: trans("uiComp.responsiveLayoutCompDesc"),
+    categories: ["layout"],
+    icon: ResponsiveLayoutCompIcon,
+    keywords: trans("uiComp.responsiveLayoutCompKeywords"),
+    lazyLoad: true,
+    compName: "SplitLayoutComp",
+    compPath: "comps/splitLayout/index",
+    withoutLoading: true,
+    layoutInfo: {
+      w: 24,
+      h: 25,
+      delayCollision: true,
+    },
+  },
   floatTextContainer: {
     name: trans("uiComp.floatTextContainerCompName"),
     enName: "Container",

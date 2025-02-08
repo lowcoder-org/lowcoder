@@ -240,6 +240,7 @@ export const pt = {
   "preventOverwriting": "Evitar a substituição de estilos",
   "color": "Cor",
   "horizontalGridCells": "Células de grade horizontal",
+  "verticalGridCells": "Células de grade vertical",
   "showHorizontalScrollbar": "Mostrar barra de rolagem horizontal",
   "showVerticalScrollbar": "Mostrar barra de rolagem vertical",
   "timeZone": "Fuso horário",

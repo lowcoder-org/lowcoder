@@ -162,6 +162,7 @@ export const CompStateIcon: {
   rangeSlider: <RangeSliderCompIconSmall />,
   rating: <RatingCompIconSmall />,
   responsiveLayout: <ResponsiveLayoutCompIconSmall />,
+  splitLayout: <ResponsiveLayoutCompIconSmall />,
   richTextEditor: <RichTextEditorCompIconSmall />,
   scanner: <ScannerCompIconSmall />,
   segmentedControl: <SegmentedCompIconSmall />,

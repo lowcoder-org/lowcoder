@@ -240,6 +240,7 @@ export const es = {
   "preventOverwriting": "Evitar la sobreescritura de estilos",
   "color": "Color",
   "horizontalGridCells": "Celdas de cuadrícula horizontales",
+  "verticalGridCells": "Celdas de cuadrícula vertical",
   "showHorizontalScrollbar": "Mostrar barra de desplazamiento horizontal",
   "showVerticalScrollbar": "Mostrar barra de desplazamiento vertical",
   "timeZone": "Zona horaria",

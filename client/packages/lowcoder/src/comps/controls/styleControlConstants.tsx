@@ -2192,7 +2192,6 @@ export const SplitLayoutRowStyle = [
   BORDER_STYLE,
   MARGIN,
   PADDING,
-  ROTATION
 ] as const;
 
 export const SplitLayoutColStyle = [

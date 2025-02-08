@@ -240,6 +240,7 @@ export const ru = {
   "preventOverwriting": "Предотвращение перезаписи стилей",
   "color": "Цвет",
   "horizontalGridCells": "Ячейки горизонтальной сетки",
+  "verticalGridCells": "Вертикальные ячейки сетки",
   "showHorizontalScrollbar": "Показать горизонтальную полосу прокрутки",
   "showVerticalScrollbar": "Показать вертикальную полосу прокрутки",
   "timeZone": "TimeZone",

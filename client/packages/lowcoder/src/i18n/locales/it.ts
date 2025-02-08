@@ -240,6 +240,7 @@ export const it = {
   "preventOverwriting": "Impedire la sovrascrittura degli stili",
   "color": "Colore",
   "horizontalGridCells": "Celle della griglia orizzontale",
+  "verticalGridCells": "Celle della griglia verticale",
   "showHorizontalScrollbar": "Show Horizontal Scrollbar",
   "showVerticalScrollbar": "Mostra barra di scorrimento verticale",
   "timeZone": "Fuso orario",
