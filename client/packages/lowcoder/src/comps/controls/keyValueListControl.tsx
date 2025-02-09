@@ -14,7 +14,7 @@ import { keyValueControl, KeyValueControlParams } from "./keyValueControl"
 export function keyValueListControl<T extends OptionsType>(
   hasType: boolean = false,
   types: T | OptionsType = [],
-  controlType: "params" | "string" = "params"
+  controlType: "params" | "string" | "variable" = "params"
 ) {
   return class extends list(keyValueControl(hasType, types, controlType)) {
     getQueryParams() {

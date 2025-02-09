@@ -104,12 +104,12 @@ const FilterDropdown = styled(Select)`
   }
 
   .ant-select-selector > .ant-select-selection-item {
-    svg {
-      display: none;
-    }
-
     font-size: 16px !important;
     font-weight: 500;
+  }
+
+  .ant-select-selector .ant-select-selection-item svg {
+    margin-top: 7px !important;
   }
 
   .ant-select-item-option-content {

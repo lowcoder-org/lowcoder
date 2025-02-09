@@ -19,14 +19,14 @@ const ExecuteQueryPropertyView = ({
   placement?: "query" | "table"
 }) => {
   const getQueryOptions = useCallback((editorState?: EditorState) => {
-    const options: { label: string; value: string; variable?: Record<string, string> }[] =
+    const options: { label: string; value: string; variables?: Record<string, string> }[] =
       editorState
         ?.queryCompInfoList()
         .map((info) => {
           return {
             label: info.name,
             value: info.name,
-            variable: info.data.variable,
+            variables: info.data.variables,
           }
       })
         .filter(
@@ -79,7 +79,7 @@ const ExecuteQueryPropertyView = ({
                 onChange={(value) => {
                   const options = getQueryOptions(editorState);
                   const selectedQuery = options.find(option => option.value === value);
-                  const variables = selectedQuery ? Object.keys(selectedQuery.variable || {}) : [];
+                  const variables = selectedQuery ? Object.keys(selectedQuery.variables || {}) : [];
                   comp.dispatchChangeValueAction({
                     queryName: value,
                     queryVariables: variables.map((variable) => ({key: variable, value: ''})),
@@ -99,7 +99,7 @@ const ExecuteQueryPropertyView = ({
 const ExecuteQueryTmpAction = (function () {
   const childrenMap = {
     queryName: SimpleNameComp,
-    queryVariables: withDefault(keyValueListControl(false, [], "string"), [])
+    queryVariables: withDefault(keyValueListControl(false, [], "variable"), [])
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => Promise.resolve(undefined as unknown);

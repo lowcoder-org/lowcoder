@@ -175,7 +175,7 @@ const browserCheckConfig: UserConfig = {
   build: {
     ...viteConfig.build,
     manifest: false,
-    copyPublicDir: false,
+    copyPublicDir: true,
     emptyOutDir: true,
     lib: {
       formats: ["iife"],
