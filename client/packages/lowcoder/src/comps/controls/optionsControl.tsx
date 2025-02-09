@@ -678,8 +678,8 @@ const SplitColumnOption = new MultiCompBuilder(
 
 export const SplitColumnOptionControl = manualOptionsControl(SplitColumnOption, {
   initOptions: [
-    { id: 0, key: "Area1", label: "Area 1" },
-    { id: 1, key: "Area2", label: "Area 2" },
+    { id: 0, key: "Area1", label: "Area 1", minWidth: "10%", maxWidth: "90%",  width: "50%"},
+    { id: 1, key: "Area2", label: "Area 2", minWidth: "10%", maxWidth: "90%",  width: "50%", collapsible : true},
   ],
   uniqField: "key",
   autoIncField: "id",

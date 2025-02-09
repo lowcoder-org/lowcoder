@@ -114,6 +114,7 @@ const childrenMap = {
     1: { view: {}, layout: {} },
   }),
   horizontalGridCells: SliderControl,
+  verticalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   rowBreak: withDefault(BoolControl, true),
   useComponentWidth: withDefault(BoolControl, true),
@@ -139,7 +140,6 @@ const ColumnContainer = (props: ColumnContainerProps) => {
   return (
     <InnerGrid
       {...props}
-      emptyRows={15}
       hintPlaceholder={HintPlaceHolder}
       radius={props.style.radius}
       style={props.style}
@@ -259,6 +259,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
                     autoHeight={props.autoHeight}
                     horizontalGridCells={horizontalGridCells}
                     style={columnStyle}
+                    emptyRows={props.verticalGridCells}
                   />
                 </ColWrapper>
               );
@@ -303,6 +304,9 @@ export const ResponsiveLayoutBaseComp = (function () {
               })}
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
+              })}
+              {children.verticalGridCells.propertyView({
+                label: trans('prop.verticalGridCells'),
               })}
             </Section>
             <Section name={trans("responsiveLayout.rowLayout")}>
