@@ -339,16 +339,16 @@ const DeviceWrapper = ({
 
   const deviceWidth = useMemo(() => {
     if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
-      return 700;
+      return 980;
     }
     if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
-      return 900;
+      return 1280;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
-      return 450;
+      return 550;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
-      return 900;
+      return 1200;
     }
   }, [deviceType, deviceOrientation]);
 
@@ -489,30 +489,12 @@ function EditorView(props: EditorViewProps) {
 
     return (
       editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
-        <div style={{ 
-          display: "flex",
-          flexDirection: "row", // Arrange side by side
-          gap: "20px", // Spacing between the two DeviceWrappers
-          justifyContent: "center", // Center horizontally
-          alignItems: "center", // Center vertically
-          height: "auto", // Full viewport height for vertical centering
-          width: "100%", // Full viewport width
-          
-          }}>
-          <DeviceWrapper
+        <DeviceWrapper
             deviceType={editorState.deviceType}
-            deviceOrientation="portrait"
+            deviceOrientation={editorState.deviceOrientation}
           >
             {uiComp.getView()}
-          </DeviceWrapper>
-          
-          <DeviceWrapper
-            deviceType={editorState.deviceType}
-            deviceOrientation="landscape"
-          >
-            {uiComp.getView()}
-          </DeviceWrapper>
-        </div>
+        </DeviceWrapper>
       ) : (
         <div>
           {uiComp.getView()}
