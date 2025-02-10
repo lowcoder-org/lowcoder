@@ -773,12 +773,24 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     if (!originQuery) {
       return;
     }
+
+    const jsonData = originQuery.toJsonValue();
+    //Regenerate variable header
+    jsonData.variables?.variables?.forEach(kv => {
+      const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
+      let i=2, newName = "";
+      do {
+        newName = prefix + (i++);
+      } while(editorState.checkRename("", newName));
+      kv.key = newName;
+    })
+
     const newQueryName = this.genNewName(editorState);
     const id = genQueryId();
     this.dispatch(
       wrapActionExtraInfo(
         this.pushAction({
-          ...originQuery.toJsonValue(),
+          ...jsonData,
           id: id,
           name: newQueryName,
           isNewCreate: true,
@@ -789,7 +801,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
             {
               type: "add",
               compName: name,
-              compType: originQuery.children.compType.getView(),
+              compType: jsonData.compType,
             },
           ],
         }
