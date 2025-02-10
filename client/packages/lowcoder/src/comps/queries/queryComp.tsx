@@ -364,6 +364,7 @@ QueryCompTmp = class extends QueryCompTmp {
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
       if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
     }
