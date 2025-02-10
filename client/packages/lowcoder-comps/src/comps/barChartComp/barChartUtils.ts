@@ -71,6 +71,7 @@ export function isAxisChart(type: CharOptionCompType, subtype: string) {
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
+  console.log("SeriesProps:", props);
   let visibleSeries = props.series.filter((s) => !s.getView().hide);
   if(props.chartConfig.subtype === "waterfall") {
     const seriesOn = visibleSeries[0];
@@ -307,7 +308,7 @@ export function getEchartsConfig(
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
         },
-        data: finalXyConfig.xConfig.type === "category"?props?.xAxisData:undefined,
+        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:undefined,
       },
       // @ts-ignore
       yAxis: {

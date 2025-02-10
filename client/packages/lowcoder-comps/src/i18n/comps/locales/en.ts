@@ -316,6 +316,7 @@ export const en = {
     title: 'Title',
     barWidth: 'Bar Width(%)',
     race: 'Race',
+    stack: 'Stacked',
     showBg: 'Show Bar Background',
     bgColor: 'Background Color',
     polarIsTangent: 'Tangential Chart',

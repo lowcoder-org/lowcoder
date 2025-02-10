@@ -21,10 +21,6 @@ const BarTypeOptions = [
     value: "basicBar",
   },
   {
-    label: trans("chart.stackedBar"),
-    value: "stackedBar",
-  },
-  {
     label: trans("chart.waterfallBar"),
     value: "waterfall",
   },
@@ -48,6 +44,7 @@ export const BarChartConfig = (function () {
       polarStartAngle: withDefault(NumberControl, 90),
       polarEndAngle: withDefault(NumberControl, -180),
       polarIsTangent: withDefault(BoolControl, false),
+      stack: withDefault(BoolControl, false),
       race: withDefault(BoolControl, false),
       labelData: jsonControl(toArray, []),
     },
@@ -78,7 +75,7 @@ export const BarChartConfig = (function () {
         },
         race: props.race,
       };
-      if (props.type === "stackedBar") {
+      if (props.stack) {
         config.stack = "stackValue";
       }
       if (props.type === "waterfall") {
@@ -107,6 +104,9 @@ export const BarChartConfig = (function () {
         })}
         {children.race.propertyView({
           label: trans("barChart.race"),
+        })}
+        {children.stack.propertyView({
+          label: trans("barChart.stack"),
         })}
         {children.showBackground.propertyView({
           label: trans("barChart.showBg"),
