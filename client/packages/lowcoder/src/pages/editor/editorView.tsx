@@ -360,13 +360,13 @@ const DeviceWrapper = ({
 
   const deviceWidth = useMemo(() => {
     if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
-      return 980;
+      return 850;
     }
     if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
-      return 1280;
+      return 1100;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
-      return 550;
+      return 450;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
       return 1200;
@@ -381,6 +381,7 @@ const DeviceWrapper = ({
         isLandscape={deviceOrientation === 'landscape'}
         screenWidth={deviceWidth}
         className={`device-mockup ${deviceOrientation === 'landscape' && deviceType === 'mobile' ? 'landscape' : 'portrait'} `}
+        frameColor={"background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);"}
       >
         {children}
       </Wrapper>
