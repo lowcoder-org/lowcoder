@@ -24,17 +24,17 @@ const titleStyle = {
   chartTextWeight: "Bold"
 }
 
-const labelStyle = {
+const xAxisStyle = {
   chartBoxShadow: "5",
   chartFontFamily: "serif",
   chartFontStyle: "Italic",
   chartShadowColor: "#020101",
-  chartTextColor: "#FFFFFF",
+  chartTextColor: "#971827",
   chartTextSize: "20",
   chartTextWeight: "bold"
 }
 
-const legendStyle = {
+const yAxisStyle = {
   chartBoxShadow: "5",
   chartFontFamily: "serif",
   chartFontStyle: "Italic",
@@ -151,7 +151,7 @@ export default function CandleStickChartExample() {
 
       <ExampleGroup
               title="Styling Properties"
-              description="The Following Examples Show the Styling Properties on the Funnel Chart Component."
+              description="The Following Examples Show the Styling Properties on the CandleStick Chart Component."
             >
               <Example
                 title="Chart Styling - Background Color, Box Shadow, Border"
@@ -174,22 +174,22 @@ export default function CandleStickChartExample() {
                 compFactory={ChartCompWithDefault}
               />
               <Example
-                title="Label Styling - Text, Fonts & Box Shadow"
+                title="X-Axis Styling"
                 width={500}
                 height={350}
                 hideSettings={true}
                 config={{
-                  labelStyle: labelStyle,
+                  xAxisStyle: xAxisStyle,
                 }}
                 compFactory={ChartCompWithDefault}
               />
               <Example
-                title="Lagend Styling - Text, Fonts & Box Shadow"
+                title="Y-Axis Styling"
                 width={500}
                 height={350}
                 hideSettings={true}
                 config={{
-                  legendStyle: legendStyle,
+                  yAxisStyle: yAxisStyle,
                 }}
                 compFactory={ChartCompWithDefault}
               />
