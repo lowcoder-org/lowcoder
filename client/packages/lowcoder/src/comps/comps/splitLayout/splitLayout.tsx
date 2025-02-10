@@ -36,12 +36,13 @@ import {
   HorizontalIcon,
   VerticalIcon,
 } from "lowcoder-design/src/icons";
-import { BackgroundColor } from "@lowcoder-ee/constants/style";
 
-const SplitPanelWrapper = styled(Splitter.Panel)<{ }>`
+const SplitPanelWrapper = styled(Splitter.Panel)`
+  overflow: hidden;
 `;
 
 const SplitterWrapper = styled.div<{ $style: SplitLayoutRowStyleType }>`
+  height: 100%;
   border-radius: ${(props) => props.$style?.radius || "0px"};
   border-width: ${(props) => props.$style?.borderWidth || "0px"};
   border-color: ${(props) => props.$style?.border || "transparent"};
@@ -103,7 +104,8 @@ const ColumnContainer = (props: ColumnContainerProps) => {
         ...props.style,
         height: props.orientation === "horizontal"
           ? (props.matchColumnsHeight ? heightCalculator(props.margin) : "auto")
-          : (props.autoHeight ? "100%" : "auto"),
+          : (props.autoHeight ? heightCalculator(props.margin) : heightCalculator(props.margin)),
+        overflow: 'auto',
       }}
     />
   );
@@ -115,11 +117,18 @@ const SplitLayout = (props: SplitLayoutProps) => {
     <BackgroundColorContext.Provider value={props.columnStyle.background}>
       <DisabledContext.Provider value={props.disabled}>
         <SplitterWrapper $style={props.bodyStyle}>
-          <Splitter style={{ overflow: props.mainScrollbar ? "auto" : "hidden"}} layout={props.orientation}>
+          <Splitter
+            style={{
+              overflow: props.mainScrollbar ? "auto" : "hidden",
+              height: props.autoHeight && props.orientation === 'vertical' ? '500px' : '100%',
+            }}
+            layout={props.orientation}
+          >
             {props.columns.map((col, index) => {
               const id = String(col.id);
               const childDispatch = wrapDispatch(wrapDispatch(props.dispatch, "containers"), id);
               const containerProps = props.containers[id]?.children;
+
               return (
                 <SplitPanelWrapper 
                   key={id} 
@@ -127,7 +136,7 @@ const SplitLayout = (props: SplitLayoutProps) => {
                   {...(col.minWidth !== undefined ? { min: col.minWidth } : {})}
                   {...(col.maxWidth !== undefined ? { max: col.maxWidth } : {})}
                   {...(col.width !== undefined ? { defaultSize: col.width } : {})}
-                  >
+                >
                   <ColumnContainer
                     layout={containerProps.layout.getView()}
                     items={gridItemCompToGridItems(containerProps.items.getView())}

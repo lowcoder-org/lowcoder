@@ -256,8 +256,31 @@ export const EditorWrapper = styled.div`
 
 const DeviceWrapperInner = styled(Flex)`
   margin: 2% 0 0;
-  .screen {
-    overflow: auto;
+  .device-mockup.portrait {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            display: block !important;
+            overflow: hidden auto !important;
+          } 
+        } 
+      }
+    }
+  }
+  .device-mockup.landscape {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            > div:first-child {
+              display: block !important;
+              overflow: hidden auto !important;
+            }
+          } 
+        } 
+      }
+    }
   }
 `;
 
@@ -322,13 +345,11 @@ const DeviceWrapper = ({
   useEffect(() => {
     const loadWrapper = async () => {
       if (deviceType === "tablet") {
-        await import('html5-device-mockups/dist/device-mockups.min.css');
-        const { IPadPro } = await import("react-device-mockups");
-        setWrapper(() => IPadPro);
+        const { IPadMockup } = await import("react-device-mockup");
+        setWrapper(() => IPadMockup);
       } else if (deviceType === "mobile") {
-        await import('html5-device-mockups/dist/device-mockups.min.css');
-        const { IPhone7 } = await import("react-device-mockups");
-        setWrapper(() => IPhone7);
+        const { IPhoneMockup } = await import("react-device-mockup");
+        setWrapper(() => IPhoneMockup);
       } else {
         setWrapper(() => null);
       }
@@ -339,13 +360,13 @@ const DeviceWrapper = ({
 
   const deviceWidth = useMemo(() => {
     if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
-      return 980;
+      return 850;
     }
     if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
-      return 1280;
+      return 1100;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
-      return 550;
+      return 450;
     }
     if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
       return 1200;
@@ -357,8 +378,10 @@ const DeviceWrapper = ({
   return (
     <DeviceWrapperInner justify="center" >
       <Wrapper
-        orientation={deviceOrientation}
-        width={deviceWidth}
+        isLandscape={deviceOrientation === 'landscape'}
+        screenWidth={deviceWidth}
+        className={`device-mockup ${deviceOrientation === 'landscape' && deviceType === 'mobile' ? 'landscape' : 'portrait'} `}
+        frameColor={"background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);"}
       >
         {children}
       </Wrapper>
