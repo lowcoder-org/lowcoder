@@ -364,6 +364,7 @@ QueryCompTmp = class extends QueryCompTmp {
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
       if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
     }
@@ -673,8 +674,8 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
         return undefined;
       }
       const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key.value)
-        .map((kvNode: any) => ({[kvNode.key.value]: kvNode.value.value}))
+        .filter((kvNode: any) => kvNode.key)
+        .map((kvNode: any) => ({[kvNode.key]: kvNode.value}))
         .reduce((prev, obj) => ({...prev, ...obj}), {});
       return newNode;
     },
@@ -773,12 +774,24 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     if (!originQuery) {
       return;
     }
+
+    const jsonData = originQuery.toJsonValue();
+    //Regenerate variable header
+    jsonData.variables?.variables?.forEach(kv => {
+      const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
+      let i=1, newName = "";
+      do {
+        newName = prefix + (i++);
+      } while(editorState.checkRename("", newName));
+      kv.key = newName;
+    })
+
     const newQueryName = this.genNewName(editorState);
     const id = genQueryId();
     this.dispatch(
       wrapActionExtraInfo(
         this.pushAction({
-          ...originQuery.toJsonValue(),
+          ...jsonData,
           id: id,
           name: newQueryName,
           isNewCreate: true,
@@ -789,7 +802,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
             {
               type: "add",
               compName: name,
-              compType: originQuery.children.compType.getView(),
+              compType: jsonData.compType,
             },
           ],
         }
