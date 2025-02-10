@@ -673,8 +673,8 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
         return undefined;
       }
       const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key.value)
-        .map((kvNode: any) => ({[kvNode.key.value]: kvNode.value.value}))
+        .filter((kvNode: any) => kvNode.key)
+        .map((kvNode: any) => ({[kvNode.key]: kvNode.value}))
         .reduce((prev, obj) => ({...prev, ...obj}), {});
       return newNode;
     },
