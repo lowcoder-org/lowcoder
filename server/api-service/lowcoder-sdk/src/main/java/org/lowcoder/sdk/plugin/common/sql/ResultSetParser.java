@@ -81,7 +81,7 @@ public class ResultSetParser {
             //Convert binary data into base64
             Blob blob = resultSet.getBlob(i);
             byte[] blobBytes = blob.getBytes(1, (int) blob.length());
-            return Map.of("type", "BLOB", "length", blobBytes.length, "content", Base64.encodeBase64String(blobBytes));
+            return Base64.encodeBase64String(blobBytes);
         }
         return resultSet.getObject(i);
     }
