@@ -48,15 +48,19 @@ export const BarChartConfig = (function () {
       polarStartAngle: withDefault(NumberControl, 90),
       polarEndAngle: withDefault(NumberControl, -180),
       polarIsTangent: withDefault(BoolControl, false),
+      race: withDefault(BoolControl, false),
       labelData: jsonControl(toArray, []),
     },
     (props): BarSeriesOption => {
       const config: BarSeriesOption = {
         type: "bar",
         subtype: props.type,
+        realtimeSort: props.race,
+        seriesLayoutBy: props.race?'column':undefined,
         label: {
           show: props.showLabel,
           position: "top",
+          valueAnimation: props.race,
         },
         barWidth: `${props.barWidth}%`,
         showBackground: props.showBackground,
@@ -71,8 +75,8 @@ export const BarChartConfig = (function () {
           polarEndAngle: props.polarEndAngle,
           labelData: props.labelData,
           polarIsTangent: props.polarIsTangent,
-        }
-
+        },
+        race: props.race,
       };
       if (props.type === "stackedBar") {
         config.stack = "stackValue";
@@ -100,6 +104,9 @@ export const BarChartConfig = (function () {
         {showLabelPropertyView(children)}
         {children.barWidth.propertyView({
           label: trans("barChart.barWidth"),
+        })}
+        {children.race.propertyView({
+          label: trans("barChart.race"),
         })}
         {children.showBackground.propertyView({
           label: trans("barChart.showBg"),

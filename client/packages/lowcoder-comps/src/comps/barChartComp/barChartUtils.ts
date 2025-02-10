@@ -191,6 +191,16 @@ export function getEchartsConfig(
       containLabel: true,
     },
   };
+  if(props.chartConfig.race) {
+    config = {
+      ...config,
+      // Disable init animation.
+      animationDuration: 0,
+      animationDurationUpdate: 2000,
+      animationEasing: 'linear',
+      animationEasingUpdate: 'linear',
+    }
+  }
   if (props.data.length <= 0) {
     // no data
     return {
@@ -307,6 +317,22 @@ export function getEchartsConfig(
         }
       },
     };
+    
+    if(props.chartConfig.race) {
+      config = {
+        ...config,
+        xAxis: {
+          ...config.xAxis,
+          animationDuration: 300,
+          animationDurationUpdate: 300
+        },
+        yAxis: {
+          ...config.yAxis,
+          animationDuration: 300,
+          animationDurationUpdate: 300
+        },
+      }
+    }
   }
 
   //Waterfall x-label initialization

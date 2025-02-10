@@ -315,6 +315,7 @@ export const en = {
   barChart: {
     title: 'Title',
     barWidth: 'Bar Width(%)',
+    race: 'Race',
     showBg: 'Show Bar Background',
     bgColor: 'Background Color',
     polarIsTangent: 'Tangential Chart',
