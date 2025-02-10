@@ -218,6 +218,7 @@ export function getEchartsConfig(
     yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsOption.length && props.echartsOption || props.data : transformData(props.echartsOption.length && props.echartsOption || props.data, props.xAxisKey, seriesColumnNames);
 
   if(props.chartConfig.subtype === "waterfall") {
+    config.legend = undefined;
     let sum = transformedData.reduce((acc, item) => {
       if(typeof item[seriesColumnNames[0]] === 'number') return acc + item[seriesColumnNames[0]];
       else return acc;
@@ -348,13 +349,13 @@ export function getEchartsConfig(
   //Polar x-label initialization
   if(props.chartConfig?.subtype === "polar" && props.chartConfig.polarData.labelData.length === 0) {
     //default labels
-    // let labelData = [];
-    // for(let i=0; i<transformedData.length; i++)
-    //   labelData.push(`C${i+1}`);
-    // if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
-    // if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
-    config.radiusAxis.data = undefined;
-    config.angleAxis.data = undefined;
+    // config.radiusAxis.data = undefined;
+    // config.angleAxis.data = undefined;
+    let labelData = [];
+    for(let i=0; i<transformedData.length; i++)
+      labelData.push(`C${i+1}`);
+    if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
+    if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
   }
   console.log("Config", config);
   // log.log("Echarts transformedData and config", transformedData, config);
