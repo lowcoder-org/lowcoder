@@ -20,11 +20,13 @@ import { VideoMeetingStreamComp } from "./comps/agoraMeetingComp/videoMeetingStr
 import { VideoSharingStreamComp } from "./comps/agoraMeetingComp/videoSharingStreamComp";
 import { BasicChartCompWithDefault } from "comps/basicChartComp/chartComp";
 import { BarChartCompWithDefault } from "comps/barChartComp/barChartComp";
+import { LineChartCompWithDefault } from "comps/lineChartComp/lineChartComp";
 
 export default {
   chart: ChartCompWithDefault,
   basicChart: BasicChartCompWithDefault,
   barChart: BarChartCompWithDefault,
+  lineChart: LineChartCompWithDefault,
   chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,
