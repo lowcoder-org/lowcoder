@@ -4,7 +4,7 @@ import {
   ChartSize,
   noDataAxisConfig,
   noDataPieChartConfig,
-} from "comps/basicChartComp/chartConstants";
+} from "comps/barChartComp/barChartConstants";
 import { getPieRadiusAndCenter } from "comps/basicChartComp/chartConfigs/pieChartConfig";
 import { EChartsOptionWithMap } from "../basicChartComp/reactEcharts/types";
 import _ from "lodash";
@@ -56,6 +56,7 @@ export function transformData(
 }
 
 const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
+const notAxisChartSubtypeSet: Set<string> = new Set(["polar"] as const);
 export const echartsConfigOmitChildren = [
   "hidden",
   "selectedPoints",
@@ -65,8 +66,8 @@ export const echartsConfigOmitChildren = [
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
 
-export function isAxisChart(type: CharOptionCompType) {
-  return !notAxisChartSet.has(type);
+export function isAxisChart(type: CharOptionCompType, subtype: string) {
+  return !notAxisChartSet.has(type) && !notAxisChartSubtypeSet.has(subtype);
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
@@ -78,7 +79,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
   }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type)) {
+    if (isAxisChart(props.chartConfig.type, props.chartConfig.subtype)) {
       let encodeX: string, encodeY: string;
       const horizontalX = props.xAxisDirection === "horizontal";
       let itemStyle = props.chartConfig.itemStyle;
@@ -151,7 +152,7 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type);
+  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.subtype);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
@@ -222,7 +223,7 @@ export function getEchartsConfig(
     config = {
       ...config,
       polar: {
-        radius: [props.chartConfig.polarData.polarRadiusDeg, `${props.chartConfig.polarData.polarRadiusSize}%`],
+        radius: [props.chartConfig.polarData.polarRadiusStart, props.chartConfig.polarData.polarRadiusEnd],
       },
       radiusAxis: {
         type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
@@ -233,7 +234,8 @@ export function getEchartsConfig(
         type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
         data: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.labelData,
         max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
-        startAngle: 75
+        startAngle: props.chartConfig.polarData.polarStartAngle,
+        endAngle: props.chartConfig.polarData.polarEndAngle,
       },
     }
   }
@@ -305,27 +307,26 @@ export function getEchartsConfig(
         }
       },
     };
-
-    //Waterfall x-label initialization
-    if(props.chartConfig?.subtype === "waterfall" && props.xAxisData.length === 0) {
-      //default labels
-      config.xAxis.data = ["Total"];
-      for(let i=1; i<transformedData.length; i++)
-        config.xAxis.data.push(`Column${i}`);
-    }
-
-    //Polar x-label initialization
-    if(props.chartConfig?.subtype === "polar" && props.chartConfig.polarData.labelData.length === 0) {
-      //default labels
-      let labelData = [];
-      for(let i=0; i<transformedData.length; i++)
-        labelData.push(`C${i+1}`);
-      if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
-      if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
-    }
-    console.log("Config", config);
-    console.log("Props", props);
   }
+
+  //Waterfall x-label initialization
+  if(props.chartConfig?.subtype === "waterfall" && props.xAxisData.length === 0) {
+    //default labels
+    config.xAxis.data = ["Total"];
+    for(let i=1; i<transformedData.length; i++)
+      config.xAxis.data.push(`Column${i}`);
+  }
+
+  //Polar x-label initialization
+  if(props.chartConfig?.subtype === "polar" && props.chartConfig.polarData.labelData.length === 0) {
+    //default labels
+    let labelData = [];
+    for(let i=0; i<transformedData.length; i++)
+      labelData.push(`C${i+1}`);
+    if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
+    if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
+  }
+  console.log("Config", config);
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;
 }

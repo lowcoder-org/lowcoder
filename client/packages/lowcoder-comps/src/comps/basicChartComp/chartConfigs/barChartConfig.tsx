@@ -1,6 +1,7 @@
 import {
   BoolControl,
   NumberControl,
+  StringControl,
   withDefault,
   dropdownControl,
   MultiCompBuilder,
@@ -42,8 +43,10 @@ export const BarChartConfig = (function () {
       showBackground: BoolControl,
       backgroundColor: withDefault(ColorControl, i18nObjs.defaultBarChartOption.barBg),
       radiusAxisMax: NumberControl,
-      polarRadiusDeg: withDefault(NumberControl, 30),
-      polarRadiusSize: withDefault(NumberControl, 80),
+      polarRadiusStart: withDefault(StringControl, '30'),
+      polarRadiusEnd: withDefault(StringControl, '80%'),
+      polarStartAngle: withDefault(NumberControl, 90),
+      polarEndAngle: withDefault(NumberControl, -180),
       polarIsTangent: withDefault(BoolControl, false),
       labelData: jsonControl(toArray, []),
     },
@@ -62,8 +65,10 @@ export const BarChartConfig = (function () {
         },
         polarData: {
           radiusAxisMax: props.radiusAxisMax,
-          polarRadiusDeg: props.polarRadiusDeg,
-          polarRadiusSize: props.polarRadiusSize,
+          polarRadiusStart: props.polarRadiusStart,
+          polarRadiusEnd: props.polarRadiusEnd,
+          polarStartAngle: props.polarStartAngle,
+          polarEndAngle: props.polarEndAngle,
           labelData: props.labelData,
           polarIsTangent: props.polarIsTangent,
         }
@@ -105,14 +110,20 @@ export const BarChartConfig = (function () {
         {children.type.getView()  === "polar" && children.polarIsTangent.propertyView({
           label: trans("barChart.polarIsTangent"),
         })}
+        {children.type.getView()  === "polar" && children.polarStartAngle.propertyView({
+          label: trans("barChart.polarStartAngle"),
+        })}
+        {children.type.getView()  === "polar" && children.polarEndAngle.propertyView({
+          label: trans("barChart.polarEndAngle"),
+        })}
         {children.type.getView()  === "polar" && children.radiusAxisMax.propertyView({
           label: trans("barChart.radiusAxisMax"),
         })}
-        {children.type.getView()  === "polar" && children.polarRadiusDeg.propertyView({
-          label: trans("barChart.polarRadiusDeg"),
+        {children.type.getView()  === "polar" && children.polarRadiusStart.propertyView({
+          label: trans("barChart.polarRadiusStart"),
         })}
-        {children.type.getView()  === "polar" && children.polarRadiusSize.propertyView({
-          label: trans("barChart.polarRadiusSize"),
+        {children.type.getView()  === "polar" && children.polarRadiusEnd.propertyView({
+          label: trans("barChart.polarRadiusEnd"),
         })}
         {children.type.getView()  === "polar" && children.labelData.propertyView({
           label: trans("barChart.polarLabelData"),

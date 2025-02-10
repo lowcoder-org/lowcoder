@@ -35,7 +35,7 @@ import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "../basicChartComp/chartConfigs/gaugeChartConfig";
 import { FunnelChartConfig } from "../basicChartComp/chartConfigs/funnelChartConfig";
 import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
-import {EchartsTitleConfig} from "../chartComp/chartConfigs/echartsTitleConfig";
+import {EchartsTitleConfig} from "../basicChartComp/chartConfigs/echartsTitleConfig";
 
 export const ChartTypeOptions = [
   {
