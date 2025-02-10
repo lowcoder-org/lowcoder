@@ -317,6 +317,7 @@ export const en = {
     barWidth: 'Bar Width(%)',
     showBg: 'Show Bar Background',
     bgColor: 'Background Color',
+    polarIsTangent: 'Tangential Chart',
     radiusAxisMax: 'Max',
     polarRadiusDeg: 'Degree',
     polarRadiusSize: 'Size (%)',

@@ -41,9 +41,10 @@ export const BarChartConfig = (function () {
       barWidth: withDefault(NumberControl, i18nObjs.defaultBarChartOption.barWidth),
       showBackground: BoolControl,
       backgroundColor: withDefault(ColorControl, i18nObjs.defaultBarChartOption.barBg),
-      radiusAxisMax: withDefault(NumberControl, 4),
+      radiusAxisMax: NumberControl,
       polarRadiusDeg: withDefault(NumberControl, 30),
       polarRadiusSize: withDefault(NumberControl, 80),
+      polarIsTangent: withDefault(BoolControl, false),
       labelData: jsonControl(toArray, []),
     },
     (props): BarSeriesOption => {
@@ -64,6 +65,7 @@ export const BarChartConfig = (function () {
           polarRadiusDeg: props.polarRadiusDeg,
           polarRadiusSize: props.polarRadiusSize,
           labelData: props.labelData,
+          polarIsTangent: props.polarIsTangent,
         }
 
       };
@@ -99,6 +101,9 @@ export const BarChartConfig = (function () {
         })}
         {children.showBackground.getView() && children.backgroundColor.propertyView({
           label: trans("barChart.bgColor"),
+        })}
+        {children.type.getView()  === "polar" && children.polarIsTangent.propertyView({
+          label: trans("barChart.polarIsTangent"),
         })}
         {children.type.getView()  === "polar" && children.radiusAxisMax.propertyView({
           label: trans("barChart.radiusAxisMax"),

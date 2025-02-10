@@ -107,7 +107,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encodeY = props.xAxisKey;
       }
       return {
-        name: props.chartConfig.subtype === "waterfall" && index === 0?s.getView().seriesName + "_placeholder":s.getView().seriesName,
+        name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
         selectedMode: "single",
         select: {
           itemStyle: {
@@ -212,8 +212,8 @@ export function getEchartsConfig(
     }, 0)
     const total = sum;
     transformedData.map(d => {
-      d[`${seriesColumnNames[0]}_placeholder`] = sum - d[seriesColumnNames[0]];
-      sum = d[`${seriesColumnNames[0]}_placeholder`];
+      d[` `] = sum - d[seriesColumnNames[0]];
+      sum = d[` `];
     })
     transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total}, ...transformedData]
   }
@@ -225,11 +225,14 @@ export function getEchartsConfig(
         radius: [props.chartConfig.polarData.polarRadiusDeg, `${props.chartConfig.polarData.polarRadiusSize}%`],
       },
       radiusAxis: {
-        max: props.chartConfig.polarData.radiusAxisMax,
+        type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
+        data: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.labelData:undefined,
+        max: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.radiusAxisMax || undefined,
       },
       angleAxis: {
-        type: 'category',
-        data: props.chartConfig.polarData.labelData,
+        type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
+        data: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.labelData,
+        max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
         startAngle: 75
       },
     }
@@ -302,6 +305,24 @@ export function getEchartsConfig(
         }
       },
     };
+
+    //Waterfall x-label initialization
+    if(props.chartConfig?.subtype === "waterfall" && props.xAxisData.length === 0) {
+      //default labels
+      config.xAxis.data = ["Total"];
+      for(let i=1; i<transformedData.length; i++)
+        config.xAxis.data.push(`Column${i}`);
+    }
+
+    //Polar x-label initialization
+    if(props.chartConfig?.subtype === "polar" && props.chartConfig.polarData.labelData.length === 0) {
+      //default labels
+      let labelData = [];
+      for(let i=0; i<transformedData.length; i++)
+        labelData.push(`C${i+1}`);
+      if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
+      if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
+    }
     console.log("Config", config);
     console.log("Props", props);
   }
