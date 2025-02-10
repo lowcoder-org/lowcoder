@@ -40,6 +40,8 @@ export function CopyModal(props: CopyModalProps) {
       okButtonProps={{ disabled: !copyName }}
       destroyOnClose={true}
       onCancel={close}
+      showCancelButton
+      showOkButton
       onOk={async () => {
         let dsl = null;
         await ApplicationApi.getApplicationDetail({ applicationId: id, type: "editing" }).then(
