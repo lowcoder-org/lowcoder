@@ -8,7 +8,11 @@ Traditionally, building an app requires complex frontend and backend interaction
 
 In Lowcoder, all you need to do is drag and drop pre-built or self-customized components onto the What-You-See-Is-What-You-Get (WYSIWYG) canvas, along with ready-to-connect databases and APIs, Lowcoder helps you build an app quickly and focus on business logic.
 
-<figure><img src=".gitbook/assets/App Editor  Main Screeen clean.png" alt=""><figcaption></figcaption></figure>
+{% embed url="https://www.youtube.com/watch?v=AQo0iFWUWiU" %}
+Lowcoder Intro
+{% endembed %}
+
+
 
 ## Why choose Lowcoder?
 
