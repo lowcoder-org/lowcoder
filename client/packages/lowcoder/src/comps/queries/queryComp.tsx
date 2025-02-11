@@ -777,13 +777,15 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
 
     const jsonData = originQuery.toJsonValue();
     //Regenerate variable header
+    const newKeys:string[] = [];
     jsonData.variables?.variables?.forEach(kv => {
       const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
       let i=1, newName = "";
       do {
         newName = prefix + (i++);
-      } while(editorState.checkRename("", newName));
+      } while(editorState.checkRename("", newName) || newKeys.includes(newName));
       kv.key = newName;
+      newKeys.push(newName);
     })
 
     const newQueryName = this.genNewName(editorState);
