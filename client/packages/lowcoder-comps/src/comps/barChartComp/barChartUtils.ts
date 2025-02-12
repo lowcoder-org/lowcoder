@@ -313,7 +313,8 @@ export function getEchartsConfig(
         ...finalXyConfig.yConfig,
         axisLabel: {
           ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        }
+        },
+        data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
     };
     

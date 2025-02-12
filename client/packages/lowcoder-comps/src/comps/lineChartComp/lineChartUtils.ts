@@ -14,7 +14,7 @@ import Big from "big.js";
 import { googleMapsApiUrl } from "../basicChartComp/chartConfigs/chartUrls";
 import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
-import {ba} from "@fullcalendar/core/internal-common";
+import {ba, s} from "@fullcalendar/core/internal-common";
 import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
@@ -108,7 +108,9 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encodeY = props.xAxisKey;
       }
       const markLineData = s.getView().markLines.map(line => ({type: line.getView().type}));
-      const markAreaData = s.getView().markAreas.map(area => ([{name: area.getView().name, xAxis: area.getView().from}, {xAxis: area.getView().to}]));
+      const markAreaData = s.getView().markAreas.map(area => ([{name: area.getView().name, [horizontalX?"xAxis":"yAxis"]: area.getView().from, label: {
+        position: horizontalX?"top":"right",
+      }}, {[horizontalX?"xAxis":"yAxis"]: area.getView().to}]));
       return {
         name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
         selectedMode: "single",
@@ -326,7 +328,8 @@ export function getEchartsConfig(
         ...finalXyConfig.yConfig,
         axisLabel: {
           ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        }
+        },
+        data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
     };
     
