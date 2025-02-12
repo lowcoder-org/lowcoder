@@ -10,21 +10,6 @@ import {
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
-const BarTypeOptions = [
-  {
-    label: trans("chart.basicLine"),
-    value: "basicLine",
-  },
-  {
-    label: trans("chart.stackedLine"),
-    value: "stackedLine",
-  },
-  {
-    label: trans("chart.areaLine"),
-    value: "areaLine",
-  },
-] as const;
-
 export const ItemColorComp = withContext(
   new MultiCompBuilder({ value: ColorOrBoolCodeControl }, (props) => props.value)
     .setPropertyViewFn((children) =>
@@ -42,7 +27,8 @@ export const LineChartConfig = (function () {
   return new MultiCompBuilder(
     {
       showLabel: BoolControl,
-      type: dropdownControl(BarTypeOptions, "basicLine"),
+      stacked: BoolControl,
+      area: BoolControl,
       smooth: BoolControl,
       itemColor: ItemColorComp,
     },
@@ -71,9 +57,10 @@ export const LineChartConfig = (function () {
           },
         },
       };
-      if (props.type === "stackedLine") {
+      if (props.stacked) {
         config.stack = "stackValue";
-      } else if (props.type === "areaLine") {
+      }
+      if (props.area) {
         config.areaStyle = {};
       }
       if (props.smooth) {
@@ -84,8 +71,11 @@ export const LineChartConfig = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.type.propertyView({
-          label: trans("chart.lineType"),
+        {children.stacked.propertyView({
+          label: trans("lineChart.stacked"),
+        })}
+        {children.area.propertyView({
+          label: trans("lineChart.area"),
         })}
         {showLabelPropertyView(children)}
         {children.smooth.propertyView({ label: trans("chart.smooth") })}

@@ -71,7 +71,6 @@ export function isAxisChart(type: CharOptionCompType, subtype: string) {
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
-  console.log("SeriesProps:", props);
   let visibleSeries = props.series.filter((s) => !s.getView().hide);
   if(props.chartConfig.subtype === "waterfall") {
     const seriesOn = visibleSeries[0];
@@ -252,8 +251,6 @@ export function getEchartsConfig(
     }
   }
 
-  console.log("TransformedData", transformedData);
-
   config = {
     ...config,
     dataset: [
@@ -357,7 +354,6 @@ export function getEchartsConfig(
     if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
     if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
   }
-  console.log("Config", config);
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;
 }

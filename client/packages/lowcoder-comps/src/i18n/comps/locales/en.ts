@@ -312,6 +312,16 @@ export const en = {
     defaultBarometerPointer_Y: "-10"
 
   },
+  lineChart: {
+    markLines: "Mark Lines",
+    stacked: "Stacked",
+    area: "Area Chart",
+    max: "Max",
+    min: "Min",
+    average: "Average",
+    markLineType: "Marker Type",
+    type: "Type",
+  },
   barChart: {
     title: 'Title',
     barWidth: 'Bar Width(%)',
@@ -499,6 +509,7 @@ export const en = {
     basicLine: "Basic Line",
     stackedLine: "Stacked Line",
     areaLine: "Area Line",
+    stackedAreaLine: "Stacked Area Line",
     smooth: "Smooth Curve",
     lineType: "Line Chart Type",
     basicPie: "Basic Pie",

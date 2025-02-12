@@ -1,6 +1,5 @@
 import {
   jsonControl,
-  JSONObject,
   stateComp,
   toJSONObjectArray,
   toObject,
@@ -8,17 +7,16 @@ import {
   withDefault,
   StringControl,
   NumberControl,
-  FunctionControl,
   dropdownControl,
   eventHandlerControl,
   valueComp,
   withType,
   uiChildren,
   clickEvent,
+  toArray,
   styleControl,
   EchartDefaultTextStyle,
   EchartDefaultChartStyle,
-  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../basicChartComp/chartConfigs/barChartConfig";
@@ -66,24 +64,6 @@ export const UIEventOptions = [
     label: trans("chart.unSelect"),
     value: "unselect",
     description: trans("chart.unselectDesc"),
-  },
-] as const;
-
-export const MapEventOptions = [
-  {
-    label: trans("chart.mapReady"),
-    value: "mapReady",
-    description: trans("chart.mapReadyDesc"),
-  },
-  {
-    label: trans("chart.zoomLevelChange"),
-    value: "zoomLevelChange",
-    description: trans("chart.zoomLevelChangeDesc"),
-  },
-  {
-    label: trans("chart.centerPositionChange"),
-    value: "centerPositionChange",
-    description: trans("chart.centerPositionChangeDesc"),
   },
 ] as const;
 
@@ -271,6 +251,7 @@ let chartJsonModeChildren: any = {
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
 }
+
 if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
@@ -280,18 +261,6 @@ if (EchartDefaultChartStyle && EchartDefaultTextStyle) {
     yAxisStyle: styleControl(EchartDefaultTextStyle, 'yAxisStyle'),
     legendStyle: styleControl(EchartDefaultTextStyle, 'legendStyle'),
   }
-}
-
-const chartMapModeChildren = {
-  mapInstance: stateComp(),
-  getMapInstance: FunctionControl,
-  mapApiKey: withDefault(StringControl, ''),
-  mapZoomLevel: withDefault(NumberControl, 3),
-  mapCenterLng: withDefault(NumberControl, 15.932644),
-  mapCenterLat: withDefault(NumberControl, 50.942063),
-  mapOptions: jsonControl(toObject, i18nObjs.defaultMapJsonOption),
-  onMapEvent: eventHandlerControl(MapEventOptions),
-  showCharts: withDefault(BoolControl, true),
 }
 
 export type UIChartDataType = {
@@ -315,7 +284,6 @@ export const lineChartChildrenMap = {
   onEvent: eventHandlerControl([clickEvent] as const),
   ...chartUiModeChildren,
   ...chartJsonModeChildren,
-  ...chartMapModeChildren,
 };
 
 const chartUiChildrenMap = uiChildren(lineChartChildrenMap);

@@ -2,13 +2,15 @@ import {
   BoolControl,
   StringControl,
   list,
-  JSONObject,
   isNumeric,
   genRandomKey,
   Dropdown,
-  OptionsType,
+  Option,
+  RedButton,
+  CustomModal,
   MultiCompBuilder,
   valueComp,
+  dropdownControl,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
@@ -18,6 +20,7 @@ import { CompAction, CustomAction, customAction, isMyCustomAction } from "lowcod
 export type SeriesCompType = ConstructorToComp<typeof SeriesComp>;
 export type RawSeriesCompType = ConstructorToView<typeof SeriesComp>;
 type SeriesDataType = ConstructorToDataType<typeof SeriesComp>;
+type MarkLineDataType = ConstructorToDataType<typeof MarkLinesTmpComp>;
 
 type ActionDataType = {
   type: "chartDataChanged";
@@ -32,9 +35,46 @@ export function newSeries(name: string, columnName: string): SeriesDataType {
   };
 }
 
+export function newMarkLine(type: string): MarkLineDataType {
+  return {
+    type,
+    dataIndex: genRandomKey(),
+  };
+}
+
+export const MarkLineTypeOptions = [
+  {
+    label: trans("lineChart.max"),
+    value: "max",
+  },
+  {
+    label: trans("lineChart.average"),
+    value: "average",
+  },
+  {
+    label: trans("lineChart.min"),
+    value: "min",
+  },
+] as const;
+
+const valToLabel = (val) => MarkLineTypeOptions.find(o => o.value === val)?.label || "";
+const markLinesChildrenMap = {
+  type: dropdownControl(MarkLineTypeOptions, "max"),
+  // unique key, for sort
+  dataIndex: valueComp<string>(""),
+};
+const MarkLinesTmpComp = new MultiCompBuilder(markLinesChildrenMap, (props) => {
+  return props;
+})
+  .setPropertyViewFn((children: any) => {
+    return <>{children.type.propertyView({label: trans("lineChart.type")})}</>;
+  })
+  .build();
+
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
+  markLines: list(MarkLinesTmpComp),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -61,6 +101,42 @@ class SeriesComp extends SeriesTmpComp {
           label={trans("chart.dataColumns")}
           onChange={(value) => {
             this.children.columnName.dispatchChangeValueAction(value);
+          }}
+        />
+        <Option
+          items={this.children.markLines.getView()}
+          title={trans("lineChart.markLines")}
+          itemTitle={(s) => valToLabel(s.getView().type)}
+          popoverTitle={(s) => trans("lineChart.markLineType")}
+          content={(s, index) => (
+            <>
+              {s.getPropertyView({label: "Type"})}
+              {
+                <RedButton
+                  onClick={() => {
+                    this.children.markLines.dispatch(this.children.markLines.deleteAction(index));
+                  }}
+                >
+                  {trans("chart.delete")}
+                </RedButton>
+              }
+            </>
+          )}
+          onAdd={() => {
+            this.children.markLines.dispatch(
+              this.children.markLines.pushAction(
+                newMarkLine("max")
+              )
+            );
+          }}
+          onMove={(fromIndex, toIndex) => {
+            const action = this.children.markLines.arrayMoveAction(fromIndex, toIndex);
+            this.children.markLines.dispatch(action);
+          }}
+          hide={(s) => true}
+          onHide={(s, hide) => console.log("onHide")}
+          dataIndex={(s) => {
+            return s.getView().dataIndex;
           }}
         />
       </>

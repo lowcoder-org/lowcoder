@@ -25,7 +25,6 @@ import {
   chartColorPalette,
   getPromiseAfterDispatch,
   dropdownControl,
-  JSONObject,
 } from "lowcoder-sdk";
 import { getEchartsLocale, trans } from "i18n/comps";
 import { ItemColorComp } from "comps/basicChartComp/chartConfigs/lineChartConfig";
@@ -150,11 +149,6 @@ LineChartTmpComp = withViewFn(LineChartTmpComp, (comp) => {
       themeConfig
     );
   }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
-
-  useEffect(() => {
-    comp.children.mapInstance.dispatch(changeValueAction(null, false))
-    if(comp.children.mapInstance.value) return;
-  }, [option])
 
   return (
     <ReactResizeDetector

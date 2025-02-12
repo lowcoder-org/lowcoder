@@ -71,7 +71,6 @@ export function isAxisChart(type: CharOptionCompType, subtype: string) {
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
-  console.log("SeriesProps:", props);
   let visibleSeries = props.series.filter((s) => !s.getView().hide);
   if(props.chartConfig.subtype === "waterfall") {
     const seriesOn = visibleSeries[0];
@@ -108,6 +107,8 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encodeX = s.getView().columnName;
         encodeY = props.xAxisKey;
       }
+      const markLineData = s.getView().markLines.map(line => ({type: line.getView().type}));
+      console.log("MLData", markLineData)
       return {
         name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
         selectedMode: "single",
@@ -119,6 +120,9 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encode: {
           x: encodeX,
           y: encodeY,
+        },
+        markLine: {
+          data: markLineData,
         },
         // each type of chart's config
         ...props.chartConfig,
@@ -215,7 +219,7 @@ export function getEchartsConfig(
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
   let transformedData =
-    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsOption.length && props.echartsOption || props.data : transformData(props.echartsOption.length && props.echartsOption || props.data, props.xAxisKey, seriesColumnNames);
+    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.data : transformData(props.data, props.xAxisKey, seriesColumnNames);
 
   if(props.chartConfig.subtype === "waterfall") {
     config.legend = undefined;
