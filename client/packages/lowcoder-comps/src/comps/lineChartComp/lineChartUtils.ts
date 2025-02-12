@@ -108,7 +108,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encodeY = props.xAxisKey;
       }
       const markLineData = s.getView().markLines.map(line => ({type: line.getView().type}));
-      console.log("MLData", markLineData)
+      const markAreaData = s.getView().markAreas.map(area => ([{name: area.getView().name, xAxis: area.getView().from}, {xAxis: area.getView().to}]));
       return {
         name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
         selectedMode: "single",
@@ -123,6 +123,12 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         },
         markLine: {
           data: markLineData,
+        },
+        markArea: {
+          itemStyle: {
+            color: 'rgba(255, 173, 177, 0.4)',
+          },
+          data: markAreaData,
         },
         // each type of chart's config
         ...props.chartConfig,
@@ -313,7 +319,7 @@ export function getEchartsConfig(
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
         },
-        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:undefined,
+        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
       // @ts-ignore
       yAxis: {

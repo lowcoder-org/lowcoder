@@ -314,6 +314,7 @@ export const en = {
   },
   lineChart: {
     markLines: "Mark Lines",
+    markAreas: "Mark Areas",
     stacked: "Stacked",
     area: "Area Chart",
     max: "Max",
@@ -321,6 +322,9 @@ export const en = {
     average: "Average",
     markLineType: "Marker Type",
     type: "Type",
+    name: "Name",
+    from: "From",
+    to: "To",
   },
   barChart: {
     title: 'Title',

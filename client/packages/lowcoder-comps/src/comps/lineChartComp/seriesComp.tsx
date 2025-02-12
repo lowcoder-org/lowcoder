@@ -70,11 +70,37 @@ const MarkLinesTmpComp = new MultiCompBuilder(markLinesChildrenMap, (props) => {
     return <>{children.type.propertyView({label: trans("lineChart.type")})}</>;
   })
   .build();
+const markAreasChildrenMap = {
+  name: StringControl,
+  from: StringControl,
+  to: StringControl,
+  // unique key, for sort
+  dataIndex: valueComp<string>(""),
+};
+const MarkAreasTmpComp = new MultiCompBuilder(markAreasChildrenMap, (props) => {
+  return props;
+})
+  .setPropertyViewFn((children: any) => 
+    (<>
+      {children.name.propertyView({label: trans("lineChart.name")})}
+      {children.from.propertyView({label: trans("lineChart.from")})}
+      {children.to.propertyView({label: trans("lineChart.to")})}
+    </>)
+  )
+  .build();
+  
+
+export function newMarkArea(): MarkLineDataType {
+  return {
+    dataIndex: genRandomKey(),
+  };
+}
 
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
   markLines: list(MarkLinesTmpComp),
+  markAreas: list(MarkAreasTmpComp),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -132,6 +158,42 @@ class SeriesComp extends SeriesTmpComp {
           onMove={(fromIndex, toIndex) => {
             const action = this.children.markLines.arrayMoveAction(fromIndex, toIndex);
             this.children.markLines.dispatch(action);
+          }}
+          hide={(s) => true}
+          onHide={(s, hide) => console.log("onHide")}
+          dataIndex={(s) => {
+            return s.getView().dataIndex;
+          }}
+        />        
+        <Option
+          items={this.children.markAreas.getView()}
+          title={trans("lineChart.markAreas")}
+          itemTitle={(s) => s.getView().name}
+          popoverTitle={(s) => trans("lineChart.markLineType")}
+          content={(s, index) => (
+            <>
+              {s.getPropertyView({label: "Type"})}
+              {
+                <RedButton
+                  onClick={() => {
+                    this.children.markAreas.dispatch(this.children.markAreas.deleteAction(index));
+                  }}
+                >
+                  {trans("chart.delete")}
+                </RedButton>
+              }
+            </>
+          )}
+          onAdd={() => {
+            this.children.markAreas.dispatch(
+              this.children.markAreas.pushAction(
+                newMarkArea()
+              )
+            );
+          }}
+          onMove={(fromIndex, toIndex) => {
+            const action = this.children.markAreas.arrayMoveAction(fromIndex, toIndex);
+            this.children.markAreas.dispatch(action);
           }}
           hide={(s) => true}
           onHide={(s, hide) => console.log("onHide")}

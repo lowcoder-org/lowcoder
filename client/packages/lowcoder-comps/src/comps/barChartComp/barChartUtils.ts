@@ -227,7 +227,7 @@ export function getEchartsConfig(
       d[` `] = sum - d[seriesColumnNames[0]];
       sum = d[` `];
     })
-    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total}, ...transformedData]
+    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total, [props.xAxisKey]: "Total"}, ...transformedData]
   }
 
   if(props.chartConfig.subtype === "polar") {
@@ -306,7 +306,7 @@ export function getEchartsConfig(
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
         },
-        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:undefined,
+        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
       // @ts-ignore
       yAxis: {
@@ -337,7 +337,7 @@ export function getEchartsConfig(
   //Waterfall x-label initialization
   if(props.chartConfig?.subtype === "waterfall" && props.xAxisData.length === 0) {
     //default labels
-    config.xAxis.data = undefined;
+    // config.xAxis.data = undefined;
     // config.xAxis.data = ["Total"];
     // for(let i=1; i<transformedData.length; i++)
     //   config.xAxis.data.push(`Column${i}`);
@@ -348,11 +348,11 @@ export function getEchartsConfig(
     //default labels
     // config.radiusAxis.data = undefined;
     // config.angleAxis.data = undefined;
-    let labelData = [];
-    for(let i=0; i<transformedData.length; i++)
-      labelData.push(`C${i+1}`);
-    if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
-    if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0)  config.angleAxis.data = labelData;
+    // let labelData = [];
+    // for(let i=0; i<transformedData.length; i++)
+    //   labelData.push(`C${i+1}`);
+    // if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
+    // if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0) config.angleAxis.data = labelData;
   }
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;

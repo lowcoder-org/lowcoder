@@ -102,10 +102,10 @@ export const BarChartConfig = (function () {
         {children.barWidth.propertyView({
           label: trans("barChart.barWidth"),
         })}
-        {children.race.propertyView({
+        {children.type.getView() !== "waterfall" && children.race.propertyView({
           label: trans("barChart.race"),
         })}
-        {children.stack.propertyView({
+        {children.type.getView() !== "waterfall" && children.stack.propertyView({
           label: trans("barChart.stack"),
         })}
         {children.showBackground.propertyView({
