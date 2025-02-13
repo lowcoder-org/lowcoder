@@ -205,7 +205,7 @@ export function getEchartsConfig(
     },
     visualMap: {
       type: 'piecewise',
-      show: false,
+      show: props.areaPieces.length > 0,
       dimension: 0,
       seriesIndex: 0,
       pieces: props.areaPieces?.filter(p => p.getView().from && p.getView().to && p.getView().color)?.map(p => (
