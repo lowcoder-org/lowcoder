@@ -9,10 +9,17 @@
     </p>
     <h3 style="margin-top: 0">We think, Lowcoder is simply better that Retool, Appsmith or Tooljet, Outsystems or Mendix.</h3>
 </div>
+---
 
-[![Lowcoder Intro Video](https://img.youtube.com/vi/AQo0iFWUWiU/0.jpg)](https://www.youtube.com/watch?v=AQo0iFWUWiU)
+## 🎥 Lowcoder Intro Video  
+<div align="center">
+    <a href="https://www.youtube.com/watch?v=AQo0iFWUWiU" target="_blank">
+        <img src="https://img.youtube.com/vi/AQo0iFWUWiU/maxresdefault.jpg" alt="Lowcoder Intro Video" width="100%">
+    </a>
+    <p><i>Click the image above to watch the video on YouTube</i> 📺</p>
+</div>
 
-
+---
 ## 📢 Use Lowcoder in 3 steps
 1. Connect to any data sources or APIs.
 2. Build flexible and responsive UI with 120+ components and free layout / design possibilities.
