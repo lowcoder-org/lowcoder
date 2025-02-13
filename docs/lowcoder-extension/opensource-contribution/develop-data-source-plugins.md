@@ -243,7 +243,7 @@ const i18n = new I18n({ zh, en }, languages);
 
 ## Auto-generate plugin code based on Open API
 
-If the data source you're going to develop as a plugin provides an [Open API Spec](https://en.wikipedia.org/wiki/OpenAPI\_Specification) definition file, then its plugin code can be quickly generated.
+If the data source you're going to develop as a plugin provides an [Open API Spec](https://en.wikipedia.org/wiki/OpenAPI_Specification) definition file, then its plugin code can be quickly generated.
 
 Below is an example of generating Jira plugin code.
 
@@ -268,7 +268,7 @@ Due to various reasons, the generated plugin code needs to be correctly validate
 
 ## Testing
 
-Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/client#readme) and test the data source plugin in following aspects:
+Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/lowcoder-org/lowcoder/tree/main/server/api-service) and test the data source plugin in following aspects:
 
 1. Make sure the data source plugin has been added to the plugin list in the file `src/plugins/index.ts`.
 2. Start the node-service server in the `node-service` directory by executing `yarn dev`.
