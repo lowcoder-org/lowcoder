@@ -664,23 +664,6 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
-  new DepsConfig(
-    "variables",
-    (children: any) => {
-      return {data: children.variables.children.variables.node()};
-    },
-    (input) => {
-      if (!input.data) {
-        return undefined;
-      }
-      const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key)
-        .map((kvNode: any) => ({[kvNode.key]: kvNode.value}))
-        .reduce((prev, obj) => ({...prev, ...obj}), {});
-      return newNode;
-    },
-    trans("query.variables")
-  ),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
