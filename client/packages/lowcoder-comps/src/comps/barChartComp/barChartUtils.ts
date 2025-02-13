@@ -334,27 +334,6 @@ export function getEchartsConfig(
       }
     }
   }
-
-  //Waterfall x-label initialization
-  if(props.chartConfig?.subtype === "waterfall" && props.xAxisData.length === 0) {
-    //default labels
-    // config.xAxis.data = undefined;
-    // config.xAxis.data = ["Total"];
-    // for(let i=1; i<transformedData.length; i++)
-    //   config.xAxis.data.push(`Column${i}`);
-  }
-
-  //Polar x-label initialization
-  if(props.chartConfig?.subtype === "polar" && props.chartConfig.polarData.labelData.length === 0) {
-    //default labels
-    // config.radiusAxis.data = undefined;
-    // config.angleAxis.data = undefined;
-    // let labelData = [];
-    // for(let i=0; i<transformedData.length; i++)
-    //   labelData.push(`C${i+1}`);
-    // if(props.chartConfig.polarData.polarIsTangent && config.radiusAxis.data.length === 0) config.radiusAxis.data = labelData;
-    // if(!props.chartConfig.polarData.polarIsTangent && config.angleAxis.data.length === 0) config.angleAxis.data = labelData;
-  }
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;
 }

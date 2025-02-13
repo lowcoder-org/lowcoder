@@ -325,6 +325,9 @@ export const en = {
     name: "Name",
     from: "From",
     to: "To",
+    color: "Color",
+    areaPieces: "Area Pieces",
+    areaPiece: "Area Piece",
   },
   barChart: {
     title: 'Title',

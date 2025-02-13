@@ -4,10 +4,12 @@ import {
   toJSONObjectArray,
   toObject,
   BoolControl,
+  ColorControl,
   withDefault,
   StringControl,
   NumberControl,
   dropdownControl,
+  list,
   eventHandlerControl,
   valueComp,
   withType,
@@ -17,6 +19,7 @@ import {
   styleControl,
   EchartDefaultTextStyle,
   EchartDefaultChartStyle,
+  MultiCompBuilder,
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../basicChartComp/chartConfigs/barChartConfig";
@@ -187,6 +190,25 @@ export const noDataPieChartConfig = {
   ],
 } as EChartsOption;
 
+const areaPiecesChildrenMap = {
+  color: ColorControl,
+  from: StringControl,
+  to: StringControl,
+  // unique key, for sort
+  dataIndex: valueComp<string>(""),
+};
+const AreaPiecesTmpComp = new MultiCompBuilder(areaPiecesChildrenMap, (props) => {
+  return props;
+})
+  .setPropertyViewFn((children: any) => 
+    (<>
+      {children.color.propertyView({label: trans("lineChart.color")})}
+      {children.from.propertyView({label: trans("lineChart.from")})}
+      {children.to.propertyView({label: trans("lineChart.to")})}
+    </>)
+  )
+  .build();
+
 export type ChartSize = { w: number; h: number };
 
 export const getDataKeys = (data: Array<JSONObject>) => {
@@ -231,6 +253,7 @@ export const chartUiModeChildren = {
   yConfig: YAxisConfig,
   legendConfig: LegendConfig,
   chartConfig: ChartOptionComp,
+  areaPieces: list(AreaPiecesTmpComp),
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 
