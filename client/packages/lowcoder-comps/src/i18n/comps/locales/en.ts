@@ -329,6 +329,8 @@ export const en = {
     areaPieces: "Area Pieces",
     areaPiece: "Area Piece",
     showEndLabel: "End Label",
+    symbol: "Symbol",
+    symbolSize: "Symbol Size",
   },
   barChart: {
     title: 'Title',
@@ -555,6 +557,9 @@ export const en = {
     diamond: "Diamond",
     pin: "Pin",
     arrow: "Arrow",
+    emptyCircle: "Empty Circle",
+    none: "None",
+    roundRect: "Round Rectangle",
     pointColorLabel: "Point Color",
     pointColorTooltip:
       'Set point color based on series name and value. Variables: seriesName, value. Example: \'{{value < 25000 ? "red" : "green"}}\'',

@@ -203,6 +203,7 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
+    animationDuration: props.animationDuration,
   };
   if (props.areaPieces.length > 0) {
     config.visualMap = {
@@ -219,7 +220,6 @@ export function getEchartsConfig(
       ))
     }
   }
-  console.log("config", config)
   if(props.chartConfig.race) {
     config = {
       ...config,

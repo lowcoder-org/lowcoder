@@ -11,6 +11,8 @@ import {
   withContext,
   RedButton,
   StringControl,
+  NumberControl,
+  withDefault,
   ColorOrBoolCodeControl,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
@@ -28,6 +30,45 @@ export const ItemColorComp = withContext(
   ["seriesName", "value"] as const
 );
 
+export const SymbolOptions = [
+  {
+    label: trans("chart.rect"),
+    value: "rect",
+  },
+  {
+    label: trans("chart.circle"),
+    value: "circle",
+  },
+  {
+    label: trans("chart.roundRect"),
+    value: "roundRect",
+  },
+  {
+    label: trans("chart.triangle"),
+    value: "triangle",
+  },
+  {
+    label: trans("chart.diamond"),
+    value: "diamond",
+  },
+  {
+    label: trans("chart.pin"),
+    value: "pin",
+  },
+  {
+    label: trans("chart.arrow"),
+    value: "arrow",
+  },
+  {
+    label: trans("chart.none"),
+    value: "none",
+  },
+  {
+    label: trans("chart.emptyCircle"),
+    value: "emptyCircle",
+  },
+] as const;
+
 export const LineChartConfig = (function () {
   return new MultiCompBuilder(
     {
@@ -37,6 +78,8 @@ export const LineChartConfig = (function () {
       area: BoolControl,
       smooth: BoolControl,
       itemColor: ItemColorComp,
+      symbol: dropdownControl(SymbolOptions, "emptyCircle"),
+      symbolSize: withDefault(NumberControl, 4),
     },
     (props): LineSeriesOption => {
       const config: LineSeriesOption = {
@@ -44,6 +87,8 @@ export const LineChartConfig = (function () {
         label: {
           show: props.showLabel,
         },
+        symbol: props.symbol,
+        symbolSize: props.symbolSize,
         itemStyle: {
           color: (params) => {
             if (!params.encode || !params.dimensionNames) {
@@ -93,6 +138,12 @@ export const LineChartConfig = (function () {
         {showLabelPropertyView(children)}
         {children.showEndLabel.propertyView({
           label: trans("lineChart.showEndLabel"),
+        })}
+        {children.symbol.propertyView({
+          label: trans("lineChart.symbol"),
+        })}
+        {children.symbolSize.propertyView({
+          label: trans("lineChart.symbolSize"),
         })}
         {children.smooth.propertyView({ label: trans("chart.smooth") })}
         {children.itemColor.getPropertyView()}

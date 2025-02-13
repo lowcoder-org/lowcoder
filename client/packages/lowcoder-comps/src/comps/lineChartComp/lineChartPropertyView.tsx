@@ -27,6 +27,7 @@ export function lineChartPropertyView(
     <>
       <Section name={trans("chart.data")}>
         {children.chartConfig.getPropertyView()}
+        {children.animationDuration.propertyView({label: "lineChart.animationDuration"})}
         <Dropdown
           value={children.xAxisKey.getView()}
           options={columnOptions}
