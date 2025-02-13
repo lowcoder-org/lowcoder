@@ -32,6 +32,7 @@ export const LineChartConfig = (function () {
   return new MultiCompBuilder(
     {
       showLabel: BoolControl,
+      showEndLabel: BoolControl,
       stacked: BoolControl,
       area: BoolControl,
       smooth: BoolControl,
@@ -71,6 +72,13 @@ export const LineChartConfig = (function () {
       if (props.smooth) {
         config.smooth = true;
       }
+      if (props.showEndLabel) {
+        config.endLabel = {
+          show: true,
+          formatter: '{a}',
+          distance: 20
+        }
+      }
       return config;
     }
   )
@@ -83,6 +91,9 @@ export const LineChartConfig = (function () {
           label: trans("lineChart.area"),
         })}
         {showLabelPropertyView(children)}
+        {children.showEndLabel.propertyView({
+          label: trans("lineChart.showEndLabel"),
+        })}
         {children.smooth.propertyView({ label: trans("chart.smooth") })}
         {children.itemColor.getPropertyView()}
       </>

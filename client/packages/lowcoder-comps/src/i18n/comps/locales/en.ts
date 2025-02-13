@@ -328,6 +328,7 @@ export const en = {
     color: "Color",
     areaPieces: "Area Pieces",
     areaPiece: "Area Piece",
+    showEndLabel: "End Label",
   },
   barChart: {
     title: 'Title',

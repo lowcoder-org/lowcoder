@@ -203,9 +203,11 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
-    visualMap: {
+  };
+  if (props.areaPieces.length > 0) {
+    config.visualMap = {
       type: 'piecewise',
-      show: props.areaPieces.length > 0,
+      show: false,
       dimension: 0,
       seriesIndex: 0,
       pieces: props.areaPieces?.filter(p => p.getView().from && p.getView().to && p.getView().color)?.map(p => (
@@ -215,8 +217,8 @@ export function getEchartsConfig(
           ...(p.getView().color?{color: p.getView().color}:{}),
         }
       ))
-    },
-  };
+    }
+  }
   console.log("config", config)
   if(props.chartConfig.race) {
     config = {
