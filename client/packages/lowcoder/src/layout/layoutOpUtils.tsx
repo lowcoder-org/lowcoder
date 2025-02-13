@@ -92,6 +92,7 @@ export namespace layoutOpUtils {
 }
 
 function reduce(layout: Layout, op: LayoutOp, stickyItemMap?: Record<string, Set<string>>): Layout {
+  // console.log(op.type);
   let newLayout = layout;
   switch (op.type) {
     case LayoutOpTypes.CHANGE_ITEM: {
@@ -146,6 +147,7 @@ export let getUILayout = (
   ops: LayoutOps | undefined,
   setHiddenCompHeightZero: boolean = false
 ): Layout => {
+  // console.log('layout->before', changedHs, layout);
   // log.log("getUILayout. layout: ", layout, " extraLayout: ", extraLayout, " changedHs: ", changedHs, " ops: ", ops);
   const stickyItemMap = getStickyItemMap(layout);
   const hiddenItemHeight = _.fromPairs(
@@ -163,7 +165,9 @@ export let getUILayout = (
   realOps.forEach((op) => {
     layout = reduce(layout, op, stickyItemMap);
   });
+  // console.log('layout->after', layout);
   layout = cascade(layout);
+  // console.log('layout->after->2', layout);
   if (!setHiddenCompHeightZero) {
     const recoverHiddenOps = _.toPairs(hiddenItemHeight).map(([i, h]) => changeItemOp(i, { h }));
     recoverHiddenOps.forEach((op) => {
