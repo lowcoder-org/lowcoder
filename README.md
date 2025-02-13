@@ -7,7 +7,7 @@
     <p>
         Create software applications (internal and customer-facing!) and Meeting/Collaboration tools for your Company and your Customers with minimal coding experience. 
     </p>
-    <h3 style="margin-top: 0">We think, Lowcoder is simply better that Retool, Appsmith or Tooljet, Outsystems or Mendix.</h3>
+    <h3 style="margin-top: 0">We think, Lowcoder is simply better than Retool, Appsmith Tooljet, Outsystems or Mendix.</h3>
 </div>
 ---
 
