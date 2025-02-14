@@ -238,12 +238,12 @@ export function getEchartsConfig(
       },
       radiusAxis: {
         type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
-        data: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.labelData:undefined,
+        data: props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
         max: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.radiusAxisMax || undefined,
       },
       angleAxis: {
         type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
-        data: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.labelData,
+        data: !props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
         max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
         startAngle: props.chartConfig.polarData.polarStartAngle,
         endAngle: props.chartConfig.polarData.polarEndAngle,

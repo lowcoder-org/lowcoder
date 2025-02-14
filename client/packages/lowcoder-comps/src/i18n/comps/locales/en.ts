@@ -315,7 +315,7 @@ export const en = {
   lineChart: {
     markLines: "Mark Lines",
     markAreas: "Mark Areas",
-    stacked: "Stacked",
+    stacked: "Stacked Chart",
     area: "Area Chart",
     max: "Max",
     min: "Min",
@@ -337,6 +337,7 @@ export const en = {
     middle: "Middle",
     end: "End",
     step: "Step",
+    polar: "Polar Chart",
   },
   barChart: {
     title: 'Title',

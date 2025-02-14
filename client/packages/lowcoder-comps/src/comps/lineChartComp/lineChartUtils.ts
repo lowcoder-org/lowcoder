@@ -66,8 +66,8 @@ export const echartsConfigOmitChildren = [
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
 
-export function isAxisChart(type: CharOptionCompType, subtype: string) {
-  return !notAxisChartSet.has(type) && !notAxisChartSubtypeSet.has(subtype);
+export function isAxisChart(type: CharOptionCompType, polar: boolean) {
+  return !notAxisChartSet.has(type) && !polar;
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
@@ -79,27 +79,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
   }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type, props.chartConfig.subtype)) {
+    if (isAxisChart(props.chartConfig.type, props.chartConfig.polarData.polar)) {
       let encodeX: string, encodeY: string;
       const horizontalX = props.xAxisDirection === "horizontal";
       let itemStyle = props.chartConfig.itemStyle;
-      // FIXME: need refactor... chartConfig returns a function with paramters
-      if (props.chartConfig.type === "bar") {
-        // barChart's border radius, depend on x-axis direction and stack state
-        const borderRadius = horizontalX ? [2, 2, 0, 0] : [0, 2, 2, 0];
-        if (props.chartConfig.stack && index === visibleSeries.length - 1) {
-          itemStyle = { ...itemStyle, borderRadius: borderRadius };
-        } else if (!props.chartConfig.stack) {
-          itemStyle = { ...itemStyle, borderRadius: borderRadius };
-        }
 
-        if(props.chartConfig.subtype === "waterfall" && index === 0) {
-          itemStyle = {
-            borderColor: 'transparent',
-            color: 'transparent'
-          }
-        }
-      }
       if (horizontalX) {
         encodeX = props.xAxisKey;
         encodeY = s.getView().columnName;
@@ -112,7 +96,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         position: horizontalX?"top":"right",
       }}, {[horizontalX?"xAxis":"yAxis"]: area.getView().to}]));
       return {
-        name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
+        name: s.getView().seriesName,
         selectedMode: "single",
         select: {
           itemStyle: {
@@ -166,7 +150,7 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.subtype);
+  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.polarData.polar);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
@@ -246,21 +230,7 @@ export function getEchartsConfig(
   let transformedData =
     yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.data : transformData(props.data, props.xAxisKey, seriesColumnNames);
 
-  if(props.chartConfig.subtype === "waterfall") {
-    config.legend = undefined;
-    let sum = transformedData.reduce((acc, item) => {
-      if(typeof item[seriesColumnNames[0]] === 'number') return acc + item[seriesColumnNames[0]];
-      else return acc;
-    }, 0)
-    const total = sum;
-    transformedData.map(d => {
-      d[` `] = sum - d[seriesColumnNames[0]];
-      sum = d[` `];
-    })
-    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total}, ...transformedData]
-  }
-
-  if(props.chartConfig.subtype === "polar") {
+  if(props.chartConfig.polarData.polar) {
     config = {
       ...config,
       polar: {
@@ -268,12 +238,12 @@ export function getEchartsConfig(
       },
       radiusAxis: {
         type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
-        data: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.labelData:undefined,
+        data: props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
         max: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.radiusAxisMax || undefined,
       },
       angleAxis: {
         type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
-        data: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.labelData,
+        data: !props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
         max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
         startAngle: props.chartConfig.polarData.polarStartAngle,
         endAngle: props.chartConfig.polarData.polarEndAngle,
@@ -364,6 +334,7 @@ export function getEchartsConfig(
       }
     }
   }
+  console.log("config", config);
 
   // log.log("Echarts transformedData and config", transformedData, config);
   return config;

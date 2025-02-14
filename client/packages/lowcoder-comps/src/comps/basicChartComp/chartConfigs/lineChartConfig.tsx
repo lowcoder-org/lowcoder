@@ -7,6 +7,8 @@ import {
   Option,
   valueComp,
   genRandomKey,
+  jsonControl,
+  toArray,
   showLabelPropertyView,
   withContext,
   RedButton,
@@ -77,9 +79,17 @@ export const LineChartConfig = (function () {
       stacked: BoolControl,
       area: BoolControl,
       smooth: BoolControl,
+      polar: BoolControl,
       itemColor: ItemColorComp,
       symbol: dropdownControl(SymbolOptions, "emptyCircle"),
       symbolSize: withDefault(NumberControl, 4),
+      radiusAxisMax: NumberControl,
+      polarRadiusStart: withDefault(StringControl, '30'),
+      polarRadiusEnd: withDefault(StringControl, '80%'),
+      polarStartAngle: withDefault(NumberControl, 90),
+      polarEndAngle: withDefault(NumberControl, -180),
+      polarIsTangent: withDefault(BoolControl, false),
+      labelData: jsonControl(toArray, []),
     },
     (props): LineSeriesOption => {
       const config: LineSeriesOption = {
@@ -94,7 +104,7 @@ export const LineChartConfig = (function () {
             if (!params.encode || !params.dimensionNames) {
               return params.color;
             }
-            const dataKey = params.dimensionNames[params.encode["y"][0]];
+            const dataKey = params.dimensionNames[params.encode[props.polar?"radius":"y"][0]];
             const color = (props.itemColor as any)({
               seriesName: params.seriesName,
               value: (params.data as any)[dataKey],
@@ -106,6 +116,16 @@ export const LineChartConfig = (function () {
             }
             return color;
           },
+        },
+        polarData: {
+          polar: props.polar,
+          radiusAxisMax: props.radiusAxisMax,
+          polarRadiusStart: props.polarRadiusStart,
+          polarRadiusEnd: props.polarRadiusEnd,
+          polarStartAngle: props.polarStartAngle,
+          polarEndAngle: props.polarEndAngle,
+          labelData: props.labelData,
+          polarIsTangent: props.polarIsTangent,
         },
       };
       if (props.stacked) {
@@ -124,6 +144,9 @@ export const LineChartConfig = (function () {
           distance: 20
         }
       }
+      if (props.polar) {
+        config.coordinateSystem = 'polar';
+      }
       return config;
     }
   )
@@ -135,17 +158,41 @@ export const LineChartConfig = (function () {
         {children.area.propertyView({
           label: trans("lineChart.area"),
         })}
+        {children.polar.propertyView({
+          label: trans("lineChart.polar"),
+        })}
+        {children.polar.getView() && children.polarIsTangent.propertyView({
+          label: trans("barChart.polarIsTangent"),
+        })}
+        {children.polar.getView() && children.polarStartAngle.propertyView({
+          label: trans("barChart.polarStartAngle"),
+        })}
+        {children.polar.getView() && children.polarEndAngle.propertyView({
+          label: trans("barChart.polarEndAngle"),
+        })}
+        {children.polar.getView() && children.radiusAxisMax.propertyView({
+          label: trans("barChart.radiusAxisMax"),
+        })}
+        {children.polar.getView() && children.polarRadiusStart.propertyView({
+          label: trans("barChart.polarRadiusStart"),
+        })}
+        {children.polar.getView() && children.polarRadiusEnd.propertyView({
+          label: trans("barChart.polarRadiusEnd"),
+        })}
+        {children.polar.getView() && children.labelData.propertyView({
+          label: trans("barChart.polarLabelData"),
+        })}
         {showLabelPropertyView(children)}
         {children.showEndLabel.propertyView({
           label: trans("lineChart.showEndLabel"),
         })}
+        {children.smooth.propertyView({ label: trans("chart.smooth") })}
         {children.symbol.propertyView({
           label: trans("lineChart.symbol"),
         })}
         {children.symbolSize.propertyView({
           label: trans("lineChart.symbolSize"),
         })}
-        {children.smooth.propertyView({ label: trans("chart.smooth") })}
         {children.itemColor.getPropertyView()}
       </>
     ))
