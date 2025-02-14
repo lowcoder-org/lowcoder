@@ -331,6 +331,12 @@ export const en = {
     showEndLabel: "End Label",
     symbol: "Symbol",
     symbolSize: "Symbol Size",
+    animationDuration: "Animation Duration",
+    none: "None",
+    start: "Start",
+    middle: "Middle",
+    end: "End",
+    step: "Step",
   },
   barChart: {
     title: 'Title',

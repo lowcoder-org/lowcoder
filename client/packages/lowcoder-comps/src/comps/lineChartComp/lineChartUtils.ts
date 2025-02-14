@@ -119,6 +119,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
             borderColor: "#000",
           },
         },
+        step: s.getView().step,
         encode: {
           x: encodeX,
           y: encodeY,

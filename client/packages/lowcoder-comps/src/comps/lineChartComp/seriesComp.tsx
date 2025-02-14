@@ -57,6 +57,25 @@ export const MarkLineTypeOptions = [
   },
 ] as const;
 
+export const StepOptions = [
+  {
+    label: trans("lineChart.none"),
+    value: "",
+  },
+  {
+    label: trans("lineChart.start"),
+    value: "start",
+  },
+  {
+    label: trans("lineChart.middle"),
+    value: "middle",
+  },
+  {
+    label: trans("lineChart.end"),
+    value: "end",
+  },
+] as const;
+
 const valToLabel = (val) => MarkLineTypeOptions.find(o => o.value === val)?.label || "";
 const markLinesChildrenMap = {
   type: dropdownControl(MarkLineTypeOptions, "max"),
@@ -104,6 +123,7 @@ const seriesChildrenMap = {
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
+  step: dropdownControl(StepOptions, ""),
 };
 
 const SeriesTmpComp = new MultiCompBuilder(seriesChildrenMap, (props) => {
@@ -129,6 +149,9 @@ class SeriesComp extends SeriesTmpComp {
             this.children.columnName.dispatchChangeValueAction(value);
           }}
         />
+        {this.children.step.propertyView({
+          label: trans("lineChart.step"),
+        })}
         <Option
           items={this.children.markLines.getView()}
           title={trans("lineChart.markLines")}
