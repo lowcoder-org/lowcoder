@@ -11720,10 +11720,10 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"immer@npm:^9.0.7":
-  version: 9.0.21
-  resolution: "immer@npm:9.0.21"
-  checksum: 70e3c274165995352f6936695f0ef4723c52c92c92dd0e9afdfe008175af39fa28e76aafb3a2ca9d57d1fb8f796efc4dd1e1cc36f18d33fa5b74f3dfb0375432
+"immer@npm:^10.1.1":
+  version: 10.1.1
+  resolution: "immer@npm:10.1.1"
+  checksum: 07c67970b7d22aded73607193d84861bf786f07d47f7d7c98bb10016c7a88f6654ad78ae1e220b3c623695b133aabbf24f5eb8d9e8060cff11e89ccd81c9c10b
   languageName: node
   linkType: hard
 
@@ -14197,7 +14197,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     github-markdown-css: ^5.1.0
     hotkeys-js: ^3.8.7
     http-proxy-middleware: ^2.0.6
-    immer: ^9.0.7
+    immer: ^10.1.1
     less: ^4.1.3
     lodash: ^4.17.21
     loglevel: ^1.8.0
