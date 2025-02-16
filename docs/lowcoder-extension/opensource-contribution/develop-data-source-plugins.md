@@ -1,6 +1,6 @@
 # Develop Data Source Plugins
 
-This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [Lowcoder](https://github.com/Lowcoder-dev/Lowcoder)--the open source project.
+This document provides basic information and guides for developing data source plugins. Developers are highly welcomed to make contributions to [Lowcoder](https://github.com/lowcoder-org/lowcoder)--the open source project.
 
 ## Basics
 
@@ -12,7 +12,7 @@ A data source plugin is described by a **JavaScript Object** which mainly consis
 * Definition of the **Action list** for data source queries and the configuration form for each Action.
 * Definition of the **execution logic** for Actions.
 
-Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/server/node-service/src/plugins/s3).
+Currently, all data source plugins are maintained in the `src/plugins` directory of the `node-service` project. Click to view [the project](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service), and you might take a quick look at the [S3 plugin](https://github.com/lowcoder-org/lowcoder/tree/main/server/node-service/src/plugins/s3).
 
 ## Overall definition of a plugin
 
@@ -268,7 +268,7 @@ Due to various reasons, the generated plugin code needs to be correctly validate
 
 ## Testing
 
-Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/Lowcoder-dev/Lowcoder/tree/develop/client#readme) and test the data source plugin in following aspects:
+Necessary testing should be done before publishing the plugin. Testing a data source plugin requires a backend environment. You can start a local environment by following the documentation [Start a local backend server](https://github.com/lowcoder-org/lowcoder/tree/main/server/api-service#readme) and test the data source plugin in following aspects:
 
 1. Make sure the data source plugin has been added to the plugin list in the file `src/plugins/index.ts`.
 2. Start the node-service server in the `node-service` directory by executing `yarn dev`.
@@ -292,4 +292,4 @@ You can then use the data source plugin just developed in this environment.
 
 ## What's next
 
-Congrats! After testing the data source plugin, you can submit a [Pull Request](https://github.com/Lowcoder-dev/Lowcoder/pulls) now.
+Congrats! After testing the data source plugin, you can submit a [Pull Request](https://github.com/lowcoder-org/lowcoder/pulls) now.

@@ -1,4 +1,4 @@
-import { createCheckoutLink, createCustomer, getProducts, searchCustomer } from "@lowcoder-ee/api/subscriptionApi";
+import { createCheckoutLink, cleanupCustomer } from "@lowcoder-ee/api/subscriptionApi";
 import { StripeCustomer, SubscriptionProduct, InitSubscriptionProducts, LowcoderSearchCustomer, LowcoderNewCustomer, Subscription } from "@lowcoder-ee/constants/subscriptionConstants";
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { getFetchSubscriptionsFinished, getSubscriptions, getSubscriptionsError } from "@lowcoder-ee/redux/selectors/subscriptionSelectors";
@@ -78,17 +78,6 @@ export const SubscriptionContextProvider = (props: {
     userId: user.id,
   };
 
-  const subscriptionNewCustomer: LowcoderNewCustomer = {
-    hostname: domain,
-    hostId: deploymentId,
-    email: currentUser.email,
-    orgId: orgID,
-    userId: user.id,
-    userName: user.username,
-    type: admin,
-    companyName: currentOrg?.name || "Unknown",
-  };
-
   useEffect(() => {
     // If products are already loaded in the outer context, reuse them
     if (productsLoaded) {
@@ -104,28 +93,11 @@ export const SubscriptionContextProvider = (props: {
     const initializeCustomer = async () => {
       if (existingCustomer) {
         setCustomer(existingCustomer);
+
+        cleanupCustomer(subscriptionSearchCustomer);
+
         return;
       }
-
-      /* try {
-        setIsCreatingCustomer(true);
-        const subscriptionSearchCustomer: LowcoderSearchCustomer = {
-          hostId: deploymentId,
-          orgId: orgID,
-          userId: user.id,
-        };
-        const existingCustomer = await searchCustomer(subscriptionSearchCustomer);
-        if (existingCustomer) {
-          setCustomer(existingCustomer);
-        } else {
-          const newCustomer = await createCustomer(subscriptionNewCustomer);
-          setCustomer(newCustomer);
-        }
-      } catch (error) {
-        setCustomerDataError(true);
-      } finally {
-        setIsCreatingCustomer(false);
-      } */
     };
 
     if (!customer && isCustomerInitializationComplete) {

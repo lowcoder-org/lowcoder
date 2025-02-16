@@ -363,7 +363,7 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
-      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().filter(kv => kv.key).reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
       action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
@@ -664,23 +664,6 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
-  new DepsConfig(
-    "variables",
-    (children: any) => {
-      return {data: children.variables.children.variables.node()};
-    },
-    (input) => {
-      if (!input.data) {
-        return undefined;
-      }
-      const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key)
-        .map((kvNode: any) => ({[kvNode.key]: kvNode.value}))
-        .reduce((prev, obj) => ({...prev, ...obj}), {});
-      return newNode;
-    },
-    trans("query.variables")
-  ),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
@@ -777,13 +760,15 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
 
     const jsonData = originQuery.toJsonValue();
     //Regenerate variable header
+    const newKeys:string[] = [];
     jsonData.variables?.variables?.forEach(kv => {
       const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
       let i=1, newName = "";
       do {
         newName = prefix + (i++);
-      } while(editorState.checkRename("", newName));
+      } while(editorState.checkRename("", newName) || newKeys.includes(newName));
       kv.key = newName;
+      newKeys.push(newName);
     })
 
     const newQueryName = this.genNewName(editorState);

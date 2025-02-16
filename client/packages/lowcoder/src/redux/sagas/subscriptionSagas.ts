@@ -11,9 +11,7 @@ import { Subscription, LowcoderSearchCustomer } from '@lowcoder-ee/constants/sub
 function* fetchSubscriptionsSaga(action: ReturnType<typeof fetchSubscriptionsAction>) {
   try {
     const user: User = yield select(getUser);
-    const currentUser: CurrentUser = yield select(getCurrentUser); 
     const orgID = user.currentOrgId;
-    const domain = `${window.location.protocol}//${window.location.hostname}${window.location.port ? `:${window.location.port}` : ''}`;
     const deploymentId: string = yield select(getDeploymentId);
 
     const subscriptionSearchCustomer: LowcoderSearchCustomer = {

@@ -7,15 +7,22 @@
     <p>
         Create software applications (internal and customer-facing!) and Meeting/Collaboration tools for your Company and your Customers with minimal coding experience. 
     </p>
-    <h3 style="margin-top: 0">Lowcoder is the best Retool, Appsmith or Tooljet Alternative.</h3>
+    <h3 style="margin-top: 0">We think, Lowcoder is simply better than Retool, Appsmith Tooljet, Outsystems or Mendix.</h3>
+</div>
+---
+
+## 🎥 Lowcoder Intro Video  
+<div align="center">
+    <a href="https://www.youtube.com/watch?v=AQo0iFWUWiU" target="_blank">
+        <img src="https://img.youtube.com/vi/AQo0iFWUWiU/maxresdefault.jpg" alt="Lowcoder Intro Video" width="100%">
+    </a>
+    <p><i>Click the image above to watch the video on YouTube</i> 📺</p>
 </div>
 
-<img src="https://1167272343-files.gitbook.io/~/files/v0/b/gitbook-x-prod.appspot.com/o/spaces%2FjNgeI0mUzgw6Re92iTOw%2Fuploads%2FnwXJC1XBqP2MvTQitPyo%2FApp%20Editor%20%7C%20Main%20Screeen%20clean.png?alt=media&token=e5fba81b-82a7-4c0e-a15d-baa781d5b13a"/>
-
-
+---
 ## 📢 Use Lowcoder in 3 steps
 1. Connect to any data sources or APIs.
-2. Build flexible and responsive UI with 100+ components and free layout / design possibilities.
+2. Build flexible and responsive UI with 120+ components and free layout / design possibilities.
 3. Share with colleagues and customers.
 
 ## 💡 Why Lowcoder
@@ -23,9 +30,9 @@ One platform for everything instead so many different softwares. (like Website B
 
 It's cumbersome to create a single app. You had to design user interfaces, write code in multiple languages and frameworks, and understand how all of that code works together.
 
-NewGen Lowcode Platforms like Retool and others are great for their simplicity and flexibility - like Lowcoder too, but they can also be limited in different ways, especially when it comes to "external" applications for everyone.
+NewGen Lowcode Platforms like Retool and others are great for their simplicity and flexibility - like Lowcoder too, but they can also be limited in different ways, especially when it comes to "external" applications for everyone - because their pricing focusses to internal apps and "pay per User".
 
-Lowcoder wants to take a step forward. More specifically, Lowcoder is:
+With Lowcoder we did a step forward. More specifically, Lowcoder is:
 - An all-in-one IDE to create internal or customer-facing (external) apps.
 - A place to create, build and share building blocks of web applications and whole websites.
 - The tool and community to support your business, and lower the cost and time to develop interactive applications.
@@ -34,9 +41,9 @@ Lowcoder wants to take a step forward. More specifically, Lowcoder is:
 - The only platform which has extensibility plugin architecture [Check Community Contributions](https://www.npmjs.com/search?q=lowcoder-comp)
 
 ## 🪄 Features
-- **Visual UI builder** with 100+ built-in components. Save 90% of time to build apps.
+- **Visual UI builder** with 120+ built-in components. Save 90% of time to build apps.
 - **Modules** for reusable (!) embedable component sets in the UI builder.
-- **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](https://lowcoder.cloud/about), [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/native-embed-sdk)
+- **Embed Lowcoder Apps as native parts of any Website** instead of iFrame (!). [Demo](http://demo-lowcoder.42web.io/ecommerce/), [Docu](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/native-embed-sdk)
 - **Video Meeting Components** to create your own individual Web-Meeting tool.
 - **Query Library** for reusable data queries of your data sources.
 - **Custom components** to develop own components and use them in the UI builder.
@@ -107,7 +114,3 @@ Accelerate the growth of Lowcoder and unleash its potential with your Sponsorshi
 [Be a Sponsor](https://github.com/sponsors/lowcoder-org)
 
 Like ...  [@Darkjamin](https://github.com/Darkjamin), [@spacegoats-io](https://github.com/spacegoats-io), [@Jomedya](https://github.com/Jomedya), [@CHSchuepfer](https://github.com/CHSchuepfer), Thank you very much!!
-
-## Intro Video
-
-[![Watch the video](https://i.ytimg.com/vi/s4ltAqS0hzM/maxresdefault.jpg?sqp=-oaymwEmCIAKENAF8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGD0gSShyMA8=&rs=AOn4CLAlPOIFdtauythoBKNPXhi6XGwlDQ)](https://youtu.be/s4ltAqS0hzM?feature=shared)
