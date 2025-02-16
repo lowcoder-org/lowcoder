@@ -8956,6 +8956,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"detect-europe-js@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "detect-europe-js@npm:0.1.2"
+  checksum: 5a69602302955f50d36dc880ccecb481f24976f2f242aa0b359b5a6477b7e5085bb9bc7bdefdbf3a5bb9fbc3a8e892adda23dc65b9304edac49807caf75446e3
+  languageName: node
+  linkType: hard
+
 "detect-newline@npm:^3.0.0":
   version: 3.1.0
   resolution: "detect-newline@npm:3.1.0"
@@ -12301,6 +12308,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"is-standalone-pwa@npm:^0.1.1":
+  version: 0.1.1
+  resolution: "is-standalone-pwa@npm:0.1.1"
+  checksum: bbd2ee7cbea985139f66fe8785e7699f52311e9c14d74190659885222b79dd1e8845b02f69b9221a23a2b4b00e8d4bea0a5a2603b2f26cb6d2071d46093ccf84
+  languageName: node
+  linkType: hard
+
 "is-stream@npm:^2.0.0":
   version: 2.0.1
   resolution: "is-stream@npm:2.0.1"
@@ -14250,7 +14264,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     tern: ^0.24.3
     typescript: ^4.8.4
     typescript-collections: ^1.3.3
-    ua-parser-js: ^1.0.33
+    ua-parser-js: ^2.0.0
     uuid: ^9.0.0
     vite: ^4.5.5
     vite-plugin-checker: ^0.5.1
@@ -21108,6 +21122,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"ua-is-frozen@npm:^0.1.2":
+  version: 0.1.2
+  resolution: "ua-is-frozen@npm:0.1.2"
+  checksum: 139c89b175bd4e3aeed2ebd1c972ce078e9507ade5f9d704d4ac0a916b2a5e8ada0bc6f616a8c39415e6b602e967ab172d0c44f0dfe353ce8104139897472f48
+  languageName: node
+  linkType: hard
+
 "ua-parser-js@npm:^0.7.34":
   version: 0.7.37
   resolution: "ua-parser-js@npm:0.7.37"
@@ -21115,10 +21136,23 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"ua-parser-js@npm:^1.0.33, ua-parser-js@npm:^1.0.35":
+"ua-parser-js@npm:^1.0.35":
   version: 1.0.37
   resolution: "ua-parser-js@npm:1.0.37"
   checksum: 4d481c720d523366d7762dc8a46a1b58967d979aacf786f9ceceb1cd767de069f64a4bdffb63956294f1c0696eb465ddb950f28ba90571709e33521b4bd75e07
+  languageName: node
+  linkType: hard
+
+"ua-parser-js@npm:^2.0.0":
+  version: 2.0.0
+  resolution: "ua-parser-js@npm:2.0.0"
+  dependencies:
+    detect-europe-js: ^0.1.2
+    is-standalone-pwa: ^0.1.1
+    ua-is-frozen: ^0.1.2
+  bin:
+    ua-parser-js: script/cli.js
+  checksum: 6854a0a0c20784b7734ff0cfc3cb1b6a6032576545812095485efa3f56c7f0b502fb38c43fa8bc931c44eda47df3e1051863dddf1ebf58b1646e6167120ae2b3
   languageName: node
   linkType: hard
 
