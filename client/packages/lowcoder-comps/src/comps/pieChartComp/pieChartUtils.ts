@@ -4,7 +4,7 @@ import {
   ChartSize,
   noDataAxisConfig,
   noDataPieChartConfig,
-} from "comps/lineChartComp/lineChartConstants";
+} from "comps/pieChartComp/pieChartConstants";
 import { getPieRadiusAndCenter } from "comps/basicChartComp/chartConfigs/pieChartConfig";
 import { EChartsOptionWithMap } from "../basicChartComp/reactEcharts/types";
 import _ from "lodash";
@@ -79,7 +79,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
   }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type, props.chartConfig.polarData.polar)) {
+    if (isAxisChart(props.chartConfig.type, props.chartConfig.polarData?.polar)) {
       let encodeX: string, encodeY: string;
       const horizontalX = props.xAxisDirection === "horizontal";
       let itemStyle = props.chartConfig.itemStyle;
@@ -150,7 +150,7 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.polarData.polar);
+  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.polarData?.polar);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
@@ -231,7 +231,7 @@ export function getEchartsConfig(
   let transformedData =
     yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.data : transformData(props.data, props.xAxisKey, seriesColumnNames);
 
-  if(props.chartConfig.polarData.polar) {
+  if(props.chartConfig.polarData?.polar) {
     config = {
       ...config,
       polar: {
