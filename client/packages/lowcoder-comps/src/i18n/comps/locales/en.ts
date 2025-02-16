@@ -338,6 +338,12 @@ export const en = {
     end: "End",
     step: "Step",
     polar: "Polar Chart",
+    solid: "Solid",
+    dashed: "Dashed",
+    dotted: "Dotted",
+    borderColor: "Border Color",
+    borderWidth: "Border Width",
+    borderType: "Border Type",
   },
   barChart: {
     title: 'Title',

@@ -157,6 +157,7 @@ export function getEchartsConfig(
     bottom: `${props?.bottom}%`,
     top: `${props?.top}%`,
   };
+
   let config: any = {
     title: {
       text: props.title,
@@ -267,7 +268,7 @@ export function getEchartsConfig(
       },
       itemStyle: {
         ...series.itemStyle,
-        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+        // ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
@@ -275,6 +276,7 @@ export function getEchartsConfig(
       data: transformedData.map((i: any) => i[series.name])
     })),
   };
+  console.log("config11", getSeriesConfig(props));
   if (axisChart) {
     // pure chart's size except the margin around
     let chartRealSize;

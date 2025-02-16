@@ -3,15 +3,11 @@ import {
   MultiCompBuilder,
   BoolControl,
   dropdownControl,
-  list,
-  Option,
-  valueComp,
-  genRandomKey,
   jsonControl,
   toArray,
   showLabelPropertyView,
   withContext,
-  RedButton,
+  ColorControl,
   StringControl,
   NumberControl,
   withDefault,
@@ -71,6 +67,21 @@ export const SymbolOptions = [
   },
 ] as const;
 
+export const BorderTypeOptions = [
+  {
+    label: trans("lineChart.solid"),
+    value: "solid",
+  },
+  {
+    label: trans("lineChart.dashed"),
+    value: "dashed",
+  },
+  {
+    label: trans("lineChart.dotted"),
+    value: "dotted",
+  },
+] as const;
+
 export const LineChartConfig = (function () {
   return new MultiCompBuilder(
     {
@@ -90,6 +101,10 @@ export const LineChartConfig = (function () {
       polarEndAngle: withDefault(NumberControl, -180),
       polarIsTangent: withDefault(BoolControl, false),
       labelData: jsonControl(toArray, []),
+      //series-line.itemStyle
+      borderColor: ColorControl,
+      borderWidth: NumberControl,
+      borderType: dropdownControl(BorderTypeOptions, 'solid'),
     },
     (props): LineSeriesOption => {
       const config: LineSeriesOption = {
@@ -116,6 +131,9 @@ export const LineChartConfig = (function () {
             }
             return color;
           },
+          borderColor: props.borderColor,
+          borderWidth: props.borderWidth,
+          borderType: props.borderType,
         },
         polarData: {
           polar: props.polar,
@@ -194,6 +212,15 @@ export const LineChartConfig = (function () {
           label: trans("lineChart.symbolSize"),
         })}
         {children.itemColor.getPropertyView()}
+        {children.borderColor.propertyView({
+          label: trans("lineChart.borderColor"),
+        })}
+        {children.borderWidth.propertyView({
+          label: trans("lineChart.borderWidth"),
+        })}
+        {children.borderType.propertyView({
+          label: trans("lineChart.borderType"),
+        })}
       </>
     ))
     .build();
