@@ -36,17 +36,7 @@ export const viteConfig: UserConfig = {
   },
   base: ensureLastSlash(process.env.PUBLIC_URL),
   build: {
-    minify: "terser",  
-    terserOptions: {
-      compress: {
-        drop_console: true,  
-        drop_debugger: true, 
-        pure_funcs: ["console.info", "console.debug", "console.log"], 
-      },
-      format: {
-        comments: false, 
-      },
-    },
+    minify: "terser",
     chunkSizeWarningLimit: 500,
     lib: {
       formats: ["es"],
@@ -56,7 +46,7 @@ export const viteConfig: UserConfig = {
     },
     rollupOptions: {
       treeshake: {
-        moduleSideEffects: false, 
+        moduleSideEffects: true, 
         propertyReadSideEffects: false,
         tryCatchDeoptimization: false, 
         unknownGlobalSideEffects: false, 
@@ -64,38 +54,23 @@ export const viteConfig: UserConfig = {
       external: ["react", "react-dom"],
       output: {
         chunkFileNames: "chunks/[name]-[hash].js",
-        entryFileNames: "entry/[name]-[hash].js",
-        assetFileNames: "assets/[name]-[hash].[ext]",
+        entryFileNames: "lowcoder-sdk.js",
+        assetFileNames: "style.css",
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
-            // CORE FRAMEWORK CHUNKS
-            if (id.includes("react")) return "react";
-            if (id.includes("react-dom")) return "react-dom";
-            if (id.includes("react-router")) return "react-router";
-            if (id.includes("react-redux")) return "react-redux";
-            if (id.includes("redux")) return "redux";
-            if (id.includes("redux-saga")) return "redux-saga";
-        
             // UI LIBRARIES
             if (id.includes("@ant-design/icons")) return "ant-design-icons";
-            if (id.includes("antd")) return "antd";
+            if (id.includes("node_modules/antd")) return "antd";
             if (id.includes("styled-components")) return "styled-components";
 
             // 🔹 BARCODE & QR CODE PROCESSING
-            if (id.includes("zxing") || id.includes("Barcode") || id.includes("QRCode") || id.includes("PDF417")) return "barcode";
-        
-            // CHARTING & DATA VISUALIZATION
-            if (id.includes("echarts")) return "echarts";
-            if (id.includes("echarts-wordcloud")) return "echarts-wordcloud";
-            if (id.includes("d3")) return "d3";
+            if (id.includes("react-qr-barcode-scanner")) return "barcode";
         
             // TEXT EDITORS & PARSERS
             if (id.includes("codemirror")) return "codemirror";
             if (id.includes("quill")) return "quill";
             if (id.includes("react-json-view")) return "react-json-view";
-            if (id.includes("react-markdown")) return "react-markdown";
             if (id.includes("react-quill")) return "react-quill";
-            if (id.includes("remark") || id.includes("rehype") || id.includes("markdown")) return "markdown-parsers";
             if (id.includes("remark-gfm")) return "remark-gfm";
             if (id.includes("rehype-raw")) return "rehype-raw";
             if (id.includes("rehype-sanitize")) return "rehype-sanitize";
@@ -133,7 +108,6 @@ export const viteConfig: UserConfig = {
             if (id.includes("xlsx")) return "xlsx";
             if (id.includes("alasql")) return "alasql";
             if (id.includes("sql-formatter")) return "sql-formatter";
-            if (id.includes("tern")) return "tern";
         
             // NETWORK & HTTP
             if (id.includes("axios")) return "axios";
@@ -158,41 +132,38 @@ export const viteConfig: UserConfig = {
             if (id.includes("cnchar")) return "cnchar";
             if (id.includes("hotkeys-js")) return "hotkeys-js";
             if (id.includes("loglevel")) return "loglevel";
-            if (id.includes("qrcode-react")) return "qrcode-react";
+            if (id.includes("qrcode.react")) return "qrcode-react";
             if (id.includes("react-joyride")) return "react-joyride";
             if (id.includes("rc-trigger")) return "rc-trigger";
             if (id.includes("really-relaxed-json")) return "really-relaxed-json";
             if (id.includes("simplebar-react")) return "simplebar-react";
-            return "vendor";
+            if (id.includes("react-documents")) return "react-documents";
+            if (id.includes("react-colorful")) return "react-colorful";
+            if (id.includes("react-best-gradient-color-picker")) return "react-best-gradient-color-picker";
+            if (id.includes("@supabase/supabase-js")) return "supabase";
+            return null;
           }
-          if (id.includes("src/api")) return "api";
-          if (id.includes("src/appView")) return "appView";
-          if (id.includes("src/base")) return "base";
-          if (id.includes("src/constants")) return "constants";
-          if (id.includes("src/i18n")) return "i18n";
-          if (id.includes("src/ide")) return "ide";
-          if (id.includes("src/layout")) return "layout";
-          if (id.includes("src/pages")) return "pages";
-          if (id.includes("src/redux")) return "app_redux";
-          if (id.includes("src/comps")) return "comps";
-          if (id.includes("comps/comps")) return "comps2";
-          if (id.includes("comps/controls")) return "controls";
-          if (id.includes("comps/queries")) return "queries";
-          if (id.includes("comps/utils")) return "utils";
-          if (id.includes("src/hooks")) return "hooks";
-          if (id.includes("src/util")) return "util";
-          return "common"; // 📦 Internal app shared code
-        },
+          return null;
+        }
       },
       experimental: {
         minChunkSize: 300000, // 📏 Force smaller chunks (~300KB)
       },
       plugins: [
-        terser(),
+        terser({
+          compress: {
+            drop_console: true,  
+            drop_debugger: true, 
+            pure_funcs: ["console.info", "console.debug", "console.log"], 
+          },
+          format: {
+            comments: /(@vite-ignore|webpackIgnore)/
+          },
+        }) as PluginOption,
         strip({
           functions: ["console.log", "debugger"], // ✅ Remove logs
           sourceMap: true,
-        }),
+        }) as PluginOption,
       ],
       onwarn: (warning, warn) => {
         if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
