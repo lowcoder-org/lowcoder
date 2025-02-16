@@ -99,22 +99,22 @@ interface AfterExecuteQueryAction {
 }
 
 const CommonTriggerOptions = [
-  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
-  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
   { label: trans("query.triggerTypeTimeout"), value: "onTimeout"},
+  { label: trans("query.triggerTypeQueryExec"), value: "onQueryExecution"},
+  { label: trans("query.triggerTypeInputChange"), value: "onInputChange"},
 ]
 
 export const TriggerTypeOptions = [
+  { label: trans("query.triggerTypeManual"), value: "manual" },
   { label: trans("query.triggerTypePageLoad"), value: "onPageLoad"},
   ...CommonTriggerOptions,
   { label: trans("query.triggerTypeAuto"), value: "automatic" },
-  { label: trans("query.triggerTypeManual"), value: "manual" },
 ] as const;
 
 export const JSTriggerTypeOptions = [
-  ...CommonTriggerOptions,
-  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
   { label: trans("query.triggerTypeManual"), value: "manual" },
+  { label: trans("query.triggerTypePageLoad"), value: "automatic" },
+  ...CommonTriggerOptions,
 ];
 
 export type TriggerType = ValueFromOption<typeof TriggerTypeOptions>;
@@ -363,7 +363,8 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
-      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().filter(kv => kv.key).reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
     }
@@ -663,23 +664,6 @@ export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("isFetching", trans("query.isFetchingExportDesc")),
   new NameConfig("runTime", trans("query.runTimeExportDesc")),
   new NameConfig("latestEndTime", trans("query.latestEndTimeExportDesc")),
-  new DepsConfig(
-    "variable",
-    (children: any) => {
-      return {data: children.variables.children.variables.node()};
-    },
-    (input) => {
-      if (!input.data) {
-        return undefined;
-      }
-      const newNode = Object.values(input.data)
-        .filter((kvNode: any) => kvNode.key.text.value)
-        .map((kvNode: any) => ({[kvNode.key.text.value]: kvNode.value.text.value}))
-        .reduce((prev, obj) => ({...prev, ...obj}), {});
-      return newNode;
-    },
-    trans("query.variables")
-  ),
   new NameConfig("triggerType", trans("query.triggerTypeExportDesc")),
 ]);
 
@@ -688,7 +672,11 @@ const QueryListTmpComp = list(QueryComp);
 class QueryListComp extends QueryListTmpComp implements BottomResListComp {
   override reduce(action: CompAction): this {
     if (isCustomAction<AfterExecuteQueryAction>(action, "afterExecQuery")) {
-      if (action.path?.length ===  1 && !isNaN(parseInt(action.path[0]))) {
+      if (
+        action.path?.length ===  1
+        && !isNaN(parseInt(action.path[0]))
+        && action.value.result.success
+      ) {
         const queryIdx = parseInt(action.path[0]);
         const queryComps = this.getView();
         const queryName = queryComps?.[queryIdx]?.children.name.getView();
@@ -769,12 +757,26 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     if (!originQuery) {
       return;
     }
+
+    const jsonData = originQuery.toJsonValue();
+    //Regenerate variable header
+    const newKeys:string[] = [];
+    jsonData.variables?.variables?.forEach(kv => {
+      const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
+      let i=1, newName = "";
+      do {
+        newName = prefix + (i++);
+      } while(editorState.checkRename("", newName) || newKeys.includes(newName));
+      kv.key = newName;
+      newKeys.push(newName);
+    })
+
     const newQueryName = this.genNewName(editorState);
     const id = genQueryId();
     this.dispatch(
       wrapActionExtraInfo(
         this.pushAction({
-          ...originQuery.toJsonValue(),
+          ...jsonData,
           id: id,
           name: newQueryName,
           isNewCreate: true,
@@ -785,7 +787,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
             {
               type: "add",
               compName: name,
-              compType: originQuery.children.compType.getView(),
+              compType: jsonData.compType,
             },
           ],
         }

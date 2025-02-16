@@ -1,0 +1,1 @@
+export { SplitLayoutComp } from "./splitLayout";

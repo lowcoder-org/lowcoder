@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.lowcoder.domain.asset.model.Asset;
 import org.lowcoder.domain.asset.service.AssetService;
 import org.lowcoder.domain.authentication.AuthenticationService;
@@ -197,8 +198,10 @@ public class UserServiceImpl implements UserService {
                 .source(AuthSourceConstants.EMAIL)
                 .name(email)
                 .rawId(email)
+                .email(email)
                 .build();
         user.getConnections().add(connection);
+        user.setEmail(email);
         return repository.save(user)
                 .then(Mono.just(true))
                 .onErrorResume(throwable -> {
@@ -215,6 +218,7 @@ public class UserServiceImpl implements UserService {
         return findById(userId)
                 .doOnNext(user -> {
                     user.getConnections().add(connection);
+                    if(StringUtils.isEmpty(user.getEmail())) user.setEmail(connection.getEmail());
                     user.setActiveAuthId(connection.getAuthId());
 
                     if (AuthSourceConstants.EMAIL.equals(authUser.getSource())
@@ -360,18 +364,39 @@ public class UserServiceImpl implements UserService {
                     .map(tuple2 -> {
                         OrgMember orgMember = tuple2.getT1();
                         List<Map<String, String>> groups = tuple2.getT2();
+                        String activeAuthId = user.getActiveAuthId();
+                        Optional<Connection> connection = user.getConnections().stream().filter(con -> con.getAuthId().equals(activeAuthId)).findFirst();
+                        HashMap<String, Object> userAuth = connectionToUserAuthDetail(connection);
                         return UserDetail.builder()
                                 .id(user.getId())
                                 .name(StringUtils.isEmpty(user.getName())?user.getId():user.getName())
                                 .avatarUrl(user.getAvatarUrl())
                                 .uiLanguage(user.getUiLanguage())
-                                .email(convertEmail(user.getConnections()))
+                                .email(user.getEmail())
                                 .ip(ip)
                                 .groups(groups)
                                 .extra(getUserDetailExtra(user, orgMember.getOrgId()))
+                                .userAuth(userAuth)
                                 .build();
                     });
         });
+    }
+
+    private static @NotNull HashMap<String, Object> connectionToUserAuthDetail(Optional<Connection> connection) {
+        HashMap<String, Object> userAuth = new HashMap<String, Object>();
+        if(connection.isPresent()) {
+            if(connection.get().getSource().equals(AuthSourceConstants.EMAIL)) {
+                userAuth.put("jwt", "");
+                userAuth.put("provider", AuthSourceConstants.EMAIL);
+            } else if(connection.get().getAuthConnectionAuthToken() != null) {
+                userAuth.put("jwt", connection.get().getAuthConnectionAuthToken().getAccessToken());
+                userAuth.put("provider", connection.get().getSource());
+            } else {
+                userAuth.put("jwt", "");
+                userAuth.put("provider", connection.get().getSource());
+            }
+        }
+        return userAuth;
     }
 
     /**

@@ -230,6 +230,7 @@ export const en = {
     "preventOverwriting": "Prevent overwriting styles",
     "color": "Color",
     "horizontalGridCells": "Horizontal Grid Cells",
+    "verticalGridCells": "Vertical Grid Cells",
     "timeZone": "TimeZone",
     "pickerMode": "Picker Mode",
   },
@@ -741,8 +742,8 @@ export const en = {
     "importFromQueryLibrary": "Import from Query Library",
     "importFromFile": "Import from File",
     "triggerType": "Triggered when...",
-    "triggerTypeAuto": "Inputs Change or On Page Load",
-    "triggerTypePageLoad": "When the Application (Page) loads",
+    "triggerTypeAuto": "When Inputs Change or after Application (Page) loads",
+    "triggerTypePageLoad": "After the Application (Page) loads",
     "triggerTypeManual": "Only when you trigger it manually",
     "triggerTypeInputChange": "When Inputs Change",
     "triggerTypeQueryExec": "After Query Execution",
@@ -855,7 +856,8 @@ export const en = {
     "categoryDocumentHandling" : "Report & Document Generation",
     "categoryRPA" : "Robotic Process Automation",
     "componentsUsingQueryTitle" : "Query Usage",
-    "componentsUsingQuery" : "Where is this Query in use"
+    "componentsUsingQuery" : "Where is this Query in use",
+    "variables" : "Variables"
   },
 
 
@@ -1251,6 +1253,10 @@ export const en = {
     "responsiveLayoutCompName": "Responsive Layout",
     "responsiveLayoutCompDesc": "A layout component designed to adapt and respond to different screen sizes and devices, ensuring a consistent user experience.",
     "responsiveLayoutCompKeywords": "responsive, layout, adapt, screen size",
+
+    "splitLayoutCompName": "Split Layout",
+    "splitLayoutCompDesc": "A layout component to organize multiple view areas and separate areas horizontally or vertically. It offers the user drag n drop adaption of the view areas width or height.",
+    "splitLayoutCompKeywords": "split, splitter, layout, adapt, screen size",
 
     "iconCompName": "Icons",
     "iconCompDesc": "Use various Icons to enhance the visual appeal and user experience of your application.",
@@ -3249,7 +3255,7 @@ export const en = {
     "jsLibraryDownloadError": "JavaScript Library Download Error",
     "jsLibraryInstallSuccess": "JavaScript Library Installed Successfully",
     "jsLibraryInstallFailed": "JavaScript Library Installation Failed",
-    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
+    "jsLibraryInstallFailedCloud": "Perhaps the Library is Not Available in the Sandbox, [Documentation](https://docs.lowcoder.cloud/lowcoder-documentation/lowcoder-extension/use-third-party-libraries-in-apps#import-third-party-libraries)\n{message}",
     "jsLibraryInstallFailedHost": "{message}",
     "add": "Add New",
     "jsHelpText": "Add a Global Method or Variable to the Current Application.",
@@ -3921,11 +3927,29 @@ export const en = {
     "columnStyle": "Column Style",
     "minWidth": "Min. Width",
     "rowBreak": "Row Break",
+    "useComponentWidth" : "Use Self Size",
+    "useComponentWidthDesc" : "Use the container width instead the App width",
     "matchColumnsHeight": "Match Columns Height",
     "rowLayout": "Row Layout",
     "columnsLayout": "Columns Layout",
     "columnsDefinitionTooltip": "Columns can be defined freely based on the CSS columns properties. For example, 'auto auto' will create two columns with equal width. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-columns",
     "rowsDefinitionTooltip": "Rows can be defined freely based on the CSS rows properties. For example, 'auto auto' will create two rows with equal height. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-rows",
+  },
+  "splitLayout" : {
+    "column": "View Areas",
+    "addColumn": "Add Areas",
+    "columnDefinition": "Area Definition",
+    "atLeastOneColumnError": "Responsive Layout Keeps at Least One Column",
+    "horizontal": "Horizontal",
+    "vertical": "Vertical",
+    "areaStyle": "Column Style",
+    "minWidth": "Min. Width",
+    "maxWidth": "Max. Width",
+    "width": "Width",
+    "collapsible" : "Area is collapsible?",
+    "matchColumnsHeight" : "Match Areas Height",
+    "orientation" : "Splitlayout orientation",
+    "orientationTooltip" : "The visual order in which the areas aligned. You can next Splitlayout Components inside Splitlayout Components too to achieve complex layouts."
   },
 
   "navLayout": {

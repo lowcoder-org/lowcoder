@@ -142,7 +142,7 @@ public class Application extends HasIdAndAuditing {
     public Mono<Map<String, Object>> getLiveApplicationDsl(ApplicationRecordService applicationRecordService) {
         return applicationRecordService.getLatestRecordByApplicationId(this.getId())
                 .map(ApplicationVersion::getApplicationDSL)
-                .switchIfEmpty(Mono.just(editingApplicationDSL));
+                .switchIfEmpty(Mono.just(getEditingApplicationDSL()));
     }
 
     public String getOrganizationId() {
@@ -172,9 +172,9 @@ public class Application extends HasIdAndAuditing {
             if (liveDSL == null || liveDSL.get("settings") == null) return "";
             Object settingsObject = liveDSL.get("settings");
             if (settingsObject instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-                return (String) settings.get("category");
+                Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                Object category = settings.get("category");
+                return (category != null & category instanceof String)?(String) category:"";
             } else {
                 return "";
             }
@@ -186,9 +186,9 @@ public class Application extends HasIdAndAuditing {
             if (liveDSL == null || liveDSL.get("settings") == null) return "";
             Object settingsObject = liveDSL.get("settings");
             if (settingsObject instanceof Map) {
-                @SuppressWarnings("unchecked")
-                Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-                return (String) settings.get("title");
+                Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                Object title = settings.get("title");
+                return (title != null & title instanceof String)?(String) title:"";
             } else {
                 return "";
             }
@@ -200,9 +200,9 @@ public class Application extends HasIdAndAuditing {
                 if (liveDSL == null || liveDSL.get("settings") == null) return "";
                 Object settingsObject = liveDSL.get("settings");
                 if (settingsObject instanceof Map) {
-                    @SuppressWarnings("unchecked")
-                    Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-                    return (String) settings.get("description");
+                    Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                    Object description = settings.get("description");
+                    return (description != null & description instanceof String)?(String) description:"";
                 } else {
                     return "";
                 }
@@ -215,9 +215,9 @@ public class Application extends HasIdAndAuditing {
                     if (liveDSL == null || liveDSL.get("settings") == null) return "";
                     Object settingsObject = liveDSL.get("settings");
                     if (settingsObject instanceof Map) {
-                        @SuppressWarnings("unchecked")
-                        Map<String, Object> settings = (Map<String, Object>) liveDSL.get("settings");
-                        return (String) settings.get("icon");
+                        Map<?, ?> settings = (Map<?, ?>) liveDSL.get("settings");
+                        Object icon = settings.get("icon");
+                        return (icon != null & icon instanceof String)?(String) icon:"";
                     } else {
                         return "";
                     }

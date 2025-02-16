@@ -7,9 +7,9 @@ import { BranchDiv, Dropdown } from "lowcoder-design";
 import { BottomResTypeEnum } from "types/bottomRes";
 import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
-import {keyValueListControl, keyValueListToSearchStr, withDefault} from "lowcoder-sdk";
-import {KeyValue} from "@lowcoder-ee/types/common";
-import { useCallback, useContext, useEffect, useMemo } from "react";
+import { withDefault } from "comps/generators";
+import { keyValueListControl} from "comps/controls/keyValueListControl";
+import { useCallback } from "react";
 
 const ExecuteQueryPropertyView = ({
   comp,
@@ -19,14 +19,14 @@ const ExecuteQueryPropertyView = ({
   placement?: "query" | "table"
 }) => {
   const getQueryOptions = useCallback((editorState?: EditorState) => {
-    const options: { label: string; value: string; variable?: Record<string, string> }[] =
+    const options: { label: string; value: string; variables?: Record<string, string> }[] =
       editorState
         ?.queryCompInfoList()
         .map((info) => {
           return {
             label: info.name,
             value: info.name,
-            variable: info.data.variable,
+            variables: info.data.variables,
           }
       })
         .filter(
@@ -61,6 +61,7 @@ const ExecuteQueryPropertyView = ({
       layout: "vertical",
       isStatic: true,
       keyFixed: true,
+      indicatorForAll: true,
     });
   }, [comp.children.queryVariables.getView()])
   
@@ -78,7 +79,7 @@ const ExecuteQueryPropertyView = ({
                 onChange={(value) => {
                   const options = getQueryOptions(editorState);
                   const selectedQuery = options.find(option => option.value === value);
-                  const variables = selectedQuery ? Object.keys(selectedQuery.variable || {}) : [];
+                  const variables = selectedQuery ? Object.keys(selectedQuery.variables || {}) : [];
                   comp.dispatchChangeValueAction({
                     queryName: value,
                     queryVariables: variables.map((variable) => ({key: variable, value: ''})),
@@ -89,18 +90,16 @@ const ExecuteQueryPropertyView = ({
           )}
         </EditorContext.Consumer>
       </BranchDiv>
-      <BranchDiv>
-        <EditorContext.Consumer>
-          {(editorState) => getVariableOptions(editorState)}
-        </EditorContext.Consumer>
-      </BranchDiv>
+      <EditorContext.Consumer>
+        {(editorState) => getVariableOptions(editorState)}
+      </EditorContext.Consumer>
     </>
   );
 }
 const ExecuteQueryTmpAction = (function () {
   const childrenMap = {
     queryName: SimpleNameComp,
-    queryVariables: withDefault(keyValueListControl(false, [], "string"), [])
+    queryVariables: withDefault(keyValueListControl(false, [], "variable"), [])
   };
   return new MultiCompBuilder(childrenMap, () => {
     return () => Promise.resolve(undefined as unknown);
@@ -113,14 +112,12 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   override getView() {
     const queryName = this.children.queryName.getView();
     // const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
-    const result = Object.values(this.children.queryVariables.children as Record<string, {
-      children: {
-        key: { unevaledValue: string },
-        value: { unevaledValue: string }
-      }}>)
-      .filter(item => item.children.key.unevaledValue !== "" && item.children.value.unevaledValue !== "")
-      .map(item => ({[item.children.key.unevaledValue]: item.children.value.unevaledValue}))
+    const result = this.children.queryVariables.toJsonValue()
+      .filter(item => item.key !== "" && item.value !== "")
+      .map(item => ({[item.key as string]: item.value}))
       .reduce((acc, curr) => Object.assign(acc, curr), {});
+    
+    result.$queryName = queryName;
     if (!queryName) {
       return () => Promise.resolve();
     }

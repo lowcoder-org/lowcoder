@@ -3,17 +3,8 @@ import {
     Flag_gb, 
     Flag_it, 
     Flag_cn,
-    Flag_fr,
     Flag_ru,
-    Flag_cz,
-    Flag_pl,
     Flag_es,
-    Flag_vi,
-    Flag_id,
-    Flag_tr,
-    Flag_th,
-    Flag_ar,
-    Flag_pt,
     Flag_br
   } from "lowcoder-design";
 import { es, ru } from "./locales";

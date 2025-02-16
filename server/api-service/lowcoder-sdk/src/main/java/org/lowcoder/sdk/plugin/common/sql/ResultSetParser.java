@@ -1,7 +1,9 @@
 package org.lowcoder.sdk.plugin.common.sql;
 
+import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.Nullable;
 
+import java.sql.Blob;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
@@ -25,6 +27,7 @@ public class ResultSetParser {
     public static final String DATETIME_COLUMN_TYPE_NAME = "datetime";
     public static final String TIMESTAMP_COLUMN_TYPE_NAME = "timestamp";
     public static final String YEAR_COLUMN_TYPE_NAME = "year";
+    public static final String BLOB_COLUMN_TYPE_NAME = "blob";
 
     public static List<Map<String, Object>> parseRows(ResultSet resultSet) throws SQLException {
         ResultSetMetaData metaData = resultSet.getMetaData();
@@ -73,6 +76,12 @@ public class ResultSetParser {
         }
         if (YEAR_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
             return resultSet.getDate(i).toLocalDate().getYear();
+        }
+        if (BLOB_COLUMN_TYPE_NAME.equalsIgnoreCase(typeName)) {
+            //Convert binary data into base64
+            Blob blob = resultSet.getBlob(i);
+            byte[] blobBytes = blob.getBytes(1, (int) blob.length());
+            return Base64.encodeBase64String(blobBytes);
         }
         return resultSet.getObject(i);
     }

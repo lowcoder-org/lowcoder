@@ -1,5 +1,6 @@
 import { ViewDocIcon } from "assets/icons";
 import { ArrayControl, BoolCodeControl, NumberControl, RadiusControl, StringControl } from "comps/controls/codeControl";
+import { BoolControl } from "comps/controls/boolControl";
 import { dropdownControl, LeftRightControl } from "comps/controls/dropdownControl";
 import { IconControl } from "comps/controls/iconControl";
 import { MultiCompBuilder, valueComp, withContext, withDefault } from "comps/generators";
@@ -631,6 +632,54 @@ export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   initOptions: [
     { id: 0, key: "Column1", label: "Column1" },
     { id: 1, key: "Column2", label: "Column2" },
+  ],
+  uniqField: "key",
+  autoIncField: "id",
+});
+
+const SplitColumnOption = new MultiCompBuilder(
+  {
+    id: valueComp<number>(-1),
+    label: StringControl,
+    key: StringControl,
+    minWidth: withDefault(RadiusControl, ""),
+    maxWidth: withDefault(RadiusControl, ""),
+    width: withDefault(RadiusControl, ""),
+    collapsible: withDefault(BoolControl, false),
+    background: withDefault(ColorControl, ""),
+    backgroundImage: withDefault(StringControl, ""),
+    padding: withDefault(StringControl, ""),
+  },
+  (props) => props
+)
+.setPropertyViewFn((children) => (
+  <StyledContent>
+    {children.minWidth.propertyView({
+      label: trans('splitLayout.minWidth'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '3px',
+    })}
+    {children.maxWidth.propertyView({
+      label: trans('splitLayout.maxWidth'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '80%',
+    })}
+    {children.width.propertyView({
+      label: trans('splitLayout.width'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '3px',
+    })}
+    {children.collapsible.propertyView({
+      label: trans('splitLayout.collapsible'),
+    })}
+  </StyledContent>
+))
+  .build();
+
+export const SplitColumnOptionControl = manualOptionsControl(SplitColumnOption, {
+  initOptions: [
+    { id: 0, key: "Area1", label: "Area 1", minWidth: "10%", maxWidth: "90%",  width: "50%"},
+    { id: 1, key: "Area2", label: "Area 2", minWidth: "10%", maxWidth: "90%",  width: "50%", collapsible : true},
   ],
   uniqField: "key",
   autoIncField: "id",

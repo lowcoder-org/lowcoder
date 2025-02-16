@@ -182,6 +182,22 @@ export const createCustomer = async (subscriptionCustomer: LowcoderNewCustomer) 
   }
 };
 
+export const cleanupCustomer = async (subscriptionCustomer: LowcoderSearchCustomer) => {
+  const apiBody = {
+    path: "webhook/secure/cleanup-customer",
+    data: subscriptionCustomer,
+    method: "post",
+    headers: lcHeaders
+  };
+  try {
+    const result = await SubscriptionApi.secureRequest(apiBody, 15000);
+    return result?.data as any;
+  } catch (error) {
+    console.error("Error creating customer:", error);
+    throw error;
+  }
+};
+
 export const getProduct = async (productId : string) => {
   const apiBody = {
     path: "webhook/secure/get-product",

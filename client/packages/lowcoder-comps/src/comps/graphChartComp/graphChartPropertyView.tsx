@@ -16,7 +16,9 @@ export function graphChartPropertyView(
   const jsonModePropertyView = (
     <>
       <Section name={trans("chart.config")}>
-        {children.echartsData.propertyView({ label: trans("chart.data") })}
+        {children.echartsCategories.propertyView({ label: trans("graphChart.categories") })}
+        {children.echartsLinks.propertyView({ label: trans("graphChart.links") })}
+        {children.echartsNodes.propertyView({ label: trans("graphChart.nodes") })}
         {children.echartsTitle.propertyView({ label: trans("graphChart.title"), tooltip: trans("echarts.titleTooltip") })}
         {children.echartsTitleConfig.getPropertyView()}
         {children.echartsTitleVerticalConfig.getPropertyView()}

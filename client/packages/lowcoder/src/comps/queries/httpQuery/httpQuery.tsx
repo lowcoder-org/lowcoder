@@ -4,7 +4,7 @@ import { valueComp, withDefault } from "comps/generators";
 import { trans } from "i18n";
 import { includes } from "lodash";
 import { CompAction, MultiBaseComp } from "lowcoder-core";
-import { keyValueListControl } from "../../controls/keyValueControl";
+import { keyValueListControl } from "../../controls/keyValueListControl";
 import { ParamsJsonControl, ParamsStringControl } from "../../controls/paramsControl";
 import { withTypeAndChildrenAbstract } from "../../generators/withType";
 import { toQueryView } from "../queryCompUtils";

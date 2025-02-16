@@ -219,7 +219,8 @@ export const zh: typeof en = {
         "baseURL": "Lowcoder API 基本 URL",
         "horizontal": "水平",
         "minHorizontalWidth": "最小水平宽度",
-        "horizontalGridCells": "水平网格单元",
+        "horizontalGridCells": "垂直网格单元",
+        "verticalGridCells": "Vertical Grid Cells",
         "showHorizontalScrollbar": "显示水平滚动条",
         "showVerticalScrollbar": "显示垂直滚动条",
     },
@@ -689,8 +690,8 @@ export const zh: typeof en = {
         importFromQueryLibrary: "从查询库导入",
         importFromFile: "从文件导入",
         "triggerType": "触发条件...",
-        "triggerTypeAuto": "输入更改或页面加载时",
-        "triggerTypePageLoad": "当应用程序（页面）加载时",
+        "triggerTypeAuto": "当输入更改或应用程序（页面）加载后",
+        "triggerTypePageLoad": "应用程序（页面）加载后",
         "triggerTypeManual": "仅当您手动触发时",
         "triggerTypeInputChange": "当输入更改时",
         "triggerTypeQueryExec": "查询执行后",
@@ -814,7 +815,10 @@ export const zh: typeof en = {
         "categoryEcommerce": "电子商务",
         "categoryWebscrapers": "网络爬虫",
         "categoryDocumentHandling": "报告与文档生成",
-        "categoryRPA": "机器人流程自动化"
+        "categoryRPA": "机器人流程自动化",
+        "componentsUsingQueryTitle": "查询使用情况",
+        "componentsUsingQuery": "此查询在哪里使用",
+        "variables": "变量"
     },
 
     sqlQuery: {
@@ -3247,6 +3251,8 @@ export const zh: typeof en = {
         columnStyle: "栏目样式",
         minWidth: "分钟。宽度",
         rowBreak: "断行",
+        "useComponentWidth": "使用自身尺寸",
+        "useComponentWidthDesc": "使用容器宽度而不是应用宽度",
         matchColumnsHeight: "匹配列高度",
         rowLayout: "行布局",
         columnsLayout: "栏目布局",
