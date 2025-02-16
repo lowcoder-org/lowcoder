@@ -55,7 +55,6 @@ import { Support } from "pages/support";
 import { Subscription } from "pages/setting/subscriptions"
 // import { TypographyText } from "../../components/TypographyText";
 // import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { isEE } from "util/envUtils";
 import { getSubscriptions } from 'redux/selectors/subscriptionSelectors';
 import { SubscriptionProductsEnum } from '@lowcoder-ee/constants/subscriptionConstants';
 import { EnterpriseProvider } from "@lowcoder-ee/util/context/EnterpriseContext";
