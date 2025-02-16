@@ -4,8 +4,6 @@ import { ThemeHome } from "./theme";
 import { AdvancedSetting } from "./advanced/AdvancedSetting";
 import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
-import AuditSetting from "@lowcoder-ee/pages/setting/audit";
-import { isEE, isEnterpriseMode, isSelfDomain, showAuditLog } from "util/envUtils";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
 import { 
@@ -16,32 +14,41 @@ import {
   ThemeIcon,
   WorkspacesIcon,
   SubscriptionIcon,
- } from "lowcoder-design";
+  EnvironmentsIcon,
+  UsageStatisticsIcon,
+  AutitLogsIcon,
+  BrandingIcon
+} from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@lowcoder-ee/pages/setting/branding/BrandingSetting";
+import { Environments } from "@lowcoder-ee/pages/setting/environments/Environments";
+import { AppUsage } from "@lowcoder-ee/pages/setting/appUsage/AppUsage";
+import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";
-import { enableCustomBrand } from "util/featureFlagUtils";
+// import { enableCustomBrand } from "util/featureFlagUtils";
 import FreeLimitTag from "pages/common/freeLimitTag";
 import { Helmet } from "react-helmet";
 import { Card } from "antd";
 import { Subscription } from "./subscriptions";
+import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+
 
 enum SettingPageEnum {
-  UserGroups = "permission",
   Organization = "organization",
-  Subscription = "subscription",
-  Audit = "audit",
-  Theme = "theme",
-  Branding = "branding",
-  Advanced = "advanced",
   OAuthProvider = "oauth-provider",
-  AppUsage = "app-usage",
+  UserGroups = "permission",
+  Theme = "theme",
+  Advanced = "advanced",
   Environments = "environments",
+  AppUsage = "app-usage",
+  AuditLog = "audit",
+  Branding = "branding",
+  Subscription = "subscription",
 }
 
 export function SettingHome() {
@@ -49,6 +56,8 @@ export function SettingHome() {
   const config = useSelector(selectSystemConfig);
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
 
+  const isLicenseActive = useSelector(selectIsLicenseActive);
+  
   const items = [
     {
       key: SettingPageEnum.Organization,
@@ -84,51 +93,52 @@ export function SettingHome() {
       label: (
         <span>
           <span className="text">{trans("settings.environments")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
+          {(!isLicenseActive && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          ))}
         </span>
       ),
-      disabled: true,
+      icon: <EnvironmentsIcon width={"20px"}/>,
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.AppUsage,
       label: (
         <span>
           <span className="text">{trans("settings.appUsage")}</span>
-          <FreeLimitTag text={trans("settings.premium")} />
+          {(!isLicenseActive && (
+            <FreeLimitTag text={trans("settings.premium")} />
+          ))}
         </span>
       ),
-      disabled: true,
+      icon: <UsageStatisticsIcon width={"20px"}/>,
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
-      key: SettingPageEnum.Audit,
+      key: SettingPageEnum.AuditLog,
       label: (
         <span>
           <span className="text">{trans("settings.audit")}</span>
-          {(!showAuditLog(config) || !currentOrgAdmin(user)) && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
-          )}
+          ))}
         </span>
       ),
-      disabled: !showAuditLog(config) || !currentOrgAdmin(user),
+      icon: <AutitLogsIcon width={"20px"}/>,
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Branding,
       label: (
         <span>
           <span className="text">{trans("settings.branding")}</span>
-          {(!isEE() ||
-            !currentOrgAdmin(user) ||
-            !enableCustomBrand(config) ||
-            (!isSelfDomain(config) && !isEnterpriseMode(config))) && (
+          {(!isLicenseActive && (
             <FreeLimitTag text={trans("settings.premium")} />
-          )}
+          ))}
         </span>
       ),
-      disabled:
-        !isEE() ||
-        !currentOrgAdmin(user) ||
-        !enableCustomBrand(config) ||
-        (!isSelfDomain(config) && !isEnterpriseMode(config)),
+      icon: <BrandingIcon width={"20px"}/>,
+      disabled: !isLicenseActive || !currentOrgAdmin(user),
     },
     { 
       key: SettingPageEnum.Subscription,
@@ -155,23 +165,21 @@ export function SettingHome() {
             <div>If you are interested in early access to the upcoming Enterprise Edition, please contact us: <a href="mailto:service@lowcoder.cloud">service@lowcoder.cloud</a></div>
           </Card>
         </SubSideBar>
-        {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
+
         {selectKey === SettingPageEnum.Organization && <Organization />}
-        {selectKey === SettingPageEnum.Theme && <ThemeHome />}
         {selectKey === SettingPageEnum.OAuthProvider && <IdSourceHome />}
-        {selectKey === SettingPageEnum.Audit && <AuditSetting />}
-        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
+        {selectKey === SettingPageEnum.UserGroups && <PermissionSetting />}
+        {selectKey === SettingPageEnum.Theme && <ThemeHome />}
         {selectKey === SettingPageEnum.Advanced && <AdvancedSetting />}
+        {selectKey === SettingPageEnum.Environments && <Environments />}
+        {selectKey === SettingPageEnum.AppUsage && <AppUsage />}
+        {selectKey === SettingPageEnum.AuditLog && <AuditLog />}
+        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
         {selectKey === SettingPageEnum.Subscription && <Subscription />}
+
       </TwoColumnSettingPageContent>
     </>
   );
 }
-
-// { 
-//  key: SettingPageEnum.Subscription,
-//  label: trans("settings.subscription"),
-//  icon: <SubscriptionIcon width={"20px"}/>, 
-// }
 
 export default SettingHome;

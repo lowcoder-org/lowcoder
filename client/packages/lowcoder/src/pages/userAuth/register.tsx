@@ -28,6 +28,7 @@ import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Spin from "antd/es/spin";
 import { useSelector } from "react-redux";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -55,6 +56,7 @@ function UserRegister() {
   const [lastEmailChecked, setLastEmailChecked] = useState("");
   const redirectUrl = useRedirectUrl();
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
+  const { isEnterpriseActive } = useEnterpriseContext();
   const invitationId = inviteInfo?.invitationId;
 
   const orgId = useParams<any>().orgId;
@@ -130,6 +132,7 @@ function UserRegister() {
         heading={registerHeading}
         subHeading={registerSubHeading}
         type="large"
+        isEE={isEnterpriseActive}
       >
         <RegisterContent>
           <StyledFormInput

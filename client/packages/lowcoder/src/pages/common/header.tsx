@@ -64,6 +64,8 @@ import Avatar from 'antd/es/avatar';
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const { Countdown } = Statistic;
 const { Text } = Typography;
@@ -321,6 +323,10 @@ const DropdownMenuStyled = styled(DropdownMenu)`
   }
 `;
 
+const BrandLogo = styled.img`
+  height: 28px;
+`
+
 function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
@@ -374,6 +380,7 @@ export default function Header(props: HeaderProps) {
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
   const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
+  const brandingSettings = useSelector(getBrandingSetting);
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -429,7 +436,10 @@ export default function Header(props: HeaderProps) {
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
         {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
-        <LogoHome />
+        { brandingSettings?.config_set?.squareLogo
+          ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
+          : <LogoHome />
+        }
       </StyledLink>
       {editName ? (
         <Wrapper>
@@ -674,6 +684,9 @@ export default function Header(props: HeaderProps) {
       headerStart={headerStart}
       headerMiddle={headerMiddle}
       headerEnd={headerEnd}
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }
@@ -681,11 +694,15 @@ export default function Header(props: HeaderProps) {
 // header in manager page
 export function AppHeader() {
   const user = useSelector(getUser);
-  const brandingConfig = useSelector(getBrandingConfig);
+  const brandingSettings = useSelector(getBrandingSetting);
+
   const headerStart = (
     <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
       {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ?  REACT_APP_LOWCODER_CUSTOM_LOGO !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO}  height={28} alt="logo" /> :<LogoWithName branding={!user.orgDev} /> : <LogoHome />} */}
-      <LogoHome />
+      { brandingSettings?.config_set?.squareLogo
+        ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
+        : <LogoHome />
+      }
     </StyledLink>
   );
   const headerEnd = <HeaderProfile user={user} />;
@@ -693,9 +710,9 @@ export function AppHeader() {
     <LayoutHeader
       headerStart={headerStart}
       headerEnd={headerEnd}
-      style={
-        user.orgDev ? {} : { backgroundColor: brandingConfig?.headerColor }
-      }
+      style={{
+        backgroundColor: brandingSettings?.config_set?.appHeaderColor
+      }}
     />
   );
 }
