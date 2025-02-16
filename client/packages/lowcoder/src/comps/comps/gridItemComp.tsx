@@ -55,6 +55,7 @@ const TmpComp = withTypeAndChildren<
           undefined,
           undefined,
           manifest.withoutLoading,
+          manifest.layoutInfo?.h,
         )
       }
       const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);

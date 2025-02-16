@@ -444,10 +444,12 @@ export const ShapeSelectBase = (props: {
       onOpenChange={setVisible}
       getPopupContainer={parent ? () => parent : undefined}
       // hide the original background when dragging the popover is allowed
-      overlayInnerStyle={{
-        border: "none",
-        boxShadow: "none",
-        background: "transparent",
+      styles={{
+        body: {
+          border: "none",
+          boxShadow: "none",
+          background: "transparent",
+        }
       }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
       destroyTooltipOnHide

@@ -207,6 +207,7 @@ export function setTransform(
   hidden?: boolean,
   isDragging?: boolean,
 ): Record<string, any> {
+  console.log(name, {top, left, width, height })
   // Replace unitless items with px
   const translate = `translate(${left}px,${top}px)`;
   function containsChart(str:string) {

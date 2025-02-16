@@ -159,7 +159,9 @@ export const ControlPropertyViewWrapper = (
           <ToolTipLabel
             title={tooltip}
             label={label}
-            overlayInnerStyle={labelTooltipOverlayInnerStyle}
+            styles={{
+              body: labelTooltipOverlayInnerStyle,
+            }}
           />
         </LabelWrapper>
       )}

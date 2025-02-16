@@ -439,9 +439,9 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       isRowCountLocked,
       onPositionParamsChange,
       onRowCountChange,
-      positionParams,
+      JSON.stringify(positionParams),
+      JSON.stringify(props.containerPadding),
       props.dispatch,
-      props.containerPadding,
     ]
   );
   const setSelectedNames = useCallback(
@@ -454,6 +454,8 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   const { width, ref } = useResizeDetector({
     onResize,
     handleHeight: isRowCountLocked,
+    refreshMode: 'debounce',
+    refreshRate: 100,
   });
 
   const itemViewRef = useRef<GirdItemViewRecord>({});

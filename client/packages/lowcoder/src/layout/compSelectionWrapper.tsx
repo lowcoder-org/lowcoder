@@ -11,6 +11,7 @@ import React, {
   MouseEventHandler,
   useCallback,
   useContext,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -18,7 +19,8 @@ import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
-import { ResizeHandleAxis } from "./gridLayoutPropTypes";
+import type { ResizeHandleAxis } from "./gridLayoutPropTypes";
+import { isEqual } from "lodash";
 
 export type DragHandleName = "w" | "e" | "nw" | "ne" | "sw" | "se";
 type NamePos = "top" | "bottom" | "bottomInside";
@@ -273,7 +275,7 @@ export const CompSelectionWrapper = React.memo((props: {
       }
       setHover(true);
     },
-    [setHover]
+    [nameDivRef.current, setHover]
   );
   const onMouseOut = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
@@ -287,39 +289,57 @@ export const CompSelectionWrapper = React.memo((props: {
       }
       setHover(false);
     },
-    [setHover]
+    [nameDivRef.current, setHover]
   );
 
-  const selectableDivProps = props.isSelectable
-    ? {
-        onMouseOver,
-        onMouseOut,
-        onClick: props.onClick,
-        $hover: hover || undefined,
-        $showDashLine: editorState.showGridLines() || props.hidden,
-        $isSelected: props.isSelected,
-        $isHidden: props.hidden,
-      }
-    : {
-        $hover: undefined,
-        $showDashLine: false,
-        $isSelected: false,
-        $isHidden: false,
-      };
+  const selectableDivProps = useMemo(() => {
+    return props.isSelectable
+      ? {
+          onMouseOver,
+          onMouseOut,
+          onClick: props.onClick,
+          $hover: hover || undefined,
+          $showDashLine: editorState.showGridLines() || props.hidden,
+          $isSelected: props.isSelected,
+          $isHidden: props.hidden,
+        }
+      : {
+          $hover: undefined,
+          $showDashLine: false,
+          $isSelected: false,
+          $isHidden: false,
+        };
+  }, [
+    hover,
+    props.hidden,
+    props.isSelected,
+    props.isSelectable,
+  ]);  
 
-  const zIndex = props.isSelected
-    ? Layers.compSelected
-    : hover
-    ? Layers.compHover
-    : props.hidden
-    ? Layers.compHidden
-    : undefined;
+  const zIndex = useMemo(() => {
+    return props.isSelected
+      ? Layers.compSelected
+      : hover
+      ? Layers.compHover
+      : props.hidden
+      ? Layers.compHidden
+      : undefined;
+  }, [
+    hover,
+    props.hidden,
+    props.isSelected
+  ]);
 
-  const needResizeDetector = props.autoHeight && !props.placeholder;
+  const needResizeDetector = useMemo(() => {
+    return props.autoHeight && !props.placeholder;
+  }, [props.autoHeight, props.placeholder]);
+
   const { ref: wrapperRef } = useResizeDetector({
     onResize: props.onWrapperResize,
     handleHeight: needResizeDetector,
     handleWidth: false,
+    refreshMode: 'debounce',
+    refreshRate: 100,
   });
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
   const { nameConfig, resizeIconSize } = props;
@@ -369,8 +389,18 @@ export const CompSelectionWrapper = React.memo((props: {
         {!needResizeDetector && props.children}
         {needResizeDetector && (
           <ReactResizeDetector
+            skipOnMount={
+              props.compType === 'responsiveLayout'
+              || props.compType === 'columnLayout'
+              || props.compType === 'pageLayout'
+              || props.compType === 'splitLayout'
+              || props.compType === 'floatTextContainer'
+              || props.compType === 'tabbedContainer'
+              || props.compType === 'collapsibleContainer'
+              || props.compType === 'container'
+            }
             refreshMode="debounce"
-            refreshRate={250}
+            refreshRate={100}
             onResize={props.onInnerResize}
             observerOptions={{ box: "border-box" }}
           >
@@ -380,4 +410,4 @@ export const CompSelectionWrapper = React.memo((props: {
       </SelectableDiv>
     </div>
   );
-});
+}, (prev, next) => isEqual(prev, next));

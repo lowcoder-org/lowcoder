@@ -64,7 +64,6 @@ const SimplePopover = (props: {
   );
   return (
     <Popover
-      overlayInnerStyle={{padding: 0}}
       align={{
         offset: [-12, 0, 0, 0],
       }}
@@ -74,7 +73,10 @@ const SimplePopover = (props: {
       open={visible}
       onOpenChange={setVisible}
       placement="left"
-      overlayStyle={{ width: "310px" }}
+      styles={{
+        root: { width: "310px" },
+        body: { padding: 0 }
+      }}
     >
       {props.children}
     </Popover>
@@ -101,15 +103,17 @@ const CustomPopover = (props: {
   );
   return (
     <Popover
-      overlayInnerStyle={{padding: 0}}
       content={contentWithBox}
       trigger="click"
       open={visible}
       onOpenChange={setVisible}
       placement={props.type === "query" ? "top" : "left"}
-      overlayStyle={{ width: "310px" }}
       align={{
         offset: [-12, 0, 0, 0],
+      }}
+      styles={{
+        root: { width: "310px" },
+        body: { padding: 0 }
       }}
     >
       {props.children}
@@ -167,8 +171,10 @@ const EditPopover = (props: EditPopoverProps) => {
   return (
     <Popover
       arrow={false}
-      overlayStyle={{paddingTop: '15px'}}
-      overlayInnerStyle={{padding: 0}}
+      styles={{
+        root: { paddingTop: '15px' },
+        body: { padding: 0 }
+      }}
       content={() => (
         <>
           <Wedge />
