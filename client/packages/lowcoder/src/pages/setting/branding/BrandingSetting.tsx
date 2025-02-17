@@ -268,6 +268,8 @@ export function BrandingSetting() {
         </HeaderBack>
       </Header>
       <DetailContent>
+      
+      {/* Branding Settings Selection */}
       <BrandingSettingContent>
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.general")}</h2>
@@ -321,7 +323,8 @@ export function BrandingSetting() {
           </Card>
         </BrandingSettingContent>
 
-        <BrandingSettingContent>
+        {/* General Logos */}
+        <BrandingSettingContent style={{marginTop : "20px"}}>
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.logoSection")}</h2>
           </StyleThemeSettingsCover>
@@ -370,6 +373,7 @@ export function BrandingSetting() {
           </Card>
         </BrandingSettingContent>
 
+        {/* Colors and Fonts */}
         <BrandingSettingContent style={{marginTop : "20px"}}>
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.colorFontSection")}</h2>
@@ -517,6 +521,7 @@ export function BrandingSetting() {
           </Card>
         </BrandingSettingContent>
 
+        {/* Texts and Images for Standard Pages */}
         <BrandingSettingContent style={{marginTop : "20px"}}>
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.textSection")}</h2>
@@ -635,8 +640,10 @@ export function BrandingSetting() {
             </div>
 
           </Card>
+        </BrandingSettingContent>
 
-
+        {/* Helper Links in left submenu */}
+        <BrandingSettingContent style={{marginTop : "20px"}}>
           <StyleThemeSettingsCover style={{marginTop : "20px"}}>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>
               {trans("branding.showDocumentationSection")}
@@ -662,15 +669,8 @@ export function BrandingSetting() {
                 <HelpText>{trans("branding.documentationLinkHelp")}</HelpText>
               </div>
             )}
-          </Card>
 
-          <StyleThemeSettingsCover style={{marginTop : "20px"}}>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>
-              {trans("branding.showWhatsNewSection")}
-            </h2>
-          </StyleThemeSettingsCover>
-          <Card>
-            <div>
+            <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.whatsNew")}</h3>
               <Switch
                 checked={brandingConfig?.config_set?.whatsNew}
