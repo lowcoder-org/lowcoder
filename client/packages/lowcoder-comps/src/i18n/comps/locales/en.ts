@@ -348,6 +348,10 @@ export const en = {
   pieChart: {
     startAngle: "Start Angle",
     endAngle: "End Angle",
+    roseType: "Rose Type",
+    area: "Area",
+    radius: "Radius",
+    none: "None",
   },
   barChart: {
     title: 'Title',

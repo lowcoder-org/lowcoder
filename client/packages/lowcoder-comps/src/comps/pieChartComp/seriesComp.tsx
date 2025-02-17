@@ -2,6 +2,7 @@ import {
   BoolControl,
   StringControl,
   list,
+  dropdownControl,
   withDefault,
   NumberControl,
   isNumeric,
@@ -54,6 +55,21 @@ export const MarkLineTypeOptions = [
   },
 ] as const;
 
+export const RoseTypeOptions = [
+  {
+    label: trans("pieChart.radius"),
+    value: "radius",
+  },
+  {
+    label: trans("pieChart.area"),
+    value: "area",
+  },
+  {
+    label: trans("pieChart.none"),
+    value: "none",
+  },
+] as const;
+
 export function newMarkArea(): MarkLineDataType {
   return {
     dataIndex: genRandomKey(),
@@ -65,6 +81,7 @@ const seriesChildrenMap = {
   seriesName: StringControl,
   startAngle: withDefault(NumberControl, 0),
   endAngle: withDefault(NumberControl, 360),
+  roseType: dropdownControl(RoseTypeOptions, "none"),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -98,6 +115,9 @@ class SeriesComp extends SeriesTmpComp {
         })}
         {this.children.endAngle.propertyView({
           label: trans("pieChart.endAngle"),
+        })}
+        {this.children.roseType.propertyView({
+          label: trans("pieChart.roseType"),
         })}
       </>
     );

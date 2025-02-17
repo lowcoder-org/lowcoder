@@ -69,7 +69,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
   return visibleSeries.map((s, index) => {
     // pie
     const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
-    return {
+    const config = {
       ...props.chartConfig,
       radius: radiusAndCenter.radius,
       center: radiusAndCenter.center,
@@ -82,6 +82,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         value: s.getView().columnName,
       },
     };
+    if(s.getView().roseType !== "none") {
+      config.roseType = s.getView().roseType;
+    }
+    return config;
   });
 }
 
