@@ -55,8 +55,6 @@ export function transformData(
   return transformedData;
 }
 
-const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
-const notAxisChartSubtypeSet: Set<string> = new Set(["polar"] as const);
 export const echartsConfigOmitChildren = [
   "hidden",
   "selectedPoints",
@@ -65,81 +63,23 @@ export const echartsConfigOmitChildren = [
 ] as const;
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
-
-export function isAxisChart(type: CharOptionCompType, polar: boolean) {
-  return !notAxisChartSet.has(type) && !polar;
-}
-
 export function getSeriesConfig(props: EchartsConfigProps) {
   let visibleSeries = props.series.filter((s) => !s.getView().hide);
-  if(props.chartConfig.subtype === "waterfall") {
-    const seriesOn = visibleSeries[0];
-    const seriesPlaceholder = visibleSeries[0];
-    visibleSeries = [seriesPlaceholder, seriesOn];
-  }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type, props.chartConfig.polarData?.polar)) {
-      let encodeX: string, encodeY: string;
-      const horizontalX = props.xAxisDirection === "horizontal";
-      let itemStyle = props.chartConfig.itemStyle;
-
-      if (horizontalX) {
-        encodeX = props.xAxisKey;
-        encodeY = s.getView().columnName;
-      } else {
-        encodeX = s.getView().columnName;
-        encodeY = props.xAxisKey;
-      }
-      const markLineData = s.getView().markLines.map(line => ({type: line.getView().type}));
-      const markAreaData = s.getView().markAreas.map(area => ([{name: area.getView().name, [horizontalX?"xAxis":"yAxis"]: area.getView().from, label: {
-        position: horizontalX?"top":"right",
-      }}, {[horizontalX?"xAxis":"yAxis"]: area.getView().to}]));
-      return {
-        name: s.getView().seriesName,
-        selectedMode: "single",
-        select: {
-          itemStyle: {
-            borderColor: "#000",
-          },
-        },
-        step: s.getView().step,
-        encode: {
-          x: encodeX,
-          y: encodeY,
-        },
-        markLine: {
-          data: markLineData,
-        },
-        markArea: {
-          itemStyle: {
-            color: 'rgba(255, 173, 177, 0.4)',
-          },
-          data: markAreaData,
-        },
-        // each type of chart's config
-        ...props.chartConfig,
-        itemStyle: itemStyle,
-        label: {
-          ...props.chartConfig.label,
-          ...(!horizontalX && { position: "outside" }),
-        },
-      };
-    } else {
-      // pie
-      const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
-      return {
-        ...props.chartConfig,
-        radius: radiusAndCenter.radius,
-        center: radiusAndCenter.center,
-        name: s.getView().seriesName,
-        selectedMode: "single",
-        encode: {
-          itemName: props.xAxisKey,
-          value: s.getView().columnName,
-        },
-      };
-    }
+    // pie
+    const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
+    return {
+      ...props.chartConfig,
+      radius: radiusAndCenter.radius,
+      center: radiusAndCenter.center,
+      name: s.getView().seriesName,
+      selectedMode: "single",
+      encode: {
+        itemName: props.xAxisKey,
+        value: s.getView().columnName,
+      },
+    };
   });
 }
 
@@ -149,8 +89,6 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-  // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.polarData?.polar);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
@@ -189,38 +127,13 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
-    animationDuration: props.animationDuration,
   };
-  if (props.areaPieces.length > 0) {
-    config.visualMap = {
-      type: 'piecewise',
-      show: false,
-      dimension: 0,
-      seriesIndex: 0,
-      pieces: props.areaPieces?.filter(p => p.getView().from && p.getView().to && p.getView().color)?.map(p => (
-        {
-          ...(p.getView().from?{min: parseInt(p.getView().from)}:{}),
-          ...(p.getView().to?{max: parseInt(p.getView().to)}:{}),
-          ...(p.getView().color?{color: p.getView().color}:{}),
-        }
-      ))
-    }
-  }
-  if(props.chartConfig.race) {
-    config = {
-      ...config,
-      // Disable init animation.
-      animationDuration: 0,
-      animationDurationUpdate: 2000,
-      animationEasing: 'linear',
-      animationEasingUpdate: 'linear',
-    }
-  }
+
   if (props.data.length <= 0) {
     // no data
     return {
       ...config,
-      ...(axisChart ? noDataAxisConfig : noDataPieChartConfig),
+      ...noDataPieChartConfig,
     };
   }
   const yAxisConfig = props.yConfig();
@@ -230,27 +143,6 @@ export function getEchartsConfig(
   // y-axis is category and time, data doesn't need to aggregate
   let transformedData =
     yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.data : transformData(props.data, props.xAxisKey, seriesColumnNames);
-
-  if(props.chartConfig.polarData?.polar) {
-    config = {
-      ...config,
-      polar: {
-        radius: [props.chartConfig.polarData.polarRadiusStart, props.chartConfig.polarData.polarRadiusEnd],
-      },
-      radiusAxis: {
-        type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
-        data: props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
-        max: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.radiusAxisMax || undefined,
-      },
-      angleAxis: {
-        type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
-        data: !props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
-        max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
-        startAngle: props.chartConfig.polarData.polarStartAngle,
-        endAngle: props.chartConfig.polarData.polarEndAngle,
-      },
-    }
-  }
 
   config = {
     ...config,
@@ -273,70 +165,10 @@ export function getEchartsConfig(
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
-      data: transformedData.map((i: any) => i[series.name])
     })),
   };
-  if (axisChart) {
-    // pure chart's size except the margin around
-    let chartRealSize;
-    if (chartSize) {
-      const rightSize =
-        typeof gridPos.right === "number"
-          ? gridPos.right
-          : (chartSize.w * parseFloat(gridPos.right)) / 100.0;
-      chartRealSize = {
-        // actually it's self-adaptive with the x-axis label on the left, not that accurate but work
-        w: chartSize.w - gridPos.left - rightSize,
-        // also self-adaptive on the bottom
-        h: chartSize.h - gridPos.top - gridPos.bottom,
-        right: rightSize,
-      };
-    }
-    const finalXyConfig = calcXYConfig(
-      props.xConfig,
-      yAxisConfig,
-      props.xAxisDirection,
-      transformedData.map((d) => d[props.xAxisKey]),
-      chartRealSize
-    );
-    config = {
-      ...config,
-      // @ts-ignore
-      xAxis: {
-        ...finalXyConfig.xConfig,
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        },
-        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
-      },
-      // @ts-ignore
-      yAxis: {
-        ...finalXyConfig.yConfig,
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        },
-        data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
-      },
-    };
-    
-    if(props.chartConfig.race) {
-      config = {
-        ...config,
-        xAxis: {
-          ...config.xAxis,
-          animationDuration: 300,
-          animationDurationUpdate: 300
-        },
-        yAxis: {
-          ...config.yAxis,
-          animationDuration: 300,
-          animationDurationUpdate: 300
-        },
-      }
-    }
-  }
 
-  // log.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

@@ -251,7 +251,6 @@ export const chartUiModeChildren = {
   legendConfig: LegendConfig,
   chartConfig: ChartOptionComp,
   areaPieces: list(AreaPiecesTmpComp),
-  animationDuration: withDefault(NumberControl, 1000),
   onUIEvent: eventHandlerControl(UIEventOptions),
 };
 

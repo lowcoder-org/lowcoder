@@ -5,12 +5,8 @@ import {
   isNumeric,
   genRandomKey,
   Dropdown,
-  Option,
-  RedButton,
-  CustomModal,
   MultiCompBuilder,
   valueComp,
-  dropdownControl,
 } from "lowcoder-sdk";
 import { trans } from "i18n/comps";
 
@@ -20,7 +16,6 @@ import { CompAction, CustomAction, customAction, isMyCustomAction } from "lowcod
 export type SeriesCompType = ConstructorToComp<typeof SeriesComp>;
 export type RawSeriesCompType = ConstructorToView<typeof SeriesComp>;
 type SeriesDataType = ConstructorToDataType<typeof SeriesComp>;
-type MarkLineDataType = ConstructorToDataType<typeof MarkLinesTmpComp>;
 
 type ActionDataType = {
   type: "chartDataChanged";
@@ -57,58 +52,6 @@ export const MarkLineTypeOptions = [
   },
 ] as const;
 
-export const StepOptions = [
-  {
-    label: trans("pieChart.none"),
-    value: "",
-  },
-  {
-    label: trans("pieChart.start"),
-    value: "start",
-  },
-  {
-    label: trans("pieChart.middle"),
-    value: "middle",
-  },
-  {
-    label: trans("pieChart.end"),
-    value: "end",
-  },
-] as const;
-
-const valToLabel = (val) => MarkLineTypeOptions.find(o => o.value === val)?.label || "";
-const markLinesChildrenMap = {
-  type: dropdownControl(MarkLineTypeOptions, "max"),
-  // unique key, for sort
-  dataIndex: valueComp<string>(""),
-};
-const MarkLinesTmpComp = new MultiCompBuilder(markLinesChildrenMap, (props) => {
-  return props;
-})
-  .setPropertyViewFn((children: any) => {
-    return <>{children.type.propertyView({label: trans("pieChart.type")})}</>;
-  })
-  .build();
-const markAreasChildrenMap = {
-  name: StringControl,
-  from: StringControl,
-  to: StringControl,
-  // unique key, for sort
-  dataIndex: valueComp<string>(""),
-};
-const MarkAreasTmpComp = new MultiCompBuilder(markAreasChildrenMap, (props) => {
-  return props;
-})
-  .setPropertyViewFn((children: any) => 
-    (<>
-      {children.name.propertyView({label: trans("pieChart.name")})}
-      {children.from.propertyView({label: trans("pieChart.from")})}
-      {children.to.propertyView({label: trans("pieChart.to")})}
-    </>)
-  )
-  .build();
-  
-
 export function newMarkArea(): MarkLineDataType {
   return {
     dataIndex: genRandomKey(),
@@ -118,12 +61,9 @@ export function newMarkArea(): MarkLineDataType {
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
-  markLines: list(MarkLinesTmpComp),
-  markAreas: list(MarkAreasTmpComp),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
-  step: dropdownControl(StepOptions, ""),
 };
 
 const SeriesTmpComp = new MultiCompBuilder(seriesChildrenMap, (props) => {
@@ -147,81 +87,6 @@ class SeriesComp extends SeriesTmpComp {
           label={trans("chart.dataColumns")}
           onChange={(value) => {
             this.children.columnName.dispatchChangeValueAction(value);
-          }}
-        />
-        {this.children.step.propertyView({
-          label: trans("pieChart.step"),
-        })}
-        <Option
-          items={this.children.markLines.getView()}
-          title={trans("pieChart.markLines")}
-          itemTitle={(s) => valToLabel(s.getView().type)}
-          popoverTitle={(s) => trans("pieChart.markLineType")}
-          content={(s, index) => (
-            <>
-              {s.getPropertyView({label: "Type"})}
-              {
-                <RedButton
-                  onClick={() => {
-                    this.children.markLines.dispatch(this.children.markLines.deleteAction(index));
-                  }}
-                >
-                  {trans("chart.delete")}
-                </RedButton>
-              }
-            </>
-          )}
-          onAdd={() => {
-            this.children.markLines.dispatch(
-              this.children.markLines.pushAction(
-                newMarkLine("max")
-              )
-            );
-          }}
-          onMove={(fromIndex, toIndex) => {
-            const action = this.children.markLines.arrayMoveAction(fromIndex, toIndex);
-            this.children.markLines.dispatch(action);
-          }}
-          hide={(s) => true}
-          onHide={(s, hide) => console.log("onHide")}
-          dataIndex={(s) => {
-            return s.getView().dataIndex;
-          }}
-        />        
-        <Option
-          items={this.children.markAreas.getView()}
-          title={trans("pieChart.markAreas")}
-          itemTitle={(s) => s.getView().name}
-          popoverTitle={(s) => trans("pieChart.markLineType")}
-          content={(s, index) => (
-            <>
-              {s.getPropertyView({label: "Type"})}
-              {
-                <RedButton
-                  onClick={() => {
-                    this.children.markAreas.dispatch(this.children.markAreas.deleteAction(index));
-                  }}
-                >
-                  {trans("chart.delete")}
-                </RedButton>
-              }
-            </>
-          )}
-          onAdd={() => {
-            this.children.markAreas.dispatch(
-              this.children.markAreas.pushAction(
-                newMarkArea()
-              )
-            );
-          }}
-          onMove={(fromIndex, toIndex) => {
-            const action = this.children.markAreas.arrayMoveAction(fromIndex, toIndex);
-            this.children.markAreas.dispatch(action);
-          }}
-          hide={(s) => true}
-          onHide={(s, hide) => console.log("onHide")}
-          dataIndex={(s) => {
-            return s.getView().dataIndex;
           }}
         />
       </>

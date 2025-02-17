@@ -27,7 +27,6 @@ export function pieChartPropertyView(
     <>
       <Section name={trans("chart.data")}>
         {children.chartConfig.getPropertyView()}
-        {children.animationDuration.propertyView({label: trans("pieChart.animationDuration")})}
         <Dropdown
           value={children.xAxisKey.getView()}
           options={columnOptions}
@@ -82,42 +81,6 @@ export function pieChartPropertyView(
           hide={(s) => s.getView().hide}
           onHide={(s, hide) => s.children.hide.dispatchChangeValueAction(hide)}
           dataIndex={(s) => s.getView().dataIndex}
-        />
-        <Option
-          items={children.areaPieces.getView()}
-          title={trans("pieChart.areaPieces")}
-          itemTitle={(s) => `[${s.getView().from}-${s.getView().to}] ${s.getView().color}`}
-          popoverTitle={(s) => trans("pieChart.areaPiece")}
-          content={(s, index) => (
-            <>
-              {s.getPropertyView({label: "Type"})}
-              {
-                <RedButton
-                  onClick={() => {
-                    children.areaPieces.dispatch(children.areaPieces.deleteAction(index));
-                  }}
-                >
-                  {trans("chart.delete")}
-                </RedButton>
-              }
-            </>
-          )}
-          onAdd={() => {
-            children.areaPieces.dispatch(
-              children.areaPieces.pushAction(
-                {}
-              )
-            );
-          }}
-          onMove={(fromIndex, toIndex) => {
-            const action = children.areaPieces.arrayMoveAction(fromIndex, toIndex);
-            children.areaPieces.dispatch(action);
-          }}
-          hide={(s) => true}
-          onHide={(s, hide) => console.log("onHide")}
-          dataIndex={(s) => {
-            return s.getView().dataIndex;
-          }}
         />
       </Section>
       <Section name={sectionNames.interaction}>
