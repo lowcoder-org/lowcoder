@@ -345,6 +345,10 @@ export const en = {
     borderWidth: "Border Width",
     borderType: "Border Type",
   },
+  pieChart: {
+    startAngle: "Start Angle",
+    endAngle: "End Angle",
+  },
   barChart: {
     title: 'Title',
     barWidth: 'Bar Width(%)',

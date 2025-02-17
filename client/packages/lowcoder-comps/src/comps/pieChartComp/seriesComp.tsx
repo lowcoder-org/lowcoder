@@ -2,6 +2,8 @@ import {
   BoolControl,
   StringControl,
   list,
+  withDefault,
+  NumberControl,
   isNumeric,
   genRandomKey,
   Dropdown,
@@ -61,6 +63,8 @@ export function newMarkArea(): MarkLineDataType {
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
+  startAngle: withDefault(NumberControl, 0),
+  endAngle: withDefault(NumberControl, 360),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -89,6 +93,12 @@ class SeriesComp extends SeriesTmpComp {
             this.children.columnName.dispatchChangeValueAction(value);
           }}
         />
+        {this.children.startAngle.propertyView({
+          label: trans("pieChart.startAngle"),
+        })}
+        {this.children.endAngle.propertyView({
+          label: trans("pieChart.endAngle"),
+        })}
       </>
     );
   }

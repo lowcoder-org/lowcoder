@@ -73,6 +73,8 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       ...props.chartConfig,
       radius: radiusAndCenter.radius,
       center: radiusAndCenter.center,
+      startAngle: s.getView().startAngle,
+      endAngle: s.getView().endAngle,
       name: s.getView().seriesName,
       selectedMode: "single",
       encode: {
