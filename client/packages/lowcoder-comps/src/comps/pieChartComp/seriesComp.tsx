@@ -88,6 +88,8 @@ const seriesChildrenMap = {
   labelPosition: dropdownControl(LabelPositionOptions, "outer"),
   labelBleedMargin: withDefault(NumberControl, 5),
   labelEdgeDistance: withDefault(StringControl, '25%'),
+  labelLineLength: withDefault(NumberControl, 10),
+  labelLineLength2: withDefault(NumberControl, 10),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -134,8 +136,14 @@ class SeriesComp extends SeriesTmpComp {
         {this.children.labelBleedMargin.propertyView({
           label: trans("pieChart.labelBleedMargin"),
         })}
-        {this.children.labelEdgeDistance.propertyView({
+        {this.children.labelAlignTo.getView() === "edge" && this.children.labelEdgeDistance.propertyView({
           label: trans("pieChart.labelEdgeDistance"),
+        })}
+        {this.children.labelLineLength.propertyView({
+          label: trans("pieChart.labelLineLength"),
+        })}
+        {this.children.labelAlignTo.getView() === "labelLine" && this.children.labelLineLength2.propertyView({
+          label: trans("pieChart.labelLineLength2"),
         })}
       </>
     );

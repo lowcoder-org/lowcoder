@@ -363,6 +363,8 @@ export const en = {
     inside: "Inside",
     inner: "Inner",
     center: "Center",
+    labelLineLength: "Label Line Length",
+    labelLineLength2: "Label Line Length2",
   },
   barChart: {
     title: 'Title',

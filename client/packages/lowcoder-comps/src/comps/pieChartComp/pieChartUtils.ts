@@ -83,6 +83,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         bleedMargin: s.getView().labelBleedMargin,
         edgeDistance: s.getView().labelEdgeDistance,
       },
+      labelLine: {
+        length: s.getView().labelLineLength,
+        length2: s.getView().labelLineLength2,
+      },
       encode: {
         itemName: props.xAxisKey,
         value: s.getView().columnName,
