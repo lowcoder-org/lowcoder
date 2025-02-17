@@ -33,28 +33,6 @@ export function newSeries(name: string, columnName: string): SeriesDataType {
   };
 }
 
-export function newMarkLine(type: string): MarkLineDataType {
-  return {
-    type,
-    dataIndex: genRandomKey(),
-  };
-}
-
-export const MarkLineTypeOptions = [
-  {
-    label: trans("pieChart.max"),
-    value: "max",
-  },
-  {
-    label: trans("pieChart.average"),
-    value: "average",
-  },
-  {
-    label: trans("pieChart.min"),
-    value: "min",
-  },
-] as const;
-
 export const RoseTypeOptions = [
   {
     label: trans("pieChart.radius"),
@@ -70,11 +48,35 @@ export const RoseTypeOptions = [
   },
 ] as const;
 
-export function newMarkArea(): MarkLineDataType {
-  return {
-    dataIndex: genRandomKey(),
-  };
-}
+export const LabelAlignToOptions = [
+  {
+    label: trans("pieChart.none"),
+    value: "none",
+  },
+  {
+    label: trans("pieChart.labelLine"),
+    value: "labelLine",
+  },
+  {
+    label: trans("pieChart.edge"),
+    value: "edge",
+  },
+] as const;
+
+export const LabelPositionOptions = [
+  {
+    label: trans("pieChart.outer"),
+    value: "outer",
+  },
+  {
+    label: trans("pieChart.inner"),
+    value: "inner",
+  },
+  {
+    label: trans("pieChart.center"),
+    value: "center",
+  },
+] as const;
 
 const seriesChildrenMap = {
   columnName: StringControl,
@@ -82,6 +84,10 @@ const seriesChildrenMap = {
   startAngle: withDefault(NumberControl, 0),
   endAngle: withDefault(NumberControl, 360),
   roseType: dropdownControl(RoseTypeOptions, "none"),
+  labelAlignTo: dropdownControl(LabelAlignToOptions, "none"),
+  labelPosition: dropdownControl(LabelPositionOptions, "outer"),
+  labelBleedMargin: withDefault(NumberControl, 5),
+  labelEdgeDistance: withDefault(StringControl, '25%'),
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -118,6 +124,18 @@ class SeriesComp extends SeriesTmpComp {
         })}
         {this.children.roseType.propertyView({
           label: trans("pieChart.roseType"),
+        })}
+        {this.children.labelPosition.propertyView({
+          label: trans("pieChart.labelPosition"),
+        })}
+        {this.children.labelAlignTo.propertyView({
+          label: trans("pieChart.labelAlignTo"),
+        })}
+        {this.children.labelBleedMargin.propertyView({
+          label: trans("pieChart.labelBleedMargin"),
+        })}
+        {this.children.labelEdgeDistance.propertyView({
+          label: trans("pieChart.labelEdgeDistance"),
         })}
       </>
     );

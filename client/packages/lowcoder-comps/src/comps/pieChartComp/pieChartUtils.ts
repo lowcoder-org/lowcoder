@@ -77,6 +77,12 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       endAngle: s.getView().endAngle,
       name: s.getView().seriesName,
       selectedMode: "single",
+      label: {
+        position: s.getView().labelPosition,
+        alignTo: s.getView().labelAlignTo,
+        bleedMargin: s.getView().labelBleedMargin,
+        edgeDistance: s.getView().labelEdgeDistance,
+      },
       encode: {
         itemName: props.xAxisKey,
         value: s.getView().columnName,
