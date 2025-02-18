@@ -35,6 +35,7 @@ export default function GraphChartExample() {
           title={trans("componentDoc.default")}
           width={500}
           height={300}
+          hideSettings={true}
           config={{
           }}
           compFactory={ChartCompWithDefault}
