@@ -17,6 +17,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.util.context.ContextView;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
@@ -40,7 +41,7 @@ public class ApiEventFilter implements WebFilter {
                     String token = contextView.get(VISITOR_TOKEN);
                     ((Mono<OrgMember>) contextView.get(CURRENT_ORG_MEMBER))
                             .flatMap(orgMember -> {
-                                emitEvent(exchange.getRequest(), token, orgMember);
+                                emitEvent(exchange.getRequest(), token, orgMember, contextView);
                                 return Mono.empty();
                             })
                             .subscribeOn(Schedulers.boundedElastic())
@@ -51,7 +52,7 @@ public class ApiEventFilter implements WebFilter {
         );
     }
 
-    private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember) {
+    private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember, ContextView contextView) {
         MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
         headers.remove("Cookie");
         Optional<String> ipAddressOptional = headers.remove("X-Real-IP").stream().findFirst();
@@ -69,7 +70,7 @@ public class ApiEventFilter implements WebFilter {
                 .queryParams(request.getQueryParams())
                 .ipAddress(ipAddress)
                 .build();
-        event.populateDetails();
+        event.populateDetails(contextView);
 
         log.debug("API call event emitted for '{}' from org '{}' on URI: {}", orgMember.getUserId(), orgMember.getUserId(), request.getURI().getPath());
         applicationEventPublisher.publishEvent(event);

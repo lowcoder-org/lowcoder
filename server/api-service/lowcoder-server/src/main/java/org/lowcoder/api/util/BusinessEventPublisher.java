@@ -74,7 +74,7 @@ public class BusinessEventPublisher {
 
         return sessionUserService.getVisitorToken()
                 .zipWith(sessionUserService.getVisitorOrgMemberCache())
-                .doOnNext(
+                .delayUntil(
                     tuple -> {
                         String token = tuple.getT1();
                         OrgMember orgMember = tuple.getT2();
@@ -87,8 +87,11 @@ public class BusinessEventPublisher {
                                 .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                 .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                 .build();
-                        event.populateDetails();
-                        applicationEventPublisher.publishEvent(event);
+                        return Mono.deferContextual(contextView -> {
+                            event.populateDetails(contextView);
+                            applicationEventPublisher.publishEvent(event);
+                            return Mono.empty();
+                        });
                 })
                 .then()
                 .onErrorResume(throwable -> {
@@ -151,7 +154,7 @@ public class BusinessEventPublisher {
                                             return Pair.of(category, description);
                                         });
                             }), TupleUtils::merge)
-                            .doOnNext(tuple -> {
+                            .delayUntil(tuple -> {
                                 OrgMember orgMember = tuple.getT1().getT1();
                                 Optional<Folder> optional = tuple.getT1().getT2();
                                 Optional<Folder> optionalFrom = tuple.getT1().getT3();
@@ -175,8 +178,11 @@ public class BusinessEventPublisher {
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                         .build();
-                                event.populateDetails();
-                                applicationEventPublisher.publishEvent(event);
+                                return Mono.deferContextual(contextView -> {
+                                    event.populateDetails(contextView);
+                                    applicationEventPublisher.publishEvent(event);
+                                    return Mono.empty();
+                                });
                             })
                             .then()
                             .onErrorResume(throwable -> {
@@ -188,7 +194,7 @@ public class BusinessEventPublisher {
 
     public Mono<Void> publishUserLoginEvent(String source) {
         return sessionUserService.getVisitorOrgMember().zipWith(sessionUserService.getVisitorToken())
-                .doOnNext(tuple -> {
+                .delayUntil(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     String token = tuple.getT2();
                     UserLoginEvent event = UserLoginEvent.builder()
@@ -198,8 +204,11 @@ public class BusinessEventPublisher {
                             .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                             .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                             .build();
-                    event.populateDetails();
-                    applicationEventPublisher.publishEvent(event);
+                    return Mono.deferContextual(contextView -> {
+                        event.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(event);
+                        return Mono.empty();
+                    });
                 })
                 .then()
                 .onErrorResume(throwable -> {
@@ -211,7 +220,7 @@ public class BusinessEventPublisher {
     public Mono<Void> publishUserLogoutEvent() {
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWith(sessionUserService.getVisitorToken())
-                .doOnNext(tuple -> {
+                .delayUntil(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     String token = tuple.getT2();
                     UserLogoutEvent event = UserLogoutEvent.builder()
@@ -220,8 +229,11 @@ public class BusinessEventPublisher {
                             .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                             .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                             .build();
-                    event.populateDetails();
-                    applicationEventPublisher.publishEvent(event);
+                    return Mono.deferContextual(contextView -> {
+                        event.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(event);
+                        return Mono.empty();
+                    });
                 })
                 .then()
                 .onErrorResume(throwable -> {
@@ -244,7 +256,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -272,7 +284,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -300,7 +312,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -337,7 +349,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -374,7 +386,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -410,7 +422,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -446,7 +458,7 @@ public class BusinessEventPublisher {
                                     .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
-                            event.populateDetails();
+                            event.populateDetails(contextView);
                             applicationEventPublisher.publishEvent(event);
                             return Mono.empty();
                         }))
@@ -484,9 +496,11 @@ public class BusinessEventPublisher {
                             .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                             .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                             .build();
-                    event.populateDetails();
-                    applicationEventPublisher.publishEvent(event);
-                    return Mono.<Void> empty();
+                    return Mono.deferContextual(contextView -> {
+                        event.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(event);
+                        return Mono.<Void>empty();
+                    });
                 })
                 .onErrorResume(throwable -> {
                     log.error("publishDatasourceEvent error.", throwable);
@@ -535,9 +549,11 @@ public class BusinessEventPublisher {
                             .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                             .sessionHash(Hashing.sha512().hashString(tuple.getT3(), StandardCharsets.UTF_8).toString())
                             .build();
-                    datasourcePermissionEvent.populateDetails();
-                    applicationEventPublisher.publishEvent(datasourcePermissionEvent);
-                    return Mono.<Void> empty();
+                    return Mono.deferContextual(contextView -> {
+                        datasourcePermissionEvent.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(datasourcePermissionEvent);
+                        return Mono.<Void>empty();
+                    });
                 })
                 .onErrorResume(throwable -> {
                     log.error("publishDatasourcePermissionEvent error.", throwable);
@@ -552,7 +568,7 @@ public class BusinessEventPublisher {
     public Mono<Void> publishLibraryQueryEvent(String id, String name, EventType eventType) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWith(sessionUserService.getVisitorToken())
-                .map(tuple -> {
+                .flatMap(tuple -> {
                     LibraryQueryEvent event = LibraryQueryEvent.builder()
                             .userId(tuple.getT1().getUserId())
                             .orgId(tuple.getT1().getOrgId())
@@ -562,10 +578,12 @@ public class BusinessEventPublisher {
                             .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                             .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                             .build();
-                    event.populateDetails();
-                    return event;
+                    return Mono.deferContextual(contextView -> {
+                        event.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(event);
+                        return Mono.<Void>empty();
+                    });
                 })
-                .doOnNext(applicationEventPublisher::publishEvent)
                 .then()
                 .onErrorResume(throwable -> {
                     log.error("publishLibraryQueryEvent error.", throwable);
