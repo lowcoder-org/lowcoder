@@ -1,0 +1,4516 @@
+openapi: 3.0.0
+info:
+  title: Conversations API Collections
+  description: >-
+    The conversations APIs enable you to manage and interact with the
+    conversations inbox, channels, and messages. For example, you can use these
+    APIs to:
+
+
+    - Get and sort conversations inboxes, channels, threads, and messages.
+        
+    - Update thread statuses.
+        
+    - Delete and restore threads.
+        
+    - Send outbound messages via existing conversations channels.
+        
+    - Send an internal comment to an agent.
+        
+    - Retrieve conversation data to create advanced reports and analytics in
+    external tools.
+        
+
+    You could also use these APIs to integrate existing channels with other apps
+    such as
+    [Slack](https://knowledge.hubspot.com/integrations/how-do-i-use-the-slack-integration)
+    or Microsoft Teams to send replies or receive notifications.
+
+
+    To get started with the conversations APIs, make sure you have [set up a
+    HubSpot developer account](https://developers.hubspot.com/get-started) and
+    [created an app](https://developers.hubspot.com/docs/api/creating-an-app).
+    You will need a developer account ID and app ID to get access to these APIs.
+
+
+    **Fork the collections using Run in Postman:**
+
+
+    [<img src="https://run.pstmn.io/button.svg" alt="Run In
+    Postman">](https://app.getpostman.com/run-collection/26126890-cc463f6b-d702-4d75-b31b-938134ed0abe?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D26126890-cc463f6b-d702-4d75-b31b-938134ed0abe%26entityType%3Dcollection%26workspaceId%3Dd7645f33-539d-49c6-9e0c-efa6faae355d)
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+components:
+  securitySchemes:
+    oauth2Auth:
+      type: http
+      scheme: oauth2
+    apikeyAuth:
+      type: http
+      scheme: apikey
+tags:
+  - name: Conversations Inbox & Messages API
+    description: "**Please note:**\_this API is currently in beta and is subject to change based on testing and feedback. By using these endpoints you agree to adhere to HubSpot's\_[Developer Terms](https://legal.hubspot.com/hubspot-developer-terms)\_and[Developer Beta Terms](https://legal.hubspot.com/developerbetaterms?). You also acknowledge and understand the risk associated with testing an unstable API.\n\nThe conversations APIs enable you to manage and interact with the conversations inbox, channels, and messages. For example, you can use these APIs to:\n\n- Get and sort conversations inboxes, channels, threads, and messages.\n    \n- Update thread statuses.\n    \n- Delete and restore threads.\n    \n- Send outbound messages via existing conversations channels.\n    \n- Send an internal comment to an agent.\_\n    \n- Retrieve conversation data to create advanced reports and analytics in external tools.\n    \n\nYou could also use these APIs to integrate existing channels with other apps such as\_[Slack](https://knowledge.hubspot.com/integrations/how-do-i-use-the-slack-integration)\_or Microsoft Teams to send replies or receive notifications.\_\n\nTo get started with the conversations APIs, make sure you have\_[set up a HubSpot developer account](https://developers.hubspot.com/get-started)\_and\_[created an app](https://developers.hubspot.com/docs/api/creating-an-app). You will need a developer account ID and app ID to get access to these APIs.\_\n\n**Please note:**\_with these APIs, you\_cannot\_add net new channels, such as a WhatsApp channel, to the inbox. You also cannot start a new thread in an existing channel or connect a 3rd party chat provider to the inbox.\_\n\nTo view all available endpoints and their requirements, click the\_Endpoints\_tab at the top of this article.\n\nWebhooks for conversations are also supported and can be used in tandem with the conversations API. You can use webhooks to\_subscribe to events about conversations, including thread creation, thread status and assignment changes, and new messages on threads.\_Learn more about using\_[webhooks](https://developers.hubspot.com/docs/api/webhooks).\_\n\n**Please note:**\_to make a\_`GET`\_request to any endpoints, or\_`POST`\_batch read request to the get actors endpoint, you must have\_`conversations.read`\_access.\_All other endpoints require\_`conversations.write`\_access."
+  - name: Conversations Inbox & Messages API > Conversations
+  - name: Conversations Visitor Identification API
+    description: "Use the Visitor Identification API to identify visitors to your site that were authenticated using your own external authentication system.\_An identification token returned from this API can be used to pass information about your already-authenticated visitor to the chat widget, so that it treats the visitor as a known contact. Agents in the inbox can then have confidence about who they are talking to, and visitors can access previous thread history across devices. For example:\n\n**Please note:**\n\n- The Visitor Identification API is for telling HubSpot who the visitor is. You should not rely on this to authenticate users in your platform.\n    \n- Access to the Visitor Identification API requires a\__Professional_\_or\__Enterprise_\_level subscription. If the account does not have a qualifying subscription, you will receive a\_`403`\_error response from the API."
+  - name: Custom Channels API
+    description: "**Please note**: This API is currently in beta and is subject to change based on testing and feedback. By using these endpoints you agree to adhere to HubSpot's\_[Developer Terms](https://legal.hubspot.com/hubspot-developer-terms)&\_[Developer Beta Terms](https://legal.hubspot.com/developerbetaterms?). You also acknowledge and understand the risk associated with testing an unstable API.\n\n- [Overview](https://developers.hubspot.com/docs/guides/api/conversations/create-custom-channels#tab-1)\n    \n- [Endpoints](https://developers.hubspot.com/docs/guides/api/conversations/create-custom-channels#tab-2)\n    \n\nIf you have a\_Sales Hub\_Enterprise\_or\_Service Hub\_Enterprise\_account, you can create custom channels to build a bridge between an external message service and HubSpot's\_[inbox](https://knowledge.hubspot.com/inbox/set-up-the-conversations-inbox)\_or\_[help desk](https://knowledge.hubspot.com/help-desk/overview-of-the-help-desk-workspace)\_features. You can then publish your custom channel app in the HubSpot App Marketplace for other HubSpot admins to install and use in their own accounts.  \n  \n[For more information please refer to the API documentation.](https://developers.hubspot.com/docs/guides/api/conversations/create-custom-channels)"
+  - name: Custom Channels API > External_Channels
+  - name: Custom Channels API > External_Messages
+  - name: Custom Channels API > External_Channel_Accounts
+paths:
+  /conversations/v3/conversations/inboxes:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get conversations inboxes.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: defaultPageLength
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: archived
+          in: query
+          schema:
+            type: string
+          example: <boolean>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    name: <string>
+                    createdAt: <dateTime>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    type: <string>
+                  - id: <string>
+                    name: <string>
+                    createdAt: <dateTime>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    type: <string>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/threads/{threadId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single thread.
+      description: Returns a single thread.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: string
+          description: >-
+            Whether to return only results that have been archived. Default is
+            false.
+          example: <boolean>
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: association
+          in: query
+          schema:
+            type: string
+          description: >-
+            You can specify an association type here of `TICKET`. If this is set
+            the response will included a thread associations object and
+            associated ticket id if present. If there are no associations to a
+            ticket with this conversation, then the thread associations object
+            will not be present on the response. 
+          example: TICKET
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                associatedContactId: <string>
+                createdAt: <dateTime>
+                id: <string>
+                inboxId: <string>
+                spam: <boolean>
+                status: CLOSED
+                closedAt: <dateTime>
+                latestMessageTimestamp: <dateTime>
+                latestMessageSentTimestamp: <dateTime>
+                latestMessageReceivedTimestamp: <dateTime>
+                assignedTo: <string>
+                archived: <boolean>
+                originalChannelAccountId: <string>
+                originalChannelId: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+    delete:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Archives a thread.
+      description: >-
+        Archives a single thread. The thread will be permanently deleted 30 days
+        after placed in an archived state.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+    patch:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Update a thread.
+      description: >-
+        Updates a single thread. Either a thread's status can be updated, or the
+        thread can be restored.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                status: CLOSED
+                archived: <boolean>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: string
+          description: >-
+            Whether the thread to update is archived. Default is false. A
+            thread's status property can not be updated if the thread is
+            archived.
+          example: <boolean>
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                associatedContactId: <string>
+                createdAt: <dateTime>
+                id: <string>
+                inboxId: <string>
+                spam: <boolean>
+                status: CLOSED
+                closedAt: <dateTime>
+                latestMessageTimestamp: <dateTime>
+                latestMessageSentTimestamp: <dateTime>
+                latestMessageReceivedTimestamp: <dateTime>
+                assignedTo: <string>
+                archived: <boolean>
+                originalChannelAccountId: <string>
+                originalChannelId: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/threads/{threadId}/messages/{messageId}/original-content:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get the original content of a single message.
+      description: >-
+        Returns the complete original text and rich text bodies of a message.
+        This will be different from the text and rich text in the message itself
+        if the message's `truncationStatus` is anything other than
+        `NOT_TRUNCATED`.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+        - name: messageId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                text: <string>
+                richText: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/threads/{threadId}/messages:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get message history for a thread.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            Sort direction. Valid options are `createdAt` (ascending), and
+            `-createdAt` (descending, default)
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            Sort direction. Valid options are `createdAt` (ascending), and
+            `-createdAt` (descending, default)
+          example: <string>
+        - name: archived
+          in: query
+          schema:
+            type: string
+          description: Whether to return only results that have been archived.
+          example: <boolean>
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - value: >-
+                      <Circular reference to
+                      #/components/schemas/PublicConversationsMessage detected>
+                  - value: >-
+                      <Circular reference to
+                      #/components/schemas/PublicConversationsMessage detected>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+    post:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Send a message to a thread.
+      description: Send a new message on a thread at the current timestamp.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                attachments: []
+                channelAccountId: <string>
+                channelId: <string>
+                recipients:
+                  - deliveryIdentifiers:
+                      - type: <string>
+                        value: <string>
+                      - type: <string>
+                        value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                  - deliveryIdentifiers:
+                      - type: <string>
+                        value: <string>
+                      - type: <string>
+                        value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                senderActorId: <string>
+                text: <string>
+                type: MESSAGE
+                richText: <string>
+                subject: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example: null
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                value: >-
+                  <Circular reference to
+                  #/components/schemas/PublicConversationsMessage detected>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/actors/batch/read:
+    post:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get actors
+      description: Resolve `ActorId`s to the underlying actors/participants.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - <string>
+                  - <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - id: <string>
+                    type: AGENT
+                    name: <string>
+                    email: <string>
+                    avatar: <string>
+                  - id: <string>
+                    type: AGENT
+                    name: <string>
+                    email: <string>
+                    avatar: <string>
+                startedAt: <dateTime>
+                status: CANCELED
+                requestedAt: <dateTime>
+                links:
+                  nisi5: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - id: <string>
+                    type: AGENT
+                    name: <string>
+                    email: <string>
+                    avatar: <string>
+                  - id: <string>
+                    type: AGENT
+                    name: <string>
+                    email: <string>
+                    avatar: <string>
+                startedAt: <dateTime>
+                status: COMPLETE
+                numErrors: <integer>
+                errors:
+                  - category: <string>
+                    context:
+                      minim_bc:
+                        - <string>
+                        - <string>
+                      laborisc:
+                        - <string>
+                        - <string>
+                      magna_9:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          eta:
+                            - <string>
+                            - <string>
+                          esseaf3:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          magna6f:
+                            - <string>
+                            - <string>
+                          voluptateef_:
+                            - <string>
+                            - <string>
+                          eiusmod7:
+                            - <string>
+                            - <string>
+                          quis1c:
+                            - <string>
+                            - <string>
+                    links:
+                      id3cf: <string>
+                      laborum_ea5: <string>
+                    message: <string>
+                    status: <string>
+                    id: <string>
+                    subCategory: {}
+                  - category: <string>
+                    context:
+                      occaecat7c:
+                        - <string>
+                        - <string>
+                      dolorb94:
+                        - <string>
+                        - <string>
+                      consequat__6_:
+                        - <string>
+                        - <string>
+                      sed_977:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          laborum3fa:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        in: <string>
+                        code: <string>
+                        subCategory: <string>
+                        context:
+                          Excepteura5:
+                            - <string>
+                            - <string>
+                          dolore_0:
+                            - <string>
+                            - <string>
+                    links:
+                      aute_31c: <string>
+                      aliqua_3_e: <string>
+                    message: <string>
+                    status: <string>
+                    id: <string>
+                    subCategory: {}
+                requestedAt: <dateTime>
+                links:
+                  eu_9e: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/channel-accounts:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get channel accounts.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: query
+          schema:
+            type: string
+          description: Limits results to channel accounts within a particular channel.
+          example: <integer>
+        - name: channelId
+          in: query
+          schema:
+            type: string
+          description: Limits results to channel accounts within a particular channel.
+          example: <integer>
+        - name: inboxId
+          in: query
+          schema:
+            type: string
+          description: Limits results to channel accounts within a particular inbox.
+          example: <integer>
+        - name: inboxId
+          in: query
+          schema:
+            type: string
+          description: Limits results to channel accounts within a particular inbox.
+          example: <integer>
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: defaultPageLength
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: archived
+          in: query
+          schema:
+            type: string
+          example: <boolean>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    channelId: <string>
+                    name: <string>
+                    inboxId: <string>
+                    active: <boolean>
+                    authorized: <boolean>
+                    createdAt: <dateTime>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    archived: <boolean>
+                  - id: <string>
+                    channelId: <string>
+                    name: <string>
+                    inboxId: <string>
+                    active: <boolean>
+                    authorized: <boolean>
+                    createdAt: <dateTime>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    archived: <boolean>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/channels/{channelId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single channel.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: <string>
+                name: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/threads/{threadId}/messages/{messageId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single message.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: threadId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <long>
+        - name: messageId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                value: >-
+                  <Circular reference to
+                  #/components/schemas/PublicConversationsMessage detected>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/channels:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get channels.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: defaultPageLength
+          in: query
+          schema:
+            type: string
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    name: <string>
+                  - id: <string>
+                    name: <string>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/actors/{actorId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single actor.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: actorId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: <string>
+                type: AGENT
+                name: <string>
+                email: <string>
+                avatar: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/threads:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get threads.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            Set the sort order of the response. Valid options are `id` (default)
+            and `latestMessageTimestamp` (which requires the
+            `latestMessageTimestampAfter` field to also be set). If you’re
+            filtering threads by `associatedContactId` , you can sort in
+            descending order by prepending - to the sort option (e.g., `-id` or
+            `-latestMessageTimestampAfter` ). Otherwise, results are always
+            returned in ascending order.
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          description: >-
+            Set the sort order of the response. Valid options are `id` (default)
+            and `latestMessageTimestamp` (which requires the
+            `latestMessageTimestampAfter` field to also be set). If you’re
+            filtering threads by `associatedContactId` , you can sort in
+            descending order by prepending - to the sort option (e.g., `-id` or
+            `-latestMessageTimestampAfter` ). Otherwise, results are always
+            returned in ascending order.
+          example: <string>
+        - name: inboxId
+          in: query
+          schema:
+            type: string
+          description: >-
+            The ID of the conversations inbox you can optionally include to
+            retrieve the associated messages for. This parameter cannot be used
+            in conjunction with the `associatedContactId` property.
+          example: <integer>
+        - name: inboxId
+          in: query
+          schema:
+            type: string
+          description: >-
+            The ID of the conversations inbox you can optionally include to
+            retrieve the associated messages for. This parameter cannot be used
+            in conjunction with the `associatedContactId` property.
+          example: <integer>
+        - name: associatedContactId
+          in: query
+          schema:
+            type: string
+          description: >-
+            The ID of a contact you can optionally include to retrieve a
+            filtered list of conversations for. This parameter cannot be used in
+            conjunction with the `inboxId` property.
+          example: <long>
+        - name: threadStatus
+          in: query
+          schema:
+            type: string
+          description: >-
+            The status of the associated conversations to filter by (either
+            `OPEN` or `CLOSED`). This property must be provided if you’re
+            including the `associatedContactId` query parameter.
+          example: <string>
+        - name: latestMessageTimestampAfter
+          in: query
+          schema:
+            type: string
+          description: >-
+            The minimum `latestMessageTimestamp`. This is required only when
+            sorting by `latestMessageTimestamp`.
+          example: <dateTime>
+        - name: archived
+          in: query
+          schema:
+            type: string
+          description: Whether to return only results that have been archived.
+          example: <boolean>
+        - name: property
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: association
+          in: query
+          schema:
+            type: string
+          description: >-
+            You can specify an association type here of `TICKET`. If this is set
+            the response will included a thread associations object and
+            associated ticket id if present. If there are no associations to a
+            ticket with this conversation, then the thread associations object
+            will not be present on the response. 
+          example: TICKET
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - associatedContactId: <string>
+                    createdAt: <dateTime>
+                    id: <string>
+                    inboxId: <string>
+                    spam: <boolean>
+                    status: OPEN
+                    closedAt: <dateTime>
+                    latestMessageTimestamp: <dateTime>
+                    latestMessageSentTimestamp: <dateTime>
+                    latestMessageReceivedTimestamp: <dateTime>
+                    assignedTo: <string>
+                    archived: <boolean>
+                    originalChannelAccountId: <string>
+                    originalChannelId: <string>
+                  - associatedContactId: <string>
+                    createdAt: <dateTime>
+                    id: <string>
+                    inboxId: <string>
+                    spam: <boolean>
+                    status: CLOSED
+                    closedAt: <dateTime>
+                    latestMessageTimestamp: <dateTime>
+                    latestMessageSentTimestamp: <dateTime>
+                    latestMessageReceivedTimestamp: <dateTime>
+                    assignedTo: <string>
+                    archived: <boolean>
+                    originalChannelAccountId: <string>
+                    originalChannelId: <string>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/channel-accounts/{channelAccountId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single channel account.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          example: 'false'
+        - name: channelAccountId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: <string>
+                channelId: <string>
+                name: <string>
+                inboxId: <string>
+                active: <boolean>
+                authorized: <boolean>
+                createdAt: <dateTime>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+                archived: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/conversations/inboxes/{inboxId}:
+    get:
+      tags:
+        - Conversations Inbox & Messages API > Conversations
+      summary: Get a single conversations inbox.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          example: 'false'
+        - name: inboxId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                id: <string>
+                name: <string>
+                createdAt: <dateTime>
+                updatedAt: <dateTime>
+                archived: <boolean>
+                type: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "eab": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur_29f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpa_bd6": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "dolore5cd": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "pariatur_57": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consequat_a": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "voluptate08b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "idde": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "anim_a": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "tempor_0": "<string>",
+                    "ea__93": "<string>"
+                  }
+                }
+  /conversations/v3/visitor-identification/tokens/create:
+    post:
+      tags:
+        - Conversations Visitor Identification API
+      summary: Generate a token
+      description: >-
+        Generates a new visitor identification token. This token will be unique
+        every time this endpoint is called, even if called with the same email
+        address. This token is temporary and will expire after 12 hours
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: <string>
+                firstName: <string>
+                lastName: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                token: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "uta1": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "ad_59": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "irure_01d": "<string>",
+                    "id_65": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "amet_e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "et_33e": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "proident_0": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}:
+    get:
+      tags:
+        - Custom Channels API > External_Channels
+      summary: Get a custom channel
+      description: >-
+        Retrieve the details about a custom channel. This API allows you to see
+        a custom channel's current capabilties and other configuration metadata
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                capabilities:
+                  est_3c4: {}
+                  et07: {}
+                createdAt: <dateTime>
+                id: <string>
+                name: <string>
+                channelAccountConnectionRedirectUrl: <string>
+                webhookUrl: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Custom Channels API > External_Channels
+      summary: Update a custom channel
+      description: >-
+        This endpoint can be used to update a channel's capabilities. You can
+        also use it to update the channel's webhookUri and its
+        channelAccountConnectionRedirectUrl.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                capabilities:
+                  nostrud_0_3: {}
+                  laboreb: {}
+                channelAccountConnectionRedirectUrl: {}
+                webhookUrl: {}
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                capabilities:
+                  est_3c4: {}
+                  et07: {}
+                createdAt: <dateTime>
+                id: <string>
+                name: <string>
+                channelAccountConnectionRedirectUrl: <string>
+                webhookUrl: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    delete:
+      tags:
+        - Custom Channels API
+      summary: Archive a custom channel
+      description: Use this API to archive a registered custom channel
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "magna_062": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "cillum821": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "sintce": "<string>",
+                    "in_38": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "minim7": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "dolor_8": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/:
+    get:
+      tags:
+        - Custom Channels API > External_Channels
+      summary: Get all channels for app
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The maximum number of results to display per page.
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: defaultPageLength
+          in: query
+          schema:
+            type: string
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - capabilities:
+                      officia_f9: {}
+                      ea_b08: {}
+                    createdAt: <dateTime>
+                    id: <string>
+                    name: <string>
+                    channelAccountConnectionRedirectUrl: <string>
+                    webhookUrl: <string>
+                  - capabilities:
+                      esse_e63: {}
+                    createdAt: <dateTime>
+                    id: <string>
+                    name: <string>
+                    channelAccountConnectionRedirectUrl: <string>
+                    webhookUrl: <string>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    post:
+      tags:
+        - Custom Channels API > External_Channels
+      summary: Create a custom channel
+      description: >-
+        Register a new channel along with its capabilities and the webhook url
+        that will be used to receive messages published over the channel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                capabilities:
+                  eaa: {}
+                  dolor_f7e: {}
+                  autee99: {}
+                name: <string>
+                channelAccountConnectionRedirectUrl: <string>
+                webhookUrl: <string>
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                capabilities:
+                  est_3c4: {}
+                  et07: {}
+                createdAt: <dateTime>
+                id: <string>
+                name: <string>
+                channelAccountConnectionRedirectUrl: <string>
+                webhookUrl: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}/messages/{messageId}:
+    get:
+      tags:
+        - Custom Channels API > External_Messages
+      summary: Get a message
+      description: >-
+        Get the PublicConversationsMessage that represents a message sent over a
+        custom channel
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The channel the message was sent over
+          example: <integer>
+        - name: messageId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The id of the message
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                attachments:
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                channelAccountId: <string>
+                channelId: <string>
+                client:
+                  clientType: HUBSPOT
+                  integrationAppId: <integer>
+                conversationsThreadId: <string>
+                createdAt: <dateTime>
+                createdBy: <string>
+                direction: INCOMING
+                id: <string>
+                recipients:
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                senders:
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                text: <string>
+                truncationStatus: NOT_TRUNCATED
+                type: MESSAGE
+                subject: <string>
+                richText: <string>
+                inReplyToId: <string>
+                updatedAt: <dateTime>
+                status:
+                  statusType: FAILED
+                  failureDetails:
+                    errorMessageTokens:
+                      pariaturaf4: <string>
+                      essed24: <string>
+                    errorMessage: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Custom Channels API > External_Messages
+      summary: 'Update message '
+      description: >-
+        Use this API to update a message's status to indicate if it was
+        successfully sent, failed to send, or was read
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                status:
+                  statusType: FAILED
+                  timestamp: <dateTime>
+                  failureDetails:
+                    errorMessageTokens:
+                      laboris_c76: <string>
+                      ex_4_7: <string>
+                      incididunt5: <string>
+                    type: CHANNEL_SPECIFIC_FAILURE_DETAILS
+                    channelSpecificErrorEnum: <string>
+                statusType: READ
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The channel the message was sent over
+          example: <integer>
+        - name: messageId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The id of the message
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                attachments:
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                channelAccountId: <string>
+                channelId: <string>
+                client:
+                  clientType: HUBSPOT
+                  integrationAppId: <integer>
+                conversationsThreadId: <string>
+                createdAt: <dateTime>
+                createdBy: <string>
+                direction: INCOMING
+                id: <string>
+                recipients:
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                senders:
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                text: <string>
+                truncationStatus: NOT_TRUNCATED
+                type: MESSAGE
+                subject: <string>
+                richText: <string>
+                inReplyToId: <string>
+                updatedAt: <dateTime>
+                status:
+                  statusType: FAILED
+                  failureDetails:
+                    errorMessageTokens:
+                      pariaturaf4: <string>
+                      essed24: <string>
+                    errorMessage: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}/messages:
+    post:
+      tags:
+        - Custom Channels API > External_Messages
+      summary: Publish a message
+      description: Publish a message over your custom channel
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                attachments:
+                  - fileId: <string>
+                    type: FILE
+                    fileUsageType: <string>
+                  - fileId: <string>
+                    type: FILE
+                    fileUsageType: <string>
+                channelAccountId: <string>
+                messageDirection: OUTGOING
+                recipients:
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    name: <string>
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    name: <string>
+                senders:
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    name: <string>
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    name: <string>
+                text: <string>
+                timestamp: <dateTime>
+                integrationThreadId: <string>
+                integrationIdempotencyId: <string>
+                richText: <string>
+                inReplyToId: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The channel the message will be sent over
+          example: <integer>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                archived: <boolean>
+                attachments:
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                  - fileId: <string>
+                    fileUsageType: <string>
+                    type: FILE
+                    name: <string>
+                    url: <string>
+                channelAccountId: <string>
+                channelId: <string>
+                client:
+                  clientType: HUBSPOT
+                  integrationAppId: <integer>
+                conversationsThreadId: <string>
+                createdAt: <dateTime>
+                createdBy: <string>
+                direction: INCOMING
+                id: <string>
+                recipients:
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                  - deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                    actorId: <string>
+                    name: <string>
+                    recipientField: <string>
+                senders:
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                  - actorId: <string>
+                    name: <string>
+                    senderField: <string>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                text: <string>
+                truncationStatus: NOT_TRUNCATED
+                type: MESSAGE
+                subject: <string>
+                richText: <string>
+                inReplyToId: <string>
+                updatedAt: <dateTime>
+                status:
+                  statusType: FAILED
+                  failureDetails:
+                    errorMessageTokens:
+                      pariaturaf4: <string>
+                      essed24: <string>
+                    errorMessage: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}/channel-accounts:
+    get:
+      tags:
+        - Custom Channels API > External_Channel_Accounts
+      summary: Query channel accounts
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: deliveryIdentifierType
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: deliveryIdentifierType
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: deliveryIdentifierValue
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: deliveryIdentifierValue
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: after
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: limit
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: sort
+          in: query
+          schema:
+            type: string
+          example: <string>
+        - name: defaultPageLength
+          in: query
+          schema:
+            type: string
+          example: <integer>
+        - name: archived
+          in: query
+          schema:
+            type: string
+          example: <boolean>
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - active: <boolean>
+                    archived: <boolean>
+                    authorized: <boolean>
+                    channelId: <string>
+                    createdAt: <dateTime>
+                    id: <string>
+                    inboxId: <string>
+                    name: <string>
+                    archivedAt: <dateTime>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                  - active: <boolean>
+                    archived: <boolean>
+                    authorized: <boolean>
+                    channelId: <string>
+                    createdAt: <dateTime>
+                    id: <string>
+                    inboxId: <string>
+                    name: <string>
+                    archivedAt: <dateTime>
+                    deliveryIdentifier:
+                      type: <string>
+                      value: <string>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    post:
+      tags:
+        - Custom Channels API > External_Channel_Accounts
+      summary: Create a channel account
+      description: >-
+        This API allows you to create one or more accounts that all talk over a
+        single channel but using different delivery identifiers.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                authorized: <boolean>
+                inboxId: <string>
+                name: <string>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                archived: <boolean>
+                authorized: <boolean>
+                channelId: <string>
+                createdAt: <dateTime>
+                id: <string>
+                inboxId: <string>
+                name: <string>
+                archivedAt: <dateTime>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}/channel-accounts/{channelAccountId}:
+    get:
+      tags:
+        - Custom Channels API > External_Channel_Accounts
+      summary: Get a channel account by id
+      description: >-
+        Retrieve a PublicChannelAccount that contains all the metadata about
+        your channel account. This includes information like its channel,
+        associated inbox id, and delivery identifier information.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          example: 'false'
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+        - name: channelAccountId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <long>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                archived: <boolean>
+                authorized: <boolean>
+                channelId: <string>
+                createdAt: <dateTime>
+                id: <string>
+                inboxId: <string>
+                name: <string>
+                archivedAt: <dateTime>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Custom Channels API > External_Channel_Accounts
+      summary: Update a channel account
+      description: >-
+        This API is used to update the name of the channel account and it's
+        isAuthorized status. Setting to isAuthorized flag to False disables the
+        channel account.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                authorized: <boolean>
+                name: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The channel to update
+          example: <integer>
+        - name: channelAccountId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: (Required) The channel account to update
+          example: <long>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                active: <boolean>
+                archived: <boolean>
+                authorized: <boolean>
+                channelId: <string>
+                createdAt: <dateTime>
+                id: <string>
+                inboxId: <string>
+                name: <string>
+                archivedAt: <dateTime>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /conversations/v3/custom-channels/{channelId}/channel-account-staging-tokens/{accountToken}:
+    patch:
+      tags:
+        - Custom Channels API
+      summary: Update a channel account staging token
+      description: >-
+        This API is used for integrators creating public apps. Use this API to
+        update a channel account staging token's account name and delivery
+        identifier. This information will be applied to the channel account
+        created from this staging token.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                accountName: <string>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: channelId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <integer>
+        - name: accountToken
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                accountToken: <string>
+                createdAt: <dateTime>
+                genericChannelId: <integer>
+                inboxId: <integer>
+                userId: <integer>
+                accountName: <string>
+                deliveryIdentifier:
+                  type: <string>
+                  value: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "nostrud84": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "eiusmod84": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "laborea3": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "voluptate_c6c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "do_8b": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "culpaf": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "laboris_66": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "exercitation_ef2": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
