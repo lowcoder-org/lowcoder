@@ -82,6 +82,7 @@ export const viteConfig: UserConfig = {
         unknownGlobalSideEffects: false, 
       },
       output: {
+        inlineDynamicImports: false,
         chunkFileNames: "[hash].js",
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
