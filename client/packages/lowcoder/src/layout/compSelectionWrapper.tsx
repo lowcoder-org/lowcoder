@@ -343,6 +343,7 @@ export const CompSelectionWrapper = React.memo((props: {
   });
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
   const { nameConfig, resizeIconSize } = props;
+
   return (
     <div id={props.id} style={{ ...props.style, zIndex }} className={props.className}>
       <SelectableDiv
@@ -400,7 +401,7 @@ export const CompSelectionWrapper = React.memo((props: {
               || props.compType === 'container'
             }
             refreshMode="debounce"
-            refreshRate={100}
+            refreshRate={0}
             onResize={props.onInnerResize}
             observerOptions={{ box: "border-box" }}
           >

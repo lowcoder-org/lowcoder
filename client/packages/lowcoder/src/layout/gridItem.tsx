@@ -104,19 +104,6 @@ const ResizableStyled = styled(Resizable)<{ $zIndex: number, isDroppable : boole
  */
 export const GridItem = React.memo((props: GridItemProps) => {
   const position = useMemo(() =>{
-    console.log('calculateGridItemPOistion', JSON.stringify({
-      name: props.name,
-      margin: props.margin,
-      containerPadding: props.containerPadding,
-      containerWidth: props.containerWidth,
-      cols: props.cols,
-      rowHeight: props.rowHeight,
-      maxRows: props.maxRows,
-      x: props.x,
-      y: props.y,
-      w: props.w,
-      h: props.h,
-    }));
     return calcGridItemPosition({
       margin: props.margin,
       containerPadding: props.containerPadding,
