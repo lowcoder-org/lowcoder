@@ -64,36 +64,56 @@ export const echartsConfigOmitChildren = [
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
 export function getSeriesConfig(props: EchartsConfigProps) {
-  let visibleSeries = props.series.filter((s) => !s.getView().hide);
+  let visibleSeries = props.series.filter((s) => !s.getView().hide).map(s => s.toJsonValue());
+  let newVisibleSeries;
+  if(props.chartConfig.subtype === "calendarPie") {
+    const dataInRange = props.data.filter(item => item[props.xAxisKey].substr(0, 7) === props.chartConfig.range);
+    newVisibleSeries = dataInRange.map(data => {
+      return {
+        data: visibleSeries.map(s => ({name: s.seriesName, value: data[s.columnName]})),
+        date: data[props.xAxisKey],
+      }
+    });
+    visibleSeries = newVisibleSeries;
+  }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
     // pie
     const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
-    const config = {
+    let config = {
       ...props.chartConfig,
       radius: radiusAndCenter.radius,
       center: radiusAndCenter.center,
-      startAngle: s.getView().startAngle,
-      endAngle: s.getView().endAngle,
-      name: s.getView().seriesName,
       selectedMode: "single",
-      label: {
-        position: s.getView().labelPosition,
-        alignTo: s.getView().labelAlignTo,
-        bleedMargin: s.getView().labelBleedMargin,
-        edgeDistance: s.getView().labelEdgeDistance,
-      },
-      labelLine: {
-        length: s.getView().labelLineLength,
-        length2: s.getView().labelLineLength2,
-      },
-      encode: {
-        itemName: props.xAxisKey,
-        value: s.getView().columnName,
-      },
     };
-    if(s.getView().roseType !== "none") {
-      config.roseType = s.getView().roseType;
+    if(props.chartConfig.subtype !== "calendarPie") {
+      config = {
+        ...config,
+        startAngle: s.startAngle,
+        endAngle: s.endAngle,
+        name: s.seriesName,
+        label: {
+          position: s.labelPosition,
+          alignTo: s.labelAlignTo,
+          bleedMargin: s.labelBleedMargin,
+          edgeDistance: s.labelEdgeDistance,
+        },
+        labelLine: {
+          length: s.labelLineLength,
+          length2: s.labelLineLength2,
+        },
+        encode: {
+          itemName: props.xAxisKey,
+          value: s.columnName,
+        },
+      }
+      if(s.roseType !== "none") {
+        config.roseType = s.roseType;
+      }
+    } else {
+      config.data = s.data;
+      config.center = s.date;
+      config.radius = props.chartConfig.cellSize[0]*0.4;
     }
     return config;
   });
@@ -145,6 +165,30 @@ export function getEchartsConfig(
     },
   };
 
+  //calendar pie
+  if(props.chartConfig.subtype === "calendarPie") {
+    config.calendar = {
+      top: 'middle',
+      left: 'center',
+      orient: 'vertical',
+      cellSize: props.chartConfig.cellSize,
+      yearLabel: {
+        show: false,
+        fontSize: 30
+      },
+      dayLabel: {
+        margin: 20,
+        firstDay: 1,
+        nameMap: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+      },
+      monthLabel: {
+        show: false
+      },
+      range: [props.chartConfig.range]
+    }
+  }
+  //
+
   if (props.data.length <= 0) {
     // no data
     return {
@@ -183,8 +227,28 @@ export function getEchartsConfig(
       },
     })),
   };
+  if(props.chartConfig.subtype === "calendarPie") {
+    config.series = [
+      {
+        id: 'label',
+        type: 'scatter',
+        coordinateSystem: 'calendar',
+        symbolSize: 0,
+        label: {
+          show: true,
+          formatter: function (params) {
+            return params.value[1];
+          },
+          offset: [-props.chartConfig.cellSize[0] / 2 + 10, -props.chartConfig.cellSize[1] / 2 + 10],
+          fontSize: 14
+        },
+        data: Array.from({ length: 31 }, (_, index) => index + 1).map(d => ([props.chartConfig.range + "-" + (d<10?`0${d}`:d), d]))
+      },
+      ...config.series,
+    ]
+  }
 
-  // console.log("Echarts transformedData and config", transformedData, config);
+  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

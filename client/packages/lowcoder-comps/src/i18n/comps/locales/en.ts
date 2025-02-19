@@ -313,6 +313,8 @@ export const en = {
 
   },
   lineChart: {
+    cellSize: "Cell Size",
+    range: "Range",
     markLines: "Mark Lines",
     markAreas: "Mark Areas",
     stacked: "Stacked Chart",
@@ -559,6 +561,7 @@ export const en = {
     basicPie: "Basic Pie",
     doughnutPie: "Doughnut Pie",
     rosePie: "Rose Pie",
+    calendarPie: "Calendar Pie",
     pieType: "Pie Chart Type",
     spending: "Spending",
     budget: "Budget",

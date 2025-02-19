@@ -80,77 +80,77 @@ const defaultMapData = {
 export const enObj: I18nObjects = {
   defaultDataSource: [
     {
-      date: "2021-09",
+      date: "2021-09-01",
       department: "Administration",
       spending: 9003,
-      budget: 8000,
+      budget: 8000
     },
     {
-      date: "2021-09",
+      date: "2021-09-02",
       department: "Finance",
       spending: 3033,
-      budget: 4000,
+      budget: 4000
     },
     {
-      date: "2021-09",
+      date: "2021-09-03",
       department: "Sales",
       spending: 9230,
-      budget: 8000,
+      budget: 8000
     },
     {
-      date: "2021-10",
+      date: "2021-09-04",
       department: "Administration",
       spending: 13032,
-      budget: 15000,
+      budget: 15000
     },
     {
-      date: "2021-10",
+      date: "2021-09-05",
       department: "Finance",
       spending: 2300,
-      budget: 5000,
+      budget: 5000
     },
     {
-      date: "2021-10",
+      date: "2021-09-05",
       department: "Sales",
       spending: 7323.5,
-      budget: 8000,
+      budget: 8000
     },
     {
-      date: "2021-11",
+      date: "2021-09-06",
       department: "Administration",
       spending: 13000,
-      budget: 16023,
+      budget: 16023
     },
     {
-      date: "2021-11",
+      date: "2021-09-06",
       department: "Finance",
       spending: 3569.5,
-      budget: 3000,
+      budget: 3000
     },
     {
-      date: "2021-11",
+      date: "2021-09-07",
       department: "Sales",
       spending: 10000,
-      budget: 9932,
+      budget: 9932
     },
     {
-      date: "2021-12",
+      date: "2021-09-07",
       department: "Administration",
       spending: 18033,
-      budget: 20000,
+      budget: 20000
     },
     {
-      date: "2021-12",
+      date: "2021-09-08",
       department: "Finance",
       spending: 4890,
-      budget: 4500,
+      budget: 4500
     },
     {
-      date: "2021-12",
+      date: "2021-09-09",
       department: "Sales",
       spending: 9322,
-      budget: 8000,
-    },
+      budget: 8000
+    }
   ],
   defaultBarChartOption: {
     xAxis: {
