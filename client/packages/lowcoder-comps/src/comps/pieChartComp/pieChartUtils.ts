@@ -91,12 +91,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         ...config,
         startAngle: s.startAngle,
         endAngle: s.endAngle,
+        padAngle: s.padAngle,
         name: s.seriesName,
         label: {
           position: s.labelPosition,
           alignTo: s.labelAlignTo,
-          bleedMargin: s.labelBleedMargin,
-          edgeDistance: s.labelEdgeDistance,
         },
         labelLine: {
           length: s.labelLineLength,
@@ -105,6 +104,12 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encode: {
           itemName: props.xAxisKey,
           value: s.columnName,
+        },
+        itemStyle: {
+          borderRadius: s.borderRadius,
+          color: s.itemColor,
+          shadowColor: s.itemShadowColor,
+          shadowBlur: s.itemShadowBlur,
         },
       }
       if(s.roseType !== "none") {

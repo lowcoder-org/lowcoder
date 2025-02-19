@@ -348,6 +348,11 @@ export const en = {
     borderType: "Border Type",
   },
   pieChart: {
+    itemColor: "Color",
+    itemShadowColor: "Shadow Color",
+    itemShadowBlur: "Shadow Blur",
+    padAngle: "Pad Angle",
+    borderRadius: "Border Radius",
     startAngle: "Start Angle",
     endAngle: "End Angle",
     roseType: "Rose Type",

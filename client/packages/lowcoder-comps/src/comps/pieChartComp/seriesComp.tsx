@@ -1,6 +1,7 @@
 import {
   BoolControl,
   StringControl,
+  ColorControl,
   list,
   dropdownControl,
   withDefault,
@@ -90,6 +91,11 @@ const seriesChildrenMap = {
   labelEdgeDistance: withDefault(StringControl, '25%'),
   labelLineLength: withDefault(NumberControl, 10),
   labelLineLength2: withDefault(NumberControl, 10),
+  padAngle: withDefault(NumberControl, 0),
+  borderRadius: withDefault(NumberControl, 0),
+  itemColor: ColorControl,
+  itemShadowBlur: NumberControl,
+  itemShadowColor: ColorControl,
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -144,6 +150,21 @@ class SeriesComp extends SeriesTmpComp {
         })}
         {this.children.labelAlignTo.getView() === "labelLine" && this.children.labelLineLength2.propertyView({
           label: trans("pieChart.labelLineLength2"),
+        })}
+        {this.children.padAngle.propertyView({
+          label: trans("pieChart.padAngle"),
+        })}
+        {this.children.borderRadius.propertyView({
+          label: trans("pieChart.borderRadius"),
+        })}
+        {this.children.itemColor.propertyView({
+          label: trans("pieChart.itemColor"),
+        })}
+        {this.children.itemShadowBlur.propertyView({
+          label: trans("pieChart.itemShadowBlur"),
+        })}
+        {this.children.itemShadowColor.propertyView({
+          label: trans("pieChart.itemShadowColor"),
         })}
       </>
     );
