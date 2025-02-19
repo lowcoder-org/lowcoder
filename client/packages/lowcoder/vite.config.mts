@@ -83,7 +83,7 @@ export const viteConfig: UserConfig = {
       },
       output: {
         inlineDynamicImports: false,
-        chunkFileNames: "[hash].js",
+        chunkFileNames: "[name]-[hash].js",
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
             // UI LIBRARIES
@@ -194,6 +194,7 @@ export const viteConfig: UserConfig = {
       },
     },
     commonjsOptions: {
+      transformMixedEsModules : true,
       defaultIsModuleExports: (id) => {
         if (id.indexOf("antd/lib") !== -1) {
           return false;
@@ -288,7 +289,7 @@ const browserCheckConfig: UserConfig = {
     copyPublicDir: true,
     emptyOutDir: true,
     lib: {
-      formats: ["iife"],
+      formats: ["es"],
       name: "BrowserCheck",
       entry: "./src/browser-check.ts",
       fileName: () => {
