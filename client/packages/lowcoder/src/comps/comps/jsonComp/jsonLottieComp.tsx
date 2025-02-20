@@ -29,6 +29,11 @@ const Player = lazy(
     .then(module => ({default: module.Player}))
 );
 
+const DotLottiePlayer = lazy(
+  () => import('@lottiefiles/dotlottie-react')
+    .then(module => ({default: module.DotLottieReact}))
+);
+
 /**
  * JsonLottie Comp
  */
@@ -90,8 +95,9 @@ const speedOptions = [
 ] as const;
 
 const ModeOptions = [
-  { label: "Data", value: "standard" },
-  { label: "Advanced", value: "advanced" },
+  { label: "Lottie JSON", value: "standard" },
+  { label: "DotLottie", value: "dotLottie" },
+  { label: "IconScout", value: "advanced" },
 ] as const;
 
 let JsonLottieTmpComp = (function () {
@@ -102,6 +108,7 @@ let JsonLottieTmpComp = (function () {
       JSON.stringify(defaultLottie, null, 2)
     ),
     srcIconScout: IconscoutControl(IconScoutAssetType.LOTTIE),
+    srcDotLottie: withDefault(StringControl, 'https://assets-v2.lottiefiles.com/a/9e7d8a50-1180-11ee-89a6-3b0ab1ca8a0e/hUfEwc6xNt.lottie'),
     uuidIconScout: StringControl,
     valueIconScout: withDefault(ArrayOrJSONObjectControl, JSON.stringify({})),
     speed: dropdownControl(speedOptions, "1"),
@@ -162,27 +169,50 @@ let JsonLottieTmpComp = (function () {
             rotate: props.container.rotation,
           }}
         >
-          <Player
-            key={
-              [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
-            }
-            keepLastFrame={props.keepLastFrame}
-            autoplay={props.animationStart === "auto" && true}
-            hover={props.animationStart === "on hover" && true}
-            loop={props.loop === "single" ? false : true}
-            speed={Number(props.speed)}
-            src={
-              props.sourceMode === 'advanced'
-              ? (isEmpty(props.valueIconScout) ? '' : props.valueIconScout)
-              : props.value
-            }
-            style={{
-              height: "100%",
-              width: "100%",
-              maxWidth: "100%",
-              maxHeight: "100%",
-            }}
-          />
+          {props.sourceMode === 'dotLottie'
+            ? (
+              <DotLottiePlayer
+                key={
+                  [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
+                }
+                // keepLastFrame={props.keepLastFrame}
+                autoplay={props.animationStart === "auto" && true}
+                playOnHover={props.animationStart === "on hover" && true}
+                loop={props.loop === "single" ? false : true}
+                speed={Number(props.speed)}
+                src={props.srcDotLottie}
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                }}
+              />
+            )
+            : (
+              <Player
+                key={
+                  [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
+                }
+                keepLastFrame={props.keepLastFrame}
+                autoplay={props.animationStart === "auto" && true}
+                hover={props.animationStart === "on hover" && true}
+                loop={props.loop === "single" ? false : true}
+                speed={Number(props.speed)}
+                src={
+                  props.sourceMode === 'advanced'
+                  ? (isEmpty(props.valueIconScout) ? '' : props.valueIconScout)
+                  : props.value
+                }
+                style={{
+                  height: "100%",
+                  width: "100%",
+                  maxWidth: "100%",
+                  maxHeight: "100%",
+                }}
+              />
+            )
+          }
         </div>
       </div>
     );
@@ -197,6 +227,9 @@ let JsonLottieTmpComp = (function () {
             })}
             {children.sourceMode.getView() === 'standard' && children.value.propertyView({
               label: trans("jsonLottie.lottieJson"),
+            })}
+            {children.sourceMode.getView() === 'dotLottie' && children.srcDotLottie.propertyView({
+              label: "Source",
             })}
             {children.sourceMode.getView() === 'advanced' && children.srcIconScout.propertyView({
               label: "Lottie Source",
