@@ -28,4 +28,5 @@ export type I18nObjects = {
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
   defaultPieBg: string;
+  usaMap: Record<string, unknown>;
 };

@@ -26,6 +26,10 @@ const BarTypeOptions = [
     label: trans("chart.calendarPie"),
     value: "calendarPie",
   },
+  {
+    label: trans("chart.geoPie"),
+    value: "geoPie",
+  },
 ] as const;
 
 // radius percent for each pie chart when one line has [1, 2, 3] pie charts
@@ -38,7 +42,8 @@ export const PieChartConfig = (function () {
     {
       type: dropdownControl(BarTypeOptions, "basicPie"),
       cellSize: withDefault(NumberControl, 40),
-      range: withDefault(StringControl, "2021-09")
+      range: withDefault(StringControl, "2021-09"),
+      mapUrl: withDefault(StringControl, "https://echarts.apache.org/examples/data/asset/geo/USA.json"),
     },
     (props): PieSeriesOption => {
       const config: PieSeriesOption = {
@@ -64,6 +69,9 @@ export const PieChartConfig = (function () {
           position: 'inside'
         };
       }
+      if (props.type === "geoPie") {
+        config.mapUrl = props.mapUrl;
+      }
       return config;
     }
   )
@@ -77,6 +85,9 @@ export const PieChartConfig = (function () {
         })}
         {children.type.getView() === "calendarPie" && children.range.propertyView({
           label: trans("lineChart.range"),
+        })}
+        {children.type.getView() === "geoPie" && children.mapUrl.propertyView({
+          label: trans("pieChart.mapUrl"),
         })}
       </>
     ))

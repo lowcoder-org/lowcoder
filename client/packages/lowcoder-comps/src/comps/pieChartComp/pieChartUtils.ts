@@ -94,8 +94,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         padAngle: s.padAngle,
         name: s.seriesName,
         label: {
+          show: s.showLabel,
           position: s.labelPosition,
           alignTo: s.labelAlignTo,
+          bleedMargin: s.labelBleedMargin,
         },
         labelLine: {
           length: s.labelLineLength,
@@ -112,6 +114,9 @@ export function getSeriesConfig(props: EchartsConfigProps) {
           shadowBlur: s.itemShadowBlur,
         },
       }
+      if(s.labelAlignTo === 'edge') {
+        config.label.edgeDistance = s.labelEdgeDistance;
+      }
       if(s.roseType !== "none") {
         config.roseType = s.roseType;
       }
@@ -123,6 +128,11 @@ export function getSeriesConfig(props: EchartsConfigProps) {
           }
         }
       }
+      config.radius = s.radius;
+      if(s.left!="" && s.top!="") {
+        config.center = [s.left, s.top];
+      }
+      if(props.chartConfig.subtype === 'geoPie') config.coordinateSystem = 'geo';
     } else {
       config.data = s.data;
       config.center = s.date;
@@ -177,6 +187,15 @@ export function getEchartsConfig(
       containLabel: true,
     },
   };
+  if(props.chartConfig.subtype === "geoPie") {
+    config.geo = {
+      map: 'jsonmap',
+      roam: true,
+      itemStyle: {
+        areaColor: '#e7e8ea'
+      }
+    };
+  }
 
   //calendar pie
   if(props.chartConfig.subtype === "calendarPie") {

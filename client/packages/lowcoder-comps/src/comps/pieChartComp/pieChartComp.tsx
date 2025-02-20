@@ -12,6 +12,7 @@ import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 import ReactECharts from "../basicChartComp/reactEcharts";
+import * as echarts from "echarts";
 import {
   childrenToProps,
   depsConfig,
@@ -26,7 +27,7 @@ import {
   getPromiseAfterDispatch,
   dropdownControl,
 } from "lowcoder-sdk";
-import { getEchartsLocale, trans } from "i18n/comps";
+import { getEchartsLocale, i18nObjs, trans } from "i18n/comps";
 import {
   echartsConfigOmitChildren,
   getEchartsConfig,
@@ -141,13 +142,33 @@ PieChartTmpComp = withViewFn(PieChartTmpComp, (comp) => {
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
   const childrenProps = childrenToProps(echartsConfigChildren);
+  const [mapJson, setMapJson] = useState(null);
+  useEffect(() => {
+    const fetchMapData = async () => {
+      if (childrenProps.chartConfig.subtype === 'geoPie') {
+        let fetchedMapJson = i18nObjs.usaMap;
+        try {
+          const response = await fetch(childrenProps.chartConfig.mapUrl, childrenProps.chartConfig.mapSpecial);
+          fetchedMapJson = await response.json();
+        } catch {}
+        echarts.registerMap('jsonmap', fetchedMapJson);
+        setMapJson(fetchedMapJson);
+      }
+    };
+
+    fetchMapData();
+  }, [childrenProps.chartConfig.subtype, childrenProps.chartConfig.mapUrl, childrenProps.chartConfig.mapSpecial]);
+
   const option = useMemo(() => {
+    if (!mapJson && childrenProps.chartConfig.subtype === 'geoPie') {
+      return {}; // Return an empty object or some default value until the map is loaded
+    }
     return getEchartsConfig(
       childrenProps as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
       themeConfig
     );
-  }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [mapJson, theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   return (
     <ReactResizeDetector

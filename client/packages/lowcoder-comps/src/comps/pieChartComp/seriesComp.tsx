@@ -16,6 +16,7 @@ import { i18nObjs, trans } from "i18n/comps";
 
 import { ConstructorToComp, ConstructorToDataType, ConstructorToView } from "lowcoder-core";
 import { CompAction, CustomAction, customAction, isMyCustomAction } from "lowcoder-core";
+import { x } from "@fullcalendar/resource/internal-common";
 
 export type SeriesCompType = ConstructorToComp<typeof SeriesComp>;
 export type RawSeriesCompType = ConstructorToView<typeof SeriesComp>;
@@ -82,6 +83,10 @@ export const LabelPositionOptions = [
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
+  showLabel: withDefault(BoolControl, true),
+  radius: withDefault(StringControl, 30),
+  left: withDefault(StringControl, ""),
+  top: withDefault(StringControl, ""),
   startAngle: withDefault(NumberControl, 0),
   endAngle: withDefault(NumberControl, 360),
   roseType: dropdownControl(RoseTypeOptions, "none"),
@@ -125,6 +130,15 @@ class SeriesComp extends SeriesTmpComp {
             this.children.columnName.dispatchChangeValueAction(value);
           }}
         />
+        {this.children.radius.propertyView({
+          label: trans("pieChart.radius"),
+        })}
+        {this.children.left.propertyView({
+          label: trans("pieChart.left"),
+        })}
+        {this.children.top.propertyView({
+          label: trans("pieChart.top"),
+        })}
         {this.children.startAngle.propertyView({
           label: trans("pieChart.startAngle"),
         })}
@@ -134,22 +148,25 @@ class SeriesComp extends SeriesTmpComp {
         {this.children.roseType.propertyView({
           label: trans("pieChart.roseType"),
         })}
-        {this.children.labelPosition.propertyView({
+        {this.children.showLabel.propertyView({
+          label: trans("pieChart.showLabel"),
+        })}
+        {this.children.showLabel.getView() && this.children.labelPosition.propertyView({
           label: trans("pieChart.labelPosition"),
         })}
-        {this.children.labelAlignTo.propertyView({
+        {this.children.showLabel.getView() && this.children.labelAlignTo.propertyView({
           label: trans("pieChart.labelAlignTo"),
         })}
-        {this.children.labelBleedMargin.propertyView({
+        {this.children.showLabel.getView() && this.children.labelBleedMargin.propertyView({
           label: trans("pieChart.labelBleedMargin"),
         })}
-        {this.children.labelAlignTo.getView() === "edge" && this.children.labelEdgeDistance.propertyView({
+        {this.children.showLabel.getView() && this.children.labelAlignTo.getView() === "edge" && this.children.labelEdgeDistance.propertyView({
           label: trans("pieChart.labelEdgeDistance"),
         })}
-        {this.children.labelLineLength.propertyView({
+        {this.children.showLabel.getView() && this.children.labelLineLength.propertyView({
           label: trans("pieChart.labelLineLength"),
         })}
-        {this.children.labelAlignTo.getView() === "labelLine" && this.children.labelLineLength2.propertyView({
+        {this.children.showLabel.getView() && this.children.labelAlignTo.getView() === "labelLine" && this.children.labelLineLength2.propertyView({
           label: trans("pieChart.labelLineLength2"),
         })}
         {this.children.padAngle.propertyView({

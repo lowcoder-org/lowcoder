@@ -348,6 +348,10 @@ export const en = {
     borderType: "Border Type",
   },
   pieChart: {
+    showLabel: "Show Label",
+    mapUrl: "Map URL",
+    left: "Left",
+    top: "Top",
     itemBg: "Background Image",
     itemColor: "Color",
     itemShadowColor: "Shadow Color",
@@ -568,6 +572,7 @@ export const en = {
     doughnutPie: "Doughnut Pie",
     rosePie: "Rose Pie",
     calendarPie: "Calendar Pie",
+    geoPie: "Geo Map Pie",
     pieType: "Pie Chart Type",
     spending: "Spending",
     budget: "Budget",
