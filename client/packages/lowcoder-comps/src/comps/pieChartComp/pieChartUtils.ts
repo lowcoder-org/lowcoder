@@ -115,6 +115,14 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       if(s.roseType !== "none") {
         config.roseType = s.roseType;
       }
+      if(s.itemBg) {
+        config.itemStyle = {
+          color: {
+            image: s.itemBg,
+            repeat: 'repeat',
+          }
+        }
+      }
     } else {
       config.data = s.data;
       config.center = s.date;

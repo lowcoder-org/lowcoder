@@ -561,4 +561,5 @@ export const enObj: I18nObjects = {
   },
 
   defaultMapJsonOption: defaultMapData,
+  defaultPieBg: 'data:image/jpeg;base64,/9j/4AAQS...',
 };

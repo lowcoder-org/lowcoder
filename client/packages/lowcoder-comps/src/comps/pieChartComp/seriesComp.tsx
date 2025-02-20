@@ -12,7 +12,7 @@ import {
   MultiCompBuilder,
   valueComp,
 } from "lowcoder-sdk";
-import { trans } from "i18n/comps";
+import { i18nObjs, trans } from "i18n/comps";
 
 import { ConstructorToComp, ConstructorToDataType, ConstructorToView } from "lowcoder-core";
 import { CompAction, CustomAction, customAction, isMyCustomAction } from "lowcoder-core";
@@ -94,6 +94,7 @@ const seriesChildrenMap = {
   padAngle: withDefault(NumberControl, 0),
   borderRadius: withDefault(NumberControl, 0),
   itemColor: ColorControl,
+  itemBg: StringControl,
   itemShadowBlur: NumberControl,
   itemShadowColor: ColorControl,
   hide: BoolControl,
@@ -165,6 +166,10 @@ class SeriesComp extends SeriesTmpComp {
         })}
         {this.children.itemShadowColor.propertyView({
           label: trans("pieChart.itemShadowColor"),
+        })}
+        {this.children.itemBg.propertyView({
+          label: trans("pieChart.itemBg"),
+          placeholder: i18nObjs.defaultPieBg,
         })}
       </>
     );

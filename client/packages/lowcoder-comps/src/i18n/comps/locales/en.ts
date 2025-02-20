@@ -348,6 +348,7 @@ export const en = {
     borderType: "Border Type",
   },
   pieChart: {
+    itemBg: "Background Image",
     itemColor: "Color",
     itemShadowColor: "Shadow Color",
     itemShadowBlur: "Shadow Blur",

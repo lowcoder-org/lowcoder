@@ -27,4 +27,5 @@ export type I18nObjects = {
   defaultMapJsonOption: Record<string, unknown>;
   timeXAxisLabel?: XAXisComponentOption["axisLabel"];
   imageEditorLocale?: Record<string, string>;
+  defaultPieBg: string;
 };
