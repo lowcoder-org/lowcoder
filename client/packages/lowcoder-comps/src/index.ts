@@ -22,6 +22,7 @@ import { BasicChartCompWithDefault } from "comps/basicChartComp/chartComp";
 import { BarChartCompWithDefault } from "comps/barChartComp/barChartComp";
 import { LineChartCompWithDefault } from "comps/lineChartComp/lineChartComp";
 import { PieChartCompWithDefault } from "comps/pieChartComp/pieChartComp";
+import { ScatterChartCompWithDefault } from "comps/scatterChartComp/scatterChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -29,6 +30,7 @@ export default {
   barChart: BarChartCompWithDefault,
   lineChart: LineChartCompWithDefault,
   pieChart: PieChartCompWithDefault,
+  scatterChart: ScatterChartCompWithDefault,
   chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,
