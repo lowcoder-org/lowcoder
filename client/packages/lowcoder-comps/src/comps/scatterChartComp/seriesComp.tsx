@@ -5,6 +5,8 @@ import {
   list,
   dropdownControl,
   withDefault,
+  jsonControl,
+  toArray,
   NumberControl,
   isNumeric,
   genRandomKey,
@@ -37,6 +39,12 @@ export function newSeries(name: string, columnName: string): SeriesDataType {
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
+  symbolSize: NumberControl,
+  effect: BoolControl,
+  showMarkLine: BoolControl,
+  markLineFrom: withDefault(StringControl, "[0,0]"),
+  markLineTo: withDefault(StringControl, "[1000,1000]"),
+  markLineDesc: StringControl,
   hide: BoolControl,
   // unique key, for sort
   dataIndex: valueComp<string>(""),
@@ -65,6 +73,24 @@ class SeriesComp extends SeriesTmpComp {
             this.children.columnName.dispatchChangeValueAction(value);
           }}
         />
+        {this.children.effect.propertyView({
+          label: trans("scatterChart.effect"),
+        })}
+        {this.children.symbolSize.propertyView({
+          label: trans("scatterChart.symbolSize"),
+        })}
+        {this.children.showMarkLine.propertyView({
+          label: trans("scatterChart.showMarkLine"),
+        })}
+        {this.children.showMarkLine.getView() && this.children.markLineFrom.propertyView({
+          label: trans("scatterChart.from"),
+        })}
+        {this.children.showMarkLine.getView() && this.children.markLineTo.propertyView({
+          label: trans("scatterChart.to"),
+        })}
+        {this.children.showMarkLine.getView() && this.children.markLineDesc.propertyView({
+          label: trans("scatterChart.desc"),
+        })}
       </>
     );
   }

@@ -80,8 +80,45 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         color: s.itemColor,
         shadowColor: s.itemShadowColor,
         shadowBlur: s.itemShadowBlur,
-      }
+      },
     }
+    let fromArr = [0,0];
+    let toArr = [0,0];
+    try {
+      fromArr = JSON.parse(s.markLineFrom);
+    } catch {}
+    try {
+      toArr = JSON.parse(s.markLineTo);
+    } catch {}
+    if(s.showMarkLine) {
+      config.markLine = {
+        animation: false,
+        label: {
+          formatter: s.markLineDesc,
+          align: 'right'
+        },
+        lineStyle: {
+          type: 'solid'
+        },
+        tooltip: {
+          formatter: s.markLineDesc
+        },
+        data: [
+          [
+            {
+              coord: fromArr,
+              symbol: 'none'
+            },
+            {
+              coord: toArr,
+              symbol: 'none'
+            }
+          ]
+        ]
+      };
+    }
+    if(s.effect) config.type = "effectScatter";
+    if(s.symbolSize) config.symbolSize = s.symbolSize;
     return config;
   });
 }

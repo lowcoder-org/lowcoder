@@ -378,6 +378,14 @@ export const en = {
     labelLineLength: "Label Line Length",
     labelLineLength2: "Label Line Length2",
   },
+  scatterChart: {
+    effect: "Effect",
+    symbolSize: "Symbol Size",
+    from: "From",
+    to: "To",
+    showMarkLine: "Show Mark Line",
+    desc: "Description",
+  },
   barChart: {
     title: 'Title',
     barWidth: 'Bar Width(%)',
