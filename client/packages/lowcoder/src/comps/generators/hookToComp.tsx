@@ -36,9 +36,11 @@ export function hookToStateComp(useHookFn: () => JSONObject) {
       const hookValue = useHookFn();
       const stateValue = useMemo(() => comp.children.stateValue.getView(), [comp.children.stateValue]);
 
-      if (!isEqual(hookValue, stateValue)) {
-        comp.children.stateValue.dispatchChangeValueAction(hookValue);
-      }
+      useEffect(() => {
+        if (!isEqual(hookValue, stateValue)) {
+          comp.children.stateValue.dispatchChangeValueAction(hookValue);
+        }
+      }, [hookValue, stateValue]);
       return null;
     }
   );

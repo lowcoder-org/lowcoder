@@ -64,12 +64,15 @@ let ThemeTempComp = withViewFn(
       return stateValue;
     }, [themeList, currentTheme, stateValue])
 
-    if (!isEqual(themeValue, stateValue)) {
-      comp.children.stateValue.dispatchChangeValueAction({
-        ...exposingTheme(currentTheme),
-        allThemes: themeList.map((t) => exposingTheme(t)),
-      })
-    }
+    useEffect(() => {
+      if (!isEqual(themeValue, stateValue)) {
+        comp.children.stateValue.dispatchChangeValueAction({
+          ...exposingTheme(currentTheme),
+          allThemes: themeList.map((t) => exposingTheme(t)),
+        })
+      }
+    }, [themeValue, stateValue]);
+
     return null;
   }
 );
