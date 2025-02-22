@@ -1,5 +1,5 @@
-import { Card, Form, Select, Input, Button, message, Divider, Spin, Table } from "antd";
-import React, { useEffect, useState, useCallback } from "react";
+import { Card, Form, Select, Input, Button, message, Divider, Skeleton, Table, Flex } from "antd";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
@@ -15,6 +15,10 @@ import ReactECharts from "echarts-for-react";
 import { getAuditLogs } from "api/enterpriseApi";
 import EventTypeTimeChart from "./charts/eventTypesTime";
 import { debounce } from "lodash";
+import { DatePicker } from "antd";
+import dayjs from "dayjs";
+
+const { RangePicker } = DatePicker;
 
 const AuditContent = styled.div`
   font-size: 14px;
@@ -35,39 +39,42 @@ const StyleThemeSettingsCover = styled.div`
 `;
 
 const eventTypes = [
-  { value: "USER_LOGIN", label: "User Login" },
-  { value: "USER_LOGOUT", label: "User Logout" },
-  { value: "APPLICATION_VIEW", label: "View Application" },
-  { value: "APPLICATION_CREATE", label: "Create Application" },
-  { value: "APPLICATION_DELETE", label: "Delete Application" },
-  { value: "APPLICATION_UPDATE", label: "Update Application" },
-  { value: "APPLICATION_MOVE", label: "Move Application" },
-  { value: "APPLICATION_RECYCLED", label: "Recycle Application" },
-  { value: "APPLICATION_RESTORE", label: "Restore Application" },
-  { value: "FOLDER_CREATE", label: "Create Folder" },
-  { value: "FOLDER_DELETE", label: "Delete Folder" },
-  { value: "FOLDER_UPDATE", label: "Update Folder" },
-  { value: "QUERY_EXECUTION", label: "Execute Query" },
-  { value: "GROUP_CREATE", label: "Create Group" },
-  { value: "GROUP_UPDATE", label: "Update Group" },
-  { value: "GROUP_DELETE", label: "Delete Group" },
-  { value: "GROUP_MEMBER_ADD", label: "Add Group Member" },
-  { value: "GROUP_MEMBER_ROLE_UPDATE", label: "Update Group Member Role" },
-  { value: "GROUP_MEMBER_LEAVE", label: "Leave Group" },
-  { value: "GROUP_MEMBER_REMOVE", label: "Remove Group Member" },
-  { value: "SERVER_START_UP", label: "Server Startup" },
-  { value: "SERVER_INFO", label: "View Server Info" },
-  { value: "DATA_SOURCE_CREATE", label: "Create Datasource" },
-  { value: "DATA_SOURCE_UPDATE", label: "Update Datasource" },
-  { value: "DATA_SOURCE_DELETE", label: "Delete Datasource" },
-  { value: "DATA_SOURCE_PERMISSION_GRANT", label: "Grant Datasource Permission" },
-  { value: "DATA_SOURCE_PERMISSION_UPDATE", label: "Update Datasource Permission" },
-  { value: "DATA_SOURCE_PERMISSION_DELETE", label: "Delete Datasource Permission" },
-  { value: "LIBRARY_QUERY_CREATE", label: "Create Library Query" },
-  { value: "LIBRARY_QUERY_UPDATE", label: "Update Library Query" },
-  { value: "LIBRARY_QUERY_DELETE", label: "Delete Library Query" },
-  { value: "LIBRARY_QUERY_PUBLISH", label: "Publish Library Query" },
-  { value: "API_CALL_EVENT", label: "API Call Event" },
+  { value: "USER_LOGIN", label: trans("enterprise.USER_LOGIN") },
+  { value: "USER_LOGOUT", label: trans("enterprise.USER_LOGOUT") },
+  { value: "APPLICATION_CREATE", label: trans("enterprise.APPLICATION_CREATE") },
+  { value: "APPLICATION_DELETE", label: trans("enterprise.APPLICATION_DELETE") },
+  { value: "APPLICATION_UPDATE", label: trans("enterprise.APPLICATION_UPDATE") },
+  { value: "APPLICATION_MOVE", label: trans("enterprise.APPLICATION_MOVE") },
+  { value: "APPLICATION_RECYCLED", label: trans("enterprise.APPLICATION_RECYCLED") },
+  { value: "APPLICATION_RESTORE", label: trans("enterprise.APPLICATION_RESTORE") },
+  { value: "APPLICATION_PUBLISH", label: trans("enterprise.APPLICATION_PUBLISH") },
+  { value: "APPLICATION_VERSION_CHANGE", label: trans("enterprise.APPLICATION_VERSION_CHANGE") },
+  { value: "APPLICATION_SHARING_CHANGE", label: trans("enterprise.APPLICATION_SHARING_CHANGE") },
+  { value: "APPLICATION_PERMISSION_CHANGE", label: trans("enterprise.APPLICATION_PERMISSION_CHANGE") },
+  { value: "FOLDER_CREATE", label: trans("enterprise.FOLDER_CREATE") },
+  { value: "FOLDER_DELETE", label: trans("enterprise.FOLDER_DELETE") },
+  { value: "FOLDER_UPDATE", label: trans("enterprise.FOLDER_UPDATE") },
+  { value: "QUERY_EXECUTION", label: trans("enterprise.QUERY_EXECUTION") },
+  { value: "GROUP_CREATE", label: trans("enterprise.GROUP_CREATE") },
+  { value: "GROUP_UPDATE", label: trans("enterprise.GROUP_UPDATE") },
+  { value: "GROUP_DELETE", label: trans("enterprise.GROUP_DELETE") },
+  { value: "GROUP_MEMBER_ADD", label: trans("enterprise.GROUP_MEMBER_ADD") },
+  { value: "GROUP_MEMBER_ROLE_UPDATE", label: trans("enterprise.GROUP_MEMBER_ROLE_UPDATE") },
+  { value: "GROUP_MEMBER_LEAVE", label: trans("enterprise.GROUP_MEMBER_LEAVE") },
+  { value: "GROUP_MEMBER_REMOVE", label: trans("enterprise.GROUP_MEMBER_REMOVE") },
+  { value: "SERVER_START_UP", label: trans("enterprise.SERVER_START_UP") },
+  { value: "SERVER_INFO", label: trans("enterprise.SERVER_INFO") },
+  { value: "DATA_SOURCE_CREATE", label: trans("enterprise.DATA_SOURCE_CREATE") },
+  { value: "DATA_SOURCE_UPDATE", label: trans("enterprise.DATA_SOURCE_UPDATE") },
+  { value: "DATA_SOURCE_DELETE", label: trans("enterprise.DATA_SOURCE_DELETE") },
+  { value: "DATA_SOURCE_PERMISSION_GRANT", label: trans("enterprise.DATA_SOURCE_PERMISSION_GRANT") },
+  { value: "DATA_SOURCE_PERMISSION_UPDATE", label: trans("enterprise.DATA_SOURCE_PERMISSION_UPDATE") },
+  { value: "DATA_SOURCE_PERMISSION_DELETE", label: trans("enterprise.DATA_SOURCE_PERMISSION_DELETE") },
+  { value: "LIBRARY_QUERY_CREATE", label: trans("enterprise.LIBRARY_QUERY_CREATE") },
+  { value: "LIBRARY_QUERY_UPDATE", label: trans("enterprise.LIBRARY_QUERY_UPDATE") },
+  { value: "LIBRARY_QUERY_DELETE", label: trans("enterprise.LIBRARY_QUERY_DELETE") },
+  { value: "LIBRARY_QUERY_PUBLISH", label: trans("enterprise.LIBRARY_QUERY_PUBLISH") },
+  { value: "API_CALL_EVENT", label: trans("enterprise.API_CALL_EVENT") },
 ];
 
 export function AuditLog() {
@@ -77,15 +84,20 @@ export function AuditLog() {
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
 
-  useEffect(() => {
-    // Fetch logs automatically on component mount
-    fetchLogs({ orgId: currentUser.currentOrgId });
-  }, [currentUser.currentOrgId]);
+  // Add state to store date range
+  const [dateRange, setDateRange] = useState<{ fromTimestamp?: string; toTimestamp?: string }>({});
 
-  const fetchLogs = async (params = {}) => {
+  // Fetch Logs with all form values if set
+  const fetchLogs = async () => {
+    const formValues = form.getFieldsValue();
     const cleanedParams = Object.fromEntries(
-      Object.entries(params).filter(([_, value]) => value !== undefined && value !== "")
+      Object.entries({
+        ...formValues,
+        fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
+        toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
+      }).filter(([_, value]) => value !== undefined && value !== null && value !== "")
     );
+
     setLoading(true);
     try {
       const data = await getAuditLogs(cleanedParams);
@@ -97,31 +109,41 @@ export function AuditLog() {
     }
   };
 
-  const handleFormSubmit = (values: any) => {
-    const queryParams = {
-      ...values,
-      orgId: currentUser.currentOrgId,
-    };
-    fetchLogs(queryParams);
+  // Handle date range selection
+  const handleDateChange = (dates: any) => {
+    if (dates?.[0] && dates?.[1]) {
+      form.setFieldsValue({
+        fromTimestamp: dates[0].toISOString(),
+        toTimestamp: dates[1].toISOString(),
+      });
+    } else {
+      form.resetFields(["fromTimestamp", "toTimestamp"]);
+    }
+    fetchLogs();
   };
 
-  interface ValueType {
-    [key: string]: string | any[]; // replace any[] with the actual data type if known
-  }
+  // Handle chart zoom
+  const handleChartZoom = ({ fromTimestamp, toTimestamp }: { fromTimestamp: string; toTimestamp: string }) => {
+    console.log("Zoom applied:", fromTimestamp, toTimestamp);
+  
+    const startDate = dayjs(fromTimestamp);
+    const endDate = dayjs(toTimestamp);
+    form.setFieldsValue({ dateRange: [startDate, endDate] });
+    fetchLogs();
+  };
+  
+
   // Debounce handler for input fields
   const handleInputChange = useCallback(
-    debounce((changedValue: ValueType, allValues) => {
-      if (Object.values(changedValue)[0]?.length >= 3) {
-        handleFormSubmit(allValues);
-      }
-    }, 300),
-    [] // Ensures debounce doesn't recreate on every render
+    debounce(() => fetchLogs(), 300),
+    []
   );
 
-  const handleSelectChange = (changedValue: any, allValues: any) => {
-    handleFormSubmit(allValues);
-  };
-
+  // Initial Fetch on Mount
+  useEffect(() => {
+    fetchLogs();
+  }, [currentUser.currentOrgId]);
+  
   // Generate hierarchical data for the table
   const generateHierarchy = (data: any[]) => {
     const orgMap = new Map();
@@ -153,7 +175,7 @@ export function AuditLog() {
     return Array.from(orgMap.values());
   };
 
-  const hierarchicalData = generateHierarchy(logs);
+  const hierarchicalData = useMemo(() => generateHierarchy(logs), [logs]);
 
   const columns = [
     { title: "Org ID", dataIndex: "orgId", key: "orgId" },
@@ -182,52 +204,71 @@ export function AuditLog() {
             <Form
               form={form}
               layout="inline"
-              onValuesChange={(changedValue, allValues) => {
+              onValuesChange={(changedValue) => {
                 const key = Object.keys(changedValue)[0];
-                if (key === "eventType") {
-                  handleSelectChange(changedValue, allValues);
+
+                if (key === "dateRange") {
+                  handleDateChange(changedValue.dateRange);
+                } else if (["environmentId", "orgId", "userId", "appId"].includes(key)) {
+                  handleInputChange();
                 } else {
-                  handleInputChange(changedValue, allValues);
+                  fetchLogs();
                 }
               }}
-              onFinish={handleFormSubmit}
             >
-              <Form.Item name="environmentId">
-                <Input placeholder="Environment ID" allowClear />
-              </Form.Item>
-              <Form.Item name="userId">
-                <Input placeholder="User ID" allowClear />
-              </Form.Item>
-              <Form.Item name="appId">
-                <Input placeholder="App ID" allowClear />
-              </Form.Item>
-              <Form.Item name="eventType">
-                <Select
-                  allowClear
-                  showSearch
-                  placeholder="Event Type"
-                  options={eventTypes}
-                  style={{ width: 200 }}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading}>
-                  Fetch Logs
-                </Button>
-              </Form.Item>
+              <Flex gap="middle" vertical>
+                <Flex>
+                  <Form.Item name="dateRange">
+                    <RangePicker 
+                      showTime 
+                      format="YYYY-MM-DD 00:00:00" 
+                      onChange={handleDateChange}
+                      value={form.getFieldValue("dateRange")}/>
+                  </Form.Item>
+                  <Form.Item name="eventType">
+                    <Select
+                      allowClear
+                      showSearch
+                      placeholder="Event Type"
+                      options={eventTypes}
+                      style={{ width: 200 }}
+                    />
+                  </Form.Item>
+                </Flex>
+                
+                <Flex>
+                  <Form.Item name="environmentId">
+                    <Input placeholder="Environment ID" allowClear />
+                  </Form.Item>
+                  <Form.Item name="orgId">
+                    <Input placeholder="Org ID" allowClear />
+                  </Form.Item>
+                  <Form.Item name="userId">
+                    <Input placeholder="User ID" allowClear />
+                  </Form.Item>
+                  <Form.Item name="appId">
+                    <Input placeholder="App ID" allowClear />
+                  </Form.Item>
+                </Flex>
+              </Flex>
             </Form>
           </Card>
           <Card title="Audit Logs">
             {loading ? (
-              <Spin />
+              <Skeleton active paragraph={{ rows: 5 }} />
             ) : logs.length > 0 ? (
               <>
-                <EventTypeTimeChart data={logs} eventTypeLabels={eventTypeLabels} />
+                <EventTypeTimeChart 
+                  data={logs} 
+                  eventTypeLabels={eventTypeLabels} 
+                  setDateRange={handleChartZoom} 
+                />
                 <Divider />
                 <Table
                   columns={columns}
-                  dataSource={hierarchicalData}
+                  dataSource={loading ? [] : hierarchicalData}
                   pagination={{ pageSize: 10 }}
+                  loading={loading}
                 />
               </>
             ) : (
