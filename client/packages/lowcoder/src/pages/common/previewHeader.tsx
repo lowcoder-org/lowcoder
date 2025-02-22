@@ -115,6 +115,8 @@ export function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
   const templateId = useSelector(getTemplateId);
+  const isPublicApp = useSelector(isPublicApplication);
+
   if (fetchingUser) {
     return <Skeleton.Avatar shape="circle" size={28} />;
   }
@@ -122,7 +124,13 @@ export function HeaderProfile(props: { user: User }) {
     <div>
       {user.isAnonymous ? (
         !templateId ? (
-          <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
+          <LoginBtn buttonType="primary" onClick={() => {
+            if (isPublicApp) {
+              window.top?.open('https://app.lowcoder.cloud/user/auth/login');
+            } else {
+              history.push(AUTH_LOGIN_URL)
+            }
+          }}>
             {trans("userAuth.login")}
           </LoginBtn>
         ) : null
@@ -147,7 +155,7 @@ const PreviewHeaderComp = () => {
 
   const headerStart = (
     <>
-      <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
+      <StyledLink onClick={() => !isPublicApp && history.push(ALL_APPLICATIONS_URL)}>
         <LogoIcon branding={true} />
       </StyledLink>
       {isViewMarketplaceMode && (
@@ -204,36 +212,44 @@ const PreviewHeaderComp = () => {
     </Wrapper>
   );
 
-  const headerMiddle = (
-    <>
-      {/* Devices */}
-      <Segmented<DeviceType>
-        options={[
-          { value: 'mobile', icon: <MobileOutlined /> },
-          { value: 'tablet', icon: <TabletOutlined /> },
-          { value: 'desktop', icon: <DesktopOutlined /> },
-        ]}
-        value={editorState.deviceType}
-        onChange={(value) => {
-          editorState.setDeviceType(value);
-        }}
-      />
+  const headerMiddle = useMemo(() => {
+    if (isPublicApp) return null;
 
-      {/* Orientation */}
-      {editorState.deviceType !== 'desktop' && (
-        <Segmented<DeviceOrientation>
+    return (
+      <>
+        {/* Devices */}
+        <Segmented<DeviceType>
           options={[
-            { value: 'portrait', label: "Portrait" },
-            { value: 'landscape', label: "Landscape" },
+            { value: 'mobile', icon: <MobileOutlined /> },
+            { value: 'tablet', icon: <TabletOutlined /> },
+            { value: 'desktop', icon: <DesktopOutlined /> },
           ]}
-          value={editorState.deviceOrientation}
+          value={editorState.deviceType}
           onChange={(value) => {
-            editorState.setDeviceOrientation(value);
+            editorState.setDeviceType(value);
           }}
         />
-      )}
-    </>
-  );
+
+        {/* Orientation */}
+        {editorState.deviceType !== 'desktop' && (
+          <Segmented<DeviceOrientation>
+            options={[
+              { value: 'portrait', label: "Portrait" },
+              { value: 'landscape', label: "Landscape" },
+            ]}
+            value={editorState.deviceOrientation}
+            onChange={(value) => {
+              editorState.setDeviceOrientation(value);
+            }}
+          />
+        )}
+      </>
+    );
+  }, [
+    isPublicApp,
+    editorState.deviceType,
+    editorState.deviceOrientation,
+  ]);
 
   return (
     <Header

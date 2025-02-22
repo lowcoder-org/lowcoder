@@ -49,6 +49,7 @@ interface LazyCompViewProps {
   loadComp: () => Promise<void>;
   loadingElement?: () => React.ReactNode;
   errorElement?: (error: any) => React.ReactNode;
+  height?: number,
 }
 
 const LazyCompView = React.memo((props: React.PropsWithChildren<LazyCompViewProps>) => {
@@ -82,7 +83,7 @@ const LazyCompView = React.memo((props: React.PropsWithChildren<LazyCompViewProp
   }
 
   return (
-    <WhiteLoading />
+    <WhiteLoading compHeight={props.height} />
   );
 });
 
@@ -94,6 +95,7 @@ export function lazyLoadComp(
   loader?: LazyloadCompLoader,
   loadingElement?: () => React.ReactNode,
   withoutLoading?: boolean,
+  height?: number,
 ) {
   class LazyLoadComp extends simpleMultiComp({}) {
     compValue: any;
@@ -145,7 +147,12 @@ export function lazyLoadComp(
       // const key = `${remoteInfo?.packageName}-${remoteInfo?.packageVersion}-${remoteInfo?.compName}`;
       const key = `${compName}`;
       return (
-        <LazyCompView key={key} loadComp={() => this.load()} loadingElement={loadingElement} />
+        <LazyCompView
+          key={key}
+          loadComp={() => this.load()}
+          loadingElement={loadingElement}
+          height={height}
+        />
       );
     }
 

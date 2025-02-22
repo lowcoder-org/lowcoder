@@ -14256,6 +14256,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     rehype-sanitize: ^5.0.1
     remark-gfm: ^4.0.0
     resize-observer-polyfill: ^1.5.1
+    rollup-plugin-terser: ^7.0.2
     rollup-plugin-visualizer: ^5.9.2
     simplebar-react: ^3.2.4
     sql-formatter: ^8.2.0

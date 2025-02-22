@@ -45,6 +45,7 @@ import serpApiPlugin from "./serpApi";
 import carboneIoPlugin from "./carboneIo";
 import boomiPlugin from "./boomi";
 import eodhdApiPlugin from "./eodhdApi";
+// import hubspotPlugin from "./hubspot";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -109,6 +110,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
 
   // CRM
   frontPlugin,
+  // hubspotPlugin,
 
   // E-commerce
   stripePlugin,

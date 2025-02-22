@@ -7,10 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.application.view.ApplicationInfoView;
+import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.usermanagement.view.AddMemberRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.service.ApplicationRecordServiceImpl;
 import org.lowcoder.domain.application.service.ApplicationService;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -163,18 +165,62 @@ public class BusinessEventPublisher {
                                 String description = tuple.getT3().getRight();
                                 ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
                                 ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                    .orgId(orgMember.getOrgId())
+                                    .userId(orgMember.getUserId())
+                                    .applicationId(applicationInfoView.getApplicationId())
+                                    .applicationGid(applicationInfoView.getApplicationGid())
+                                    .applicationName(applicationInfoView.getName())
+                                    .applicationCategory(category)
+                                    .applicationDescription(description)
+                                    .type(eventType)
+                                    .folderId(optional.map(Folder::getId).orElse(null))
+                                    .folderName(optional.map(Folder::getName).orElse(null))
+                                    .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                    .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
+                                    .isAnonymous(anonymous)
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                    .build();
+                                event.populateDetails();
+                                applicationEventPublisher.publishEvent(event);
+                            })
+                            .then()
+                            .onErrorResume(throwable -> {
+                                log.error("publishApplicationCommonEvent error. {}, {}", applicationView, eventType, throwable);
+                                return Mono.empty();
+                            });
+                });
+    }
+
+    public Mono<Void> publishApplicationPermissionEvent(String applicationId, Set<String> userIds, Set<String> groupIds, String permissionId, String role) {
+        return sessionUserService.isAnonymousUser()
+                .flatMap(anonymous -> {
+                    if (anonymous) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .zipWith(sessionUserService.getVisitorToken())
+                            .zipWith(Mono.defer(() -> applicationService.findById(applicationId)
+                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
+                            .doOnNext(tuple -> {
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                String token = tuple.getT1().getT2();
+                                String category = tuple.getT2().getT1().getT2();
+                                String description = tuple.getT2().getT2();
+                                Application application = tuple.getT2().getT1().getT1();
+                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
                                         .orgId(orgMember.getOrgId())
                                         .userId(orgMember.getUserId())
-                                        .applicationId(applicationInfoView.getApplicationId())
-                                        .applicationGid(applicationInfoView.getApplicationGid())
-                                        .applicationName(applicationInfoView.getName())
+                                        .applicationId(application.getId())
+                                        .applicationGid(application.getGid())
+                                        .applicationName(application.getName())
                                         .applicationCategory(category)
                                         .applicationDescription(description)
-                                        .type(eventType)
-                                        .folderId(optional.map(Folder::getId).orElse(null))
-                                        .folderName(optional.map(Folder::getName).orElse(null))
-                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
-                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
+                                        .type(EventType.APPLICATION_PERMISSION_CHANGE)
+                                        .permissionId(permissionId)
+                                        .role(role)
+                                        .userIds(userIds)
+                                        .groupIds(groupIds)
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                         .build();
@@ -186,7 +232,131 @@ public class BusinessEventPublisher {
                             })
                             .then()
                             .onErrorResume(throwable -> {
-                                log.error("publishApplicationCommonEvent error. {}, {}", applicationView, eventType, throwable);
+                                log.error("publishApplicationPermissionEvent error. {}, {}, {}", applicationId, permissionId, role, throwable);
+                                return Mono.empty();
+                            });
+                });
+    }
+
+    public Mono<Void> publishApplicationSharingEvent(String applicationId, String shareType) {
+        return sessionUserService.isAnonymousUser()
+                .flatMap(anonymous -> {
+                    if (anonymous) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .zipWith(sessionUserService.getVisitorToken())
+                            .zipWith(Mono.defer(() -> applicationService.findById(applicationId)
+                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
+                            .doOnNext(tuple -> {
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                String token = tuple.getT1().getT2();
+                                String category = tuple.getT2().getT1().getT2();
+                                String description = tuple.getT2().getT2();
+                                Application application = tuple.getT2().getT1().getT1();
+                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                        .orgId(orgMember.getOrgId())
+                                        .userId(orgMember.getUserId())
+                                        .applicationId(application.getId())
+                                        .applicationGid(application.getGid())
+                                        .applicationName(application.getName())
+                                        .applicationCategory(category)
+                                        .applicationDescription(description)
+                                        .type(EventType.APPLICATION_SHARING_CHANGE)
+                                        .shareType(shareType)
+                                        .isAnonymous(anonymous)
+                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                        .build();
+                                event.populateDetails();
+                                applicationEventPublisher.publishEvent(event);
+                            })
+                            .then()
+                            .onErrorResume(throwable -> {
+                                log.error("publishApplicationSharingEvent error. {}, {}", applicationId, shareType, throwable);
+                                return Mono.empty();
+                            });
+                });
+    }
+
+    public Mono<Void> publishApplicationPublishEvent(String applicationId, ApplicationPublishRequest request) {
+        return sessionUserService.isAnonymousUser()
+                .flatMap(anonymous -> {
+                    if (anonymous) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .zipWith(sessionUserService.getVisitorToken())
+                            .zipWith(Mono.defer(() -> applicationService.findById(applicationId)
+                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
+                            .doOnNext(tuple -> {
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                String token = tuple.getT1().getT2();
+                                String category = tuple.getT2().getT1().getT2();
+                                String description = tuple.getT2().getT2();
+                                Application application = tuple.getT2().getT1().getT1();
+                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                        .orgId(orgMember.getOrgId())
+                                        .userId(orgMember.getUserId())
+                                        .applicationId(application.getId())
+                                        .applicationGid(application.getGid())
+                                        .applicationName(application.getName())
+                                        .applicationCategory(category)
+                                        .applicationDescription(description)
+                                        .type(EventType.APPLICATION_SHARING_CHANGE)
+                                        .commitMessage(request.commitMessage())
+                                        .tag(request.tag())
+                                        .isAnonymous(anonymous)
+                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                        .build();
+                                event.populateDetails();
+                                applicationEventPublisher.publishEvent(event);
+                            })
+                            .then()
+                            .onErrorResume(throwable -> {
+                                log.error("publishApplicationPublishEvent error. {}, {}, {}", applicationId, request.tag(), request.commitMessage(), throwable);
+                                return Mono.empty();
+                            });
+                });
+    }
+
+    public Mono<Void> publishApplicationVersionChangeEvent(String applicationId, String newtag) {
+        return sessionUserService.isAnonymousUser()
+                .flatMap(anonymous -> {
+                    if (anonymous) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .zipWith(sessionUserService.getVisitorToken())
+                            .zipWith(Mono.defer(() -> applicationService.findById(applicationId)
+                            .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                            .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
+                            .doOnNext(tuple -> {
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                String token = tuple.getT1().getT2();
+                                String category = tuple.getT2().getT1().getT2();
+                                String description = tuple.getT2().getT2();
+                                Application application = tuple.getT2().getT1().getT1();
+                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                        .orgId(orgMember.getOrgId())
+                                        .userId(orgMember.getUserId())
+                                        .applicationId(application.getId())
+                                        .applicationGid(application.getGid())
+                                        .applicationName(application.getName())
+                                        .applicationCategory(category)
+                                        .applicationDescription(description)
+                                        .type(EventType.APPLICATION_VERSION_CHANGE)
+                                        .tag(newtag)
+                                        .isAnonymous(anonymous)
+                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                        .build();
+                                event.populateDetails();
+                                applicationEventPublisher.publishEvent(event);
+                            })
+                            .then()
+                            .onErrorResume(throwable -> {
+                                log.error("publishApplicationPublishEvent error. {}, {}", applicationId, newtag, throwable);
                                 return Mono.empty();
                             });
                 });
