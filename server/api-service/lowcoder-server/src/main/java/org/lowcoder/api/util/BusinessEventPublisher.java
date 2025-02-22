@@ -162,21 +162,21 @@ public class BusinessEventPublisher {
                                 String description = tuple.getT3().getRight();
                                 ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
                                 ApplicationCommonEvent event = ApplicationCommonEvent.builder()
-                                        .orgId(orgMember.getOrgId())
-                                        .userId(orgMember.getUserId())
-                                        .applicationId(applicationInfoView.getApplicationId())
-                                        .applicationGid(applicationInfoView.getApplicationGid())
-                                        .applicationName(applicationInfoView.getName())
-                                        .applicationCategory(category)
-                                        .applicationDescription(description)
-                                        .type(eventType)
-                                        .folderId(optional.map(Folder::getId).orElse(null))
-                                        .folderName(optional.map(Folder::getName).orElse(null))
-                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
-                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
-                                        .isAnonymous(anonymous)
-                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
-                                        .build();
+                                    .orgId(orgMember.getOrgId())
+                                    .userId(orgMember.getUserId())
+                                    .applicationId(applicationInfoView.getApplicationId())
+                                    .applicationGid(applicationInfoView.getApplicationGid())
+                                    .applicationName(applicationInfoView.getName())
+                                    .applicationCategory(category)
+                                    .applicationDescription(description)
+                                    .type(eventType)
+                                    .folderId(optional.map(Folder::getId).orElse(null))
+                                    .folderName(optional.map(Folder::getName).orElse(null))
+                                    .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                    .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
+                                    .isAnonymous(anonymous)
+                                    .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                    .build();
                                 event.populateDetails();
                                 applicationEventPublisher.publishEvent(event);
                             })
@@ -324,8 +324,8 @@ public class BusinessEventPublisher {
                     return sessionUserService.getVisitorOrgMemberCache()
                             .zipWith(sessionUserService.getVisitorToken())
                             .zipWith(Mono.defer(() -> applicationService.findById(applicationId)
-                                    .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
-                                    .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
+                            .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
+                            .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))))
                             .doOnNext(tuple -> {
                                 OrgMember orgMember = tuple.getT1().getT1();
                                 String token = tuple.getT1().getT2();
@@ -340,7 +340,7 @@ public class BusinessEventPublisher {
                                         .applicationName(application.getName())
                                         .applicationCategory(category)
                                         .applicationDescription(description)
-                                        .type(EventType.APPLICATION_SHARING_CHANGE)
+                                        .type(EventType.APPLICATION_VERSION_CHANGE)
                                         .tag(newtag)
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
