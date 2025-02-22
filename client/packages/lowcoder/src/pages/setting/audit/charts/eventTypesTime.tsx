@@ -6,10 +6,11 @@ import { debounce } from "lodash";
 interface Props {
   data: Array<any>;
   eventTypeLabels: any;
+  eventTypes: Array<{ value: string; color: string }>; 
   setDateRange: (range: { fromTimestamp: string; toTimestamp: string }) => void;
 }
 
-const EventTypeTimeChart = ({ data, eventTypeLabels, setDateRange }: Props) => {
+const EventTypeTimeChart = ({ data, eventTypeLabels, eventTypes, setDateRange }: Props) => {
   const chartRef = useRef<any>(null);
 
   const debouncedSetDateRange = useRef(
@@ -43,14 +44,21 @@ const EventTypeTimeChart = ({ data, eventTypeLabels, setDateRange }: Props) => {
   }, {});
 
   // Get unique event types
-  const eventTypes = [...new Set(data.map((log: any) => log.eventType))];
+  const eventTypesSet = [...new Set(data.map((log: any) => log.eventType))];
+
+  const colorMap: { [key: string]: string } = Object.fromEntries(
+    eventTypes.map((et) => [et.value, et.color])
+  );
 
   // Prepare series data for each event type
-  const series = eventTypes.map((eventType) => ({
+  const series = eventTypesSet.map((eventType) => ({
     name: eventTypeLabels[eventType] || eventType,
     type: "bar",
     stack: "total",
     data: fullDateRange.map((date) => groupedData[date]?.[eventType] || 0), // Fill gaps with 0
+    itemStyle: {
+      color: colorMap[eventType] || "#8c8c8c", // Use predefined color or fallback
+    },
   }));
 
   const handleChartEvents = (params: any) => {
