@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
-import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.home.UserHomeApiService;
 import org.lowcoder.api.home.UserHomepageView;
 import org.lowcoder.api.util.BusinessEventPublisher;
@@ -14,7 +13,6 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.application.service.ApplicationRecordService;
-import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.permission.model.ResourceRole;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -37,7 +35,6 @@ public class ApplicationController implements ApplicationEndpoints {
     private final UserHomeApiService userHomeApiService;
     private final ApplicationApiService applicationApiService;
     private final BusinessEventPublisher businessEventPublisher;
-    private final SessionUserService sessionUserService;
     private final GidService gidService;
     private final ApplicationRecordService applicationRecordService;
 
@@ -152,6 +149,14 @@ public class ApplicationController implements ApplicationEndpoints {
                             return newtag;
                         })
                         .switchIfEmpty(Mono.just("1.0.0"))
+                        .delayUntil(newtag -> {
+                            ApplicationPublishRequest req = Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag));
+                            return businessEventPublisher.publishApplicationPublishEvent(appId, req).then(Mono.defer(() -> {
+                                if(newtag.equals(req.tag())) {
+                                    return businessEventPublisher.publishApplicationVersionChangeEvent(appId, newtag);
+                                } else return Mono.empty();
+                            }));
+                        })
                         .flatMap(newtag -> applicationApiService.publish(appId, Objects.requireNonNullElse(applicationPublishRequest, new ApplicationPublishRequest("", newtag))))
                 .map(ResponseView::success));
     }
@@ -221,6 +226,7 @@ public class ApplicationController implements ApplicationEndpoints {
         }
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.updatePermission(appId, permissionId, role)
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationPermissionEvent(applicationId, null, null, permissionId, role.getValue()))
                 .map(ResponseView::success));
     }
 
@@ -230,6 +236,7 @@ public class ApplicationController implements ApplicationEndpoints {
             @PathVariable String permissionId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.removePermission(appId, permissionId)
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationPermissionEvent(applicationId, null, null, permissionId, null))
                 .map(ResponseView::success));
     }
 
@@ -246,6 +253,7 @@ public class ApplicationController implements ApplicationEndpoints {
                         emptyIfNull(request.userIds()),
                         emptyIfNull(request.groupIds()),
                         role)
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationPermissionEvent(applicationId, emptyIfNull(request.userIds()), emptyIfNull(request.groupIds()), null, role.getValue()))
                 .map(ResponseView::success));
     }
 
@@ -262,6 +270,7 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestBody ApplicationPublicToAllRequest request) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.setApplicationPublicToAll(appId, request.publicToAll())
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToAll"))
                 .map(ResponseView::success));
     }
 
@@ -270,6 +279,7 @@ public class ApplicationController implements ApplicationEndpoints {
                                                                          @RequestBody ApplicationPublicToMarketplaceRequest request) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.setApplicationPublicToMarketplace(appId, request)
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToMarketplace"))
                 .map(ResponseView::success));
     }
 
