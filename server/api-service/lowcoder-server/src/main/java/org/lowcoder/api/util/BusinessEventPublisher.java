@@ -315,7 +315,7 @@ public class BusinessEventPublisher {
                                         .applicationName(application.getName())
                                         .applicationCategory(category)
                                         .applicationDescription(description)
-                                        .type(EventType.APPLICATION_SHARING_CHANGE)
+                                        .type(EventType.APPLICATION_PUBLISH)
                                         .commitMessage(request.commitMessage())
                                         .tag(request.tag())
                                         .isAnonymous(anonymous)
