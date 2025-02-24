@@ -3,6 +3,7 @@ import {
   dropdownControl,
   BoolControl,
   NumberControl,
+  ColorControl,
   withDefault,
   showLabelPropertyView,
 } from "lowcoder-sdk";
@@ -44,6 +45,12 @@ export const ScatterChartConfig = (function () {
       shape: dropdownControl(ScatterShapeOptions, "circle"),
       singleAxis: BoolControl,
       boundaryGap: withDefault(BoolControl, true),
+      visualMap: BoolControl,
+      visualMapMin: NumberControl,
+      visualMapMax: NumberControl,
+      visualMapDimension: NumberControl,
+      visualMapColorMin: ColorControl,
+      visualMapColorMax: ColorControl,
     },
     (props): ScatterSeriesOption => {
       return {
@@ -71,6 +78,14 @@ export const ScatterChartConfig = (function () {
         },
         singleAxis: props.singleAxis,
         boundaryGap: props.boundaryGap,
+        visualMapData: {
+          visualMap: props.visualMap,
+          visualMapMin: props.visualMapMin,
+          visualMapMax: props.visualMapMax,
+          visualMapDimension: props.visualMapDimension,
+          visualMapColorMin: props.visualMapColorMin,
+          visualMapColorMax: props.visualMapColorMax,
+        }
       };
     }
   )
@@ -88,6 +103,24 @@ export const ScatterChartConfig = (function () {
         })}
         {children.singleAxis.propertyView({
           label: trans("scatterChart.singleAxis"),
+        })}
+        {children.visualMap.propertyView({
+          label: trans("scatterChart.visualMap"),
+        })}
+        {children.visualMap.getView() && children.visualMapMin.propertyView({
+          label: trans("scatterChart.visualMapMin"),
+        })}
+        {children.visualMap.getView() && children.visualMapMax.propertyView({
+          label: trans("scatterChart.visualMapMax"),
+        })}
+        {children.visualMap.getView() && children.visualMapDimension.propertyView({
+          label: trans("scatterChart.visualMapDimension"),
+        })}
+        {children.visualMap.getView() && children.visualMapColorMin.propertyView({
+          label: trans("scatterChart.visualMapColorMin"),
+        })}
+        {children.visualMap.getView() && children.visualMapColorMax.propertyView({
+          label: trans("scatterChart.visualMapColorMax"),
         })}
       </>
     ))

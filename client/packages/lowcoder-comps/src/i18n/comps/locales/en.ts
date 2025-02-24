@@ -379,6 +379,12 @@ export const en = {
     labelLineLength2: "Label Line Length2",
   },
   scatterChart: {
+    visualMap: "Visual Map",
+    visualMapMin: "Visual Map Min",
+    visualMapMax: "Visual Map Max",
+    visualMapDimension: "Visual Map Dimension",
+    visualMapColorMin: "Visual Map Color Min",
+    visualMapColorMax: "Visual Map Color Max",
     boundaryGap: "Boundary Gap",
     labelIndex: "Label Column Index",
     dynamicSize: "Dynamic Size",

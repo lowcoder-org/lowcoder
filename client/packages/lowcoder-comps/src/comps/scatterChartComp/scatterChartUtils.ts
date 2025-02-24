@@ -236,6 +236,22 @@ export function getEchartsConfig(
     }));
   }
 
+  if(props.chartConfig.visualMapData.visualMap) {
+    config.visualMap = {
+      min: props.chartConfig.visualMapData.visualMapMin,
+      max: props.chartConfig.visualMapData.visualMapMax,
+      dimension: props.chartConfig.visualMapData.visualMapDimension,
+      orient: 'vertical',
+      right: 10,
+      top: 'center',
+      text: ['HIGH', 'LOW'],
+      calculable: true,
+      inRange: {
+        color: [props.chartConfig.visualMapData.visualMapColorMin, props.chartConfig.visualMapData.visualMapColorMax]
+      }
+    }
+  }
+
   console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
