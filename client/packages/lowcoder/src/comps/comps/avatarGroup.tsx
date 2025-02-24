@@ -111,11 +111,11 @@ const AvatarGroupView = (props: RecordConstructorToView<typeof childrenMap> & { 
       alignment={props.alignment}
     >
       {
-        <Avatar.Group maxCount={props.maxCount} size={props.avatarSize}>
+        <Avatar.Group max={{ count: props.maxCount }} size={props.avatarSize}>
           {
             props.avatars.map((item, index) => {
               return (
-                <Tooltip title={item.Tooltip}>
+                <Tooltip title={item.Tooltip} key={index}>
                   <Avatar
                     src={item.src ?? undefined}
                     icon={(item.AvatarIcon as ReactElement)?.props.value === '' || item.label.trim() !== '' ? undefined : item.AvatarIcon}

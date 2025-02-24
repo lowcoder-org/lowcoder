@@ -1,0 +1,4000 @@
+openapi: 3.0.0
+info:
+  title: Settings API Collections
+  description: >-
+    **Users API:** Use this API to fetch information about users in the account,
+    along with updating their working hours, timezone, additional phone number,
+    and job title properties.
+
+
+    **Business Units API:** The following endpoint provides information about
+    [business
+    units](https://knowledge.hubspot.com/account-settings/manage-brands-with-business-unit)
+    tied to a user. This may also include information about
+    [logos](https://knowledge.hubspot.com/account-settings/edit-your-logo-favicon-and-brand-colors).  
+
+    **User Provisioning API:** This API can be used to manage the users on an
+    account and manage the permission sets of those users.
+
+
+    **Currencies API:** This API can manage the currencies used in your HubSpot
+    account, including setting your account's company currency, creating
+    additional currencies, and updating currency exchange rates.
+
+
+    **Fork the collections using Run in Postman:**
+
+
+    [<img src="https://run.pstmn.io/button.svg" alt="Run In
+    Postman">](https://app.getpostman.com/run-collection/26126890-177e1ace-347d-481b-9d2a-af2aada9cee8?action=collection%2Ffork&source=rip_markdown&collection-url=entityId%3D26126890-177e1ace-347d-481b-9d2a-af2aada9cee8%26entityType%3Dcollection%26workspaceId%3Dd7645f33-539d-49c6-9e0c-efa6faae355d)
+  version: 1.0.0
+servers:
+  - url: http://{{baseurl}}
+components:
+  securitySchemes:
+    apikeyAuth:
+      type: http
+      scheme: apikey
+    oauth2Auth:
+      type: http
+      scheme: oauth2
+tags:
+  - name: Business Unit API
+    description: "The following endpoint provides information about\_[business units](https://knowledge.hubspot.com/account-settings/manage-brands-with-business-unit)\_tied to a user. This may also include information about\_[logos](https://knowledge.hubspot.com/account-settings/edit-your-logo-favicon-and-brand-colors).\n\n**Please note:**\_the business units API currently only supports retrieving business unit data and does\_not\_support associating assests with a business unit, nor creating a new business unit.\n\n## Get business units tied to a user\n\nTo get the business units that a user has access to, you can make a\_`GET`\_request to\n\n`/business-units/v3/business-units/user/{userId}`\n\nThe following is an example of what the response body should include:\n\n```\n// Example GET request to /business-units/v3/business-units/user/{userId}\n{\n  \"logoMetadata\": {\n    \"logoAltText\": \"logo sample text\",\n    \"resizedUrl\": \"sillystring\",\n    \"logoUrl\": \"examplelogourl.com\"\n  },\n  \"name\": \"sample business unit name\",\n  \"id\": \"101\"\n}\n\n ```"
+  - name: Business Unit API > Business Unit
+  - name: User Provisioning API
+    description: >-
+      Use the user provisioning API to create and manage users in the account,
+      along with their permissions. You can also set user `firstName` and
+      `lastName` properties through this API.
+
+
+      To retrieve and update other user information, such as their job title and
+      working hours, use the [users
+      API](https://developers.hubspot.com/docs/api/crm/users) instead.
+
+
+      ## Specifying a user
+
+
+      When specifying a user with the `userId` path parameter, you can either
+      use the user's ID or the user's email. Specifying based on the user's ID
+      is the default behavior but if you want to use the user's email, you can
+      use the query parameter `idProperty` to set that.
+
+
+      The following `GET` request is fetching a user with the email
+      [<i>myUser@gmail.com</i>](https://mailto:myUser@gmail.com)_:_
+
+
+      `https://api.hubspot.com/settings/v3/users/myUser@gmail.com?idProperty=EMAIL`
+
+
+      You can set the `idProperty` query parameter in any endpoint that takes in
+      `userId` as a path parameter.
+
+
+      ## Permission Sets
+
+
+      HubSpot accounts can define permission sets to easily manage multiple
+      users' permissions at once. Once you've created a role and specified
+      certain permissions for it, you can then assign new and existing users the
+      role to grant them the same permissions. Permission sets that have paid
+      seats attached to them can only be modified by applications that have the
+      `billing-write` scope.
+
+
+      The following is an example of a role definition for a user:
+
+
+      ```
+
+      // Example specification of a role definition
+
+      {
+        "id": "1234",
+        "name": "a new role",
+        "requiresBillingWrite": false
+      }
+
+       ```
+
+      Note that permission sets must be [created in the
+      app](https://knowledge.hubspot.com/settings/create-roles) before
+      attempting to assign them to users.
+  - name: User Provisioning API > Teams
+  - name: User Provisioning API > Roles
+  - name: User Provisioning API > Users
+  - name: Users API
+    description: "Use the user provisioning API to create and manage users in the account, along with their permissions. You can also set user\_`firstName`\_and\_`lastName`\_properties through this API.\_\n\nTo retrieve and update other user information, such as their job title and working hours, use the\_[users API](https://developers.hubspot.com/docs/api/crm/users)\_instead.\n\n## Specifying a user\n\nWhen specifying a user with the\_`userId`\_path parameter, you can either use the user's ID or the user's email. Specifying based on the user's ID is the default behavior but if you want to use the user's email, you can use the query parameter\_`idProperty`\_to set that.\n\nThe following\_`GET`\_request is fetching a user with the email\__myUser@gmail.com:_\n\n`https://api.hubspot.com/settings/v3/users/myUser@gmail.com?idProperty=EMAIL`\n\nYou can set the\_`idProperty`\_query parameter in any endpoint that takes in\_`userId`\_as a path parameter.\n\n## Permission Sets\n\nHubSpot accounts can define permission sets to easily manage multiple users' permissions at once. Once you've created a role and specified certain permissions for it, you can then assign new and existing users the role to grant them the same permissions. Permission sets that have paid seats attached to them can only be modified by applications that have the\_`billing-write`\_scope.\n\nThe following is an example of a role definition for a user:\n\n```\n// Example specification of a role definition\n{\n  \"id\": \"1234\",\n  \"name\": \"a new role\",\n  \"requiresBillingWrite\": false\n}\n\n ```\n\nNote that permission sets must be\_[created in the app](https://knowledge.hubspot.com/settings/create-roles)\_before attempting to assign them to users."
+  - name: Users API > Batch
+  - name: Users API > Basic
+  - name: Users API > Search
+  - name: Currencies API
+    description: "With the currencies API, you can manage the currencies used in your HubSpot account, including setting your account's company currency, creating additional currencies, and updating currency exchange rates. Learn more about\_[adding and editing currencies within HubSpot.](https://knowledge.hubspot.com/deals/add-and-edit-your-account-currencies)\n\n## Supported currencies\n\nOnly certain currencies are supported for use in HubSpot. To retrieve a list of HubSpot's supported currencies and their codes, make a\_`GET`\_request to\_`/settings/v3/currencies/codes`.\n\nYou can use any of the returned codes as values for the\_`currencyCode`,\_`fromCurrencyCode`, and\_`toCurrencyCode`\_properties.\n\n## Add account currencies and set exchange rates\n\nDepending on your HubSpot subscription, you can add additional currencies for use in your account, and set their exchange rates compared to your company currency. Learn more about the number of currencies you can have in your account in the\_[HubSpot Product &amp; Services Catalog.](https://legal.hubspot.com/hubspot-product-and-services-catalog)\n\nTo add a currency and set the exchange rate, or add a new exchange rate for an existing currency, make a\_`POST`\_request to\_`/settings/v3/currencies/exchange-rates`. In your request, the following fields are required:\n\n- `fromCurrencyCode`: the currency code of the currency you want to add to your account. This must be one of HubSpot's supported currency codes.\n    \n- `conversionRate`: the exchange rate from the additional currency to your company currency. The value must be greater than 0 and can contain up to 6 decimal values (e.g.,\_`1.36`). Any values with more than 6 decimal places will be rounded (e.g.,\_`1.2345678`\_becomes\_`1.234568`).\n    \n\nYou can also include a timestamp using the following field:\n\n- `effectiveAt`: the date and time the exchange rate takes effect. Values can be in either\_[long date&nbsp;](https://www.jarte.com/help_new/date_and_time_formats.html)\_or\_[ISO 8601](https://developers.hubspot.com/docs/api/faq#timestamps)\_format."
+  - name: Currencies API > Currency
+paths:
+  /business-units/v3/business-units/user/{userId}:
+    get:
+      tags:
+        - Business Unit API > Business Unit
+      summary: Get Business Units for a user
+      description: >-
+        Get Business Units identified by `userId`. The `userId` refers to the
+        user’s ID.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            The names of properties to optionally include in the response body.
+            The only valid value is `logoMetadata`.
+          example: <string>
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            The names of properties to optionally include in the response body.
+            The only valid value is `logoMetadata`.
+          example: <string>
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: >-
+            The names of Business Units to retrieve. If empty or not provided,
+            then all associated Business Units will be returned.
+          example: <string>
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: >-
+            The names of Business Units to retrieve. If empty or not provided,
+            then all associated Business Units will be returned.
+          example: <string>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    name: <string>
+                    logoMetadata:
+                      logoUrl: <string>
+                      logoAltText: <string>
+                      resizedUrl: <string>
+                  - id: <string>
+                    name: <string>
+                    logoMetadata:
+                      logoUrl: <string>
+                      logoAltText: <string>
+                      resizedUrl: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "reprehenderit_57c": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "consectetur3f": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "in": "<string>",
+                      "code": "<string>",
+                      "subCategory": "<string>",
+                      "context": {
+                        "in_f": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "in_4c": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ],
+                  "context": {
+                    "occaecat_a8a": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "voluptate_a8": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "elit_2e": "<string>",
+                    "ipsum_bf": "<string>"
+                  }
+                }
+  /settings/v3/users/teams:
+    get:
+      tags:
+        - User Provisioning API > Teams
+      summary: See details about this account's teams
+      description: View teams for this account
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    name: <string>
+                    secondaryUserIds:
+                      - <string>
+                      - <string>
+                    userIds:
+                      - <string>
+                      - <string>
+                  - id: <string>
+                    name: <string>
+                    secondaryUserIds:
+                      - <string>
+                      - <string>
+                    userIds:
+                      - <string>
+                      - <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/users/roles:
+    get:
+      tags:
+        - User Provisioning API > Roles
+      summary: Retrieves the roles on an account
+      description: Retrieves the roles on an account
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - id: <string>
+                    name: <string>
+                    requiresBillingWrite: <boolean>
+                  - id: <string>
+                    name: <string>
+                    requiresBillingWrite: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/users/:
+    get:
+      tags:
+        - User Provisioning API > Users
+      summary: Retrieves a list of users from an account
+      description: Retrieves a list of users from an account
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: limit
+          in: query
+          schema:
+            type: string
+          description: The number of users to retrieve
+          example: <integer>
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            Results will display maximum 100 users per page. Additional results
+            will be on the next page.
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - email: <string>
+                    id: <string>
+                    primaryTeamId: <string>
+                    roleIds:
+                      - <string>
+                      - <string>
+                    sendWelcomeEmail: <boolean>
+                    roleId: <string>
+                    secondaryTeamIds:
+                      - <string>
+                      - <string>
+                    superAdmin: <boolean>
+                  - email: <string>
+                    id: <string>
+                    primaryTeamId: <string>
+                    roleIds:
+                      - <string>
+                      - <string>
+                    sendWelcomeEmail: <boolean>
+                    roleId: <string>
+                    secondaryTeamIds:
+                      - <string>
+                      - <string>
+                    superAdmin: <boolean>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    post:
+      tags:
+        - User Provisioning API > Users
+      summary: Adds a user
+      description: >-
+        New users will only have minimal permissions, which is contacts-base. A
+        welcome email will prompt them to set a password and log in to HubSpot.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: <string>
+                primaryTeamId: <string>
+                sendWelcomeEmail: <boolean>
+                roleId: <string>
+                secondaryTeamIds:
+                  - <string>
+                  - <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                email: <string>
+                id: <string>
+                primaryTeamId: <string>
+                roleIds:
+                  - <string>
+                  - <string>
+                sendWelcomeEmail: <boolean>
+                roleId: <string>
+                secondaryTeamIds:
+                  - <string>
+                  - <string>
+                superAdmin: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/users/{userId}:
+    get:
+      tags:
+        - User Provisioning API > Users
+      summary: Retrieves a user
+      description: >-
+        Retrieves a user identified by `userId`. `userId` refers to the user's
+        ID by default, or optionally email as specified by the `IdProperty`
+        query param.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: idProperty
+          in: query
+          schema:
+            type: string
+          description: >-
+            The name of a property with unique user values. Valid values are
+            `USER_ID`(default) or `EMAIL`
+          example: <string>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                email: <string>
+                id: <string>
+                primaryTeamId: <string>
+                roleIds:
+                  - <string>
+                  - <string>
+                sendWelcomeEmail: <boolean>
+                roleId: <string>
+                secondaryTeamIds:
+                  - <string>
+                  - <string>
+                superAdmin: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    put:
+      tags:
+        - User Provisioning API > Users
+      summary: Modifies a user
+      description: >-
+        Modifies a user identified by `userId`. `userId` refers to the user's ID
+        by default, or optionally email as specified by the `IdProperty` query
+        param.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                primaryTeamId: <string>
+                roleId: <string>
+                secondaryTeamIds:
+                  - <string>
+                  - <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: idProperty
+          in: query
+          schema:
+            type: string
+          description: >-
+            The name of a property with unique user values. Valid values are
+            `USER_ID`(default) or `EMAIL`
+          example: <string>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                email: <string>
+                id: <string>
+                primaryTeamId: <string>
+                roleIds:
+                  - <string>
+                  - <string>
+                sendWelcomeEmail: <boolean>
+                roleId: <string>
+                secondaryTeamIds:
+                  - <string>
+                  - <string>
+                superAdmin: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    delete:
+      tags:
+        - User Provisioning API > Users
+      summary: Removes a user
+      description: >-
+        Removes a user identified by `userId`. `userId` refers to the user's ID
+        by default, or optionally email as specified by the `IdProperty` query
+        param.
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+        - name: idProperty
+          in: query
+          schema:
+            type: string
+          description: >-
+            The name of a property with unique user values. Valid values are
+            `USER_ID`(default) or `EMAIL`
+          example: <string>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          example: <string>
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "etff": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "dolor_c36": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "minim_5b": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_11": "<string>",
+                    "minim29": "<string>",
+                    "sitd0": "<string>",
+                    "est_063": "<string>",
+                    "cillum_0": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "culpaae": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "officia0d": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /crm/v3/objects/users/batch/read:
+    post:
+      tags:
+        - Users API > Batch
+      summary: Read a batch of users by internal ID, or unique property values
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - id: <string>
+                  - id: <string>
+                properties:
+                  - <string>
+                  - <string>
+                propertiesWithHistory:
+                  - <string>
+                  - <string>
+                idProperty: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          description: Whether to return only results that have been archived.
+          example: 'false'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      Ut_e9: <string>
+                      commodo_d2_: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      velit_a8:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      fugiat_2: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      magna_273:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      sunt_3:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                startedAt: <dateTime>
+                status: PENDING
+                requestedAt: <dateTime>
+                links:
+                  commodo_c: <string>
+                  mollit__8a: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      sunt_c1c: <string>
+                      in_2: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      voluptate0dd:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      aute_e2c:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      tempor_b2:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      esse5:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      sit7_: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      do_9d2:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                startedAt: <dateTime>
+                status: COMPLETE
+                numErrors: <integer>
+                requestedAt: <dateTime>
+                links:
+                  laborum_0: <string>
+                errors:
+                  - category: <string>
+                    context:
+                      sunt_49_:
+                        - <string>
+                        - <string>
+                      Lorem13e:
+                        - <string>
+                        - <string>
+                      irureb5f:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          consectetur_c09:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          commodo_9b3:
+                            - <string>
+                            - <string>
+                    links:
+                      ex2ca: <string>
+                      voluptate6: <string>
+                      occaecat__: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+                  - category: <string>
+                    context:
+                      irure_f6d:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          sit_9:
+                            - <string>
+                            - <string>
+                          ullamco_0c:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          sit_3:
+                            - <string>
+                            - <string>
+                    links:
+                      Lorem_c_: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "quif7e": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "incididunt_0": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "quis2c": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "anim__f5": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "magna_187": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "minim8": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "nisi_d0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sit3e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu_9e6": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /crm/v3/objects/users/{userId}:
+    get:
+      tags:
+        - Users API > Basic
+      summary: Read
+      description: >-
+        Read an Object identified by `{userId}`. `{userId}` refers to the
+        internal object ID by default, or optionally any unique property value
+        as specified by the `idProperty` query param.  Control what is returned
+        via the `properties` query param.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          example: <string>
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          example: <string>
+        - name: propertiesWithHistory
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned along with
+            their history of previous values. If any of the specified properties
+            are not present on the requested object(s), they will be ignored.
+          example: <string>
+        - name: propertiesWithHistory
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned along with
+            their history of previous values. If any of the specified properties
+            are not present on the requested object(s), they will be ignored.
+          example: <string>
+        - name: associations
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          example: <string>
+        - name: associations
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          example: <string>
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          description: Whether to return only results that have been archived.
+          example: 'false'
+        - name: idProperty
+          in: query
+          schema:
+            type: string
+          description: The name of a property whose values are unique for this object type
+          example: <string>
+        - name: userId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                createdAt: <dateTime>
+                id: <string>
+                properties:
+                  aliqua_2: <string>
+                  voluptate57f: <string>
+                  est_96: <string>
+                updatedAt: <dateTime>
+                associations:
+                  sed_59:
+                    results:
+                      - id: <string>
+                        type: <string>
+                      - id: <string>
+                        type: <string>
+                    paging:
+                      next:
+                        after: <string>
+                        link: <string>
+                      prev:
+                        before: <string>
+                        link: <string>
+                  enim_4e:
+                    results:
+                      - id: <string>
+                        type: <string>
+                      - id: <string>
+                        type: <string>
+                    paging:
+                      next:
+                        after: <string>
+                        link: <string>
+                      prev:
+                        before: <string>
+                        link: <string>
+                archived: <boolean>
+                archivedAt: <dateTime>
+                propertiesWithHistory:
+                  pariatur7:
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+                  tempord:
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+                  qui_b:
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+                    - sourceType: <string>
+                      timestamp: <dateTime>
+                      value: <string>
+                      sourceId: <string>
+                      sourceLabel: <string>
+                      updatedByUserId: <integer>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "quif7e": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "incididunt_0": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "quis2c": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "anim__f5": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "magna_187": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "minim8": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "nisi_d0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sit3e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu_9e6": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /crm/v3/objects/users:
+    get:
+      tags:
+        - Users API > Basic
+      summary: List
+      description: >-
+        Read a page of users. Control what is returned via the `properties`
+        query param.
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: The maximum number of results to display per page.
+          example: '10'
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          example: <string>
+        - name: properties
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned in the
+            response. If any of the specified properties are not present on the
+            requested object(s), they will be ignored.
+          example: <string>
+        - name: propertiesWithHistory
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned along with
+            their history of previous values. If any of the specified properties
+            are not present on the requested object(s), they will be ignored.
+            Usage of this parameter will reduce the maximum number of objects
+            that can be read by a single request.
+          example: <string>
+        - name: propertiesWithHistory
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of the properties to be returned along with
+            their history of previous values. If any of the specified properties
+            are not present on the requested object(s), they will be ignored.
+            Usage of this parameter will reduce the maximum number of objects
+            that can be read by a single request.
+          example: <string>
+        - name: associations
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          example: <string>
+        - name: associations
+          in: query
+          schema:
+            type: string
+          description: >-
+            A comma separated list of object types to retrieve associated IDs
+            for. If any of the specified associations do not exist, they will be
+            ignored.
+          example: <string>
+        - name: archived
+          in: query
+          schema:
+            type: boolean
+          description: Whether to return only results that have been archived.
+          example: 'false'
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      dolor_8: <string>
+                    updatedAt: <dateTime>
+                    associations:
+                      Loremf6:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                      sed_1:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                      anim_ed0:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                      laboris_88:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                      sint6:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      tempor7f7:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      laborum2b:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      deserunt0_f:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      et79: <string>
+                      est5: <string>
+                      cillum81: <string>
+                    updatedAt: <dateTime>
+                    associations:
+                      magnaf:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                      officia_f2:
+                        results:
+                          - id: <string>
+                            type: <string>
+                          - id: <string>
+                            type: <string>
+                        paging:
+                          next:
+                            after: <string>
+                            link: <string>
+                          prev:
+                            before: <string>
+                            link: <string>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      sit235:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                      quib17:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "quif7e": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "incididunt_0": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "quis2c": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "anim__f5": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "magna_187": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "minim8": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "nisi_d0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sit3e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu_9e6": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /crm/v3/objects/users/search:
+    post:
+      tags:
+        - Users API > Search
+      summary: post-/crm/v3/objects/users/search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                after: <string>
+                filterGroups:
+                  - filters:
+                      - operator: GT
+                        propertyName: <string>
+                        highValue: <string>
+                        values:
+                          - <string>
+                          - <string>
+                        value: <string>
+                      - operator: BETWEEN
+                        propertyName: <string>
+                        highValue: <string>
+                        values:
+                          - <string>
+                          - <string>
+                        value: <string>
+                  - filters:
+                      - operator: LTE
+                        propertyName: <string>
+                        highValue: <string>
+                        values:
+                          - <string>
+                          - <string>
+                        value: <string>
+                      - operator: EQ
+                        propertyName: <string>
+                        highValue: <string>
+                        values:
+                          - <string>
+                          - <string>
+                        value: <string>
+                limit: <integer>
+                properties:
+                  - <string>
+                  - <string>
+                sorts:
+                  - <string>
+                  - <string>
+                query: <string>
+      security:
+        - oauth2Auth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      enime: <string>
+                      ipsumb: <string>
+                      Ut_55: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      amet_93f:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                  - createdAt: <dateTime>
+                    id: <string>
+                    properties:
+                      amet_6: <string>
+                      adipisicing767: <string>
+                    updatedAt: <dateTime>
+                    archived: <boolean>
+                    archivedAt: <dateTime>
+                    propertiesWithHistory:
+                      irure39c:
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                        - sourceType: <string>
+                          timestamp: <dateTime>
+                          value: <string>
+                          sourceId: <string>
+                          sourceLabel: <string>
+                          updatedByUserId: <integer>
+                total: <integer>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "quif7e": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "incididunt_0": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "quis2c": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "anim__f5": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "magna_187": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "minim8": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "nisi_d0": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sit3e": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "eu_9e6": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates:
+    get:
+      tags:
+        - Currencies API > Currency
+      summary: get-/settings/v3/currencies/exchange-rates
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: limit
+          in: query
+          schema:
+            type: integer
+          description: The maximum number of results to display per page.
+          example: '100'
+        - name: after
+          in: query
+          schema:
+            type: string
+          description: >-
+            The paging cursor token of the last successfully read resource will
+            be returned as the `paging.next.after` JSON property of a paged
+            response containing more results.
+          example: <string>
+        - name: fromCurrencyCode
+          in: query
+          schema:
+            type: string
+          example: CZK
+        - name: toCurrencyCode
+          in: query
+          schema:
+            type: string
+          example: CZK
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: SVC
+                    id: <string>
+                    toCurrencyCode: HTG
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: XPT
+                    id: <string>
+                    toCurrencyCode: TTD
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                paging:
+                  next:
+                    after: <string>
+                    link: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    post:
+      tags:
+        - Currencies API > Currency
+      summary: post-/settings/v3/currencies/exchange-rates
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                conversionRate: <number>
+                fromCurrencyCode: VUV
+                effectiveAt: <dateTime>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                conversionRate: <number>
+                createdAt: <dateTime>
+                effectiveAt: <dateTime>
+                fromCurrencyCode: XPF
+                id: <string>
+                toCurrencyCode: BOB
+                updatedAt: <dateTime>
+                visibleInUI: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/codes:
+    get:
+      tags:
+        - Currencies API > Currency
+      summary: get-/settings/v3/currencies/codes
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - currencyCode: <string>
+                    currencyName: <string>
+                  - currencyCode: <string>
+                    currencyName: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/company-currency:
+    get:
+      tags:
+        - Currencies API > Currency
+      summary: get-/settings/v3/currencies/company-currency
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                createdAt: <dateTime>
+                id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    put:
+      tags:
+        - Currencies API > Currency
+      summary: put-/settings/v3/currencies/company-currency
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                currencyCode: KGS
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                createdAt: <dateTime>
+                id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/batch/update:
+    post:
+      tags:
+        - Currencies API > Currency
+      summary: post-/settings/v3/currencies/exchange-rates/batch/update
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - conversionRate: <number>
+                    id: <string>
+                    effectiveAt: <dateTime>
+                  - conversionRate: <number>
+                    id: <string>
+                    effectiveAt: <dateTime>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: NZD
+                    id: <string>
+                    toCurrencyCode: AOA
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KRW
+                    id: <string>
+                    toCurrencyCode: BOV
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PROCESSING
+                requestedAt: <dateTime>
+                links:
+                  reprehenderitc4_: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: CVE
+                    id: <string>
+                    toCurrencyCode: USD
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KZT
+                    id: <string>
+                    toCurrencyCode: TND
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PENDING
+                numErrors: <integer>
+                requestedAt: <dateTime>
+                links:
+                  suntf: <string>
+                errors:
+                  - category: <string>
+                    context:
+                      veniam_4d:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          consecteturc6:
+                            - <string>
+                            - <string>
+                          veniam40:
+                            - <string>
+                            - <string>
+                          enime6_:
+                            - <string>
+                            - <string>
+                          laboris_65:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          est671:
+                            - <string>
+                            - <string>
+                          adipisicingb88:
+                            - <string>
+                            - <string>
+                          sed_260:
+                            - <string>
+                            - <string>
+                    links:
+                      cupidatat_ed: <string>
+                      in_c: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+                  - category: <string>
+                    context:
+                      ipsum_1:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          Excepteur6:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          veniame0:
+                            - <string>
+                            - <string>
+                          pariatur_b:
+                            - <string>
+                            - <string>
+                          Lorem_2f:
+                            - <string>
+                            - <string>
+                          officia82:
+                            - <string>
+                            - <string>
+                          proident_99:
+                            - <string>
+                            - <string>
+                    links:
+                      enime: <string>
+                      ullamco881: <string>
+                      nullac3: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/current:
+    get:
+      tags:
+        - Currencies API > Currency
+      summary: get-/settings/v3/currencies/exchange-rates/current
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: GIP
+                    id: <string>
+                    toCurrencyCode: GBP
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: QAR
+                    id: <string>
+                    toCurrencyCode: MZN
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/update-visibility:
+    post:
+      tags:
+        - Currencies API > Currency
+      summary: post-/settings/v3/currencies/exchange-rates/update-visibility
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                fromCurrencyCode: ANG
+                toCurrencyCode: CZK
+                visibleInUI: <boolean>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: '*/*'
+      responses:
+        '204':
+          description: No Content
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: null
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/{exchangeRateId}:
+    get:
+      tags:
+        - Currencies API > Currency
+      summary: get-/settings/v3/currencies/exchange-rates/{exchange Rate Id}
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: exchangeRateId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                conversionRate: <number>
+                createdAt: <dateTime>
+                effectiveAt: <dateTime>
+                fromCurrencyCode: XPF
+                id: <string>
+                toCurrencyCode: BOB
+                updatedAt: <dateTime>
+                visibleInUI: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+    patch:
+      tags:
+        - Currencies API > Currency
+      summary: patch-/settings/v3/currencies/exchange-rates/{exchange Rate Id}
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                conversionRate: <number>
+                effectiveAt: <dateTime>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: exchangeRateId
+          in: path
+          schema:
+            type: string
+          required: true
+          description: '(Required) '
+          example: <string>
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                conversionRate: <number>
+                createdAt: <dateTime>
+                effectiveAt: <dateTime>
+                fromCurrencyCode: XPF
+                id: <string>
+                toCurrencyCode: BOB
+                updatedAt: <dateTime>
+                visibleInUI: <boolean>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/batch/create:
+    post:
+      tags:
+        - Currencies API > Currency
+      summary: post-/settings/v3/currencies/exchange-rates/batch/create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - conversionRate: <number>
+                    fromCurrencyCode: MNT
+                    effectiveAt: <dateTime>
+                  - conversionRate: <number>
+                    fromCurrencyCode: NZD
+                    effectiveAt: <dateTime>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '201':
+          description: Created
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: NZD
+                    id: <string>
+                    toCurrencyCode: AOA
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KRW
+                    id: <string>
+                    toCurrencyCode: BOV
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PROCESSING
+                requestedAt: <dateTime>
+                links:
+                  reprehenderitc4_: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: CVE
+                    id: <string>
+                    toCurrencyCode: USD
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KZT
+                    id: <string>
+                    toCurrencyCode: TND
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PENDING
+                numErrors: <integer>
+                requestedAt: <dateTime>
+                links:
+                  suntf: <string>
+                errors:
+                  - category: <string>
+                    context:
+                      veniam_4d:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          consecteturc6:
+                            - <string>
+                            - <string>
+                          veniam40:
+                            - <string>
+                            - <string>
+                          enime6_:
+                            - <string>
+                            - <string>
+                          laboris_65:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          est671:
+                            - <string>
+                            - <string>
+                          adipisicingb88:
+                            - <string>
+                            - <string>
+                          sed_260:
+                            - <string>
+                            - <string>
+                    links:
+                      cupidatat_ed: <string>
+                      in_c: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+                  - category: <string>
+                    context:
+                      ipsum_1:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          Excepteur6:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          veniame0:
+                            - <string>
+                            - <string>
+                          pariatur_b:
+                            - <string>
+                            - <string>
+                          Lorem_2f:
+                            - <string>
+                            - <string>
+                          officia82:
+                            - <string>
+                            - <string>
+                          proident_99:
+                            - <string>
+                            - <string>
+                    links:
+                      enime: <string>
+                      ullamco881: <string>
+                      nullac3: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }
+  /settings/v3/currencies/exchange-rates/batch/read:
+    post:
+      tags:
+        - Currencies API > Currency
+      summary: post-/settings/v3/currencies/exchange-rates/batch/read
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                inputs:
+                  - id: <string>
+                  - id: <string>
+      security:
+        - apikeyAuth: []
+      parameters:
+        - name: Content-Type
+          in: header
+          schema:
+            type: string
+          example: application/json
+        - name: Accept
+          in: header
+          schema:
+            type: string
+          example: application/json
+      responses:
+        '200':
+          description: OK
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: NZD
+                    id: <string>
+                    toCurrencyCode: AOA
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KRW
+                    id: <string>
+                    toCurrencyCode: BOV
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PROCESSING
+                requestedAt: <dateTime>
+                links:
+                  reprehenderitc4_: <string>
+        '207':
+          description: Multi-Status (WebDAV) (RFC 4918)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                completedAt: <dateTime>
+                results:
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: CVE
+                    id: <string>
+                    toCurrencyCode: USD
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                  - conversionRate: <number>
+                    createdAt: <dateTime>
+                    effectiveAt: <dateTime>
+                    fromCurrencyCode: KZT
+                    id: <string>
+                    toCurrencyCode: TND
+                    updatedAt: <dateTime>
+                    visibleInUI: <boolean>
+                startedAt: <dateTime>
+                status: PENDING
+                numErrors: <integer>
+                requestedAt: <dateTime>
+                links:
+                  suntf: <string>
+                errors:
+                  - category: <string>
+                    context:
+                      veniam_4d:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          consecteturc6:
+                            - <string>
+                            - <string>
+                          veniam40:
+                            - <string>
+                            - <string>
+                          enime6_:
+                            - <string>
+                            - <string>
+                          laboris_65:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          est671:
+                            - <string>
+                            - <string>
+                          adipisicingb88:
+                            - <string>
+                            - <string>
+                          sed_260:
+                            - <string>
+                            - <string>
+                    links:
+                      cupidatat_ed: <string>
+                      in_c: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+                  - category: <string>
+                    context:
+                      ipsum_1:
+                        - <string>
+                        - <string>
+                    errors:
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          Excepteur6:
+                            - <string>
+                            - <string>
+                      - message: <string>
+                        subCategory: <string>
+                        code: <string>
+                        in: <string>
+                        context:
+                          veniame0:
+                            - <string>
+                            - <string>
+                          pariatur_b:
+                            - <string>
+                            - <string>
+                          Lorem_2f:
+                            - <string>
+                            - <string>
+                          officia82:
+                            - <string>
+                            - <string>
+                          proident_99:
+                            - <string>
+                            - <string>
+                    links:
+                      enime: <string>
+                      ullamco881: <string>
+                      nullac3: <string>
+                    message: <string>
+                    status: <string>
+                    subCategory: {}
+                    id: <string>
+        '500':
+          description: Internal Server Error
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: '*/*'
+          content:
+            text/plain:
+              schema:
+                type: string
+              example: |-
+                {
+                  "category": "<string>",
+                  "correlationId": "<uuid>",
+                  "message": "<string>",
+                  "subCategory": "<string>",
+                  "context": {
+                    "dolor_1_f": [
+                      "<string>",
+                      "<string>"
+                    ],
+                    "velit_c": [
+                      "<string>",
+                      "<string>"
+                    ]
+                  },
+                  "links": {
+                    "est_c62": "<string>"
+                  },
+                  "errors": [
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "qui_d": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "sed_5e8": [
+                          "<string>",
+                          "<string>"
+                        ],
+                        "adff": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    },
+                    {
+                      "message": "<string>",
+                      "subCategory": "<string>",
+                      "code": "<string>",
+                      "in": "<string>",
+                      "context": {
+                        "consequat_1": [
+                          "<string>",
+                          "<string>"
+                        ]
+                      }
+                    }
+                  ]
+                }

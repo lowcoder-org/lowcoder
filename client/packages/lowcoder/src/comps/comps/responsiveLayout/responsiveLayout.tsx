@@ -136,7 +136,7 @@ type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
   style: ResponsiveLayoutColStyleType,
 }
 
-const ColumnContainer = (props: ColumnContainerProps) => {
+const ColumnContainer = React.memo((props: ColumnContainerProps) => {
   return (
     <InnerGrid
       {...props}
@@ -145,7 +145,7 @@ const ColumnContainer = (props: ColumnContainerProps) => {
       style={props.style}
     />
   );
-};
+});
 
 const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   const screenInfo = useScreenInfo();
