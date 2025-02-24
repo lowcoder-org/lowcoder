@@ -22,7 +22,9 @@ type ScreenInfo = {
 export function useScreenInfo() {
   const canvasContainer = document.getElementById(CanvasContainerID);
   const canvas = document.getElementsByClassName('lowcoder-app-canvas')?.[0];
-  const canvasWidth = canvasContainer?.clientWidth || canvas?.clientWidth;
+  const canvasWidth = useMemo(() => {
+    return canvasContainer?.clientWidth || canvas?.clientWidth;
+  }, [canvasContainer?.clientWidth, canvas?.clientWidth]);
 
   const getDeviceType = (width: number) => {
     if (width < 768) return ScreenTypes.Mobile;
@@ -71,7 +73,9 @@ export function useScreenInfo() {
   }, [ updateScreenInfo ])
 
   useEffect(() => {
-    updateScreenInfo();
+    if (canvasWidth) {
+      updateScreenInfo();
+    }
   }, [canvasWidth]);
 
   return screenInfo;

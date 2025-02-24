@@ -41,12 +41,12 @@ const AvatarWrapper = styled(Avatar) <AvatarProps & { $cursorPointer?: boolean, 
   cursor: ${(props) => props.$cursorPointer ? 'pointer' : ''};
 `;
 
-const Wrapper = styled.div <{ iconSize: number, labelPosition: string,$style: AvatarContainerStyleType}>`
+const Wrapper = styled.div <{ $iconSize: number, $labelPosition: string,$style: AvatarContainerStyleType}>`
 display: flex;
 width: 100%;
 height: 100%;
 align-items: center;
-flex-direction: ${(props) => props.labelPosition === 'left' ? 'row' : 'row-reverse'};
+flex-direction: ${(props) => props.$labelPosition === 'left' ? 'row' : 'row-reverse'};
 ${(props) => {
     return (
       props.$style && {
@@ -57,14 +57,14 @@ ${(props) => {
   }}
 `
 
-const LabelWrapper = styled.div<{ iconSize: number, alignmentPosition: string }>`
-width: calc(100% - ${(props) => props.iconSize}px);
+const LabelWrapper = styled.div<{ $iconSize: number, $alignmentPosition: string }>`
+width: calc(100% - ${(props) => props.$iconSize}px);
 display: flex;
 padding-left: 5px;
 padding-right: 5px;
 flex-direction: column;
 justify-content: flex-end;
-align-items: ${(props) => props.alignmentPosition === 'left' ? 'flex-start' : 'flex-end'};
+align-items: ${(props) => props.$alignmentPosition === 'left' ? 'flex-start' : 'flex-end'};
 `
 const LabelSpan = styled.span<{ $style:AvatarLabelStyleType }>`
 max-width: 100%;
@@ -166,7 +166,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
       disabled={!props.enableDropdownMenu}
       dropdownRender={() => menu}
     >
-      <Wrapper iconSize={props.iconSize} labelPosition={props.labelPosition} $style={props.style}>
+      <Wrapper $iconSize={props.iconSize} $labelPosition={props.labelPosition} $style={props.style}>
         <Badge
           count={props.badgeCount.value}
           dot={props.badgeType === 'dot'}
@@ -187,7 +187,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
             {title.value}
           </AvatarWrapper>
         </Badge>
-        <LabelWrapper iconSize={props.iconSize} alignmentPosition={props.alignmentPosition}>
+        <LabelWrapper $iconSize={props.iconSize} $alignmentPosition={props.alignmentPosition}>
           <LabelSpan $style={props.labelStyle}>{props.avatarLabel.value}</LabelSpan>
           <CaptionSpan $style={props.captionStyle}>{props.avatarCatption.value}</CaptionSpan>
         </LabelWrapper>

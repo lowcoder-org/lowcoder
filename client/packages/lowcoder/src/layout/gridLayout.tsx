@@ -1,8 +1,8 @@
 import clsx from "clsx";
 import { colord } from "colord";
-import { UICompType } from "comps/uiCompRegistry";
+import type { UICompType } from "comps/uiCompRegistry";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
-import _ from "lodash";
+import _, { isEqual } from "lodash";
 import log from "loglevel";
 import React, { DragEvent, DragEventHandler, MouseEventHandler, ReactElement } from "react";
 import ReactResizeDetector from "react-resize-detector";
@@ -21,7 +21,7 @@ import {
 import { draggingUtils } from "./draggingUtils";
 import { FlyOverInfo, FlyStartInfo } from "./flyInfo";
 import { GridItem } from "./gridItem";
-import { GridLayoutProps } from "./gridLayoutPropTypes";
+import type { GridLayoutProps } from "./gridLayoutPropTypes";
 import { GridLines } from "./gridLines";
 import { changeItemOp, deleteItemOp, LayoutOp, renameItemOp } from "./layoutOp";
 import { getUILayout, LayoutOps, layoutOpUtils } from "./layoutOpUtils";
@@ -1102,7 +1102,7 @@ const LayoutContainer = styled.div<{
   }`}
 `;
 
-export const ReactGridLayout = React.memo(GridLayout);
+export const ReactGridLayout = React.memo(GridLayout, (prev, next) => isEqual(prev, next));
 
 function moveOrResize(
   e: React.KeyboardEvent,
