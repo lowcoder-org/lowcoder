@@ -11,7 +11,7 @@ import {
   useIcon,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode, useCallback, useRef, useState } from "react";
+import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
@@ -21,6 +21,7 @@ import List, { ListRowProps } from "react-virtualized/dist/es/List";
 import { debounce } from "lodash";
 import Spin from "antd/es/spin";
 import { ControlParams } from "./controlParams";
+import { getBase64 } from "@lowcoder-ee/util/fileUtils";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -175,11 +176,17 @@ const IconKeyDisplay = styled.div`
   width: 100%; /* Ensure the container can grow */
 `;
 
-export enum IconScoutAssetType {
+export enum AssetType {
   ICON = "icon",
   ILLUSTRATION = "illustration",
   // '3D' = "3d",
   LOTTIE = "lottie",
+}
+
+export type IconScoutAsset = {
+  uuid: string;
+  value: string;
+  preview: string;
 }
 
 const IconScoutSearchParams: SearchParams = {
@@ -198,27 +205,26 @@ export const IconPicker = (props: {
   assetType: string;
   uuid: string;
   value: string;
-  onChange: (key: string, value: string) => void;
+  preview: string;
+  onChange: (key: string, value: string, preview: string) => void;
   label?: ReactNode;
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
-  console.log(props.value, props.assetType);
-  const icon = useIcon(props.value);
   const [ visible, setVisible ] = useState(false)
   const [ loading, setLoading ] = useState(false)
-  const [searchText, setSearchText] = useState("");
   const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
+
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
+
   const onChangeIcon = useCallback(
-    (key: string, value: string) => {
-      onChangeRef.current(key, value);
+    (key: string, value: string, url: string) => {
+      onChangeRef.current(key, value, url);
       setVisible(false);
     }, []
   );
 
   const fetchResults = async (query: string) => {
-    console.log('query change', query);
     setLoading(true);
     const result = await IconscoutApi.search({
       ...IconScoutSearchParams,
@@ -229,19 +235,38 @@ export const IconPicker = (props: {
     setSearchResults(result.data);
   };
 
-  const fetchAsset = async (uuid: string) => {
+  const downloadAsset = async (
+    uuid: string,
+    downloadUrl: string,
+    callback: (assetUrl: string) => void,
+  ) => {
+    try {
+      if (uuid && downloadUrl) {
+        const json = await IconscoutApi.downloadAsset(downloadUrl);
+        getBase64(json, (url: string) => {
+          callback(url);
+        });
+      }
+    } catch(error) {
+      console.error(error);
+    }
+  }
+
+  const fetchDownloadUrl = async (uuid: string) => {
     try {
       const result = await IconscoutApi.download(uuid, {
-        format: 'svg',
+        format: props.assetType === AssetType.LOTTIE ? 'lottie' : 'svg',
       });
-      onChangeIcon(result.uuid, result.url);
+
+      downloadAsset(uuid, result.download_url, (assetUrl: string) => {
+        onChangeIcon(uuid, assetUrl, result.url);
+      });
     } catch (error) {
       console.error(error);
     }
   }
 
   const handleChange = debounce((e) => {
-    setSearchText(e.target.value);
     fetchResults(e.target.value);
   }, 500);
 
@@ -255,21 +280,17 @@ export const IconPicker = (props: {
               key={icon.uuid}
               tabIndex={0}
               onClick={() => {
-                if (props.assetType === IconScoutAssetType.LOTTIE) {
-                  onChangeIcon(icon.uuid, icon.urls.thumb )
-                } else {
-                  fetchAsset(icon.uuid);
-                }
+                fetchDownloadUrl(icon.uuid);
               }}
             >
               <IconWrapper>
-                {props.assetType === IconScoutAssetType.ICON && (
+                {props.assetType === AssetType.ICON && (
                   <img style={{'width': '100%'}} src={icon.urls.png_64} />
                 )}
-                {props.assetType === IconScoutAssetType.ILLUSTRATION && (
+                {props.assetType === AssetType.ILLUSTRATION && (
                   <img style={{'width': '100%'}} src={icon.urls.thumb} />
                 )}
-                {props.assetType === IconScoutAssetType.LOTTIE && (
+                {props.assetType === AssetType.LOTTIE && (
                   <video style={{'width': '100%'}} src={icon.urls.thumb} autoPlay />
                 )}
               </IconWrapper>
@@ -278,6 +299,12 @@ export const IconPicker = (props: {
       </IconRow>
     ),[searchResults]
   );
+
+  const popupTitle = useMemo(() => {
+    if (props.assetType === AssetType.ILLUSTRATION) return 'Search Image';
+    if (props.assetType === AssetType.LOTTIE) return 'Search Animation';
+    return 'Search Icon';
+  }, [props.assetType]);
 
   return (
     <Popover
@@ -288,25 +315,27 @@ export const IconPicker = (props: {
       onOpenChange={setVisible}
       // getPopupContainer={parent ? () => parent : undefined}
       // hide the original background when dragging the popover is allowed
-      overlayInnerStyle={{
-        border: "none",
-        boxShadow: "none",
-        background: "transparent",
-      }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
+      styles={{
+        body: {
+          border: "none",
+          boxShadow: "none",
+          background: "transparent",
+        }
+      }}
       destroyTooltipOnHide
       content={
         <Draggable handle=".dragHandle">
           <PopupContainer>
             <TitleDiv className="dragHandle">
-              <TitleText>{"Select Icon"}</TitleText>
+              <TitleText>{popupTitle}</TitleText>
               <StyledCloseIcon onClick={() => setVisible(false)} />
             </TitleDiv>
             <SearchDiv>
               <TacoInput
                 style={{ width: "100%", paddingLeft: "40px" }}
                 onChange={handleChange}
-                placeholder={"Search Icon"}
+                placeholder={popupTitle}
               />
               <StyledSearchIcon />
             </SearchDiv>
@@ -329,19 +358,19 @@ export const IconPicker = (props: {
       }
     >
       <TacoButton style={{ width: "100%" }}>
-        {props.value ? (
+        {props.preview ? (
           <ButtonWrapper>
             <ButtonIconWrapper>
-              {props.assetType === IconScoutAssetType.LOTTIE && (
-                <video style={{'width': '100%'}} src={props.value} autoPlay />
+              {props.assetType === AssetType.LOTTIE && (
+                <video style={{'width': '100%'}} src={props.preview} autoPlay />
               )}
-              {props.assetType !== IconScoutAssetType.LOTTIE && (
-                <IconControlView value={props.value} uuid={props.uuid}/>
+              {props.assetType !== AssetType.LOTTIE && (
+                <IconControlView value={props.preview} uuid={props.uuid}/>
               )}
             </ButtonIconWrapper>
             <StyledDeleteInputIcon
               onClick={(e) => {
-                props.onChange("", "");
+                props.onChange("", "", "");
                 e.stopPropagation();
               }}
             />
@@ -364,19 +393,16 @@ export function IconControlView(props: { value: string, uuid: string }) {
   return <StyledImage src={value} alt="" />;
 }
 
-type DataType = {
-  uuid: string;
-  value: string;
-}
 export function IconscoutControl(
-  assetType: string = IconScoutAssetType.ICON,
+  assetType: string = AssetType.ICON,
 ) {
-  return class IconscoutControl extends SimpleComp<DataType> {
+  return class IconscoutControl extends SimpleComp<IconScoutAsset> {
     readonly IGNORABLE_DEFAULT_VALUE = false;
-    protected getDefaultValue(): DataType {
+    protected getDefaultValue(): IconScoutAsset {
       return {
         uuid: '',
         value: '',
+        preview: '',
       };
     }
 
@@ -391,8 +417,9 @@ export function IconscoutControl(
             assetType={assetType}
             uuid={this.value.uuid}
             value={this.value.value}
-            onChange={(uuid, value) => {
-              this.dispatchChangeValueAction({uuid, value})
+            preview={this.value.preview}
+            onChange={(uuid, value, preview) => {
+              this.dispatchChangeValueAction({uuid, value, preview})
             }}
             label={params.label}
             IconType={params.IconType}

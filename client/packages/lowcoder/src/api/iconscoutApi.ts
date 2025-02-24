@@ -68,16 +68,15 @@ class IconscoutApi extends Api {
 
   static async download(uuid: string, params: Record<string, string>): Promise<any> {
     const response = await getAxiosInstance(clientSecret).request({
-      url: `/v3/items/${uuid}/api-download`,
+      url: `/v3/items/${uuid}/api-download?format=${params.format}`,
       method: "POST",
       withCredentials: false,
-      params,
     });
     return response?.data.response.download;
   }
 
-  static async downloadJSON(url: string): Promise<any> {
-    const response = await axios.get(url)
+  static async downloadAsset(url: string): Promise<any> {
+    const response = await axios.get(url, {responseType: 'blob'})
     return response?.data;
   }
 }
