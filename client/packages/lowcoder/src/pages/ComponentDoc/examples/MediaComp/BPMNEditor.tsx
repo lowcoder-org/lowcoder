@@ -10,12 +10,69 @@ export default function BPMNEditorExample() {
   return (
     <>
       <ExampleGroup
-        title={trans("componentDoc.basicUsage")}
-        description={trans("componentDoc.basicDemoDescription")}
+        title="Basic Usage"
+        description="The Following Examples Show the Basic Usage of the BPMN Editor Component."
       >
         <Example
-          title={trans("componentDoc.default")}
+          title="Default Component"
+          height={400}
+          width={1000}
+          hideSettings={true}
           config={{
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Designer Mode"
+          height={400}
+          width={1000}
+          hideSettings={true}
+          config={{
+            designer: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Hiding the Logo"
+          height={400}
+          width={1000}
+          hideSettings={true}
+          config={{
+            showLogo: false,
+            designer: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Allowing to Download the Image"
+          height={400}
+          width={1000}
+          hideSettings={true}
+          config={{
+            designer: true,
+            svgDownload: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the Styling properties of the BPMN Editor Component."
+      >
+        <Example
+          title="Body - Background Color, Border, Text Size and Margins"
+          height={400}
+          width={1000}
+          hideSettings={true}
+          config={{
+            designer: true,
+            styles: {
+              "margin": "10px",
+              "textSize": "30px",
+              "backgroundColor": "#D7D9E0",
+              "border": "#222222"
+            },
           }}
           compFactory={ChartCompWithDefault}
         />
