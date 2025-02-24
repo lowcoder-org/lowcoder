@@ -450,7 +450,10 @@ export const LeftContent = (props: LeftContentProps) => {
             open={info.show}
             onOk={() => setShowData([])}
             cancelButtonProps={{ style: { display: 'none' } }}
-            maskClosable={true} // Prevent closing on background click
+            closable={false}
+            destroyOnClose={true}
+            maskClosable={false}
+            okText={trans("modalComp.close")}
           >
             <div
               style={{ whiteSpace: 'nowrap', wordWrap: 'normal', maxHeight: "calc(100vh - 400px)", overflow: "scroll" }}
@@ -491,6 +494,8 @@ export const LeftContent = (props: LeftContentProps) => {
     return (
       <DirectoryTreeStyle
         treeData={explorerData}
+        checkable={false}
+        selectable={false}
         icon={(props: any) => props.type && (
           <div style={{ margin: '16px 4px 0 -4px'}}> 
             {CompStateIcon[props.type as UICompType] || <LeftCommon />}

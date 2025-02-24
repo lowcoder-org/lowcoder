@@ -10,6 +10,7 @@ import {
   TRASH_URL,
   NEWS_URL,
   ORG_HOME_URL,
+  SUBSCRIPTION_SETTING,
 } from "constants/routesURL";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
@@ -57,6 +58,7 @@ import { trans } from "../../i18n";
 import { foldersSelector } from "../../redux/selectors/folderSelector";
 import Setting from "pages/setting";
 import { Support } from "pages/support";
+import { Subscription } from "pages/setting/subscriptions"
 // import { TypographyText } from "../../components/TypographyText";
 // import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { isEE } from "util/envUtils";
@@ -244,6 +246,19 @@ export default function ApplicationHome() {
                   icon: ({ selected, ...otherProps }) => selected ? ( <EnterpriseIcon {...otherProps} width={"24px"}/> ) : ( <EnterpriseIcon {...otherProps} width={"24px"}/> ),
                   visible: ({ user }) => user.orgDev,
                   mobileVisible: false,
+                },
+              ],
+            } : { items: [] },
+
+            !supportSubscription && user.orgDev ? {
+              items: [
+                {
+                  text: <TabLabel>{trans("home.support")}</TabLabel>,
+                  routePath: SUBSCRIPTION_SETTING,
+                  routeComp: Subscription,
+                  routePathExact: false,
+                  icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
+                  mobileVisible: true,
                 },
               ],
             } : { items: [] },

@@ -1,6 +1,7 @@
 import { CSSProperties } from "react";
 import { calcGridColWidth, PositionParams } from "./calculateUtils";
 import { Position, setTransform } from "./utils";
+import React from "react";
 
 interface GridLineProps {
   position: Position;
@@ -19,10 +20,10 @@ function setBackgroundProps(positionParams: PositionParams, lineColor: string): 
   };
 }
 
-export function GridLines(props: GridLineProps) {
+export const GridLines = React.memo((props: GridLineProps) => {
   const style = {
     ...setTransform(props.position),
     ...setBackgroundProps(props.positionParams, props.lineColor),
   };
   return <div style={style} />;
-}
+})

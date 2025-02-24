@@ -1,12 +1,13 @@
 import { ControlParams } from "comps/controls/controlParams";
+import { EditorContext } from "comps/editorState";
 import { CompAction, SimpleComp } from "lowcoder-core";
 import { ControlPropertyViewWrapper, PopupCard, Input } from "lowcoder-design";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { trans } from "i18n";
-import { checkName } from "../utils/rename";
 const SimpleVariableHeaderPropertyView = ({params, comp, isCheck}: any) => {
   const [error, setError] = useState<string | undefined>();
   const [value, setValue] = useState(comp.value);
+  const editorState = useContext(EditorContext);
   useEffect(() => {
     setValue(comp.value);
     isCheck && setError(undefined);
@@ -17,7 +18,7 @@ const SimpleVariableHeaderPropertyView = ({params, comp, isCheck}: any) => {
         value={value}
         placeholder={params.placeholder}
         onChange={(e) => {
-          const error = isCheck && checkName(e.target.value);
+          const error = isCheck && editorState.checkRename(value, e.target.value);
           isCheck && setError(error || undefined);
           setValue(e.target.value);
         }}

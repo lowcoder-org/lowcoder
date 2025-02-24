@@ -1,9 +1,9 @@
-import { CompAction, RecordConstructorToView, changeChildAction } from "lowcoder-core";
+import { CompAction, RecordConstructorToComp, RecordConstructorToView, changeChildAction } from "lowcoder-core";
 import { BoolControl } from "comps/controls/boolControl";
 import { arrayObjectExposingStateControl, arrayStringExposingStateControl } from "comps/controls/codeStateControl";
 import { styleControl } from "comps/controls/styleControl";
 import { TransferStyle, TransferStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { NewChildren, UICompBuilder } from "comps/generators/uiCompBuilder";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
@@ -17,6 +17,7 @@ import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
 import { valueComp, withDefault } from "../generators";
 import type { TransferDirection } from 'antd/es/transfer';
+import React from "react";
 
 const Container = styled.div<{ $style: TransferStyleType }>`
   height: 100%;
@@ -71,7 +72,9 @@ const childrenMap = {
   searchInfo: valueComp<string[]>(['', '']),
 };
 
-const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
+
+const TransferView = React.memo((props: RecordConstructorToView<typeof childrenMap> & {
   dispatch: (action: CompAction) => void;
 }) => {
   const conRef = useRef<HTMLDivElement>(null);
@@ -136,48 +139,54 @@ const TransferView = (props: RecordConstructorToView<typeof childrenMap> & {
       </Container>
     </ReactResizeDetector>
   );
-};
+});
+
+const TransferCompPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  return (
+    <>
+      <Section name={sectionNames.basic}>
+        {props.children.items.propertyView({
+          label: trans("transfer.items"),
+        })}
+        {props.children.targetKeys.propertyView({
+          label: trans("transfer.targetKeys"),
+        })}
+        {props.children.sourceTitle.propertyView({
+          label: trans("transfer.sourceTitle"),
+        })}
+        {props.children.targetTitle.propertyView({
+          label: trans("transfer.targetTitle"),
+        })}
+        {props.children.showSearch.propertyView({
+          label: trans("transfer.allowSearch"),
+        })}
+        {props.children.oneWay.propertyView({
+          label: trans("transfer.oneWay"),
+        })}
+        {props.children.pagination.propertyView({
+          label: trans("transfer.pagination"),
+        })}
+        {props.children.pagination.getView() && props.children.pageSize.propertyView({
+          label: trans("transfer.pageSize"),
+        })}
+      </Section>
+      <Section name={sectionNames.interaction}>
+        {props.children.onEvent.propertyView()}
+        {hiddenPropertyView(props.children)}
+        {showDataLoadingIndicatorsPropertyView(props.children)}
+      </Section>
+      <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
+    </>
+  )
+});
 
 let TransferBasicComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     return (
     <TransferView {...props} dispatch={dispatch} />)})
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.items.propertyView({
-            label: trans("transfer.items"),
-          })}
-          {children.targetKeys.propertyView({
-            label: trans("transfer.targetKeys"),
-          })}
-          {children.sourceTitle.propertyView({
-            label: trans("transfer.sourceTitle"),
-          })}
-          {children.targetTitle.propertyView({
-            label: trans("transfer.targetTitle"),
-          })}
-          {children.showSearch.propertyView({
-            label: trans("transfer.allowSearch"),
-          })}
-          {children.oneWay.propertyView({
-            label: trans("transfer.oneWay"),
-          })}
-          {children.pagination.propertyView({
-            label: trans("transfer.pagination"),
-          })}
-          {children.pagination.getView() && children.pageSize.propertyView({
-            label: trans("transfer.pageSize"),
-          })}
-        </Section>
-        <Section name={sectionNames.interaction}>
-          {children.onEvent.propertyView()}
-          {hiddenPropertyView(children)}
-          {showDataLoadingIndicatorsPropertyView(children)}
-        </Section>
-        <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-      </>
-    ))
+    .setPropertyViewFn((children) => <TransferCompPropertyView children={children} />)
     .build();
 })();
 
