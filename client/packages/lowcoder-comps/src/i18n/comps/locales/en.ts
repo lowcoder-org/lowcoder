@@ -379,6 +379,10 @@ export const en = {
     labelLineLength2: "Label Line Length2",
   },
   scatterChart: {
+    boundaryGap: "Boundary Gap",
+    labelIndex: "Label Column Index",
+    dynamicSize: "Dynamic Size",
+    dynamicIndex: "Size Column Index",
     divider: "Divider",
     singleAxis: "Single Axis",
     effect: "Effect",

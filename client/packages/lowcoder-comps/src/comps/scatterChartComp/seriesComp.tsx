@@ -39,7 +39,10 @@ export function newSeries(name: string, columnName: string): SeriesDataType {
 const seriesChildrenMap = {
   columnName: StringControl,
   seriesName: StringControl,
+  dynamicSize: BoolControl,
   symbolSize: NumberControl,
+  dynamicIndex: withDefault(NumberControl, "1"),
+  divider: withDefault(NumberControl, 1000),
   effect: BoolControl,
   showMarkLine: BoolControl,
   markLineFrom: withDefault(StringControl, "[0,0]"),
@@ -76,7 +79,16 @@ class SeriesComp extends SeriesTmpComp {
         {this.children.effect.propertyView({
           label: trans("scatterChart.effect"),
         })}
-        {this.children.symbolSize.propertyView({
+        {this.children.dynamicSize.propertyView({
+          label: trans("scatterChart.dynamicSize"),
+        })}
+        {this.children.dynamicSize.getView() && this.children.dynamicIndex.propertyView({
+          label: trans("scatterChart.dynamicIndex"),
+        })}
+        {this.children.dynamicSize.getView() && this.children.divider.propertyView({
+          label: trans("scatterChart.divider"),
+        })}
+        {!this.children.dynamicSize.getView() && this.children.symbolSize.propertyView({
           label: trans("scatterChart.symbolSize"),
         })}
         {this.children.showMarkLine.propertyView({

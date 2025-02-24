@@ -40,9 +40,10 @@ export const ScatterChartConfig = (function () {
   return new MultiCompBuilder(
     {
       showLabel: BoolControl,
+      labelIndex: withDefault(NumberControl, 2),
       shape: dropdownControl(ScatterShapeOptions, "circle"),
       singleAxis: BoolControl,
-      divider: withDefault(NumberControl, 1000),
+      boundaryGap: withDefault(BoolControl, true),
     },
     (props): ScatterSeriesOption => {
       return {
@@ -52,7 +53,7 @@ export const ScatterChartConfig = (function () {
           show: props.showLabel,
           position: 'right',
           formatter: function (param) {
-            return param.data[2];
+            return param.data[props.labelIndex];
           },
         },
         labelLayout: function () {
@@ -69,21 +70,24 @@ export const ScatterChartConfig = (function () {
           }
         },
         singleAxis: props.singleAxis,
-        divider: props.divider,
+        boundaryGap: props.boundaryGap,
       };
     }
   )
     .setPropertyViewFn((children) => (
       <>
         {showLabelPropertyView(children)}
+        {children.showLabel.getView() && children.labelIndex.propertyView({
+          label: trans("scatterChart.labelIndex"),
+        })}
+        {children.boundaryGap.propertyView({
+          label: trans("scatterChart.boundaryGap"),
+        })}
         {children.shape.propertyView({
           label: trans("chart.scatterShape"),
         })}
         {children.singleAxis.propertyView({
           label: trans("scatterChart.singleAxis"),
-        })}
-        {children.singleAxis.getView() && children.divider.propertyView({
-          label: trans("scatterChart.divider"),
         })}
       </>
     ))

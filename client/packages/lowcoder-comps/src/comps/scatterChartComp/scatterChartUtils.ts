@@ -118,12 +118,12 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       config.coordinateSystem = 'singleAxis';
       config.singleAxisIndex = index;
       config.data = [];
-      config.symbolSize = function(dataItem) {
-        return dataItem[1] / props.chartConfig.divider;
-      }
     }
     if(s.effect) config.type = "effectScatter";
     if(s.symbolSize) config.symbolSize = s.symbolSize;
+    if(s.dynamicSize) config.symbolSize = function(dataItem) {
+        return dataItem[s.dynamicIndex] / s.divider;
+      }
     return config;
   });
 }
@@ -172,8 +172,19 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
-    xAxis: {},
-    yAxis: {},
+    xAxis: {
+      type: "category",
+      boundaryGap: props.chartConfig.boundaryGap,
+      splitLine: {
+        show: !props.chartConfig.boundaryGap,
+      },
+      axisLine: {
+        show: props.chartConfig.boundaryGap,
+      }
+    },
+    yAxis: {
+      type: "category",
+    },
   };
 
   if (props.data.length <= 0) {
