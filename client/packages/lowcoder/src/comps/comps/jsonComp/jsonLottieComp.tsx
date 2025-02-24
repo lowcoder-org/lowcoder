@@ -2,7 +2,6 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
-  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -10,7 +9,7 @@ import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstants";
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
-import { useContext, lazy, useEffect } from "react";  
+import { useContext, lazy, useEffect, useState } from "react";  
 import { UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
@@ -19,15 +18,13 @@ import {
 } from "../../generators/withExposing";
 import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
-import { IconScoutAssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
-import { isEmpty } from "lodash";
-import IconscoutApi from "@lowcoder-ee/api/iconscoutApi";
-import { changeValueAction, multiChangeAction } from "lowcoder-core";
+import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { DotLottie } from "@lottiefiles/dotlottie-react";
 
-const Player = lazy(
-  () => import('@lottiefiles/react-lottie-player')
-    .then(module => ({default: module.Player}))
-);
+// const Player = lazy(
+//   () => import('@lottiefiles/react-lottie-player')
+//     .then(module => ({default: module.Player}))
+// );
 
 const DotLottiePlayer = lazy(
   () => import('@lottiefiles/dotlottie-react')
@@ -44,7 +41,7 @@ const animationStartOptions = [
   },
   {
     label: trans("jsonLottie.onHover"),
-    value: "on hover",
+    value: "hover",
   },
 ] as const;
 
@@ -96,8 +93,7 @@ const speedOptions = [
 
 const ModeOptions = [
   { label: "Lottie JSON", value: "standard" },
-  { label: "DotLottie", value: "dotLottie" },
-  { label: "IconScout", value: "advanced" },
+  { label: "Asset Library", value: "asset-library" }
 ] as const;
 
 let JsonLottieTmpComp = (function () {
@@ -107,10 +103,7 @@ let JsonLottieTmpComp = (function () {
       ArrayOrJSONObjectControl,
       JSON.stringify(defaultLottie, null, 2)
     ),
-    srcIconScout: IconscoutControl(IconScoutAssetType.LOTTIE),
-    srcDotLottie: withDefault(StringControl, 'https://assets-v2.lottiefiles.com/a/9e7d8a50-1180-11ee-89a6-3b0ab1ca8a0e/hUfEwc6xNt.lottie'),
-    uuidIconScout: StringControl,
-    valueIconScout: withDefault(ArrayOrJSONObjectControl, JSON.stringify({})),
+    iconScoutAsset: IconscoutControl(AssetType.LOTTIE),
     speed: dropdownControl(speedOptions, "1"),
     width: withDefault(NumberControl, 100),
     height: withDefault(NumberControl, 100),
@@ -121,32 +114,23 @@ let JsonLottieTmpComp = (function () {
     keepLastFrame: BoolControl.DEFAULT_TRUE,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-
-    const downloadAsset = async (uuid: string) => {
-      try {
-        const result = await IconscoutApi.download(uuid, {
-          format: 'ai',
-        });
-        if (result && result.download_url) {
-          const json = await IconscoutApi.downloadJSON(result.download_url);
-          dispatch(
-            multiChangeAction({
-              uuidIconScout: changeValueAction(uuid, true),
-              valueIconScout: changeValueAction(JSON.stringify(json, null, 2), true)
-            })
-          ) 
-        }
-      } catch(error) {
-        console.error(error);
-      }
-
-    }
+    const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
+    
     useEffect(() => {
-      if(props.srcIconScout?.uuid && props.srcIconScout?.uuid !== props.uuidIconScout) {
-        // get asset download link
-        downloadAsset(props.srcIconScout?.uuid);
+      const onComplete = () => {
+        props.keepLastFrame && dotLottie?.setFrame(100);
       }
-    }, [props.srcIconScout]);
+
+      if (dotLottie) {
+        dotLottie.addEventListener('complete', onComplete);
+      }
+  
+      return () => {
+        if (dotLottie) {
+          dotLottie.removeEventListener('complete', onComplete);
+        }
+      };
+    }, [dotLottie, props.keepLastFrame]);
 
     return (
       <div
@@ -169,50 +153,25 @@ let JsonLottieTmpComp = (function () {
             rotate: props.container.rotation,
           }}
         >
-          {props.sourceMode === 'dotLottie'
-            ? (
-              <DotLottiePlayer
-                key={
-                  [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
-                }
-                // keepLastFrame={props.keepLastFrame}
-                autoplay={props.animationStart === "auto" && true}
-                playOnHover={props.animationStart === "on hover" && true}
-                loop={props.loop === "single" ? false : true}
-                speed={Number(props.speed)}
-                src={props.srcDotLottie}
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                }}
-              />
-            )
-            : (
-              <Player
-                key={
-                  [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
-                }
-                keepLastFrame={props.keepLastFrame}
-                autoplay={props.animationStart === "auto" && true}
-                hover={props.animationStart === "on hover" && true}
-                loop={props.loop === "single" ? false : true}
-                speed={Number(props.speed)}
-                src={
-                  props.sourceMode === 'advanced'
-                  ? (isEmpty(props.valueIconScout) ? '' : props.valueIconScout)
-                  : props.value
-                }
-                style={{
-                  height: "100%",
-                  width: "100%",
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                }}
-              />
-            )
-          }
+          <DotLottiePlayer
+            key={
+              [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
+            }
+            dotLottieRefCallback={setDotLottie}
+            autoplay={props.animationStart === "auto"}
+            loop={props.loop === "single" ? false : true}
+            speed={Number(props.speed)}
+            data={props.sourceMode === 'standard' ? props.value as Record<string, undefined> : undefined}
+            src={props.sourceMode === 'asset-library' ? props.iconScoutAsset?.value : undefined}
+            style={{
+              height: "100%",
+              width: "100%",
+              maxWidth: "100%",
+              maxHeight: "100%",
+            }}
+            onMouseEnter={() => props.animationStart === "hover" && dotLottie?.play()}
+            onMouseLeave={() => props.animationStart === "hover" && dotLottie?.pause()}
+          />
         </div>
       </div>
     );
@@ -228,14 +187,8 @@ let JsonLottieTmpComp = (function () {
             {children.sourceMode.getView() === 'standard' && children.value.propertyView({
               label: trans("jsonLottie.lottieJson"),
             })}
-            {children.sourceMode.getView() === 'dotLottie' && children.srcDotLottie.propertyView({
-              label: "Source",
-            })}
-            {children.sourceMode.getView() === 'advanced' && children.srcIconScout.propertyView({
+            {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
               label: "Lottie Source",
-            })}
-            {children.sourceMode.getView() === 'advanced' && children.valueIconScout.propertyView({
-              label: trans("jsonLottie.lottieJson"),
             })}
           </Section>
 
