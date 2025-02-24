@@ -93,6 +93,8 @@ function CreateModal(props: CreateModalProp) {
       width="602px"
       title={trans("theme.createTheme")}
       open={modalVisible}
+      showOkButton
+      showCancelButton
       onOk={handleOk}
       okButtonProps={{ disabled: !name || !selectId }}
       onCancel={handleCancel}

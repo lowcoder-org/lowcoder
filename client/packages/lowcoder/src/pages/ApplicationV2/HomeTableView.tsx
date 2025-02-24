@@ -85,7 +85,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
         pagination={false}
         onRow={(record) => ({
           onClick: (e) => {
-            if (mode === "folder" && record.type === 4){
+            if (mode === "folder" && (record as HomeRes).type === 4){
               backFolderViewClick()
             } else{
               const item = record as HomeRes;
@@ -179,7 +179,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
             },
             render: (_, record) => (
               <SubColumnCell>
-                { mode === "folder" && record.type === 4  ?  "" : HomeResInfo[(record as any).type as HomeResTypeEnum].name }
+                { mode === "folder" && (record as HomeRes).type === 4  ?  "" : HomeResInfo[(record as any).type as HomeResTypeEnum].name }
               </SubColumnCell>
             ),
           },
@@ -241,7 +241,7 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
                         ? handleMarketplaceAppViewClick(item.id)
                         : handleAppViewClick(item.id);
                     }}
-                    style={{ marginRight: "52px", display: mode === "folder" && record.type === 4 ? "none" : "block" }}
+                    style={{ marginRight: "52px", display: mode === "folder" && (record as HomeRes).type === 4 ? "none" : "block" }}
                   >
                     {trans("view")}
                   </EditBtn>

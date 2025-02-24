@@ -525,7 +525,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
           onDrop={(info) => handleDrop(info)}
           treeData={componentTreeData}
           icon={(props: any) => props.type && (
-            <div style={{ margin: '3px 4px 0 -4px'}}> 
+            <div style={{ margin: '16px 5px 0 -3px'}}> 
               {CompStateIcon[props.type as UICompType] || <LeftCommon />}
             </div>
           )}

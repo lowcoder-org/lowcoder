@@ -13,6 +13,9 @@ export const DirectoryTreeStyle = styled(DirectoryTree)`
     height: 26px;
     display: flex;
     align-items: center;
+    &::before {
+      content: none;
+    }
   }
   .ant-tree-title {
     padding-right: 6px;
@@ -43,6 +46,9 @@ export const DirectoryTreeStyle = styled(DirectoryTree)`
   .ant-tree-treenode {
     padding: 0;
     max-width: 288px;
+    &::before {
+      content: none;
+    }
   }
   .ant-tree-indent-unit {
     width: 16px;
