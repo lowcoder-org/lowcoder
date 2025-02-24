@@ -379,6 +379,8 @@ export const en = {
     labelLineLength2: "Label Line Length2",
   },
   scatterChart: {
+    divider: "Divider",
+    singleAxis: "Single Axis",
     effect: "Effect",
     symbolSize: "Symbol Size",
     from: "From",

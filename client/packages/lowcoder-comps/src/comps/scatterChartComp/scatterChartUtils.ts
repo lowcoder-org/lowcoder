@@ -117,6 +117,14 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         ]
       };
     }
+    if(props.chartConfig.singleAxis) {
+      config.coordinateSystem = 'singleAxis';
+      config.singleAxisIndex = index;
+      config.data = [];
+      config.symbolSize = function(dataItem) {
+        return dataItem[1] / props.chartConfig.divider;
+      }
+    }
     if(s.effect) config.type = "effectScatter";
     if(s.symbolSize) config.symbolSize = s.symbolSize;
     return config;
@@ -184,10 +192,18 @@ export function getEchartsConfig(
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
   let transformedData = props.data;
-
+  const seriesConfig = getSeriesConfig(props);
+  const singleAxis = seriesConfig.map((series, idx) => ({
+    left: 100,
+    type: 'category',
+    boundaryGap: false,
+    top: (idx * 100) / seriesConfig.length + (100/seriesConfig.length/2) + '%',
+    height: - 100 / seriesConfig.length / 4 + '%',
+  }));
+  
   config = {
     ...config,
-    series: getSeriesConfig(props).map(series => ({
+    series: seriesConfig.map(series => ({
       ...series,
       itemStyle: {
         ...series.itemStyle,
@@ -199,6 +215,18 @@ export function getEchartsConfig(
       data: transformedData.map(d => [d[props.xAxisKey], d[series.encode.value]]),
     })),
   };
+
+  if(props.chartConfig.singleAxis) {
+    config.singleAxis = singleAxis;
+    delete config.xAxis;
+    delete config.yAxis;
+    
+    config.title = seriesConfig.map((series, idx) => ({
+      textBaseline: 'middle',
+      top: ((idx + 0.5) * 100) / seriesConfig.length + '%',
+      text: series.name,
+    }));
+  }
 
   console.log("Echarts transformedData and config", transformedData, config);
   return config;

@@ -2,6 +2,8 @@ import {
   MultiCompBuilder,
   dropdownControl,
   BoolControl,
+  NumberControl,
+  withDefault,
   showLabelPropertyView,
 } from "lowcoder-sdk";
 import { ScatterSeriesOption } from "echarts";
@@ -39,6 +41,8 @@ export const ScatterChartConfig = (function () {
     {
       showLabel: BoolControl,
       shape: dropdownControl(ScatterShapeOptions, "circle"),
+      singleAxis: BoolControl,
+      divider: withDefault(NumberControl, 1000),
     },
     (props): ScatterSeriesOption => {
       return {
@@ -47,6 +51,8 @@ export const ScatterChartConfig = (function () {
         label: {
           show: props.showLabel,
         },
+        singleAxis: props.singleAxis,
+        divider: props.divider,
       };
     }
   )
@@ -55,6 +61,12 @@ export const ScatterChartConfig = (function () {
         {showLabelPropertyView(children)}
         {children.shape.propertyView({
           label: trans("chart.scatterShape"),
+        })}
+        {children.singleAxis.propertyView({
+          label: trans("scatterChart.singleAxis"),
+        })}
+        {children.singleAxis.getView() && children.divider.propertyView({
+          label: trans("scatterChart.divider"),
         })}
       </>
     ))
