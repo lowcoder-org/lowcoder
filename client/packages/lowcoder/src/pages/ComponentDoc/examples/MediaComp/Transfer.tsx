@@ -18,7 +18,7 @@ export default function TransferExample() {
             hideSettings={true}
             config={{
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
           <Example
             title="Transfer Component with Custom Data"
@@ -30,7 +30,7 @@ export default function TransferExample() {
               sourceTitle: "Top Priority Customers",
               targetTitle: "Paid Customers",
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
         </ExampleGroup>
 
@@ -45,7 +45,7 @@ export default function TransferExample() {
             hideSettings={true}
             config={{
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
           <Example
             title="Transfer Component with Custom Data"
@@ -57,7 +57,7 @@ export default function TransferExample() {
               sourceTitle: "Top Priority Customers",
               targetTitle: "Paid Customers",
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
         </ExampleGroup>
 
@@ -72,7 +72,7 @@ export default function TransferExample() {
             hideSettings={true}
             config={{
             }}
-            compFactory={TransferComp}
+            compFactory={transferComp}
           />
           <Example
             title="Transfer Component with Custom Data"
