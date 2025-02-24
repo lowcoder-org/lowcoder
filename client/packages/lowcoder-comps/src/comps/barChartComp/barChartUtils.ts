@@ -4,16 +4,18 @@ import {
   ChartSize,
   noDataAxisConfig,
   noDataPieChartConfig,
-} from "comps/chartComp/chartConstants";
-import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+} from "comps/barChartComp/barChartConstants";
+import { getPieRadiusAndCenter } from "comps/basicChartComp/chartConfigs/pieChartConfig";
+import { EChartsOptionWithMap } from "../basicChartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
-import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
+import { calcXYConfig } from "comps/basicChartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
-import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { googleMapsApiUrl } from "../basicChartComp/chartConfigs/chartUrls";
+import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
+import {ba} from "@fullcalendar/core/internal-common";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -54,6 +56,7 @@ export function transformData(
 }
 
 const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
+const notAxisChartSubtypeSet: Set<string> = new Set(["polar"] as const);
 export const echartsConfigOmitChildren = [
   "hidden",
   "selectedPoints",
@@ -62,15 +65,21 @@ export const echartsConfigOmitChildren = [
 ] as const;
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
-export function isAxisChart(type: CharOptionCompType) {
-  return !notAxisChartSet.has(type);
+
+export function isAxisChart(type: CharOptionCompType, subtype: string) {
+  return !notAxisChartSet.has(type) && !notAxisChartSubtypeSet.has(subtype);
 }
 
 export function getSeriesConfig(props: EchartsConfigProps) {
-  const visibleSeries = props.series.filter((s) => !s.getView().hide);
+  let visibleSeries = props.series.filter((s) => !s.getView().hide);
+  if(props.chartConfig.subtype === "waterfall") {
+    const seriesOn = visibleSeries[0];
+    const seriesPlaceholder = visibleSeries[0];
+    visibleSeries = [seriesPlaceholder, seriesOn];
+  }
   const seriesLength = visibleSeries.length;
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type)) {
+    if (isAxisChart(props.chartConfig.type, props.chartConfig.subtype)) {
       let encodeX: string, encodeY: string;
       const horizontalX = props.xAxisDirection === "horizontal";
       let itemStyle = props.chartConfig.itemStyle;
@@ -83,6 +92,13 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         } else if (!props.chartConfig.stack) {
           itemStyle = { ...itemStyle, borderRadius: borderRadius };
         }
+
+        if(props.chartConfig.subtype === "waterfall" && index === 0) {
+          itemStyle = {
+            borderColor: 'transparent',
+            color: 'transparent'
+          }
+        }
       }
       if (horizontalX) {
         encodeX = props.xAxisKey;
@@ -92,7 +108,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         encodeY = props.xAxisKey;
       }
       return {
-        name: s.getView().seriesName,
+        name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
         selectedMode: "single",
         select: {
           itemStyle: {
@@ -135,35 +151,8 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-  if (props.mode === "json") {
-    return props.echartsOption ? props.echartsOption : {};
-  }
-  if(props.mode === "map") {
-    const {
-      mapZoomLevel,
-      mapCenterLat,
-      mapCenterLng,
-      mapOptions,
-      showCharts,
-    } = props;
-    let newMapOptions: any = {...mapOptions};
-    newMapOptions.series = [{...newMapOptions.series[0]}];
-    if(props.echartsData && props.echartsData.length > 0) newMapOptions.series[0].data = props.echartsData;
-
-    const echartsOption = newMapOptions && showCharts ? newMapOptions : {};
-    return {
-      gmap: {
-        center: [mapCenterLng, mapCenterLat],
-        zoom: mapZoomLevel,
-        renderOnMoving: true,
-        echartsLayerZIndex: showCharts ? 2019 : 0,
-        roam: true
-      },
-      ...echartsOption,
-    }
-  }
   // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type);
+  const axisChart = isAxisChart(props.chartConfig.type, props.chartConfig.subtype);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
@@ -202,6 +191,16 @@ export function getEchartsConfig(
       containLabel: true,
     },
   };
+  if(props.chartConfig.race) {
+    config = {
+      ...config,
+      // Disable init animation.
+      animationDuration: 0,
+      animationDurationUpdate: 2000,
+      animationEasing: 'linear',
+      animationEasingUpdate: 'linear',
+    }
+  }
   if (props.data.length <= 0) {
     // no data
     return {
@@ -214,8 +213,44 @@ export function getEchartsConfig(
     .filter((s) => !s.getView().hide)
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
-  const transformedData =
-    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsData.length && props.echartsData || props.data : transformData(props.echartsData.length && props.echartsData || props.data, props.xAxisKey, seriesColumnNames);
+  let transformedData =
+    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsOption.length && props.echartsOption || props.data : transformData(props.echartsOption.length && props.echartsOption || props.data, props.xAxisKey, seriesColumnNames);
+
+  if(props.chartConfig.subtype === "waterfall") {
+    config.legend = undefined;
+    let sum = transformedData.reduce((acc, item) => {
+      if(typeof item[seriesColumnNames[0]] === 'number') return acc + item[seriesColumnNames[0]];
+      else return acc;
+    }, 0)
+    const total = sum;
+    transformedData.map(d => {
+      d[` `] = sum - d[seriesColumnNames[0]];
+      sum = d[` `];
+    })
+    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total, [props.xAxisKey]: "Total"}, ...transformedData]
+  }
+
+  if(props.chartConfig.subtype === "polar") {
+    config = {
+      ...config,
+      polar: {
+        radius: [props.chartConfig.polarData.polarRadiusStart, props.chartConfig.polarData.polarRadiusEnd],
+      },
+      radiusAxis: {
+        type: props.chartConfig.polarData.polarIsTangent?'category':undefined,
+        data: props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
+        max: props.chartConfig.polarData.polarIsTangent?undefined:props.chartConfig.polarData.radiusAxisMax || undefined,
+      },
+      angleAxis: {
+        type: props.chartConfig.polarData.polarIsTangent?undefined:'category',
+        data: !props.chartConfig.polarData.polarIsTangent && props.chartConfig.polarData.labelData.length!==0?props.chartConfig.polarData.labelData:undefined,
+        max: props.chartConfig.polarData.polarIsTangent?props.chartConfig.polarData.radiusAxisMax || undefined:undefined,
+        startAngle: props.chartConfig.polarData.polarStartAngle,
+        endAngle: props.chartConfig.polarData.polarEndAngle,
+      },
+    }
+  }
+
   config = {
     ...config,
     dataset: [
@@ -226,13 +261,18 @@ export function getEchartsConfig(
     ],
     series: getSeriesConfig(props).map(series => ({
       ...series,
+      encode: {
+        ...series.encode,
+        y: series.name,
+      },
       itemStyle: {
         ...series.itemStyle,
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
-      }
+      },
+      data: transformedData.map((i: any) => i[series.name])
     })),
   };
   if (axisChart) {
@@ -265,18 +305,36 @@ export function getEchartsConfig(
         ...finalXyConfig.xConfig,
         axisLabel: {
           ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        }
+        },
+        data: finalXyConfig.xConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
       // @ts-ignore
       yAxis: {
         ...finalXyConfig.yConfig,
         axisLabel: {
           ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        }
+        },
+        data: finalXyConfig.yConfig.type === "category" && (props.xAxisData as []).length!==0?props?.xAxisData:transformedData.map((i: any) => i[props.xAxisKey]),
       },
     };
+    
+    if(props.chartConfig.race) {
+      config = {
+        ...config,
+        xAxis: {
+          ...config.xAxis,
+          animationDuration: 300,
+          animationDurationUpdate: 300
+        },
+        yAxis: {
+          ...config.yAxis,
+          animationDuration: 300,
+          animationDurationUpdate: 300
+        },
+      }
+    }
   }
-  // console.log("Echarts transformedData and config", transformedData, config);
+  // log.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 
