@@ -308,7 +308,7 @@ useEffect(() => {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.AuditLogOverview")}</h2>
           </StyleThemeSettingsCover>
-          <Card title="Filter Audit Logs" size="small" style={{ marginBottom: "20px" }}>
+          <Card size="small" style={{ marginBottom: "20px" }}>
             <Form
               form={form}
               layout="inline"
@@ -360,7 +360,7 @@ useEffect(() => {
               </Flex>
             </Form>
           </Card>
-          <Card title="Audit Logs">
+          <Card>
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (

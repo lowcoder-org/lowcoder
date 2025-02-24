@@ -2373,7 +2373,7 @@ export const en = {
 
   "enterprise" : {
     "AuditLogTitle": "Audit Log Dasboard",
-    "AuditLogOverview": "Overview",
+    "AuditLogOverview": "Log Filter",
     "USER_LOGIN" : "User Login ",
     "USER_LOGOUT" : "User Logout ",
     "APPLICATION_VIEW" : "View Application ",
