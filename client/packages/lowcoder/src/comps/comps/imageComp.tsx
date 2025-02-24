@@ -36,7 +36,7 @@ import { EditorContext } from "comps/editorState";
 import { StringControl } from "../controls/codeControl";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { dropdownControl } from "../controls/dropdownControl";
-import { IconScoutAssetType, IconscoutControl } from "../controls/iconscoutControl";
+import { AssetType, IconscoutControl } from "../controls/iconscoutControl";
 
 const Container = styled.div<{ 
   $style: ImageStyleType | undefined, 
@@ -115,7 +115,7 @@ const getStyle = (style: ImageStyleType) => {
 const EventOptions = [clickEvent] as const;
 const ModeOptions = [
   { label: "URL", value: "standard" },
-  { label: "Advanced", value: "advanced" },
+  { label: "Asset Library", value: "asset-library" },
 ] as const;
 
 const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
@@ -201,8 +201,8 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
           >
             <AntImage
               src={
-                props.sourceMode === 'advanced'
-                ? props.srcIconScout?.value
+                props.sourceMode === 'asset-library'
+                ? props.iconScoutAsset?.value
                 : props.src.value
               }
               referrerPolicy="same-origin"
@@ -222,7 +222,7 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
 const childrenMap = {
   sourceMode: dropdownControl(ModeOptions, "standard"),
   src: withDefault(StringStateControl, "https://temp.im/350x400"),
-  srcIconScout: IconscoutControl(IconScoutAssetType.ILLUSTRATION),
+  iconScoutAsset: IconscoutControl(AssetType.ILLUSTRATION),
   onEvent: eventHandlerControl(EventOptions),
   style: styleControl(ImageStyle , 'style'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
@@ -253,7 +253,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.sourceMode.getView() === 'standard' && children.src.propertyView({
             label: trans("image.src"),
           })}
-          {children.sourceMode.getView() === 'advanced' && children.srcIconScout.propertyView({
+          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
             label: trans("image.src"),
           })}
         </Section>
