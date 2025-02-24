@@ -379,6 +379,8 @@ export const en = {
     labelLineLength2: "Label Line Length2",
   },
   scatterChart: {
+    heatmap: "Heat Map",
+    heatmapMonth: "Heat Map Month",
     polar: "Polar Chart",
     visualMap: "Visual Map",
     visualMapMin: "Visual Map Min",

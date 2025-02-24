@@ -122,6 +122,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
     if(props.chartConfig.polar) {
       config.coordinateSystem = 'polar';
     }
+    if(props.chartConfig.heatmap) {
+      config.coordinateSystem = 'calendar';
+      config.type = 'heatmap';
+    }
     if(s.effect) config.type = "effectScatter";
     if(s.symbolSize) config.symbolSize = s.symbolSize;
     if(s.dynamicSize) config.symbolSize = function(dataItem) {
@@ -258,6 +262,27 @@ export function getEchartsConfig(
     config.angleAxis = config.xAxis;
     config.radiusAxis = config.yAxis;
     config.polar = {};
+    delete config.xAxis;
+    delete config.yAxis;
+  }
+
+  if(props.chartConfig.heatmap) {
+    config.calendar = {
+      orient: 'vertical',
+      yearLabel: {
+        margin: 40
+      },
+      monthLabel: {
+        nameMap: 'cn',
+        margin: 20
+      },
+      dayLabel: {
+        firstDay: 1,
+        nameMap: 'cn'
+      },
+      cellSize: 40,
+      range: props.chartConfig.heatmapMonth,
+    }
     delete config.xAxis;
     delete config.yAxis;
   }

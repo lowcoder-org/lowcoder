@@ -2,6 +2,7 @@ import {
   MultiCompBuilder,
   dropdownControl,
   BoolControl,
+  StringControl,
   NumberControl,
   ColorControl,
   withDefault,
@@ -52,6 +53,8 @@ export const ScatterChartConfig = (function () {
       visualMapColorMin: ColorControl,
       visualMapColorMax: ColorControl,
       polar: BoolControl,
+      heatmap: BoolControl,
+      heatmapMonth: withDefault(StringControl, "2021-09"),
     },
     (props): ScatterSeriesOption => {
       return {
@@ -88,6 +91,8 @@ export const ScatterChartConfig = (function () {
           visualMapColorMax: props.visualMapColorMax,
         },
         polar: props.polar,
+        heatmap: props.heatmap,
+        heatmapMonth: props.heatmapMonth,
       };
     }
   )
@@ -123,6 +128,12 @@ export const ScatterChartConfig = (function () {
         })}
         {children.visualMap.getView() && children.visualMapColorMax.propertyView({
           label: trans("scatterChart.visualMapColorMax"),
+        })}
+        {children.visualMap.getView() && children.heatmap.propertyView({
+          label: trans("scatterChart.heatmap"),
+        })}
+        {children.visualMap.getView() && children.heatmapMonth.propertyView({
+          label: trans("scatterChart.heatmapMonth"),
         })}
         {children.polar.propertyView({
           label: trans("scatterChart.polar"),
