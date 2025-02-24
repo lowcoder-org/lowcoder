@@ -21,6 +21,42 @@ export default function OpenLayersGeoMapChartExample() {
           }}
           compFactory={ChartCompWithDefault}
         />
+        <Example
+          title="Center Position - USA"
+          width={500}
+          height={300}
+          config={{
+            center: "[-92.5348,38.7946]",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Zoom Level - 3"
+          width={500}
+          height={300}
+          config={{
+            zoom: "3",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Zoom Level - 7"
+          width={500}
+          height={300}
+          config={{
+            zoom: "7",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Zoom Level - 10"
+          width={500}
+          height={300}
+          config={{
+            zoom: "10",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
       </ExampleGroup>
     </>
   );

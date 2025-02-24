@@ -32,6 +32,7 @@ export default function GeoMapChartExample() {
           width={500}
           height={300}
           config={{
+            mapZoomLevel: "1",
           }}
           compFactory={ChartCompWithDefault}
         />
@@ -40,6 +41,7 @@ export default function GeoMapChartExample() {
           width={500}
           height={300}
           config={{
+            mapZoomLevel: "3",
           }}
           compFactory={ChartCompWithDefault}
         />
@@ -48,30 +50,43 @@ export default function GeoMapChartExample() {
           width={500}
           height={300}
           config={{
+            mapZoomLevel: "5",
           }}
           compFactory={ChartCompWithDefault}
         />
         <Example
-          title="Center Position ( Lat, Lon) - Spain"
-          width={500}
+          title="Center Position ( Lat, Long) - Spain"
+          width={700}
           height={300}
+          hideSettings={true}
           config={{
+            mapCenterLng: "-0.5033",
+            mapCenterLat: "40.5235",
+            mapZoomLevel: "5",
           }}
           compFactory={ChartCompWithDefault}
         />
         <Example
           title="Center Position ( Lat, Lon) - USA"
-          width={500}
+          width={700}
           height={300}
+          hideSettings={true}
           config={{
+            mapCenterLng: "-97.5348",
+            mapCenterLat: "38.7946",
+            mapZoomLevel: "5",
           }}
           compFactory={ChartCompWithDefault}
         />
         <Example
           title="Center Position ( Lat, Lon) - Turkey"
-          width={500}
+          width={700}
           height={300}
+          hideSettings={true}
           config={{
+            mapCenterLng: "38.5348",
+            mapCenterLat: "38.7946",
+            mapZoomLevel: "5",
           }}
           compFactory={ChartCompWithDefault}
         />

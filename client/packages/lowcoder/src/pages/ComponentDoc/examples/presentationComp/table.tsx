@@ -51,11 +51,18 @@ export default function TableExample() {
         />
       </ExampleGroup>
 
-      <ExampleGroup title={trans("componentDoc.style")}>
+      <ExampleGroup title="Layout">
         <Example
           title={trans("componentDoc.hideHeader")}
           width={400}
           config={{ data: data, hideHeader: true }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hide Footer"
+          width={400}
+          config={{ data: data, hideToolbar: true }}
           blackListConfig={blackListConfig}
           compFactory={TableComp}
         />
@@ -87,6 +94,30 @@ export default function TableExample() {
           title={trans("componentDoc.close")}
           width={400}
           config={{ data: data, hideBordered: true, selection: { mode: "close" } }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Showing Loading bars"
+          width={400}
+          config={{ 
+            data: data, 
+            hideBordered: true,
+            loading: true, 
+            }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup title="Editable Table & Edit modes">
+        <Example
+          title="Editable Table"
+          width={400}
+          config={{ 
+            data: data, 
+            hideHeader: true, 
+          }}
           blackListConfig={blackListConfig}
           compFactory={TableComp}
         />
@@ -150,6 +181,46 @@ export default function TableExample() {
           config={{ 
             data: data,
             toolbar:{position:"close"},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hiding Filter icon"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"below", showFilter:false, showDownload:true,showRefresh:true,columnSetting:true},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hiding Download Icon"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"below", showFilter:true, showDownload:false,showRefresh:true,columnSetting:true},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hiding Refresh Icon"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"below", showFilter:true, showDownload:true,showRefresh:false,columnSetting:true},
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={TableComp}
+        />
+        <Example
+          title="Hiding Column Visibility Icon"
+          width={400}
+          config={{ 
+            data: data,
+            toolbar:{position:"below", showFilter:true, showDownload:true,showRefresh:true,columnSetting:false},
           }}
           blackListConfig={blackListConfig}
           compFactory={TableComp}

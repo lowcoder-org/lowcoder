@@ -26,7 +26,7 @@ export default function MermaidChartExample() {
           width={500}
           height={300}
           config={{
-            code: "graph LR\n   Planning --> Defining --> Designing --> Building --> Testing --> Deployment --> Planning",
+            code: "graph LR\n Planning --> Defining --> Designing --> Building --> Testing --> Deployment --> Planning",
           }}
           compFactory={ChartCompWithDefault}
         />
