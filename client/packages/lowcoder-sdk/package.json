@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-sdk",
-  "version": "2.6.1",
+  "version": "2.6.4",
   "type": "module",
   "files": [
     "src",
@@ -25,6 +25,9 @@
     },
     "./dist/style.css": {
       "import": "./dist/style.css"
+    },
+    "./dist/chunks/": {
+      "import": "./dist/chunks/"
     }
   },
   "scripts": {

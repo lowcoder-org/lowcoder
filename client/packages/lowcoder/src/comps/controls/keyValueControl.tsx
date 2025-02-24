@@ -6,6 +6,7 @@ import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
 import { ParamsStringControl } from "./paramsControl";
+import { SimpleVariableHeaderComp } from "../comps/simpleVariableHeaderComp";
 
 const KeyValueWrapper = styled.div`
   display: flex;
@@ -58,13 +59,20 @@ export type KeyValueControlParams = ControlParams & {
 export function keyValueControl<T extends OptionsType>(
   hasType: boolean = false,
   types: T,
-  controlType: "params" | "string" = "params"
+  controlType: "params" | "string" | "variable" = "params"
 ) {
-  const childrenMap = {
+  let childrenMap = {
     key: controlType === "params" ? ParamsStringControl : StringControl,
     value: controlType === "params" ? ParamsStringControl : StringControl,
     type: dropdownControl(types, types[0]?.value),
   };
+  if(controlType === "variable") {
+    childrenMap = {
+      key: SimpleVariableHeaderComp(true) as any,
+      value: SimpleVariableHeaderComp() as any,
+      type: dropdownControl(types, types[0]?.value),
+    };
+  }
   return class extends new MultiCompBuilder(childrenMap, (props) => {
     return hasType
       ? {

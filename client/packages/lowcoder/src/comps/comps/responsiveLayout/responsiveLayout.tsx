@@ -21,7 +21,7 @@ import { NameGenerator } from "comps/utils";
 import { Section, controlItem, sectionNames } from "lowcoder-design";
 import { HintPlaceHolder } from "lowcoder-design";
 import _ from "lodash";
-import React, { useEffect } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import styled from "styled-components";
 import { IContainer } from "../containerBase/iContainer";
 import { SimpleContainerComp } from "../containerBase/simpleContainerComp";
@@ -44,11 +44,14 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import { useScreenInfo } from "../../hooks/screenInfoComp";
+
 
 const RowWrapper = styled(Row)<{
   $style: ResponsiveLayoutRowStyleType;
   $animationStyle: AnimationStyleType;
-  $showScrollbar:boolean
+  $showScrollbar: boolean;
+  $columnCount: number;
 }>`
   ${(props) => props.$animationStyle}
   height: 100%;
@@ -57,26 +60,40 @@ const RowWrapper = styled(Row)<{
   border-color: ${(props) => props.$style?.border};
   border-style: ${(props) => props.$style?.borderStyle};
   padding: ${(props) => props.$style.padding};
-  rotate: ${props=> props.$style.rotation}
+  rotate: ${(props) => props.$style.rotation};
   overflow: ${(props) => (props.$showScrollbar ? 'auto' : 'hidden')};
-   ::-webkit-scrollbar {
+  display: flex;
+  flex-wrap: wrap; // Ensure columns wrap properly when rowBreak = true
+  ::-webkit-scrollbar {
     display: ${(props) => (props.$showScrollbar ? 'block' : 'none')};
-    }
+  }
   ${props => getBackgroundStyle(props.$style)}
+
+  --columns: ${(props) => props.$columnCount || 3};
 `;
 
 const ColWrapper = styled(Col)<{
-  $style: ResponsiveLayoutColStyleType | undefined,
-  $minWidth?: string,
-  $matchColumnsHeight: boolean,
+  $style: ResponsiveLayoutColStyleType | undefined;
+  $minWidth?: string;
+  $matchColumnsHeight: boolean;
+  $rowBreak: boolean;
 }>`
   display: flex;
   flex-direction: column;
-  flex-basis: ${(props) => props.$minWidth};
-  max-width: ${(props) => props.$minWidth};
+  flex-grow: 1;
+
+  // When rowBreak is true, columns are stretched evenly based on configured number
+  // When rowBreak is false, they stay at minWidth but break only if necessary
+  flex-basis: ${(props) =>
+    props.$rowBreak
+      ? `calc(100% / var(--columns))` // Force exact column distribution
+      : `clamp(${props.$minWidth}, 100% / var(--columns), 100%)`}; // MinWidth respected
+
+  min-width: ${(props) => props.$minWidth}; // Ensure minWidth is respected
+  max-width: 100%; // Prevent more columns than allowed
 
   > div {
-    height: ${(props) => props.$matchColumnsHeight ? '100%' : 'auto'};
+    height: ${(props) => (props.$matchColumnsHeight ? "100%" : "auto")};
     border-radius: ${(props) => props.$style?.radius};
     border-width: ${(props) => props.$style?.borderWidth}px;
     border-color: ${(props) => props.$style?.border};
@@ -87,6 +104,8 @@ const ColWrapper = styled(Col)<{
   }
 `;
 
+
+
 const childrenMap = { 
   disabled: BoolCodeControl,
   columns: ColumnOptionControl,
@@ -95,8 +114,10 @@ const childrenMap = {
     1: { view: {}, layout: {} },
   }),
   horizontalGridCells: SliderControl,
+  verticalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
-  rowBreak: withDefault(BoolControl, false),
+  rowBreak: withDefault(BoolControl, true),
+  useComponentWidth: withDefault(BoolControl, true),
   matchColumnsHeight: withDefault(BoolControl, true),
   style: styleControl(ResponsiveLayoutRowStyle , 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
@@ -115,25 +136,28 @@ type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
   style: ResponsiveLayoutColStyleType,
 }
 
-const ColumnContainer = (props: ColumnContainerProps) => {
+const ColumnContainer = React.memo((props: ColumnContainerProps) => {
   return (
     <InnerGrid
       {...props}
-      emptyRows={15}
       hintPlaceholder={HintPlaceHolder}
       radius={props.style.radius}
       style={props.style}
     />
   );
-};
-
+});
 
 const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
+  const screenInfo = useScreenInfo();
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [componentWidth, setComponentWidth] = useState<number | null>(null);
+
   let {
     columns,
     containers,
     dispatch,
     rowBreak,
+    useComponentWidth,
     matchColumnsHeight,
     style,
     columnStyle,
@@ -148,33 +172,84 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
     autoHeight
   } = props;
 
+  // Ensure screenInfo is initialized properly
+  const safeScreenInfo = screenInfo && screenInfo.width
+    ? screenInfo
+    : { width: window.innerWidth, height: window.innerHeight, deviceType: "desktop" };
+
+  // Get device type based on width
+  const getDeviceType = (width: number) => {
+    if (width < 768) return "mobile";
+    if (width < 1024) return "tablet";
+    return "desktop";
+  };
+
+  // Observe component width dynamically
+  useEffect(() => {
+    if (!containerRef.current) return;
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        setComponentWidth(entry.contentRect.width);
+      }
+    });
+
+    resizeObserver.observe(containerRef.current);
+    return () => resizeObserver.disconnect();
+  }, []);
+
+  const totalColumns = columns.length;
+
+  // Decide between screen width or component width
+  const effectiveWidth = useComponentWidth ? componentWidth ?? safeScreenInfo.width : safeScreenInfo.width;
+  const effectiveDeviceType = useComponentWidth ? getDeviceType(effectiveWidth || 1000) : safeScreenInfo.deviceType;
+
+  // Get columns per row based on device type
+  let configuredColumnsPerRow = effectiveDeviceType === "mobile"
+    ? columnPerRowSM
+    : effectiveDeviceType === "tablet"
+    ? columnPerRowMD
+    : columnPerRowLG;
+
+  // Calculate max columns that fit based on minWidth
+  let maxColumnsThatFit = componentWidth
+    ? Math.floor(componentWidth / Math.max(...columns.map((col) => parseFloat(col.minWidth || "0"))))
+    : configuredColumnsPerRow;
+
+  // Determine actual number of columns
+  let numberOfColumns = rowBreak ? configuredColumnsPerRow : Math.min(maxColumnsThatFit, totalColumns);
+
   return (
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
-        <div style={{padding: style.margin, height: '100%'}}>
+        <div ref={containerRef} style={{ padding: style.margin, height: "100%" }}>  
           <RowWrapper
-            $style={style}
+            $style={{ ...style }}
             $animationStyle={animationStyle}
             $showScrollbar={mainScrollbar}
+            $columnCount={numberOfColumns} 
             wrap={rowBreak}
             gutter={[horizontalSpacing, verticalSpacing]}
           >
-            {columns.map(column => {
+            {columns.map((column) => {
               const id = String(column.id);
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
-              if(!containers[id]) return null
+              if (!containers[id]) return null;
               const containerProps = containers[id].children;
-              const noOfColumns = columns.length;
+
+              const calculatedWidth = 100 / numberOfColumns;
+
               return (
                 <ColWrapper
                   key={id}
-                  lg={24/(noOfColumns < columnPerRowLG ? noOfColumns : columnPerRowLG)}
-                  md={24/(noOfColumns < columnPerRowMD ? noOfColumns : columnPerRowMD)}
-                  sm={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
-                  xs={24/(noOfColumns < columnPerRowSM ? noOfColumns : columnPerRowSM)}
+                  lg={rowBreak ? 24 / numberOfColumns : undefined} 
+                  md={rowBreak ? 24 / numberOfColumns : undefined}
+                  sm={rowBreak ? 24 / numberOfColumns : undefined}
+                  xs={rowBreak ? 24 / numberOfColumns : undefined}
                   $style={props.columnStyle}
-                  $minWidth={column.minWidth}
+                  $minWidth={`${calculatedWidth}px`}
                   $matchColumnsHeight={matchColumnsHeight}
+                  $rowBreak={rowBreak}
                 >
                   <ColumnContainer
                     layout={containerProps.layout.getView()}
@@ -184,17 +259,18 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
                     autoHeight={props.autoHeight}
                     horizontalGridCells={horizontalGridCells}
                     style={columnStyle}
+                    emptyRows={props.verticalGridCells}
                   />
                 </ColWrapper>
-              )
-              })
-            }
+              );
+            })}
           </RowWrapper>
         </div>
-        </DisabledContext.Provider>
+      </DisabledContext.Provider>
     </BackgroundColorContext.Provider>
   );
 };
+
 
 export const ResponsiveLayoutBaseComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {  
@@ -229,10 +305,17 @@ export const ResponsiveLayoutBaseComp = (function () {
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}
+              {children.verticalGridCells.propertyView({
+                label: trans('prop.verticalGridCells'),
+              })}
             </Section>
             <Section name={trans("responsiveLayout.rowLayout")}>
               {children.rowBreak.propertyView({
                 label: trans("responsiveLayout.rowBreak")
+              })}
+              {children.useComponentWidth.propertyView({
+                label: trans("responsiveLayout.useComponentWidth"),
+                tooltip : trans("responsiveLayout.useComponentWidthDesc")
               })}
               {controlItem({}, (
                 <div style={{ marginTop: '8px' }}>

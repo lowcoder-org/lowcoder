@@ -3,10 +3,9 @@ import { keyValueListControl } from "../../controls/keyValueListControl";
 
 export const VariablesComp = new MultiCompBuilder(
   {
-    variables: withDefault(keyValueListControl(), [{ key: "", value: "" }]),
+    variables: withDefault(keyValueListControl(false, [], "variable"), [{ key: "", value: "" }]),
   },
-  (props) =>
-    props.variables
+  (props) => props //props.variables
   )
   .setPropertyViewFn((children) => (
     <>

@@ -15,12 +15,17 @@ import ProfileDropdown from "./profileDropdown";
 import { trans } from "i18n";
 import { Logo } from "@lowcoder-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
-import { useMemo, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { useParams } from "react-router";
 import { AppPathParams } from "constants/applicationConstants";
 import React from "react";
+import Segmented from "antd/es/segmented";
+import MobileOutlined from "@ant-design/icons/MobileOutlined";
+import TabletOutlined from "@ant-design/icons/TabletOutlined";
+import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
+import { DeviceOrientation, DeviceType, EditorContext } from "@lowcoder-ee/comps/editorState";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -110,6 +115,8 @@ export function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
   const templateId = useSelector(getTemplateId);
+  const isPublicApp = useSelector(isPublicApplication);
+
   if (fetchingUser) {
     return <Skeleton.Avatar shape="circle" size={28} />;
   }
@@ -117,7 +124,13 @@ export function HeaderProfile(props: { user: User }) {
     <div>
       {user.isAnonymous ? (
         !templateId ? (
-          <LoginBtn buttonType="primary" onClick={() => history.push(AUTH_LOGIN_URL)}>
+          <LoginBtn buttonType="primary" onClick={() => {
+            if (isPublicApp) {
+              window.top?.open('https://app.lowcoder.cloud/user/auth/login');
+            } else {
+              history.push(AUTH_LOGIN_URL)
+            }
+          }}>
             {trans("userAuth.login")}
           </LoginBtn>
         ) : null
@@ -130,6 +143,7 @@ export function HeaderProfile(props: { user: User }) {
 
 const PreviewHeaderComp = () => {
   const params = useParams<AppPathParams>();
+  const editorState = useContext(EditorContext);
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
   const isPublicApp = useSelector(isPublicApplication);
@@ -141,7 +155,7 @@ const PreviewHeaderComp = () => {
 
   const headerStart = (
     <>
-      <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
+      <StyledLink onClick={() => !isPublicApp && history.push(ALL_APPLICATIONS_URL)}>
         <LogoIcon branding={true} />
       </StyledLink>
       {isViewMarketplaceMode && (
@@ -197,9 +211,50 @@ const PreviewHeaderComp = () => {
       <HeaderProfile user={user} />
     </Wrapper>
   );
+
+  const headerMiddle = useMemo(() => {
+    if (isPublicApp) return null;
+
+    return (
+      <>
+        {/* Devices */}
+        <Segmented<DeviceType>
+          options={[
+            { value: 'mobile', icon: <MobileOutlined /> },
+            { value: 'tablet', icon: <TabletOutlined /> },
+            { value: 'desktop', icon: <DesktopOutlined /> },
+          ]}
+          value={editorState.deviceType}
+          onChange={(value) => {
+            editorState.setDeviceType(value);
+          }}
+        />
+
+        {/* Orientation */}
+        {editorState.deviceType !== 'desktop' && (
+          <Segmented<DeviceOrientation>
+            options={[
+              { value: 'portrait', label: "Portrait" },
+              { value: 'landscape', label: "Landscape" },
+            ]}
+            value={editorState.deviceOrientation}
+            onChange={(value) => {
+              editorState.setDeviceOrientation(value);
+            }}
+          />
+        )}
+      </>
+    );
+  }, [
+    isPublicApp,
+    editorState.deviceType,
+    editorState.deviceOrientation,
+  ]);
+
   return (
     <Header
       headerStart={headerStart}
+      headerMiddle={headerMiddle}
       headerEnd={headerEnd}
       style={{ backgroundColor: brandingConfig?.headerColor }}
     />

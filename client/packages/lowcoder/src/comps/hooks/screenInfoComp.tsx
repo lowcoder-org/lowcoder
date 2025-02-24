@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { hookToStateComp } from "../generators/hookToComp";
+import { CanvasContainerID } from "@lowcoder-ee/index.sdk";
 
 enum ScreenTypes {
   Mobile = 'mobile',
@@ -18,10 +19,16 @@ type ScreenInfo = {
   isMobile?: boolean;
 }
 
-function useScreenInfo() {
-  const getDeviceType = () => {
-    if (window.innerWidth < 768) return ScreenTypes.Mobile;
-    if (window.innerWidth < 889) return ScreenTypes.Tablet;
+export function useScreenInfo() {
+  const canvasContainer = document.getElementById(CanvasContainerID);
+  const canvas = document.getElementsByClassName('lowcoder-app-canvas')?.[0];
+  const canvasWidth = useMemo(() => {
+    return canvasContainer?.clientWidth || canvas?.clientWidth;
+  }, [canvasContainer?.clientWidth, canvas?.clientWidth]);
+
+  const getDeviceType = (width: number) => {
+    if (width < 768) return ScreenTypes.Mobile;
+    if (width < 1024) return ScreenTypes.Tablet;
     return ScreenTypes.Desktop;
   }
   const getFlagsByDeviceType = (deviceType: ScreenType) => {
@@ -41,16 +48,17 @@ function useScreenInfo() {
 
   const getScreenInfo = useCallback(() => {
     const { innerWidth, innerHeight } = window;
-    const deviceType = getDeviceType();
+    const deviceType = getDeviceType(canvasWidth || window.innerWidth);
     const flags = getFlagsByDeviceType(deviceType);
     
     return {
       width: innerWidth,
       height: innerHeight,
+      canvasWidth,
       deviceType,
       ...flags
     };
-  }, [])
+  }, [canvasWidth])
 
   const [screenInfo, setScreenInfo] = useState<ScreenInfo>({});
   
@@ -63,6 +71,12 @@ function useScreenInfo() {
     updateScreenInfo();
     return () => window.removeEventListener('resize', updateScreenInfo);
   }, [ updateScreenInfo ])
+
+  useEffect(() => {
+    if (canvasWidth) {
+      updateScreenInfo();
+    }
+  }, [canvasWidth]);
 
   return screenInfo;
 }

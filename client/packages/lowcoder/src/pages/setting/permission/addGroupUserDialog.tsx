@@ -71,6 +71,7 @@ function AddGroupUserDialog(props: {
         }}
         okButtonProps={{ loading: confirmLoading }}
         showCancelButton={false}
+        showOkButton
         width="440px"
         okText={trans("finish")}
         onOk={async () => {

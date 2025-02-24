@@ -80,6 +80,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
     onSave,
     onCancel
   } = props;
+
   const [form1] = Form.useForm<ConfigProvider>();
 
   const [saveLoading, setSaveLoading] = useState(false);
@@ -197,7 +198,7 @@ function GenericOAuthForm(props: GenericOAuthFormProp) {
       />
       
       <FormStyled
-        form={form1}
+        form={form1 as unknown as FormInstance<unknown>}
         name="generic"
         layout="vertical"
         style={{ maxWidth: '100%' }}

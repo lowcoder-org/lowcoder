@@ -196,9 +196,15 @@ public class ApplicationQueryApiServiceImpl implements ApplicationQueryApiServic
         if(authId == null) {
             return Mono.empty();
         }
+
+        String filterAuthId;
+        if(StringUtils.isEmpty(authId)) filterAuthId = user.getActiveAuthId();
+        else {
+            filterAuthId = authId;
+        }
         Optional<Connection> activeConnectionOptional = user.getConnections()
                 .stream()
-                .filter(connection -> connection.getAuthId().equals(authId))
+                .filter(connection -> connection.getAuthId().equals(filterAuthId))
                 .findFirst();
         if(!activeConnectionOptional.isPresent() || activeConnectionOptional.get().getAuthConnectionAuthToken() == null) {
             return Mono.empty();
