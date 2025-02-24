@@ -94,6 +94,9 @@ import HillChartExample from "./ChartsComp/HillChart";
 import BPMNEditorExample from "./MediaComp/BPMNEditor";
 import ImageEditorExample from "./presentationComp/imageEditor";
 import DrawerExample from "./ChartsComp/Drawer";
+import CollapsibleContainerExample from "./ContainersComp/CollapsibleContainer";
+import FloatTextContainerExample from "./ContainersComp/FloatTextContainer";
+import SplitLayoutExample from "./ContainersComp/SplitLayout";
 
 const examples: { [key in UICompType]?: React.FunctionComponent } = {
   button: ButtonExample,
@@ -191,6 +194,9 @@ const examples: { [key in UICompType]?: React.FunctionComponent } = {
   bpmnEditor: BPMNEditorExample,
   imageEditor: ImageEditorExample,
   drawer: DrawerExample,
+  collapsibleContainer: CollapsibleContainerExample,
+  floatTextContainer: FloatTextContainerExample,
+  splitLayout: SplitLayoutExample,
 };
 
 export default examples;

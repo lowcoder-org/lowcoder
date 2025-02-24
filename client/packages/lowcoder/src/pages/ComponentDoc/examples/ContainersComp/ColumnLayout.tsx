@@ -3,266 +3,233 @@ import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
 const columns={
-  "manual": [
-      {
-          "id": 0,
-          "label": "Column1",
-          "key": "Column1",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      },
-      {
-          "id": 1,
-          "label": "Column2",
-          "key": "Column2",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      },
-      {
-          "id": 2,
-          "label": "Add Column1",
-          "key": "Add Column1",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      },
-      {
-          "id": 3,
-          "label": "Add Column2",
-          "key": "Add Column2",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      },
-      {
-          "id": 4,
-          "label": "Add Column3",
-          "key": "Add Column3",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      },
-      {
-          "id": 5,
-          "label": "Add Column4",
-          "key": "Add Column4",
-          "minWidth": "",
-          "background": "",
-          "backgroundImage": "",
-          "border": "",
-          "radius": "",
-          "margin": "",
-          "padding": ""
-      }
-  ]
+    "manual": [
+        {
+            "id": 0,
+            "label": "Column1",
+            "key": "Column1",
+            "minWidth": "",
+            "background": "",
+            "backgroundImage": "",
+            "border": "",
+            "radius": "",
+            "margin": "",
+            "padding": ""
+        },
+        {
+            "id": 1,
+            "label": "Column2",
+            "key": "Column2",
+            "minWidth": "",
+            "background": "",
+            "backgroundImage": "",
+            "border": "",
+            "radius": "",
+            "margin": "",
+            "padding": ""
+        },
+        {
+            "id": 2,
+            "label": "Add Column1",
+            "key": "Add Column1",
+            "minWidth": "",
+            "background": "",
+            "backgroundImage": "",
+            "border": "",
+            "radius": "",
+            "margin": "",
+            "padding": ""
+        },
+        {
+            "id": 3,
+            "label": "Add Column2",
+            "key": "Add Column2",
+            "minWidth": "",
+            "background": "",
+            "backgroundImage": "",
+            "border": "",
+            "radius": "",
+            "margin": "",
+            "padding": ""
+        }
+    ]
 };
 
 const container={
     "0": {
         "layout": {
-            "d131aa12": {
-                "i": "d131aa12",
+            "164dcb77": {
+                "i": "164dcb77",
                 "h": 6,
-                "w": 17,
-                "x": 4,
-                "y": 5,
-                "pos": 1
+                "w": 14,
+                "x": 5,
+                "y": 4,
+                "pos": 0
             }
         },
         "items": {
-            "d131aa12": {
-                "compType": "progress",
+            "164dcb77": {
+                "compType": "text",
                 "comp": {
-                    "value": "60",
+                    "text": "### Row1, Column1",
+                    "autoHeight": "auto",
+                    "type": "markdown",
+                    "horizontalAlignment": "center",
+                    "contentScrollBar": true,
+                    "verticalAlignment": "center",
+                    "margin": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
+                    "padding": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
                     "preventStyleOverwriting": false,
                     "appliedThemeId": "",
                     "version": "latest"
                 },
-                "name": "progress1"
+                "name": "text1"
             }
         }
     },
     "1": {
         "layout": {
-            "e193cd76": {
-                "i": "e193cd76",
+            "6e4f0687": {
+                "i": "6e4f0687",
                 "h": 6,
-                "w": 24,
-                "x": 0,
-                "y": 5,
+                "w": 14,
+                "x": 5,
+                "y": 4,
                 "pos": 0
             }
         },
         "items": {
-            "e193cd76": {
-                "compType": "button",
+            "6e4f0687": {
+                "compType": "text",
                 "comp": {
-                    "text": "Button",
-                    "type": "",
-                    "form": "",
+                    "text": "### Row1, Column2",
+                    "autoHeight": "auto",
+                    "type": "markdown",
+                    "horizontalAlignment": "center",
+                    "contentScrollBar": true,
+                    "verticalAlignment": "center",
+                    "margin": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
+                    "padding": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
                     "preventStyleOverwriting": false,
                     "appliedThemeId": "",
                     "version": "latest"
                 },
-                "name": "button1"
+                "name": "text3"
             }
         }
     },
     "2": {
         "layout": {
-            "1d3eac41": {
-                "i": "1d3eac41",
-                "h": 7,
-                "w": 21,
-                "x": 1,
-                "y": 5,
+            "b47baba7": {
+                "i": "b47baba7",
+                "h": 6,
+                "w": 14,
+                "x": 5,
+                "y": 4,
                 "pos": 0
             }
         },
         "items": {
-            "1d3eac41": {
-                "compType": "switch",
+            "b47baba7": {
+                "compType": "text",
                 "comp": {
-                    "defaultValue": "",
-                    "value": "",
-                    "label": {
-                        "text": "Switch",
-                        "width": "33",
-                        "widthUnit": "%",
-                        "position": "row",
-                        "align": "left"
+                    "text": "### Row2, Column1",
+                    "autoHeight": "auto",
+                    "type": "markdown",
+                    "horizontalAlignment": "center",
+                    "contentScrollBar": true,
+                    "verticalAlignment": "center",
+                    "margin": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
+                    "padding": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
                     },
                     "preventStyleOverwriting": false,
                     "appliedThemeId": "",
                     "version": "latest"
                 },
-                "name": "switch1"
+                "name": "text2"
             }
         }
     },
     "3": {
         "layout": {
-            "5853c1f5": {
-                "i": "5853c1f5",
-                "h": 20,
-                "w": 15,
-                "x": 5,
-                "y": 0,
-                "pos": 0
-            }
-        },
-        "items": {
-            "5853c1f5": {
-                "compType": "progressCircle",
-                "comp": {
-                    "value": "60",
-                    "preventStyleOverwriting": false,
-                    "appliedThemeId": "",
-                    "version": "latest"
-                },
-                "name": "progressCircle1"
-            }
-        }
-    },
-    "4": {
-        "layout": {
-            "68b3d00f": {
-                "i": "68b3d00f",
+            "ce02a8ee": {
+                "i": "ce02a8ee",
                 "h": 6,
-                "w": 23,
-                "x": 1,
-                "y": 7,
+                "w": 14,
+                "x": 5,
+                "y": 3,
                 "pos": 0
             }
         },
         "items": {
-            "68b3d00f": {
-                "compType": "button",
+            "ce02a8ee": {
+                "compType": "text",
                 "comp": {
-                    "text": "Button",
-                    "type": "",
-                    "form": "",
+                    "text": "### Row2, Column2",
+                    "autoHeight": "auto",
+                    "type": "markdown",
+                    "horizontalAlignment": "center",
+                    "contentScrollBar": true,
+                    "verticalAlignment": "center",
+                    "margin": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
+                    "padding": {
+                        "left": "",
+                        "right": "",
+                        "top": "",
+                        "bottom": ""
+                    },
                     "preventStyleOverwriting": false,
                     "appliedThemeId": "",
                     "version": "latest"
                 },
-                "name": "button2"
-            }
-        }
-    },
-    "5": {
-        "layout": {
-            "307f8e6b": {
-                "i": "307f8e6b",
-                "h": 10,
-                "w": 24,
-                "x": 0,
-                "y": 6,
-                "pos": 0
-            }
-        },
-        "items": {
-            "307f8e6b": {
-                "compType": "checkbox",
-                "comp": {
-                    "defaultValue": "",
-                    "value": "",
-                    "label": {
-                        "text": "Check box",
-                        "width": "33",
-                        "widthUnit": "%",
-                        "position": "row",
-                        "align": "left"
-                    },
-                    "options": {
-                        "optionType": "manual",
-                        "manual": {
-                            "manual": [
-                                {
-                                    "value": "1",
-                                    "label": "Option 1"
-                                },
-                                {
-                                    "value": "2",
-                                    "label": "Option 2"
-                                }
-                            ]
-                        },
-                        "mapData": {
-                            "data": "[]"
-                        }
-                    },
-                    "layout": "horizontal",
-                    "preventStyleOverwriting": false,
-                    "appliedThemeId": "",
-                    "version": "latest"
-                },
-                "name": "checkbox1"
+                "name": "text4"
             }
         }
     }
+};
+
+const columnStyle = {
+    "background": "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+    "border": "#222222",
+    "padding": "0px"
+};
+
+const style= {
+    "background": "linear-gradient(135deg, #FFFFFF 0%, rgba(255, 255, 255, 1) 100%)"
 };
 
 export default function ColumnLayoutExample() {
@@ -275,20 +242,31 @@ export default function ColumnLayoutExample() {
           <Example
             title="Hiding the Component"
             hideSettings={true}
+            width={1000}
             config={{
               containers: container,
               columns: columns,
               hidden: true,
+              columnStyle: columnStyle,
+              style: style,
+              templateRows: "3fr 1fr",
+              templateColumns: "1fr 3fr",
             }}
             compFactory={ColumnLayoutComp}
           />
           <Example
             title="Disabling the Component"
             hideSettings={true}
+            width={1000}
             config={{
               containers: container,
               columns: columns, 
               disabled: true,
+              columnStyle: columnStyle,
+              style: style,
+              templateRows: "3fr 1fr",
+              templateColumns: "1fr 3fr",
+              matchColumnsHeight: true,
             }}
             compFactory={ColumnLayoutComp}
           />
@@ -299,48 +277,865 @@ export default function ColumnLayoutExample() {
           description="The Following Examples Show the Column Layout options on Column Layout Component."
         >
           <Example
-            title="Column Definition"
+            title="Column Definition - 3 Columns with different sizes"
             hideSettings={true}
+            width={1000}
             config={{
-              containers: container,
-              columns: columns,
+              containers: {
+                "0": {
+                    "layout": {
+                        "164dcb77": {
+                            "i": "164dcb77",
+                            "h": 6,
+                            "w": 14,
+                            "x": 5,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "164dcb77": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column1",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text1"
+                        }
+                    }
+                },
+                "1": {
+                    "layout": {
+                        "6e4f0687": {
+                            "i": "6e4f0687",
+                            "h": 6,
+                            "w": 14,
+                            "x": 5,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "6e4f0687": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column2",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text3"
+                        }
+                    }
+                },
+                "2": {
+                    "layout": {
+                        "b47baba7": {
+                            "i": "b47baba7",
+                            "h": 6,
+                            "w": 14,
+                            "x": 5,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "b47baba7": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column3",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text2"
+                        }
+                    }
+                },
+                "3": {
+                    "layout": {
+                        "ce02a8ee": {
+                            "i": "ce02a8ee",
+                            "h": 6,
+                            "w": 14,
+                            "x": 5,
+                            "y": 3,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "ce02a8ee": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column1",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text4"
+                        }
+                    }
+                },
+                "4": {
+                    "layout": {
+                        "7ff66f36": {
+                            "i": "7ff66f36",
+                            "h": 6,
+                            "w": 24,
+                            "x": 0,
+                            "y": 2,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "7ff66f36": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column2",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text5"
+                        }
+                    }
+                },
+                "5": {
+                    "layout": {
+                        "8e25033d": {
+                            "i": "8e25033d",
+                            "h": 6,
+                            "w": 14,
+                            "x": 5,
+                            "y": 2,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "8e25033d": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column3",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text6"
+                        }
+                    }
+                }
+            },
+              columns: {
+                "manual": [
+                    {
+                        "id": 0,
+                        "label": "Column1",
+                        "key": "Column1",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 1,
+                        "label": "Column2",
+                        "key": "Column2",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 2,
+                        "label": "Add Column1",
+                        "key": "Add Column1",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 3,
+                        "label": "Add Column2",
+                        "key": "Add Column2",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 4,
+                        "label": "Add Column3",
+                        "key": "Add Column3",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 5,
+                        "label": "Add Column4",
+                        "key": "Add Column4",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    }
+                ]
+            },
               templateColumns: "2fr 1fr 2fr",
-              templateRows: "1fr",
+              templateRows: "1fr 1fr",
+              columnStyle: columnStyle,
+              style: style,
+              matchColumnsHeight: true,
             }}
             compFactory={ColumnLayoutComp}
           />
           <Example
-            title="Row Definition"
+            title="Row Definition - 3 Rows with different sizes"
             hideSettings={true}
+            width={1000}
             config={{
-              containers: container,
-              columns: columns,
-              templateRows: "1fr 1fr 1fr",
-              templateColumns: "2fr 1fr 2fr",
+              containers: {
+                "0": {
+                    "layout": {
+                        "164dcb77": {
+                            "i": "164dcb77",
+                            "h": 8,
+                            "w": 19,
+                            "x": 3,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "164dcb77": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column1",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text1"
+                        }
+                    }
+                },
+                "1": {
+                    "layout": {
+                        "6e4f0687": {
+                            "i": "6e4f0687",
+                            "h": 6,
+                            "w": 24,
+                            "x": 0,
+                            "y": 5,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "6e4f0687": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column2",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text3"
+                        }
+                    }
+                },
+                "2": {
+                    "layout": {
+                        "b47baba7": {
+                            "i": "b47baba7",
+                            "h": 10,
+                            "w": 18,
+                            "x": 5,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "b47baba7": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row1, Column3",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text2"
+                        }
+                    }
+                },
+                "3": {
+                    "layout": {
+                        "ce02a8ee": {
+                            "i": "ce02a8ee",
+                            "h": 8,
+                            "w": 17,
+                            "x": 2,
+                            "y": 16,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "ce02a8ee": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column1",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text4"
+                        }
+                    }
+                },
+                "4": {
+                    "layout": {
+                        "7ff66f36": {
+                            "i": "7ff66f36",
+                            "h": 6,
+                            "w": 24,
+                            "x": 0,
+                            "y": 16,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "7ff66f36": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column2",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text5"
+                        }
+                    }
+                },
+                "5": {
+                    "layout": {
+                        "8e25033d": {
+                            "i": "8e25033d",
+                            "h": 8,
+                            "w": 19,
+                            "x": 3,
+                            "y": 16,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "8e25033d": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row2, Column3",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text6"
+                        }
+                    }
+                },
+                "6": {
+                    "layout": {
+                        "e92230c": {
+                            "i": "e92230c",
+                            "h": 8,
+                            "w": 19,
+                            "x": 2,
+                            "y": 3,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "e92230c": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row3, Column1",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text7"
+                        }
+                    }
+                },
+                "7": {
+                    "layout": {
+                        "5e09b262": {
+                            "i": "5e09b262",
+                            "h": 6,
+                            "w": 24,
+                            "x": 0,
+                            "y": 4,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "5e09b262": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row3, Column2",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text8"
+                        }
+                    }
+                },
+                "8": {
+                    "layout": {
+                        "1bc7c61f": {
+                            "i": "1bc7c61f",
+                            "h": 8,
+                            "w": 20,
+                            "x": 1,
+                            "y": 2,
+                            "pos": 0
+                        }
+                    },
+                    "items": {
+                        "1bc7c61f": {
+                            "compType": "text",
+                            "comp": {
+                                "text": "### Row3, Column3",
+                                "autoHeight": "auto",
+                                "type": "markdown",
+                                "horizontalAlignment": "center",
+                                "contentScrollBar": true,
+                                "verticalAlignment": "center",
+                                "margin": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "padding": {
+                                    "left": "",
+                                    "right": "",
+                                    "top": "",
+                                    "bottom": ""
+                                },
+                                "preventStyleOverwriting": false,
+                                "appliedThemeId": "",
+                                "version": "latest"
+                            },
+                            "name": "text9"
+                        }
+                    }
+                }
+            },
+              columns: {
+                "manual": [
+                    {
+                        "id": 0,
+                        "label": "Column1",
+                        "key": "Column1",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 1,
+                        "label": "Column2",
+                        "key": "Column2",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 2,
+                        "label": "Add Column1",
+                        "key": "Add Column1",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 3,
+                        "label": "Add Column2",
+                        "key": "Add Column2",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 4,
+                        "label": "Add Column3",
+                        "key": "Add Column3",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 5,
+                        "label": "Add Column4",
+                        "key": "Add Column4",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 6,
+                        "label": "Add Column5",
+                        "key": "Add Column5",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 7,
+                        "label": "Add Column6",
+                        "key": "Add Column6",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    },
+                    {
+                        "id": 8,
+                        "label": "Add Column7",
+                        "key": "Add Column7",
+                        "minWidth": "",
+                        "background": "",
+                        "backgroundImage": "",
+                        "border": "",
+                        "radius": "",
+                        "margin": "",
+                        "padding": ""
+                    }
+                ]
+            },
+              templateRows: "1fr 3fr 1fr",
+              templateColumns: "1fr 3fr 1fr",
+              columnStyle: columnStyle,
+              style: style,
+              matchColumnsHeight: true,
             }}
             compFactory={ColumnLayoutComp}
           />
           <Example
             title="Column Gap"
             hideSettings={true}
+            width={1000}
             config={{
               containers: container,
               columns: columns,
-              columnGap: "100px",
-              templateRows: "1fr",
-              templateColumns: "2fr 1fr 2fr",
+              columnGap: "200px",
+              templateRows: "3fr 1fr",
+              templateColumns: "1fr 3fr",
+              columnStyle: columnStyle,
+              style: style,
             }}
             compFactory={ColumnLayoutComp}
           />
            <Example
             title="Row Gap"
             hideSettings={true}
+            width={1000}
             config={{
               containers: container,
               columns: columns,
-              rowGap: "100px",
-              templateRows: "1fr 1fr",
-              templateColumns: "2fr 1fr 2fr",
+              rowGap: "200px",
+              templateRows: "3fr 1fr",
+              templateColumns: "1fr 3fr",
+              columnStyle: columnStyle,
+              style: style,
             }}
             compFactory={ColumnLayoutComp}
           />
