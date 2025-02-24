@@ -68,9 +68,6 @@ export function getSeriesConfig(props: EchartsConfigProps) {
     let config = {
       ...props.chartConfig,
       name: s.seriesName,
-      label: {
-        show: s.showLabel,
-      },
       encode: {
         itemName: props.xAxisKey,
         value: s.columnName,
@@ -212,7 +209,7 @@ export function getEchartsConfig(
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
-      data: transformedData.map(d => [d[props.xAxisKey], d[series.encode.value]]),
+      data: transformedData.map(d => [d[props.xAxisKey], d[series.encode.value], ...Object.values(d)]),
     })),
   };
 

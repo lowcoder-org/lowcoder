@@ -50,6 +50,23 @@ export const ScatterChartConfig = (function () {
         symbol: props.shape,
         label: {
           show: props.showLabel,
+          position: 'right',
+          formatter: function (param) {
+            return param.data[2];
+          },
+        },
+        labelLayout: function () {
+          return {
+            x: '88%',
+            moveOverlap: 'shiftY'
+          };
+        },
+        labelLine: {
+          show: true,
+          length2: 5,
+          lineStyle: {
+            color: '#bbb'
+          }
         },
         singleAxis: props.singleAxis,
         divider: props.divider,
