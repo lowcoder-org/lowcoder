@@ -11,12 +11,12 @@ export function getButtonStyle(buttonStyle: ButtonStyleType) {
   const hoverColor = buttonStyle.background && genHoverColor(buttonStyle.background);
   const activeColor = buttonStyle.background && genActiveColor(buttonStyle.background);
   return css`
-    &&& {
+    & {
       border-radius: ${buttonStyle.radius};
       border-width:${buttonStyle.borderWidth};
       margin: ${buttonStyle.margin};
       padding: ${buttonStyle.padding};
-      rotate: ${buttonStyle.rotation&&buttonStyle.rotation};
+      rotate: ${buttonStyle.rotation};
       &:not(:disabled) {
         --antd-wave-shadow-color: ${buttonStyle.border};
         border-color: ${buttonStyle.border};

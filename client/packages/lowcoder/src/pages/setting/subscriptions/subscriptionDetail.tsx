@@ -147,7 +147,7 @@ export function SubscriptionDetail() {
               style={{ marginTop: "16px" }}
               dataSource={invoice.lines.data.filter((lineItem: any) => lineItem.amount !== 0)} // Filter out line items with amount = 0
               pagination={false}
-              rowKey={(lineItem) => lineItem.id}
+              rowKey={(lineItem: { id: string }) => lineItem.id}
               columns={[
                 {
                   title: trans("subscription.itemDescription"),

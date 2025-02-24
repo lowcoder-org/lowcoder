@@ -16,7 +16,11 @@ import {
   uiChildren,
   clickEvent,
   styleControl,
-  EchartsStyle
+  EchartDefaultChartStyle,
+  EchartDefaultTextStyle,
+  ColorControl,
+  EchartDefaultDetailStyle,
+  toArray
 } from "lowcoder-sdk";
 import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
 import { BarChartConfig } from "../chartComp/chartConfigs/barChartConfig";
@@ -32,25 +36,6 @@ import { EChartsOption } from "echarts";
 import { i18nObjs, trans } from "i18n/comps";
 import { GaugeChartConfig } from "../chartComp/chartConfigs/gaugeChartConfig";
 import { EchartsTitleConfig } from "comps/chartComp/chartConfigs/echartsTitleConfig";
-
-export const ChartTypeOptions = [
-  {
-    label: trans("chart.bar"),
-    value: "bar",
-  },
-  {
-    label: trans("chart.line"),
-    value: "line",
-  },
-  {
-    label: trans("chart.scatter"),
-    value: "scatter",
-  },
-  {
-    label: trans("chart.pie"),
-    value: "pie",
-  },
-] as const;
 
 export const UIEventOptions = [
   {
@@ -231,6 +216,41 @@ const EchartsOptionMap = {
   gauge: GaugeChartConfig,
 };
 
+const ChartTypeOptions = [
+  {
+    label: trans("chart.default"),
+    value: "default",
+  },
+  {
+    label: trans("chart.stageGauge"),
+    value: "stageGauge",
+  },
+  {
+    label: trans("chart.gradeGauge"),
+    value: "gradeGauge",
+  },
+  {
+    label: trans("chart.temperatureGauge"),
+    value: "temperatureGauge",
+  },
+  {
+    label: trans("chart.multiGauge"),
+    value: "multiGauge",
+  },
+  {
+    label: trans("chart.ringGauge"),
+    value: "ringGauge",
+  },
+  {
+    label: trans("chart.barometerGauge"),
+    value: "barometerGauge",
+  },
+  {
+    label: trans("chart.clockGauge"),
+    value: "clockGauge",
+  },
+] as const;
+
 const ChartOptionComp = withType(ChartOptionMap, "bar");
 const EchartsOptionComp = withType(EchartsOptionMap, "gauge");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
@@ -249,7 +269,25 @@ export const chartUiModeChildren = {
 };
 
 let chartJsonModeChildren: any = {
+  echartsData: jsonControl(toArray),
   echartsOption: jsonControl(toObject, i18nObjs.defaultGaugeChartOption),
+  stageGaugeOption: jsonControl(toObject, i18nObjs.defaultStageGaugeChartOption),
+  gradeGaugeOption: jsonControl(toObject, i18nObjs.defaultGradeGaugeChartOption),
+  temperatureGaugeOption: jsonControl(toObject, i18nObjs.defaultTemperatureGaugeChartOption),
+  multiTitleGaugeOption: jsonControl(toObject, i18nObjs.defaultMultiTitleGaugeChartOption),
+  ringGaugeOption: jsonControl(toObject, i18nObjs.defaultRingGaugeChartOption),
+  clockGaugeOption: jsonControl(toObject, i18nObjs.defaultClockGaugeChartOption),
+  barometerGaugeOption: jsonControl(toObject, i18nObjs.defaultBarometerGaugeChartOption),
+
+  stageGaugeData:jsonControl(toArray),
+  gradeGaugeData:jsonControl(toArray),
+  temperatureGaugeData:jsonControl(toArray),
+  multiTitleGaugeData:jsonControl(toArray),
+  ringGaugeData:jsonControl(toArray),
+  clockGaugeData:jsonControl(toArray),
+  barometerGaugeData:jsonControl(toArray),
+
+  chartType: dropdownControl(ChartTypeOptions, trans("chart.default")),
   echartsTitle: withDefault(StringControl, trans("gaugeChart.defaultTitle")),
   echartsLegendConfig: EchartsLegendConfig,
   echartsLabelConfig: EchartsLabelConfig,
@@ -259,18 +297,60 @@ let chartJsonModeChildren: any = {
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
   label: withDefault(BoolControl, true),
+  progressBar: withDefault(BoolControl, true),
+  roundCap: withDefault(BoolControl, true),
   left:withDefault(NumberControl,trans('gaugeChart.defaultLeft')),
   top:withDefault(NumberControl,trans('gaugeChart.defaultTop')),
   bottom:withDefault(NumberControl,trans('gaugeChart.defaultBottom')),
   width:withDefault(NumberControl,trans('gaugeChart.defaultWidth')),
+  radius:withDefault(NumberControl,trans('gaugeChart.defaultRadius')),
+  temperatureRadius:withDefault(NumberControl,trans('gaugeChart.defaultTemperatureRadius')),
   min:withDefault(NumberControl,trans('gaugeChart.defaultMin')),
   max:withDefault(NumberControl,trans('gaugeChart.defaultMax')),
-  gap:withDefault(NumberControl,trans('gaugeChart.defaultGap'))
+  gap:withDefault(NumberControl,trans('gaugeChart.defaultGap')),
+  position_x:withDefault(NumberControl,trans('gaugeChart.defaultPosition_X')),
+  position_y:withDefault(NumberControl,trans('gaugeChart.defaultPosition_Y')),
+  startAngle:withDefault(NumberControl,trans('gaugeChart.defaultStartAngle')),
+  endAngle:withDefault(NumberControl,trans('gaugeChart.defaultEndAngle')),
+  splitNumber:withDefault(NumberControl,trans('gaugeChart.defaultSplitNumber')),
+  pointerLength:withDefault(NumberControl,trans('gaugeChart.defaultPointerLength')),
+  barometerPointerLength:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointerLength')),
+  pointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultPointerWidth')),
+  barometerPointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointerWidth')),
+  pointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultPointer_Y')),
+  barometerPointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultBarometerPointer_Y')),
+  pointerIcon:withDefault(StringControl),
+  gradePointerIcon:withDefault(StringControl, trans('gaugeChart.gradeDefaultPointerIcon')),
+  clockPointerIcon:withDefault(StringControl, trans('gaugeChart.clockDefaultPointerIcon')),
+  barometerPointerIcon:withDefault(StringControl, trans('gaugeChart.defaultBarometerPointerIcon')),
+  multiTitlePointerIcon:withDefault(StringControl, trans('gaugeChart.defaultMultiTitlePointerIcon')),
+  progressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultProgressBarWidth')),
+  axisTickWidth: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickWidth')),
+  axisTickLength: withDefault(NumberControl, trans('gaugeChart.defaultAxisTickLength')),
+  axisLabelDistance: withDefault(NumberControl, trans('gaugeChart.defaultAxisLabelDistance')),
+  axisTickColor: withDefault(ColorControl, trans('gaugeChart.defaultAxisTickColor')),
+
+  gradeGaugePointerLength:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointerLength')),
+  gradeGaugePointerWidth:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointerWidth')),
+  gradeGaugePointer_Y:withDefault(NumberControl,trans('gaugeChart.defaultGradeGaugePointer_Y')),
+  stageProgressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultStageProgressBarWidth')),
+  temperatureProgressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultTemperatureProgressBarWidth')),
+  ringProgressBarWidth:withDefault(NumberControl,trans('gaugeChart.defaultRingProgressBarWidth')),
+  temperatureAxisLabelDistance:withDefault(NumberControl,trans('gaugeChart.defaultTemperatureAxisLabelDistance')),
+  stageAxisTickColor: withDefault(ColorControl, trans('gaugeChart.defaultStageAxisTickColor')),
+  gradeAxisTickColor: withDefault(ColorControl),
+
 }
-if (EchartsStyle) {
+
+if (EchartDefaultChartStyle && EchartDefaultTextStyle && EchartDefaultDetailStyle) {
   chartJsonModeChildren = {
     ...chartJsonModeChildren,
-    style: styleControl(EchartsStyle, 'style'),
+    chartStyle: styleControl(EchartDefaultChartStyle, 'chartStyle'),
+    titleStyle: styleControl(EchartDefaultTextStyle, 'titleStyle'),
+    labelStyle: styleControl(EchartDefaultTextStyle, 'labelStyle'),
+    legendStyle: styleControl(EchartDefaultDetailStyle, 'legendStyle'),
+    axisLabelStyle: styleControl(EchartDefaultTextStyle, 'axisLabelStyle'),
+    axisLabelStyleOutline: styleControl(EchartDefaultTextStyle, 'axisLabelStyleOutline'),
   }
 }
 const chartMapModeChildren = {

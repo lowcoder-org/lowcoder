@@ -1,19 +1,19 @@
 package org.lowcoder.api.application;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.annotation.Nullable;
 import org.apache.commons.lang3.BooleanUtils;
-import org.lowcoder.api.application.view.ApplicationInfoView;
-import org.lowcoder.api.application.view.ApplicationPermissionView;
-import org.lowcoder.api.application.view.ApplicationView;
-import org.lowcoder.api.application.view.MarketplaceApplicationInfoView;
+import org.lowcoder.api.application.view.*;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.home.UserHomepageView;
+import org.lowcoder.api.query.view.LibraryQueryPublishRequest;
 import org.lowcoder.domain.application.model.Application;
 import org.lowcoder.domain.application.model.ApplicationStatus;
 import org.lowcoder.infra.constant.NewUrl;
 import org.lowcoder.infra.constant.Url;
+import org.lowcoder.sdk.config.JsonViews;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
@@ -135,7 +135,8 @@ public interface ApplicationEndpoints
 		    description = "Set a Lowcoder Application identified by its ID as available to all selected Users or User-Groups. This is similar to the classic deployment. The Lowcoder Apps gets published in production mode."
 	)
     @PostMapping("/{applicationId}/publish")
-    public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId);
+	public Mono<ResponseView<ApplicationView>> publish(@PathVariable String applicationId,
+												@RequestBody(required = false) ApplicationPublishRequest applicationPublishRequest);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -147,6 +148,9 @@ public interface ApplicationEndpoints
 	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
 														@RequestBody UpdateEditStateRequest updateEditStateRequest);
 
+	@PutMapping("/{applicationId}/slug")
+	public Mono<ResponseView<Application>> updateSlug(@PathVariable String applicationId, @RequestBody String slug);
+
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
 		    operationId = "getUserHomepageApplication",
@@ -154,6 +158,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the first displayed Lowcoder Application for an authenticated or impersonated user."
 	)
     @GetMapping("/home")
+	@JsonView(JsonViews.Public.class)
     public Mono<ResponseView<UserHomepageView>> getUserHomePage(@RequestParam(required = false, defaultValue = "0") int applicationType);
 
     @Operation(
@@ -295,7 +300,6 @@ public interface ApplicationEndpoints
     public record CreateApplicationRequest(@JsonProperty("orgId") String organizationId,
                                            String name,
                                            Integer applicationType,
-                                           Map<String, Object> publishedApplicationDSL,
                                            Map<String, Object> editingApplicationDSL,
                                            @Nullable String folderId) {
     }

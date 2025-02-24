@@ -147,6 +147,7 @@ export type UICompType =
   | "card"  //Added By Mousheng
   | "timer" //Added by Mousheng
   | "responsiveLayout"
+  | "splitLayout"
   | "tour"
   | "funnelChart"
   | "gaugeChart"

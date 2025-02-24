@@ -35,6 +35,9 @@ export type CompInfo = {
 
 type SelectSourceType = "editor" | "leftPanel" | "addComp" | "rightPanel";
 
+export type DeviceType = "desktop" | "tablet" | "mobile";
+export type DeviceOrientation = "landscape" | "portrait";
+
 /**
  * All editor states are placed here and are still immutable.
  *
@@ -56,6 +59,8 @@ export class EditorState {
   readonly selectedBottomResType?: BottomResTypeEnum;
   readonly showResultCompName: string = "";
   readonly selectSource?: SelectSourceType; // the source of select type
+  readonly deviceType: DeviceType = "desktop";
+  readonly deviceOrientation: DeviceOrientation = "portrait";
 
   private readonly setEditorState: (
     fn: (editorState: EditorState) => EditorState
@@ -357,6 +362,14 @@ export class EditorState {
     this.changeState({ editorModeStatus: newEditorModeStatus });
   }
 
+  setDeviceType(type: DeviceType) {
+    this.changeState({ deviceType: type });
+  }
+
+  setDeviceOrientation(orientation: DeviceOrientation) {
+    this.changeState({ deviceOrientation: orientation });
+  }
+
   setDragging(dragging: boolean) {
     if (this.isDragging === dragging) {
       return;
@@ -493,6 +506,15 @@ export class EditorState {
     if (name !== oldName && this.nameAndExposingInfo().hasOwnProperty(name)) {
       return trans("comp.nameExists", { name: name });
     }
+
+    //Check query variable name duplication
+    const queryComInfoList:string[] = [].concat(...(this.getQueriesComp()
+      .toJsonValue().map((item: any) => item.variables.variables.map((v: any) =>  v.key))));
+    
+    if (name !== oldName && queryComInfoList.includes(name)) {
+      return trans("comp.nameExists", { name: name });
+    }
+
     return "";
   }
 

@@ -12,6 +12,8 @@ import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-s
 import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
 import { googleMapsApiUrl } from "../chartComp/chartConfigs/chartUrls";
+import parseBackground from "../../util/gradientBackgroundColor";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -134,32 +136,48 @@ export function getEchartsConfig(
   theme?: any,
 ): EChartsOptionWithMap {
   if (props.mode === "json") {
-    let opt={
-  "title": {
-    "text": props.echartsTitle,
-    'top': props.echartsLegendConfig.top === 'bottom' ?'top':'bottom',
-    "left":"center"
-  },
-  "backgroundColor": props?.style?.background || theme?.style?.background,
-  "color": props.echartsOption.data?.map(data => data.color),
-     "tooltip": props.tooltip&& {
-    "trigger": "item"
-  },
-        'series': [
-            {
-                "type": "graph",
-      "layout": "force",
-      "force": {
-        "repulsion": 100,
-        "gravity": 0.1,
-        "edgeLength": 100
-                },
-        'categories': props.echartsOption.categories,
-        'links': props.echartsOption.links,
-      'nodes': props.echartsOption.nodes,
+    let opt= props?.echartsOption && {
+      title: {
+        text: props.echartsTitle,
+        top: props.echartsTitleVerticalConfig.top,
+        left:props.echartsTitleConfig.top,
+        textStyle: {
+          ...styleWrapper(props?.titleStyle, theme?.titleStyle)
         }
-      ]
-}
+      },
+      backgroundColor: parseBackground( props?.chartStyle?.background || theme?.chartStyle?.backgroundColor || "#FFFFFF"),
+      "tooltip": props.tooltip&& {
+        "trigger": "item"
+      },
+      'series': [
+        {
+
+          "type": "graph",
+          "layout": "force",
+          'categories': props?.echartsCategories.length !== 0 && props?.echartsCategories || props.echartsOption.categories,
+          'links': props?.echartsLinks.length !== 0 && props?.echartsLinks || props.echartsOption.links,
+          "force": {
+            "repulsion": props.repulsion,
+            "gravity": props?.gravity,
+            "edgeLength": props?.lineLength
+          },
+          edgeSymbol: ['', props?.arrowFlag ? 'arrow' : ''],
+          edgeSymbolSize: [0, props?.arrowSize],
+          symbolSize: props?.pointSize,
+          lineStyle: {
+            color: props.echartsOption?.color?.lineColor || "#00000033",
+            ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
+            width: props?.lineWidth || 1,
+            curveness: props?.curveness
+          },
+          'nodes': props?.echartsNodes.length !==0 && props?.echartsNodes || props.echartsOption.nodes,
+          itemStyle: {
+            "color": props.echartsOption?.color?.pointColor || "#0000ff",
+            ...chartStyleWrapper(props?.chartStyle,theme?.chartStyle),
+          },
+        }
+      ],
+    }
     return props.echartsOption ? opt : {};
     
   }

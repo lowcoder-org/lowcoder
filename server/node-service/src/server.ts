@@ -8,6 +8,7 @@ import morgan from "morgan";
 import { collectDefaultMetrics } from "prom-client";
 import apiRouter from "./routes/apiRouter";
 import systemRouter from "./routes/systemRouter";
+import cors, { CorsOptions } from "cors";
 collectDefaultMetrics();
 
 const prefix = "/node-service";
@@ -39,21 +40,24 @@ router.use(
 );
 
 /** RULES OF OUR API */
-router.use((req, res, next) => {
-  // set the CORS policy
-  res.header("Access-Control-Allow-Origin", "*");
-  // set the CORS headers
-  res.header(
-    "Access-Control-Allow-Headers",
-    "origin, X-Requested-With,Content-Type,Accept, Authorization"
-  );
-  // set the CORS method headers
-  if (req.method === "OPTIONS") {
-    res.header("Access-Control-Allow-Methods", "GET,PATCH,DELETE,POST");
-    return res.status(200).json({});
-  }
-  next();
-});
+
+const corsOptions: CorsOptions = {
+  origin: (origin: string | undefined, callback: any) => {
+    callback(null, true);
+  },
+  credentials: true,
+  allowedHeaders: [
+    'origin',
+    'X-Requested-With',
+    'Lowcoder-Ce-Selfhost-Token',
+    'Authorization',
+    'Accept',
+    'Content-Type'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+};
+
+router.use(cors(corsOptions));
 
 /** Routes */
 router.use(`${prefix}/api`, apiRouter);

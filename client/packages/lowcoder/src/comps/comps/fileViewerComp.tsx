@@ -8,7 +8,7 @@ import { Section, sectionNames } from "lowcoder-design";
 import { StringControl } from "../controls/codeControl";
 import { UICompBuilder, withDefault } from "../generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "../generators/withExposing";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
@@ -112,6 +112,7 @@ let FileViewerBasicComp = (function () {
           {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
             <Section name={sectionNames.interaction}>
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
           <Section name={sectionNames.layout}>

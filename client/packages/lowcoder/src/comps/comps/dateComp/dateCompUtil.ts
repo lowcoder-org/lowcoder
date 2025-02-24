@@ -1,9 +1,9 @@
 import dayjs from "dayjs";
 import { DateParser, TimeParser } from "util/dateTimeUtils";
 import { range } from "lodash";
-import { DateTimeStyleType } from "../../controls/styleControlConstants";
-import { css } from "styled-components";
-import { isDarkColor, lightenColor } from "components/colorSelect/colorUtils";
+import { ChildrenMultiSelectStyleType, DateTimeStyleType } from "../../controls/styleControlConstants";
+import styled, { css } from "styled-components";
+import { fadeColor, isDarkColor, lightenColor } from "components/colorSelect/colorUtils";
 // import { CommonPickerMethods } from "antd/es/date-picker/generatePicker/interface";
 import { blurMethod, focusMethod } from "comps/utils/methodUtils";
 import { refMethods } from "comps/generators/withMethodExposing";
@@ -135,3 +135,45 @@ export const getMobileStyle = (style: DateTimeStyleType) =>
   `;
 
 export const dateRefMethods = refMethods<CommonPickerMethods>([focusMethod, blurMethod]);
+
+export const StyledPickerPanel = styled.div<{
+  $style: ChildrenMultiSelectStyleType
+}>`
+  background: ${props => props.$style?.background};
+  border: ${props => props.$style?.border};
+  border-style: ${props => props.$style?.borderStyle};
+  border-width: ${props => props.$style?.borderWidth};
+  border-radius: ${props => props.$style?.radius};
+  rotate: ${props => props.$style?.rotation};
+  margin: ${props => props.$style?.margin};
+  padding: ${props => props.$style?.padding};
+
+  .ant-picker-content th, .ant-picker-content td.ant-picker-cell {
+    font-size: ${props => props.$style?.textSize};
+    font-style: ${props => props.$style?.fontStyle};
+    font-family: ${props => props.$style?.fontFamily};
+    font-weight: ${props => props.$style?.textWeight};
+    text-transform: ${props => props.$style?.textTransform};
+    line-height: ${props => props.$style?.lineHeight};
+    color: ${props => props.$style?.text};
+    
+    .ant-picker-cell-inner {
+      text-decoration: ${props => props.$style?.textDecoration};
+    }
+  }
+
+  .ant-picker-content td.ant-picker-cell:not(.ant-picker-cell-in-view) {
+    color: ${props => fadeColor(props.$style?.text, 0.5)};
+  }
+  
+  .ant-picker-content .ant-picker-time-panel-column > li.ant-picker-time-panel-cell .ant-picker-time-panel-cell-inner {
+    font-size: ${props => props.$style?.textSize};
+    font-style: ${props => props.$style?.fontStyle};
+    font-family: ${props => props.$style?.fontFamily};
+    font-weight: ${props => props.$style?.textWeight};
+    text-transform: ${props => props.$style?.textTransform};
+    line-height: ${props => props.$style?.lineHeight};
+    color: ${props => props.$style?.text};
+    text-decoration: ${props => props.$style?.textDecoration};
+  }
+`

@@ -30,10 +30,12 @@ import {
   UserGuideLocationState,
 } from "pages/tutorials/tutorialsConstant";
 import React, {
+  ReactNode,
   Suspense,
   lazy,
   useCallback,
   useContext,
+  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -42,7 +44,7 @@ import { Helmet } from "react-helmet";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useParams } from "react-router-dom";
 import { setEditorExternalStateAction } from "redux/reduxActions/configActions";
-import { currentApplication } from "redux/selectors/applicationSelector";
+import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
 import { showAppSnapshotSelector } from "redux/selectors/appSnapshotSelector";
 import styled from "styled-components";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -58,6 +60,7 @@ import EditorSkeletonView from "./editorSkeletonView";
 import { getCommonSettings } from "@lowcoder-ee/redux/selectors/commonSettingSelectors";
 import { isEqual, noop } from "lodash";
 import { AppSettingContext, AppSettingType } from "@lowcoder-ee/comps/utils/appSettingContext";
+import Flex from "antd/es/flex";
 // import { BottomSkeleton } from "./bottom/BottomContent";
 
 const Header = lazy(
@@ -251,6 +254,36 @@ export const EditorWrapper = styled.div`
   flex: 1 1 0;
 `;
 
+const DeviceWrapperInner = styled(Flex)`
+  margin: 2% 0 0;
+  .device-mockup.portrait {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            display: block !important;
+            overflow: hidden auto !important;
+          } 
+        } 
+      }
+    }
+  }
+  .device-mockup.landscape {
+    > div:first-child {
+      > div:first-child {
+        > div:first-child {
+          > div:nth-child(2) {
+            > div:first-child {
+              display: block !important;
+              overflow: hidden auto !important;
+            }
+          } 
+        } 
+      }
+    }
+  }
+`;
+
 interface EditorViewProps {
   uiComp: InstanceType<typeof UIComp>;
   preloadComp: InstanceType<typeof PreloadComp>;
@@ -298,12 +331,71 @@ const aggregationSiderItems = [
   }
 ];
 
+const DeviceWrapper = ({
+  deviceType,
+  deviceOrientation,
+  children,
+}: {
+  deviceType: string,
+  deviceOrientation: string,
+  children: ReactNode,
+}) => {
+  const [Wrapper, setWrapper] = useState<React.ElementType | null>(null);
+
+  useEffect(() => {
+    const loadWrapper = async () => {
+      if (deviceType === "tablet") {
+        const { IPadMockup } = await import("react-device-mockup");
+        setWrapper(() => IPadMockup);
+      } else if (deviceType === "mobile") {
+        const { IPhoneMockup } = await import("react-device-mockup");
+        setWrapper(() => IPhoneMockup);
+      } else {
+        setWrapper(() => null);
+      }
+    };
+
+    loadWrapper();
+  }, [deviceType]);
+
+  const deviceWidth = useMemo(() => {
+    if (deviceType === 'tablet' && deviceOrientation === 'portrait') {
+      return 850;
+    }
+    if (deviceType === 'tablet' && deviceOrientation === 'landscape') {
+      return 1100;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'portrait') {
+      return 450;
+    }
+    if (deviceType === 'mobile' && deviceOrientation === 'landscape') {
+      return 1200;
+    }
+  }, [deviceType, deviceOrientation]);
+
+  if (!Wrapper) return <>{children}</>;
+
+  return (
+    <DeviceWrapperInner justify="center" >
+      <Wrapper
+        isLandscape={deviceOrientation === 'landscape'}
+        screenWidth={deviceWidth}
+        className={`device-mockup ${deviceOrientation === 'landscape' && deviceType === 'mobile' ? 'landscape' : 'portrait'} `}
+        frameColor={"background: linear-gradient(90deg, #4b6cb7 0%, #182848 100%);"}
+      >
+        {children}
+      </Wrapper>
+    </DeviceWrapperInner>
+  );
+}
+
 function EditorView(props: EditorViewProps) {
   const { uiComp } = props;
   const params = useParams<AppPathParams>();
   const editorState = useContext(EditorContext);
   const { readOnly, hideHeader } = useContext(ExternalEditorContext);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const commonSettings = useSelector(getCommonSettings);
   const locationState = useLocation<UserGuideLocationState>().state;
   const showNewUserGuide = locationState?.showNewUserGuide;
@@ -415,6 +507,30 @@ function EditorView(props: EditorViewProps) {
     uiComp,
   ]);
 
+  const uiCompViewWrapper = useMemo(() => {
+    if (isViewMode) return uiComp.getView();
+
+    return (
+      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+        <DeviceWrapper
+            deviceType={editorState.deviceType}
+            deviceOrientation={editorState.deviceOrientation}
+          >
+            {uiComp.getView()}
+        </DeviceWrapper>
+      ) : (
+        <div>
+          {uiComp.getView()}
+        </div>
+      )
+    )
+  }, [
+    uiComp,
+    isViewMode,
+    editorState.deviceType,
+    editorState.deviceOrientation,
+  ]);
+
   // we check if we are on the public cloud
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
@@ -446,14 +562,15 @@ function EditorView(props: EditorViewProps) {
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
             // adding Clearbit Support for Analytics
-            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>
+            <script key="clearbit-script" src="https://tag.clearbitscripts.com/v1/pk_dfbc0aeefb28dc63475b67134facf127/tags.js" referrerPolicy="strict-origin-when-cross-origin" type="text/javascript"></script>,
+            <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
           {!hideBodyHeader && <PreviewHeader />}
           <EditorContainerWithViewMode>
             <ViewBody $hideBodyHeader={hideBodyHeader} $height={height}>
-              {uiComp.getView()}
+              {uiCompViewWrapper}
             </ViewBody>
             <div style={{ zIndex: Layers.hooksCompContainer }}>
               {hookCompViews}
@@ -505,11 +622,17 @@ function EditorView(props: EditorViewProps) {
         draggingUtils.clearData();
       } }
     >
-        <Header
-          togglePanel={togglePanel}
-          panelStatus={panelStatus}
-          toggleEditorModeStatus={toggleEditorModeStatus}
-          editorModeStatus={editorModeStatus} />
+        {isPublicApp
+          ? <PreviewHeader />
+          : (
+            <Header
+              togglePanel={togglePanel}
+              panelStatus={panelStatus}
+              toggleEditorModeStatus={toggleEditorModeStatus}
+              editorModeStatus={editorModeStatus}
+            />
+          )
+        }
 
         {showNewUserGuide && <EditorTutorials />}
         <EditorGlobalHotKeys

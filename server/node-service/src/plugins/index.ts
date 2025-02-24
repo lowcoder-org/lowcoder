@@ -40,7 +40,11 @@ import lowcoderPlugin from "./lowcoder";
 import supabaseApiPlugin from "./supabaseApi";
 import firebirdsqlPlugin from "./firebirdsql";
 import apiTemplatePlugin from "./apiTemplate";
-// import boomiPlugin from "./boomi";
+import uiPathPlugin from "./uiPath";
+import serpApiPlugin from "./serpApi";
+import carboneIoPlugin from "./carboneIo";
+import boomiPlugin from "./boomi";
+import eodhdApiPlugin from "./eodhdApi";
 
 let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
@@ -79,7 +83,7 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   
   // Workflow
   n8nPlugin,
-  // boomiPlugin,
+  boomiPlugin,
 
   // Messaging
   twilioPlugin,
@@ -91,7 +95,6 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   googleCloudStorage,
   supabasePlugin,
   cloudinaryPlugin,
-  apiTemplatePlugin,
   ossPlugin,
   
   // Project Management
@@ -100,6 +103,10 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   notionPlugin,
   slackPlugin,
 
+  // Reports & Document Creation
+  apiTemplatePlugin,
+  carboneIoPlugin,
+
   // CRM
   frontPlugin,
 
@@ -107,6 +114,13 @@ let plugins: (DataSourcePlugin | DataSourcePluginFactory)[] = [
   stripePlugin,
   shopifyPlugin,
   wooCommercePlugin,
+
+  // Webscrapers
+  serpApiPlugin,
+  eodhdApiPlugin,
+
+  // RPA
+  uiPathPlugin
 ];
 
 try {

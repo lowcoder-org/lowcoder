@@ -18,6 +18,7 @@ import {
 import {
   disabledPropertyView,
   hiddenPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { BoolCodeControl } from "comps/controls/codeControl";
@@ -53,6 +54,7 @@ export const ContainerBaseComp = (function () {
             <Section name={sectionNames.interaction}>
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}
 

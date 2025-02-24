@@ -6,6 +6,7 @@ import org.lowcoder.api.usermanagement.view.OrgMemberListView;
 import org.lowcoder.api.usermanagement.view.OrgView;
 import org.lowcoder.api.usermanagement.view.UpdateOrgRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
+import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.Organization.OrganizationCommonSettings;
 import org.lowcoder.infra.annotation.NonEmptyMono;
@@ -23,7 +24,11 @@ public interface OrgApiService {
 
     Mono<Boolean> updateRoleForMember(String orgId, UpdateRoleRequest updateRoleRequest);
 
+    Mono<OrgMember> checkVisitorAdminRole(String orgId);
+
     Mono<Boolean> switchCurrentOrganizationTo(String orgId);
+
+    Mono<Boolean> switchCurrentOrganizationTo(String userId, String orgId);
 
     Mono<Boolean> deleteLogo(String orgId);
 

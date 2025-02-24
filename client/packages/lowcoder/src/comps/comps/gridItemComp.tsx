@@ -52,7 +52,10 @@ const TmpComp = withTypeAndChildren<
         return lazyLoadComp(
           manifest.compName,
           manifest.compPath,
-        );
+          undefined,
+          undefined,
+          manifest.withoutLoading,
+        )
       }
       const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);
       return withErrorBoundary(comp!) as ExposingMultiCompConstructor;

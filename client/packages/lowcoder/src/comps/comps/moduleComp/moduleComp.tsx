@@ -34,7 +34,7 @@ import { wrapWithPromiseHandling } from "util/promiseUtils";
 import ModuleInputComp from "./moduleInputComp";
 import { MethodConfigInfo, withMethodExposing } from "comps/generators/withMethodExposing";
 import { eventHandlerControl } from "comps/controls/eventHandlerControl";
-import { hiddenPropertyView } from "comps/utils/propertyUtils";
+import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { ModuleLoading } from "components/ModuleLoading";
 import { trans } from "i18n";
 import { ParamsConfig, ParamType } from "comps/controls/actionSelector/executeCompTypes";
@@ -119,9 +119,10 @@ class ModuleTmpComp extends ModuleCompBase {
     return (
       <>
         {inputPropertyView && <Section name={sectionNames.basic}>{inputPropertyView}</Section>}
-        {eventConfigs.length > 0 && (
-          <Section name={sectionNames.interaction}>{eventsPropertyView}</Section>
-        )}
+        <Section name={sectionNames.interaction}>
+          {eventConfigs.length > 0 && eventsPropertyView}
+          {showDataLoadingIndicatorsPropertyView(this.children)}
+        </Section>
         <Section name={sectionNames.layout}>
           {!this.autoScaleCompHeight() && this.children.autoHeight.getPropertyView()}
           {!this.autoScaleCompHeight() && this.children.scrollbars.propertyView({

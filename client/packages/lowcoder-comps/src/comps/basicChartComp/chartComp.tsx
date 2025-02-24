@@ -33,7 +33,7 @@ import {
   echartsConfigOmitChildren,
   getEchartsConfig,
   getSelectedPoints,
-} from "comps/chartComp/chartUtils";
+} from "./chartUtils";
 import 'echarts-extension-gmap';
 import log from "loglevel";
 
@@ -120,13 +120,16 @@ BasicChartTmpComp = withViewFn(BasicChartTmpComp, (comp) => {
   }, [onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+
+  const childrenProps = childrenToProps(echartsConfigChildren);
+
   const option = useMemo(() => {
     return getEchartsConfig(
-      childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
+      childrenProps as ToViewReturn<typeof echartsConfigChildren>,
       chartSize,
-      theme?.theme?.components?.candleStickChart || {},
+      themeConfig
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   useEffect(() => {
     comp.children.mapInstance.dispatch(changeValueAction(null, false))

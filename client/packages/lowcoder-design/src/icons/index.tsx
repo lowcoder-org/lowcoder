@@ -1,3 +1,5 @@
+import React, { lazy, Suspense } from "react";
+
 export { ReactComponent as AppSnapshotIcon } from "./v1/app-snapshot.svg";
 export { ReactComponent as ArchiveIcon } from "./remix/archive-fill.svg";
 export { ReactComponent as HookCompDropIcon } from "./v1/hook-comp-drop.svg";
@@ -250,6 +252,8 @@ export { ReactComponent as MarketplaceIcon } from "./v1/icon-application-marketp
 export { ReactComponent as FavoritesIcon } from "./v1/icon-application-favorites.svg";
 export { ReactComponent as HomeSettingIcon } from "./remix/settings-4-line.svg";
 export { ReactComponent as EnterpriseIcon } from "./remix/earth-line.svg";
+export { ReactComponent as VerticalIcon } from "./remix/vertical.svg";
+export { ReactComponent as HorizontalIcon } from "./remix/horizontal.svg";
 
 
 // components
@@ -313,6 +317,7 @@ export { ReactComponent as RadioCompIconSmall } from "./v2/radio-button-s.svg";
 export { ReactComponent as RangeSliderCompIconSmall } from "./v2/range-slider-s.svg"; // new
 export { ReactComponent as RatingCompIconSmall } from "./v2/rating-s.svg";
 export { ReactComponent as ResponsiveLayoutCompIconSmall } from "./v2/resposive-layout-s.svg"; // new
+export { ReactComponent as SplitLayoutCompIconSmall } from "./v2/split-layout-s.svg"; // new
 export { ReactComponent as RichTextEditorCompIconSmall } from "./v2/rich-text-editor-s.svg"; // new
 export { ReactComponent as ScannerCompIconSmall } from "./v2/scanner-s.svg";    // new
 export { ReactComponent as ShapesCompIconSmall } from "./v2/shapes-s.svg"; // new
@@ -415,6 +420,7 @@ export { ReactComponent as RadioCompIcon } from "./v2/radio-button-m.svg";
 export { ReactComponent as RangeSliderCompIcon } from "./v2/range-slider-m.svg";
 export { ReactComponent as RatingCompIcon } from "./v2/rating-m.svg";
 export { ReactComponent as ResponsiveLayoutCompIcon } from "./v2/resposive-layout-m.svg";
+export { ReactComponent as SplitLayoutCompIcon } from "./v2/split-layout-m.svg";
 export { ReactComponent as RichTextEditorCompIcon } from "./v2/rich-text-editor-m.svg";
 export { ReactComponent as ScannerCompIcon } from "./v2/scanner-m.svg";
 export { ReactComponent as ShapesCompIcon } from "./v2/shapes-m.svg";
@@ -466,265 +472,541 @@ export { ReactComponent as HillchartCompIcon } from "./v2/hillchart-m.svg";
 export { ReactComponent as TurnstileCaptchaCompIcon } from "./v2/turnstile-captcha-m.svg";
 export { ReactComponent as PivotTableCompIcon } from "./v2/pivot-table-m.svg";
 
-// flags
+// flags - lazy loaded
 
-export { ReactComponent as Flag_af } from './flags/4x3/af.svg';
-export { ReactComponent as Flag_ax } from './flags/4x3/ax.svg';
-export { ReactComponent as Flag_al } from './flags/4x3/al.svg';
-export { ReactComponent as Flag_dz } from './flags/4x3/dz.svg';
-export { ReactComponent as Flag_as } from './flags/4x3/as.svg';
-export { ReactComponent as Flag_ad } from './flags/4x3/ad.svg';
-export { ReactComponent as Flag_ao } from './flags/4x3/ao.svg';
-export { ReactComponent as Flag_ai } from './flags/4x3/ai.svg';
-export { ReactComponent as Flag_aq } from './flags/4x3/aq.svg';
-export { ReactComponent as Flag_ag } from './flags/4x3/ag.svg';
-export { ReactComponent as Flag_ar } from './flags/4x3/ar.svg';
-export { ReactComponent as Flag_am } from './flags/4x3/am.svg';
-export { ReactComponent as Flag_aw } from './flags/4x3/aw.svg';
-export { ReactComponent as Flag_sh_ac } from './flags/4x3/sh-ac.svg';
-export { ReactComponent as Flag_au } from './flags/4x3/au.svg';
-export { ReactComponent as Flag_at } from './flags/4x3/at.svg';
-export { ReactComponent as Flag_az } from './flags/4x3/az.svg';
-export { ReactComponent as Flag_bs } from './flags/4x3/bs.svg';
-export { ReactComponent as Flag_bh } from './flags/4x3/bh.svg';
-export { ReactComponent as Flag_bd } from './flags/4x3/bd.svg';
-export { ReactComponent as Flag_bb } from './flags/4x3/bb.svg';
-export { ReactComponent as Flag_by } from './flags/4x3/by.svg';
-export { ReactComponent as Flag_be } from './flags/4x3/be.svg';
-export { ReactComponent as Flag_bz } from './flags/4x3/bz.svg';
-export { ReactComponent as Flag_bj } from './flags/4x3/bj.svg';
-export { ReactComponent as Flag_bm } from './flags/4x3/bm.svg';
-export { ReactComponent as Flag_bt } from './flags/4x3/bt.svg';
-export { ReactComponent as Flag_bo } from './flags/4x3/bo.svg';
-export { ReactComponent as Flag_bq } from './flags/4x3/bq.svg';
-export { ReactComponent as Flag_ba } from './flags/4x3/ba.svg';
-export { ReactComponent as Flag_bw } from './flags/4x3/bw.svg';
-export { ReactComponent as Flag_bv } from './flags/4x3/bv.svg';
-export { ReactComponent as Flag_br } from './flags/4x3/br.svg';
-export { ReactComponent as Flag_io } from './flags/4x3/io.svg';
-export { ReactComponent as Flag_bn } from './flags/4x3/bn.svg';
-export { ReactComponent as Flag_bg } from './flags/4x3/bg.svg';
-export { ReactComponent as Flag_bf } from './flags/4x3/bf.svg';
-export { ReactComponent as Flag_bi } from './flags/4x3/bi.svg';
-export { ReactComponent as Flag_cv } from './flags/4x3/cv.svg';
-export { ReactComponent as Flag_kh } from './flags/4x3/kh.svg';
-export { ReactComponent as Flag_cm } from './flags/4x3/cm.svg';
-export { ReactComponent as Flag_ca } from './flags/4x3/ca.svg';
-export { ReactComponent as Flag_ic } from './flags/4x3/ic.svg';
-export { ReactComponent as Flag_es_ct } from './flags/4x3/es-ct.svg';
-export { ReactComponent as Flag_ky } from './flags/4x3/ky.svg';
-export { ReactComponent as Flag_cf } from './flags/4x3/cf.svg';
-export { ReactComponent as Flag_td } from './flags/4x3/td.svg';
-export { ReactComponent as Flag_cl } from './flags/4x3/cl.svg';
-export { ReactComponent as Flag_cn } from './flags/4x3/cn.svg';
-export { ReactComponent as Flag_cx } from './flags/4x3/cx.svg';
-export { ReactComponent as Flag_cc } from './flags/4x3/cc.svg';
-export { ReactComponent as Flag_co } from './flags/4x3/co.svg';
-export { ReactComponent as Flag_km } from './flags/4x3/km.svg';
-export { ReactComponent as Flag_ck } from './flags/4x3/ck.svg';
-export { ReactComponent as Flag_cr } from './flags/4x3/cr.svg';
-export { ReactComponent as Flag_hr } from './flags/4x3/hr.svg';
-export { ReactComponent as Flag_cu } from './flags/4x3/cu.svg';
-export { ReactComponent as Flag_cw } from './flags/4x3/cw.svg';
-export { ReactComponent as Flag_cy } from './flags/4x3/cy.svg';
-export { ReactComponent as Flag_cz } from './flags/4x3/cz.svg';
-export { ReactComponent as Flag_ci } from './flags/4x3/ci.svg';
-export { ReactComponent as Flag_cd } from './flags/4x3/cd.svg';
-export { ReactComponent as Flag_dk } from './flags/4x3/dk.svg';
-export { ReactComponent as Flag_dj } from './flags/4x3/dj.svg';
-export { ReactComponent as Flag_dm } from './flags/4x3/dm.svg';
-export { ReactComponent as Flag_do } from './flags/4x3/do.svg';
-export { ReactComponent as Flag_ec } from './flags/4x3/ec.svg';
-export { ReactComponent as Flag_eg } from './flags/4x3/eg.svg';
-export { ReactComponent as Flag_sv } from './flags/4x3/sv.svg';
-export { ReactComponent as Flag_gq } from './flags/4x3/gq.svg';
-export { ReactComponent as Flag_er } from './flags/4x3/er.svg';
-export { ReactComponent as Flag_ee } from './flags/4x3/ee.svg';
-export { ReactComponent as Flag_sz } from './flags/4x3/sz.svg';
-export { ReactComponent as Flag_et } from './flags/4x3/et.svg';
-export { ReactComponent as Flag_eu } from './flags/4x3/eu.svg';
-export { ReactComponent as Flag_fk } from './flags/4x3/fk.svg';
-export { ReactComponent as Flag_fo } from './flags/4x3/fo.svg';
-export { ReactComponent as Flag_fm } from './flags/4x3/fm.svg';
-export { ReactComponent as Flag_fj } from './flags/4x3/fj.svg';
-export { ReactComponent as Flag_fi } from './flags/4x3/fi.svg';
-export { ReactComponent as Flag_fr } from './flags/4x3/fr.svg';
-export { ReactComponent as Flag_gf } from './flags/4x3/gf.svg';
-export { ReactComponent as Flag_pf } from './flags/4x3/pf.svg';
-export { ReactComponent as Flag_tf } from './flags/4x3/tf.svg';
-export { ReactComponent as Flag_ga } from './flags/4x3/ga.svg';
-export { ReactComponent as Flag_gm } from './flags/4x3/gm.svg';
-export { ReactComponent as Flag_ge } from './flags/4x3/ge.svg';
-export { ReactComponent as Flag_de } from './flags/4x3/de.svg';
-export { ReactComponent as Flag_gh } from './flags/4x3/gh.svg';
-export { ReactComponent as Flag_gi } from './flags/4x3/gi.svg';
-export { ReactComponent as Flag_gr } from './flags/4x3/gr.svg';
-export { ReactComponent as Flag_gl } from './flags/4x3/gl.svg';
-export { ReactComponent as Flag_gd } from './flags/4x3/gd.svg';
-export { ReactComponent as Flag_gp } from './flags/4x3/gp.svg';
-export { ReactComponent as Flag_gu } from './flags/4x3/gu.svg';
-export { ReactComponent as Flag_gt } from './flags/4x3/gt.svg';
-export { ReactComponent as Flag_gg } from './flags/4x3/gg.svg';
-export { ReactComponent as Flag_gn } from './flags/4x3/gn.svg';
-export { ReactComponent as Flag_gw } from './flags/4x3/gw.svg';
-export { ReactComponent as Flag_gy } from './flags/4x3/gy.svg';
-export { ReactComponent as Flag_ht } from './flags/4x3/ht.svg';
-export { ReactComponent as Flag_hm } from './flags/4x3/hm.svg';
-export { ReactComponent as Flag_va } from './flags/4x3/va.svg';
-export { ReactComponent as Flag_hn } from './flags/4x3/hn.svg';
-export { ReactComponent as Flag_hk } from './flags/4x3/hk.svg';
-export { ReactComponent as Flag_hu } from './flags/4x3/hu.svg';
-export { ReactComponent as Flag_is } from './flags/4x3/is.svg';
-export { ReactComponent as Flag_in } from './flags/4x3/in.svg';
-export { ReactComponent as Flag_id } from './flags/4x3/id.svg';
-export { ReactComponent as Flag_ir } from './flags/4x3/ir.svg';
-export { ReactComponent as Flag_iq } from './flags/4x3/iq.svg';
-export { ReactComponent as Flag_ie } from './flags/4x3/ie.svg';
-export { ReactComponent as Flag_im } from './flags/4x3/im.svg';
-export { ReactComponent as Flag_il } from './flags/4x3/il.svg';
-export { ReactComponent as Flag_it } from './flags/4x3/it.svg';
-export { ReactComponent as Flag_jm } from './flags/4x3/jm.svg';
-export { ReactComponent as Flag_jp } from './flags/4x3/jp.svg';
-export { ReactComponent as Flag_je } from './flags/4x3/je.svg';
-export { ReactComponent as Flag_jo } from './flags/4x3/jo.svg';
-export { ReactComponent as Flag_kz } from './flags/4x3/kz.svg';
-export { ReactComponent as Flag_ke } from './flags/4x3/ke.svg';
-export { ReactComponent as Flag_ki } from './flags/4x3/ki.svg';
-export { ReactComponent as Flag_xk } from './flags/4x3/xk.svg';
-export { ReactComponent as Flag_kw } from './flags/4x3/kw.svg';
-export { ReactComponent as Flag_kg } from './flags/4x3/kg.svg';
-export { ReactComponent as Flag_la } from './flags/4x3/la.svg';
-export { ReactComponent as Flag_lv } from './flags/4x3/lv.svg';
-export { ReactComponent as Flag_lb } from './flags/4x3/lb.svg';
-export { ReactComponent as Flag_ls } from './flags/4x3/ls.svg';
-export { ReactComponent as Flag_lr } from './flags/4x3/lr.svg';
-export { ReactComponent as Flag_ly } from './flags/4x3/ly.svg';
-export { ReactComponent as Flag_li } from './flags/4x3/li.svg';
-export { ReactComponent as Flag_lt } from './flags/4x3/lt.svg';
-export { ReactComponent as Flag_lu } from './flags/4x3/lu.svg';
-export { ReactComponent as Flag_mo } from './flags/4x3/mo.svg';
-export { ReactComponent as Flag_mg } from './flags/4x3/mg.svg';
-export { ReactComponent as Flag_mw } from './flags/4x3/mw.svg';
-export { ReactComponent as Flag_my } from './flags/4x3/my.svg';
-export { ReactComponent as Flag_mv } from './flags/4x3/mv.svg';
-export { ReactComponent as Flag_ml } from './flags/4x3/ml.svg';
-export { ReactComponent as Flag_mt } from './flags/4x3/mt.svg';
-export { ReactComponent as Flag_mh } from './flags/4x3/mh.svg';
-export { ReactComponent as Flag_mq } from './flags/4x3/mq.svg';
-export { ReactComponent as Flag_mr } from './flags/4x3/mr.svg';
-export { ReactComponent as Flag_mu } from './flags/4x3/mu.svg';
-export { ReactComponent as Flag_yt } from './flags/4x3/yt.svg';
-export { ReactComponent as Flag_mx } from './flags/4x3/mx.svg';
-export { ReactComponent as Flag_md } from './flags/4x3/md.svg';
-export { ReactComponent as Flag_mc } from './flags/4x3/mc.svg';
-export { ReactComponent as Flag_mn } from './flags/4x3/mn.svg';
-export { ReactComponent as Flag_me } from './flags/4x3/me.svg';
-export { ReactComponent as Flag_ms } from './flags/4x3/ms.svg';
-export { ReactComponent as Flag_ma } from './flags/4x3/ma.svg';
-export { ReactComponent as Flag_mz } from './flags/4x3/mz.svg';
-export { ReactComponent as Flag_mm } from './flags/4x3/mm.svg';
-export { ReactComponent as Flag_na } from './flags/4x3/na.svg';
-export { ReactComponent as Flag_nr } from './flags/4x3/nr.svg';
-export { ReactComponent as Flag_np } from './flags/4x3/np.svg';
-export { ReactComponent as Flag_nl } from './flags/4x3/nl.svg';
-export { ReactComponent as Flag_nc } from './flags/4x3/nc.svg';
-export { ReactComponent as Flag_nz } from './flags/4x3/nz.svg';
-export { ReactComponent as Flag_ni } from './flags/4x3/ni.svg';
-export { ReactComponent as Flag_ne } from './flags/4x3/ne.svg';
-export { ReactComponent as Flag_ng } from './flags/4x3/ng.svg';
-export { ReactComponent as Flag_nu } from './flags/4x3/nu.svg';
-export { ReactComponent as Flag_nf } from './flags/4x3/nf.svg';
-export { ReactComponent as Flag_kp } from './flags/4x3/kp.svg';
-export { ReactComponent as Flag_mk } from './flags/4x3/mk.svg';
-export { ReactComponent as Flag_gb_nir } from './flags/4x3/gb-nir.svg';
-export { ReactComponent as Flag_mp } from './flags/4x3/mp.svg';
-export { ReactComponent as Flag_no } from './flags/4x3/no.svg';
-export { ReactComponent as Flag_om } from './flags/4x3/om.svg';
-export { ReactComponent as Flag_pk } from './flags/4x3/pk.svg';
-export { ReactComponent as Flag_pw } from './flags/4x3/pw.svg';
-export { ReactComponent as Flag_pa } from './flags/4x3/pa.svg';
-export { ReactComponent as Flag_pg } from './flags/4x3/pg.svg';
-export { ReactComponent as Flag_py } from './flags/4x3/py.svg';
-export { ReactComponent as Flag_pe } from './flags/4x3/pe.svg';
-export { ReactComponent as Flag_ph } from './flags/4x3/ph.svg';
-export { ReactComponent as Flag_pn } from './flags/4x3/pn.svg';
-export { ReactComponent as Flag_pl } from './flags/4x3/pl.svg';
-export { ReactComponent as Flag_pt } from './flags/4x3/pt.svg';
-export { ReactComponent as Flag_pr } from './flags/4x3/pr.svg';
-export { ReactComponent as Flag_qa } from './flags/4x3/qa.svg';
-export { ReactComponent as Flag_cg } from './flags/4x3/cg.svg';
-export { ReactComponent as Flag_ro } from './flags/4x3/ro.svg';
-export { ReactComponent as Flag_ru } from './flags/4x3/ru.svg';
-export { ReactComponent as Flag_rw } from './flags/4x3/rw.svg';
-export { ReactComponent as Flag_re } from './flags/4x3/re.svg';
-export { ReactComponent as Flag_bl } from './flags/4x3/bl.svg';
-export { ReactComponent as Flag_sh_hl } from './flags/4x3/sh-hl.svg';
-export { ReactComponent as Flag_sh } from './flags/4x3/sh.svg';
-export { ReactComponent as Flag_kn } from './flags/4x3/kn.svg';
-export { ReactComponent as Flag_lc } from './flags/4x3/lc.svg';
-export { ReactComponent as Flag_mf } from './flags/4x3/mf.svg';
-export { ReactComponent as Flag_pm } from './flags/4x3/pm.svg';
-export { ReactComponent as Flag_vc } from './flags/4x3/vc.svg';
-export { ReactComponent as Flag_ws } from './flags/4x3/ws.svg';
-export { ReactComponent as Flag_sm } from './flags/4x3/sm.svg';
-export { ReactComponent as Flag_st } from './flags/4x3/st.svg';
-export { ReactComponent as Flag_sa } from './flags/4x3/sa.svg';
-export { ReactComponent as Flag_gb_sct } from './flags/4x3/gb-sct.svg';
-export { ReactComponent as Flag_sn } from './flags/4x3/sn.svg';
-export { ReactComponent as Flag_rs } from './flags/4x3/rs.svg';
-export { ReactComponent as Flag_sc } from './flags/4x3/sc.svg';
-export { ReactComponent as Flag_sl } from './flags/4x3/sl.svg';
-export { ReactComponent as Flag_sg } from './flags/4x3/sg.svg';
-export { ReactComponent as Flag_sx } from './flags/4x3/sx.svg';
-export { ReactComponent as Flag_sk } from './flags/4x3/sk.svg';
-export { ReactComponent as Flag_si } from './flags/4x3/si.svg';
-export { ReactComponent as Flag_sb } from './flags/4x3/sb.svg';
-export { ReactComponent as Flag_so } from './flags/4x3/so.svg';
-export { ReactComponent as Flag_za } from './flags/4x3/za.svg';
-export { ReactComponent as Flag_gs } from './flags/4x3/gs.svg';
-export { ReactComponent as Flag_kr } from './flags/4x3/kr.svg';
-export { ReactComponent as Flag_ss } from './flags/4x3/ss.svg';
-export { ReactComponent as Flag_es } from './flags/4x3/es.svg';
-export { ReactComponent as Flag_lk } from './flags/4x3/lk.svg';
-export { ReactComponent as Flag_ps } from './flags/4x3/ps.svg';
-export { ReactComponent as Flag_sd } from './flags/4x3/sd.svg';
-export { ReactComponent as Flag_sr } from './flags/4x3/sr.svg';
-export { ReactComponent as Flag_sj } from './flags/4x3/sj.svg';
-export { ReactComponent as Flag_se } from './flags/4x3/se.svg';
-export { ReactComponent as Flag_ch } from './flags/4x3/ch.svg';
-export { ReactComponent as Flag_sy } from './flags/4x3/sy.svg';
-export { ReactComponent as Flag_tw } from './flags/4x3/tw.svg';
-export { ReactComponent as Flag_tj } from './flags/4x3/tj.svg';
-export { ReactComponent as Flag_tz } from './flags/4x3/tz.svg';
-export { ReactComponent as Flag_th } from './flags/4x3/th.svg';
-export { ReactComponent as Flag_tl } from './flags/4x3/tl.svg';
-export { ReactComponent as Flag_tg } from './flags/4x3/tg.svg';
-export { ReactComponent as Flag_tk } from './flags/4x3/tk.svg';
-export { ReactComponent as Flag_to } from './flags/4x3/to.svg';
-export { ReactComponent as Flag_tt } from './flags/4x3/tt.svg';
-export { ReactComponent as Flag_sh_ta } from './flags/4x3/sh-ta.svg';
-export { ReactComponent as Flag_tn } from './flags/4x3/tn.svg';
-export { ReactComponent as Flag_tm } from './flags/4x3/tm.svg';
-export { ReactComponent as Flag_tc } from './flags/4x3/tc.svg';
-export { ReactComponent as Flag_tv } from './flags/4x3/tv.svg';
-export { ReactComponent as Flag_tr } from './flags/4x3/tr.svg';
-export { ReactComponent as Flag_ug } from './flags/4x3/ug.svg';
-export { ReactComponent as Flag_ua } from './flags/4x3/ua.svg';
-export { ReactComponent as Flag_ae } from './flags/4x3/ae.svg';
-export { ReactComponent as Flag_gb } from './flags/4x3/gb.svg';
-export { ReactComponent as Flag_un } from './flags/4x3/un.svg';
-export { ReactComponent as Flag_um } from './flags/4x3/um.svg';
-export { ReactComponent as Flag_us } from './flags/4x3/us.svg';
-export { ReactComponent as Flag_uy } from './flags/4x3/uy.svg';
-export { ReactComponent as Flag_uz } from './flags/4x3/uz.svg';
-export { ReactComponent as Flag_vu } from './flags/4x3/vu.svg';
-export { ReactComponent as Flag_ve } from './flags/4x3/ve.svg';
-export { ReactComponent as Flag_vn } from './flags/4x3/vn.svg';
-export { ReactComponent as Flag_vg } from './flags/4x3/vg.svg';
-export { ReactComponent as Flag_vi } from './flags/4x3/vi.svg';
-export { ReactComponent as Flag_gb_wls } from './flags/4x3/gb-wls.svg';
-export { ReactComponent as Flag_wf } from './flags/4x3/wf.svg';
-export { ReactComponent as Flag_eh } from './flags/4x3/eh.svg';
-export { ReactComponent as Flag_ye } from './flags/4x3/ye.svg';
-export { ReactComponent as Flag_zm } from './flags/4x3/zm.svg';
-export { ReactComponent as Flag_zw } from './flags/4x3/zw.svg';
+/* const ICON_MAP: Record<string, any> = {
+	"Flag_af": () => import("./flags/4x3/af.svg"),
+"Flag_ax": () => import("./flags/4x3/ax.svg"),
+"Flag_al": () => import("./flags/4x3/al.svg"),
+"Flag_dz": () => import("./flags/4x3/dz.svg"),
+"Flag_as": () => import("./flags/4x3/as.svg"),
+"Flag_ad": () => import("./flags/4x3/ad.svg"),
+"Flag_ao": () => import("./flags/4x3/ao.svg"),
+"Flag_ai": () => import("./flags/4x3/ai.svg"),
+"Flag_aq": () => import("./flags/4x3/aq.svg"),
+"Flag_ag": () => import("./flags/4x3/ag.svg"),
+"Flag_ar": () => import("./flags/4x3/ar.svg"),
+"Flag_am": () => import("./flags/4x3/am.svg"),
+"Flag_aw": () => import("./flags/4x3/aw.svg"),
+"Flag_sh_ac": () => import("./flags/4x3/sh-ac.svg"),
+"Flag_au": () => import("./flags/4x3/au.svg"),
+"Flag_at": () => import("./flags/4x3/at.svg"),
+"Flag_az": () => import("./flags/4x3/az.svg"),
+"Flag_bs": () => import("./flags/4x3/bs.svg"),
+"Flag_bh": () => import("./flags/4x3/bh.svg"),
+"Flag_bd": () => import("./flags/4x3/bd.svg"),
+"Flag_bb": () => import("./flags/4x3/bb.svg"),
+"Flag_by": () => import("./flags/4x3/by.svg"),
+"Flag_be": () => import("./flags/4x3/be.svg"),
+"Flag_bz": () => import("./flags/4x3/bz.svg"),
+"Flag_bj": () => import("./flags/4x3/bj.svg"),
+"Flag_bm": () => import("./flags/4x3/bm.svg"),
+"Flag_bt": () => import("./flags/4x3/bt.svg"),
+"Flag_bo": () => import("./flags/4x3/bo.svg"),
+"Flag_bq": () => import("./flags/4x3/bq.svg"),
+"Flag_ba": () => import("./flags/4x3/ba.svg"),
+"Flag_bw": () => import("./flags/4x3/bw.svg"),
+"Flag_bv": () => import("./flags/4x3/bv.svg"),
+"Flag_br": () => import("./flags/4x3/br.svg"),
+"Flag_io": () => import("./flags/4x3/io.svg"),
+"Flag_bn": () => import("./flags/4x3/bn.svg"),
+"Flag_bg": () => import("./flags/4x3/bg.svg"),
+"Flag_bf": () => import("./flags/4x3/bf.svg"),
+"Flag_bi": () => import("./flags/4x3/bi.svg"),
+"Flag_cv": () => import("./flags/4x3/cv.svg"),
+"Flag_kh": () => import("./flags/4x3/kh.svg"),
+"Flag_cm": () => import("./flags/4x3/cm.svg"),
+"Flag_ca": () => import("./flags/4x3/ca.svg"),
+"Flag_ic": () => import("./flags/4x3/ic.svg"),
+"Flag_es_ct": () => import("./flags/4x3/es-ct.svg"),
+"Flag_ky": () => import("./flags/4x3/ky.svg"),
+"Flag_cf": () => import("./flags/4x3/cf.svg"),
+"Flag_td": () => import("./flags/4x3/td.svg"),
+"Flag_cl": () => import("./flags/4x3/cl.svg"),
+"Flag_cn": () => import("./flags/4x3/cn.svg"),
+"Flag_cx": () => import("./flags/4x3/cx.svg"),
+"Flag_cc": () => import("./flags/4x3/cc.svg"),
+"Flag_co": () => import("./flags/4x3/co.svg"),
+"Flag_km": () => import("./flags/4x3/km.svg"),
+"Flag_ck": () => import("./flags/4x3/ck.svg"),
+"Flag_cr": () => import("./flags/4x3/cr.svg"),
+"Flag_hr": () => import("./flags/4x3/hr.svg"),
+"Flag_cu": () => import("./flags/4x3/cu.svg"),
+"Flag_cw": () => import("./flags/4x3/cw.svg"),
+"Flag_cy": () => import("./flags/4x3/cy.svg"),
+"Flag_cz": () => import("./flags/4x3/cz.svg"),
+"Flag_ci": () => import("./flags/4x3/ci.svg"),
+"Flag_cd": () => import("./flags/4x3/cd.svg"),
+"Flag_dk": () => import("./flags/4x3/dk.svg"),
+"Flag_dj": () => import("./flags/4x3/dj.svg"),
+"Flag_dm": () => import("./flags/4x3/dm.svg"),
+"Flag_do": () => import("./flags/4x3/do.svg"),
+"Flag_ec": () => import("./flags/4x3/ec.svg"),
+"Flag_eg": () => import("./flags/4x3/eg.svg"),
+"Flag_sv": () => import("./flags/4x3/sv.svg"),
+"Flag_gq": () => import("./flags/4x3/gq.svg"),
+"Flag_er": () => import("./flags/4x3/er.svg"),
+"Flag_ee": () => import("./flags/4x3/ee.svg"),
+"Flag_sz": () => import("./flags/4x3/sz.svg"),
+"Flag_et": () => import("./flags/4x3/et.svg"),
+"Flag_eu": () => import("./flags/4x3/eu.svg"),
+"Flag_fk": () => import("./flags/4x3/fk.svg"),
+"Flag_fo": () => import("./flags/4x3/fo.svg"),
+"Flag_fm": () => import("./flags/4x3/fm.svg"),
+"Flag_fj": () => import("./flags/4x3/fj.svg"),
+"Flag_fi": () => import("./flags/4x3/fi.svg"),
+"Flag_fr": () => import("./flags/4x3/fr.svg"),
+"Flag_gf": () => import("./flags/4x3/gf.svg"),
+"Flag_pf": () => import("./flags/4x3/pf.svg"),
+"Flag_tf": () => import("./flags/4x3/tf.svg"),
+"Flag_ga": () => import("./flags/4x3/ga.svg"),
+"Flag_gm": () => import("./flags/4x3/gm.svg"),
+"Flag_ge": () => import("./flags/4x3/ge.svg"),
+"Flag_de": () => import("./flags/4x3/de.svg"),
+"Flag_gh": () => import("./flags/4x3/gh.svg"),
+"Flag_gi": () => import("./flags/4x3/gi.svg"),
+"Flag_gr": () => import("./flags/4x3/gr.svg"),
+"Flag_gl": () => import("./flags/4x3/gl.svg"),
+"Flag_gd": () => import("./flags/4x3/gd.svg"),
+"Flag_gp": () => import("./flags/4x3/gp.svg"),
+"Flag_gu": () => import("./flags/4x3/gu.svg"),
+"Flag_gt": () => import("./flags/4x3/gt.svg"),
+"Flag_gg": () => import("./flags/4x3/gg.svg"),
+"Flag_gn": () => import("./flags/4x3/gn.svg"),
+"Flag_gw": () => import("./flags/4x3/gw.svg"),
+"Flag_gy": () => import("./flags/4x3/gy.svg"),
+"Flag_ht": () => import("./flags/4x3/ht.svg"),
+"Flag_hm": () => import("./flags/4x3/hm.svg"),
+"Flag_va": () => import("./flags/4x3/va.svg"),
+"Flag_hn": () => import("./flags/4x3/hn.svg"),
+"Flag_hk": () => import("./flags/4x3/hk.svg"),
+"Flag_hu": () => import("./flags/4x3/hu.svg"),
+"Flag_is": () => import("./flags/4x3/is.svg"),
+"Flag_in": () => import("./flags/4x3/in.svg"),
+"Flag_id": () => import("./flags/4x3/id.svg"),
+"Flag_ir": () => import("./flags/4x3/ir.svg"),
+"Flag_iq": () => import("./flags/4x3/iq.svg"),
+"Flag_ie": () => import("./flags/4x3/ie.svg"),
+"Flag_im": () => import("./flags/4x3/im.svg"),
+"Flag_il": () => import("./flags/4x3/il.svg"),
+"Flag_it": () => import("./flags/4x3/it.svg"),
+"Flag_jm": () => import("./flags/4x3/jm.svg"),
+"Flag_jp": () => import("./flags/4x3/jp.svg"),
+"Flag_je": () => import("./flags/4x3/je.svg"),
+"Flag_jo": () => import("./flags/4x3/jo.svg"),
+"Flag_kz": () => import("./flags/4x3/kz.svg"),
+"Flag_ke": () => import("./flags/4x3/ke.svg"),
+"Flag_ki": () => import("./flags/4x3/ki.svg"),
+"Flag_xk": () => import("./flags/4x3/xk.svg"),
+"Flag_kw": () => import("./flags/4x3/kw.svg"),
+"Flag_kg": () => import("./flags/4x3/kg.svg"),
+"Flag_la": () => import("./flags/4x3/la.svg"),
+"Flag_lv": () => import("./flags/4x3/lv.svg"),
+"Flag_lb": () => import("./flags/4x3/lb.svg"),
+"Flag_ls": () => import("./flags/4x3/ls.svg"),
+"Flag_lr": () => import("./flags/4x3/lr.svg"),
+"Flag_ly": () => import("./flags/4x3/ly.svg"),
+"Flag_li": () => import("./flags/4x3/li.svg"),
+"Flag_lt": () => import("./flags/4x3/lt.svg"),
+"Flag_lu": () => import("./flags/4x3/lu.svg"),
+"Flag_mo": () => import("./flags/4x3/mo.svg"),
+"Flag_mg": () => import("./flags/4x3/mg.svg"),
+"Flag_mw": () => import("./flags/4x3/mw.svg"),
+"Flag_my": () => import("./flags/4x3/my.svg"),
+"Flag_mv": () => import("./flags/4x3/mv.svg"),
+"Flag_ml": () => import("./flags/4x3/ml.svg"),
+"Flag_mt": () => import("./flags/4x3/mt.svg"),
+"Flag_mh": () => import("./flags/4x3/mh.svg"),
+"Flag_mq": () => import("./flags/4x3/mq.svg"),
+"Flag_mr": () => import("./flags/4x3/mr.svg"),
+"Flag_mu": () => import("./flags/4x3/mu.svg"),
+"Flag_yt": () => import("./flags/4x3/yt.svg"),
+"Flag_mx": () => import("./flags/4x3/mx.svg"),
+"Flag_md": () => import("./flags/4x3/md.svg"),
+"Flag_mc": () => import("./flags/4x3/mc.svg"),
+"Flag_mn": () => import("./flags/4x3/mn.svg"),
+"Flag_me": () => import("./flags/4x3/me.svg"),
+"Flag_ms": () => import("./flags/4x3/ms.svg"),
+"Flag_ma": () => import("./flags/4x3/ma.svg"),
+"Flag_mz": () => import("./flags/4x3/mz.svg"),
+"Flag_mm": () => import("./flags/4x3/mm.svg"),
+"Flag_na": () => import("./flags/4x3/na.svg"),
+"Flag_nr": () => import("./flags/4x3/nr.svg"),
+"Flag_np": () => import("./flags/4x3/np.svg"),
+"Flag_nl": () => import("./flags/4x3/nl.svg"),
+"Flag_nc": () => import("./flags/4x3/nc.svg"),
+"Flag_nz": () => import("./flags/4x3/nz.svg"),
+"Flag_ni": () => import("./flags/4x3/ni.svg"),
+"Flag_ne": () => import("./flags/4x3/ne.svg"),
+"Flag_ng": () => import("./flags/4x3/ng.svg"),
+"Flag_nu": () => import("./flags/4x3/nu.svg"),
+"Flag_nf": () => import("./flags/4x3/nf.svg"),
+"Flag_kp": () => import("./flags/4x3/kp.svg"),
+"Flag_mk": () => import("./flags/4x3/mk.svg"),
+"Flag_gb_nir": () => import("./flags/4x3/gb-nir.svg"),
+"Flag_mp": () => import("./flags/4x3/mp.svg"),
+"Flag_no": () => import("./flags/4x3/no.svg"),
+"Flag_om": () => import("./flags/4x3/om.svg"),
+"Flag_pk": () => import("./flags/4x3/pk.svg"),
+"Flag_pw": () => import("./flags/4x3/pw.svg"),
+"Flag_pa": () => import("./flags/4x3/pa.svg"),
+"Flag_pg": () => import("./flags/4x3/pg.svg"),
+"Flag_py": () => import("./flags/4x3/py.svg"),
+"Flag_pe": () => import("./flags/4x3/pe.svg"),
+"Flag_ph": () => import("./flags/4x3/ph.svg"),
+"Flag_pn": () => import("./flags/4x3/pn.svg"),
+"Flag_pl": () => import("./flags/4x3/pl.svg"),
+"Flag_pt": () => import("./flags/4x3/pt.svg"),
+"Flag_pr": () => import("./flags/4x3/pr.svg"),
+"Flag_qa": () => import("./flags/4x3/qa.svg"),
+"Flag_cg": () => import("./flags/4x3/cg.svg"),
+"Flag_ro": () => import("./flags/4x3/ro.svg"),
+"Flag_ru": () => import("./flags/4x3/ru.svg"),
+"Flag_rw": () => import("./flags/4x3/rw.svg"),
+"Flag_re": () => import("./flags/4x3/re.svg"),
+"Flag_bl": () => import("./flags/4x3/bl.svg"),
+"Flag_sh_hl": () => import("./flags/4x3/sh-hl.svg"),
+"Flag_sh": () => import("./flags/4x3/sh.svg"),
+"Flag_kn": () => import("./flags/4x3/kn.svg"),
+"Flag_lc": () => import("./flags/4x3/lc.svg"),
+"Flag_mf": () => import("./flags/4x3/mf.svg"),
+"Flag_pm": () => import("./flags/4x3/pm.svg"),
+"Flag_vc": () => import("./flags/4x3/vc.svg"),
+"Flag_ws": () => import("./flags/4x3/ws.svg"),
+"Flag_sm": () => import("./flags/4x3/sm.svg"),
+"Flag_st": () => import("./flags/4x3/st.svg"),
+"Flag_sa": () => import("./flags/4x3/sa.svg"),
+"Flag_gb_sct": () => import("./flags/4x3/gb-sct.svg"),
+"Flag_sn": () => import("./flags/4x3/sn.svg"),
+"Flag_rs": () => import("./flags/4x3/rs.svg"),
+"Flag_sc": () => import("./flags/4x3/sc.svg"),
+"Flag_sl": () => import("./flags/4x3/sl.svg"),
+"Flag_sg": () => import("./flags/4x3/sg.svg"),
+"Flag_sx": () => import("./flags/4x3/sx.svg"),
+"Flag_sk": () => import("./flags/4x3/sk.svg"),
+"Flag_si": () => import("./flags/4x3/si.svg"),
+"Flag_sb": () => import("./flags/4x3/sb.svg"),
+"Flag_so": () => import("./flags/4x3/so.svg"),
+"Flag_za": () => import("./flags/4x3/za.svg"),
+"Flag_gs": () => import("./flags/4x3/gs.svg"),
+"Flag_kr": () => import("./flags/4x3/kr.svg"),
+"Flag_ss": () => import("./flags/4x3/ss.svg"),
+"Flag_es": () => import("./flags/4x3/es.svg"),
+"Flag_lk": () => import("./flags/4x3/lk.svg"),
+"Flag_ps": () => import("./flags/4x3/ps.svg"),
+"Flag_sd": () => import("./flags/4x3/sd.svg"),
+"Flag_sr": () => import("./flags/4x3/sr.svg"),
+"Flag_sj": () => import("./flags/4x3/sj.svg"),
+"Flag_se": () => import("./flags/4x3/se.svg"),
+"Flag_ch": () => import("./flags/4x3/ch.svg"),
+"Flag_sy": () => import("./flags/4x3/sy.svg"),
+"Flag_tw": () => import("./flags/4x3/tw.svg"),
+"Flag_tj": () => import("./flags/4x3/tj.svg"),
+"Flag_tz": () => import("./flags/4x3/tz.svg"),
+"Flag_th": () => import("./flags/4x3/th.svg"),
+"Flag_tl": () => import("./flags/4x3/tl.svg"),
+"Flag_tg": () => import("./flags/4x3/tg.svg"),
+"Flag_tk": () => import("./flags/4x3/tk.svg"),
+"Flag_to": () => import("./flags/4x3/to.svg"),
+"Flag_tt": () => import("./flags/4x3/tt.svg"),
+"Flag_sh_ta": () => import("./flags/4x3/sh-ta.svg"),
+"Flag_tn": () => import("./flags/4x3/tn.svg"),
+"Flag_tm": () => import("./flags/4x3/tm.svg"),
+"Flag_tc": () => import("./flags/4x3/tc.svg"),
+"Flag_tv": () => import("./flags/4x3/tv.svg"),
+"Flag_tr": () => import("./flags/4x3/tr.svg"),
+"Flag_ug": () => import("./flags/4x3/ug.svg"),
+"Flag_ua": () => import("./flags/4x3/ua.svg"),
+"Flag_ae": () => import("./flags/4x3/ae.svg"),
+"Flag_gb": () => import("./flags/4x3/gb.svg"),
+"Flag_un": () => import("./flags/4x3/un.svg"),
+"Flag_um": () => import("./flags/4x3/um.svg"),
+"Flag_us": () => import("./flags/4x3/us.svg"),
+"Flag_uy": () => import("./flags/4x3/uy.svg"),
+"Flag_uz": () => import("./flags/4x3/uz.svg"),
+"Flag_vu": () => import("./flags/4x3/vu.svg"),
+"Flag_ve": () => import("./flags/4x3/ve.svg"),
+"Flag_vn": () => import("./flags/4x3/vn.svg"),
+"Flag_vg": () => import("./flags/4x3/vg.svg"),
+"Flag_vi": () => import("./flags/4x3/vi.svg"),
+"Flag_gb_wls": () => import("./flags/4x3/gb-wls.svg"),
+"Flag_wf": () => import("./flags/4x3/wf.svg"),
+"Flag_eh": () => import("./flags/4x3/eh.svg"),
+"Flag_ye": () => import("./flags/4x3/ye.svg"),
+"Flag_zm": () => import("./flags/4x3/zm.svg"),
+"Flag_zw": () => import("./flags/4x3/zw.svg")
+};
+
+const lazyIcon = (name: string) => lazy(() => ICON_MAP[name]().then((mod: { ReactComponent: any; }) => ({ default: mod.ReactComponent })));
+
+export const Flag_af = lazyIcon("af");
+export const Flag_ax = lazyIcon("ax");
+export const Flag_al = lazyIcon("al");
+export const Flag_dz = lazyIcon("dz");
+export const Flag_as = lazyIcon("as");
+export const Flag_ad = lazyIcon("ad");
+export const Flag_ao = lazyIcon("ao");
+export const Flag_ai = lazyIcon("ai");
+export const Flag_aq = lazyIcon("aq");
+export const Flag_ag = lazyIcon("ag");
+export const Flag_ar = lazyIcon("ar");
+export const Flag_am = lazyIcon("am");
+export const Flag_aw = lazyIcon("aw");
+export const Flag_sh_ac = lazyIcon("sh-ac");
+export const Flag_au = lazyIcon("au");
+export const Flag_at = lazyIcon("at");
+export const Flag_az = lazyIcon("az");
+export const Flag_bs = lazyIcon("bs");
+export const Flag_bh = lazyIcon("bh");
+export const Flag_bd = lazyIcon("bd");
+export const Flag_bb = lazyIcon("bb");
+export const Flag_by = lazyIcon("by");
+export const Flag_be = lazyIcon("be");
+export const Flag_bz = lazyIcon("bz");
+export const Flag_bj = lazyIcon("bj");
+export const Flag_bm = lazyIcon("bm");
+export const Flag_bt = lazyIcon("bt");
+export const Flag_bo = lazyIcon("bo");
+export const Flag_bq = lazyIcon("bq");
+export const Flag_ba = lazyIcon("ba");
+export const Flag_bw = lazyIcon("bw");
+export const Flag_bv = lazyIcon("bv");
+// export const Flag_br = lazyIcon("br");
+export const Flag_io = lazyIcon("io");
+export const Flag_bn = lazyIcon("bn");
+export const Flag_bg = lazyIcon("bg");
+export const Flag_bf = lazyIcon("bf");
+export const Flag_bi = lazyIcon("bi");
+export const Flag_cv = lazyIcon("cv");
+export const Flag_kh = lazyIcon("kh");
+export const Flag_cm = lazyIcon("cm");
+export const Flag_ca = lazyIcon("ca");
+export const Flag_ic = lazyIcon("ic");
+export const Flag_es_ct = lazyIcon("es-ct");
+export const Flag_ky = lazyIcon("ky");
+export const Flag_cf = lazyIcon("cf");
+export const Flag_td = lazyIcon("td");
+export const Flag_cl = lazyIcon("cl");
+// export const Flag_cn = lazyIcon("cn");
+export const Flag_cx = lazyIcon("cx");
+export const Flag_cc = lazyIcon("cc");
+export const Flag_co = lazyIcon("co");
+export const Flag_km = lazyIcon("km");
+export const Flag_ck = lazyIcon("ck");
+export const Flag_cr = lazyIcon("cr");
+export const Flag_hr = lazyIcon("hr");
+export const Flag_cu = lazyIcon("cu");
+export const Flag_cw = lazyIcon("cw");
+export const Flag_cy = lazyIcon("cy");
+export const Flag_cz = lazyIcon("cz");
+export const Flag_ci = lazyIcon("ci");
+export const Flag_cd = lazyIcon("cd");
+export const Flag_dk = lazyIcon("dk");
+export const Flag_dj = lazyIcon("dj");
+export const Flag_dm = lazyIcon("dm");
+export const Flag_do = lazyIcon("do");
+export const Flag_ec = lazyIcon("ec");
+export const Flag_eg = lazyIcon("eg");
+export const Flag_sv = lazyIcon("sv");
+export const Flag_gq = lazyIcon("gq");
+export const Flag_er = lazyIcon("er");
+export const Flag_ee = lazyIcon("ee");
+export const Flag_sz = lazyIcon("sz");
+export const Flag_et = lazyIcon("et");
+export const Flag_eu = lazyIcon("eu");
+export const Flag_fk = lazyIcon("fk");
+export const Flag_fo = lazyIcon("fo");
+export const Flag_fm = lazyIcon("fm");
+export const Flag_fj = lazyIcon("fj");
+export const Flag_fi = lazyIcon("fi");
+export const Flag_fr = lazyIcon("fr");
+export const Flag_gf = lazyIcon("gf");
+export const Flag_pf = lazyIcon("pf");
+export const Flag_tf = lazyIcon("tf");
+export const Flag_ga = lazyIcon("ga");
+export const Flag_gm = lazyIcon("gm");
+export const Flag_ge = lazyIcon("ge");
+// export const Flag_de = lazyIcon("de");
+export const Flag_gh = lazyIcon("gh");
+export const Flag_gi = lazyIcon("gi");
+export const Flag_gr = lazyIcon("gr");
+export const Flag_gl = lazyIcon("gl");
+export const Flag_gd = lazyIcon("gd");
+export const Flag_gp = lazyIcon("gp");
+export const Flag_gu = lazyIcon("gu");
+export const Flag_gt = lazyIcon("gt");
+export const Flag_gg = lazyIcon("gg");
+export const Flag_gn = lazyIcon("gn");
+export const Flag_gw = lazyIcon("gw");
+export const Flag_gy = lazyIcon("gy");
+export const Flag_ht = lazyIcon("ht");
+export const Flag_hm = lazyIcon("hm");
+export const Flag_va = lazyIcon("va");
+export const Flag_hn = lazyIcon("hn");
+export const Flag_hk = lazyIcon("hk");
+export const Flag_hu = lazyIcon("hu");
+export const Flag_is = lazyIcon("is");
+export const Flag_in = lazyIcon("in");
+export const Flag_id = lazyIcon("id");
+export const Flag_ir = lazyIcon("ir");
+export const Flag_iq = lazyIcon("iq");
+export const Flag_ie = lazyIcon("ie");
+export const Flag_im = lazyIcon("im");
+export const Flag_il = lazyIcon("il");
+// export const Flag_it = lazyIcon("it");
+export const Flag_jm = lazyIcon("jm");
+export const Flag_jp = lazyIcon("jp");
+export const Flag_je = lazyIcon("je");
+export const Flag_jo = lazyIcon("jo");
+export const Flag_kz = lazyIcon("kz");
+export const Flag_ke = lazyIcon("ke");
+export const Flag_ki = lazyIcon("ki");
+export const Flag_xk = lazyIcon("xk");
+export const Flag_kw = lazyIcon("kw");
+export const Flag_kg = lazyIcon("kg");
+export const Flag_la = lazyIcon("la");
+export const Flag_lv = lazyIcon("lv");
+export const Flag_lb = lazyIcon("lb");
+export const Flag_ls = lazyIcon("ls");
+export const Flag_lr = lazyIcon("lr");
+export const Flag_ly = lazyIcon("ly");
+export const Flag_li = lazyIcon("li");
+export const Flag_lt = lazyIcon("lt");
+export const Flag_lu = lazyIcon("lu");
+export const Flag_mo = lazyIcon("mo");
+export const Flag_mg = lazyIcon("mg");
+export const Flag_mw = lazyIcon("mw");
+export const Flag_my = lazyIcon("my");
+export const Flag_mv = lazyIcon("mv");
+export const Flag_ml = lazyIcon("ml");
+export const Flag_mt = lazyIcon("mt");
+export const Flag_mh = lazyIcon("mh");
+export const Flag_mq = lazyIcon("mq");
+export const Flag_mr = lazyIcon("mr");
+export const Flag_mu = lazyIcon("mu");
+export const Flag_yt = lazyIcon("yt");
+export const Flag_mx = lazyIcon("mx");
+export const Flag_md = lazyIcon("md");
+export const Flag_mc = lazyIcon("mc");
+export const Flag_mn = lazyIcon("mn");
+export const Flag_me = lazyIcon("me");
+export const Flag_ms = lazyIcon("ms");
+export const Flag_ma = lazyIcon("ma");
+export const Flag_mz = lazyIcon("mz");
+export const Flag_mm = lazyIcon("mm");
+export const Flag_na = lazyIcon("na");
+export const Flag_nr = lazyIcon("nr");
+export const Flag_np = lazyIcon("np");
+export const Flag_nl = lazyIcon("nl");
+export const Flag_nc = lazyIcon("nc");
+export const Flag_nz = lazyIcon("nz");
+export const Flag_ni = lazyIcon("ni");
+export const Flag_ne = lazyIcon("ne");
+export const Flag_ng = lazyIcon("ng");
+export const Flag_nu = lazyIcon("nu");
+export const Flag_nf = lazyIcon("nf");
+export const Flag_kp = lazyIcon("kp");
+export const Flag_mk = lazyIcon("mk");
+export const Flag_gb_nir = lazyIcon("gb-nir");
+export const Flag_mp = lazyIcon("mp");
+export const Flag_no = lazyIcon("no");
+export const Flag_om = lazyIcon("om");
+export const Flag_pk = lazyIcon("pk");
+export const Flag_pw = lazyIcon("pw");
+export const Flag_pa = lazyIcon("pa");
+export const Flag_pg = lazyIcon("pg");
+export const Flag_py = lazyIcon("py");
+export const Flag_pe = lazyIcon("pe");
+export const Flag_ph = lazyIcon("ph");
+export const Flag_pn = lazyIcon("pn");
+export const Flag_pl = lazyIcon("pl");
+export const Flag_pt = lazyIcon("pt");
+export const Flag_pr = lazyIcon("pr");
+export const Flag_qa = lazyIcon("qa");
+export const Flag_cg = lazyIcon("cg");
+export const Flag_ro = lazyIcon("ro");
+// export const Flag_ru = lazyIcon("ru");
+export const Flag_rw = lazyIcon("rw");
+export const Flag_re = lazyIcon("re");
+export const Flag_bl = lazyIcon("bl");
+export const Flag_sh_hl = lazyIcon("sh-hl");
+export const Flag_sh = lazyIcon("sh");
+export const Flag_kn = lazyIcon("kn");
+export const Flag_lc = lazyIcon("lc");
+export const Flag_mf = lazyIcon("mf");
+export const Flag_pm = lazyIcon("pm");
+export const Flag_vc = lazyIcon("vc");
+export const Flag_ws = lazyIcon("ws");
+export const Flag_sm = lazyIcon("sm");
+export const Flag_st = lazyIcon("st");
+export const Flag_sa = lazyIcon("sa");
+export const Flag_gb_sct = lazyIcon("gb-sct");
+export const Flag_sn = lazyIcon("sn");
+export const Flag_rs = lazyIcon("rs");
+export const Flag_sc = lazyIcon("sc");
+export const Flag_sl = lazyIcon("sl");
+export const Flag_sg = lazyIcon("sg");
+export const Flag_sx = lazyIcon("sx");
+export const Flag_sk = lazyIcon("sk");
+export const Flag_si = lazyIcon("si");
+export const Flag_sb = lazyIcon("sb");
+export const Flag_so = lazyIcon("so");
+export const Flag_za = lazyIcon("za");
+export const Flag_gs = lazyIcon("gs");
+export const Flag_kr = lazyIcon("kr");
+export const Flag_ss = lazyIcon("ss");
+// export const Flag_es = lazyIcon("es");
+export const Flag_lk = lazyIcon("lk");
+export const Flag_ps = lazyIcon("ps");
+export const Flag_sd = lazyIcon("sd");
+export const Flag_sr = lazyIcon("sr");
+export const Flag_sj = lazyIcon("sj");
+export const Flag_se = lazyIcon("se");
+export const Flag_ch = lazyIcon("ch");
+export const Flag_sy = lazyIcon("sy");
+export const Flag_tw = lazyIcon("tw");
+export const Flag_tj = lazyIcon("tj");
+export const Flag_tz = lazyIcon("tz");
+export const Flag_th = lazyIcon("th");
+export const Flag_tl = lazyIcon("tl");
+export const Flag_tg = lazyIcon("tg");
+export const Flag_tk = lazyIcon("tk");
+export const Flag_to = lazyIcon("to");
+export const Flag_tt = lazyIcon("tt");
+export const Flag_sh_ta = lazyIcon("sh-ta");
+export const Flag_tn = lazyIcon("tn");
+export const Flag_tm = lazyIcon("tm");
+export const Flag_tc = lazyIcon("tc");
+export const Flag_tv = lazyIcon("tv");
+export const Flag_tr = lazyIcon("tr");
+export const Flag_ug = lazyIcon("ug");
+export const Flag_ua = lazyIcon("ua");
+export const Flag_ae = lazyIcon("ae");
+// export const Flag_gb = lazyIcon("gb");
+export const Flag_un = lazyIcon("un");
+export const Flag_um = lazyIcon("um");
+export const Flag_us = lazyIcon("us");
+export const Flag_uy = lazyIcon("uy");
+export const Flag_uz = lazyIcon("uz");
+export const Flag_vu = lazyIcon("vu");
+export const Flag_ve = lazyIcon("ve");
+export const Flag_vn = lazyIcon("vn");
+export const Flag_vg = lazyIcon("vg");
+export const Flag_vi = lazyIcon("vi");
+export const Flag_gb_wls = lazyIcon("gb-wls");
+export const Flag_wf = lazyIcon("wf");
+export const Flag_eh = lazyIcon("eh");
+export const Flag_ye = lazyIcon("ye");
+export const Flag_zm = lazyIcon("zm");
+export const Flag_zw = lazyIcon("zw");
+*/
+
+// flags for current userProfile use:
+
+export { ReactComponent as Flag_de } from "./flags/4x3/de.svg";
+export { ReactComponent as Flag_gb } from "./flags/4x3/gb.svg";
+export { ReactComponent as Flag_it } from "./flags/4x3/it.svg";
+export { ReactComponent as Flag_cn } from "./flags/4x3/cn.svg";
+export { ReactComponent as Flag_ru } from "./flags/4x3/ru.svg";
+export { ReactComponent as Flag_es } from "./flags/4x3/es.svg";
+export { ReactComponent as Flag_br } from "./flags/4x3/br.svg";

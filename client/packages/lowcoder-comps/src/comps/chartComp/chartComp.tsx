@@ -156,12 +156,14 @@ ChartTmpComp = withViewFn(ChartTmpComp, (comp) => {
   }, [mode, onUIEvent]);
 
   const echartsConfigChildren = _.omit(comp.children, echartsConfigOmitChildren);
+  const childrenProps = childrenToProps(echartsConfigChildren);
   const option = useMemo(() => {
     return getEchartsConfig(
-      childrenToProps(echartsConfigChildren) as ToViewReturn<typeof echartsConfigChildren>,
-      chartSize
+      childrenProps as ToViewReturn<typeof echartsConfigChildren>,
+      chartSize,
+      themeConfig
     );
-  }, [chartSize, ...Object.values(echartsConfigChildren)]);
+  }, [theme, childrenProps, chartSize, ...Object.values(echartsConfigChildren)]);
 
   const isMapScriptLoaded = useMemo(() => {
     return mapScriptLoaded || window?.google;

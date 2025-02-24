@@ -28,7 +28,10 @@ public class ApplicationInfoView {
     @JsonInclude(Include.NON_NULL)
     private final Object containerSize; // for module size
     @Nullable
-    private final String folderId;
+    private String folderId;
+    @Nullable
+    @JsonInclude(Include.NON_NULL)
+    private String folderIdFrom;
 
     @Nullable
     private final Instant lastViewTime; // user last visit time for this app
@@ -40,6 +43,20 @@ public class ApplicationInfoView {
     private final boolean agencyProfile;
 
     private final String editingUserId;
+
+    @JsonInclude(Include.NON_NULL)
+    private final String title;
+    @JsonInclude(Include.NON_NULL)
+    private final String description;
+    @JsonInclude(Include.NON_NULL)
+    private final String category;
+    @JsonInclude(Include.NON_NULL)
+    private final String icon;
+    private final boolean published;
+    @JsonInclude(Include.NON_NULL)
+    private final String publishedVersion;
+    @JsonInclude(Include.NON_NULL)
+    private final Instant lastPublishedTime;
 
     public long getLastViewTime() {
         return lastViewTime == null ? 0 : lastViewTime.toEpochMilli();
@@ -60,5 +77,8 @@ public class ApplicationInfoView {
      */
     public boolean isFolder() {
         return false;
+    }
+    public void setFolderId(@Nullable String folderId) {
+        this.folderId = folderId;
     }
 }

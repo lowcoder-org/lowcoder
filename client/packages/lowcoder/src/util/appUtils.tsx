@@ -32,6 +32,7 @@ export function openApp(props: {
   hashParams?: string;
   newTab?: boolean;
 }) {
+  console.log(props.queryParams)
   const m = matchPath<AppPathParams>(window.location.pathname, APP_EDITOR_URL);
   if (!m || !props.applicationId) {
     return;

@@ -13,19 +13,19 @@ const config = [
     },
     external: ["lodash", "stylis"],
   },
-  {
-    input: "src/index.ts",
-    plugins: [
-      resolve({ browser: true }),
-      commonjs(),
-      typescript({ declaration: false, declarationDir: undefined }),
-    ],
-    output: {
-      format: "cjs",
-      file: "lib/index.cjs",
-    },
-    external: ["lodash", "stylis"],
-  },
+  // {
+  //   input: "src/index.ts",
+  //   plugins: [
+  //     resolve({ browser: true }),
+  //     commonjs(),
+  //     typescript({ declaration: false, declarationDir: undefined }),
+  //   ],
+  //   output: {
+  //     format: "cjs",
+  //     file: "lib/index.cjs",
+  //   },
+  //   external: ["lodash", "stylis"],
+  // },
   {
     input: "lib/dts/index.d.ts",
     plugins: [

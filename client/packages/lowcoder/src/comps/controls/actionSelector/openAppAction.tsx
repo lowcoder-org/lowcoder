@@ -4,7 +4,7 @@ import { BranchDiv } from "lowcoder-design";
 import { KeyValue } from "types/common";
 import ApplicationSelectControl from "../appSelectControl";
 import { BoolControl } from "../boolControl";
-import { keyValueListControl } from "../keyValueControl";
+import { keyValueListControl } from "../keyValueListControl";
 import { keyValueListToSearchStr, openApp } from "../../../util/appUtils";
 import { trans } from "i18n";
 

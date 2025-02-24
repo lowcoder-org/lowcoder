@@ -1,13 +1,12 @@
-import { ControlPropertyViewWrapper, KeyValueList, OptionsType } from "lowcoder-design";
+import { OptionsType } from "lowcoder-design";
 import { ReactNode } from "react";
 import styled from "styled-components";
 import { MultiCompBuilder } from "../generators";
-import { list } from "../generators/list";
 import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
-import { ParamsControlType, ParamsStringControl } from "./paramsControl";
-import { FunctionProperty } from "../queries/queryCompUtils";
+import { ParamsStringControl } from "./paramsControl";
+import { SimpleVariableHeaderComp } from "../comps/simpleVariableHeaderComp";
 
 const KeyValueWrapper = styled.div`
   display: flex;
@@ -47,6 +46,9 @@ export type KeyValueControlParams = ControlParams & {
   typeTooltip?: ReactNode;
   keyFlexBasics?: number;
   valueFlexBasics?: number;
+  isStatic?: boolean;
+  keyFixed?: boolean;
+  indicatorForAll?: boolean;
 };
 
 /**
@@ -54,16 +56,23 @@ export type KeyValueControlParams = ControlParams & {
  * controlType: params output: {key: {"1+2": () => "3"}, value: {"-1": () => "-1"}}
  * controlType: string output: {key: "xxx", value: "xxxx"}
  */
-function keyValueControl<T extends OptionsType>(
+export function keyValueControl<T extends OptionsType>(
   hasType: boolean = false,
   types: T,
-  controlType: "params" | "string" = "params"
+  controlType: "params" | "string" | "variable" = "params"
 ) {
-  const childrenMap = {
+  let childrenMap = {
     key: controlType === "params" ? ParamsStringControl : StringControl,
     value: controlType === "params" ? ParamsStringControl : StringControl,
     type: dropdownControl(types, types[0]?.value),
   };
+  if(controlType === "variable") {
+    childrenMap = {
+      key: SimpleVariableHeaderComp(true) as any,
+      value: SimpleVariableHeaderComp() as any,
+      type: dropdownControl(types, types[0]?.value),
+    };
+  }
   return class extends new MultiCompBuilder(childrenMap, (props) => {
     return hasType
       ? {
@@ -82,16 +91,20 @@ function keyValueControl<T extends OptionsType>(
       return (
         <KeyValueWrapper>
           <KeyWrapper $flexBasics={params.keyFlexBasics}>
-            {this.children.key.propertyView({ placeholder: "key", indentWithTab: false })}
-            {hasType && params.showType && (
-              <TypeWrapper>
-                {this.children.type.propertyView({
-                  placeholder: "key",
-                  indentWithTab: false,
-                  tooltip: params.typeTooltip,
-                })}
-              </TypeWrapper>
-            )}
+            {params.keyFixed?
+              <>{this.children.key.getView()}</>
+            :<>
+              {this.children.key.propertyView({ placeholder: "key", indentWithTab: false })}
+              {hasType && params.showType && (
+                <TypeWrapper>
+                  {this.children.type.propertyView({
+                    placeholder: "key",
+                    indentWithTab: false,
+                    tooltip: params.typeTooltip,
+                  })}
+                </TypeWrapper>
+              )}
+            </>}
           </KeyWrapper>
           <ValueWrapper $flexBasics={params.valueFlexBasics}>
             {this.children.value.propertyView({
@@ -105,40 +118,3 @@ function keyValueControl<T extends OptionsType>(
   };
 }
 
-/**
- * Provides a list of kv input boxes with add and delete buttons
- * output [{key: "", value: ""}, {key: "", value: ""}]
- */
-export function keyValueListControl<T extends OptionsType>(
-  hasType: boolean = false,
-  types: T | OptionsType = [],
-  controlType: "params" | "string" = "params"
-) {
-  return class extends list(keyValueControl(hasType, types, controlType)) {
-    getQueryParams() {
-      if (controlType === "params") {
-        return this.getView().reduce(
-          (result: FunctionProperty[], kv) => [
-            ...result,
-            ...(kv.children.key as InstanceType<ParamsControlType>).getQueryParams(),
-            ...(kv.children.value as InstanceType<ParamsControlType>).getQueryParams(),
-          ],
-          []
-        );
-      }
-      return [];
-    }
-
-    propertyView(params: KeyValueControlParams): ReactNode {
-      return (
-        <ControlPropertyViewWrapper {...params}>
-          <KeyValueList
-            list={this.getView().map((child) => child.propertyView(params))}
-            onAdd={() => this.dispatch(this.pushAction({}))}
-            onDelete={(item, index) => this.dispatch(this.deleteAction(index))}
-          />
-        </ControlPropertyViewWrapper>
-      );
-    }
-  };
-}

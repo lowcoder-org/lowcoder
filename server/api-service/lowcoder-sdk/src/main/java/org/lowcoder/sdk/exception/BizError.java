@@ -63,6 +63,7 @@ public enum BizError {
     INVALID_HISTORY_SNAPSHOT(500, 5307),
 
     NO_PERMISSION_TO_REQUEST_APP(403, 5308),
+    APPLICATION_AND_ORG_NOT_MATCH(400, 5309),
 
     // datasource related, code range 5500 - 5600
     DATASOURCE_NOT_FOUND(500, 5500),
@@ -151,7 +152,13 @@ public enum BizError {
     BUNDLE_NOT_EXIST(500, 6402),
     BUNDLE_NAME_CONFLICT(500, 6403),
     ILLEGAL_BUNDLE_PERMISSION_ID(500, 6404),
-    ;
+
+    //slug 6501 - 6502
+    SLUG_DUPLICATE_ENTRY(403, 6501),
+    SLUG_INVALID(403, 6502),
+
+    //flow 6601 - 6601
+    FLOW_ERROR(500, 6601);
 
     static {
         checkDuplicates(values(), BizError::getBizErrorCode);

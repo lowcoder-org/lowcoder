@@ -15,8 +15,12 @@ import org.lowcoder.domain.organization.repository.OrganizationRepository;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.query.repository.LibraryQueryRepository;
 import org.lowcoder.sdk.constants.FieldName;
+import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Component
 public class GidService {
@@ -35,59 +39,58 @@ public class GidService {
     @Autowired
     private BundleRepository bundleRepository;
 
-    public String convertApplicationIdToObjectId(String applicationId) {
-        if(FieldName.isGID(applicationId)) {
-            Application app = applicationRepository.findByGid(applicationId).blockFirst();
-            return app!=null?app.getId():"";
-        }
-        return applicationId;
+    public Mono<String> convertApplicationIdToObjectId(String id) {
+        return applicationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
+                Mono.defer(() -> {
+                    if (FieldName.isGID(id)) {
+                        return applicationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+                    }
+                    return Mono.just(id);
+                }));
     }
 
-    public String convertDatasourceIdToObjectId(String id) {
+    public Mono<String> convertDatasourceIdToObjectId(String id) {
         if(FieldName.isGID(id)) {
-            DatasourceDO datasourceDO = datasourceDORepository.findByGid(id).blockFirst();
-            return datasourceDO!=null?datasourceDO.getId():"";
+            return datasourceDORepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
         }
-        return id;
+        return Mono.just(id);
     }
 
-    public String convertOrganizationIdToObjectId(String Id) {
-        if(FieldName.isGID(Id)) {
-            Organization org = organizationRepository.findByGid(Id).blockFirst();
-            return org!=null?org.getId():"";
-        }
-        return Id;
+    public Mono<String> convertOrganizationIdToObjectId(String id) {
+        return organizationRepository.findBySlug(id).next().mapNotNull(HasIdAndAuditing::getId).switchIfEmpty(
+                Mono.defer(() -> {
+                    if(FieldName.isGID(id)) {
+                        return organizationRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
+                    }
+                    return Mono.just(id);
+                }));
     }
 
-    public String convertGroupIdToObjectId(String Id) {
-        if(FieldName.isGID(Id)) {
-            Group group = groupRepository.findByGid(Id).blockFirst();
-            return group!=null?group.getId():"";
+    public Mono<String> convertGroupIdToObjectId(String id) {
+        if(FieldName.isGID(id)) {
+            return groupRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
         }
-        return Id;
+        return Mono.just(id);
     }
 
-    public String convertLibraryQueryIdToObjectId(String Id) {
-        if(FieldName.isGID(Id)) {
-            LibraryQuery libraryQuery = libraryQueryRepository.findByGid(Id).blockFirst();
-            return libraryQuery!=null?libraryQuery.getId():"";
+    public Mono<String> convertLibraryQueryIdToObjectId(String id) {
+        if(FieldName.isGID(id)) {
+            return libraryQueryRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
         }
-        return Id;
+        return Mono.just(id);
     }
 
-    public String convertFolderIdToObjectId(String Id) {
-        if(FieldName.isGID(Id)) {
-            Folder folder = folderRepository.findByGid(Id).blockFirst();
-            return folder!=null?folder.getId():"";
+    public Mono<Optional<String>> convertFolderIdToObjectId(String id) {
+        if(FieldName.isGID(id)) {
+            return folderRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId).map(Optional::ofNullable).switchIfEmpty(Mono.just(Optional.empty()));
         }
-        return Id;
+        return Mono.just(Optional.ofNullable(id));
     }
 
-    public String convertBundleIdToObjectId(String Id) {
-        if(FieldName.isGID(Id)) {
-            Bundle bundle = bundleRepository.findByGid(Id).blockFirst();
-            return bundle!=null?bundle.getId():"";
+    public Mono<String> convertBundleIdToObjectId(String id) {
+        if(FieldName.isGID(id)) {
+            return bundleRepository.findByGid(id).next().mapNotNull(HasIdAndAuditing::getId);
         }
-        return Id;
+        return Mono.just(id);
     }
 }

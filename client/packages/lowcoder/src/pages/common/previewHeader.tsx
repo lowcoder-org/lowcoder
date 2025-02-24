@@ -5,7 +5,7 @@ import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "cons
 import { User } from "constants/userConstants";
 import { EllipsisTextCss, isDarkColor, TacoButton, TextEditIcon } from "lowcoder-design";
 import { useSelector } from "react-redux";
-import { currentApplication, getTemplateId } from "redux/selectors/applicationSelector";
+import { currentApplication, getTemplateId, isPublicApplication } from "redux/selectors/applicationSelector";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import styled from "styled-components";
 import history from "util/history";
@@ -15,12 +15,17 @@ import ProfileDropdown from "./profileDropdown";
 import { trans } from "i18n";
 import { Logo } from "@lowcoder-ee/assets/images";
 import { AppPermissionDialog } from "../../components/PermissionDialog/AppPermissionDialog";
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { HeaderStartDropdown } from "./headerStartDropdown";
 import { useParams } from "react-router";
 import { AppPathParams } from "constants/applicationConstants";
 import React from "react";
+import Segmented from "antd/es/segmented";
+import MobileOutlined from "@ant-design/icons/MobileOutlined";
+import TabletOutlined from "@ant-design/icons/TabletOutlined";
+import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
+import { DeviceOrientation, DeviceType, EditorContext } from "@lowcoder-ee/comps/editorState";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -130,13 +135,15 @@ export function HeaderProfile(props: { user: User }) {
 
 const PreviewHeaderComp = () => {
   const params = useParams<AppPathParams>();
+  const editorState = useContext(EditorContext);
   const user = useSelector(getUser);
   const application = useSelector(currentApplication);
+  const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
   const brandingConfig = useSelector(getBrandingConfig);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
-  const isViewMarketplaceMode = params.viewMode === 'view_marketplace';
+  const isViewMarketplaceMode = params.viewMode === 'view_marketplace' || isPublicApp;
 
   const headerStart = (
     <>
@@ -159,17 +166,17 @@ const PreviewHeaderComp = () => {
 
   const headerEnd = (
     <Wrapper>
-      {canManageApp(user, application) && (
+      {canManageApp(user, application) && !isPublicApp && (
         <AppPermissionDialog
           applicationId={applicationId}
           visible={permissionDialogVisible}
           onVisibleChange={(visible) => !visible && setPermissionDialogVisible(false)}
         />
       )}
-      {canManageApp(user, application) && (
+      {canManageApp(user, application) && !isPublicApp && (
         <PreviewBtn onClick={() => setPermissionDialogVisible(true)}>{SHARE_TITLE}</PreviewBtn>
       )}
-      {canEditApp(user, application) && (
+      {canEditApp(user, application) && !isPublicApp && (
         <EditBtn
           buttonType={"primary"}
           onClick={() =>
@@ -196,9 +203,42 @@ const PreviewHeaderComp = () => {
       <HeaderProfile user={user} />
     </Wrapper>
   );
+
+  const headerMiddle = (
+    <>
+      {/* Devices */}
+      <Segmented<DeviceType>
+        options={[
+          { value: 'mobile', icon: <MobileOutlined /> },
+          { value: 'tablet', icon: <TabletOutlined /> },
+          { value: 'desktop', icon: <DesktopOutlined /> },
+        ]}
+        value={editorState.deviceType}
+        onChange={(value) => {
+          editorState.setDeviceType(value);
+        }}
+      />
+
+      {/* Orientation */}
+      {editorState.deviceType !== 'desktop' && (
+        <Segmented<DeviceOrientation>
+          options={[
+            { value: 'portrait', label: "Portrait" },
+            { value: 'landscape', label: "Landscape" },
+          ]}
+          value={editorState.deviceOrientation}
+          onChange={(value) => {
+            editorState.setDeviceOrientation(value);
+          }}
+        />
+      )}
+    </>
+  );
+
   return (
     <Header
       headerStart={headerStart}
+      headerMiddle={headerMiddle}
       headerEnd={headerEnd}
       style={{ backgroundColor: brandingConfig?.headerColor }}
     />

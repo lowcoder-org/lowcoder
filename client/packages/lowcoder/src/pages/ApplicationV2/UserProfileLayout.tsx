@@ -83,6 +83,10 @@ const Breadcrumb = styled(AntdBreadcrumb)`
     flex-direction: column;
     justify-content: center;
   }
+
+  @media screen and (max-width: 720px) {
+    display:none
+  }
 `;
 
 const BreadcrumbItem = styled.div`

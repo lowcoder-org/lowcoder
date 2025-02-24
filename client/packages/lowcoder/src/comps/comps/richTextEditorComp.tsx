@@ -17,6 +17,7 @@ import {
   hiddenPropertyView,
   placeholderPropertyView,
   readOnlyPropertyView,
+  showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
 import _ from "lodash";
 import { trans } from "i18n";
@@ -327,6 +328,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
             {readOnlyPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
 

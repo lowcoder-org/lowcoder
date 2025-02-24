@@ -68,7 +68,7 @@ export function PluginItem(props: PluginViewProps) {
 
   useEffect(() => {
     setLoading(true);
-    axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${appId}/${name}`).then((res) => {
+    axios.get<NpmPackageMeta>(`${NPM_REGISTRY_URL}/${appId || 'none'}/${name}`).then((res) => {
       if (res.status >= 400) {
         return;
       }

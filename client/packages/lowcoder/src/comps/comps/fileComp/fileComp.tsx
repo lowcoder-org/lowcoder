@@ -11,7 +11,7 @@ import { AnimationStyle, AnimationStyleType, FileStyle, FileStyleType, heightCal
 import { withMethodExposing } from "comps/generators/withMethodExposing";
 import { hasIcon } from "comps/utils";
 import { getComponentDocUrl } from "comps/utils/compDocUtil";
-import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
+import { disabledPropertyView, hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import _ from "lodash";
 import mime from "mime";
@@ -644,6 +644,7 @@ let FileTmpComp = new UICompBuilder(childrenMap, (props, dispatch) => {
             {children.onEvent.getPropertyView()}
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
+            {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
           <Section name={sectionNames.advanced}>
               {children.fileType.propertyView({

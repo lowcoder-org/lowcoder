@@ -3,7 +3,6 @@ import {
   ALL_APPLICATIONS_URL,
   DATASOURCE_URL,
   FOLDER_URL,
-  FOLDER_URL_PREFIX,
   MARKETPLACE_URL,
   QUERY_LIBRARY_URL,
   SETTING_URL,
@@ -16,8 +15,6 @@ import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
 import { useDispatch, useSelector } from "react-redux";
 import {
   // EditPopover,
-  EllipsisTextCss,
-  FolderIcon,
   HomeDataSourceIcon,
   NewsIcon,
   WorkspacesIcon,
@@ -72,64 +69,9 @@ import { fetchDeploymentIdAction } from "@lowcoder-ee/redux/reduxActions/configA
 import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
 import { SimpleSubscriptionContextProvider } from '@lowcoder-ee/util/context/SimpleSubscriptionContext';
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+
 const TabLabel = styled.div`
   font-weight: 500;
-`;
-
-const FolderSectionLabel = styled.div`
-  display: flex;
-  align-items: center;
-  font-weight: 500;
-  font-size: 14px;
-  line-height: 14px;
-  padding: 0 8px 0 26px;
-  height: 30px;
-`;
-
-const FolderCountLabel = styled.span`
-  margin-left: 8px;
-  font-size: 14px;
-  line-height: 14px;
-  color: #b8b9bf;
-`;
-
-const FolderNameWrapper = styled.div<{ $selected: boolean }>`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-grow: 1;
-  ${EllipsisTextCss};
-  height: 100%;
-
-  ${(props) => {
-    if (props.$selected) {
-      return css`
-        font-weight: 500;
-
-        svg {
-          display: inline-block;
-        }
-      `;
-    }
-  }}
-  .ant-typography {
-    max-width: 138px;
-    line-height: 16px;
-  }
-
-  &:hover {
-    svg {
-      display: inline-block;
-    }
-  }
-
-`;
-
-
-const MoreFoldersWrapper = styled.div`
-  ${(props) => {
-    return css` font-weight: 500;`;
-  }}
 `;
 
 const DivStyled = styled.div`
@@ -139,14 +81,6 @@ const DivStyled = styled.div`
       padding: 0;
       max-width: 0 !important;
       min-width: 0 !important;
-    }
-
-    > div {
-      display: none;
-    }
-
-    .ant-layout > div {
-      display: none;
     }
   }
 `;
@@ -162,11 +96,8 @@ export default function ApplicationHome() {
   const allAppCount = allApplications.length;
   const allFoldersCount = allFolders.length;
   const orgHomeId = "root";
-  const isSelfHost = window.location.host !== 'app.lowcoder.cloud';
   const subscriptions = useSelector(getSubscriptions);
   const deploymentId = useSelector(getDeploymentId);
-
-  const isOrgAdmin = org?.createdBy == user.id ? true : false;
 
   useEffect(() => {
     if (user.currentOrgId) {
@@ -231,6 +162,7 @@ export default function ApplicationHome() {
                   routePath: USER_PROFILE_URL,
                   routeComp: UserProfileView,
                   icon: ({ selected, ...otherProps }) => selected ? <UserIcon {...otherProps} width={"24px"}/> : <UserIcon {...otherProps} width={"24px"}/>,
+                  mobileVisible: true,
                 },
                 {
                   text: <TabLabel>{trans("home.news")}</TabLabel>,
@@ -239,6 +171,7 @@ export default function ApplicationHome() {
                   icon: ({ selected, ...otherProps }) => selected ? <NewsIcon {...otherProps} width={"24px"}/> : <NewsIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => user.orgDev,
                   style: { color: "red" },
+                  mobileVisible: false,
                 },
                 {
                   text: <TabLabel>{trans("home.orgHome")}</TabLabel>,
@@ -247,6 +180,7 @@ export default function ApplicationHome() {
                   routeComp: OrgView,
                   icon: ({ selected, ...otherProps }) => selected ? <WorkspacesIcon {...otherProps} width={"24px"}/> : <WorkspacesIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => !user.orgDev,
+                  mobileVisible: true,
                 },
                 {
                   text: <TabLabel>{trans("home.marketplace")}</TabLabel>,
@@ -254,6 +188,7 @@ export default function ApplicationHome() {
                   routePathExact: false,
                   routeComp: MarketplaceView,
                   icon: ({ selected, ...otherProps }) => selected ? <MarketplaceIcon {...otherProps} width={"24px"}/> : <MarketplaceIcon {...otherProps} width={"24px"}/>,
+                  mobileVisible: false,
                 },
               ]
             },
@@ -271,6 +206,7 @@ export default function ApplicationHome() {
                   routePath: ALL_APPLICATIONS_URL,
                   routeComp: HomeView,
                   icon: ({ selected, ...otherProps }) => selected ? <AppsIcon {...otherProps} width={"24px"}/> : <AppsIcon {...otherProps} width={"24px"}/>,
+                  mobileVisible: true,
                 },
               ],
             },
@@ -284,6 +220,7 @@ export default function ApplicationHome() {
                   routeComp: QueryLibraryEditor,
                   icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => user.orgDev,
+                  mobileVisible: false,
                 },
                 {
                   text: <TabLabel>{trans("home.datasource")}</TabLabel>,
@@ -293,6 +230,7 @@ export default function ApplicationHome() {
                   icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => user.orgDev,
                   onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
+                  mobileVisible: false,
                 },
               ],
             },
@@ -305,6 +243,7 @@ export default function ApplicationHome() {
                   routeComp: AppEditor,
                   icon: ({ selected, ...otherProps }) => selected ? ( <EnterpriseIcon {...otherProps} width={"24px"}/> ) : ( <EnterpriseIcon {...otherProps} width={"24px"}/> ),
                   visible: ({ user }) => user.orgDev,
+                  mobileVisible: false,
                 },
               ],
             } : { items: [] },
@@ -317,6 +256,7 @@ export default function ApplicationHome() {
                   routeComp: Support,
                   routePathExact: false,
                   icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
+                  mobileVisible: true,
                 },
               ],
             } : { items: [] },
@@ -331,6 +271,7 @@ export default function ApplicationHome() {
                   icon: ({ selected, ...otherProps }) => selected ? <HomeSettingIcon {...otherProps} width={"24px"}/> : <HomeSettingIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => user.orgDev,
                   onSelected: (_, currentPath) => currentPath.split("/")[1] === "setting",
+                  mobileVisible: false,
                 }
               ]
             },
@@ -343,6 +284,7 @@ export default function ApplicationHome() {
                   routeComp: TrashView,
                   icon: ({ selected, ...otherProps }) => selected ? <RecyclerIcon {...otherProps} width={"24px"}/> : <RecyclerIcon {...otherProps} width={"24px"}/>,
                   visible: ({ user }) => user.orgDev,
+                  mobileVisible: false,
                 },
               ],
             },

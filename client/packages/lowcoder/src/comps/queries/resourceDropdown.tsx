@@ -13,8 +13,6 @@ import { getBottomResIcon } from "@lowcoder-ee/util/bottomResUtils";
 import { trans } from "i18n";
 import { DatasourceType, ResourceType } from "@lowcoder-ee/constants/queryConstants";
 import {
-  LOWCODER_API_ID,
-  LOWCODER_API_INFO,
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
 } from "constants/datasourceConstants";
@@ -104,9 +102,9 @@ const QuickGraphqlValue: ResourceOptionValue = {
   type: "graphql",
 };
 
-const LowcoderAPIValue: ResourceOptionValue = {
-  id: LOWCODER_API_ID,
-  type: "lowcoderApi",
+const QuickAlasqlValue: ResourceOptionValue = {
+  id: "",
+  type: "alasql",
 };
 
 interface ResourceDropdownProps {
@@ -272,6 +270,17 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
             <SelectOptionLabel>{trans("query.quickStreamAPI")} </SelectOptionLabel>
           </SelectOptionContains>
         </SelectOption>
+        
+        <SelectOption
+          key={JSON.stringify(QuickAlasqlValue)}
+          label={trans("query.quickAlasql")}
+          value={JSON.stringify(QuickAlasqlValue)}
+        >
+          <SelectOptionContains>
+            {getBottomResIcon("restApi")}
+            <SelectOptionLabel>{trans("query.quickAlasql")} </SelectOptionLabel>
+          </SelectOptionContains>
+        </SelectOption>
 
         <SelectOption
           key={JSON.stringify(QuickGraphqlValue)}
@@ -286,17 +295,6 @@ export const ResourceDropdown = (props: ResourceDropdownProps) => {
 
         {context?.placement !== "queryLibrary" && (
           <>
-            <SelectOption
-              key={JSON.stringify(LowcoderAPIValue)}
-              label={LOWCODER_API_INFO.name}
-              value={JSON.stringify(LowcoderAPIValue)}
-            >
-              <SelectOptionContains>
-                {LOWCODER_API_INFO.icon}
-                <SelectOptionLabel>{LOWCODER_API_INFO.name} </SelectOptionLabel>
-              </SelectOptionContains>
-            </SelectOption>
-
             <SelectOption
               key={JSON.stringify(JSOptionValue)}
               label={trans("query.executeJSCode")}
