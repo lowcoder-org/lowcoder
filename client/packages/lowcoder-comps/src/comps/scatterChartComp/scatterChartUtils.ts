@@ -3,17 +3,18 @@ import {
   ChartCompPropsType,
   ChartSize,
   noDataAxisConfig,
-  noDataPieChartConfig,
-} from "comps/chartComp/chartConstants";
-import { getPieRadiusAndCenter } from "comps/chartComp/chartConfigs/pieChartConfig";
-import { EChartsOptionWithMap } from "./reactEcharts/types";
+  noDataScatterChartConfig,
+} from "comps/scatterChartComp/scatterChartConstants";
+import { EChartsOptionWithMap } from "../basicChartComp/reactEcharts/types";
 import _ from "lodash";
 import { chartColorPalette, isNumeric, JSONObject, loadScript } from "lowcoder-sdk";
-import { calcXYConfig } from "comps/chartComp/chartConfigs/cartesianAxisConfig";
+import { calcXYConfig } from "comps/basicChartComp/chartConfigs/cartesianAxisConfig";
 import Big from "big.js";
-import { googleMapsApiUrl } from "./chartConfigs/chartUrls";
-import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
+import { googleMapsApiUrl } from "../basicChartComp/chartConfigs/chartUrls";
+import opacityToHex from "../../util/opacityToHex";
 import parseBackground from "../../util/gradientBackgroundColor";
+import {ba, s} from "@fullcalendar/core/internal-common";
+import {chartStyleWrapper, styleWrapper} from "../../util/styleWrapper";
 
 export function transformData(
   originData: JSONObject[],
@@ -53,7 +54,6 @@ export function transformData(
   return transformedData;
 }
 
-const notAxisChartSet: Set<CharOptionCompType> = new Set(["pie"] as const);
 export const echartsConfigOmitChildren = [
   "hidden",
   "selectedPoints",
@@ -62,70 +62,76 @@ export const echartsConfigOmitChildren = [
 ] as const;
 type EchartsConfigProps = Omit<ChartCompPropsType, typeof echartsConfigOmitChildren[number]>;
 
-export function isAxisChart(type: CharOptionCompType) {
-  return !notAxisChartSet.has(type);
-}
-
 export function getSeriesConfig(props: EchartsConfigProps) {
-  const visibleSeries = props.series.filter((s) => !s.getView().hide);
-  const seriesLength = visibleSeries.length;
+  let visibleSeries = props.series.filter((s) => !s.getView().hide).map(s => s.toJsonValue());
   return visibleSeries.map((s, index) => {
-    if (isAxisChart(props.chartConfig.type)) {
-      let encodeX: string, encodeY: string;
-      const horizontalX = props.xAxisDirection === "horizontal";
-      let itemStyle = props.chartConfig.itemStyle;
-      // FIXME: need refactor... chartConfig returns a function with paramters
-      if (props.chartConfig.type === "bar") {
-        // barChart's border radius, depend on x-axis direction and stack state
-        const borderRadius = horizontalX ? [2, 2, 0, 0] : [0, 2, 2, 0];
-        if (props.chartConfig.stack && index === visibleSeries.length - 1) {
-          itemStyle = { ...itemStyle, borderRadius: borderRadius };
-        } else if (!props.chartConfig.stack) {
-          itemStyle = { ...itemStyle, borderRadius: borderRadius };
-        }
-      }
-      if (horizontalX) {
-        encodeX = props.xAxisKey;
-        encodeY = s.getView().columnName;
-      } else {
-        encodeX = s.getView().columnName;
-        encodeY = props.xAxisKey;
-      }
-      return {
-        name: s.getView().seriesName,
-        selectedMode: "single",
-        select: {
-          itemStyle: {
-            borderColor: "#000",
-          },
-        },
-        encode: {
-          x: encodeX,
-          y: encodeY,
-        },
-        // each type of chart's config
-        ...props.chartConfig,
-        itemStyle: itemStyle,
+    let config = {
+      ...props.chartConfig,
+      name: s.seriesName,
+      encode: {
+        itemName: props.xAxisKey,
+        value: s.columnName,
+      },
+      itemStyle: {
+        borderRadius: s.borderRadius,
+        color: s.itemColor,
+        shadowColor: s.itemShadowColor,
+        shadowBlur: s.itemShadowBlur,
+      },
+    }
+    let fromArr = [0,0];
+    let toArr = [0,0];
+    try {
+      fromArr = JSON.parse(s.markLineFrom);
+    } catch {}
+    try {
+      toArr = JSON.parse(s.markLineTo);
+    } catch {}
+    if(s.showMarkLine) {
+      config.markLine = {
+        animation: false,
         label: {
-          ...props.chartConfig.label,
-          ...(!horizontalX && { position: "outside" }),
+          formatter: s.markLineDesc,
+          align: 'right'
         },
-      };
-    } else {
-      // pie
-      const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
-      return {
-        ...props.chartConfig,
-        radius: radiusAndCenter.radius,
-        center: radiusAndCenter.center,
-        name: s.getView().seriesName,
-        selectedMode: "single",
-        encode: {
-          itemName: props.xAxisKey,
-          value: s.getView().columnName,
+        lineStyle: {
+          type: 'solid'
         },
+        tooltip: {
+          formatter: s.markLineDesc
+        },
+        data: [
+          [
+            {
+              coord: fromArr,
+              symbol: 'none'
+            },
+            {
+              coord: toArr,
+              symbol: 'none'
+            }
+          ]
+        ]
       };
     }
+    if(props.chartConfig.singleAxis) {
+      config.coordinateSystem = 'singleAxis';
+      config.singleAxisIndex = index;
+      config.data = [];
+    }
+    if(props.chartConfig.polar) {
+      config.coordinateSystem = 'polar';
+    }
+    if(props.chartConfig.heatmap) {
+      config.coordinateSystem = 'calendar';
+      config.type = 'heatmap';
+    }
+    if(s.effect) config.type = "effectScatter";
+    if(s.symbolSize) config.symbolSize = s.symbolSize;
+    if(s.dynamicSize) config.symbolSize = function(dataItem) {
+        return dataItem[s.dynamicIndex] / s.divider;
+      }
+    return config;
   });
 }
 
@@ -135,41 +141,13 @@ export function getEchartsConfig(
   chartSize?: ChartSize,
   theme?: any,
 ): EChartsOptionWithMap {
-  if (props.mode === "json") {
-    return props.echartsOption ? props.echartsOption : {};
-  }
-  if(props.mode === "map") {
-    const {
-      mapZoomLevel,
-      mapCenterLat,
-      mapCenterLng,
-      mapOptions,
-      showCharts,
-    } = props;
-    let newMapOptions: any = {...mapOptions};
-    newMapOptions.series = [{...newMapOptions.series[0]}];
-    if(props.echartsData && props.echartsData.length > 0) newMapOptions.series[0].data = props.echartsData;
-
-    const echartsOption = newMapOptions && showCharts ? newMapOptions : {};
-    return {
-      gmap: {
-        center: [mapCenterLng, mapCenterLat],
-        zoom: mapZoomLevel,
-        renderOnMoving: true,
-        echartsLayerZIndex: showCharts ? 2019 : 0,
-        roam: true
-      },
-      ...echartsOption,
-    }
-  }
-  // axisChart
-  const axisChart = isAxisChart(props.chartConfig.type);
   const gridPos = {
     left: `${props?.left}%`,
     right: `${props?.right}%`,
     bottom: `${props?.bottom}%`,
     top: `${props?.top}%`,
   };
+
   let config: any = {
     title: {
       text: props.title,
@@ -201,12 +179,26 @@ export function getEchartsConfig(
       ...gridPos,
       containLabel: true,
     },
+    xAxis: {
+      type: "category",
+      boundaryGap: props.chartConfig.boundaryGap,
+      splitLine: {
+        show: !props.chartConfig.boundaryGap,
+      },
+      axisLine: {
+        show: props.chartConfig.boundaryGap,
+      }
+    },
+    yAxis: {
+      type: "category",
+    },
   };
+
   if (props.data.length <= 0) {
     // no data
     return {
       ...config,
-      ...(axisChart ? noDataAxisConfig : noDataPieChartConfig),
+      ...noDataScatterChartConfig,
     };
   }
   const yAxisConfig = props.yConfig();
@@ -214,69 +206,88 @@ export function getEchartsConfig(
     .filter((s) => !s.getView().hide)
     .map((s) => s.getView().columnName);
   // y-axis is category and time, data doesn't need to aggregate
-  const transformedData =
-    yAxisConfig.type === "category" || yAxisConfig.type === "time" ? props.echartsData.length && props.echartsData || props.data : transformData(props.echartsData.length && props.echartsData || props.data, props.xAxisKey, seriesColumnNames);
+  let transformedData = props.data;
+  const seriesConfig = getSeriesConfig(props);
+  const singleAxis = seriesConfig.map((series, idx) => ({
+    left: 100,
+    type: 'category',
+    boundaryGap: false,
+    top: (idx * 100) / seriesConfig.length + (100/seriesConfig.length/2) + '%',
+    height: - 100 / seriesConfig.length / 4 + '%',
+  }));
+  
   config = {
     ...config,
-    dataset: [
-      {
-        source: transformedData,
-        sourceHeader: false,
-      },
-    ],
-    series: getSeriesConfig(props).map(series => ({
+    series: seriesConfig.map(series => ({
       ...series,
       itemStyle: {
         ...series.itemStyle,
-        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+        // ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
-      }
+      },
+      data: transformedData.map(d => [d[props.xAxisKey], d[series.encode.value], ...Object.values(d)]),
     })),
   };
-  if (axisChart) {
-    // pure chart's size except the margin around
-    let chartRealSize;
-    if (chartSize) {
-      const rightSize =
-        typeof gridPos.right === "number"
-          ? gridPos.right
-          : (chartSize.w * parseFloat(gridPos.right)) / 100.0;
-      chartRealSize = {
-        // actually it's self-adaptive with the x-axis label on the left, not that accurate but work
-        w: chartSize.w - gridPos.left - rightSize,
-        // also self-adaptive on the bottom
-        h: chartSize.h - gridPos.top - gridPos.bottom,
-        right: rightSize,
-      };
-    }
-    const finalXyConfig = calcXYConfig(
-      props.xConfig,
-      yAxisConfig,
-      props.xAxisDirection,
-      transformedData.map((d) => d[props.xAxisKey]),
-      chartRealSize
-    );
-    config = {
-      ...config,
-      // @ts-ignore
-      xAxis: {
-        ...finalXyConfig.xConfig,
-        axisLabel: {
-          ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
-        }
-      },
-      // @ts-ignore
-      yAxis: {
-        ...finalXyConfig.yConfig,
-        axisLabel: {
-          ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
-        }
-      },
-    };
+
+  if(props.chartConfig.singleAxis) {
+    config.singleAxis = singleAxis;
+    delete config.xAxis;
+    delete config.yAxis;
+    
+    config.title = seriesConfig.map((series, idx) => ({
+      textBaseline: 'middle',
+      top: ((idx + 0.5) * 100) / seriesConfig.length + '%',
+      text: series.name,
+    }));
   }
-  // console.log("Echarts transformedData and config", transformedData, config);
+
+  if(props.chartConfig.visualMapData.visualMap) {
+    config.visualMap = {
+      min: props.chartConfig.visualMapData.visualMapMin,
+      max: props.chartConfig.visualMapData.visualMapMax,
+      dimension: props.chartConfig.visualMapData.visualMapDimension,
+      orient: 'vertical',
+      right: 10,
+      top: 'center',
+      text: ['HIGH', 'LOW'],
+      calculable: true,
+      inRange: {
+        color: [props.chartConfig.visualMapData.visualMapColorMin, props.chartConfig.visualMapData.visualMapColorMax]
+      }
+    }
+  }
+  if(props.chartConfig.polar) {
+    config.angleAxis = config.xAxis;
+    config.radiusAxis = config.yAxis;
+    config.polar = {};
+    delete config.xAxis;
+    delete config.yAxis;
+  }
+
+  if(props.chartConfig.heatmap) {
+    config.calendar = {
+      orient: 'vertical',
+      yearLabel: {
+        margin: 40
+      },
+      monthLabel: {
+        nameMap: 'cn',
+        margin: 20
+      },
+      dayLabel: {
+        firstDay: 1,
+        nameMap: 'cn'
+      },
+      cellSize: 40,
+      range: props.chartConfig.heatmapMonth,
+    }
+    delete config.xAxis;
+    delete config.yAxis;
+  }
+
+  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

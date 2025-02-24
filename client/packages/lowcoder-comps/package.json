@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -52,6 +52,38 @@
       },
       "basicChart": {
         "name": "Basic Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "barChart": {
+        "name": "Bar Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "lineChart": {
+        "name": "Line Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "pieChart": {
+        "name": "Pie Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "scatterChart": {
+        "name": "Scatter Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 12,
