@@ -379,6 +379,7 @@ export const en = {
     labelLineLength2: "Label Line Length2",
   },
   scatterChart: {
+    polar: "Polar Chart",
     visualMap: "Visual Map",
     visualMapMin: "Visual Map Min",
     visualMapMax: "Visual Map Max",

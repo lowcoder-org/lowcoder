@@ -51,6 +51,7 @@ export const ScatterChartConfig = (function () {
       visualMapDimension: NumberControl,
       visualMapColorMin: ColorControl,
       visualMapColorMax: ColorControl,
+      polar: BoolControl,
     },
     (props): ScatterSeriesOption => {
       return {
@@ -85,7 +86,8 @@ export const ScatterChartConfig = (function () {
           visualMapDimension: props.visualMapDimension,
           visualMapColorMin: props.visualMapColorMin,
           visualMapColorMax: props.visualMapColorMax,
-        }
+        },
+        polar: props.polar,
       };
     }
   )
@@ -121,6 +123,9 @@ export const ScatterChartConfig = (function () {
         })}
         {children.visualMap.getView() && children.visualMapColorMax.propertyView({
           label: trans("scatterChart.visualMapColorMax"),
+        })}
+        {children.polar.propertyView({
+          label: trans("scatterChart.polar"),
         })}
       </>
     ))

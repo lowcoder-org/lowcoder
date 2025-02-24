@@ -119,6 +119,9 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       config.singleAxisIndex = index;
       config.data = [];
     }
+    if(props.chartConfig.polar) {
+      config.coordinateSystem = 'polar';
+    }
     if(s.effect) config.type = "effectScatter";
     if(s.symbolSize) config.symbolSize = s.symbolSize;
     if(s.dynamicSize) config.symbolSize = function(dataItem) {
@@ -250,6 +253,13 @@ export function getEchartsConfig(
         color: [props.chartConfig.visualMapData.visualMapColorMin, props.chartConfig.visualMapData.visualMapColorMax]
       }
     }
+  }
+  if(props.chartConfig.polar) {
+    config.angleAxis = config.xAxis;
+    config.radiusAxis = config.yAxis;
+    config.polar = {};
+    delete config.xAxis;
+    delete config.yAxis;
   }
 
   console.log("Echarts transformedData and config", transformedData, config);
