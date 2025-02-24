@@ -39,7 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
-import { IconScoutAssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -173,7 +173,7 @@ const typeOptions = [
 
 const ModeOptions = [
   { label: "Standard", value: "standard" },
-  { label: "Advanced", value: "advanced" },
+  { label: "Asset Library", value: "asset-library" },
 ] as const;
 
 function isDefault(type?: string) {
@@ -198,7 +198,7 @@ const childrenMap = {
   form: SelectFormControl,
   sourceMode: dropdownControl(ModeOptions, "standard"),
   prefixIcon: IconControl,
-  prefixIconScout: IconscoutControl(IconScoutAssetType.ICON),
+  iconScoutAsset: IconscoutControl(AssetType.ICON),
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
   restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
@@ -241,7 +241,7 @@ let ButtonTmpComp = (function () {
 
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
-    console.log(props.prefixIconScout);
+
     return (
       <EditorContext.Consumer>
         {(editorState) => (
@@ -292,11 +292,11 @@ let ButtonTmpComp = (function () {
                         {props.prefixIcon}
                       </IconWrapper>
                     )}
-                    {props.sourceMode === 'advanced' && props.prefixIconScout && (
+                    {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
                       <IconScoutWrapper
                         $style={{ ...props.style, size: props.iconSize }}
                       >
-                        <img src={props.prefixIconScout.value} />
+                        <img src={props.iconScoutAsset.value} />
                       </IconScoutWrapper>
                     )}
                   </Button100>
@@ -319,7 +319,7 @@ let ButtonTmpComp = (function () {
           {children.sourceMode.getView() === 'standard' && children.prefixIcon.propertyView({
             label: trans("button.icon"),
           })}
-          {children.sourceMode.getView() === 'advanced' &&children.prefixIconScout.propertyView({
+          {children.sourceMode.getView() === 'asset-library' &&children.iconScoutAsset.propertyView({
             label: trans("button.icon"),
           })}
         </Section>
