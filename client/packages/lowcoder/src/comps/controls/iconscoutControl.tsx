@@ -223,6 +223,7 @@ export const IconPicker = (props: {
 }) => {
   const [ visible, setVisible ] = useState(false)
   const [ loading, setLoading ] = useState(false)
+  const [ downloading, setDownloading ] = useState(false)
   const [ searchText, setSearchText ] = useState<string>('')
   const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
 
@@ -268,20 +269,24 @@ export const IconPicker = (props: {
       }
     } catch(error) {
       console.error(error);
+      setDownloading(false);
     }
   }
 
   const fetchDownloadUrl = async (uuid: string, preview: string) => {
     try {
+      setDownloading(true);
       const result = await IconscoutApi.download(uuid, {
         format: props.assetType === AssetType.LOTTIE ? 'lottie' : 'svg',
       });
 
       downloadAsset(uuid, result.download_url, (assetUrl: string) => {
+        setDownloading(false);
         onChangeIcon(uuid, assetUrl, preview);
       });
     } catch (error) {
       console.error(error);
+      setDownloading(false);
     }
   }
 
@@ -383,24 +388,26 @@ export const IconPicker = (props: {
                 <Spin indicator={<LoadingOutlined style={{ fontSize: 25 }} spin />} />
               </Flex>
             )}
-            {!loading && Boolean(searchText) && !searchResults?.length && (
-              <Flex align="center" justify="center" style={{flex: 1}}>
-                <Typography.Text type="secondary">
-                  {trans("iconScout.noResults")}
-                </Typography.Text>
-              </Flex>
-            )}
-            {!loading && Boolean(searchText) && searchResults?.length && (
-              <IconListWrapper>
-                <IconList
-                  width={550}
-                  height={400}
-                  rowHeight={80}
-                  rowCount={Math.ceil(searchResults.length / columnNum)}
-                  rowRenderer={rowRenderer}
-                />
-              </IconListWrapper>
-            )}
+            <Spin spinning={downloading} indicator={<LoadingOutlined style={{ fontSize: 25 }} />} >
+              {!loading && Boolean(searchText) && !searchResults?.length && (
+                <Flex align="center" justify="center" style={{flex: 1}}>
+                  <Typography.Text type="secondary">
+                    {trans("iconScout.noResults")}
+                  </Typography.Text>
+                </Flex>
+              )}
+              {!loading && Boolean(searchText) && searchResults?.length && (
+                <IconListWrapper>
+                  <IconList
+                    width={550}
+                    height={400}
+                    rowHeight={80}
+                    rowCount={Math.ceil(searchResults.length / columnNum)}
+                    rowRenderer={rowRenderer}
+                    />
+                </IconListWrapper>
+              )}
+            </Spin>
           </PopupContainer>
         </Draggable>
       }
