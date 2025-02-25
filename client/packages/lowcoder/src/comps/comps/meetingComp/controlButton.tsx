@@ -342,12 +342,12 @@ let ButtonTmpComp = (function () {
               {children.iconSize.propertyView({
                 label: trans("button.iconSize"),
               })}
-            </Section>
-            <Section name={sectionNames.style}>
-              {children.style.getPropertyView()}
               {children.aspectRatio.propertyView({
                 label: trans("style.aspectRatio"),
               })}
+            </Section>
+            <Section name={sectionNames.style}>
+              {children.style.getPropertyView()}
             </Section>
           </>
         )}

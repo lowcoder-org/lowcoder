@@ -9,7 +9,8 @@ export interface SearchParams {
   per_page: number;
   page: 1;
   sort: string;
-  formats: string;
+  formats?: string;
+  price?: string;
 }
 
 export type ResponseType = {
@@ -57,7 +58,6 @@ class IconscoutApi extends Api {
         withCredentials: false,
         params: {
           ...params,
-          'formats[]': params.formats,
         },
       });
     } catch (error) {

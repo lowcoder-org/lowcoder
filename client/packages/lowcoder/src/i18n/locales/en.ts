@@ -4088,6 +4088,15 @@ export const en = {
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 
+  iconScout: {
+    "searchImage": "Search Image",
+    "searchAnimation": "Search Animation",
+    "searchIcon": "Search Icon",
+    "noResults": "No results found.",
+    "buySubscriptionTitle": "Unlock Premium Assets",
+    "buySubscriptionContent": "This asset is exclusive to Media Package Subscribers. Subscribe to Media Package and download high-quality assets without limits!",
+    "buySubscriptionButton": "Subscribe Now",
+  }
 };
 
 // const jsonString = JSON.stringify(en, null, 2);
