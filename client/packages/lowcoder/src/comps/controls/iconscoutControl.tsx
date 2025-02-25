@@ -22,6 +22,9 @@ import { debounce } from "lodash";
 import Spin from "antd/es/spin";
 import { ControlParams } from "./controlParams";
 import { getBase64 } from "@lowcoder-ee/util/fileUtils";
+import Flex from "antd/es/flex";
+import Typography from "antd/es/typography";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -32,15 +35,7 @@ const ButtonIconWrapper = styled.div`
   display: flex;
   width: 18px;
 `;
-const ButtonText = styled.div`
-  margin: 0 4px;
-  flex: 1;
-  width: 0px;
-  line-height: 20px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: left;
-`;
+
 const StyledDeleteInputIcon = styled(DeleteInputIcon)`
   margin-left: auto;
   cursor: pointer;
@@ -61,7 +56,10 @@ const Wrapper = styled.div`
   }
 `;
 const PopupContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   width: 580px;
+  min-height: 480px;
   background: #ffffff;
   box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
   border-radius: 8px;
@@ -167,15 +165,6 @@ const IconWrapper = styled.div`
   justify-content: center;
 `;
 
-const IconKeyDisplay = styled.div`
-  font-size: 8px;
-  color: #8b8fa3;
-  margin-top: 4px; /* Space between the icon and the text */
-  text-align: center;
-  word-wrap: break-word; /* Ensure text wraps */
-  width: 100%; /* Ensure the container can grow */
-`;
-
 export enum AssetType {
   ICON = "icon",
   ILLUSTRATION = "illustration",
@@ -212,6 +201,7 @@ export const IconPicker = (props: {
 }) => {
   const [ visible, setVisible ] = useState(false)
   const [ loading, setLoading ] = useState(false)
+  const [ searchText, setSearchText ] = useState<string>('')
   const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
 
   const onChangeRef = useRef(props.onChange);
@@ -252,14 +242,14 @@ export const IconPicker = (props: {
     }
   }
 
-  const fetchDownloadUrl = async (uuid: string) => {
+  const fetchDownloadUrl = async (uuid: string, preview: string) => {
     try {
       const result = await IconscoutApi.download(uuid, {
         format: props.assetType === AssetType.LOTTIE ? 'lottie' : 'svg',
       });
 
       downloadAsset(uuid, result.download_url, (assetUrl: string) => {
-        onChangeIcon(uuid, assetUrl, result.url);
+        onChangeIcon(uuid, assetUrl, preview);
       });
     } catch (error) {
       console.error(error);
@@ -268,6 +258,7 @@ export const IconPicker = (props: {
 
   const handleChange = debounce((e) => {
     fetchResults(e.target.value);
+    setSearchText(e.target.value);
   }, 500);
 
   const rowRenderer = useCallback(
@@ -280,7 +271,10 @@ export const IconPicker = (props: {
               key={icon.uuid}
               tabIndex={0}
               onClick={() => {
-                fetchDownloadUrl(icon.uuid);
+                fetchDownloadUrl(
+                  icon.uuid,
+                  props.assetType === AssetType.ICON ? icon.urls.png_64 : icon.urls.thumb,
+                );
               }}
             >
               <IconWrapper>
@@ -310,12 +304,8 @@ export const IconPicker = (props: {
     <Popover
       trigger={'click'}
       placement="left"
-      // align={{ offset: [props.leftOffset ?? 0, 0, 0, 0] }}
       open={visible}
       onOpenChange={setVisible}
-      // getPopupContainer={parent ? () => parent : undefined}
-      // hide the original background when dragging the popover is allowed
-      // when dragging is allowed, always re-location to avoid the popover exceeds the screen
       styles={{
         body: {
           border: "none",
@@ -339,11 +329,20 @@ export const IconPicker = (props: {
               />
               <StyledSearchIcon />
             </SearchDiv>
-            <IconListWrapper>
-              {loading && (
-                <Spin />
-              )}
-              {!loading && (
+            {loading && (
+              <Flex align="center" justify="center" style={{flex: 1}}>
+                <Spin indicator={<LoadingOutlined style={{ fontSize: 25 }} spin />} />
+              </Flex>
+            )}
+            {!loading && Boolean(searchText) && !searchResults?.length && (
+              <Flex align="center" justify="center" style={{flex: 1}}>
+                <Typography.Text type="secondary">
+                  No results found.
+                </Typography.Text>
+              </Flex>
+            )}
+            {!loading && Boolean(searchText) && searchResults?.length && (
+              <IconListWrapper>
                 <IconList
                   width={550}
                   height={400}
@@ -351,8 +350,8 @@ export const IconPicker = (props: {
                   rowCount={Math.ceil(searchResults.length / columnNum)}
                   rowRenderer={rowRenderer}
                 />
-              )}
-            </IconListWrapper>
+              </IconListWrapper>
+            )}
           </PopupContainer>
         </Draggable>
       }
@@ -365,7 +364,7 @@ export const IconPicker = (props: {
                 <video style={{'width': '100%'}} src={props.preview} autoPlay />
               )}
               {props.assetType !== AssetType.LOTTIE && (
-                <IconControlView value={props.preview} uuid={props.uuid}/>
+                <IconControlView value={props.value} uuid={props.uuid}/>
               )}
             </ButtonIconWrapper>
             <StyledDeleteInputIcon
