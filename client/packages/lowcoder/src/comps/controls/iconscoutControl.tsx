@@ -5,6 +5,7 @@ import {
 import {
   BlockGrayLabel,
   ControlPropertyViewWrapper,
+  CustomModal,
   DeleteInputIcon,
   TacoButton,
   TacoInput,
@@ -25,6 +26,9 @@ import { getBase64 } from "@lowcoder-ee/util/fileUtils";
 import Flex from "antd/es/flex";
 import Typography from "antd/es/typography";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
+import Badge from "antd/es/badge";
+import { CrownFilled } from "@ant-design/icons";
+import { SUBSCRIPTION_SETTING } from "@lowcoder-ee/constants/routesURL";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -125,7 +129,7 @@ const IconList = styled(List)`
 `;
 
 const IconRow = styled.div`
-  padding: 0 6px;
+  padding: 6px;
   display: flex;
   align-items: flex-start; /* Align items to the start to allow different heights */
   justify-content: space-between;
@@ -134,36 +138,55 @@ const IconRow = styled.div`
     gap: 8px;
     justify-content: flex-start;
   }
+
+  .ant-badge {
+    height: 100%;
+  }
 `;
 
 const IconItemContainer = styled.div`
   width: 60px;
+  height: 60px;
   display: flex;
   flex-direction: column;
   align-items: center; 
   justify-content: flex-start; 
   cursor: pointer;
   font-size: 28px;
-  margin-bottom: 24px; 
+  border-radius: 4px;
+  background: #fafafa;
 
   &:hover {
-    border: 1px solid #315efb;
-    border-radius: 4px;
+    box-shadow: 0 8px 24px #1a29470a,0 2px 8px #1a294714;
   }
 
   &:focus {
     border: 1px solid #315efb;
-    border-radius: 4px;
     box-shadow: 0 0 0 2px #d6e4ff;
   }
 `;
 
-const IconWrapper = styled.div`
-  height: auto;
+const IconWrapper = styled.div<{$isPremium?: boolean}>`
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
+  ${props => props.$isPremium && 'opacity: 0.25' };
 `;
+
+const StyledPreviewIcon = styled.img`
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+`;
+
+const StyledPreviewLotte = styled.video`
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+`
 
 export enum AssetType {
   ICON = "icon",
@@ -182,9 +205,8 @@ const IconScoutSearchParams: SearchParams = {
   query: '',
   product_type: 'item',
   asset: 'icon',
-  per_page: 50,
+  per_page: 25,
   page: 1,
-  formats: 'svg',
   sort: 'relevant',
 };
 
@@ -216,13 +238,20 @@ export const IconPicker = (props: {
 
   const fetchResults = async (query: string) => {
     setLoading(true);
-    const result = await IconscoutApi.search({
+    const freeResult = await IconscoutApi.search({
       ...IconScoutSearchParams,
       asset: props.assetType,
+      price: 'free',
+      query,
+    });
+    const premiumResult = await IconscoutApi.search({
+      ...IconScoutSearchParams,
+      asset: props.assetType,
+      price: 'premium',
       query,
     });
     setLoading(false);
-    setSearchResults(result.data);
+    setSearchResults([...freeResult.data, ...premiumResult.data]);
   };
 
   const downloadAsset = async (
@@ -271,23 +300,43 @@ export const IconPicker = (props: {
               key={icon.uuid}
               tabIndex={0}
               onClick={() => {
+                // check if premium content then show subscription popup
+                // TODO: if user has subscription then skip this if block
+                if (icon.price !== 0) {
+                  CustomModal.confirm({
+                    title: trans("iconScout.buySubscriptionTitle"),
+                    content: trans("iconScout.buySubscriptionContent"),
+                    onConfirm: () =>{
+                      window.open(SUBSCRIPTION_SETTING, "_blank");
+                    },
+                    confirmBtnType: "primary",
+                    okText: trans("iconScout.buySubscriptionButton"),
+                  })
+                  return;
+                }
+
                 fetchDownloadUrl(
                   icon.uuid,
                   props.assetType === AssetType.ICON ? icon.urls.png_64 : icon.urls.thumb,
                 );
               }}
             >
-              <IconWrapper>
-                {props.assetType === AssetType.ICON && (
-                  <img style={{'width': '100%'}} src={icon.urls.png_64} />
-                )}
-                {props.assetType === AssetType.ILLUSTRATION && (
-                  <img style={{'width': '100%'}} src={icon.urls.thumb} />
-                )}
-                {props.assetType === AssetType.LOTTIE && (
-                  <video style={{'width': '100%'}} src={icon.urls.thumb} autoPlay />
-                )}
-              </IconWrapper>
+              <Badge
+                count={icon.price !== 0 ? <CrownFilled style={{color: "#e7b549"}} /> : undefined}
+                size='small'
+              >
+                <IconWrapper $isPremium={icon.price !== 0}>
+                  {props.assetType === AssetType.ICON && (
+                    <StyledPreviewIcon src={icon.urls.png_64} />
+                  )}
+                  {props.assetType === AssetType.ILLUSTRATION && (
+                    <StyledPreviewIcon src={icon.urls.thumb} />
+                  )}
+                  {props.assetType === AssetType.LOTTIE && (
+                    <StyledPreviewLotte src={icon.urls.thumb} autoPlay />
+                  )}
+                </IconWrapper>
+              </Badge>
             </IconItemContainer>
           ))}
       </IconRow>
@@ -295,9 +344,9 @@ export const IconPicker = (props: {
   );
 
   const popupTitle = useMemo(() => {
-    if (props.assetType === AssetType.ILLUSTRATION) return 'Search Image';
-    if (props.assetType === AssetType.LOTTIE) return 'Search Animation';
-    return 'Search Icon';
+    if (props.assetType === AssetType.ILLUSTRATION) return trans("iconScout.searchImage");
+    if (props.assetType === AssetType.LOTTIE) return trans("iconScout.searchAnimation");
+    return trans("iconScout.searchIcon");
   }, [props.assetType]);
 
   return (
@@ -337,7 +386,7 @@ export const IconPicker = (props: {
             {!loading && Boolean(searchText) && !searchResults?.length && (
               <Flex align="center" justify="center" style={{flex: 1}}>
                 <Typography.Text type="secondary">
-                  No results found.
+                  {trans("iconScout.noResults")}
                 </Typography.Text>
               </Flex>
             )}
