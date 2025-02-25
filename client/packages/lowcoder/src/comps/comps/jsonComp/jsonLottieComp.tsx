@@ -2,6 +2,7 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import {
   ArrayOrJSONObjectControl,
   NumberControl,
+  StringControl,
 } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import { BoolControl } from "comps/controls/boolControl";
@@ -20,6 +21,7 @@ import { defaultLottie } from "./jsonConstants";
 import { EditorContext } from "comps/editorState";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { DotLottie } from "@lottiefiles/dotlottie-react";
+import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 
 // const Player = lazy(
 //   () => import('@lottiefiles/react-lottie-player')
@@ -112,6 +114,8 @@ let JsonLottieTmpComp = (function () {
     animationStart: dropdownControl(animationStartOptions, "auto"),
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
+    autoHeight: withDefault(AutoHeightControl, "fixed"),
+    aspectRatio: withDefault(StringControl, "16 / 9"),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
@@ -151,6 +155,7 @@ let JsonLottieTmpComp = (function () {
             background: `${props.container.background}`,
             padding: `${props.container.padding}`,
             rotate: props.container.rotation,
+            aspectRatio: props.aspectRatio,
           }}
         >
           <DotLottiePlayer
@@ -171,6 +176,9 @@ let JsonLottieTmpComp = (function () {
             }}
             onMouseEnter={() => props.animationStart === "hover" && dotLottie?.play()}
             onMouseLeave={() => props.animationStart === "hover" && dotLottie?.pause()}
+            renderConfig={{
+              autoResize: props.autoHeight,
+            }}
           />
         </div>
       </div>
@@ -204,6 +212,15 @@ let JsonLottieTmpComp = (function () {
             </>
           )}
 
+          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+            <Section name={sectionNames.layout}>
+              {children.autoHeight.getPropertyView()}
+              {children.aspectRatio.propertyView({
+                label: trans("style.aspectRatio"),
+              })}
+            </Section>
+          )}
+
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
               <Section name={sectionNames.style}>
@@ -221,7 +238,7 @@ let JsonLottieTmpComp = (function () {
 })();
 JsonLottieTmpComp = class extends JsonLottieTmpComp {
   override autoHeight(): boolean {
-    return false;
+    return this.children.autoHeight.getView();
   }
 };
 export const JsonLottieComp = withExposingConfigs(JsonLottieTmpComp, [
