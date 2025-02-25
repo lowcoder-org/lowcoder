@@ -208,6 +208,11 @@ export const CompStateIcon: {
   themeriverChart : <ThemeriverChartCompIconSmall />,
   basicChart : <ChartCompIconSmall />,
 
+  barChart : <ChartCompIconSmall />,
+  lineChart : <ChartCompIconSmall />,
+  pieChart : <ChartCompIconSmall />,
+  scatterChart : <ChartCompIconSmall />,
+
   avatar: <AvatarCompIconSmall />,
   avatarGroup: <AvatarGroupCompIconSmall />,
   colorPicker: <ColorPickerCompIconSmall />,
