@@ -1,7 +1,6 @@
 package org.lowcoder.api.bundle;
 
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.bundle.view.BundlePermissionView;
 import org.lowcoder.api.bundle.view.MarketplaceBundleInfoView;
@@ -20,12 +19,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
+import static org.lowcoder.plugin.api.event.LowcoderEvent.EventType.*;
 import static org.lowcoder.sdk.exception.BizError.INVALID_PARAMETER;
 import static org.lowcoder.sdk.util.ExceptionUtils.ofError;
 
@@ -43,8 +42,7 @@ public class BundleController implements BundleEndpoints
     @Override
     public Mono<ResponseView<BundleInfoView>> create(@RequestBody CreateBundleRequest bundle) {
         return bundleApiService.create(bundle)
-                //TODO [thomasr]: add new method to BusinessEventPublisher(jar file)
-//                .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(f.getBundleId(), f.getName(), EventType.BUNDLE_CREATE))
+                .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(f, BUNDLE_CREATE))
                 .map(ResponseView::success);
     }
 
@@ -52,7 +50,23 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.delete(objectId)
-//                .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(f.getId(), f.getName(), EventType.BUNDLE_DELETE))
+                .delayUntil(f -> businessEventPublisher.publishBundleCommonEvent(
+                        BundleInfoView.builder()
+                                .bundleGid(f.getGid())
+                                .editingBundleDSL(f.getEditingBundleDSL())
+                                .image(f.getImage())
+                                .title(f.getTitle())
+                                .description(f.getDescription())
+                                .name(f.getName())
+                                .publicToMarketplace(f.isPublicToMarketplace())
+                                .publicToAll(f.isPublicToAll())
+                                .agencyProfile(f.agencyProfile())
+                                .createTime(f.getCreatedAt())
+                                .createBy(f.getCreatedBy())
+                                .createAt(f.getCreatedAt().toEpochMilli())
+                                .publishedBundleDSL(f.getPublishedBundleDSL())
+                                .category(f.getCategory())
+                                .build(), BUNDLE_DELETE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
@@ -63,11 +77,10 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<BundleInfoView>> update(@RequestBody Bundle bundle) {
         return bundleService.findById(bundle.getId())
                 .zipWhen(__ -> bundleApiService.update(bundle))
-//                .delayUntil(tuple2 -> {
-//                    Bundle old = tuple2.getT1();
-//                    return businessEventPublisher.publishBundleCommonEvent(bundle.getId(), old.getName() + " => " + bundle.getName(),
-//                            EventType.BUNDLE_UPDATE);
-//                })
+                .delayUntil(tuple2 -> {
+                    Bundle old = tuple2.getT1();
+                    return businessEventPublisher.publishBundleCommonEvent(tuple2.getT2(), BUNDLE_UPDATE);
+                })
                 .map(tuple2 -> ResponseView.success(tuple2.getT2()));
     }
 
@@ -81,7 +94,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.recycle(objectId)
-//                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RECYCLED))
+                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, null, BUNDLE_RECYCLED))
                 .map(ResponseView::success));
     }
 
@@ -89,7 +102,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<Boolean>> restore(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.restore(objectId)
-//                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, BUNDLE_RESTORE))
+                .delayUntil(__ -> businessEventPublisher.publishBundleCommonEvent(bundleId, null, null, BUNDLE_RESTORE))
                 .map(ResponseView::success));
     }
 
@@ -120,8 +133,7 @@ public class BundleController implements BundleEndpoints
             gidService.convertBundleIdToObjectId(toBundleId).flatMap(objectIdTo ->
                 gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
                     bundleApiService.moveApp(appId, objectIdFrom, objectIdTo)
-                        //TODO: Event Type not defined yet
-        //                .then(businessEventPublisher.publishBundleCommonEvent(applicationLikeId, targetBundleId, BUNDLE_MOVE))
+                        .then(businessEventPublisher.publishBundleCommonEvent(applicationId, fromBundleId, toBundleId, APPLICATION_MOVE))
                         .then(Mono.fromSupplier(() -> ResponseView.success(null))))));
     }
 
@@ -188,7 +200,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<BundleInfoView>> getPublishedBundle(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.getPublishedBundle(objectId, BundleRequestType.PUBLIC_TO_ALL)
-//                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
+                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success));
     }
 
@@ -196,7 +208,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<BundleInfoView>> getPublishedMarketPlaceBundle(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.getPublishedBundle(objectId, BundleRequestType.PUBLIC_TO_MARKETPLACE)
-//                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
+                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success));
     }
 
@@ -204,7 +216,7 @@ public class BundleController implements BundleEndpoints
     public Mono<ResponseView<BundleInfoView>> getAgencyProfileBundle(@PathVariable String bundleId) {
         return gidService.convertBundleIdToObjectId(bundleId).flatMap(objectId ->
             bundleApiService.getPublishedBundle(objectId, BundleRequestType.AGENCY_PROFILE)
-//                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
+                .delayUntil(bundleView -> businessEventPublisher.publishBundleCommonEvent(bundleView, BUNDLE_VIEW))
                 .map(ResponseView::success));
     }
 
