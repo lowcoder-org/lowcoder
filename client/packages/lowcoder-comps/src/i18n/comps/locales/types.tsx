@@ -30,4 +30,5 @@ export type I18nObjects = {
   defaultPieBg: string;
   usaMap: Record<string, unknown>;
   defaultDatasourceBoxplot: unknown[];
+  defaultDatasourceParallel: unknown[];
 };

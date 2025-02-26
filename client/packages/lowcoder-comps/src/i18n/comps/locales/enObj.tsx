@@ -1995,5 +1995,11 @@ export const enObj: I18nObjects = {
     [19360, 76.5, 78665830, "Turkey", 2015],
     [38225, 81.4, 64715810, "United Kingdom", 2015],
     [53354, 79.1, 321773631, "United States", 2015]
+  ],
+  defaultDatasourceParallel: [
+    ['Price', 'Net Weight', 'Amount', 'Score'],
+    [12.99, 100, 82, 'Good'],
+    [9.99, 80, 77, 'OK'],
+    [20, 120, 60, 'Excellent']
   ]
 };

@@ -98,6 +98,14 @@
           "h": 40
         }
       },
+      "parallelChart": {
+        "name": "Scatter Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
       "imageEditor": {
         "name": "Image Editor",
         "icon": "./icons/icon-chart.svg",
