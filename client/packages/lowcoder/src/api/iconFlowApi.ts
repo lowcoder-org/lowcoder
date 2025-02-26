@@ -71,7 +71,7 @@ class IconFlowApi extends Api {
           const retrySource = axios.CancelToken.source();
           const retryTimeoutId = setTimeout(() => {
             retrySource.cancel("Retry request timed out.");
-          }, 10000);
+          }, 20000);
 
           response = await axiosInstance.request({
             ...requestConfig,
@@ -105,7 +105,7 @@ export const searchAssets = async (searchParameters : SearchParams) => {
   };
   try {
     const result = await IconFlowApi.secureRequest(apiBody);
-    return result?.response?.items?.total > 0 ? result.response.items as any : null;
+    return result?.data?.response?.items?.total > 0 ? result.data.response.items as any : null;
   } catch (error) {
     console.error("Error searching Design Assets:", error);
     throw error;
@@ -115,14 +115,14 @@ export const searchAssets = async (searchParameters : SearchParams) => {
 export const getAssetLinks = async (uuid: string, params: Record<string, string>) => {
   const apiBody = {
     path: "webhook/scout/get-asset-links",
-    data: params,
+    data: {"uuid" : uuid, "params" : params},
     method: "post",
     headers: lcHeaders
   };
   try {
     const result = await IconFlowApi.secureRequest(apiBody);
 
-    return result?.response?.items?.total > 0 ? result.response.items as any : null;
+    return result?.data?.response?.download?.url.length > 0 ? result.data.response.download as any : null;
   } catch (error) {
     console.error("Error searching Design Assets:", error);
     throw error;
