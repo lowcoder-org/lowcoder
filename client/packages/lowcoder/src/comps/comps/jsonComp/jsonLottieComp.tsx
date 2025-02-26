@@ -22,6 +22,7 @@ import { EditorContext } from "comps/editorState";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 import { DotLottie } from "@lottiefiles/dotlottie-react";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
+import { useResizeDetector } from "react-resize-detector";
 
 // const Player = lazy(
 //   () => import('@lottiefiles/react-lottie-player')
@@ -93,6 +94,27 @@ const speedOptions = [
   },
 ] as const;
 
+const alignOptions = [
+  { label: "None", value: "none" },
+  { label: "Fill", value: "fill" },
+  { label: "Cover", value: "cover" },
+  { label: "Contain", value: "contain" },
+  { label: "Fit Width", value: "fit-width" },
+  { label: "Fit Height", value: "fit-height" },
+] as const;
+
+const fitOptions = [
+  { label: "Top Left", value: "0,0" },
+  { label: "Top Center", value: "0.5,0" },
+  { label: "Top Right", value: "1,0" },
+  { label: "Center Left", value: "0,0.5" },
+  { label: "Center", value: "0.5,0.5" },
+  { label: "Center Right", value: "1,0.5" },
+  { label: "Bottom Left", value: "0,1" },
+  { label: "Bottom Center", value: "0.5,1" },
+  { label: "Bottom Right", value: "1,1" },
+] as const;
+
 const ModeOptions = [
   { label: "Lottie JSON", value: "standard" },
   { label: "Asset Library", value: "asset-library" }
@@ -114,30 +136,59 @@ let JsonLottieTmpComp = (function () {
     animationStart: dropdownControl(animationStartOptions, "auto"),
     loop: dropdownControl(loopOptions, "single"),
     keepLastFrame: BoolControl.DEFAULT_TRUE,
-    autoHeight: withDefault(AutoHeightControl, "fixed"),
-    aspectRatio: withDefault(StringControl, "16 / 9"),
+    autoHeight: withDefault(AutoHeightControl, "auto"),
+    aspectRatio: withDefault(StringControl, "1/1"),
+    fit: dropdownControl(alignOptions, "contain"),
+    align: dropdownControl(fitOptions, "0.5,0.5"),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
-    
+
+    const setLayoutAndResize = () => {
+      const align = props.align.split(',');
+      dotLottie?.setLayout({fit: props.fit, align: [Number(align[0]), Number(align[1])]})
+      dotLottie?.resize();
+    }
+
+    const { ref: wrapperRef } = useResizeDetector({
+      onResize: () => {
+        if (dotLottie) {
+          setLayoutAndResize();
+        }
+      }
+    });
+
     useEffect(() => {
       const onComplete = () => {
         props.keepLastFrame && dotLottie?.setFrame(100);
       }
 
+      const onLoad = () => {
+        setLayoutAndResize();
+      }
+
       if (dotLottie) {
         dotLottie.addEventListener('complete', onComplete);
+        dotLottie.addEventListener('load', onLoad);
       }
   
       return () => {
         if (dotLottie) {
           dotLottie.removeEventListener('complete', onComplete);
+          dotLottie.removeEventListener('load', onLoad);
         }
       };
     }, [dotLottie, props.keepLastFrame]);
 
+    useEffect(() => {
+      if (dotLottie) {
+        setLayoutAndResize();
+      }
+    }, [dotLottie, props.fit, props.align, props.autoHeight]);
+
     return (
       <div
+        ref={wrapperRef}
         style={{
           height: '100%',
           padding: `${props.container.margin}`,
@@ -155,7 +206,6 @@ let JsonLottieTmpComp = (function () {
             background: `${props.container.background}`,
             padding: `${props.container.padding}`,
             rotate: props.container.rotation,
-            aspectRatio: props.aspectRatio,
           }}
         >
           <DotLottiePlayer
@@ -173,12 +223,10 @@ let JsonLottieTmpComp = (function () {
               width: "100%",
               maxWidth: "100%",
               maxHeight: "100%",
+              aspectRatio: props.aspectRatio,
             }}
             onMouseEnter={() => props.animationStart === "hover" && dotLottie?.play()}
             onMouseLeave={() => props.animationStart === "hover" && dotLottie?.pause()}
-            renderConfig={{
-              autoResize: props.autoHeight,
-            }}
           />
         </div>
       </div>
@@ -218,6 +266,8 @@ let JsonLottieTmpComp = (function () {
               {children.aspectRatio.propertyView({
                 label: trans("style.aspectRatio"),
               })}
+              {children.align.propertyView({ label: trans("jsonLottie.align")})}
+              {children.fit.propertyView({ label: trans("jsonLottie.fit")})}
             </Section>
           )}
 
