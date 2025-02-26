@@ -253,6 +253,9 @@ export const IconPicker = (props: {
       query,
     });
     setLoading(false);
+
+    console.log("freeResult", freeResult, "premiumResult", premiumResult)
+
     setSearchResults([...freeResult.data, ...premiumResult.data]);
   };
 
