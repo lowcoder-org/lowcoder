@@ -11,6 +11,8 @@ export default function SignatureExample() {
         >
             <Example
             title="Showing Hints/Placeholder Text"
+            height={300}
+            width={400}
             config={{ 
                 tips: "This is a Signature Component. Please, Sign here",
             }}
@@ -18,6 +20,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Hiding the Signature Component"
+            height={300}
+            width={400}
             config={{ 
                 hidden: true,
             }}
@@ -25,6 +29,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Show/Hide the Undo Icon"
+            height={300}
+            width={400}
             config={{ 
                 showUndo: false,
             }}
@@ -32,6 +38,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Show/Hide the Clear Icon"
+            height={300}
+            width={400}
             config={{ 
                 showClear: false,
             }}
@@ -45,6 +53,8 @@ export default function SignatureExample() {
         >
           <Example
             title="Setting Label Text and ToolTip"
+            height={300}
+            width={400}
             config={{ 
                 label:{
                     text: "Sign Here",
@@ -55,6 +65,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Setting Width of the Label"
+            height={300}
+            width={400}
             config={{                
                 label:{
                     text: "Sign Here",
@@ -65,6 +77,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Label Position - TOP"
+            height={300}
+            width={400}
             config={{ 
                 label:{
                     text: "Sign Here",
@@ -75,6 +89,8 @@ export default function SignatureExample() {
           />
           <Example
             title="Label Alignment - RIGHT"
+            height={300}
+            width={400}
             config={{ 
                 label:{
                     text: "Sign Here",

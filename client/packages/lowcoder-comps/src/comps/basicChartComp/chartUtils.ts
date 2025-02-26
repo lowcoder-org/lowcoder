@@ -276,7 +276,7 @@ export function getEchartsConfig(
       },
     };
   }
-  // log.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

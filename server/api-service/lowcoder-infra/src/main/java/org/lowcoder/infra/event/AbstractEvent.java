@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 import org.lowcoder.plugin.api.event.LowcoderEvent;
+import org.lowcoder.sdk.constants.GlobalContext;
+import reactor.util.context.ContextView;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -19,6 +21,7 @@ public abstract class AbstractEvent implements LowcoderEvent
 	protected final Boolean isAnonymous;
 	private final String ipAddress;
     protected Map<String, Object> details;
+	protected Map<String, String> eventHeaders;
 	@Setter
 	private static String environmentID;
     
@@ -42,7 +45,10 @@ public abstract class AbstractEvent implements LowcoderEvent
     	}
     }
 
-	public void populateDetails() {
+	public void populateDetails(ContextView contextView) {
+		//populate eventHeaders field
+		eventHeaders = contextView.get(GlobalContext.HEADERS);
+
 		if (details == null) {
 			details = new HashMap<>();
 		}
@@ -57,5 +63,8 @@ public abstract class AbstractEvent implements LowcoderEvent
 
 		}
 		details.put("environmentId", environmentID);
+		if(!details.containsKey("headers")) {
+			details.put("headers", eventHeaders);
+		}
 	}
 }

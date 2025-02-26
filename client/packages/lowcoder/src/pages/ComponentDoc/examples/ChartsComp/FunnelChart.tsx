@@ -5,6 +5,43 @@ import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
 
 const ChartCompWithDefault = uiCompRegistry["funnelChart"].comp;
+const chartStyle= {
+  background: "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+  chartBorderColor: "#FDFAFA",
+  chartBorderStyle: "solid",
+  chartBorderWidth: "2",
+  chartBoxShadow: "200",
+  chartShadowColor: "#3377FF"
+}
+
+const titleStyle = {
+  chartBoxShadow: "9",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFBD01",
+  chartTextColor: "#36B389",
+  chartTextSize: "30",
+  chartTextWeight: "Bold"
+}
+
+const labelStyle = {
+  chartBoxShadow: "5",
+  chartFontFamily: "serif",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#020101",
+  chartTextColor: "#FFFFFF",
+  chartTextSize: "20",
+  chartTextWeight: "bold"
+}
+
+const legendStyle = {
+  chartBoxShadow: "5",
+  chartFontFamily: "serif",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFD701",
+  chartTextColor: "#7A7A7B",
+  chartTextSize: "20",
+  chartTextWeight: "bold"
+}
 
 export default function FunnelChartExample() {
   return (
@@ -297,6 +334,52 @@ export default function FunnelChartExample() {
           height={350}
           config={{
             tooltip: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the Styling Properties on the Funnel Chart Component."
+      >
+        <Example
+          title="Chart Styling - Background Color, Box Shadow, Border"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            chartStyle: chartStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Styling - Text, Fonts & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            titleStyle: titleStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Label Styling - Text, Fonts & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            labelStyle: labelStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Lagend Styling - Text, Fonts & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            legendStyle: legendStyle,
           }}
           compFactory={ChartCompWithDefault}
         />

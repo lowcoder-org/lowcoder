@@ -48,19 +48,20 @@ public class ApiCallEventPublisher {
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PatchMapping)")
     public void patchMapping(){}
 
+    @SuppressWarnings("unchecked")
     @Around("(getMapping() || postMapping() || putMapping() || deleteMapping() || patchMapping())")
     public Object handleAPICallEvent(ProceedingJoinPoint joinPoint) throws Throwable {
 
         return sessionUserService.getVisitorToken()
                 .zipWith(sessionUserService.getVisitorOrgMemberCacheSilent().defaultIfEmpty(OrgMember.NOT_EXIST))
                 .zipWith(ReactiveRequestContextHolder.getRequest())
-                .doOnNext(
+                .delayUntil(
                         tuple -> {
                             String token = tuple.getT1().getT1();
                             OrgMember orgMember = tuple.getT1().getT2();
                             ServerHttpRequest request = tuple.getT2();
                             if (orgMember == OrgMember.NOT_EXIST) {
-                                return;
+                                return Mono.empty();
                             }
                             MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
                             headers.remove("Cookie");
@@ -77,8 +78,11 @@ public class ApiCallEventPublisher {
                                     .queryParams(request.getQueryParams())
                                     .ipAddress(ipAddress)
                                     .build();
-                            event.populateDetails();
-                            applicationEventPublisher.publishEvent(event);
+                            return Mono.deferContextual(contextView -> {
+                                event.populateDetails(contextView);
+                                applicationEventPublisher.publishEvent(event);
+                                return Mono.empty();
+                            });
                         })
                 .onErrorResume(throwable -> {
                     log.error("handleAPICallEvent error {} for: {} ", joinPoint.getSignature().getName(), EventType.API_CALL_EVENT, throwable);

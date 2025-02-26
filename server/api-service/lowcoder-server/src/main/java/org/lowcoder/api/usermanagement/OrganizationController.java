@@ -19,10 +19,13 @@ import org.lowcoder.domain.organization.service.OrganizationService;
 import org.lowcoder.domain.plugin.DatasourceMetaInfo;
 import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.user.service.UserService;
+import org.lowcoder.sdk.config.CommonConfig;
+import org.lowcoder.sdk.constants.WorkspaceMode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -47,14 +50,21 @@ public class OrganizationController implements OrganizationEndpoints
     private OrganizationService organizationService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private CommonConfig commonConfig;
 
     @Override
     public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
                                                            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
-        var flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
-                .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                .map(OrgView::new).cache();
+        Flux<?> flux;
+        if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
+            flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
+                    .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
+                    .map(OrgView::new).cache();
+        } else {
+            flux = organizationService.getOrganizationInEnterpriseMode().flux().cache();
+        }
         return fluxToPageResponseView(pageNum, pageSize, flux);
     }
 

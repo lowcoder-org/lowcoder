@@ -6,27 +6,42 @@ import ExampleGroup from "../../common/ExampleGroup";
 
 const ChartCompWithDefault = uiCompRegistry["sankeyChart"].comp;
 
-const defaultDataSource = "[\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Administration\",\n    \"spending\": 9003,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Finance\",\n    \"spending\": 3033,\n    \"budget\": 4000\n  },\n  {\n    \"date\": \"2021-09\",\n    \"department\": \"Sales\",\n    \"spending\": 9230,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Administration\",\n    \"spending\": 13032,\n    \"budget\": 15000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Finance\",\n    \"spending\": 2300,\n    \"budget\": 5000\n  },\n  {\n    \"date\": \"2021-10\",\n    \"department\": \"Sales\",\n    \"spending\": 7323.5,\n    \"budget\": 8000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Administration\",\n    \"spending\": 13000,\n    \"budget\": 16023\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Finance\",\n    \"spending\": 3569.5,\n    \"budget\": 3000\n  },\n  {\n    \"date\": \"2021-11\",\n    \"department\": \"Sales\",\n    \"spending\": 10000,\n    \"budget\": 9932\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Administration\",\n    \"spending\": 18033,\n    \"budget\": 20000\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Finance\",\n    \"spending\": 4890,\n    \"budget\": 4500\n  },\n  {\n    \"date\": \"2021-12\",\n    \"department\": \"Sales\",\n    \"spending\": 9322,\n    \"budget\": 8000\n  }\n]";
+const chartStyle= {
+  background: "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+  chartBorderColor: "#FDFAFA",
+  chartBorderStyle: "solid",
+  chartBorderWidth: "2",
+  chartBoxShadow: "200",
+  chartShadowColor: "#3377FF"
+}
 
-const defaultEchartsJsonOption = "{\n  \"xAxis\": {\n    \"data\": [\n      \"Day 1\",\n      \"Day 2\",\n      \"Day 3\",\n      \"Day 4\",\n      \"Day 5\"\n    ]\n  },\n  \"data\": [\n    [\n      100,\n      200,\n      50,\n      150\n    ],\n    [\n      120,\n      220,\n      80,\n      180\n    ],\n    [\n      80,\n      150,\n      60,\n      130\n    ],\n    [\n      130,\n      230,\n      110,\n      190\n    ],\n    [\n      90,\n      180,\n      70,\n      160\n    ]\n  ]\n}";
+const titleStyle = {
+  chartBoxShadow: "9",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFBD01",
+  chartTextColor: "#36B389",
+  chartTextSize: "30",
+  chartTextWeight: "Bold"
+}
 
-const data = JSON.stringify(defaultDataSource);
-const echartsOption = JSON.stringify(defaultEchartsJsonOption);
+const lineStyle = {
+  chartBoxShadow: "5",
+  chartShadowColor: "#020101",
+  chartBorderColor: "#222222",
+  chartBorderWidth: "3",
+}
+
+const detailStyle = {
+  chartBoxShadow: "5",
+  chartFontFamily: "serif",
+  chartFontStyle: "Italic",
+  chartShadowColor: "#FFD701",
+  chartTextColor: "#7A7A7B",
+  chartTextSize: "20",
+  chartTextWeight: "bold"
+}
 
 export default function SankeyChartExample() {
-  const blackListConfig: string[] = ["data", "echartsOption", "series"];
-  const series = [
-    {
-        "columnName": "spending",
-        "seriesName": "Spending",
-        "dataIndex": "f011b34c"
-    },
-    {
-        "columnName": "budget",
-        "seriesName": "Budget",
-        "dataIndex": "30e02269"
-    }
-];
   return (
     <>
       <ExampleGroup
@@ -37,11 +52,222 @@ export default function SankeyChartExample() {
           title={trans("componentDoc.default")}
           width={500}
           height={300}
-          blackListConfig={blackListConfig}
           config={{
-            mode: "json",
-            data: data,
-            series: series,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Alignment & Layout"
+        description="The Following Examples Show the different alignment option on the Sankey Chart Component."
+      >
+        <Example
+          title="Title Position - Left"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleConfig : {
+            "position" : "left",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Center"
+          width={500}
+          height={350}
+          config={{
+              echartsTitleConfig : {
+                "position" : "center",
+              }
+            }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Right"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleConfig : {
+              "position" : "right",
+            }
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Position - Bottom"
+          width={500}
+          height={350}
+          config={{
+            echartsTitleVerticalConfig: {
+              position: "bottom",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Chart Position - Top & Left"
+          width={500}
+          height={350}
+          config={{
+            top: "0",
+            left: "0",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Chart Position - Bottom & Right"
+          width={500}
+          height={350}
+          config={{
+            bottom: "0",
+            right: "0",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Sankey Chart's Curveness - 0.2"
+          width={500}
+          height={350}
+          config={{
+            curveness: "0.2",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Sankey Chart's Curveness - 0.8"
+          width={500}
+          height={350}
+          config={{
+            curveness: "0.8",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Sankey Chart's Opacity - 0.3"
+          width={500}
+          height={350}
+          config={{
+            opacity: "0.1",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Sankey Chart's Opacity - 0.8"
+          width={500}
+          height={350}
+          config={{
+            opacity: "0.8",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Node Width - 3"
+          width={500}
+          height={350}
+          config={{
+            nodeWidth: "3",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Node Width - 30"
+          width={500}
+          height={350}
+          config={{
+            nodeWidth: "30",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Node Gap - 10"
+          width={500}
+          height={350}
+          config={{
+            nodeGap: "10",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Node Gap - 70"
+          width={500}
+          height={350}
+          config={{
+            nodeGap: "70",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Draggable - Set Node to draggable"
+          width={500}
+          height={350}
+          config={{
+            draggable: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Draggable - Set Node to non-draggable"
+          width={500}
+          height={350}
+          config={{
+            draggable: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Hiding the Tooltip"
+          width={500}
+          height={350}
+          config={{
+            tooltip: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the Styling Properties on the Sankey Chart Component."
+      >
+        <Example
+          title="Chart Styling - Background Color, Box Shadow, Border"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            chartStyle: chartStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Styling - Text, Fonts & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            titleStyle: titleStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Line Styling - Border & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            lineStyle: lineStyle,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Details Styling - Text, Fonts & Box Shadow"
+          width={500}
+          height={350}
+          hideSettings={true}
+          config={{
+            detailStyle: detailStyle,
           }}
           compFactory={ChartCompWithDefault}
         />
