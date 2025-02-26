@@ -29,4 +29,5 @@ export type I18nObjects = {
   imageEditorLocale?: Record<string, string>;
   defaultPieBg: string;
   usaMap: Record<string, unknown>;
+  defaultDatasourceBoxplot: unknown[];
 };

@@ -553,6 +553,7 @@ export const en = {
     UIMode: "UI Mode",
     chartType: "Chart Type",
     xAxis: "X-axis",
+    yAxis: "Y-axis",
     chartSeries: "Chart Series",
     customSeries: "Custom Series",
     add: "Add",
