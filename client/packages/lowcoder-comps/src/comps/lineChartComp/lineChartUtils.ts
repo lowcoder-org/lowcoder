@@ -97,6 +97,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       }}, {[horizontalX?"xAxis":"yAxis"]: area.getView().to}]));
       return {
         name: s.getView().seriesName,
+        columnName: s.getView().columnName,
         selectedMode: "single",
         select: {
           itemStyle: {
@@ -126,10 +127,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         },
       };
     } else {
-      // pie
       const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
       return {
         ...props.chartConfig,
+        columnName: s.getView().columnName,
         radius: radiusAndCenter.radius,
         center: radiusAndCenter.center,
         name: s.getView().seriesName,
@@ -264,7 +265,7 @@ export function getEchartsConfig(
       ...series,
       encode: {
         ...series.encode,
-        y: series.name,
+        y: series.columnName,
       },
       itemStyle: {
         ...series.itemStyle,
@@ -273,7 +274,7 @@ export function getEchartsConfig(
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
-      data: transformedData.map((i: any) => i[series.name])
+      data: transformedData.map((i: any) => i[series.columnName])
     })),
   };
   if (axisChart) {
@@ -336,7 +337,7 @@ export function getEchartsConfig(
     }
   }
 
-  // log.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

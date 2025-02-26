@@ -116,13 +116,9 @@ export const LineChartConfig = (function () {
         symbolSize: props.symbolSize,
         itemStyle: {
           color: (params) => {
-            if (!params.encode || !params.dimensionNames) {
-              return params.color;
-            }
-            const dataKey = params.dimensionNames[params.encode[props.polar?"radius":"y"][0]];
             const color = (props.itemColor as any)({
               seriesName: params.seriesName,
-              value: (params.data as any)[dataKey],
+              value: params.data,
             });
             if (color === "true") {
               return "red";
