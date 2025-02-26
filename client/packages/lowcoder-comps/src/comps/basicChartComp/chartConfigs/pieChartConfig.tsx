@@ -51,7 +51,7 @@ export const PieChartConfig = (function () {
         subtype: props.type,
         label: {
           show: true,
-          formatter: "{c}",
+          formatter: "{d}%",
         },
         range: props.range,
       };

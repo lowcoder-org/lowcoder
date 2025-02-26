@@ -233,6 +233,62 @@ export var uiCompMap: Registry = {
     },
   },
 
+  barChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Bar Chart",
+    description: trans("uiComp.basicChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "barChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  lineChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Line Chart",
+    description: trans("uiComp.basicChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "lineChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  pieChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Pie Chart",
+    description: trans("uiComp.basicChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "pieChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  scatterChart: {
+    name: trans("uiComp.basicChartCompName"),
+    enName: "Scatter Chart",
+    description: trans("uiComp.basicChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "scatterChart" }),
+    keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
   candleStickChart: {
     name: trans("uiComp.candleStickChartCompName"),
     enName: "Candlestick Chart",
