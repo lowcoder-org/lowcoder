@@ -3783,7 +3783,9 @@ export const en = {
     "onHover": "On Hover",
     "singlePlay": "Single Play",
     "endlessLoop": "Endless Loop",
-    "keepLastFrame": "Keep Last Frame displayed"
+    "keepLastFrame": "Keep Last Frame displayed",
+    "fit": "Fit",
+    "align": "Align",
   },
   "timeLine": {
     "titleColor": "Title Color",

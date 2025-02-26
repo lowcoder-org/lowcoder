@@ -390,14 +390,14 @@ export const IconPicker = (props: {
               </Flex>
             )}
             <Spin spinning={downloading} indicator={<LoadingOutlined style={{ fontSize: 25 }} />} >
-              {!loading && Boolean(searchText) && !searchResults?.length && (
+              {!loading && Boolean(searchText) && !Boolean(searchResults?.length) && (
                 <Flex align="center" justify="center" style={{flex: 1}}>
                   <Typography.Text type="secondary">
                     {trans("iconScout.noResults")}
                   </Typography.Text>
                 </Flex>
               )}
-              {!loading && Boolean(searchText) && searchResults?.length && (
+              {!loading && Boolean(searchText) && Boolean(searchResults?.length) && (
                 <IconListWrapper>
                   <IconList
                     width={550}
