@@ -17,7 +17,8 @@ import styled from "styled-components";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
 import Draggable from "react-draggable";
-import IconscoutApi, { SearchParams } from "api/iconscoutApi";
+import IconScoutApi from "@lowcoder-ee/api/iconScoutApi";
+import { searchAssets, getAssetLinks, SearchParams } from "@lowcoder-ee/api/iconFlowApi";
 import List, { ListRowProps } from "react-virtualized/dist/es/List";
 import { debounce } from "lodash";
 import Spin from "antd/es/spin";
@@ -204,7 +205,6 @@ export type IconScoutAsset = {
 
 const IconScoutSearchParams: SearchParams = {
   query: '',
-  product_type: 'item',
   asset: 'icon',
   per_page: 25,
   page: 1,
@@ -240,13 +240,13 @@ export const IconPicker = (props: {
 
   const fetchResults = async (query: string) => {
     setLoading(true);
-    const freeResult = await IconscoutApi.search({
+    const freeResult = await searchAssets({
       ...IconScoutSearchParams,
       asset: props.assetType,
       price: 'free',
       query,
     });
-    const premiumResult = await IconscoutApi.search({
+    const premiumResult = await searchAssets({
       ...IconScoutSearchParams,
       asset: props.assetType,
       price: 'premium',
@@ -263,7 +263,7 @@ export const IconPicker = (props: {
   ) => {
     try {
       if (uuid && downloadUrl) {
-        const json = await IconscoutApi.downloadAsset(downloadUrl);
+        const json = await IconScoutApi.downloadAsset(downloadUrl);
         getBase64(json, (url: string) => {
           callback(url);
         });
@@ -277,7 +277,7 @@ export const IconPicker = (props: {
   const fetchDownloadUrl = async (uuid: string, preview: string) => {
     try {
       setDownloading(true);
-      const result = await IconscoutApi.download(uuid, {
+      const result = await getAssetLinks(uuid, {
         format: props.assetType === AssetType.LOTTIE ? 'lottie' : 'svg',
       });
 
@@ -291,10 +291,18 @@ export const IconPicker = (props: {
     }
   }
 
-  const handleChange = debounce((e) => {
-    fetchResults(e.target.value);
-    setSearchText(e.target.value);
-  }, 500);
+  const handleChange = (e: { target: { value: any; }; }) => {
+    const query = e.target.value;
+    setSearchText(query); // Update search text immediately
+  
+    if (query.length > 2) {
+      debouncedFetchResults(query); // Trigger search only for >2 characters
+    } else {
+      setSearchResults([]); // Clear results if input is too short
+    }
+  };
+
+  const debouncedFetchResults = useMemo(() => debounce(fetchResults, 700), []);
 
   const rowRenderer = useCallback(
     (p: ListRowProps) => (
