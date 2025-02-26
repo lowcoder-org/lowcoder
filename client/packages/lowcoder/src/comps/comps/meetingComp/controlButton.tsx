@@ -77,14 +77,13 @@ const IconWrapper = styled.div<{ $style: any }>`
 
 const IconScoutWrapper = styled.div<{ $style: any }>`
   display: flex;
-  height: 100%;
 
   ${(props) => props.$style && getStyleIcon(props.$style)}
 `;
 
 function getStyleIcon(style: any) {
   return css`
-    svg {
+    svg, img {
       width: ${style.size} !important;
       height: ${style.size} !important;
     }

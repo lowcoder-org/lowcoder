@@ -51,6 +51,7 @@ const StyledDeleteInputIcon = styled(DeleteInputIcon)`
 
 const StyledImage = styled.img`
   height: 100%;
+  width: 100%;
   color: currentColor;
 `;
 
