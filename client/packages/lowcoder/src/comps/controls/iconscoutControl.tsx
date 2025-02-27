@@ -17,7 +17,7 @@ import styled from "styled-components";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
 import Draggable from "react-draggable";
-import IconScoutApi from "@lowcoder-ee/api/iconScoutApi";
+import IconScoutApi from "@lowcoder-ee/api/iconscoutApi";
 import { searchAssets, getAssetLinks, SearchParams } from "@lowcoder-ee/api/iconFlowApi";
 import List, { ListRowProps } from "react-virtualized/dist/es/List";
 import { debounce } from "lodash";
