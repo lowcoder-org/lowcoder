@@ -23,24 +23,6 @@ export function parallelChartPropertyView(
 
   const uiModePropertyView = (
     <>
-      <Section name={trans("chart.data")}>
-        <Dropdown
-          value={children.xAxisKey.getView()}
-          options={columnOptions}
-          label={trans("chart.xAxis")}
-          onChange={(value) => {
-            dispatch(changeChildAction("xAxisKey", value));
-          }}
-        />
-        <Dropdown
-          value={children.yAxisKey.getView()}
-          options={columnOptions}
-          label={trans("chart.yAxis")}
-          onChange={(value) => {
-            dispatch(changeChildAction("yAxisKey", value));
-          }}
-        />
-      </Section>
       <Section name={sectionNames.interaction}>
         <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
           {children.onUIEvent.propertyView({title: trans("chart.chartEventHandlers")})}

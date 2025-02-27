@@ -1,3 +1,7 @@
+import {default as defaultBaseTexture} from '../../../comps/line3dChartComp/images/default_base_texture.jpg';
+import {default as defaultHeightTexture} from '../../../comps/line3dChartComp/images/default_height_texture.jpg';
+import {default as defaultEnvironment} from '../../../comps/line3dChartComp/images/default_environment.jpg';
+
 export const en = {
   calendarChart: {
     calendarType: 'Calendar Chart Type',
@@ -543,6 +547,24 @@ export const en = {
     axisLabelDistanceTooltip: "Select the Distance between the Axis labels and the Split line",
     tooltipTooltip: "Show or hide the Tooltip of the Chart.",
     labelVisibility: "Label",
+  },
+  line3dchart: {
+    background: "Background",
+    lineStyleWidth: "Line Style Width",
+    lineStyleColor: "Line Style Color",
+    lineStyleOpacity: "Line Style Opacity",
+    effectShow: "Show Effects",
+    effectTrailWidth: "Trail Width",
+    effectTrailLength: "Trail Length",
+    effectTrailOpacity: "Trail Opacity",
+    effectTrailColor: "Trail Color",
+    environment: "Environment",
+    baseTexture: "Base Texture",
+    heightTexture: "Height Texture",
+    ambientCubemapTexture: "Ambient Cubemap Texture",
+    defaultBaseTexture: defaultBaseTexture,
+    defaultEnvironment: defaultEnvironment,
+    defaultHeightTexture: defaultHeightTexture,
   },
   chart: {
     delete: "Delete",

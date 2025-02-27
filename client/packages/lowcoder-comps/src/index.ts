@@ -25,6 +25,7 @@ import { PieChartCompWithDefault } from "comps/pieChartComp/pieChartComp";
 import { ScatterChartCompWithDefault } from "comps/scatterChartComp/scatterChartComp";
 import { BoxplotChartCompWithDefault } from "comps/boxplotChartComp/boxplotChartComp";
 import { ParallelChartCompWithDefault } from "comps/parallelChartComp/parallelChartComp";
+import { Line3DChartCompWithDefault } from "comps/line3dChartComp/line3dChartComp";
 
 export default {
   chart: ChartCompWithDefault,
@@ -35,6 +36,7 @@ export default {
   scatterChart: ScatterChartCompWithDefault,
   boxplotChart: BoxplotChartCompWithDefault,
   parallelChart: ParallelChartCompWithDefault,
+  line3dChart: Line3DChartCompWithDefault,
   chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,
