@@ -11,7 +11,7 @@ import { AnimationStyle, LottieStyle } from "comps/controls/styleControlConstant
 import { trans } from "i18n";
 import { Section, sectionNames } from "lowcoder-design";
 import { useContext, lazy, useEffect, useState } from "react";  
-import { UICompBuilder, withDefault } from "../../generators";
+import { stateComp, UICompBuilder, withDefault } from "../../generators";
 import {
   NameConfig,
   NameConfigHidden,
@@ -23,6 +23,9 @@ import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconsco
 import { DotLottie } from "@lottiefiles/dotlottie-react";
 import { AutoHeightControl } from "@lowcoder-ee/comps/controls/autoHeightControl";
 import { useResizeDetector } from "react-resize-detector";
+import { eventHandlerControl } from "@lowcoder-ee/comps/controls/eventHandlerControl";
+import { withMethodExposing } from "@lowcoder-ee/comps/generators/withMethodExposing";
+import { changeChildAction } from "lowcoder-core";
 
 // const Player = lazy(
 //   () => import('@lottiefiles/react-lottie-player')
@@ -45,6 +48,10 @@ const animationStartOptions = [
   {
     label: trans("jsonLottie.onHover"),
     value: "hover",
+  },
+  {
+    label: trans("jsonLottie.onTrigger"),
+    value: "trigger",
   },
 ] as const;
 
@@ -120,6 +127,14 @@ const ModeOptions = [
   { label: "Asset Library", value: "asset-library" }
 ] as const;
 
+const EventOptions = [
+  { label: trans("jsonLottie.load"), value: "load", description: trans("jsonLottie.load") },
+  { label: trans("jsonLottie.play"), value: "play", description: trans("jsonLottie.play") },
+  { label: trans("jsonLottie.pause"), value: "pause", description: trans("jsonLottie.pause") },
+  { label: trans("jsonLottie.stop"), value: "stop", description: trans("jsonLottie.stop") },
+  { label: trans("jsonLottie.complete"), value: "complete", description: trans("jsonLottie.complete") },
+] as const;;
+
 let JsonLottieTmpComp = (function () {
   const childrenMap = {
     sourceMode: dropdownControl(ModeOptions, "standard"),
@@ -140,6 +155,8 @@ let JsonLottieTmpComp = (function () {
     aspectRatio: withDefault(StringControl, "1/1"),
     fit: dropdownControl(alignOptions, "contain"),
     align: dropdownControl(fitOptions, "0.5,0.5"),
+    onEvent: eventHandlerControl(EventOptions),
+    dotLottieRef: stateComp<any | null>(null),
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [dotLottie, setDotLottie] = useState<DotLottie | null>(null);
@@ -161,21 +178,41 @@ let JsonLottieTmpComp = (function () {
     useEffect(() => {
       const onComplete = () => {
         props.keepLastFrame && dotLottie?.setFrame(100);
+        props.onEvent('complete');
       }
 
       const onLoad = () => {
         setLayoutAndResize();
+        props.onEvent('load');
+      }
+
+      const onPlay = () => {
+        props.onEvent('play');
+      }
+
+      const onPause = () => {
+        props.onEvent('pause');
+      }
+
+      const onStop = () => {
+        props.onEvent('stop');
       }
 
       if (dotLottie) {
         dotLottie.addEventListener('complete', onComplete);
         dotLottie.addEventListener('load', onLoad);
+        dotLottie.addEventListener('play', onPlay);
+        dotLottie.addEventListener('pause', onPause);
+        dotLottie.addEventListener('stop', onStop);
       }
   
       return () => {
         if (dotLottie) {
           dotLottie.removeEventListener('complete', onComplete);
           dotLottie.removeEventListener('load', onLoad);
+          dotLottie.removeEventListener('play', onPlay);
+          dotLottie.removeEventListener('pause', onPause);
+          dotLottie.removeEventListener('stop', onStop);
         }
       };
     }, [dotLottie, props.keepLastFrame]);
@@ -212,17 +249,18 @@ let JsonLottieTmpComp = (function () {
             key={
               [props.speed, props.animationStart, props.loop, props.value, props.keepLastFrame] as any
             }
-            dotLottieRefCallback={setDotLottie}
+            dotLottieRefCallback={(lottieRef) => {
+              setDotLottie(lottieRef);
+              dispatch(
+                changeChildAction("dotLottieRef", lottieRef as any, false)
+              )
+            }}
             autoplay={props.animationStart === "auto"}
             loop={props.loop === "single" ? false : true}
             speed={Number(props.speed)}
             data={props.sourceMode === 'standard' ? props.value as Record<string, undefined> : undefined}
             src={props.sourceMode === 'asset-library' ? props.iconScoutAsset?.value : undefined}
             style={{
-              height: "100%",
-              width: "100%",
-              maxWidth: "100%",
-              maxHeight: "100%",
               aspectRatio: props.aspectRatio,
             }}
             onMouseEnter={() => props.animationStart === "hover" && dotLottie?.play()}
@@ -250,11 +288,12 @@ let JsonLottieTmpComp = (function () {
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <><Section name={sectionNames.interaction}>
+                {children.onEvent.getPropertyView()}
                 {children.speed.propertyView({ label: trans("jsonLottie.speed")})}
                 {children.loop.propertyView({ label: trans("jsonLottie.loop")})}
                 {children.animationStart.propertyView({ label: trans("jsonLottie.animationStart")})}
-                 {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
                 {hiddenPropertyView(children)}
+                {children.keepLastFrame.propertyView({ label: trans("jsonLottie.keepLastFrame")})}
                 {showDataLoadingIndicatorsPropertyView(children)}
               </Section>
             </>
@@ -291,6 +330,40 @@ JsonLottieTmpComp = class extends JsonLottieTmpComp {
     return this.children.autoHeight.getView();
   }
 };
+
+JsonLottieTmpComp = withMethodExposing(JsonLottieTmpComp, [
+  {
+    method: {
+      name: "play",
+      description: trans("jsonLottie.play"),
+      params: [],
+    },
+    execute: (comp) => {
+      (comp.children.dotLottieRef.value as unknown as DotLottie)?.play();
+    },
+  },
+  {
+    method: {
+      name: "pause",
+      description: trans("jsonLottie.pause"),
+      params: [],
+    },
+    execute: (comp) => {
+      (comp.children.dotLottieRef.value as unknown as DotLottie)?.pause();
+    },
+  },
+  {
+    method: {
+      name: "stop",
+      description: trans("jsonLottie.stop"),
+      params: [],
+    },
+    execute: (comp) => {
+      (comp.children.dotLottieRef.value as unknown as DotLottie)?.stop();
+    },
+  },
+]);
+
 export const JsonLottieComp = withExposingConfigs(JsonLottieTmpComp, [
   new NameConfig("value", trans("jsonLottie.valueDesc")),
   NameConfigHidden,
