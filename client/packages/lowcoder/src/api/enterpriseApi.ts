@@ -36,7 +36,7 @@ export interface BrandingConfig {
   config_description?: string,
   config_icon?: string,
   config_set?: BrandingSettings,
-  org_id?: string,
+  orgId?: string,
   user_id?: string,
   id?: string,
 }

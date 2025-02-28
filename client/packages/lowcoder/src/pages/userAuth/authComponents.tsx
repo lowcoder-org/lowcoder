@@ -1,5 +1,5 @@
 import { CheckboxChangeEvent } from "antd/es/checkbox";
-import React, { CSSProperties, ReactNode, useRef } from "react";
+import React, { CSSProperties, ReactNode, useMemo, useRef } from "react";
 import { CheckBox, PackUpIcon, TacoButton } from "lowcoder-design";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -182,7 +182,13 @@ const BrandingWrapper = (props: {
   children: ReactNode;
 }) => {
   const brandingSettings = useSelector(getBrandingSetting);
-  const brandingImage = buildMaterialPreviewURL(brandingSettings?.config_set?.signUpPageImage || '');
+  const brandingImage = useMemo(() => {
+    const imageUrl = brandingSettings?.config_set?.signUpPageImage || '';
+    if (Boolean(brandingSettings?.orgId)) {
+      return buildMaterialPreviewURL(imageUrl);
+    }
+    return imageUrl;
+  }, [brandingSettings?.orgId, brandingSettings?.config_set?.signUpPageImage]);
   const brandingText = brandingSettings?.config_set?.signUpPageText;
 
   if (!props.isEE) {
@@ -209,6 +215,7 @@ export const AuthContainer = (props: {
   subHeading?: string;
   type?: string
   isEE?: boolean;
+  orgId?: string;
 }) => {
   return (
     <AuthCardContainer $isEE={props.isEE}>

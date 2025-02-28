@@ -431,14 +431,16 @@ export default function Header(props: HeaderProps) {
     editorState.setEditorModeStatus(value);
   };
 
-
   const headerStart = (
     <>
       <StyledLink onClick={() => history.push(ALL_APPLICATIONS_URL)}>
         {/* {REACT_APP_LOWCODER_SHOW_BRAND === 'true' ? REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE !== "" ? <img src={REACT_APP_LOWCODER_CUSTOM_LOGO_SQUARE } height={24} width={24} alt="logo" /> :<LogoIcon /> :  <LogoHome />} */}
         { brandingSettings?.config_set?.squareLogo
-          ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
-          : <LogoHome />
+          ? (
+            Boolean(brandingSettings?.orgId)
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.squareLogo} />
+          ) : <LogoHome />
         }
       </StyledLink>
       {editName ? (

@@ -331,44 +331,68 @@ export function BrandingSetting() {
           <Card>
             <div>
               <h3>{trans("branding.logo")}</h3>
-              <StyledRectUploadContainer>
-                <Upload
-                  name="logo"
-                  className="avatar-uploader"
-                  listType="picture-card"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
-                >
-                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGO])
-                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGO]!)} alt="logo" />
-                    : uploadButton(loading[SettingsEnum.LOGO])
-                  }
-                </Upload>
-                <HelpText>{trans("branding.logoHelp")}</HelpText>
-              </StyledRectUploadContainer>
+              {!Boolean(configOrgId) ? (
+                <>
+                  <Input
+                    placeholder={trans("branding.logoUrlPlaceholder")}
+                    value={brandingConfig?.config_set?.[SettingsEnum.LOGO] || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.LOGO, e.target.value)}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <HelpText>{trans("branding.logoUrlHelp")}</HelpText>
+                </>
+              ) : (
+                <StyledRectUploadContainer>
+                  <Upload
+                    name="logo"
+                    className="avatar-uploader"
+                    listType="picture-card"
+                    showUploadList={false}
+                    beforeUpload={beforeUpload}
+                    maxCount={1}
+                    customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
+                  >
+                    {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGO])
+                      ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGO]!)} alt="logo" />
+                      : uploadButton(loading[SettingsEnum.LOGO])
+                    }
+                  </Upload>
+                  <HelpText>{trans("branding.logoHelp")}</HelpText>
+                </StyledRectUploadContainer>
+              )}
             </div>
 
             <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.squareLogo")}</h3>
-              <StyledSquareUploadContainer>
-                <Upload
-                  name="squareLogo"
-                  className="avatar-uploader"
-                  listType="picture-card"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  customRequest={(options) => handleUpload(options, SettingsEnum.SQUARE_LOGO)}
-                >
-                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO])
-                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
-                    : uploadButton(loading[SettingsEnum.SQUARE_LOGO])
-                  }
-                </Upload>
-                <HelpText>{trans("branding.squareLogoHelp")}</HelpText>
-              </StyledSquareUploadContainer>
+              {!Boolean(configOrgId) ? (
+                <>
+                  <Input
+                    placeholder={trans("branding.squareLogoUrlPlaceholder")}
+                    value={brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO] || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.SQUARE_LOGO, e.target.value)}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <HelpText>{trans("branding.squareLogoUrlHelp")}</HelpText>
+                </>
+              ) : (
+                <StyledSquareUploadContainer>
+                  <Upload
+                    name="squareLogo"
+                    className="avatar-uploader"
+                    listType="picture-card"
+                    showUploadList={false}
+                    beforeUpload={beforeUpload}
+                    maxCount={1}
+                    customRequest={(options) => handleUpload(options, SettingsEnum.SQUARE_LOGO)}
+                  >
+                    {Boolean(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO])
+                      ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
+                      : uploadButton(loading[SettingsEnum.SQUARE_LOGO])
+                    }
+                  </Upload>
+                  <HelpText>{trans("branding.squareLogoHelp")}</HelpText>
+                </StyledSquareUploadContainer>
+              )}
             </div>
           </Card>
         </BrandingSettingContent>
@@ -536,23 +560,39 @@ export function BrandingSetting() {
                 style={{ marginBottom: 12 }}
               />
               <HelpText>{trans("branding.errorPageHelp")}</HelpText>
-              <h3 style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</h3>
-              <StyledRectUploadContainer>
-                <Upload
-                  name="errorPageImage"
-                  className="avatar-uploader"
-                  listType="picture-card"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
-                >
-                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
-                    : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
-                  }
-                </Upload>
-              </StyledRectUploadContainer>
+              
+              {!Boolean(configOrgId) ? (
+                <>
+                  <h3 style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</h3>
+                  <Input
+                    placeholder={trans("branding.errorPageImageUrlPlaceholder")}
+                    value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <HelpText>{trans("branding.errorPageImageUrlHelp")}</HelpText>
+                </>
+              ) : (
+                <>
+                  <h3 style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</h3>
+                  <StyledRectUploadContainer>
+                    <Upload
+                      name="errorPageImage"
+                      className="avatar-uploader"
+                      listType="picture-card"
+                      showUploadList={false}
+                      beforeUpload={beforeUpload}
+                      maxCount={1}
+                      customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
+                    >
+                      {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
+                        ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
+                        : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
+                      }
+                    </Upload>
+                  </StyledRectUploadContainer>
+                </>
+              )}
             </div>
             <Divider />
             <div>
@@ -564,51 +604,39 @@ export function BrandingSetting() {
                 style={{ marginBottom: 12 }}
               />
               <HelpText>{trans("branding.signUpPageHelp")}</HelpText>
-              <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</h3>
-              <StyledRectUploadContainer>
-                <Upload
-                  name="signUpPageImage"
-                  className="avatar-uploader"
-                  listType="picture-card"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
-                >
-                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
-                    : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                  }
-                </Upload>
-              </StyledRectUploadContainer>
-            </div>
-            <Divider />
-            <div>
-              <h3 style={{marginTop : "20px"}}>{trans("branding.loggedOutPage")}</h3>
-              <TextArea
-                rows={4}
-                value={brandingConfig?.config_set?.loggedOutPageText || ""}
-                onChange={(e) => updateSettings(SettingsEnum.LOGGED_OUT_PAGE_TEXT, e.target.value)}
-                style={{ marginBottom: 12 }}
-              />
-              <HelpText>{trans("branding.loggedOutPageHelp")}</HelpText>
-              <h3 style={{marginTop : "20px"}}>{trans("branding.loggedOutPageImage")}</h3>
-              <StyledRectUploadContainer>
-                <Upload
-                  name="loggedOutPageImage"
-                  className="avatar-uploader"
-                  listType="picture-card"
-                  showUploadList={false}
-                  beforeUpload={beforeUpload}
-                  maxCount={1}
-                  customRequest={(options) => handleUpload(options, SettingsEnum.LOGOUT_PAGE_IMAGE)}
-                >
-                  {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGOUT_PAGE_IMAGE])
-                    ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGOUT_PAGE_IMAGE]!)} alt="logout_page_image" />
-                    : uploadButton(loading[SettingsEnum.LOGOUT_PAGE_IMAGE])
-                  }
-                </Upload>
-              </StyledRectUploadContainer>
+
+              {!Boolean(configOrgId) ? (
+                <>
+                  <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</h3>
+                  <Input
+                    placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
+                    value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
+                    style={{ marginBottom: 12 }}
+                  />
+                  <HelpText>{trans("branding.signUpPageImageUrlHelp")}</HelpText>
+                </>
+              ) : (
+                <>
+                  <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</h3>
+                  <StyledRectUploadContainer>
+                    <Upload
+                      name="signUpPageImage"
+                      className="avatar-uploader"
+                      listType="picture-card"
+                      showUploadList={false}
+                      beforeUpload={beforeUpload}
+                      maxCount={1}
+                      customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
+                    >
+                      {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                        ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
+                        : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                      }
+                    </Upload>
+                  </StyledRectUploadContainer>
+                </>
+              )}
             </div>
             <Divider />
             <div style={{marginTop : "20px"}}>

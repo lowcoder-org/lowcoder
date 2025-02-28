@@ -25,7 +25,6 @@ export const SideBarSection = (props: SideBarSectionProps) => {
   const user = useSelector<AppState, User>(getUser);
   const applications = useSelector<AppState, ApplicationMeta[]>(normalAppListSelector);
   const brandingSettings = useSelector(getBrandingSetting);
-  console.log('brandingSettings', brandingSettings);
   const currentPath = useLocation().pathname;
   const isShow = props.items
     .map((item) => (item.visible ? item.visible({ user: user, applications: applications }) : true))
