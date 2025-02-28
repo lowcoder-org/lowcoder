@@ -119,12 +119,6 @@ export function pieChartPropertyView(
       <Section name={sectionNames.titleStyle}>
         {children.titleStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.xAxisStyle}>
-        {children.xAxisStyle?.getPropertyView()}
-      </Section>
-      <Section name={sectionNames.yAxisStyle}>
-        {children.yAxisStyle?.getPropertyView()}
-      </Section>
       <Section name={sectionNames.legendStyle}>
         {children.legendStyle?.getPropertyView()}
       </Section>

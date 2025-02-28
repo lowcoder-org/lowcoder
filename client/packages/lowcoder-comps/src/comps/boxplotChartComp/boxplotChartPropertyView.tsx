@@ -73,9 +73,6 @@ export function boxplotChartPropertyView(
       <Section name={sectionNames.yAxisStyle}>
         {children.yAxisStyle?.getPropertyView()}
       </Section>
-      <Section name={sectionNames.legendStyle}>
-        {children.legendStyle?.getPropertyView()}
-      </Section>
       <Section name={sectionNames.advanced}>
         {children.data.propertyView({
           label: trans("chart.data"),

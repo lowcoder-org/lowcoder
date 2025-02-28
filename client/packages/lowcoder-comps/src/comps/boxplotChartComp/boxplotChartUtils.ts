@@ -159,10 +159,16 @@ export function getEchartsConfig(
       name: props.xAxisKey,
       nameLocation: 'middle',
       nameGap: 30,
-      scale: true
+      scale: true,
+      axisLabel: {
+        ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
+      }
     },
     yAxis: {
       type: "category",
+      axisLabel: {
+        ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
+      }
     },
     dataset: [
       {
@@ -209,22 +215,24 @@ export function getEchartsConfig(
   config = {
     ...config,
     series: [{
-      name: 'boxplot',
+      name: props.xAxisKey,
       type: 'boxplot',
       datasetId: 'finaldataset',
-      itemStyle: {
-        color: '#b8c5f2'
-      },
       encode: {
         x: ['min', 'Q1', 'median', 'Q3', 'max'],
         y: props.yAxisKey,
         itemName: [props.yAxisKey],
         tooltip: ['min', 'Q1', 'median', 'Q3', 'max']
-      }
+      },
+      itemStyle: {
+        color: '#b8c5f2',
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+      },
     }],
   };
+  if(config.series[0].itemStyle.borderWidth === 0) config.series[0].itemStyle.borderWidth = 1;
 
-  console.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 
