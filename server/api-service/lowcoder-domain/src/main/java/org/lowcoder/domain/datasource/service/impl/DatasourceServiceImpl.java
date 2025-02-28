@@ -101,6 +101,32 @@ public class DatasourceServiceImpl implements DatasourceService {
         return repository.findById(id);
     }
 
+    @Override
+    public Flux<Datasource> getByIds(Collection<String> ids) {
+        Flux<Datasource> builtDatasourceFlux = Flux.fromStream(ids.stream().filter(id-> StringUtils.equals(id, Datasource.QUICK_REST_API_ID)
+                || StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)
+                || StringUtils.equals(id, Datasource.LOWCODER_API_ID)
+        ).map(id-> {
+            if (StringUtils.equals(id, Datasource.QUICK_REST_API_ID)) {
+                return Datasource.QUICK_REST_API;
+            }
+
+            if (StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)) {
+                return Datasource.QUICK_GRAPHQL_API;
+            }
+
+            if (StringUtils.equals(id, Datasource.LOWCODER_API_ID)) {
+                return Datasource.LOWCODER_API;
+            }
+            return Datasource.LOWCODER_API;
+        }));
+
+        return Flux.concat(builtDatasourceFlux, repository.findByIds(ids.stream().filter(id-> !(StringUtils.equals(id, Datasource.QUICK_REST_API_ID)
+                || StringUtils.equals(id, Datasource.QUICK_GRAPHQL_ID)
+                || StringUtils.equals(id, Datasource.LOWCODER_API_ID))
+        ).toList()));
+    }
+
     private Mono<Datasource> validateDatasource(Datasource datasource) {
 
         if (datasource.getOrganizationId() == null) {

@@ -20,6 +20,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,15 @@ public class BundleServiceImpl implements BundleService {
 
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "BUNDLE_NOT_FOUND", id)));
+    }
+
+    @Override
+    public Flux<Bundle> findByIdIn(Collection<String> ids) {
+        Optional<String> first = ids.stream().findFirst();
+        if(first.isPresent() && FieldName.isGID(first.get()))
+            return repository.findAllByGid(ids);
+
+        return repository.findAllById(ids);
     }
 
     @Override

@@ -17,5 +17,6 @@ public final class Url {
     public static final String APPLICATION_URL = BASE_URL + VERSION + "/applications";
     public static final String QUERY_URL = BASE_URL + VERSION + "/query";
     public static final String STATE_URL = BASE_URL + VERSION + "/state";
+    public static final String META_URL = BASE_URL + VERSION + "/meta";
 
 }

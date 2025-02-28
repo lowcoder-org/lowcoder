@@ -13,6 +13,7 @@ import java.util.Collection;
 public interface BundleRepository extends ReactiveMongoRepository<Bundle, String> {
     Mono<Void> deleteAllByGid(Collection<String> gids);
     Flux<Bundle> findByGid(@Nonnull String gid);
+    Flux<Bundle> findAllByGid(Collection<String> gids);
 
     Flux<Bundle> findByCreatedBy(String userId);
     /**

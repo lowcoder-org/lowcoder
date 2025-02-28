@@ -13,7 +13,9 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.lowcoder.sdk.exception.BizError.LIBRARY_QUERY_NOT_FOUND;
 import static org.lowcoder.sdk.util.ExceptionUtils.deferredError;
@@ -33,6 +35,14 @@ public class LibraryQueryServiceImpl implements LibraryQueryService {
                     .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
         return libraryQueryRepository.findById(libraryQueryId)
                 .switchIfEmpty(deferredError(LIBRARY_QUERY_NOT_FOUND, "LIBRARY_QUERY_NOT_FOUND"));
+    }
+
+    @Override
+    public Flux<LibraryQuery> getByIds(Collection<String> libraryQueryIds) {
+        Optional<String> first = libraryQueryIds.stream().findFirst();
+        if(first.isPresent() && FieldName.isGID(first.get()))
+            return libraryQueryRepository.findByGidIn(libraryQueryIds);
+        return libraryQueryRepository.findAllById(libraryQueryIds);
     }
 
     @Override
