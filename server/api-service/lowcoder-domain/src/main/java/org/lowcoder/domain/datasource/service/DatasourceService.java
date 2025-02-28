@@ -15,6 +15,7 @@ public interface DatasourceService {
     Mono<Datasource> update(String id, Datasource resource);
 
     Mono<Datasource> getById(String id);
+    Flux<Datasource> getByIds(Collection<String> ids);
 
     Mono<Boolean> delete(String id);
 

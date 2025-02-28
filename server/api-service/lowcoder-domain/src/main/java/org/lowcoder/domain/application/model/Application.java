@@ -47,6 +47,7 @@ public class Application extends HasIdAndAuditing {
     private Integer applicationType;
     private ApplicationStatus applicationStatus;
 
+    @Setter
     private Map<String, Object> editingApplicationDSL;
 
     @Setter
