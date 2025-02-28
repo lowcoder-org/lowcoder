@@ -51,7 +51,7 @@ public class FolderServiceImpl implements FolderService {
     public Flux<Folder> findByIds(Collection<String> ids) {
         if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
             return repository.findByGidIn(ids);
-        return repository.findByGidIn(ids);
+        return repository.findAllById(ids);
     }
 
     @Override
