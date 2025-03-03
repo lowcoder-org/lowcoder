@@ -12,6 +12,9 @@ import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { TIME_FORMAT } from "util/dateTimeUtils";
+import { hasIcon } from "comps/utils";
+import { IconControl } from "comps/controls/iconControl";
+
 
 const TimePickerStyled = styled(TimePicker)<{ $open: boolean }>`
   width: 100%;
@@ -52,6 +55,8 @@ export function formatTime(time: string, format: string) {
 
 const childrenMap = {
   text: StringControl,
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
   format: withDefault(StringControl, TIME_FORMAT),
   inputFormat: withDefault(StringControl, TIME_FORMAT),
 };
@@ -118,7 +123,18 @@ export const TimeComp = (function () {
     (props, dispatch) => {
       inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return formatTime(value, props.format);
+      return(
+        <>
+          {hasIcon(props.prefixIcon) && (
+            <span>{props.prefixIcon}</span>
+          )}
+          <span>{value}</span>
+          {hasIcon(props.suffixIcon) && (
+            <span>{props.suffixIcon}</span>
+          )}
+        </>
+      );
+      
     },
     (nodeValue) => formatTime(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
@@ -137,6 +153,12 @@ export const TimeComp = (function () {
           label: trans("table.columnValue"),
           tooltip: ColumnValueTooltip,
         })}
+         {children.prefixIcon.propertyView({
+            label: trans("button.prefixIcon"),
+          })}
+          {children.suffixIcon.propertyView({
+            label: trans("button.suffixIcon"),
+          })}
         {formatPropertyView({ children, placeholder: TIME_FORMAT })}
       </>
     ))
