@@ -7392,6 +7392,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"claygl@npm:^1.2.1":
+  version: 1.3.0
+  resolution: "claygl@npm:1.3.0"
+  checksum: cbf3c4788b426ecc183e0fc5f7e3f88fae15d616ebf39467cb719c1f78efbef8bbe92f8def22c927a9d3cbb2a3ae6d1194755edae96d5f623b4dca0b78bdefa8
+  languageName: node
+  linkType: hard
+
 "clean-css@npm:^5.2.2":
   version: 5.3.3
   resolution: "clean-css@npm:5.3.3"
@@ -9284,6 +9291,18 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 1.6.0
   resolution: "echarts-extension-gmap@npm:1.6.0"
   checksum: 5bab07c7e739b81cf9c9c91b2d2db1101bab1f3b6bf649d6ebdf93fb4be0f9089058f934e4300a21a05dfb0cc0702214c48a5ec5fb34d7be19e419efbc317a61
+  languageName: node
+  linkType: hard
+
+"echarts-gl@npm:^2.0.9":
+  version: 2.0.9
+  resolution: "echarts-gl@npm:2.0.9"
+  dependencies:
+    claygl: ^1.2.1
+    zrender: ^5.1.1
+  peerDependencies:
+    echarts: ^5.1.2
+  checksum: d07dfeb093c5ca05a671317a8f4f4be7fffaa12fb91d485ab19c65d740bbf3c08b02b57c4d7b772bc3ce025184843f1a44ba8bdfc3d48257a46684a5d10fb941
   languageName: node
   linkType: hard
 
@@ -13985,6 +14004,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     agora-rtm-sdk: ^1.5.1
     big.js: ^6.2.1
     echarts-extension-gmap: ^1.6.0
+    echarts-gl: ^2.0.9
     echarts-wordcloud: ^2.1.0
     jest: 29.3.0
     lowcoder-cli: "workspace:^"
@@ -22732,6 +22752,15 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   dependencies:
     tslib: 2.3.0
   checksum: 89e4f9e95b586af66ebf5c0504d5f8da73678e18c5b888124943ca81ecea7cff12f23009d64048df91e4dc670e9c51fa66c357834d9347e367f3b5cc02a24d35
+  languageName: node
+  linkType: hard
+
+"zrender@npm:^5.1.1":
+  version: 5.6.1
+  resolution: "zrender@npm:5.6.1"
+  dependencies:
+    tslib: 2.3.0
+  checksum: 01caeac2d30f0083009aafa531ccb7fe991b6ac0ddd8134dc7b0015f794ed7e3d4fbfe5d32f61cb591014245eca15aeebcfc962cdebfe3829598f0c94ba3dc29
   languageName: node
   linkType: hard
 

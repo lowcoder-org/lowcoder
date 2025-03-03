@@ -109,6 +109,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
       }
       return {
         name: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().seriesName,
+        columnName: props.chartConfig.subtype === "waterfall" && index === 0?" ":s.getView().columnName,
         selectedMode: "single",
         select: {
           itemStyle: {
@@ -128,10 +129,10 @@ export function getSeriesConfig(props: EchartsConfigProps) {
         },
       };
     } else {
-      // pie
       const radiusAndCenter = getPieRadiusAndCenter(seriesLength, index, props.chartConfig);
       return {
         ...props.chartConfig,
+        columnName: s.getView().columnName,
         radius: radiusAndCenter.radius,
         center: radiusAndCenter.center,
         name: s.getView().seriesName,
@@ -227,7 +228,7 @@ export function getEchartsConfig(
       d[` `] = sum - d[seriesColumnNames[0]];
       sum = d[` `];
     })
-    transformedData = [{[seriesColumnNames[0] + "_placeholder"]: 0, [seriesColumnNames[0]]: total, [props.xAxisKey]: "Total"}, ...transformedData]
+    transformedData = [{[" "]: 0, [seriesColumnNames[0]]: total, [props.xAxisKey]: "Total"}, ...transformedData]
   }
 
   if(props.chartConfig.subtype === "polar") {
@@ -272,7 +273,7 @@ export function getEchartsConfig(
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
-      data: transformedData.map((i: any) => i[series.name])
+      data: transformedData.map((i: any) => i[series.columnName])
     })),
   };
   if (axisChart) {
@@ -334,7 +335,7 @@ export function getEchartsConfig(
       }
     }
   }
-  // log.log("Echarts transformedData and config", transformedData, config);
+  // console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

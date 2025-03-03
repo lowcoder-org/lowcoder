@@ -128,7 +128,7 @@ export function getSeriesConfig(props: EchartsConfigProps) {
           }
         }
       }
-      config.radius = s.radius;
+      if(props.chartConfig.subtype !== 'doughnutPie') config.radius = s.radius;
       if(s.left!="" && s.top!="") {
         config.center = [s.left, s.top];
       }
@@ -252,7 +252,7 @@ export function getEchartsConfig(
       },
       itemStyle: {
         ...series.itemStyle,
-        // ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
@@ -280,7 +280,7 @@ export function getEchartsConfig(
     ]
   }
 
-  // console.log("Echarts transformedData and config", transformedData, config);
+  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 
