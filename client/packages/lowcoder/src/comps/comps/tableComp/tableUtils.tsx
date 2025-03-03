@@ -21,6 +21,7 @@ import { TableColumnLinkStyleType, TableColumnStyleType } from "comps/controls/s
 import Tooltip from "antd/es/tooltip";
 import InfoCircleOutlined from "@ant-design/icons/InfoCircleOutlined";
 import { EMPTY_ROW_KEY } from "./tableCompView";
+import dayjs from "dayjs";
 
 export const COLUMN_CHILDREN_KEY = "children";
 export const OB_ROW_ORI_INDEX = "__ob_origin_index";
@@ -399,7 +400,14 @@ export function columnsToAntdFormat(
       },
       ...(column.sortable
         ? {
-            sorter: { multiple: (sortedColumns.length - mIndex) + 1 },
+            sorter: {
+              multiple: (sortedColumns.length - mIndex) + 1,
+              compare: column.columnType === 'date' || column.columnType === 'dateTime'
+                ? (a,b) => {
+                  return dayjs(a[column.dataIndex] as string).unix() - dayjs(b[column.dataIndex] as string).unix();
+                }
+              : undefined
+            },
             sortOrder: sortMap.get(column.dataIndex),
             showSorterTooltip: false,
           }
