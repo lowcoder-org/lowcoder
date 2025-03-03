@@ -187,10 +187,16 @@ export function getEchartsConfig(
       },
       axisLine: {
         show: props.chartConfig.boundaryGap,
+      },
+      axisLabel: {
+        ...styleWrapper(props?.xAxisStyle, theme?.xAxisStyle, 11)
       }
     },
     yAxis: {
       type: "category",
+      axisLabel: {
+        ...styleWrapper(props?.yAxisStyle, theme?.yAxisStyle, 11)
+      }
     },
   };
 
@@ -222,7 +228,7 @@ export function getEchartsConfig(
       ...series,
       itemStyle: {
         ...series.itemStyle,
-        // ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
+        ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
       },
       lineStyle: {
         ...chartStyleWrapper(props?.chartStyle, theme?.chartStyle)
