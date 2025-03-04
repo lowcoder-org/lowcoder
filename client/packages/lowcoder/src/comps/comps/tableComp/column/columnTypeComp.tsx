@@ -21,6 +21,7 @@ import { ColumnNumberComp } from "./columnTypeComps/ColumnNumberComp";
 
 import { ColumnAvatarsComp } from "./columnTypeComps/columnAvatarsComp";
 import { ColumnDropdownComp } from "./columnTypeComps/columnDropdownComp";
+import { TimeComp } from "./columnTypeComps/columnTimeComp";
 
 const actionOptions = [
   {
@@ -95,6 +96,11 @@ const actionOptions = [
     label: trans("table.progress"),
     value: "progress",
   },
+  {
+    // label: trans("table.time"), Not sure how to build translations
+    label: "Time",
+    value: "time",
+  },
 ] as const;
 
 export const ColumnTypeCompMap = {
@@ -116,6 +122,7 @@ export const ColumnTypeCompMap = {
   rating: RatingComp,
   progress: ProgressComp,
   date: DateComp,
+  time: TimeComp,
 };
 
 type ColumnTypeMapType = typeof ColumnTypeCompMap;
@@ -146,7 +153,9 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
             // Keep the previous text value, some components do not have text, the default value is currentCell
             let textRawData = "{{currentCell}}";
             if (this.children.comp.children.hasOwnProperty("text")) {
-              textRawData = (this.children.comp.children as any).text.toJsonValue();
+              textRawData = (
+                this.children.comp.children as any
+              ).text.toJsonValue();
             }
             this.dispatchChangeValueAction({
               compType: value,

@@ -1800,6 +1800,7 @@ export const en = {
         "optionList": "Operation List",
         "option1": "Operation 1",
         "status": "Status",
+        "time" : "Time",
         "statusTooltip": "Optional Values: Success, Error, Default, Warning, Processing",
         "primaryButton": "Primary",
         "defaultButton": "Default",
