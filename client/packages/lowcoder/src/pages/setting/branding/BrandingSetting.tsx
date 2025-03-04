@@ -1,6 +1,6 @@
 import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
-import { TacoButton, CustomSelect, messageInstance, Dropdown } from "lowcoder-design";
+import { TacoButton, CustomSelect, messageInstance, Dropdown, ResetIcon } from "lowcoder-design";
 import React, { useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -20,6 +20,8 @@ import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { Org } from "@lowcoder-ee/constants/orgConstants";
 import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@lowcoder-ee/api/enterpriseApi";
+import Flex from "antd/es/flex";
+import Button from "antd/es/button";
 
 const { TextArea } = Input;
 
@@ -169,6 +171,7 @@ export function BrandingSetting() {
   const [configOrgId, setConfigOrgId] = useState<string>('');
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
   const [brandingConfig, setBrandingConfig] = useState<BrandingConfig>();
+  const [defaultBrandingConfig, setDefaultBrandingConfig] = useState<BrandingConfig>();
   const [loading, setLoading] = useState({
     [SettingsEnum.LOGO]: false,
     [SettingsEnum.SQUARE_LOGO]: false,
@@ -197,13 +200,22 @@ export function BrandingSetting() {
       try {
         const branding = await getBranding(configOrgId);
         setBrandingConfig(branding);
+        setDefaultBrandingConfig(branding);
       } catch(e) {
         setBrandingConfig(undefined);
+        setDefaultBrandingConfig(undefined);
       }
     }
 
     fetchBrandingDetails();
   }, [configOrgId]);
+
+  const isBrandingNotChange = () => {
+    return (
+      JSON.stringify({ ...brandingConfig }) ===
+      JSON.stringify({ ...defaultBrandingConfig })
+    );
+  }
 
   const updateSettings = (key: keyof BrandingSettings, value: any) => {
     setBrandingConfig((branding) => ({
@@ -247,10 +259,16 @@ export function BrandingSetting() {
   }
 
   const handleSave = async () => {
-    const response = await createBranding({
-      ...brandingConfig,
-      org_id: configOrgId,
-    });
+    try {
+      await createBranding({
+        ...brandingConfig,
+        org_id: configOrgId,
+      });
+      setDefaultBrandingConfig(brandingConfig);
+      messageInstance.success(trans("theme.saveSuccessMsg"));
+    } catch (e) {
+      console.error(e)
+    }
   }
 
   const uploadButton = (loading: boolean) => (
@@ -719,13 +737,24 @@ export function BrandingSetting() {
             )}
           </Card>
         </BrandingSettingContent>
-
-        <TacoButton
-          onClick={handleSave}
-          style={{ marginTop: 20 }}
-        >
-          {trans("branding.saveButton")}
-        </TacoButton>
+        
+        <Flex gap={10} style={{ marginTop: 20 }}>
+          <TacoButton
+            buttonType="normal"
+            icon={<ResetIcon />}
+            disabled={isBrandingNotChange()}
+            onClick={() => setBrandingConfig(defaultBrandingConfig)}
+          >
+            {trans("reset")}
+          </TacoButton>
+          <TacoButton
+            buttonType="primary"
+            disabled={isBrandingNotChange()}
+            onClick={handleSave}
+          >
+            {trans("branding.saveButton")}
+          </TacoButton>
+        </Flex>
       </DetailContent>
     </DetailContainer>
   );

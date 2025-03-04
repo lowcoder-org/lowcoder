@@ -2966,7 +2966,7 @@ export const en = {
     "documentationLinkPlaceholder": "Enter the URL for your documentation...",
     "documentationLinkHelp": "Provide a valid URL that users can visit for documentation.",
     "whatsNewSection": "Documentation Settings",
-    "whatsNewLink": "Documentation Link",
+    "whatsNewLink": "What's New Link",
     "whatsNewLinkPlaceholder": "Enter the URL for your documentation...",
     "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news."
   },
