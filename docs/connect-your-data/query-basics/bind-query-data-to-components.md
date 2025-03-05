@@ -31,6 +31,22 @@ While developing, we often lose track the components where we have used the quer
 
 <figure><img src="../../.gitbook/assets/frame_generic_light (1).png" alt=""><figcaption><p>Query Usage Display</p></figcaption></figure>
 
+## How to Use Query Variables
+
+Query Variables are unique variables and can be created in a Query or inside an Event Handler as shown in the following screenshots : \
+\
+![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.54.48 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 4.53.55 AM.png>)
+
+You can access the Query Variables as follow :&#x20;
+
+1. Inside a JS Query, Query variables should be accessible by their names without the Handlebars as shown below : \
+   \
+   ![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.09.28 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.07.52 AM.png>)\
+
+2. In any other Query type or anywhere in the App, Query variables should be accessible by their names within the Handlebars as shown below : \
+   \
+   ![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.16.11 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.13.03 AM.png>)![](<../../.gitbook/assets/Screenshot 2025-03-05 at 5.12.50 AM.png>)
+
 ## Transform data
 
 You can leverage built-in JS functions and third-party libraries in `{{ }}` to transform data, such as `filter()`, `map()` and `reduce()` operations.
