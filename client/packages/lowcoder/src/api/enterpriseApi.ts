@@ -70,6 +70,11 @@ export const getAuditLogStatistics = async (groupByParam : string) => {
   return response.data;
 };
 
+export const getMeta = async (formData = {}) => {
+  const response = await axios.post(`/api/meta`, formData);
+  return response.data;
+}
+
 export const getAppUsageLogs = async (params = {}) => {
   const query = new URLSearchParams(params).toString();
   const response = await axios.get(`/api/plugins/enterprise/app-usage-logs${query ? `?${query}` : ''}`);

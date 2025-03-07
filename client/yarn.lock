@@ -14221,6 +14221,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     moment: ^2.29.4
     numbro: ^2.3.6
     papaparse: ^5.3.2
+    pigeon-maps: ^0.22.1
     qrcode.react: ^3.1.0
     rc-trigger: ^5.3.1
     react: ^18.2.0
@@ -16570,6 +16571,15 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   version: 4.0.1
   resolution: "pify@npm:4.0.1"
   checksum: 9c4e34278cb09987685fa5ef81499c82546c033713518f6441778fbec623fc708777fe8ac633097c72d88470d5963094076c7305cafc7ad340aae27cfacd856b
+  languageName: node
+  linkType: hard
+
+"pigeon-maps@npm:^0.22.1":
+  version: 0.22.1
+  resolution: "pigeon-maps@npm:0.22.1"
+  peerDependencies:
+    react: "*"
+  checksum: 82233ee7ca3314195578b32e8cc6b5ee77520bbfff50c6d7dfbd9ab3b9738e4a7e0144b2c3d122dcfc6db67a0a41f259afa2e76c378769b6dfdbb7a9a5de0782
   languageName: node
   linkType: hard
 
