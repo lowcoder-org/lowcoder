@@ -2,6 +2,7 @@ import { TreeComp } from "comps/comps/treeComp/treeComp";
 import { trans } from "i18n";
 import Example from "../../common/Example";
 import ExampleGroup from "../../common/ExampleGroup";
+import { InputFieldStyle } from "@lowcoder-ee/index.sdk";
 
 export default function TreeExample() {
   const blackListConfig: string[] = ["options.manual.manual"];
@@ -258,6 +259,180 @@ export default function TreeExample() {
             label: {
               text: "Select Your Place",
               tooltip: "This is a ToolTip on Tree Component, which should get dispalyed when User hovers over it",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties on Tree Component."
+      >
+        <Example
+          title="Background Color, Border Radius,Style,Width,Color"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "background": "#00FFFF",
+              "border": "#3377FF",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "borderStyle": "solid",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Margin & Padding"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "background": "#00FFFF",
+              "border": "#3377FF",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "margin": "10px",
+              "padding": "10px",
+              "borderStyle": "dashed",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Opacity - 0.2"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "opacity": "0.2",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Opacity - 0.5"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "opacity": "0.5",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Opacity - 0.7"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "opacity": "0.7",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Opacity - 1"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "opacity": "1",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Rotation - 90deg"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "rotation": "90deg",
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Label - Text Color, Size, Weight, Font family, Border properties"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            labelStyle: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#3377FF",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "13px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "Italic",
+              "border": "#36B389",
+              "borderStyle": "solid",
+              "borderWidth": "2px"
+            },
+          }}
+          compFactory={TreeComp}
+        />
+        <Example
+          title="Input Field Style"
+          width={500}
+          config={{
+            defaultExpandAll: true,
+            label: {
+              text: "Select Your Place",
+              position: "row",
+            },
+            style: {
+              "background": "#00FFFF",
+              "border": "#3377FF",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "margin": "10px",
+              "padding": "10px",
+              "borderStyle": "solid",
+            },
+            inputFieldStyle: {
+              "background": "#00BCA1",
+              "border": "#013AFF",
+              "radius": "10px",
+              "text": "#222222"
             },
           }}
           compFactory={TreeComp}
