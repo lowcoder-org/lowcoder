@@ -42,7 +42,7 @@ import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { useScreenInfo } from "../../hooks/screenInfoComp";
 

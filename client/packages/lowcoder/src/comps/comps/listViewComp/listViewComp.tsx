@@ -39,7 +39,7 @@ import { ListView } from "./listView";
 import { listPropertyView } from "./listViewPropertyView";
 import { getData } from "./listViewUtils";
 import { withMethodExposing } from "comps/generators/withMethodExposing";
-import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 
 const childrenMap = {
   noOfRows: withIsLoadingMethod(NumberOrJSONObjectArrayControl), // FIXME: migrate "noOfRows" to "data"
