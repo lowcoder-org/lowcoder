@@ -16,8 +16,9 @@ import { getAuditLogs } from "api/enterpriseApi";
 import EventTypeTimeChart from "./charts/eventTypesTime";
 import { debounce } from "lodash";
 import { DatePicker } from "antd";
-import dayjs from "dayjs";
-import { Link } from "react-router-dom";
+import dayjs, { Dayjs } from "dayjs";
+import { Link, useLocation } from "react-router-dom";
+import history from "util/history";
 import { SETTING_URL } from "@lowcoder-ee/constants/routesURL";
 import { EyeOutlined } from "@ant-design/icons";
 
@@ -102,6 +103,7 @@ export function AuditLogDashboard() {
   };
 
   const currentUser = useSelector(getUser);
+  const location = useLocation();
 
   const [allLogs, setAllLogs] = useState<AuditLog[]>([]); 
   const [currentPageLogs, setCurrentPageLogs] = useState<AuditLog[]>([]);
@@ -112,8 +114,47 @@ export function AuditLogDashboard() {
   const [form] = Form.useForm();
   const [pagination, setPagination] = useState({ pageSize: 25, current: 1 });
 
-  // Add state to store date range
-  const [dateRange, setDateRange] = useState<{ fromTimestamp?: string; toTimestamp?: string }>({});
+  // Function to get URL parameters
+  const getQueryParams = () => {
+    const params = new URLSearchParams(location.search);
+    let queryObject: Record<string, any> = {};
+  
+    // Convert search params into a JavaScript object
+    params.forEach((value, key) => {
+      if (key !== 'fromTimestamp' && key !== 'toTimestamp') {
+        queryObject[key] = value;
+      }
+    });
+
+    // set date range picker values
+    let dateRange = new Array<Dayjs>(2);
+    if (params.get('fromTimestamp')) {
+      dateRange[0] = dayjs(params.get('fromTimestamp'));
+    }
+    if (params.get('toTimestamp')) {
+      dateRange[1] = dayjs(params.get('toTimestamp'));
+    }
+    
+    queryObject['dateRange'] = dateRange;
+    return queryObject;
+  };
+  
+  useEffect(() => {
+    form.setFieldsValue(getQueryParams());
+  }, []);
+
+  const handleQueryParams = (queryParams: Record<string, string>) => {
+    const params = new URLSearchParams();
+    Object.keys(queryParams).map((key) => {
+      const value = queryParams[key];
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key); // Remove the key if the value is empty
+      }
+    })
+    history.push({ search: params.toString() })
+  }
 
   // Fetch Logs with all form values if set
   const fetchLogs = async (newPage: number, resetData: boolean = false) => {
@@ -126,18 +167,20 @@ export function AuditLogDashboard() {
         pageNum: newPage, // API page number
         fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
         toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
-      }).filter(([_, value]) => value !== undefined && value !== null && value !== "")
+      }).filter(([key, value]) => value !== undefined && value !== null && value !== "" && key !== 'dateRange')
     );
-  
+
+    handleQueryParams(cleanedParams as any);
+
     setLoading(true);
     try {
       const data = await getAuditLogs(cleanedParams);
   
       if (resetData) {
-        setAllLogs(data.data);
+        setAllLogs(data.data || []);
         setPagination({ pageSize: 25, current: 1 }); // Reset pagination
       } else {
-        setAllLogs((prevLogs) => [...prevLogs, ...data.data]);
+        setAllLogs((prevLogs) => [...prevLogs, ...(data?.data || [])]);
       }
   
       setTotal(data.totalCount);
