@@ -26,7 +26,7 @@ import history from "util/history";
 import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@lowcoder-ee/pages/setting/branding/BrandingSetting";
 import { Environments } from "@lowcoder-ee/pages/setting/environments/Environments";
-import { AppUsage } from "@lowcoder-ee/pages/setting/appUsage/AppUsage";
+import { AppUsage } from "@lowcoder-ee/pages/setting/appUsage";
 import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
 import { selectSystemConfig } from "redux/selectors/configSelectors";

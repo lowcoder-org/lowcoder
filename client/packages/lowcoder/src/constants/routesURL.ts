@@ -21,6 +21,8 @@ export const THEME_DETAIL = "/setting/theme/detail";
 export const THEME_DETAIL_URL = `${THEME_DETAIL}/:themeId`;
 export const AUDIT_LOG_DASHBOARD = "/setting/audit";
 export const AUDIT_LOG_DETAIL = "/setting/audit/:eventId/detail";
+export const APP_USAGE_DASHBOARD = "/setting/app-usage";
+export const APP_USAGE_DETAIL = "/setting/app-usage/:eventId/detail";
 
 export const OAUTH_PROVIDER_SETTING = "/setting/oauth-provider";
 export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
