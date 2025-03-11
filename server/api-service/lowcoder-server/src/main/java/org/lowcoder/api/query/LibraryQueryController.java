@@ -54,6 +54,12 @@ public class LibraryQueryController implements LibraryQueryEndpoints
     }
 
     @Override
+    public Mono<ResponseView<LibraryQueryView>> get(@PathVariable String libraryQueryId) {
+        return libraryQueryApiService.get(libraryQueryId)
+                .map(ResponseView::success);
+    }
+
+    @Override
     public Mono<ResponseView<LibraryQueryView>> create(@RequestBody LibraryQuery libraryQuery) {
         return libraryQueryApiService.create(libraryQuery)
                 .delayUntil(libraryQueryView ->
