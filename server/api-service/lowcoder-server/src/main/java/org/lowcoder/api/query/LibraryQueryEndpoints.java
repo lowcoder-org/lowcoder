@@ -45,6 +45,15 @@ public interface LibraryQueryEndpoints
 
 	@Operation(
 			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
+			operationId = "getLibraryQuery",
+			summary = "Get a Library By Id",
+			description = "Get a Library Query by Id."
+	)
+	@GetMapping("/{libraryQueryId}")
+	public Mono<ResponseView<LibraryQueryView>> get(@PathVariable String libraryQueryId);
+
+	@Operation(
+			tags = TAG_LIBRARY_QUERY_MANAGEMENT,
 		    operationId = "createLibraryQuery",
 		    summary = "Create a Library for Data Queries",
 		    description = "Create a new Library Query within Lowcoder for storing and managing reusable Data Queries."

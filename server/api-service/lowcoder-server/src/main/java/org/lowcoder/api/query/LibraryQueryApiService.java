@@ -11,6 +11,8 @@ import java.util.List;
 public interface LibraryQueryApiService {
     Mono<List<LibraryQueryView>> listLibraryQueries(String name);
 
+    Mono<LibraryQueryView> get(String libraryQueryId);
+
     Mono<LibraryQueryView> create(LibraryQuery libraryQuery);
 
     Mono<Boolean> update(String libraryQueryId, UpsertLibraryQueryRequest upsertLibraryQueryRequest);
