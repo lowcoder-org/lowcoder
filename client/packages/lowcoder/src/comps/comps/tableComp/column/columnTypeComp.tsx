@@ -1,5 +1,6 @@
 import { CellProps } from "components/table/EditableCell";
 import { DateTimeComp } from "comps/comps/tableComp/column/columnTypeComps/columnDateTimeComp";
+import { TimeComp } from "./columnTypeComps/columnTimeComp";
 import { ButtonComp } from "comps/comps/tableComp/column/simpleColumnTypeComps";
 import { withType } from "comps/generators";
 import { trans } from "i18n";
@@ -68,6 +69,11 @@ const actionOptions = [
     value: "image",
   },
   {
+    label: trans("table.time"),
+    value: "time",
+  },
+
+  {
     label: trans("table.date"),
     value: "date",
   },
@@ -116,6 +122,7 @@ export const ColumnTypeCompMap = {
   rating: RatingComp,
   progress: ProgressComp,
   date: DateComp,
+  time: TimeComp,
 };
 
 type ColumnTypeMapType = typeof ColumnTypeCompMap;
