@@ -31,4 +31,4 @@ class SliderControl extends SimpleComp<number> {
   }
 }
 
-export default SliderControl;
+export { SliderControl };

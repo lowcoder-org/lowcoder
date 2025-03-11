@@ -148,6 +148,50 @@ public class GeneralSqlExecutor {
             if (statementInput.isPreparedStatement()) {
                 String sql = statementInput.getSql();
                 List<Object> params = statementInput.getParams();
+
+                int orderByIndex;
+                String sortValue;
+                do {
+                    orderByIndex = -1;
+                    sortValue = null;
+                    for (int i = 0; i < params.size(); i++) {
+                        Object param = params.get(i);
+                        if (param instanceof Map<?, ?> map && map.containsKey("sort")) {
+                            orderByIndex = i; // Index of the ? to replace (0-based)
+                            sortValue = String.valueOf(map.get("sort")); // e.g., "ASC" or "DESC"
+                            break;
+                        }
+                    }
+
+                    if (orderByIndex >= 0 && sortValue != null) {
+                        // Validate sortValue to prevent SQL injection
+                        if (!sortValue.equalsIgnoreCase("ASC") && !sortValue.equalsIgnoreCase("DESC")) {
+                            sortValue = "ASC"; // Default to ASC if invalid
+                        }
+
+                        // Split the SQL at the ? placeholders
+                        String[] sqlParts = sql.split("\\?", -1);
+                        if (orderByIndex < sqlParts.length - 1) {
+                            // Rebuild the SQL, replacing the ? at orderByIndex with sortValue
+                            StringBuilder newSql = new StringBuilder();
+                            for (int i = 0; i < sqlParts.length; i++) {
+                                newSql.append(sqlParts[i]);
+                                if (i < sqlParts.length - 1) {
+                                    if (i == orderByIndex) {
+                                        newSql.append(sortValue); // Insert ASC or DESC
+                                    } else {
+                                        newSql.append("?"); // Keep other placeholders
+                                    }
+                                }
+                            }
+                            sql = newSql.toString();
+
+                            // Remove the Map from params since it's no longer a bind parameter
+                            params.remove(orderByIndex);
+                        }
+                    }
+                } while(orderByIndex >= 0);
+
                 var statement = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
                 bindPreparedStatementParams(statement, params);

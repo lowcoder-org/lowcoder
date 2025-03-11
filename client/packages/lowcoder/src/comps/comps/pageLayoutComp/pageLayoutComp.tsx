@@ -28,7 +28,7 @@ import { ContainerBodyChildComp } from "./containerBodyChildComp";
 import { trans } from "i18n";
 import { ControlNode } from "lowcoder-design";
 import { StringControl } from "comps/controls/codeControl";
-import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { useMergeCompStyles } from "@lowcoder-ee/util/hooks";
 
 const childrenMap = {

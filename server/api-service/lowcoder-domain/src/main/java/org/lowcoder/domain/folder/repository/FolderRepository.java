@@ -14,5 +14,6 @@ public interface FolderRepository extends ReactiveMongoRepository<Folder, String
 
     Flux<Folder> findByOrganizationId(String organizationId);
     Flux<Folder> findByGid(String organizationGid);
+    Flux<Folder> findByGidIn(Collection<String> ids);
     Mono<Void> deleteAllByGid(Collection<String> gids);
 }

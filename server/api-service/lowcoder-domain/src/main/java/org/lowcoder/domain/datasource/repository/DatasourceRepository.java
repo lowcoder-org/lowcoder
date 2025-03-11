@@ -62,6 +62,15 @@ public class DatasourceRepository {
                 .flatMap(this::convertToDomainObjectAndDecrypt);
     }
 
+    public Flux<Datasource> findByIds(Collection<String> datasourceIds) {
+        Optional<String> first = datasourceIds.stream().findAny();
+        if(first.isPresent() && FieldName.isGID(first.get()))
+            return repository.findAllByGidIn(datasourceIds)
+                    .flatMap(this::convertToDomainObjectAndDecrypt);
+        return repository.findAllById(datasourceIds)
+                .flatMap(this::convertToDomainObjectAndDecrypt);
+    }
+
     public Mono<Datasource> findWorkspacePredefinedDatasourceByOrgIdAndType(String organizationId, String type) {
         return repository.findByOrganizationIdAndTypeAndCreationSource(organizationId, type,
                         DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED.getValue())

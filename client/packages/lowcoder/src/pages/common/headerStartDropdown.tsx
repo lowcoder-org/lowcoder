@@ -100,7 +100,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
             })}
           </CommonTextLabel>
         ),
-        visible: true,
+        visible: !isPublicApp,
       },
     ];
   

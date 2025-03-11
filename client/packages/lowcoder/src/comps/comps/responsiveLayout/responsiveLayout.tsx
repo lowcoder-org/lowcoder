@@ -42,7 +42,7 @@ import { EditorContext } from "comps/editorState";
 
 import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUtils";
 import { DisabledContext } from "comps/generators/uiCompBuilder";
-import SliderControl from "@lowcoder-ee/comps/controls/sliderControl";
+import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { useScreenInfo } from "../../hooks/screenInfoComp";
 
@@ -136,7 +136,7 @@ type ColumnContainerProps = Omit<ContainerBaseProps, 'style'> & {
   style: ResponsiveLayoutColStyleType,
 }
 
-const ColumnContainer = (props: ColumnContainerProps) => {
+const ColumnContainer = React.memo((props: ColumnContainerProps) => {
   return (
     <InnerGrid
       {...props}
@@ -145,7 +145,7 @@ const ColumnContainer = (props: ColumnContainerProps) => {
       style={props.style}
     />
   );
-};
+});
 
 const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
   const screenInfo = useScreenInfo();

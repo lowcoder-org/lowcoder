@@ -1,5 +1,6 @@
 package org.lowcoder.domain.folder.service;
 
+import static org.lowcoder.domain.organization.model.OrganizationState.ACTIVE;
 import static org.lowcoder.sdk.exception.BizError.NO_RESOURCE_FOUND;
 
 import java.util.Collection;
@@ -44,6 +45,13 @@ public class FolderServiceImpl implements FolderService {
                     .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new BizException(BizError.NO_RESOURCE_FOUND, "FOLDER_NOT_FOUND", id)));
+    }
+
+    @Override
+    public Flux<Folder> findByIds(Collection<String> ids) {
+        if(!ids.isEmpty() && FieldName.isGID(ids.stream().findFirst().get()))
+            return repository.findByGidIn(ids);
+        return repository.findAllById(ids);
     }
 
     @Override

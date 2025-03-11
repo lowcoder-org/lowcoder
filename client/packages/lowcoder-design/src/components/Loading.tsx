@@ -74,6 +74,7 @@ type LoadingProps = {
   size?: number; // circle's size
   className?: string;
   style?: CSSProperties;
+  compHeight?: number;
 };
 
 export const Loading = (props: LoadingProps) => {
@@ -92,7 +93,11 @@ export const Loading = (props: LoadingProps) => {
           <Load2 {...loadingProps} />
         </Container>
       </ContainerX> */}
-      <StyledSkeleton active style={{height: '100%', animationDuration: '2s'}} />
+      <StyledSkeleton
+        active
+        paragraph={{rows: props.compHeight ? Math.floor((props.compHeight * 8) / 35) : 4}}
+        style={{height: '100%', animationDuration: '2s'}}
+      />
     </LoadingWrapper>
   );
 };

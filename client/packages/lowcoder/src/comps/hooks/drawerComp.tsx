@@ -25,7 +25,7 @@ import { useUserViewMode } from "util/hooks";
 import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { title } from "process";
-import SliderControl from "../controls/sliderControl";
+import { SliderControl } from "../controls/sliderControl";
 
 const EventOptions = [closeEvent] as const;
 

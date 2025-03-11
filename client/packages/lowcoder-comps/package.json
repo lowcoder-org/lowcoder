@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-comps",
-  "version": "2.6.3",
+  "version": "2.6.4",
   "type": "module",
   "license": "MIT",
   "dependencies": {
@@ -23,6 +23,7 @@
     "agora-rtm-sdk": "^1.5.1",
     "big.js": "^6.2.1",
     "echarts-extension-gmap": "^1.6.0",
+    "echarts-gl": "^2.0.9",
     "echarts-wordcloud": "^2.1.0",
     "lowcoder-cli": "workspace:^",
     "lowcoder-sdk": "workspace:^",
@@ -52,6 +53,62 @@
       },
       "basicChart": {
         "name": "Basic Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "barChart": {
+        "name": "Bar Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "lineChart": {
+        "name": "Line Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "pieChart": {
+        "name": "Pie Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "scatterChart": {
+        "name": "Scatter Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "boxplotChart": {
+        "name": "Boxplot Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "parallelChart": {
+        "name": "Parallel Chart",
+        "icon": "./icons/icon-chart.svg",
+        "layoutInfo": {
+          "w": 12,
+          "h": 40
+        }
+      },
+      "line3dChart": {
+        "name": "Line3D Chart",
         "icon": "./icons/icon-chart.svg",
         "layoutInfo": {
           "w": 12,
