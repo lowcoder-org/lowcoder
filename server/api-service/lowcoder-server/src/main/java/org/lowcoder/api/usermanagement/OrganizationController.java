@@ -182,4 +182,11 @@ public class OrganizationController implements OrganizationEndpoints
                 .map(ResponseView::success);
     }
 
+    @Override
+    public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId) {
+        return gidService.convertOrganizationIdToObjectId(orgId)
+                .flatMap(id -> organizationService.getById(id))
+                .map(ResponseView::success);
+    }
+
 }
