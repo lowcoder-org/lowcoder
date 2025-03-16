@@ -24,6 +24,7 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "latest",
+    "@lottiefiles/dotlottie-react": "^0.13.0",
     "@manaflair/redux-batch": "^1.0.0",
     "@rjsf/antd": "^5.21.2",
     "@rjsf/core": "^5.21.2",
