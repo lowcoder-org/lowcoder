@@ -21,6 +21,8 @@ import org.lowcoder.domain.plugin.service.DatasourceMetaInfoService;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.constants.WorkspaceMode;
+import org.lowcoder.sdk.exception.BizError;
+import org.lowcoder.sdk.exception.BizException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.*;
@@ -186,6 +188,7 @@ public class OrganizationController implements OrganizationEndpoints
     public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId) {
         return gidService.convertOrganizationIdToObjectId(orgId)
                 .flatMap(id -> organizationService.getById(id))
+                .switchIfEmpty(Mono.error(new BizException(BizError.ORGANIZATION_NOT_FOUND, "ORGANIZATION_NOT_FOUND")))
                 .map(ResponseView::success);
     }
 

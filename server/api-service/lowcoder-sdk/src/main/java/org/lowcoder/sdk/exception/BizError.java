@@ -158,7 +158,10 @@ public enum BizError {
     SLUG_INVALID(403, 6502),
 
     //flow 6601 - 6601
-    FLOW_ERROR(500, 6601);
+    FLOW_ERROR(500, 6601),
+
+    //organization related 6701 - 6701
+    ORGANIZATION_NOT_FOUND(400, 6701);
 
     static {
         checkDuplicates(values(), BizError::getBizErrorCode);
