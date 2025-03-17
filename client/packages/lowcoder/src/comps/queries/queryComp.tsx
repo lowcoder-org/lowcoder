@@ -37,6 +37,7 @@ import {
   FetchCheckNode,
   FetchInfo,
   fromRecord,
+  fromValue,
   isCustomAction,
   MultiBaseComp,
   multiChangeAction,
@@ -655,6 +656,7 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   },
 ]);
 
+
 export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("data", trans("query.dataExportDesc")),
   new NameConfig("code", trans("query.codeExportDesc")),
@@ -701,7 +703,22 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     const result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {
       result[comp.children.name.getView()] = comp.exposingInfo();
+
+      const variables = comp.children.variables.children.variables.toJsonValue();
+      variables.forEach((variable: Record<string, any>) => {
+        result[variable.key] = {
+          property: fromRecord({
+            value: fromValue(variable.value),
+          }),
+          propertyValue: {
+            value: variable.value,
+          },
+          propertyDesc: {},
+          methods: {},
+        };
+      })
     });
+
     return result;
   }
 

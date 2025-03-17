@@ -69,7 +69,7 @@ export function keyValueControl<T extends OptionsType>(
   if(controlType === "variable") {
     childrenMap = {
       key: SimpleVariableHeaderComp(true) as any,
-      value: SimpleVariableHeaderComp() as any,
+      value: StringControl,
       type: dropdownControl(types, types[0]?.value),
     };
   }
