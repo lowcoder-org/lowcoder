@@ -2630,6 +2630,7 @@ export const en = {
     "copyToClipboard": "Copy to Clipboard",
     "downloadFile": "Download File",
     "logoutUser" : "Logout User",
+    "resetPassword" : "Reset Password",
   },
   "messageComp": {
     "info": "Send a Notification",
