@@ -177,7 +177,7 @@ export function QueryPropertyView(props: { comp: InstanceType<typeof QueryComp> 
             children: (
               <QueryPropertyViewWrapper>
                 <QuerySectionWrapper>
-                  {children.variables.getPropertyView()}
+                  {children.variables.propertyView({})}
                 </QuerySectionWrapper>
               </QueryPropertyViewWrapper>
             ),

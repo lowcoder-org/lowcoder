@@ -6,7 +6,7 @@ import { StringControl } from "./codeControl";
 import { ControlParams } from "./controlParams";
 import { dropdownControl } from "./dropdownControl";
 import { ParamsStringControl } from "./paramsControl";
-import { SimpleVariableHeaderComp } from "../comps/simpleVariableHeaderComp";
+import { SimpleNameComp } from "../comps/simpleNameComp";
 
 const KeyValueWrapper = styled.div`
   display: flex;
@@ -68,7 +68,7 @@ export function keyValueControl<T extends OptionsType>(
   };
   if(controlType === "variable") {
     childrenMap = {
-      key: SimpleVariableHeaderComp(true) as any,
+      key: SimpleNameComp as any,
       value: StringControl,
       type: dropdownControl(types, types[0]?.value),
     };

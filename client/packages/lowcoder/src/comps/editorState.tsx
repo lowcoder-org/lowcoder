@@ -509,7 +509,7 @@ export class EditorState {
 
     //Check query variable name duplication
     const queryComInfoList:string[] = [].concat(...(this.getQueriesComp()
-      .toJsonValue().map((item: any) => item.variables.variables.map((v: any) =>  v.key))));
+      .toJsonValue().map((item: any) => item.variables.map((v: any) =>  v.key))));
     
     if (name !== oldName && queryComInfoList.includes(name)) {
       return trans("comp.nameExists", { name: name });

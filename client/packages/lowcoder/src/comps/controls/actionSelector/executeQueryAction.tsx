@@ -121,6 +121,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
     if (!queryName) {
       return () => Promise.resolve();
     }
+
     return () =>
       getPromiseAfterDispatch(
         this.dispatch,
