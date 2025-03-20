@@ -26,6 +26,8 @@ import { isNumeric } from "util/stringUtils";
 import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { title } from "process";
 import { SliderControl } from "../controls/sliderControl";
+import clsx from "clsx";
+import { useApplicationId } from "util/hooks";
 
 const EventOptions = [closeEvent] as const;
 
@@ -119,6 +121,7 @@ let TmpDrawerComp = (function () {
       const isTopBom = ["top", "bottom"].includes(props.placement);
       const { items, ...otherContainerProps } = props.container;
       const userViewMode = useUserViewMode();
+      const appID = useApplicationId();
       const resizable = !userViewMode && (!isTopBom || !props.autoHeight);
       const onResizeStop = useCallback(
         (
@@ -172,7 +175,7 @@ let TmpDrawerComp = (function () {
               zIndex={Layers.drawer}
               maskClosable={props.maskClosable}
               mask={props.showMask}
-              className={props.className as string}
+              className={clsx(`app-${appID}`, props.className)}
               data-testid={props.dataTestId as string}
             >
             {props.toggleClose && (
