@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.application.ApplicationEndpoints.CreateApplicationRequest;
 import org.lowcoder.api.application.view.ApplicationInfoView;
@@ -101,7 +102,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     public Mono<ApplicationView> create(CreateApplicationRequest createApplicationRequest) {
 
         Application application = new Application(createApplicationRequest.organizationId(),
-                UuidCreator.getTimeOrderedEpoch().toString(),
+                ObjectUtils.defaultIfNull(createApplicationRequest.gid(), UuidCreator.getTimeOrderedEpoch().toString()),
                 createApplicationRequest.name(),
                 createApplicationRequest.applicationType(),
                 NORMAL,
