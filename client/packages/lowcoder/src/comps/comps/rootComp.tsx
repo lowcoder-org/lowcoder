@@ -35,6 +35,7 @@ import { useUserViewMode } from "util/hooks";
 import React from "react";
 import { isEqual } from "lodash";
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+import clsx from "clsx";
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
 );
@@ -130,7 +131,11 @@ const RootView = React.memo((props: RootViewProps) => {
   }
 
   return (
-    <div {...divProps} style={{height: '100%'}}>
+    <div {...divProps}
+          className={clsx(
+            divProps.id, 
+          )} 
+       style={{height: '100%'}}>
       <PropertySectionContext.Provider value={propertySectionContextValue}>
         <ThemeContext.Provider value={themeContextValue}>
           <EditorContext.Provider value={editorState}>

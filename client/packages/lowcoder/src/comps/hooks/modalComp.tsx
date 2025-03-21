@@ -24,6 +24,8 @@ import { BoolControl } from "comps/controls/boolControl";
 import { withDefault } from "comps/generators";
 import { SliderControl } from "../controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import clsx from "clsx";
+import { useApplicationId } from "util/hooks";
 
 const EventOptions = [
   { label: trans("modalComp.open"), value: "open", description: trans("modalComp.openDesc") },
@@ -113,6 +115,7 @@ let TmpModalComp = (function () {
     },
     (props, dispatch) => {
       const userViewMode = useUserViewMode();
+      const appID = useApplicationId();
       const bodyStyle: CSSProperties = { padding: 0 };
       const width = transToPxSize(props.width || DEFAULT_WIDTH);
       let height = undefined;
@@ -177,7 +180,7 @@ let TmpModalComp = (function () {
               zIndex={Layers.modal}
               modalRender={(node) => <ModalStyled $style={props.style} $modalScrollbar={props.modalScrollbar}>{node}</ModalStyled>}
               mask={props.showMask}
-              className={props.className as string}
+              className={clsx(`app-${appID}`, props.className)}
               data-testid={props.dataTestId as string}
             >
               <InnerGrid
