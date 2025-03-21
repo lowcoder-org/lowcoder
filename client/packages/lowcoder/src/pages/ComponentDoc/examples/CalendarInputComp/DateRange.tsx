@@ -23,6 +23,7 @@ export default function DateRangeExample() {
       >
         <Example
           title={trans("componentDoc.value")}
+          width={500}
           config={{
             start: "2022-01-01",
             end: "2022-02-01",
@@ -40,6 +41,7 @@ export default function DateRangeExample() {
         />
         <Example
           title={trans("componentDoc.noDefaultValue")}
+          width={500}
           config={{
             value: trans("componentDoc.noValue"),
             format: "YYYY-MM-DD",
@@ -56,6 +58,7 @@ export default function DateRangeExample() {
         />
         <Example
           title={trans("componentDoc.disabled")}
+          width={500}
           config={{
             start: "2022-01-01",
             end: "2022-02-01",
@@ -69,6 +72,82 @@ export default function DateRangeExample() {
           }}
           nameMap={nameMap}
           blackListConfig={blackListConfig.slice(0, 3)}
+          compFactory={DateRangeComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Date Component - Picker mode"
+        description="The Following Examples Show the different picker modes of the Date Range Component."
+      >
+        <Example
+          title="Picker mode - Date"
+          width={500}
+          config={{
+            pickerMode: "day",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+          <Example
+          title="Picker mode - Week"
+          width={500}
+          config={{
+            pickerMode: "week",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+          <Example
+          title="Picker mode - Month"
+          width={500}
+          config={{
+            pickerMode: "month",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+          <Example
+          title="Picker mode - Quarter"
+          width={500}
+          config={{
+            pickerMode: "quarter",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+          <Example
+          title="Picker mode - Year"
+          width={500}
+          config={{
+            pickerMode: "year",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
           compFactory={DateRangeComp}
         />
       </ExampleGroup>
@@ -195,6 +274,213 @@ export default function DateRangeExample() {
           }}
           nameMap={nameMap}
           blackListConfig={blackListConfig.slice(0, 3)}
+          compFactory={DateRangeComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Advance Usage"
+        description="The Following Examples Show the Advance Usage of the Date Range Component."
+      >
+        <Example
+          title="Show Time alongwith Calendar"
+          width={500}
+          config={{
+            showTime: true,
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Show Time in 12 Hours format"
+          width={500}
+          config={{
+            showTime: true,
+            use12Hours: true,
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Date Input Format : DD-MM-YYYY"
+          width={500}
+          config={{
+            inputFormat: "DD-MM-YYYY",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+          <Example
+          title="Time Input Format : MM-DD-YYYY"
+          width={500}
+          config={{
+            inputFormat: "MM-DD-YYYY",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Time Input Format : YYYY-MM-DD"
+          width={500}
+          config={{
+            inputFormat: "YYYY-MM-DD",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Time Input Format : MM-YYYY"
+          width={500}
+          config={{
+            inputFormat: "MM-YYYY",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Suffix Icon on Calendar component"
+          width={500}
+          config={{
+            suffixIcon: "/icon:regular/calendar-days",
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={DateRangeComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Time Range Component."
+      >
+        <Example
+          title="Time Range component Styling properties"
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "margin": "10px",
+              "padding": "10px",
+              "text": "#222222",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px",
+            },
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Label Styling properties"
+          config={{
+            labelStyle: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#01865B",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "18px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderWidth": "2px",
+              "borderStyle": "solid",
+            },
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Input Field Styling properties"
+          config={{
+            inputFieldStyle: {
+              "background": "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+              "border": "#222222",
+              "radius": "10px",
+              "text": "#222222",
+              "margin": "5px",
+              "padding": "10px",
+              "borderStyle": "dashed",
+              "borderWidth": "3px",
+              "accent": "#36B389"
+            },
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
+          compFactory={DateRangeComp}
+        />
+        <Example
+          title="Children Input Field Styling properties"
+          config={{
+            childrenInputFieldStyle: {
+              "margin": "5px",
+              "padding": "20px",
+              "text": "#3377FF",
+              "textDecoration": "underline",
+              "textSize": "15px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "italic",
+              "border": "#36B389",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "background": "#11F7E9"
+            },
+            label: {
+              text: trans("componentDoc.date"),
+              position: "column",
+              align: "left",
+            },
+          }}
           compFactory={DateRangeComp}
         />
       </ExampleGroup>

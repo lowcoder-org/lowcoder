@@ -14,7 +14,6 @@ export default function InputExample() {
           title={trans("componentDoc.placeholder")}
           config={{
             placeholder: trans("componentDoc.pleaseInputName"),
-            disabled: false,
           }}
           compFactory={InputComp}
         />
@@ -22,7 +21,6 @@ export default function InputExample() {
           title="Default Value"
           config={{
             placeholder: trans("componentDoc.pleaseInputName"),
-            disabled: false,
             defaultValue: "Default Text",
           }}
           compFactory={InputComp}
@@ -35,11 +33,19 @@ export default function InputExample() {
           }}
           compFactory={InputComp}
         />
+        <Example
+          title="Hiding the Input component"
+          config={{
+            placeholder: trans("componentDoc.pleaseInputName"),
+            hidden: true,
+          }}
+          compFactory={InputComp}
+        />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
-          title={trans("componentDoc.left")}
+          title="Left- Left Alignment"
           config={{
             label: { text: trans("componentDoc.userName"), position: "row" },
             placeholder: trans("componentDoc.pleaseInputName"),
@@ -47,7 +53,15 @@ export default function InputExample() {
           compFactory={InputComp}
         />
         <Example
-          title={trans("componentDoc.column")}
+          title="Left- Right Alignment"
+          config={{
+            label: { text: trans("componentDoc.userName"), align: "right" },
+            placeholder: trans("componentDoc.pleaseInputName"),
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Top - Left Alignment"
           config={{
             label: { text: trans("componentDoc.userName"), position: "column" },
             placeholder: trans("componentDoc.pleaseInputName"),
@@ -55,9 +69,9 @@ export default function InputExample() {
           compFactory={InputComp}
         />
         <Example
-          title={trans("componentDoc.textAlign")}
+          title="Top - Right Alignment"
           config={{
-            label: { text: trans("componentDoc.userName"), align: "right" },
+            label: { text: trans("componentDoc.userName"), position: "column", align: "right" },
             placeholder: trans("componentDoc.pleaseInputName"),
           }}
           compFactory={InputComp}
@@ -74,6 +88,20 @@ export default function InputExample() {
           title={trans("componentDoc.workCount")}
           config={{
             showCount: "true",
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Show Prefix Icon"
+          config={{
+            prefixIcon: "/icon:solid/align-center",
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Show suffix Icon"
+          config={{
+            suffixIcon: "/icon:solid/arrow-down-long",
           }}
           compFactory={InputComp}
         />
@@ -110,6 +138,28 @@ export default function InputExample() {
             required: true,
             allowClear: true,
             showValidationWhenEmpty: true,
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Check for Maximum Length ( 5 characters )"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            required: true,
+            showValidationWhenEmpty: true,
+            minLength: 3,
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Check for Maximum Length ( 5 characters )"
+          width={340}
+          config={{
+            label: { text: trans("componentDoc.userName") },
+            required: true,
+            showValidationWhenEmpty: true,
+            maxLength: 5,
           }}
           compFactory={InputComp}
         />
@@ -158,6 +208,114 @@ export default function InputExample() {
             required: true,
             validationType: "Regex",
             regex: "^[A-Z]{3}\\d[a-z]{3}\\d[A-Z]{3}\\d$"
+          }}
+          compFactory={InputComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Checkbox Component."
+      >
+        <Example
+          title="Select component Styling properties"
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "margin": "10px",
+              "padding": "10px",
+              "text": "#222222",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px",
+            },
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Label Styling properties"
+          config={{
+            labelStyle: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#01865B",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "18px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderWidth": "2px",
+              "borderStyle": "solid",
+            },
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Input Field Styling properties"
+          config={{
+            inputFieldStyle: {
+              "background": "#F20B0B",
+              "padding": "10px",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "dashed",
+              "radius": "11px",
+              "borderWidth": "3px",
+              "accent": "#0EDF99",
+              "validate": "#36B389",
+              "text": "#FFF",
+            },
+          }}
+          compFactory={InputComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the CheckBox Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={InputComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
           }}
           compFactory={InputComp}
         />

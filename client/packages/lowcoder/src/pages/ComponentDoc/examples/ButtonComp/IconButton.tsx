@@ -90,6 +90,7 @@ export default function IconButtonExample() {
         <Example
           title="Icon Size - 30px"
           width={120}
+          height={50}
           config={{
             prefixIcon: "/icon:antd/audiofilled",
             iconSize: "30px",
@@ -103,6 +104,7 @@ export default function IconButtonExample() {
         <Example
           title="Icon Size - 40px"
           width={120}
+          height={60}
           config={{
             prefixIcon: "/icon:antd/audiofilled",
             iconSize: "40px",
@@ -113,6 +115,30 @@ export default function IconButtonExample() {
           }}
           compFactory={ControlButton}
         />
+        <Example
+          title="Custom Styling"
+          width={120}
+          height={50}
+          config={{
+            prefixIcon: "/icon:antd/audiofilled",
+            style: {
+              "background": "linear-gradient(90deg, #fa709a 0%, #fee140 100%)",
+              "padding": "10px",
+              "text": "#222222",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "16px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px"
+            },
+          }}
+          compFactory={ControlButton}
+                />
       </ExampleGroup>
     </>
   );

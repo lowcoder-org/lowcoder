@@ -36,9 +36,18 @@ export default function ToggleButtonExample() {
         }}
           compFactory={ToggleButtonComp}
         />
+        <Example
+          title="Hiding the Toggle Button"
+          width={120}
+          config={{
+            text: trans("componentDoc.submit"), 
+            hidden: true 
+        }}
+          compFactory={ToggleButtonComp}
+        />
       </ExampleGroup>
       
-      <ExampleGroup title="Advanced">
+      <ExampleGroup title="Advanced Usage">
         <Example
           title="Hide Text"
           width={120}
@@ -101,6 +110,74 @@ export default function ToggleButtonExample() {
           config={{
             text: trans("componentDoc.submit"),
             alignment: "stretch",
+          }}
+          compFactory={ToggleButtonComp}
+        />
+         <Example
+            title="Custom Styling"
+            width={180}
+            config={{
+              text: trans("componentDoc.submit"),
+              style: {
+                "background": "linear-gradient(90deg, #fa709a 0%, #fee140 100%)",
+                "padding": "10px",
+                "text": "#222222",
+                "textTransform": "Uppercase",
+                "textDecoration": "underline",
+                "textSize": "16px",
+                "textWeight": "bold",
+                "fontFamily": "Courier New",
+                "fontStyle": "italic",
+                "border": "#222222",
+                "borderStyle": "solid",
+                "radius": "10px",
+                "borderWidth": "2px"
+              },
+            }}
+            compFactory={ToggleButtonComp}
+          />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Toggle Button Component."
+      >
+        <Example
+          title="Bounce Animation"
+          width={120}
+          config={{
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={ToggleButtonComp}
+        />
+        <Example
+          title="Swing Animation"
+          width={120}
+          config={{
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={ToggleButtonComp}
+        />
+        <Example
+          title="Tada Animation"
+          width={120}
+          config={{
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
           }}
           compFactory={ToggleButtonComp}
         />
