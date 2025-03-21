@@ -259,7 +259,11 @@ QueryCompTmp = class extends QueryCompTmp {
         || isInputChangeTrigger
         || (isPageLoadTrigger && notExecuted)
       )
-      // && (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
+      && (
+        !isJsQuery
+        || (isJsQuery && !isAutomatic)
+        || (isJsQuery && isAutomatic && notExecuted)
+      ) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
       const depends = this.children.comp.node()?.dependValues();
