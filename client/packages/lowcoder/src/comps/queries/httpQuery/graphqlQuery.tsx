@@ -15,6 +15,7 @@ import {
   HttpParametersPropertyView,
   HttpPathPropertyView,
 } from "./httpQueryConstants";
+import { SimpleNameComp } from "@lowcoder-ee/comps/comps/simpleNameComp";
 
 interface VariablesControlParams {
   // variables: string[]; todo support parse variables

@@ -70,7 +70,7 @@ public class ApplicationApiServiceIntegrationTest {
         });
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
-                        "org01",
+                        "org01", null,
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
@@ -104,7 +104,7 @@ public class ApplicationApiServiceIntegrationTest {
         });
         //
         Mono<ApplicationView> applicationViewMono = datasourceMono.map(datasource -> new CreateApplicationRequest(
-                        "org01",
+                        "org01", null,
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
@@ -129,7 +129,7 @@ public class ApplicationApiServiceIntegrationTest {
     @Test
     @WithMockUser
     public void testUpdateEditingStateSuccess() {
-        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null));
+        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null));
         Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
         Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId()));
         StepVerifier.create(app)

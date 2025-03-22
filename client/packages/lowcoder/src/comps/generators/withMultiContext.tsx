@@ -125,7 +125,11 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
       const params = this.cacheParamsMap.get(key);
       if (_.isNil(comp) && !_.isNil(params)) {
         const mapComps = this.getMap();
-        if (mapComps.hasOwnProperty(key) && !paramsEqual(params, mapComps[key].getParams())) {
+        if (
+          Object.keys(mapComps).length === Object.keys(this.cacheParamsMap.getMap()).length
+          && mapComps.hasOwnProperty(key)
+          && !paramsEqual(params, mapComps[key].getParams())
+        ) {
           // refresh the item, since params changed
           // this.dispatch(deferAction(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key]))));
           this.dispatch(wrapChildAction(MAP_KEY, MapCtor.batchDeleteAction([key])));
@@ -177,16 +181,18 @@ export function withMultiContext<TCtor extends MultiCompConstructor>(VariantComp
         const params = comp.cacheParamsMap.get(key);
         if (params) {
           const childComp = comp
-            .getComp(key)!
+            .getOriginalComp()
             .setParams(params)
             .changeDispatch(wrapDispatch(wrapDispatch(comp.dispatch, MAP_KEY), key));
           const newChildComp = childComp.reduce(childAction);
           
-          const comps = { [key]: newChildComp };
-          comp = comp.setChild(
-            MAP_KEY,
-            comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(comps))
-          );
+          if (childComp !== newChildComp) {
+            const comps = { [key]: newChildComp };
+            comp = comp.setChild(
+              MAP_KEY,
+              comp.children[MAP_KEY].reduce(MapCtor.batchSetCompAction(comps))
+            );
+          }
         }
       } else {
         comp = super.reduce(action);

@@ -93,7 +93,6 @@ export function calcGridItemSizePx(
   const width = calcGridItemWHPx(w, colWidth, margin[0], false);
 
   const isTouchSBound = top ? isTouchBound(maxRows, rowHeight, h, top) : false;
-  // console.log('positionParams',positionParams);
   const height = calcGridItemWHPx(h, rowHeight, margin[1], isTouchSBound);
   return { width, height };
 }

@@ -1,6 +1,11 @@
 import { MultiCompBuilder } from "lowcoder-sdk";
 import { PieSeriesOption } from "echarts";
-import { dropdownControl } from "lowcoder-sdk";
+import { 
+  dropdownControl,
+  NumberControl,
+  StringControl,
+  withDefault,
+ } from "lowcoder-sdk";
 import { ConstructorToView } from "lowcoder-core";
 import { trans } from "i18n/comps";
 
@@ -17,6 +22,14 @@ const BarTypeOptions = [
     label: trans("chart.rosePie"),
     value: "rosePie",
   },
+  {
+    label: trans("chart.calendarPie"),
+    value: "calendarPie",
+  },
+  {
+    label: trans("chart.geoPie"),
+    value: "geoPie",
+  },
 ] as const;
 
 // radius percent for each pie chart when one line has [1, 2, 3] pie charts
@@ -28,19 +41,36 @@ export const PieChartConfig = (function () {
   return new MultiCompBuilder(
     {
       type: dropdownControl(BarTypeOptions, "basicPie"),
+      cellSize: withDefault(NumberControl, 40),
+      range: withDefault(StringControl, "2021-09"),
+      mapUrl: withDefault(StringControl, "https://echarts.apache.org/examples/data/asset/geo/USA.json"),
     },
     (props): PieSeriesOption => {
       const config: PieSeriesOption = {
         type: "pie",
+        subtype: props.type,
         label: {
           show: true,
           formatter: "{d}%",
         },
+        range: props.range,
       };
       if (props.type === "rosePie") {
         config.roseType = "area";
-      } else if (props.type === "doughnutPie") {
+      }
+      if (props.type === "doughnutPie") {
         config.radius = ["40%", "60%"];
+      }
+      if (props.type === "calendarPie") {
+        config.coordinateSystem = 'calendar';
+        config.cellSize = [props.cellSize, props.cellSize];
+        config.label = {
+          ...config.label,
+          position: 'inside'
+        };
+      }
+      if (props.type === "geoPie") {
+        config.mapUrl = props.mapUrl;
       }
       return config;
     }
@@ -49,6 +79,15 @@ export const PieChartConfig = (function () {
       <>
         {children.type.propertyView({
           label: trans("chart.pieType"),
+        })}
+        {children.type.getView() === "calendarPie" && children.cellSize.propertyView({
+          label: trans("lineChart.cellSize"),
+        })}
+        {children.type.getView() === "calendarPie" && children.range.propertyView({
+          label: trans("lineChart.range"),
+        })}
+        {children.type.getView() === "geoPie" && children.mapUrl.propertyView({
+          label: trans("pieChart.mapUrl"),
         })}
       </>
     ))

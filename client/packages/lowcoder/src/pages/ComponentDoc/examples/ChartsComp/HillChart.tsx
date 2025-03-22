@@ -11,10 +11,12 @@ export default function HillChartExample() {
     <>
       <ExampleGroup
         title={trans("componentDoc.basicUsage")}
-        description={trans("componentDoc.basicDemoDescription")}
+        description="The Following Examples Show the Basic Usage of the Hill Chart Component."
       >
         <Example
-          title={trans("componentDoc.default")}
+          title="Default Hill Chart"
+          hideSettings={true}
+          width={700}
           config={{
           }}
           compFactory={ChartCompWithDefault}

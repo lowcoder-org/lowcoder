@@ -105,6 +105,7 @@ export * from "comps/controls/stringSimpleControl";
 export * from "comps/controls/styleControl";
 export * from "comps/controls/styleControlConstants";
 export * from "comps/controls/slotControl";
+export * from "comps/controls/sliderControl";
 
 // generators
 export * from "comps/generators/changeDataType";

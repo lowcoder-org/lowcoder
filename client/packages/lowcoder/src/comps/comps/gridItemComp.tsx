@@ -55,6 +55,7 @@ const TmpComp = withTypeAndChildren<
           undefined,
           undefined,
           manifest.withoutLoading,
+          manifest.layoutInfo?.h,
         )
       }
       const comp = manifest.withoutLoading ? manifest.comp : withIsLoading(manifest.comp!);
@@ -96,6 +97,7 @@ const CachedPropertyView = React.memo((props: {
   useEffect(() => {
     setSearchText("");
   }, [props.name]);
+
   return useMemo(() => {
     return (
       <>

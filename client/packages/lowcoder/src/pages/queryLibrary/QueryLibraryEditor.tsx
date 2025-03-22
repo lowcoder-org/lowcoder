@@ -47,6 +47,7 @@ import { registryDataSourcePlugin } from "constants/queryConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Helmet } from "react-helmet";
 import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
+import { isEmpty } from "lodash";
 
 const Wrapper = styled.div`
   display: flex;
@@ -393,16 +394,38 @@ function useSaveQueryLibrary(
   const dispatch = useDispatch();
   const [prevComp, setPrevComp] = useState<Comp>();
   const [prevJsonStr, setPrevJsonStr] = useState<string>();
+  const [prevQueryId, setPrevQueryId] = useState<string>();
+  const queryId = query?.id;
 
   useEffect(() => {
-    if (!comp || comp === prevComp || !query || !comp?.children.query.children.id.getView()) {
+    if (!comp || comp === prevComp) {
       return;
     }
+
     const curJson = comp.toJsonValue();
     const curJsonStr = JSON.stringify(curJson);
+
+    if (isEmpty(curJson?.query?.comp)) {
+      return;
+    }
+    if (!Boolean(prevQueryId) && Boolean(queryId)) {
+      setPrevComp(comp);
+      setPrevJsonStr(curJsonStr);
+      return setPrevQueryId(queryId);
+    }
+    if (prevQueryId !== queryId) {
+      setPrevComp(comp);
+      setPrevJsonStr(curJsonStr);
+      return setPrevQueryId(queryId);
+    }
+    if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
+      setPrevComp(comp)
+      return setPrevJsonStr(curJsonStr);
+    }
     if (prevJsonStr === curJsonStr) {
       return;
     }
+
     // the first time is a normal change, the latter is the manual update
     if (prevComp) {
       query.name = comp.children.query.children.name.getView();
@@ -411,5 +434,6 @@ function useSaveQueryLibrary(
     }
     setPrevComp(comp);
     setPrevJsonStr(curJsonStr);
-  }, [comp, query, prevComp, prevJsonStr, dispatch]);
+    setPrevQueryId(queryId);
+  }, [comp, queryId, dispatch]);
 }

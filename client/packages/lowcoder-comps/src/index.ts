@@ -19,10 +19,24 @@ import { MeetingControllerComp } from "./comps/agoraMeetingComp/meetingControlle
 import { VideoMeetingStreamComp } from "./comps/agoraMeetingComp/videoMeetingStreamComp";
 import { VideoSharingStreamComp } from "./comps/agoraMeetingComp/videoSharingStreamComp";
 import { BasicChartCompWithDefault } from "comps/basicChartComp/chartComp";
+import { BarChartCompWithDefault } from "comps/barChartComp/barChartComp";
+import { LineChartCompWithDefault } from "comps/lineChartComp/lineChartComp";
+import { PieChartCompWithDefault } from "comps/pieChartComp/pieChartComp";
+import { ScatterChartCompWithDefault } from "comps/scatterChartComp/scatterChartComp";
+import { BoxplotChartCompWithDefault } from "comps/boxplotChartComp/boxplotChartComp";
+import { ParallelChartCompWithDefault } from "comps/parallelChartComp/parallelChartComp";
+import { Line3DChartCompWithDefault } from "comps/line3dChartComp/line3dChartComp";
 
 export default {
   chart: ChartCompWithDefault,
   basicChart: BasicChartCompWithDefault,
+  barChart: BarChartCompWithDefault,
+  lineChart: LineChartCompWithDefault,
+  pieChart: PieChartCompWithDefault,
+  scatterChart: ScatterChartCompWithDefault,
+  boxplotChart: BoxplotChartCompWithDefault,
+  parallelChart: ParallelChartCompWithDefault,
+  line3dChart: Line3DChartCompWithDefault,
   chartsGeoMap: ChartsGeoMapComp,
   funnelChart: FunnelChartCompWithDefault,
   gaugeChart: GaugeChartCompWithDefault,

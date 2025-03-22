@@ -134,6 +134,8 @@ function CreateApiKeyModal(props: CreateApiKeyModalProps) {
       width="500px"
       title={"Create API Key"}
       open={modalVisible}
+      showOkButton
+      showCancelButton
       okText={"Save"}
       okButtonProps={{
         loading: saveLoading

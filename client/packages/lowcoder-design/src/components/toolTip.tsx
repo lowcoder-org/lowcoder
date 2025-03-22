@@ -155,7 +155,7 @@ export const UnderlineCss = css`
 `;
 
 function Tooltip(props: TooltipProps) {
-  return <AntdTooltip color="#2c2c2c2" overlayInnerStyle={overlayInnerCss} {...props} />;
+  return <AntdTooltip color="#2c2c2c2" styles={{ body: overlayInnerCss }} {...props} />;
 }
 
 const Label = styled.div<{ $border?: boolean }>`
@@ -181,7 +181,9 @@ function ToolTipLabel(
     <AntdTooltip
       color="#2c2c2c"
       title={title && <TooltipTitleWrapper><>{title}</></TooltipTitleWrapper>}
-      overlayInnerStyle={{ maxWidth: "232px", whiteSpace: "break-spaces" }}
+      styles={{
+        body: { maxWidth: "232px", whiteSpace: "break-spaces" }
+      }}
       arrow={{
         pointAtCenter: true
       }}

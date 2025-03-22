@@ -6,7 +6,7 @@ function styleNamespace(id: string) {
 
 export function evalStyle(id: string, css: string[], globalStyle?: boolean) {
   const styleId = styleNamespace(id);
-  const prefixId = globalStyle ? id : `#${id}`
+  const prefixId = globalStyle ? id : `.${id}`;
   let compiledCSS = "";
   css.forEach((i) => {
     if (!i.trim()) {

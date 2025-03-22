@@ -114,6 +114,13 @@ public class LibraryQueryApiServiceImpl implements LibraryQueryApiService {
     }
 
     @Override
+    public Mono<LibraryQueryView> get(String libraryQueryId) {
+        return libraryQueryService.getById(libraryQueryId)
+                .zipWhen(lb -> userService.findById(lb.getCreatedBy()))
+                .map(tuple -> LibraryQueryView.from(tuple.getT1(), tuple.getT2()));
+    }
+
+    @Override
     public Mono<LibraryQueryView> create(LibraryQuery libraryQuery) {
         return checkLibraryQueryManagementPermission(libraryQuery)
                 .then(libraryQueryService.insert(libraryQuery))

@@ -219,6 +219,7 @@ export class ColumnComp extends ColumnInitComp {
     const columnType = this.children.render.getSelectedComp().getComp().children.compType.getView();
     return {
       ...superView,
+      columnType,
       editable: ColumnTypeCompMap[columnType].canBeEditable() && superView.editable,
     };
   }

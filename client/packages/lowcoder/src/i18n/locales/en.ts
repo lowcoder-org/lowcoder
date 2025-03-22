@@ -979,7 +979,8 @@ export const en = {
     "documents": "Document & File Management",
     "itemHandling": "Item & Signature Handling",
     "multimedia": "Multimedia & Animation",
-    "integration": "Integration & Extension"
+    "integration": "Integration & Extension",
+    "legacy" : "Legacy & Deprecated"
   },
   "uiComp": {
     "autoCompleteCompName": "Auto Complete",
@@ -1210,7 +1211,7 @@ export const en = {
     "drawerCompDesc": "A sliding panel component that can be used for additional navigation or content display, typically emerging from the edge of the screen.",
     "drawerCompKeywords": "drawer, sliding, panel, navigation",
 
-    "chartCompName": "Chart",
+    "chartCompName": "Chart (deprecated)",
     "chartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
     "chartCompKeywords": "chart, graph, data, visualization",
 
@@ -1334,7 +1335,7 @@ export const en = {
     "themeriverChartCompDesc": "A visualization resembling a stream graph that shows changes in a data set over time across categories.",
     "themeriverChartCompKeywords": "theme river, time series, trends",
 
-    "basicChartCompName": "Basic Chart",
+    "basicChartCompName": "Multitype Chart",
     "basicChartCompDesc": "A versatile component for visualizing data through various types of charts and graphs.",
     "basicChartCompKeywords": "chart, graph, data, visualization",
 
@@ -1349,6 +1350,22 @@ export const en = {
     "kanbanCompName" : "Kanban Board (preview!)",
     "kanbanCompDesc" : "A board for visualizing workflow, with columns representing stages of work and cards representing tasks.",
     "kanbanCompKeywords" : "kanban, board, workflow, tasks",
+
+    "pieChartCompName": "Pie Chart",
+    "pieChartCompDesc": "A versatile component for visualizing data with Pie Charts.",
+    "pieChartCompKeywords": "chart, data, visualization",
+
+    "lineChartCompName": "Line Chart",
+    "lineChartCompDesc": "A versatile component for visualizing data with Line Charts.",
+    "lineChartCompKeywords": "chart, data, visualization",
+
+    "barChartCompName": "Bar Chart",
+    "barChartCompDesc": "A versatile component for visualizing data with Bar Charts.",
+    "barChartCompKeywords": "chart, data, visualization",
+
+    "scatterChartCompName": "Scatter Chart",
+    "scatterChartCompDesc": "A versatile component for visualizing data with Scatter Charts.",
+    "scatterChartCompKeywords": "chart, data, visualization",
 
     // by mousheng
 
@@ -2029,6 +2046,7 @@ export const en = {
     "tag": "Tag",
     "select": "Select",
     "dropdown": "Dropdown",
+    "time" : "Time",
     "date": "Date",
     "dateTime": "Date Time",
     "badgeStatus": "Status",
@@ -2629,6 +2647,7 @@ export const en = {
     "copyToClipboard": "Copy to Clipboard",
     "downloadFile": "Download File",
     "logoutUser" : "Logout User",
+    "resetPassword" : "Reset Password",
   },
   "messageComp": {
     "info": "Send a Notification",
@@ -3376,6 +3395,7 @@ export const en = {
   },
   
   "support" : {
+    "selfUser" : "You",
     "supportTitle": "Lowcoder Support",
     "supportContent": "If you have any questions or need help, please use the ticket system get your issue solved fast.",
     "newSupportTicket": "New Support Ticket",

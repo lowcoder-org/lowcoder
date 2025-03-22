@@ -184,6 +184,15 @@ public interface OrganizationEndpoints
 	@PutMapping("/{orgId}/slug")
     Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug);
 
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "getOrganization",
+			summary = "Get Organization by ID",
+			description = "Retrieve details of a specific Organization within Lowcoder using its unique ID."
+	)
+	@GetMapping("/{orgId}")
+	public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId);
+
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 
     }

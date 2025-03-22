@@ -11,6 +11,8 @@ public interface FolderService {
 
     Mono<Folder> findById(String id);
 
+    Flux<Folder> findByIds(Collection<String> ids);
+
     Mono<Folder> create(Folder folder);
 
     Flux<Folder> findByOrganizationId(String organizationId);
