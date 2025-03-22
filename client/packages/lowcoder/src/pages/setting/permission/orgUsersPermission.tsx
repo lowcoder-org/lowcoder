@@ -45,6 +45,7 @@ import { validateResponse } from "api/apiUtils";
 import copyToClipboard from "copy-to-clipboard";
 import { BackgroundColor } from "constants/style";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { Table, TableProps } from "antd";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -61,7 +62,7 @@ type UsersPermissionProp = {
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
-  const { Column } = TableStyled;
+  // const { Column } = TableStyled;
   const { orgId, orgUsers, currentUser , setModify, modify} = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
@@ -143,159 +144,162 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           style={{ marginLeft: "auto" }}
         />
       </PermissionHeaderWrapper>
-      <TableStyled
+      <TableStyled as={Table as React.FC<TableProps<OrgUser>>}
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         dataSource={sortedOrgUsers}
         rowKey="userId"
         pagination={false}
         loading={orgUsers.length === 0}
-      >
-        <Column
-          title={trans("memberSettings.nameColumn")}
-          dataIndex="name"
-          key="name"
-          ellipsis
-          render={(value, record: OrgUser) => (
-            <UserTableCellWrapper>
-              <ProfileImage source={record.avatarUrl} userName={record.name} side={34} />
-              <span title={record.name}>{record.name}</span>
-              {record.role === ADMIN_ROLE && <SuperUserIcon />}
-            </UserTableCellWrapper>
-          )}
-        />
-        <Column
-          title={trans("memberSettings.joinTimeColumn")}
-          dataIndex="joinTime"
-          key="joinTime"
-          render={(value) => <span>{formatTimestamp(value)}</span>}
-          ellipsis
-        />
-        <Column
-          title={trans("memberSettings.roleColumn")}
-          dataIndex="role"
-          key="role"
-          className="role-table-cell"
-          render={(value, record: OrgUser) => (
-            <CustomSelect
-              style={{ width: "140px", height: "32px" }}
-              dropdownStyle={{ width: "149px" }}
-              defaultValue={record.role}
-              key={record.role}
-              optionLabelProp="label"
-              disabled={!currentOrgAdmin(currentUser) || currentUser.id === record.userId}
-              onChange={(val) => {
-                dispatch(
-                  updateUserOrgRoleAction({
-                    role: val,
-                    userId: record.userId,
-                    orgId: orgId,
-                  })
-                );
-              }}
-            >
-              {TacoRoles.map((role) => (
-                <CustomSelect.Option value={role} key={role} label={OrgRoleInfo[role].name}>
-                  <RoleSelectTitle>{OrgRoleInfo[role].name}</RoleSelectTitle>
-                  <RoleSelectSubTitle>{OrgRoleInfo[role].desc}</RoleSelectSubTitle>
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
-          )}
-        />
-        <Column
-          title={trans("memberSettings.actionColumn")}
-          key="action"
-          render={(value, record: OrgUser) => {
-            const operationItems: Array<EditPopoverItemType> = [];
-            // reset password
-            if (
-              currentOrgAdmin(currentUser) &&
-              sysConfig?.form.enableLogin &&
-              !isSaasMode(sysConfig)
-            ) {
-              const resetText = trans("userAuth.resetPassword");
-              operationItems.push({
-                text: resetText,
-                type: "delete",
-                onClick: () => {
-                  CustomModal.confirm({
-                    title: resetText,
-                    type: "warn",
-                    content: transToNode("userAuth.resetPasswordDesc", {
-                      name: <b>{record.name}</b>,
-                    }),
-                    onConfirm: () => onResetPass(record.userId),
-                    confirmBtnType: "delete",
-                  });
-                },
-              });
-            }
-            return (
-              <div className="operation-cell-div-wrapper">
-                {currentOrgAdmin(currentUser) && (
-                  <UserDetailPopup userId={record.userId} title={record.name} />
-                )}
-                {record.userId === currentUser.id ? (
-                  record.role === ADMIN_ROLE && adminCount === 1 ? (
-                    <QuestionTooltip title={LAST_ADMIN_QUIT} />
+        columns={[
+          {
+            title: trans("memberSettings.nameColumn"),
+            dataIndex: "name",
+            key: "name",
+            ellipsis: true,
+            render: (value, record: OrgUser) => (
+              <UserTableCellWrapper>
+                <ProfileImage source={record.avatarUrl} userName={record.name} side={34} />
+                <span title={record.name}>{record.name}</span>
+                {record.role === ADMIN_ROLE && <SuperUserIcon />}
+              </UserTableCellWrapper>
+            ),
+          },
+          {
+            title: trans("memberSettings.joinTimeColumn"),
+            dataIndex: "joinTime",
+            key: "joinTime",
+            ellipsis: true,
+            render: (value) => <span>{formatTimestamp(value)}</span>,
+          },
+          {
+            title: trans("memberSettings.roleColumn"),
+            dataIndex: "role",
+            key: "role",
+            className: "role-table-cell",
+            render: (value, record: OrgUser) => (
+              <CustomSelect
+                style={{ width: "140px", height: "32px" }}
+                dropdownStyle={{ width: "149px" }}
+                defaultValue={record.role}
+                key={record.role}
+                optionLabelProp="label"
+                disabled={!currentOrgAdmin(currentUser) || currentUser.id === record.userId}
+                onChange={(val) => {
+                  dispatch(
+                    updateUserOrgRoleAction({
+                      role: val,
+                      userId: record.userId,
+                      orgId: orgId,
+                    })
+                  );
+                }}
+              >
+                {TacoRoles.map((role) => (
+                  <CustomSelect.Option value={role} key={role} label={OrgRoleInfo[role].name}>
+                    <RoleSelectTitle>{OrgRoleInfo[role].name}</RoleSelectTitle>
+                    <RoleSelectSubTitle>{OrgRoleInfo[role].desc}</RoleSelectSubTitle>
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            ),
+          },
+          {
+            title: trans("memberSettings.actionColumn"),
+            key: "action",
+            render: (value, record: OrgUser) => {
+              const operationItems: Array<EditPopoverItemType> = [];
+      
+              if (
+                currentOrgAdmin(currentUser) &&
+                sysConfig?.form.enableLogin &&
+                !isSaasMode(sysConfig)
+              ) {
+                const resetText = trans("userAuth.resetPassword");
+                operationItems.push({
+                  text: resetText,
+                  type: "delete",
+                  onClick: () => {
+                    CustomModal.confirm({
+                      title: resetText,
+                      type: "warn",
+                      content: transToNode("userAuth.resetPasswordDesc", {
+                        name: <b>{record.name}</b>,
+                      }),
+                      onConfirm: () => onResetPass(record.userId),
+                      confirmBtnType: "delete",
+                    });
+                  },
+                });
+              }
+      
+              return (
+                <div className="operation-cell-div-wrapper">
+                  {currentOrgAdmin(currentUser) && (
+                    <UserDetailPopup userId={record.userId} title={record.name} />
+                  )}
+                  {record.userId === currentUser.id ? (
+                    record.role === ADMIN_ROLE && adminCount === 1 ? (
+                      <QuestionTooltip title={LAST_ADMIN_QUIT} />
+                    ) : (
+                      <span
+                        onClick={() => {
+                          CustomModal.confirm({
+                            title: trans("memberSettings.exitOrg"),
+                            type: "warn",
+                            content: trans("memberSettings.exitOrgDesc"),
+                            onConfirm: () => {
+                              dispatch(quitOrgAction(orgId));
+                            },
+                            confirmBtnType: "delete",
+                            okText: trans("memberSettings.exitOrg"),
+                          });
+                        }}
+                      >
+                        {trans("memberSettings.exitOrg")}
+                      </span>
+                    )
                   ) : (
-                    <span
-                      onClick={() => {
-                        CustomModal.confirm({
-                          title: trans("memberSettings.exitOrg"),
-                          type: "warn",
-                          content: trans("memberSettings.exitOrgDesc"),
-                          onConfirm: () => {
-                            dispatch(quitOrgAction(orgId));
-                          },
-                          confirmBtnType: "delete",
-                          okText: trans("memberSettings.exitOrg"),
-                        });
-                      }}
-                    >
-                      {trans("memberSettings.exitOrg")}
-                    </span>
-                  )
-                ) : (
-                  currentOrgAdmin(currentUser) && (
-                    <span
-                      onClick={() => {
-                        CustomModal.confirm({
-                          title: trans("memberSettings.moveOutOrg"),
-                          type: "warn",
-                          content: transToNode(
-                            isSaasMode(sysConfig)
-                              ? "memberSettings.moveOutOrgDescSaasMode"
-                              : "memberSettings.moveOutOrgDesc",
-                            { name: <b>{record.name}</b> }
-                          ),
-                          onConfirm: () => {
-                            dispatch(
-                              deleteOrgUserAction({
-                                userId: record.userId,
-                                orgId: orgId,
-                              })
-                            );
+                    currentOrgAdmin(currentUser) && (
+                      <span
+                        onClick={() => {
+                          CustomModal.confirm({
+                            title: trans("memberSettings.moveOutOrg"),
+                            type: "warn",
+                            content: transToNode(
+                              isSaasMode(sysConfig)
+                                ? "memberSettings.moveOutOrgDescSaasMode"
+                                : "memberSettings.moveOutOrgDesc",
+                              { name: <b>{record.name}</b> }
+                            ),
+                            onConfirm: () => {
+                              dispatch(
+                                deleteOrgUserAction({
+                                  userId: record.userId,
+                                  orgId: orgId,
+                                })
+                              );
                               setTimeout(() => {
-                                  setModify(!modify);
+                                setModify?.(!modify);
                               }, 200);
-                          },
-                          confirmBtnType: "delete",
-                          okText: trans("memberSettings.moveOutOrg"),
-                        });
-                      }}
-                    >
-                      {trans("memberSettings.moveOutOrg")}
-                    </span>
-                  )
-                )}
-                {operationItems.length > 0 && <EditPopover items={operationItems} />}
-              </div>
-            );
-          }}
+                            },
+                            confirmBtnType: "delete",
+                            okText: trans("memberSettings.moveOutOrg"),
+                          });
+                        }}
+                      >
+                        {trans("memberSettings.moveOutOrg")}
+                      </span>
+                    )
+                  )}
+                  {operationItems.length > 0 && <EditPopover items={operationItems} />}
+                </div>
+              );
+            },
+          },
+        ]}
         />
-      </TableStyled>
+      
     </>
   );
 }

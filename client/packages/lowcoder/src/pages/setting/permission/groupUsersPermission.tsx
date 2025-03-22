@@ -30,6 +30,7 @@ import {
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
+import { Table, TableProps } from "antd";
 
 const StyledAddIcon = styled(AddIcon)`
   g path {
@@ -48,7 +49,7 @@ type GroupPermissionProp = {
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
-  const { Column } = TableStyled;
+  // const { Column } = TableStyled;
   const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
@@ -91,78 +92,77 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           />
         )}
       </PermissionHeaderWrapper>
-      <TableStyled
+      <TableStyled as={Table as React.FC<TableProps<GroupUser>>}
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
         loading={groupUsers.length === 0}
-      >
-        <Column
-          title={trans("memberSettings.nameColumn")}
-          dataIndex="userName"
-          key="userName"
-          ellipsis
-          render={(value, record: GroupUser) => (
-            <UserTableCellWrapper>
-              <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
-              <span title={record.userName}>{record.userName}</span>
-              {isGroupAdmin(record.role) && <SuperUserIcon />}
-            </UserTableCellWrapper>
-          )}
-        />
-        <Column
-          title={trans("memberSettings.joinTimeColumn")}
-          dataIndex="joinTime"
-          key="joinTime"
-          render={(value) => <span>{formatTimestamp(value)}</span>}
-          ellipsis
-        />
-        <Column
-          title={trans("memberSettings.roleColumn")}
-          dataIndex="role"
-          key="role"
-          render={(value, record: GroupUser) => (
-            <CustomSelect
-              style={{ width: "140px", height: "32px" }}
-              dropdownStyle={{ width: "149px" }}
-              defaultValue={record.role}
-              key={record.role}
-              disabled={
-                !isGroupAdmin(currentUserGroupRole) ||
-                currentUser.id === record.userId ||
-                group.syncGroup
-              }
-              optionLabelProp="label"
-              suffixIcon={<PackUpIcon />}
-              onChange={(val) => {
-                dispatch(
-                  updateUserGroupRoleAction({
-                    role: val,
-                    userId: record.userId,
-                    groupId: group.groupId,
-                  })
-                );
+        columns={[
+          {
+            title: trans("memberSettings.nameColumn"),
+            dataIndex: "userName",
+            key: "userName",
+            ellipsis: true,
+            render: (value, record) => (
+              <UserTableCellWrapper>
+                <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
+                <span title={record.userName}>{record.userName}</span>
+                {isGroupAdmin(record.role) && <SuperUserIcon />}
+              </UserTableCellWrapper>
+            ),
+          },
+          {
+            title: trans("memberSettings.joinTimeColumn"),
+            dataIndex: "joinTime",
+            key: "joinTime",
+            ellipsis: true,
+            render: (value) => <span>{formatTimestamp(value)}</span>,
+          },
+          {
+            title: trans("memberSettings.roleColumn"),
+            dataIndex: "role",
+            key: "role",
+            render: (value, record) => (
+              <CustomSelect
+                style={{ width: "140px", height: "32px" }}
+                dropdownStyle={{ width: "149px" }}
+                defaultValue={record.role}
+                key={record.role}
+                disabled={
+                  !isGroupAdmin(currentUserGroupRole) ||
+                  currentUser.id === record.userId ||
+                  group.syncGroup
+                }
+                optionLabelProp="label"
+                suffixIcon={<PackUpIcon />}
+                onChange={(val) => {
+                  dispatch(
+                    updateUserGroupRoleAction({
+                      role: val,
+                      userId: record.userId,
+                      groupId: group.groupId,
+                    })
+                  );
                   setTimeout(() => {
-                      setModify(!modify);
+                    setModify?.(!modify);
                   }, 200);
-              }}
-            >
-              {TacoRoles.map((role) => (
-                <CustomSelect.Option key={role} value={role} label={GroupRoleInfo[role].name}>
-                  <RoleSelectTitle>{GroupRoleInfo[role].name}</RoleSelectTitle>
-                  <RoleSelectSubTitle>{GroupRoleInfo[role].desc}</RoleSelectSubTitle>
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
-          )}
-        />
-        <Column
-          title={trans("memberSettings.actionColumn")}
-          key="action"
-          render={(value, record: GroupUser) => {
-            return (
+                }}
+              >
+                {TacoRoles.map((role) => (
+                  <CustomSelect.Option key={role} value={role} label={GroupRoleInfo[role].name}>
+                    <RoleSelectTitle>{GroupRoleInfo[role].name}</RoleSelectTitle>
+                    <RoleSelectSubTitle>{GroupRoleInfo[role].desc}</RoleSelectSubTitle>
+                  </CustomSelect.Option>
+                ))}
+              </CustomSelect>
+            ),
+          },
+          {
+            title: trans("memberSettings.actionColumn"),
+            key: "action",
+            render: (value, record) =>
               !group.syncGroup && (
                 <div className="operation-cell-div-wrapper">
                   {currentOrgAdmin(currentUser) && (
@@ -177,9 +177,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                           dispatch(
                             quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
                           );
-                            setTimeout(() => {
-                                setModify(!modify);
-                            }, 200);
+                          setTimeout(() => {
+                            setModify?.(!modify);
+                          }, 200);
                         }}
                       >
                         {trans("memberSettings.exitGroup")}
@@ -195,9 +195,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                               groupId: group.groupId,
                             })
                           );
-                            setTimeout(() => {
-                                setModify(!modify);
-                            }, 200);
+                          setTimeout(() => {
+                            setModify?.(!modify);
+                          }, 200);
                         }}
                       >
                         {trans("memberSettings.moveOutGroup")}
@@ -205,11 +205,10 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                     )
                   )}
                 </div>
-              )
-            );
-          }}
-        />
-      </TableStyled>
+              ),
+          },
+        ]}
+      />
     </>
   );
 }
