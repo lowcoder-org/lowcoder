@@ -1,6 +1,6 @@
 {
   "name": "lowcoder-design",
-  "version": "2.6.4",
+  "version": "0.0.1",
   "types": "src/index.ts",
   "main": "src/index.ts",
   "scripts": {
