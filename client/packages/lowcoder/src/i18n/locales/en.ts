@@ -1350,6 +1350,22 @@ export const en = {
     "kanbanCompDesc" : "A board for visualizing workflow, with columns representing stages of work and cards representing tasks.",
     "kanbanCompKeywords" : "kanban, board, workflow, tasks",
 
+    "pieChartCompName": "Pie Chart",
+    "pieChartCompDesc": "A versatile component for visualizing data with Pie Charts.",
+    "pieChartCompKeywords": "chart, data, visualization",
+
+    "lineChartCompName": "Line Chart",
+    "lineChartCompDesc": "A versatile component for visualizing data with Line Charts.",
+    "lineChartCompKeywords": "chart, data, visualization",
+
+    "barChartCompName": "Bar Chart",
+    "barChartCompDesc": "A versatile component for visualizing data with Bar Charts.",
+    "barChartCompKeywords": "chart, data, visualization",
+
+    "scatterChartCompName": "Scatter Chart",
+    "scatterChartCompDesc": "A versatile component for visualizing data with Scatter Charts.",
+    "scatterChartCompKeywords": "chart, data, visualization",
+
     // by mousheng
 
     "colorPickerCompName": "Color Picker",

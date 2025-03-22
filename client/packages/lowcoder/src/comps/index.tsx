@@ -97,7 +97,6 @@ import {
 
   CandlestickChartCompIcon,
   FunnelChartCompIcon,
-  // GraphChartCompIcon,
   HeatmapChartCompIcon,
   GaugeChartCompIcon,
   RadarChartCompIcon,
@@ -115,7 +114,10 @@ import {
   GraphChartCompIcon,
   GanttCompIcon,
   KanbanCompIcon,
-
+  PieChartCompIcon,
+  BarChartCompIcon,
+  LineChartCompIcon,
+  ScatterChartCompIcon
 } from "lowcoder-design";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { TableComp } from "./comps/tableComp/tableComp";
@@ -235,13 +237,13 @@ export var uiCompMap: Registry = {
   },
 
   barChart: {
-    name: trans("uiComp.basicChartCompName"),
+    name: trans("uiComp.barChartCompName"),
     enName: "Bar Chart",
-    description: trans("uiComp.basicChartCompDesc"),
+    description: trans("uiComp.barChartCompDesc"),
     categories: ["dashboards"],
-    icon: ChartCompIcon,
+    icon: BarChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "barChart" }),
-    keywords: trans("uiComp.basicChartCompKeywords"),
+    keywords: trans("uiComp.barChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
@@ -249,13 +251,13 @@ export var uiCompMap: Registry = {
   },
 
   lineChart: {
-    name: trans("uiComp.basicChartCompName"),
+    name: trans("uiComp.lineChartCompName"),
     enName: "Line Chart",
-    description: trans("uiComp.basicChartCompDesc"),
+    description: trans("uiComp.lineChartCompDesc"),
     categories: ["dashboards"],
-    icon: ChartCompIcon,
+    icon: LineChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "lineChart" }),
-    keywords: trans("uiComp.basicChartCompKeywords"),
+    keywords: trans("uiComp.lineChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
@@ -263,13 +265,13 @@ export var uiCompMap: Registry = {
   },
 
   pieChart: {
-    name: trans("uiComp.basicChartCompName"),
+    name: trans("uiComp.pieChartCompName"),
     enName: "Pie Chart",
-    description: trans("uiComp.basicChartCompDesc"),
+    description: trans("uiComp.piehartCompDesc"),
     categories: ["dashboards"],
-    icon: ChartCompIcon,
+    icon: PieChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "pieChart" }),
-    keywords: trans("uiComp.basicChartCompKeywords"),
+    keywords: trans("uiComp.pieChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
@@ -277,13 +279,13 @@ export var uiCompMap: Registry = {
   },
 
   scatterChart: {
-    name: trans("uiComp.basicChartCompName"),
+    name: trans("uiComp.scatterChartCompName"),
     enName: "Scatter Chart",
-    description: trans("uiComp.basicChartCompDesc"),
+    description: trans("uiComp.scatterChartCompDesc"),
     categories: ["dashboards"],
-    icon: ChartCompIcon,
+    icon: ScatterChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "scatterChart" }),
-    keywords: trans("uiComp.basicChartCompKeywords"),
+    keywords: trans("uiComp.scatterChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
