@@ -26,11 +26,19 @@ export default function PasswordExample() {
           }}
           compFactory={PasswordComp}
         />
+        <Example
+          title="Hiding the Password"
+          config={{
+            placeholder: trans("componentDoc.pleaseInputPassword"),
+            hidden: true,
+          }}
+          compFactory={PasswordComp}
+        />
       </ExampleGroup>
 
       <ExampleGroup title={trans("componentDoc.labelText")} description="">
         <Example
-          title={trans("componentDoc.left")}
+          title="Left - Left Alignment"
           config={{
             label: { text: trans("componentDoc.password"), position: "row" },
             placeholder: trans("componentDoc.pleaseInputPassword"),
@@ -38,17 +46,25 @@ export default function PasswordExample() {
           compFactory={PasswordComp}
         />
         <Example
-          title={trans("componentDoc.column")}
+          title="Left - Right Alignment"
+          config={{
+            label: { text: trans("componentDoc.password"), align: "right" },
+            placeholder: trans("componentDoc.pleaseInputPassword"),
+          }}
+          compFactory={PasswordComp}
+        />
+         <Example
+          title="Top - Left Alignment"
           config={{
             label: { text: trans("componentDoc.password"), position: "column" },
             placeholder: trans("componentDoc.pleaseInputPassword"),
           }}
           compFactory={PasswordComp}
         />
-        <Example
-          title={trans("componentDoc.textAlign")}
+         <Example
+          title="Top - Rightt Alignment"
           config={{
-            label: { text: trans("componentDoc.password"), align: "right" },
+            label: { text: trans("componentDoc.password"), position: "column", align: "right" },
             placeholder: trans("componentDoc.pleaseInputPassword"),
           }}
           compFactory={PasswordComp}
@@ -71,6 +87,7 @@ export default function PasswordExample() {
           compFactory={PasswordComp}
         />
       </ExampleGroup>
+
       <ExampleGroup title={trans("componentDoc.validation")} description="">
         <Example
           title={trans("componentDoc.required")}
@@ -101,6 +118,114 @@ export default function PasswordExample() {
             placeholder: trans("componentDoc.pleaseInputPassword"),
             required: true,
             showValidationWhenEmpty: true,
+          }}
+          compFactory={PasswordComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Checkbox Component."
+      >
+        <Example
+          title="Select component Styling properties"
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "margin": "10px",
+              "padding": "10px",
+              "text": "#222222",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px",
+            },
+          }}
+          compFactory={PasswordComp}
+        />
+        <Example
+          title="Label Styling properties"
+          config={{
+            labelStyle: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#01865B",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "18px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderWidth": "2px",
+              "borderStyle": "solid",
+            },
+          }}
+          compFactory={PasswordComp}
+        />
+        <Example
+          title="Input Field Styling properties"
+          config={{
+            inputFieldStyle: {
+              "background": "#F20B0B",
+              "padding": "10px",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "20px",
+              "textWeight": "bold",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "dashed",
+              "radius": "11px",
+              "borderWidth": "3px",
+              "accent": "#0EDF99",
+              "validate": "#36B389",
+              "text": "#FFF",
+            },
+          }}
+          compFactory={PasswordComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the CheckBox Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={PasswordComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={PasswordComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
           }}
           compFactory={PasswordComp}
         />
