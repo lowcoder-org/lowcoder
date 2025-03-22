@@ -1,6 +1,7 @@
 package org.lowcoder.infra.event;
 
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.annotation.Nullable;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
@@ -18,20 +19,33 @@ public class ApplicationCommonEvent extends AbstractEvent {
     private final String applicationDescription;
     private final EventType type;
     @Nullable
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String folderId;
     @Nullable
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String folderName;
     @Nullable
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String oldFolderId;
     @Nullable
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String oldFolderName;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String permissionId;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String role;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final Set<String> userIds;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final Set<String> groupIds;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String shareType;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String tag;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private final String commitMessage;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final Object sharingDetails;
 
     @Override
     public EventType getEventType() {

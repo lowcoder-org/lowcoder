@@ -1,5 +1,5 @@
 import { TacoButton } from "lowcoder-design/src/components/button"
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { useDispatch } from "react-redux";
 import { updateAppMetaAction } from "redux/reduxActions/applicationActions";
 import styled from "styled-components";
@@ -24,6 +24,7 @@ import { TypographyText } from "../../components/TypographyText";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {FolderIcon} from "icons";
+import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
 
 const ExecButton = styled(TacoButton)`
   width: 52px;
@@ -167,13 +168,15 @@ export function HomeResCard(props: { res: HomeRes; onMove: (res: HomeRes) => voi
     <Wrapper>
       <Card>
         {Icon && (
-          <Icon width={"42px"} height={"42px"} style={
-            { 
-              color: iconColor,
-              marginRight: "10px", 
-              flexShrink: 0 
-            }
-          } />
+          <BrandedIcon>
+            <Icon width={"42px"} height={"42px"} style={
+              { 
+                color: iconColor,
+                marginRight: "10px", 
+                flexShrink: 0 
+              }
+            } />
+          </BrandedIcon>
         )}
         <CardInfo
           onClick={(e) => {

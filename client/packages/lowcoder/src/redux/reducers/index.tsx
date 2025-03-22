@@ -14,6 +14,7 @@ import { combineReducers } from "redux";
 import npmPluginReducer, { NPMPluginState } from "./npmPluginReducers";
 import jsLibraryReducers, { JSLibraryState } from "./jsLibraryReducers";
 import { SubscriptionsReduxState } from "./uiReducers/subscriptionReducer";
+import { EnterpriseReduxState } from "./uiReducers/enterpriseReducer";
 
 export interface AppState {
   ui: {
@@ -25,6 +26,7 @@ export interface AppState {
     config: ConfigState;
     commonSettings: CommonSettingsState;
     subscriptions: SubscriptionsReduxState;
+    enterprise: EnterpriseReduxState;
   };
   entities: {
     datasource: DatasourceDataState;
