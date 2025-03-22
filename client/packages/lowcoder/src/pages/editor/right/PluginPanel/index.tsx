@@ -97,6 +97,8 @@ export default function PluginPanel() {
       </Footer>
       <CustomModal
         centered
+        showOkButton
+        showCancelButton
         title={trans("npm.addPluginModalTitle")}
         open={isAddModalShow}
         onOk={handleAddNewPlugin}

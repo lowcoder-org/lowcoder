@@ -97,6 +97,7 @@ const CachedPropertyView = React.memo((props: {
   useEffect(() => {
     setSearchText("");
   }, [props.name]);
+
   return useMemo(() => {
     return (
       <>

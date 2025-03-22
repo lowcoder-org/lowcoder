@@ -28,6 +28,24 @@ export default function ButtonExample() {
           config={{ type: "default", text: trans("componentDoc.submit"), disabled: true }}
           compFactory={ButtonComp}
         />
+        <Example
+          title="Hiding the Button component"
+          width={120}
+          config={{ type: "default", text: trans("componentDoc.submit"), hidden: true }}
+          compFactory={ButtonComp}
+        />
+        <Example
+          title="Prefix Icon"
+          width={120}
+          config={{ type: "default", text: trans("componentDoc.submit"), prefixIcon: "/icon:solid/book", }}
+          compFactory={ButtonComp}
+        />
+        <Example
+          title="Suffix Icon"
+          width={120}
+          config={{ type: "default", text: trans("componentDoc.submit"), suffixIcon :  "/icon:solid/book-open-reader", }}
+          compFactory={ButtonComp}
+        />
       </ExampleGroup>
       
       <ExampleGroup title={trans("componentDoc.style")}>
@@ -52,6 +70,28 @@ export default function ButtonExample() {
           width={120}
           config={{
             style: { backgroundColor: "#5E8D6E", borderColor: "#40694E", color: "#E0ECF6" },
+          }}
+          compFactory={ButtonComp}
+        />
+        <Example
+          title="Custom Styling"
+          width={180}
+          config={{
+            style: {
+              "background": "linear-gradient(90deg, #fa709a 0%, #fee140 100%)",
+              "padding": "10px",
+              "text": "#222222",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "16px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "italic",
+              "border": "#222222",
+              "borderStyle": "solid",
+              "radius": "10px",
+              "borderWidth": "2px"
+           },
           }}
           compFactory={ButtonComp}
         />

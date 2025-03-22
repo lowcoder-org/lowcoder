@@ -3331,7 +3331,7 @@ function styleNamespace(id) {
 function evalStyle(id, css, globalStyle) {
     var _a;
     var styleId = styleNamespace(id);
-    var prefixId = globalStyle ? id : "#".concat(id);
+    var prefixId = globalStyle ? id : ".".concat(id);
     var compiledCSS = "";
     css.forEach(function (i) {
         if (!i.trim()) {

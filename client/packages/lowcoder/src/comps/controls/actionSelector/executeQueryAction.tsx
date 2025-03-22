@@ -56,6 +56,9 @@ const ExecuteQueryPropertyView = ({
   }, [placement]);
 
   const getVariableOptions = useCallback((editorState?: EditorState) => {
+    const queryVariables = comp.children.queryVariables.getView();
+    if (!queryVariables.length) return null;
+
     return comp.children.queryVariables.propertyView({
       label: trans("eventHandler.queryVariables"),
       layout: "vertical",
@@ -121,6 +124,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
     if (!queryName) {
       return () => Promise.resolve();
     }
+
     return () =>
       getPromiseAfterDispatch(
         this.dispatch,

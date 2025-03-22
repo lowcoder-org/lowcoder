@@ -30,7 +30,20 @@ export function toQueryView(params: FunctionProperty[]) {
   }): Promise<QueryResult> => {
     const { applicationId, isViewMode } = getGlobalSettings();
 
-    const mappedVariables = Object.keys(props.variables).filter(k => k !== "$queryName").map(key => ({key: `${props.args?.$queryName}.variables.${key}`, value: props.variables[key] || ""}));
+    let mappedVariables: Array<{key: string, value: string}> = [];
+    Object.keys(props.variables)
+      .filter(k => k !== "$queryName")
+      .forEach(key => {
+        mappedVariables.push({
+          key: `${key}.value`,
+          value: props.variables[key] || ""
+        })
+        mappedVariables.push({
+          key: `${props.args?.$queryName}.variables.${key}`,
+          value: props.variables[key] || ""
+        })
+      })
+
     let request: QueryExecuteRequest = {
       path: props.applicationPath,
       params: [

@@ -349,6 +349,7 @@ export { ReactComponent as VideoScreenshareCompIconSmall } from "./v2/screen-sha
 export { ReactComponent as SignatureCompIconSmall } from "./v2/signature-s.svg";
 export { ReactComponent as StepCompIconSmall } from "./v2/steps-s.svg";
 
+
 export { ReactComponent as CandlestickChartCompIconSmall } from "./v2/candlestick-chart-s.svg"; // new
 export { ReactComponent as FunnelChartCompIconSmall } from "./v2/funnel-chart-s.svg"; // new
 export { ReactComponent as GaugeChartCompIconSmall } from "./v2/gauge-chart-s.svg"; // new
@@ -368,6 +369,10 @@ export { ReactComponent as PivotTableCompIconSmall } from "./v2/pivot-table-s.sv
 export { ReactComponent as TurnstileCaptchaCompIconSmall } from "./v2/turnstile-captcha-s.svg"; // new
 export { ReactComponent as GanttCompIconSmall } from "./v2/gantt-chart-s.svg"; // new
 
+export { ReactComponent as PieChartCompIconSmall } from "./v2/pie-chart-s.svg"; // new
+export { ReactComponent as BarChartCompIconSmall } from "./v2/bar-chart-s.svg"; // new
+export { ReactComponent as LineChartCompIconSmall } from "./v2/line-chart-s.svg"; // new
+export { ReactComponent as ScatterChartCompIconSmall } from "./v2/scatter-chart-s.svg"; // new
 
 // medium
 export { ReactComponent as AudioCompIcon } from "./v2/audio-player-m.svg";
@@ -468,6 +473,11 @@ export { ReactComponent as SunburstChartCompIcon } from "./v2/sunburst-chart-m.s
 export { ReactComponent as ThemeriverChartCompIcon } from "./v2/themeriver-chart-m.svg";
 export { ReactComponent as TreeChartCompIcon } from "./v2/tree-chart-m.svg";
 export { ReactComponent as TreemapChartCompIcon } from "./v2/treemap-chart-m.svg";
+
+export { ReactComponent as PieChartCompIcon } from "./v2/pie-chart-m.svg"; // new
+export { ReactComponent as BarChartCompIcon } from "./v2/bar-chart-m.svg"; // new
+export { ReactComponent as LineChartCompIcon } from "./v2/line-chart-m.svg"; // new
+export { ReactComponent as ScatterChartCompIcon } from "./v2/scatter-chart-m.svg"; // new
 
 export { ReactComponent as BPMNEditorCompIcon } from "./v2/bpmn-editor-m.svg";
 export { ReactComponent as GeoMapChartsCompIcon } from "./v2/geomap-charts-m.svg";

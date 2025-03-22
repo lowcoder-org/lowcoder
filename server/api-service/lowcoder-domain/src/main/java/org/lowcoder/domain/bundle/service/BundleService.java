@@ -16,6 +16,7 @@ public interface BundleService {
     Mono<Boolean> updateById(String id, Bundle resource);
 
     Mono<Bundle> findById(String id);
+    Flux<Bundle> findByIdIn(Collection<String> ids);
 
     Mono<Bundle> findByIdWithoutDsl(String id);
 

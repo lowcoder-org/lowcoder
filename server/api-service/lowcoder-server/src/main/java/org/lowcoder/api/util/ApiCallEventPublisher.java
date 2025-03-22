@@ -48,6 +48,7 @@ public class ApiCallEventPublisher {
     @Pointcut("@annotation(org.springframework.web.bind.annotation.PatchMapping)")
     public void patchMapping(){}
 
+    @SuppressWarnings("unchecked")
     @Around("(getMapping() || postMapping() || putMapping() || deleteMapping() || patchMapping())")
     public Object handleAPICallEvent(ProceedingJoinPoint joinPoint) throws Throwable {
 

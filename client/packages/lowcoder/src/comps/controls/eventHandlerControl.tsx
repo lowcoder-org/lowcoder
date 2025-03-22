@@ -170,7 +170,7 @@ const EventHandlerControlPropertyView = (props: {
     
     const queryVariables = editorState
       ?.selectedOrFirstQueryComp()
-      ?.children.variables.children.variables.toJsonValue();
+      ?.children.variables.toJsonValue();
 
     const queryExecHandler = {
       compType: "executeQuery",

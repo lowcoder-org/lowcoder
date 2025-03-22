@@ -97,7 +97,6 @@ import {
 
   CandlestickChartCompIcon,
   FunnelChartCompIcon,
-  // GraphChartCompIcon,
   HeatmapChartCompIcon,
   GaugeChartCompIcon,
   RadarChartCompIcon,
@@ -115,7 +114,10 @@ import {
   GraphChartCompIcon,
   GanttCompIcon,
   KanbanCompIcon,
-
+  PieChartCompIcon,
+  BarChartCompIcon,
+  LineChartCompIcon,
+  ScatterChartCompIcon
 } from "lowcoder-design";
 import { ModuleComp } from "./comps/moduleComp/moduleComp";
 import { TableComp } from "./comps/tableComp/tableComp";
@@ -145,7 +147,7 @@ import { TimePickerComp, TimeRangeComp } from "./comps/dateComp/timeComp";
 import { DividerComp } from "./comps/dividerComp";
 import { FileComp } from "./comps/fileComp/fileComp";
 import { FileViewerComp } from "./comps/fileViewerComp";
-import { FormComp } from "./comps/formComp/formComp";
+import { defaultFormData, FormComp } from "./comps/formComp/formComp";
 import { IconComp } from "./comps/iconComp";
 import { IFrameComp } from "./comps/iframeComp";
 import { ImageComp } from "./comps/imageComp";
@@ -153,7 +155,7 @@ import { JsonEditorComp } from "./comps/jsonComp/jsonEditorComp";
 import { JsonExplorerComp } from "./comps/jsonComp/jsonExplorerComp";
 import { JsonLottieComp } from "./comps/jsonComp/jsonLottieComp";
 import { JsonSchemaFormComp } from "./comps/jsonSchemaFormComp/jsonSchemaFormComp";
-import { ListViewComp, GridComp } from "./comps/listViewComp";
+import { ListViewComp, GridComp, defaultListViewData, defaultGridData } from "./comps/listViewComp";
 import { AudioComp } from "./comps/mediaComp/audioComp";
 import { ColorPickerComp } from "./comps/mediaComp/colorPickerComp";
 import { VideoComp } from "./comps/mediaComp/videoComp";
@@ -162,7 +164,7 @@ import { NavComp } from "./comps/navComp/navComp";
 import { NumberInputComp } from "./comps/numberInputComp/numberInputComp";
 import { RangeSliderComp } from "./comps/numberInputComp/rangeSliderComp";
 import { SliderComp } from "./comps/numberInputComp/sliderComp";
-import { PageLayoutComp } from "./comps/containerComp/pageLayoutComp";
+import { defaultPageLayoutData, PageLayoutComp } from "./comps/containerComp/pageLayoutComp";
 import { ProgressCircleComp } from "./comps/progressCircleComp";
 import { ProgressComp } from "./comps/progressComp";
 import { QRCodeComp } from "./comps/qrCodeComp";
@@ -189,6 +191,7 @@ import { TreeComp } from "./comps/treeComp/treeComp";
 import { TreeSelectComp } from "./comps/treeComp/treeSelectComp";
 import { DrawerComp } from "./hooks/drawerComp";
 import { ModalComp } from "./hooks/modalComp";
+import { defaultCollapsibleContainerData } from "./comps/containerComp/collapsibleContainerComp";
 
 type Registry = {
   [key in UICompType]?: UICompManifest;
@@ -206,10 +209,10 @@ export var uiCompMap: Registry = {
 
   // charts
   chart: {
-    name: trans("uiComp.chartCompName") + " (legacy)",
+    name: trans("uiComp.chartCompName"),
     enName: "Chart",
     description: trans("uiComp.chartCompDesc"),
-    categories: ["dashboards"],
+    categories: ["legacy"],
     icon: ChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
     keywords: trans("uiComp.chartCompKeywords"),
@@ -223,10 +226,66 @@ export var uiCompMap: Registry = {
     name: trans("uiComp.basicChartCompName"),
     enName: "Basic Chart",
     description: trans("uiComp.basicChartCompDesc"),
-    categories: ["dashboards"],
+    categories: ["legacy"],
     icon: ChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "basicChart" }),
     keywords: trans("uiComp.basicChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  barChart: {
+    name: trans("uiComp.barChartCompName"),
+    enName: "Bar Chart",
+    description: trans("uiComp.barChartCompDesc"),
+    categories: ["dashboards"],
+    icon: BarChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "barChart" }),
+    keywords: trans("uiComp.barChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  lineChart: {
+    name: trans("uiComp.lineChartCompName"),
+    enName: "Line Chart",
+    description: trans("uiComp.lineChartCompDesc"),
+    categories: ["dashboards"],
+    icon: LineChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "lineChart" }),
+    keywords: trans("uiComp.lineChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  pieChart: {
+    name: trans("uiComp.pieChartCompName"),
+    enName: "Pie Chart",
+    description: trans("uiComp.piehartCompDesc"),
+    categories: ["dashboards"],
+    icon: PieChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "pieChart" }),
+    keywords: trans("uiComp.pieChartCompKeywords"),
+    layoutInfo: {
+      w: 12,
+      h: 40,
+    },
+  },
+
+  scatterChart: {
+    name: trans("uiComp.scatterChartCompName"),
+    enName: "Scatter Chart",
+    description: trans("uiComp.scatterChartCompDesc"),
+    categories: ["dashboards"],
+    icon: ScatterChartCompIcon,
+    comp: remoteComp({ ...builtInRemoteComps, compName: "scatterChart" }),
+    keywords: trans("uiComp.scatterChartCompKeywords"),
     layoutInfo: {
       w: 12,
       h: 40,
@@ -507,8 +566,7 @@ export var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultPageLayoutData",
-    defaultDataFnPath: "comps/tableComp/mockTableComp",
+    defaultDataFn: defaultPageLayoutData,
   },
   columnLayout: {
     name: "Column Layout",
@@ -555,8 +613,7 @@ export var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultContainerData",
-    defaultDataFnPath: "comps/containerComp/containerComp",
+    defaultDataFn: defaultContainerData,
   },
   card: {
     name: trans("uiComp.cardCompName"),
@@ -602,8 +659,7 @@ export var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultCollapsibleContainerData",
-    defaultDataFnPath: "comps/containerComp/collapsibleContainerComp",
+    defaultDataFn: defaultCollapsibleContainerData,
   },
   container: {
     name: trans("uiComp.containerCompName"),
@@ -635,8 +691,7 @@ export var uiCompMap: Registry = {
       h: 40,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultListViewData",
-    defaultDataFnPath: "comps/listViewComp/index",
+    defaultDataFn: defaultListViewData,
   },
   grid: {
     name: trans("uiComp.gridCompName"),
@@ -651,8 +706,7 @@ export var uiCompMap: Registry = {
       h: 40,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultGridData",
-    defaultDataFnPath: "comps/listViewComp/index",
+    defaultDataFn: defaultGridData,
   },
   modal: {
     name: trans("uiComp.modalCompName"),
@@ -894,8 +948,7 @@ export var uiCompMap: Registry = {
       // static: true,
       delayCollision: true,
     },
-    defaultDataFnName: "defaultFormData",
-    defaultDataFnPath: "comps/formComp/formComp",
+    defaultDataFn: defaultFormData,
   },
   jsonSchemaForm: {
     name: trans("uiComp.jsonSchemaFormCompName"),

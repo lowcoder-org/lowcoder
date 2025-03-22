@@ -37,4 +37,5 @@ public final class NewUrl {
     public static final String NPM_REGISTRY = PREFIX + "/npm";
 
     public static final String PLUGINS_URL = PREFIX + "/plugins";
+    public static final String META_URL = PREFIX + "/meta";
 }

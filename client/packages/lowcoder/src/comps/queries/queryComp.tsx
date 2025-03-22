@@ -37,6 +37,7 @@ import {
   FetchCheckNode,
   FetchInfo,
   fromRecord,
+  fromValue,
   isCustomAction,
   MultiBaseComp,
   multiChangeAction,
@@ -67,7 +68,7 @@ import { JSONObject, JSONValue } from "../../util/jsonTypes";
 import { BoolPureControl } from "../controls/boolControl";
 import { millisecondsControl } from "../controls/millisecondControl";
 import { paramsMillisecondsControl } from "../controls/paramsControl";
-import { DepsConfig, NameConfig, withExposingConfigs } from "../generators/withExposing";
+import { NameConfig, withExposingConfigs } from "../generators/withExposing";
 import { HttpQuery } from "./httpQuery/httpQuery";
 import { StreamQuery } from "./httpQuery/streamQuery";
 import { QueryConfirmationModal } from "./queryComp/queryConfirmationModal";
@@ -76,6 +77,7 @@ import { QueryPropertyView } from "./queryComp/queryPropertyView";
 import { getTriggerType, onlyManualTrigger } from "./queryCompUtils";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import {VariablesComp} from "@lowcoder-ee/comps/queries/queryComp/variablesComp";
+import { migrateOldData } from "../generators/simpleGenerators";
 
 const latestExecution: Record<string, string> = {};
 
@@ -257,7 +259,11 @@ QueryCompTmp = class extends QueryCompTmp {
         || isInputChangeTrigger
         || (isPageLoadTrigger && notExecuted)
       )
-      // && (!isJsQuery || (isJsQuery && notExecuted)) // query which has deps can be executed on page load(first time)
+      && (
+        !isJsQuery
+        || (isJsQuery && !isAutomatic)
+        || (isJsQuery && isAutomatic && notExecuted)
+      ) // query which has deps can be executed on page load(first time)
     ) {
       const next = super.reduce(action);
       const depends = this.children.comp.node()?.dependValues();
@@ -363,7 +369,7 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
-      if(!action.args) action.args = this.children.variables.children.variables.toJsonValue().filter(kv => kv.key).reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      if(!action.args) action.args = this.children.variables.toJsonValue().filter(kv => kv.key).reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
       action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
@@ -655,6 +661,13 @@ QueryCompTmp = withMethodExposing(QueryCompTmp, [
   },
 ]);
 
+QueryCompTmp = migrateOldData(QueryCompTmp, (oldData: any) => {
+  if (oldData?.variables?.variables) {
+    oldData.variables = oldData.variables.variables;
+  }
+  return oldData;
+});
+
 export const QueryComp = withExposingConfigs(QueryCompTmp, [
   new NameConfig("data", trans("query.dataExportDesc")),
   new NameConfig("code", trans("query.codeExportDesc")),
@@ -701,7 +714,22 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     const result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {
       result[comp.children.name.getView()] = comp.exposingInfo();
+
+      const variables = comp.children.variables.toJsonValue();
+      variables.forEach((variable: Record<string, any>) => {
+        result[variable.key] = {
+          property: fromRecord({
+            value: fromValue(variable.value),
+          }),
+          propertyValue: {
+            value: variable.value,
+          },
+          propertyDesc: {},
+          methods: {},
+        };
+      })
     });
+
     return result;
   }
 
@@ -761,7 +789,7 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
     const jsonData = originQuery.toJsonValue();
     //Regenerate variable header
     const newKeys:string[] = [];
-    jsonData.variables?.variables?.forEach(kv => {
+    jsonData.variables?.forEach(kv => {
       const [prefix, _] = (kv.key as string).split(/(?=\d+$)/);
       let i=1, newName = "";
       do {
