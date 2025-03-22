@@ -33,6 +33,7 @@ export const uiCompCategoryNames = {
   itemHandling: trans("uiCompCategory.itemHandling"),
   multimedia: trans("uiCompCategory.multimedia"),
   integration: trans("uiCompCategory.integration"),
+  legacy: trans("uiCompCategory.legacy"),
 };
 
 export type UICompCategory = keyof typeof uiCompCategoryNames;

@@ -209,10 +209,10 @@ export var uiCompMap: Registry = {
 
   // charts
   chart: {
-    name: trans("uiComp.chartCompName") + " (legacy)",
+    name: trans("uiComp.chartCompName"),
     enName: "Chart",
     description: trans("uiComp.chartCompDesc"),
-    categories: ["dashboards"],
+    categories: ["legacy"],
     icon: ChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "chart" }),
     keywords: trans("uiComp.chartCompKeywords"),
@@ -226,7 +226,7 @@ export var uiCompMap: Registry = {
     name: trans("uiComp.basicChartCompName"),
     enName: "Basic Chart",
     description: trans("uiComp.basicChartCompDesc"),
-    categories: ["dashboards"],
+    categories: ["legacy"],
     icon: ChartCompIcon,
     comp: remoteComp({ ...builtInRemoteComps, compName: "basicChart" }),
     keywords: trans("uiComp.basicChartCompKeywords"),
