@@ -243,7 +243,7 @@ const TableWrapper = styled.div<{
               position: -webkit-sticky;
               // top: ${props.$fixedToolbar ? '47px' : '0'};
               top: 0;
-              z-index: 99;
+              z-index: 2;
             `
           }
           > tr {
@@ -256,7 +256,14 @@ const TableWrapper = styled.div<{
             color: ${(props) => props.$headerStyle.headerText};
             // border-inline-end: ${(props) => `${props.$headerStyle.borderWidth} solid ${props.$headerStyle.border}`} !important;
             
-
+            /* Proper styling for fixed header cells */
+            &.ant-table-cell-fix-left, &.ant-table-cell-fix-right {
+              z-index: 1; 
+              background: ${(props) => props.$headerStyle.headerBackground};
+            }
+            
+          
+            
             > div {
               margin: ${(props) => props.$headerStyle.margin};
 
@@ -295,7 +302,27 @@ const TableWrapper = styled.div<{
 
         td {
           padding: 0px 0px;
-          // ${(props) => props.$showHRowGridBorder ?'border-bottom: 1px solid #D7D9E0 !important;': `border-bottom: 0px;`}
+          // ${(props) => props.$showHRowGridBorder ? 'border-bottom: 1px solid #D7D9E0 !important;': `border-bottom: 0px;`}
+          
+          /* Proper styling for Fixed columns in the table body */
+          &.ant-table-cell-fix-left, &.ant-table-cell-fix-right {
+            z-index: 1; 
+            background: inherit;
+            background-color: ${(props) => props.$style.background};
+            transition: background-color 0.3s;
+          }
+          
+        }
+        
+        /* Fix for selected and hovered rows */
+        tr.ant-table-row-selected td.ant-table-cell-fix-left,
+        tr.ant-table-row-selected td.ant-table-cell-fix-right {
+          background-color: ${(props) => props.$rowStyle?.selectedRowBackground || '#e6f7ff'} !important;
+        }
+        
+        tr.ant-table-row:hover td.ant-table-cell-fix-left,
+        tr.ant-table-row:hover td.ant-table-cell-fix-right {
+          background-color: ${(props) => props.$rowStyle?.hoverRowBackground || '#f5f5f5'} !important;
         }
 
         thead > tr:first-child {
@@ -428,7 +455,7 @@ const TableTd = styled.td<{
       }
 
       &:active {
-        color: ${(props) => props.$linkStyle?.activeText}};
+        color: ${(props) => props.$linkStyle?.activeText};
       }
     }
   }
