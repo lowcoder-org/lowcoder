@@ -54,6 +54,9 @@ const Wrapper = styled.div<{
   .ant-input { 
     height:100% !important;
   }
+  .ant-input-affix-wrapper {
+    height:100% !important;
+  }
 
   .ant-input-clear-icon {
     opacity: 0.75;

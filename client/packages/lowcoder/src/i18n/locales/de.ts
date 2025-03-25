@@ -989,6 +989,7 @@ export const de = {
   "itemHandling": "Handhabung von Inventar",
   "multimedia": "Multimedia und Animation",
   "integration": "Integration & Erweiterung",
+  "legacy" : "Älter & Auslaufend"
   },
   "uiComp": {
     ...en.uiComp,
