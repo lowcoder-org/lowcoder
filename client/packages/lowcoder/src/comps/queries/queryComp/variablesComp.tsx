@@ -98,6 +98,7 @@ export const VariablesComp = class extends list(VariableItem) {
         {(editorState: EditorState) => (
           <ControlPropertyViewWrapper {...params}>
             <KeyValueList
+              allowDeletingAll
               list={this.getView().map((child) => child.propertyView(params))}
               onAdd={() => this.add(editorState)}
               onDelete={(item, index) => this.dispatch(this.deleteAction(index))}
