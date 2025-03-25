@@ -6,7 +6,7 @@ Compared with inline code in `{{ }}`, transformer supports multi-line code block
 
 ## Quickstart
 
-Click **+ New > Transfromer** in a query editor to create a transformer.
+Click **+ New > Transformer** in a query editor to create a transformer.
 
 Then write your JS code in the transformer. You can click **Preview** to get the return value and access it by `transformerName.value` in your app.
 
