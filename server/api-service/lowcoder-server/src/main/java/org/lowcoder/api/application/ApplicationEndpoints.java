@@ -302,7 +302,9 @@ public interface ApplicationEndpoints
                                            String name,
                                            Integer applicationType,
                                            Map<String, Object> editingApplicationDSL,
-                                           @Nullable String folderId) {
+                                           @Nullable String folderId,
+										   @Nullable Boolean publicToAll,
+										   @Nullable Boolean publicToMarketplace) {
     }
 	public record UpdateEditStateRequest(Boolean editingFinished) {
 	}

@@ -107,7 +107,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 createApplicationRequest.applicationType(),
                 NORMAL,
                 createApplicationRequest.editingApplicationDSL(),
-                false, false, false, "", Instant.now());
+                ObjectUtils.defaultIfNull(createApplicationRequest.publicToAll(), false), ObjectUtils.defaultIfNull(createApplicationRequest.publicToMarketplace(), false), false, "", Instant.now());
 
         if (StringUtils.isBlank(application.getOrganizationId())) {
             return deferredError(INVALID_PARAMETER, "ORG_ID_EMPTY");
