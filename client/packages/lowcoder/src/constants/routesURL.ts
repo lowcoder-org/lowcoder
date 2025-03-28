@@ -15,6 +15,9 @@ export const SUPPORT_URL = "/support";
 export const PERMISSION_SETTING = "/setting/permission";
 export const ORGANIZATION_SETTING = "/setting/organization";
 export const SUBSCRIPTION_SETTING = "/setting/subscription";
+export const ENVIRONMENT_SETTING = "/setting/environments";
+export const ENVIRONMENT_DETAIL = `${ENVIRONMENT_SETTING}/:environmentId`;
+export const ENVIRONMENT_WORKSPACE_DETAIL = `${ENVIRONMENT_DETAIL}/workspaces/:workspaceId`;
 export const THEME_SETTING = "/setting/theme";
 export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
@@ -120,3 +123,7 @@ export const buildSubscriptionSettingsLink = (subscriptionId: string, productId 
 export const buildSubscriptionInfoLink = (productId: string) => `${SUBSCRIPTION_SETTING}/info/${productId}`;
 
 export const buildSupportTicketLink = (ticketId: string) => `${SUPPORT_URL}/details/${ticketId}`;
+
+export const buildEnvironmentId = (environmentId: string) => `${ENVIRONMENT_SETTING}/${environmentId}`;
+export const buildEnvironmentWorkspaceId = (environmentId: string, workspaceId: string) => 
+  `${ENVIRONMENT_SETTING}/${environmentId}/workspaces/${workspaceId}`;

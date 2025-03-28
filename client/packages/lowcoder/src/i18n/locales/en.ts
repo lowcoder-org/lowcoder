@@ -2913,6 +2913,115 @@ export const en = {
   },
 
 
+
+  // environment part
+  // Add this to your en.ts file
+// It should be added as a new section at the same level as other major sections
+
+"environmentSettings": {
+  "name": "Name",
+  "domain": "Domain",
+  "stage": "Stage",
+  "id": "ID",
+  "apiKey": "API Key",
+  "apiKeyConfigured": "Configured",
+  "noApiKey": "Not Configured",
+  "apiKeyValid": "API Key is configured and valid",
+  "apiKeyMissing": "API Key is missing or invalid",
+  "updateApiKey": "Update API Key",
+  "addApiKey": "Add API Key",
+  "masterEnvironment": "Master Environment",
+
+  "nameLabel": "Environment Name",
+  "domainLabel": "Domain",
+  "stageLabel": "Stage",
+  "nameCheckMsg": "Environment name cannot be empty",
+  "domainCheckMsg": "Domain cannot be empty",
+  "stageCheckMsg": "Stage cannot be empty",
+
+  "deleteModalTitle": "Delete Environment",
+  "deleteModalContent": "This action will {permanentlyDelete} this environment and all its configurations. This action {notRestored}.",
+  "permanentlyDelete": "permanently delete",
+  "notRestored": "cannot be undone or restored",
+  "deleteModalLabel": "To confirm, please type the environment name {name}",
+  "deleteModalTip": "Please enter the environment name",
+  "deleteModalErr": "Environment name does not match",
+  "deleteModalBtn": "Delete Environment",
+
+  "updateApiKeyTitle": "Update API Key",
+  "addApiKeyTitle": "Add API Key",
+  "apiKeyModalDescription": "Enter the API Key for {domain}. You can generate an API key by logging into the environment's admin panel.",
+  "apiKeyLabel": "API Key",
+  "apiKeyRequired": "API Key is required",
+  "apiKeyPlaceholder": "Enter API Key",
+  "updateApiKeyButton": "Update Key",
+  "addApiKeyButton": "Add Key",
+
+  "overviewTab": "Overview",
+  "workspacesTab": "Workspaces",
+  "userGroupsTab": "User Groups",
+  "appsTab": "Apps",
+  "dataSourcesTab": "Data Sources",
+  "queriesTab": "Queries",
+
+  "workspacesCount": "Workspaces",
+  "userGroupsCount": "User Groups",
+  "totalUsersCount": "Total Users",
+  "managedObjectsCount": "Managed Objects",
+  
+  "noApiKeyConfigured": "API Key Not Configured",
+  "configureApiKeyFirst": "Please configure an API Key to access data from this environment",
+  "goToEnvironmentsList": "Go to Environments List",
+
+  "workspaces": "Workspaces",
+  "recentWorkspaces": "Recent Workspaces",
+  "userGroups": "User Groups",
+  "recentUserGroups": "Recent User Groups",
+  "viewAll": "View All",
+
+  "workspaceName": "Workspace Name",
+  "userGroupName": "User Group Name",
+  "owner": "Owner",
+  "users": "Users",
+  "apps": "Apps",
+  "manage": "Manage",
+  "managed": "Managed",
+  "viewDetails": "View Details",
+
+  "unmanage": "Unmanage",
+  "deployWorkspace": "Deploy Workspace",
+  
+  "applicationsList": "Applications",
+  "dataSourcesList": "Data Sources",
+  "queriesList": "Query Library Queries",
+  
+  "appIcon": "Icon",
+  "appName": "App Name",
+  "published": "Published",
+  "dataSourceName": "Data Source Name",
+  "dataSourceType": "Type",
+  "queryName": "Query Name",
+  "dataSource": "Data Source",
+  "yes": "Yes",
+  "no": "No",
+  
+  "deployedTo": "Deployed To",
+  "deploy": "Deploy",
+  "deployAppTitle": "Deploy App",
+  "deployWorkspaceTitle": "Deploy Workspace",
+  "deployDataSourceTitle": "Deploy Data Source",
+  "deployQueryTitle": "Deploy Query",
+  "deployButton": "Deploy",
+  
+  "selectTargetEnvironment": "Target Environment",
+  "targetEnvironmentRequired": "Please select a target environment",
+  "selectEnvironment": "Select environment",
+  "deploymentOptions": "Copy configuration",
+  "copyConfigurationExplanation": "Copy all configuration settings to the target environment",
+  
+  "actions": "Actions"
+},
+
   // sixteenth part
 
   "branding": {

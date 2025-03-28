@@ -1,4 +1,5 @@
 import { Organization } from "./organization";
+import {Environments} from "./environments"
 import PermissionSetting from "./permission";
 import { ThemeHome } from "./theme";
 import { AdvancedSetting } from "./advanced/AdvancedSetting";
@@ -25,7 +26,6 @@ import { getUser } from "redux/selectors/usersSelectors";
 import history from "util/history";
 import { useParams } from "react-router-dom";
 import { BrandingSetting } from "@lowcoder-ee/pages/setting/branding/BrandingSetting";
-import { Environments } from "@lowcoder-ee/pages/setting/environments/Environments";
 import { AppUsage } from "@lowcoder-ee/pages/setting/appUsage";
 import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
