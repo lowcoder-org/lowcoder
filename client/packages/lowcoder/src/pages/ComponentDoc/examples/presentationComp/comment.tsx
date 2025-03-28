@@ -12,6 +12,7 @@ export default function CommentExample() {
       >
         <Example
           title="Setting Title of the Comment Component"
+          width={500}
           config={{
             title: "%d Comments in Total",
           }}
@@ -19,6 +20,7 @@ export default function CommentExample() {
         />
         <Example
           title="Hiding the Comment Component"
+          width={500}
           config={{
             hidden: true,
           }}
@@ -26,6 +28,7 @@ export default function CommentExample() {
         />
         <Example
           title="Disallowing Users to Comment"
+          width={500}
           config={{
             sendCommentAble: false,
           }}
@@ -33,6 +36,7 @@ export default function CommentExample() {
         />
         <Example
           title="Allowing Users to Delete a Comment"
+          width={500}
           config={{
             deleteAble: true,
           }}
@@ -46,12 +50,77 @@ export default function CommentExample() {
       >
         <Example
           title="Setting the Button Title and Placeholder Text on the Comment Component"
+          width={500}
           config={{
             buttonText:"Click on me to Comment",
             placeholder:"I am Placeholder text on the Comment Component :)",
           }}
           compFactory={CommentComp}
         />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties on the Comment Component."
+        >
+        <Example
+          title="Background Color, Border Radius and Color"
+          width={500}
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "margin": "10px",
+              "padding": "20px",
+              "radius": "20px",
+            }
+          }}
+          compFactory={CommentComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Comment Component."
+        >
+        <Example
+          title="Bounce Animation"
+          width={600}
+          config={{
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={CommentComp}
+        />
+        <Example
+          title="Swing Animation"
+          width={600}
+          config={{
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={CommentComp}
+        />
+        <Example
+        title="Tada Animation"
+        width={600}
+        config={{
+            animationStyle: {
+            "animation": "tada",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={CommentComp}
+      />
       </ExampleGroup>
     </>
   );

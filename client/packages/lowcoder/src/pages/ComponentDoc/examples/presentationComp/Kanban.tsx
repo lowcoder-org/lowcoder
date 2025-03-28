@@ -157,6 +157,113 @@ export default function KanbanExample() {
           }}
           compFactory={ChartCompWithDefault}
         />
+        <Example
+          title="Separate Sections by Assignees"
+          hideSettings={true}
+          width={1000}
+          config={{
+            data: data,
+            assigneeOptions: assigneeOptions,
+            separateAssigneeSections: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Kanban Component."
+      >
+        <Example
+          title="Board Styling - Text Size & Color"
+          hideSettings={true}
+          width={1000}
+          config={{
+            data: data,
+            assigneeOptions: assigneeOptions,
+            boardStyles: {
+              "textSize": "22px",
+              "textColor": "#07875C",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Card Header Styling - Text Size & Color"
+          hideSettings={true}
+          width={1000}
+          config={{
+            data: data,
+            assigneeOptions: assigneeOptions,
+            cardHeaderStyles: {
+              "textSize": "22px",
+              "textColor": "#6D83F2",
+            },
+            boardStyles: {
+              "textSize": "22px",
+              "textColor": "#07875C",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Card Styling - Padding, Text Size, Border properties, Box Shadow"
+          hideSettings={true}
+          width={1000}
+          config={{
+            data: data,
+            assigneeOptions: assigneeOptions,
+            cardContentStyles: {
+              "padding": "12px",
+              "textSize": "16px",
+              "backgroundColor": "linear-gradient(135deg, RGB(123, 156, 174) 0%, rgba(150,230,161,1) 100%)",
+              "border": "#36B389",
+              "radius": "20px",
+              "borderWidth": "3px",
+              "boxShadow": "0px 4px 8px",
+            },
+            boardStyles: {
+              "textSize": "22px",
+              "textColor": "#07875C",
+            },
+            cardHeaderStyles: {
+              "textSize": "22px",
+              "textColor": "#6D83F2",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Tag Styling - Text Size & Color"
+          hideSettings={true}
+          width={1000}
+          config={{
+            data: data,
+            assigneeOptions: assigneeOptions,
+            cardContentStyles: {
+              "padding": "12px",
+              "textSize": "16px",
+              "backgroundColor": "linear-gradient(135deg, RGB(123, 156, 174) 0%, rgba(150,230,161,1) 100%)",
+              "border": "#36B389",
+              "radius": "20px",
+              "borderWidth": "3px",
+              "boxShadow": "0px 4px 8px",
+            },
+            boardStyles: {
+              "textSize": "22px",
+              "textColor": "#07875C",
+            },
+            cardHeaderStyles: {
+              "textSize": "22px",
+              "textColor": "#6D83F2",
+            },
+            tagStyles: {
+              "textSize": "14px",
+              "textColor": "#F40101",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
       </ExampleGroup>
     </>
   );

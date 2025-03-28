@@ -68,6 +68,51 @@ export default function JsonExplorerExample() {
           compFactory={JsonExplorerComp}
         />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the JSON Explorer Component."
+        >
+        <Example
+          title="Bounce Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={JsonExplorerComp}
+        />
+        <Example
+          title="Swing Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={JsonExplorerComp}
+        />
+        <Example
+        title="Tada Animation"
+        hideSettings={true}
+        config={{
+            animationStyle: {
+            "animation": "tada",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={JsonExplorerComp}
+      />
+      </ExampleGroup>
     </>
   );
 }
