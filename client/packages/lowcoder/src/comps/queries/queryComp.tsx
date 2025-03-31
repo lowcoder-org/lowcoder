@@ -37,7 +37,6 @@ import {
   FetchCheckNode,
   FetchInfo,
   fromRecord,
-  fromValue,
   isCustomAction,
   MultiBaseComp,
   multiChangeAction,
@@ -369,7 +368,7 @@ QueryCompTmp = class extends QueryCompTmp {
     }
     if (action.type === CompActionTypes.EXECUTE_QUERY) {
       if (getReduceContext().disableUpdateState) return this;
-      if(!action.args) action.args = this.children.variables.toJsonValue().filter(kv => kv.key).reduce((acc, curr) => Object.assign(acc, {[curr.key as string]:curr.value}), {});
+      action.args = action.args || {};
       action.args.$queryName = this.children.name.getView();
 
       return this.executeQuery(action);
@@ -711,25 +710,18 @@ class QueryListComp extends QueryListTmpComp implements BottomResListComp {
   }
 
   nameAndExposingInfo(): NameAndExposingInfo {
-    const result: NameAndExposingInfo = {};
+    let result: NameAndExposingInfo = {};
     Object.values(this.children).forEach((comp) => {
       result[comp.children.name.getView()] = comp.exposingInfo();
 
-      const variables = comp.children.variables.toJsonValue();
-      variables.forEach((variable: Record<string, any>) => {
-        result[variable.key] = {
-          property: fromRecord({
-            value: fromValue(variable.value),
-          }),
-          propertyValue: {
-            value: variable.value,
-          },
-          propertyDesc: {},
-          methods: {},
-        };
-      })
+      const variables = comp.children.variables.nameAndExposingInfo();
+      if (variables) {
+        result = {
+          ...result,
+          ...variables,
+        }
+      }
     });
-
     return result;
   }
 

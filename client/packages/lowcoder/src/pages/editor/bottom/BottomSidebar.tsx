@@ -225,7 +225,15 @@ export function BottomSidebar(props: BottomSidebarProps) {
         refTreeComp.children.items.dispatch(pushAction);
       });
     }
-  }, [itemsNotInTree, refTreeComp.children.items]);
+  }, [JSON.stringify(itemsNotInTree)]);
+
+  useEffect(() => {
+    node?.items.forEach((item, idx) => {
+      if(!Boolean(item.id)) {
+        node?.deleteItem(idx);
+      }
+    })
+  }, [node?.items])
 
   return (
     <Contain style={props.style}>

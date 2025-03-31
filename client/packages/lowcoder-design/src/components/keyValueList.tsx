@@ -96,6 +96,7 @@ export const KeyValueList = (props: {
   onDelete: (item: ReactNode, index: number) => void;
   isStatic?: boolean;
   indicatorForAll?: boolean;
+  allowDeletingAll?: boolean;
 }) => {
   return (
     <>
@@ -105,8 +106,8 @@ export const KeyValueList = (props: {
             {item}
             {!props.isStatic &&
               <DelIcon
-                onClick={() => props.list.length > 1 && props.onDelete(item, index)}
-                $forbidden={props.list.length === 1}
+                onClick={() => (props.allowDeletingAll || (!props.allowDeletingAll && props.list.length > 1)) && props.onDelete(item, index)}
+                $forbidden={!props.allowDeletingAll && props.list.length === 1}
               />
             }
           </KeyValueListItem>
