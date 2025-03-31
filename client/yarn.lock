@@ -13952,7 +13952,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-dom: ^18.2.0
     react-resize-detector: ^7.0.0
     typescript: 5.3.3
-    vite: ^4.5.5
+    vite: ^4.5.10
   languageName: unknown
   linkType: soft
 
@@ -13971,7 +13971,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react-json-view: ^1.21.3
     rollup-plugin-external-globals: ^0.7.1
     typescript: ^4.8.4
-    vite: ^4.5.5
+    vite: ^4.5.10
     vite-plugin-css-injected-by-js: ^2.1.1
     vite-plugin-svgr: ^2.2.2
   peerDependencies:
@@ -14013,7 +14013,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ^18.2.0
     react-dom: ^18.2.0
     typescript: 4.8.4
-    vite: ^4.5.5
+    vite: ^4.5.10
     vite-tsconfig-paths: ^3.6.0
   languageName: unknown
   linkType: soft
@@ -14148,7 +14148,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     react: ^18.2.0
     react-dom: ^18.2.0
     typescript: 4.8.4
-    vite: ^4.5.5
+    vite: ^4.5.10
   languageName: unknown
   linkType: soft
 
@@ -14201,7 +14201,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     rollup-plugin-terser: ^7.0.2
     rollup-plugin-typescript: ^1.0.1
     typescript: ^4.8.4
-    vite: ^4.5.5
+    vite: ^4.5.10
     vite-plugin-svgr: ^2.2.2
     vite-tsconfig-paths: ^3.6.0
   peerDependencies:
@@ -14327,7 +14327,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     typescript-collections: ^1.3.3
     ua-parser-js: ^1.0.33
     uuid: ^9.0.0
-    vite: ^4.5.5
+    vite: ^4.5.10
     vite-plugin-checker: ^0.5.1
     vite-plugin-dynamic-import: ^1.5.0
     vite-plugin-html: ^3.2.0
@@ -21877,9 +21877,9 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"vite@npm:^4.5.5":
-  version: 4.5.5
-  resolution: "vite@npm:4.5.5"
+"vite@npm:^4.5.10":
+  version: 4.5.11
+  resolution: "vite@npm:4.5.11"
   dependencies:
     esbuild: ^0.18.10
     fsevents: ~2.3.2
@@ -21913,7 +21913,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
       optional: true
   bin:
     vite: bin/vite.js
-  checksum: 300c5f39c83b22413dfdc84f72e9ba979bf4004e4d939409eea1470b116626294495b09e2bd73fae387a254b79988c8d54ceb281f9515120a0eda179c33b216e
+  checksum: f4f02707343902e68d4b5bfc880aa9672fbd1128e4ec7f4f604d7c46295729cba9507d8af3a18ba3b7d08eb6af5f6747152d5eb87ff209757277e6294bc03b63
   languageName: node
   linkType: hard
 
