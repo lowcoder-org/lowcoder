@@ -16,7 +16,7 @@ Lowcoder provides some JavaScript built-in libraries for use.
 Built-in Libraries can be used directly everywhere where you can use JavaScript.
 
 ```
-// loadash
+// lodash
 return _.chunk(['a', 'b', 'c', 'd'], 2);
 // => [['a', 'b'], ['c', 'd']]
 
