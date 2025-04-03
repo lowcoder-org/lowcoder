@@ -221,9 +221,11 @@ class ModuleTmpComp extends ModuleCompBase {
 
   override changeDispatch(dispatch: DispatchType) {
     const next = super.changeDispatch(dispatch);
-    const nextModuleRootComp = this.moduleRootComp?.changeDispatch(next.getModuleDispatchFn());
+    const nextModuleRootComp = this.moduleRootComp?.changeDispatch(
+      this.getModuleDispatchFn(next.dispatch)
+    );
     if (!nextModuleRootComp) {
-      return next;
+      return this;
     }
     return setFieldsNoTypeCheck(
       next,
@@ -234,10 +236,10 @@ class ModuleTmpComp extends ModuleCompBase {
     );
   }
 
-  getModuleDispatchFn() {
+  getModuleDispatchFn(dispatch: DispatchType) {
     return (action: CompAction<any>) => {
       // log.info("dispatch from module:", action);
-      this.dispatch(
+      dispatch(
         customAction(
           {
             type: "delegated",
@@ -305,7 +307,7 @@ class ModuleTmpComp extends ModuleCompBase {
       if (getReduceContext().disableUpdateState) return this;
       const { dsl, moduleDsl } = action.value;
       const moduleRootComp = new RootComp({
-        dispatch: this.getModuleDispatchFn(),
+        dispatch: this.getModuleDispatchFn(this.dispatch),
         value: dsl,
       });
       moduleRootComp.setModuleRoot(true);
