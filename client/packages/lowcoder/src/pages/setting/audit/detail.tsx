@@ -257,12 +257,14 @@ export function AuditLogDetail() {
           <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Event Detail</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
-          <StyledTree
-            showLine
-            defaultExpandAll
-            selectable={false}
-            treeData={eventHierarchy}
-          />
+          {Boolean(eventHierarchy.length) && (
+            <StyledTree
+              showLine
+              defaultExpandAll
+              selectable={false}
+              treeData={eventHierarchy}
+            />
+          )}
         </Card>
       </DetailContent>
     </DetailContainer>
