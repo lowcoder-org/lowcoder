@@ -94,6 +94,34 @@ export function AuditLogDashboard() {
     form.setFieldsValue(getQueryParams());
   }, []);
 
+  const getAuditLogStatsMap = (stats: AuditLogStat[]) => {
+    const statsMap = {};
+    stats.forEach(stat => {
+      // statsMap.push({})
+    })
+  };
+
+  const getCleanedParams = (newPage?: number) => {
+    const formValues = form.getFieldsValue();
+  
+    let cleanedParams = Object.fromEntries(
+      Object.entries({
+        ...formValues,
+        fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
+        toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
+      }).filter(([key, value]) => value !== undefined && value !== null && value !== "" && key !== 'dateRange')
+    );
+    if (newPage) {
+      cleanedParams = {
+        ...cleanedParams,
+        pageSize: 100, // Always fetch 500 from API
+        pageNum: newPage, // API page number
+      }
+    }
+
+    return cleanedParams;
+  }
+  
   const handleQueryParams = (queryParams: Record<string, string>) => {
     const params = new URLSearchParams();
     Object.keys(queryParams).map((key) => {
@@ -106,30 +134,28 @@ export function AuditLogDashboard() {
     })
     history.push({ search: params.toString() })
   }
+  
+  const fetchStatistics = async () => {
+    const cleanedParams = getCleanedParams();
+
+    const stats = await getAuditLogStatistics(cleanedParams);
+    setStatistics(stats?.data || []);
+  }
 
   // Fetch Logs with all form values if set
   const fetchLogs = async (newPage: number, resetData: boolean = false) => {
-    const formValues = form.getFieldsValue();
-  
-    const cleanedParams = Object.fromEntries(
-      Object.entries({
-        ...formValues,
-        pageSize: 100, // Always fetch 500 from API
-        pageNum: newPage, // API page number
-        fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
-        toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
-      }).filter(([key, value]) => value !== undefined && value !== null && value !== "" && key !== 'dateRange')
-    );
+    const cleanedParams = getCleanedParams(newPage);
 
     handleQueryParams(cleanedParams as any);
 
     setLoading(true);
     try {
       const data = await getAuditLogs(cleanedParams);
-      const stats = await getAuditLogStatistics(cleanedParams);
+      // fetch statistics only when page is 1
+      if (newPage === 1) {
+        fetchStatistics();
+      }
 
-      setStatistics(stats?.data || []);
-  
       if (resetData) {
         setAllLogs(data.data || []);
         setPagination({ pageSize: 25, current: 1 }); // Reset pagination
