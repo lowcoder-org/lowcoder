@@ -63,34 +63,44 @@ const UserEngagementByRegionChart = ({ data }: Props) => {
     }
   }, [])
 
+  const geoPoints = useMemo(() => {
+    return data.reduce((acc, log) => {
+      const region = log?.geolocationDataJsonb?.city?.names?.en || 'Unknown'; // assuming `region` is added to each event
+      let regionData = {
+        latitude: log?.geolocationDataJsonb?.location?.latitude ?? 55,
+        longitude: log?.geolocationDataJsonb?.location?.longitude ?? 15,
+        count: 0,
+      };
+      if (acc[region]) {
+        acc[region] = {
+          ...acc[region],
+          count: acc[region].count + 1,
+        }
+      } else {
+        acc[region] = regionData;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+  }, [data]);
+
   const series = useMemo(() => {
     return [
       {
-          "name": "Company Size",
+          "name": "Users/Region",
           "type": "scatter",
           "coordinateSystem": "gmap",
           "itemStyle": {
               "color": "#ff00ff"
           },
-          "data": data
-            // .filter(item => {
-            //   if (!item.geolocationDataJsonb) return false;
-            //   return item.geolocationDataJsonb.longitude !== null && 
-            //   item.geolocationDataJsonb.latitude !== null
-            // })
-            .map(item => ({
-              name: item.details?.applicationName,
-              value: [
-                ...getRandomLatLng(35, 72, 25, 65),
-                1,
-              ]
-              // value: [
-              //   geoLocation.location.longitude, // item.longitude,
-              //   geoLocation.location.latitude, // item.latitude,
-              //   1
-              // ]
-            }))
-          ,
+          "data": Object.keys(geoPoints).map(key => ({
+            name: key,
+            value: [
+              geoPoints[key].longitude,
+              geoPoints[key].latitude,
+              geoPoints[key].count,
+            ]
+          })),
+          "symbolSize": (val: number[]) => { return 8 + ((Math.log(val[2]) - Math.log(2)) / (Math.log(40) - Math.log(2))) * (40 - 8) },
           "encode": {
             "value": 2,
             "lng": 0,
@@ -98,7 +108,7 @@ const UserEngagementByRegionChart = ({ data }: Props) => {
           }
       }
     ]
-  }, [data]);
+  }, [geoPoints]);
 
   return (
     <>
@@ -115,7 +125,9 @@ const UserEngagementByRegionChart = ({ data }: Props) => {
           },
           tooltip: {
             trigger: "item",
-            formatter: "{b}"
+            formatter: (params: { data: { name: string; value: any[]; }; }) => {
+              return `${params.data.name}: ${params.data.value[2]}`;
+            }
           },
           animation: true,
           series: series,
