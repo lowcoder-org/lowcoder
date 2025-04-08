@@ -96,3 +96,13 @@ export const eventTypes = [
   { value: "LIBRARY_QUERY_PUBLISH", label: trans("enterprise.LIBRARY_QUERY_PUBLISH"), color: "#22075e" },
   { value: "API_CALL_EVENT", label: trans("enterprise.API_CALL_EVENT"), color: "#8c8c8c" },
 ];
+
+// temporary geoLocation data
+export const geoLocation = {
+  "location": {
+    "accuracy_radius": 500,
+    "latitude": 24.8591,
+    "longitude": 66.9983,
+    "time_zone": "Asia/Karachi"
+  }
+}

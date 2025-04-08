@@ -14,6 +14,7 @@ import { getAuditLogs, getMeta } from "@lowcoder-ee/api/enterpriseApi";
 import { isEmpty } from "lodash";
 import { getEventColor, getEventLabel } from "./dashboard";
 import Tag from "antd/es/tag";
+import { geoLocation } from "./auditContants";
 
 const StyleThemeSettingsCover = styled.div`
   display: flex;
@@ -232,8 +233,15 @@ export function AuditLogDetail() {
           <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Geo Location</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
-          <Map height={300} defaultCenter={[50.879, 4.6997]} defaultZoom={11}>
-            <Marker width={50} anchor={[50.879, 4.6997]} />
+          <Map
+            height={300}
+            defaultZoom={11}
+            defaultCenter={[geoLocation.location.latitude, geoLocation.location.longitude]}
+          >
+            <Marker
+              width={50}
+              anchor={[geoLocation.location.latitude, geoLocation.location.longitude]}
+            />
           </Map>
         </Card>
 

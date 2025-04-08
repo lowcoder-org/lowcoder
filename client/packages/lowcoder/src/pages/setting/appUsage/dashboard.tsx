@@ -22,6 +22,8 @@ import UserActivityByTimeChart from "./charts/userActivityByTime";
 import UserAuthStatusChart from "./charts/userAuthStatus";
 import DeviceOSBreakdownChart from "./charts/deviceOSBreakdown";
 import BrowserEngineBreakdownChart from "./charts/browserEngineBreakdown";
+import UserEngagementByRegionChart from "./charts/userEngagementByRegion";
+import { geoLocation } from "../audit/auditContants";
 
 const { RangePicker } = DatePicker;
 
@@ -55,6 +57,7 @@ export function AppUsageDashboard() {
     appId: string;
     isAnonymous: boolean;
     details: Record<string, any>;
+    geolocationDataJsonb?: Record<string, any>,
   };
 
   const currentUser = useSelector(getUser);
@@ -365,6 +368,22 @@ export function AppUsageDashboard() {
                 </Flex>
               </Flex>
             </Form>
+          </Card>
+        </AppLogContent>
+        <AppLogContent>
+          <StyleThemeSettingsCover>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"User Engagement By Region"}</h2>
+          </StyleThemeSettingsCover>
+          <Card>
+            {loading ? (
+              <Skeleton active paragraph={{ rows: 5 }} />
+            ) : currentPageLogs.length > 0 ? (
+              <>
+                <UserEngagementByRegionChart data={allLogs}/>
+              </>
+            ) : (
+              <p>No logs found. Adjust the filters and try again.</p>
+            )}
           </Card>
         </AppLogContent>
         <AppLogContent>
