@@ -26,6 +26,10 @@ const StyleThemeSettingsCover = styled.div`
 `;
 
 const StyledTree = styled(Tree)`
+  &.ant-tree {
+    margin-top: 24px;
+  }
+
   .ant-tree-treenode {
     margin-bottom: 24px;
   }
@@ -35,7 +39,7 @@ const StyledTree = styled(Tree)`
   }
 
   .ant-tree-indent-unit {
-    width: 48px;
+    width: 0;
   }
 `;
 
@@ -235,12 +239,12 @@ export function AuditLogDetail() {
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
           <Map
             height={300}
-            defaultZoom={11}
-            defaultCenter={[geoLocation.location.latitude, geoLocation.location.longitude]}
+            defaultZoom={5}
+            defaultCenter={[55, 15]}
           >
             <Marker
               width={50}
-              anchor={[geoLocation.location.latitude, geoLocation.location.longitude]}
+              anchor={[55, 15]}
             />
           </Map>
         </Card>

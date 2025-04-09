@@ -374,7 +374,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"User Engagement By Region"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
@@ -390,7 +390,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"App Usage Logs"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
@@ -409,7 +409,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Top 10 Apps"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
           {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
@@ -433,7 +433,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Anonymous/Known Users"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
@@ -451,7 +451,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Device/OS Breakdown"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
@@ -469,7 +469,7 @@ export function AppUsageDashboard() {
           <StyleThemeSettingsCover>
             <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Browser/Layout Engine Breakdown"}</h2>
           </StyleThemeSettingsCover>
-          <Card>
+          <Card size="small">
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
             ) : currentPageLogs.length > 0 ? (
