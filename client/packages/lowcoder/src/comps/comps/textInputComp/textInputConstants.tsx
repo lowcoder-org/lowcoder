@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -209,10 +209,17 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     );
   }, [props.customRule])
 
+  const debouncedOnChangeRef = useRef(
+    debounce((value: string) => {
+      props.value.onChange(value);
+      changeRef.current = true;
+      touchRef.current = true;
+    }, 1000)
+  );
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    props.value.onChange(e.target.value);
-    changeRef.current = true;
-    touchRef.current = true;
+    const value = e.target.value;
+    debouncedOnChangeRef.current?.(value);
   };
 
   return [
