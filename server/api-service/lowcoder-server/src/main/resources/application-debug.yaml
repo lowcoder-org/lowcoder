@@ -28,6 +28,9 @@ spring:
             required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
         transport:
           protocol: smtp
+  mvc:
+    pathmatch:
+      trailing-slash-match: true
 server:
   port: 8080
 common:
