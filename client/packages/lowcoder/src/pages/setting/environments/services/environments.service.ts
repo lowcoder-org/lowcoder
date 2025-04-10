@@ -3,6 +3,7 @@ import { message } from "antd";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
+import {App} from "../types/app.types";
 
 /**
  * Fetch all environments
@@ -167,6 +168,101 @@ export async function getEnvironmentUserGroups(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user groups';
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+
+
+/* ================================================================================
+
+=============================== WorkSpace Details ============================ */
+
+
+/**
+ * Get a specific workspace by ID from the list of workspaces
+ * @param workspaces - Array of workspaces
+ * @param workspaceId - ID of the workspace to find
+ * @returns The found workspace or null if not found
+ */
+export function getWorkspaceById(workspaces: Workspace[], workspaceId: string): Workspace | null {
+  if (!workspaces || !workspaceId) {
+    return null;
+  }
+  
+  return workspaces.find(workspace => workspace.id === workspaceId) || null;
+}
+
+/**
+ * Fetch a specific workspace from an environment
+ * @param environmentId - ID of the environment
+ * @param workspaceId - ID of the workspace to fetch
+ * @param apiKey - API key for the environment
+ * @param apiServiceUrl - API service URL for the environment
+ * @returns Promise with the workspace or null if not found
+ */
+export async function fetchWorkspaceById(
+  environmentId: string,
+  workspaceId: string,
+  apiKey: string,
+  apiServiceUrl: string
+): Promise<Workspace | null> {
+  try {
+    // First fetch all workspaces for the environment
+    const workspaces = await getEnvironmentWorkspaces(environmentId, apiKey, apiServiceUrl);
+    
+    // Then find the specific workspace by ID
+    return getWorkspaceById(workspaces, workspaceId);
+  } catch (error) {
+    throw error;
+  }
+}
+
+
+export async function getWorkspaceApps(
+  workspaceId: string, 
+  apiKey: string,
+  apiServiceUrl: string
+): Promise<App[]> {
+  try {
+    // Check if required parameters are provided
+    if (!workspaceId) {
+      throw new Error('Workspace ID is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch apps');
+    }
+    
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required to fetch apps');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Make the API request to get apps
+    // Include the orgId as a query parameter if needed
+    const response = await axios.get(`${apiServiceUrl}/api/applications/list`, { 
+      headers,
+      params: {
+        orgId: workspaceId
+      }
+    });
+    
+    // Check if response is valid
+    if (!response.data || !response.data.data) {
+      return [];
+    }
+    
+    return response.data.data;
+  } catch (error) {
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch apps';
     message.error(errorMessage);
     throw error;
   }
