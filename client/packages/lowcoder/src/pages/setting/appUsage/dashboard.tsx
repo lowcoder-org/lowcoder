@@ -10,8 +10,8 @@ import {
   } from "../theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
-import { getAppUsageLogs } from "api/enterpriseApi";
-import { debounce } from "lodash";
+import { getAppUsageLogs, getEnvironmentsByIds, getMeta } from "api/enterpriseApi";
+import { debounce, uniqBy } from "lodash";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { Link, useLocation } from "react-router-dom";
@@ -65,6 +65,7 @@ export function AppUsageDashboard() {
 
   const [allLogs, setAllLogs] = useState<AppLog[]>([]); 
   const [currentPageLogs, setCurrentPageLogs] = useState<AppLog[]>([]);
+  const [dataMap, setDataMap] = useState<Record<string, any>>({});
 
   // const [logs, setLogs] = useState([]);
   const [total, setTotal] = useState(0);
@@ -244,6 +245,8 @@ export function AppUsageDashboard() {
   }, [currentUser.currentOrgId]);
 
   const appViews = useMemo(() => {
+    if (!allLogs?.length) return [];
+
     return allLogs.reduce((acc, e) => {
       const environmentId = e.environmentId;
       const orgId = e.orgId;
@@ -252,14 +255,56 @@ export function AppUsageDashboard() {
       acc[appId] = acc[appId] || { appId, name, orgId, environmentId, count: 0 };
       acc[appId].count++;
       return acc;
-    }, {} as Record<string, { appId: string, name: string, count: number }>);
+    }, {} as Record<string, {
+      appId: string, name: string,
+      orgId: string,
+      environmentId: string,
+      count: number
+    }>);
   }, [allLogs]);
   
   const topApps = useMemo(() => {
+    if (!Object.keys(appViews)?.length) return [];
+
     return Object.values(appViews)
     .sort((a, b) => b.count - a.count)
     .slice(0, 10);
   }, [appViews]);
+
+  const findUniqueDataIds = async () => {
+    if (!topApps.length) {
+      return setDataMap({});
+    }
+
+    const uniqueOrgIds: string[] = uniqBy(topApps, 'orgId').map(item => item.orgId);
+    const uniqueEnvIds: string[] = uniqBy(topApps, 'environmentId').map(item => item.environmentId);
+
+    const metaResponse = await getMeta({
+      orgIds: uniqueOrgIds,
+      userIds: [],
+      appIds: [],
+      groupIds: [],
+      bundleIds: [],
+      datasourceIds: [],
+      folderIds: [],
+      libraryQueryIds: []
+    });
+
+    const envResponse = await getEnvironmentsByIds(uniqueEnvIds);
+
+    const tempDataMap: Record<string, any> = {};
+    metaResponse.data?.orgs?.forEach((org: { id: string; name: string; }) => {
+      tempDataMap[org.id] = org.name;
+    });
+    envResponse.data?.forEach((env: { environmentId: string; environmentType: string; }) => {
+      tempDataMap[env.environmentId] = env.environmentType;
+    });
+    setDataMap(tempDataMap);
+  }
+
+  useEffect(() => {
+    findUniqueDataIds();
+  }, [topApps]);
 
   const columns = [
     {
@@ -280,20 +325,30 @@ export function AppUsageDashboard() {
       title: "App ID",
       dataIndex: "appId",
       key: "appId",
-      render: (text: string) => <a onClick={() => handleClickFilter("appId", text)}>{text}</a>,
+      render: (text: string, record: any) => (
+        <a onClick={() => handleClickFilter("appId", text)}>
+          {
+            record.name
+            || record.appId
+            || '-'
+          }
+        </a>
+      ),
     },
     {
       title: "Org ID",
       dataIndex: "orgId",
       key: "orgId",
-      render: (text: string) => <a onClick={() => handleClickFilter("orgId", text)}>{text}</a>,
+      render: (text: string) => (
+        <a onClick={() => handleClickFilter("orgId", text)}>{dataMap[text] ?? text}</a>
+      ),
     },
     {
       title: "Environment ID",
       dataIndex: "environmentId",
       key: "environmentId",
       render: (text: string) => (
-        <a onClick={() => handleClickFilter("environmentId", text)}>{text}</a>
+        <a onClick={() => handleClickFilter("environmentId", text)}>{dataMap[text] ?? text}</a>
       ),
     },
     {
