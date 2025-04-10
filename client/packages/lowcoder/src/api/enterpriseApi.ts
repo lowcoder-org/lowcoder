@@ -72,7 +72,12 @@ export const getAuditLogStatistics = async (params = {}) => {
 };
 
 export const getMeta = async (formData = {}) => {
-  const response = await axios.post(`/api/meta`, formData);
+  const response = await axios.post(`/api/meta/`, formData);
+  return response.data;
+}
+
+export const getEnvironmentsByIds = async (formData: string[] = []) => {
+  const response = await axios.post(`/api/plugins/enterprise/environments/byIds`, formData);
   return response.data;
 }
 

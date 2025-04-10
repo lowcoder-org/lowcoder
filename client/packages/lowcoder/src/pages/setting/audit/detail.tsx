@@ -10,11 +10,10 @@ import { Map, Marker } from "pigeon-maps"
 import Tree from "antd/es/tree";
 import Empty from "antd/es/empty";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { getAuditLogs, getMeta } from "@lowcoder-ee/api/enterpriseApi";
+import { getAuditLogs, getEnvironmentsByIds, getMeta } from "@lowcoder-ee/api/enterpriseApi";
 import { isEmpty } from "lodash";
 import { getEventColor, getEventLabel } from "./dashboard";
 import Tag from "antd/es/tag";
-import { geoLocation } from "./auditContants";
 
 const StyleThemeSettingsCover = styled.div`
   display: flex;
@@ -31,7 +30,28 @@ const StyledTree = styled(Tree)`
   }
 
   .ant-tree-treenode {
-    margin-bottom: 24px;
+    margin-bottom: 12px;
+  }
+
+  .ant-tree-node-content-wrapper {
+    padding: 8px;
+  }
+  
+  .ant-tree-switcher {
+    padding-top: 8px;
+    &::before {
+      top: 8px;
+    }  
+  }
+
+  .ant-tree-switcher_open::after {
+    content: "";
+    width: 1px;
+    height: 100%;
+    position: absolute;
+    left: 46%;
+    top: 26px;
+    background: #d9d9d9;
   }
 
   .ant-descriptions-header {
@@ -63,8 +83,6 @@ const getResourceData = (eventType: string, eventDetail: any) => {
   return {
     ID: eventDetail.id, Name: eventDetail.name,
   }
-
-  return undefined;
 }
 
 const EventTreeNode = (props: {
@@ -80,7 +98,7 @@ const EventTreeNode = (props: {
       title={<span>{props.icon} {props.title}</span>}
     >
       {Object.keys(props.data).map(dataKey => (
-        <Descriptions.Item label={dataKey}>{props.data[dataKey] || '-'}</Descriptions.Item>
+        <Descriptions.Item key={dataKey} label={dataKey}>{props.data[dataKey] || '-'}</Descriptions.Item>
       ))}
     </Descriptions>
   )
@@ -88,6 +106,8 @@ const EventTreeNode = (props: {
 export function AuditLogDetail() {
   const { eventId } = useParams<{eventId: string}>();
   const [ event, setEvent ] = useState<any>({});
+  const [ meta, setMeta ] = useState<any>({});
+  const [ environment, setEnvironment ] = useState<any>({});
 
   const fetchEventData = async () => {
     const response = await getAuditLogs({ eventId });
@@ -107,8 +127,14 @@ export function AuditLogDetail() {
       folderIds: [],
       libraryQueryIds: []
     });
-    console.log(response);
-    // setEvent(response?.data?.[0]);
+    setMeta(response.data);
+  }
+
+  const fetchEnvironmentData = async () => {
+    if (isEmpty(event)) return;
+  
+    const response = await getEnvironmentsByIds([event.environmentId]);
+    setEnvironment(response.data?.[0] || {});
   }
 
   useEffect(() => {
@@ -117,7 +143,8 @@ export function AuditLogDetail() {
 
   useEffect(() => {
     fetchEventMeta();
-  }, [event]);
+    fetchEnvironmentData();
+  }, [JSON.stringify(event)]);
 
   const eventHierarchy = useMemo(() => {
     if (isEmpty(event)) return [];
@@ -175,7 +202,10 @@ export function AuditLogDetail() {
           <EventTreeNode
             icon={<EnvironmentOutlined />}
             title="Environment"
-            data={{ ID: event?.environmentId, Name: event?.environmentName}}
+            data={{
+              ID: event?.environmentId,
+              Name: environment?.environmentType || '-'
+            }}
           />
         ),
         key: "0",
@@ -185,7 +215,10 @@ export function AuditLogDetail() {
               <EventTreeNode
                 icon={<TeamOutlined />}
                 title="Workspace"
-                data={{ ID: event?.orgId, Name: event?.orgName}}
+                data={{
+                  ID: event?.orgId,
+                  Name: meta?.orgs?.[0]?.name || '-',
+                }}
               />
             ),
             key: "0-0",
@@ -195,7 +228,10 @@ export function AuditLogDetail() {
                   <EventTreeNode
                     icon={<UserOutlined />}
                     title="User"
-                    data={{ ID: event?.userId, Name: event?.userName}}
+                    data={{
+                      ID: event?.userId,
+                      Name: meta?.users?.[0]?.name || '-',
+                    }}
                   />
                 ),
                 key: "0-0-0",
@@ -206,7 +242,7 @@ export function AuditLogDetail() {
         ],
       },
     ];
-  }, [event]);
+  }, [event, meta, environment]);
 
   if (!Boolean(event)) {
     return (
@@ -254,7 +290,7 @@ export function AuditLogDetail() {
           <h2 style={{ color: "#ffffff", marginTop: "8px" }}>Browser / System Metadata</h2>
         </StyleThemeSettingsCover>
         <Card size="small" style={{ marginBottom: "20px", borderTopLeftRadius: 0, borderTopRightRadius: 0 }}>
-          <Descriptions bordered column={1}>
+          <Descriptions bordered column={1} size="small">
             <Descriptions.Item label={<span><ChromeOutlined className="text-lg mr-2" /> Browser</span>}>{event?.agentName}</Descriptions.Item>
             <Descriptions.Item label={<span><AppleOutlined className="text-lg mr-2" /> OS</span>}>{event?.operatingSystemName} ({event?.operatingSystemVersion})</Descriptions.Item>
             <Descriptions.Item label={<span><DesktopOutlined className="text-lg mr-2" /> Device</span>}>{event?.deviceName}</Descriptions.Item>

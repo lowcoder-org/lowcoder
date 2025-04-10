@@ -22,7 +22,7 @@ const Statistics = ({ stats }: { stats: AuditLogStat[] }) => {
   return (
     <Card size="small" variant="borderless" style={{marginBottom: '20px'}}>
       {stats.map(stat => (
-        <Card.Grid hoverable={false} style={{width, padding: '12px'}}>
+        <Card.Grid key={stat.eventType} hoverable={false} style={{width, padding: '12px'}}>
           <StyledStatistics
             title={stat.eventType.split('_').join(' ')}
             value={stat.groupCountResult}

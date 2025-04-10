@@ -10,9 +10,9 @@ import {
   } from "../theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
-import { getAuditLogs, getAuditLogStatistics } from "api/enterpriseApi";
+import { getAuditLogs, getAuditLogStatistics, getEnvironmentsByIds, getMeta } from "api/enterpriseApi";
 import EventTypeTimeChart from "./charts/eventTypesTime";
-import { debounce } from "lodash";
+import { debounce, uniqBy } from "lodash";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { Link, useLocation } from "react-router-dom";
@@ -59,6 +59,7 @@ export function AuditLogDashboard() {
   const [allLogs, setAllLogs] = useState<AuditLog[]>([]); 
   const [currentPageLogs, setCurrentPageLogs] = useState<AuditLog[]>([]);
   const [statistics, setStatistics] = useState<AuditLogStat[]>([]);
+  const [dataMap, setDataMap] = useState<Record<string, any>>({});
 
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -94,12 +95,44 @@ export function AuditLogDashboard() {
     form.setFieldsValue(getQueryParams());
   }, []);
 
-  const getAuditLogStatsMap = (stats: AuditLogStat[]) => {
-    const statsMap = {};
-    stats.forEach(stat => {
-      // statsMap.push({})
-    })
-  };
+  const findUniqueDataIds = async () => {
+    if (!allLogs.length) {
+      return setDataMap({});
+    }
+
+    const uniqueOrgIds: string[] = uniqBy(allLogs, 'orgId').map(item => item.orgId);
+    const uniqueUserIds: string[] = uniqBy(allLogs, 'userId').map(item => item.userId);
+    const uniqueEnvIds: string[] = uniqBy(allLogs, 'environmentId').map(item => item.environmentId);
+
+    const metaResponse = await getMeta({
+      orgIds: uniqueOrgIds,
+      userIds: uniqueUserIds,
+      appIds: [],
+      groupIds: [],
+      bundleIds: [],
+      datasourceIds: [],
+      folderIds: [],
+      libraryQueryIds: []
+    });
+
+    const envResponse = await getEnvironmentsByIds(uniqueEnvIds);
+
+    const tempDataMap: Record<string, any> = {};
+    metaResponse.data?.orgs?.forEach((org: { id: string; name: string; }) => {
+      tempDataMap[org.id] = org.name;
+    });
+    metaResponse.data?.users?.forEach((user: { id: string; name: string; }) => {
+      tempDataMap[user.id] = user.name;
+    });
+    envResponse.data?.forEach((env: { environmentId: string; environmentType: string; }) => {
+      tempDataMap[env.environmentId] = env.environmentType;
+    });
+    setDataMap(tempDataMap);
+  }
+
+  useEffect(() => {
+    findUniqueDataIds();
+  }, [allLogs]);
 
   const getCleanedParams = (newPage?: number) => {
     const formValues = form.getFieldsValue();
@@ -308,26 +341,38 @@ export function AuditLogDashboard() {
       dataIndex: "environmentId",
       key: "environmentId",
       render: (text: string) => (
-        <a onClick={() => handleClickFilter("environmentId", text)}>{text}</a>
+        <a onClick={() => handleClickFilter("environmentId", text)}>{dataMap[text] ?? text}</a>
       ),
     },
     {
       title: "Org ID",
       dataIndex: "orgId",
       key: "orgId",
-      render: (text: string) => <a onClick={() => handleClickFilter("orgId", text)}>{text}</a>,
+      render: (text: string) => (
+        <a onClick={() => handleClickFilter("orgId", text)}>{dataMap[text] ?? text}</a>
+      ),
     },
     {
       title: "User ID",
       dataIndex: "userId",
       key: "userId",
-      render: (text: string) => <a onClick={() => handleClickFilter("userId", text)}>{text}</a>,
+      render: (text: string) => (
+        <a onClick={() => handleClickFilter("userId", text)}>{dataMap[text] ?? text}</a>
+      ),
     },
     {
       title: "App ID",
       dataIndex: "appId",
       key: "appId",
-      render: (text: string) => <a onClick={() => handleClickFilter("appId", text)}>{text}</a>,
+      render: (text: string, record: any) => (
+        <a onClick={() => handleClickFilter("appId", text)}>
+          {
+            record.details?.applicationName
+            || record.details?.applicationId
+            || '-'
+          }
+        </a>
+      ),
     }
   ];
 
