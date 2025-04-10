@@ -25,6 +25,9 @@ import {
 import { useEnvironmentDetail } from "./hooks/useEnvironmentDetail";
 import WorkspacesList from "./components/WorkspacesList";
 import UserGroupsList from "./components/UserGroupsList";
+import { useEnvironmentContext } from "./context/EnvironmentContext";
+import { useEnvironmentWorkspaces } from "./hooks/useEnvironmentWorkspaces";
+import { useEnvironmentUserGroups } from "./hooks/useEnvironmentUserGroups";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -35,29 +38,35 @@ const { TabPane } = Tabs;
  */
 const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
-  const { environmentId: id } = useParams<{ environmentId: string }>();
+  const {
+    environment,
+    loading: envLoading,
+    error: envError,
+    refresh,
+  } = useEnvironmentContext();  
+  
+  
+  const {
+    workspaces,
+    loading: workspacesLoading,
+    error: workspacesError,
+    refresh: refreshWorkspaces,
+    workspaceStats,
+  } = useEnvironmentWorkspaces(environment);
+
+  const {
+    userGroups,
+    loading: userGroupsLoading,
+    error: userGroupsError,
+    refresh: refreshUserGroups,
+    userGroupStats,
+  } = useEnvironmentUserGroups(environment);
 
   // Use the custom hook to handle data fetching and state management
   // Use the custom hook to handle data fetching and state management
-  const {
-    environment,
-    loading,
-    error,
-    refresh,
-    workspaces,
-    workspacesLoading,
-    workspacesError,
-    refreshWorkspaces,
-    workspaceStats,
-    userGroups,
-    userGroupsLoading,
-    userGroupsError,
-    refreshUserGroups,
-    userGroupStats
-    
-  } = useEnvironmentDetail(id);
+  
   // If loading, show spinner
-  if (loading) {
+  if (envLoading) {
     return (
       <div
         style={{
@@ -74,11 +83,11 @@ const EnvironmentDetail: React.FC = () => {
   }
 
   // If error, show error message
-  if (error) {
+  if (envError) {
     return (
       <Alert
         message="Error loading environment details"
-        description={error}
+        description={envError}
         type="error"
         showIcon
         style={{ margin: "24px" }}
