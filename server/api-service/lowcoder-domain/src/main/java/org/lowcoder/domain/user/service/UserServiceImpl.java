@@ -418,7 +418,7 @@ public class UserServiceImpl implements UserService {
         return Optional.ofNullable(user.getOrgTransformedUserInfo())
                 .map(orgTransformedUserInfo -> orgTransformedUserInfo.get(orgId))
                 .map(TransformedUserInfo::extra)
-                .orElse(convertConnections(user.getConnections()));
+                .orElse(convertConnections(user.getConnections().stream().filter(c -> c.getAuthId().equals(user.getActiveAuthId())).collect(Collectors.toSet())));
     }
 
     protected Mono<List<Map<String, String>>> buildUserDetailGroups(String userId, OrgMember orgMember, boolean withoutDynamicGroups,
