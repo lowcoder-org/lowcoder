@@ -29,71 +29,63 @@ import {
   SyncOutlined,
   ArrowLeftOutlined
 } from "@ant-design/icons";
-import { getEnvironmentById } from './services/environments.service';
 import AppsList from './components/AppsList';
-import { Workspace } from './types/workspace.types';
-import { Environment } from './types/environment.types';
-import { App } from './types/app.types';
+import { useEnvironmentContext } from "./context/EnvironmentContext";
+import { useWorkspace } from "./hooks/useWorkspace";
+
+
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 
 const WorkspaceDetail: React.FC = () => {
+
     // Get parameters from URL
-    const { environmentId, workspaceId } = useParams<{ 
-      environmentId: string;
+    const { environmentId,workspaceId } = useParams<{ 
       workspaceId: string; 
+      environmentId: string;
     }>();
-    
     const {
       environment,
+      loading: envLoading,
+      error: envError,
+      refresh: refreshEnvironment,
+    } = useEnvironmentContext();
+
+    const {
       workspace,
-      apps,
-      appsLoading,
-      appsError,
-      refreshApps,
-      appStats,
-      dataSources,
-      dataSourcesLoading,
-      dataSourcesError,
-      refreshDataSources,
-      dataSourceStats,
-      isLoading,
-      hasError
-    } = useWorkspaceDetail(environmentId, workspaceId);
+      loading: workspaceLoading,
+      error: workspaceError,
+      refresh: refreshWorkspace
+    } = useWorkspace(environment, workspaceId);
+    
+   
   
-    // Handle loading/error states
-    if (isLoading) {
-      return <Spin />;
+    if (envLoading || workspaceLoading) {
+      return (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
+          <Spin size="large" tip="Loading workspace details..." />
+        </div>
+      );
     }
-  
-    // Handle loading/error states
-if (isLoading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
-        <Spin size="large" tip="Loading workspace details..." />
-      </div>
-    );
-  }
-  
-  // Handle error state
-  if (hasError || !environment || !workspace) {
-    return (
-      <Alert
-        message="Error loading workspace details"
-        description="Could not load the workspace or environment data. Please try again."
-        type="error"
-        showIcon
-        style={{ margin: '24px' }}
-        action={
-          <Button type="primary" onClick={() => history.push(`/home/settings/environments/${environmentId}`)}>
-            Back to Environment
-          </Button>
-        }
-      />
-    );
-  }
+    
+    if (envError || workspaceError || !environment || !workspace) {
+      return (
+        <Alert
+          message="Error loading workspace details"
+          description={envError || workspaceError || "Workspace not found."}
+          type="error"
+          showIcon
+          style={{ margin: '24px' }}
+          action={
+            <Button type="primary" onClick={() => history.push(`/home/settings/environments/${environmentId}`)}>
+              Back to Environment
+            </Button>
+          }
+        />
+      );
+    }
   
   return (
     <div className="workspace-detail-container" style={{ padding: '24px' }}>
