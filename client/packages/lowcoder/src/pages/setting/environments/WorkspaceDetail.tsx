@@ -1,11 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import history from "@lowcoder-ee/util/history";
-import { useWorkspaceDetail } from "./hooks/useWorkspaceDetail";
 import DataSourcesList from './components/DataSourcesList';
-
-
-
 import { 
   Spin, 
   Typography, 
@@ -20,7 +16,6 @@ import {
   Breadcrumb
 } from "antd";
 import { 
-  ReloadOutlined, 
   AppstoreOutlined, 
   DatabaseOutlined, 
   CodeOutlined,
@@ -32,7 +27,8 @@ import {
 import AppsList from './components/AppsList';
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useWorkspace } from "./hooks/useWorkspace";
-
+import { useWorkspaceApps } from "./hooks/useWorkspaceApps";
+import { useWorkspaceDataSources } from "./hooks/useWorkspaceDataSources";
 
 
 const { Title, Text } = Typography;
@@ -59,6 +55,22 @@ const WorkspaceDetail: React.FC = () => {
       error: workspaceError,
       refresh: refreshWorkspace
     } = useWorkspace(environment, workspaceId);
+
+    const {
+      apps,
+      loading: appsLoading,
+      error: appsError,
+      refresh: refreshApps,
+      appStats,
+    } = useWorkspaceApps(environment, workspaceId);
+
+    const {
+      dataSources,
+      loading: dataSourcesLoading,
+      error: dataSourcesError,
+      refresh: refreshDataSources,
+      dataSourceStats,
+    } = useWorkspaceDataSources(environment, workspaceId);
     
    
   
