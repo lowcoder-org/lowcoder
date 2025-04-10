@@ -79,7 +79,7 @@ export async function getEnvironmentWorkspaces(
 
     // Set up headers with the API key
     const headers = {
-      "X-API-Key": apiKey,
+      Authorization: `Bearer ${apiKey}`
     };
 
     // Make the API request to get user data which includes workspaces
