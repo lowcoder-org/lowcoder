@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { getEnvironmentById, fetchWorkspaceById, getWorkspaceApps} from "../services/environments.service";
+import { getEnvironmentById, fetchWorkspaceById, getWorkspaceApps, getWorkspaceDataSources} from "../services/environments.service";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { App } from "../types/app.types";
+import { DataSourceWithMeta } from '../types/datasource.types';
 export const useWorkspaceDetail = (
   environmentId: string,
   workspaceId: string
@@ -21,6 +22,11 @@ export const useWorkspaceDetail = (
   const [apps, setApps] = useState<App[]>([]);
   const [appsLoading, setAppsLoading] = useState<boolean>(false);
   const [appsError, setAppsError] = useState<string | null>(null);
+
+  // Data Sources state
+  const [dataSources, setDataSources] = useState<DataSourceWithMeta[]>([]);
+  const [dataSourcesLoading, setDataSourcesLoading] = useState<boolean>(false);
+  const [dataSourcesError, setDataSourcesError] = useState<string | null>(null);
 
   // Function to fetch environment data
   const fetchEnvironmentData = useCallback(async () => {
@@ -95,6 +101,36 @@ export const useWorkspaceDetail = (
     }
   }, [environment, workspace]);
 
+
+   // Function to fetch data sources
+   const fetchDataSourcesData = useCallback(async () => {
+    if (!environment || !workspace) return;
+    
+    setDataSourcesLoading(true);
+    setDataSourcesError(null);
+    
+    try {
+      const apiKey = environment.environmentApikey;
+      const apiServiceUrl = environment.environmentApiServiceUrl;
+      
+      if (!apiKey || !apiServiceUrl) {
+        setDataSourcesError("Missing API key or service URL");
+        setDataSourcesLoading(false);
+        return;
+      }
+      
+      const data = await getWorkspaceDataSources(workspace.id, apiKey, apiServiceUrl);
+      setDataSources(data);
+    } catch (err) {
+      setDataSourcesError(err instanceof Error ? err.message : "Failed to fetch data sources");
+    } finally {
+      setDataSourcesLoading(false);
+    }
+  }, [environment, workspace]);
+
+
+
+
   // Chain the useEffects to sequence the data fetching
   useEffect(() => {
     fetchEnvironmentData();
@@ -109,6 +145,8 @@ export const useWorkspaceDetail = (
   useEffect(() => {
     if (environment && workspace) {
       fetchAppsData();
+      fetchDataSourcesData();
+
     }
   }, [environment, workspace, fetchAppsData]);
 
@@ -116,6 +154,12 @@ export const useWorkspaceDetail = (
   const appStats = {
     total: apps.length,
     published: apps.filter((app) => app.published).length,
+  };
+
+  // Data Source statistics
+  const dataSourceStats = {
+    total: dataSources.length,
+    types: [...new Set(dataSources.map(ds => ds.datasource.type))].length,
   };
 
   return {
@@ -137,6 +181,13 @@ export const useWorkspaceDetail = (
     appsError,
     refreshApps: fetchAppsData,
     appStats,
+
+    // Data Sources data
+    dataSources,
+    dataSourcesLoading,
+    dataSourcesError,
+    refreshDataSources: fetchDataSourcesData,
+    dataSourceStats,
 
     // Overall loading state
     isLoading: environmentLoading || workspaceLoading,

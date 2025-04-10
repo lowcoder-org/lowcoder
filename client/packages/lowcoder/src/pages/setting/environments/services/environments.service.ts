@@ -4,6 +4,8 @@ import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
 import {App} from "../types/app.types";
+import { DataSourceWithMeta } from '../types/datasource.types';
+
 
 /**
  * Fetch all environments
@@ -220,6 +222,11 @@ export async function fetchWorkspaceById(
   }
 }
 
+/* ================================================================================
+
+=============================== WorkSpace Apps ============================ */
+
+
 
 export async function getWorkspaceApps(
   workspaceId: string, 
@@ -266,6 +273,64 @@ export async function getWorkspaceApps(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch apps';
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+/* ================================================================================
+
+=============================== WorkSpace Data Source ============================  */
+
+/**
+ * Fetch data sources for a specific workspace
+ * @param workspaceId - ID of the workspace (orgId)
+ * @param apiKey - API key for the environment
+ * @param apiServiceUrl - API service URL for the environment
+ * @returns Promise with an array of data sources
+ */
+export async function getWorkspaceDataSources(
+  workspaceId: string, 
+  apiKey: string,
+  apiServiceUrl: string
+): Promise<DataSourceWithMeta[]> {
+  try {
+    // Check if required parameters are provided
+    if (!workspaceId) {
+      throw new Error('Workspace ID is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch data sources');
+    }
+    
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required to fetch data sources');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Make the API request to get data sources
+    const response = await axios.get<DataSourceWithMeta[]>(`${apiServiceUrl}/api/datasources/listByOrg`, { 
+      headers,
+      params: {
+        orgId: workspaceId
+      }
+    });
+    
+    // Check if response is valid
+    if (!response.data) {
+      return [];
+    }
+    
+    return response.data;
+  } catch (error) {
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
     message.error(errorMessage);
     throw error;
   }

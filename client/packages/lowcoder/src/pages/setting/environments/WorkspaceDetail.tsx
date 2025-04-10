@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import history from "@lowcoder-ee/util/history";
 import { useWorkspaceDetail } from "./hooks/useWorkspaceDetail";
+import DataSourcesList from './components/DataSourcesList';
+
 
 
 import { 
@@ -44,7 +46,6 @@ const WorkspaceDetail: React.FC = () => {
       workspaceId: string; 
     }>();
     
-    // Use the custom hook
     const {
       environment,
       workspace,
@@ -53,6 +54,11 @@ const WorkspaceDetail: React.FC = () => {
       appsError,
       refreshApps,
       appStats,
+      dataSources,
+      dataSourcesLoading,
+      dataSourcesError,
+      refreshDataSources,
+      dataSourceStats,
       isLoading,
       hasError
     } = useWorkspaceDetail(environmentId, workspaceId);
@@ -185,16 +191,66 @@ if (isLoading) {
           </Card>
         </TabPane>
         
+       {/* Update the TabPane in WorkspaceDetail.tsx */}
         <TabPane 
           tab={<span><DatabaseOutlined /> Data Sources</span>} 
           key="dataSources"
         >
           <Card>
-            <Alert
-              message="Data Sources"
-              description="Data Sources feature will be implemented in the next phase."
-              type="info"
-              showIcon
+            {/* Header with refresh button */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <Title level={5}>Data Sources in this Workspace</Title>
+              <Button 
+                icon={<SyncOutlined />} 
+                onClick={refreshDataSources}
+                size="small"
+                loading={dataSourcesLoading}
+              >
+                Refresh Data Sources
+              </Button>
+            </div>
+            
+            {/* Data Source Statistics */}
+            <Row gutter={16} style={{ marginBottom: '24px' }}>
+              <Col span={8}>
+                <Statistic 
+                  title="Total Data Sources" 
+                  value={dataSourceStats.total} 
+                  prefix={<DatabaseOutlined />} 
+                />
+              </Col>
+              <Col span={8}>
+                <Statistic 
+                  title="Data Source Types" 
+                  value={dataSourceStats.types} 
+                  prefix={<DatabaseOutlined />} 
+                />
+              </Col>
+            </Row>
+            
+            <Divider style={{ margin: '16px 0' }} />
+            
+            {/* Show error if data sources loading failed */}
+            {dataSourcesError && (
+              <Alert
+                message="Error loading data sources"
+                description={dataSourcesError}
+                type="error"
+                showIcon
+                style={{ marginBottom: '16px' }}
+                action={
+                  <Button size="small" type="primary" onClick={refreshDataSources}>
+                    Try Again
+                  </Button>
+                }
+              />
+            )}
+            
+            {/* Data Sources List */}
+            <DataSourcesList 
+              dataSources={dataSources}
+              loading={dataSourcesLoading}
+              error={dataSourcesError}
             />
           </Card>
         </TabPane>
