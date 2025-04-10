@@ -24,6 +24,7 @@ import {
 } from "@ant-design/icons";
 import { useEnvironmentDetail } from "./hooks/useEnvironmentDetail";
 import WorkspacesList from "./components/WorkspacesList";
+import UserGroupsList from "./components/UserGroupsList";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -48,6 +49,12 @@ const EnvironmentDetail: React.FC = () => {
     workspacesError,
     refreshWorkspaces,
     workspaceStats,
+    userGroups,
+    userGroupsLoading,
+    userGroupsError,
+    refreshUserGroups,
+    userGroupStats
+    
   } = useEnvironmentDetail(id);
   // If loading, show spinner
   if (loading) {
@@ -277,7 +284,6 @@ const EnvironmentDetail: React.FC = () => {
             />
           </Card>
         </TabPane>
-
         <TabPane
           tab={
             <span>
@@ -287,30 +293,102 @@ const EnvironmentDetail: React.FC = () => {
           key="userGroups"
         >
           <Card>
-            {/* Placeholder for user group statistics */}
+            {/* Header with refresh button */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                marginBottom: "16px",
+              }}
+            >
+              <Title level={5}>User Groups in this Environment</Title>
+              <Button
+                icon={<SyncOutlined />}
+                onClick={refreshUserGroups}
+                size="small"
+                loading={userGroupsLoading}
+              >
+                Refresh User Groups
+              </Button>
+            </div>
+
+            {/* User Group Statistics */}
             <Row gutter={16} style={{ marginBottom: "24px" }}>
               <Col span={8}>
                 <Statistic
                   title="Total User Groups"
-                  value={0}
+                  value={userGroupStats.total}
                   prefix={<TeamOutlined />}
                 />
               </Col>
               <Col span={8}>
                 <Statistic
                   title="Total Users"
-                  value={0}
+                  value={userGroupStats.totalUsers}
+                  prefix={<UserOutlined />}
+                />
+              </Col>
+              <Col span={8}>
+                <Statistic
+                  title="Admin Users"
+                  value={userGroupStats.adminUsers}
                   prefix={<UserOutlined />}
                 />
               </Col>
             </Row>
 
-            {/* Placeholder for user group list */}
-            <Alert
-              message="User Group Information"
-              description="User group data will be implemented in the next phase. This section will display user group details and membership information."
-              type="info"
-              showIcon
+            <Divider style={{ margin: "16px 0" }} />
+
+            {/* Show error if user group loading failed */}
+            {userGroupsError && (
+              <Alert
+                message="Error loading user groups"
+                description={userGroupsError}
+                type="error"
+                showIcon
+                style={{ marginBottom: "16px" }}
+                action={
+                  userGroupsError.includes("No API key configured") ||
+                  userGroupsError.includes("No API service URL configured") ? (
+                    <Button size="small" type="primary" disabled>
+                      Configuration Required
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      type="primary"
+                      onClick={refreshUserGroups}
+                    >
+                      Try Again
+                    </Button>
+                  )
+                }
+              />
+            )}
+
+            {/* Show warning if no API key or API service URL is configured */}
+            {(!environment.environmentApikey ||
+              !environment.environmentApiServiceUrl) &&
+              !userGroupsError && (
+                <Alert
+                  message="Configuration Issue"
+                  description={
+                    !environment.environmentApikey
+                      ? "An API key is required to fetch user groups for this environment."
+                      : "An API service URL is required to fetch user groups for this environment."
+                  }
+                  type="warning"
+                  showIcon
+                  style={{ marginBottom: "16px" }}
+                />
+              )}
+
+            {/* User Groups List */}
+            <UserGroupsList
+              userGroups={userGroups}
+              loading={userGroupsLoading && !userGroupsError}
+              error={userGroupsError}
             />
           </Card>
         </TabPane>

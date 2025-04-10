@@ -2,6 +2,7 @@ import axios from "axios";
 import { message } from "antd";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
+import { UserGroup } from "../types/userGroup.types";
 
 /**
  * Fetch all environments
@@ -115,6 +116,57 @@ export async function getEnvironmentWorkspaces(
     // Handle and transform error
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch workspaces";
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+
+/* ================================================================================
+
+=============================== ENVIRONMENT USER GROUPS ============================ */
+
+export async function getEnvironmentUserGroups(
+  environmentId: string, 
+  apiKey: string,
+  apiServiceUrl: string
+): Promise<UserGroup[]> {
+  try {
+    // Check if required parameters are provided
+    if (!environmentId) {
+      throw new Error('Environment ID is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch user groups');
+    }
+    
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required to fetch user groups');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Make the API request to get user groups
+    const response = await axios.get(`${apiServiceUrl}/api/groups/list`, { headers });
+    console.log(response);
+    
+    // Check if response is valid
+    if (!response.data) {
+      throw new Error('Failed to fetch user groups');
+    }
+    
+    // The response data is already an array of user groups
+    const userGroups: UserGroup[] = response.data.data || [];
+    
+    return userGroups;
+  } catch (error) {
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user groups';
     message.error(errorMessage);
     throw error;
   }
