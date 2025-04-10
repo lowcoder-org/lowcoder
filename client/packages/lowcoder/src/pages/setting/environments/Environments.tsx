@@ -1,28 +1,24 @@
-// environments/Environments.tsx
 import React from "react";
-import { Switch, Route, useRouteMatch } from "react-router-dom";
-import EnvironmentsList from "./EnvironmentsList"; // Rename your current component
-import EnvironmentDetail from "./EnvironmentDetail";
-import WorkspaceDetail from "./WorkspaceDetail";
-import { ENVIRONMENT_WORKSPACE_DETAIL } from "@lowcoder-ee/constants/routesURL";
+import { Switch, Route } from "react-router-dom";
+import EnvironmentsList from "./EnvironmentsList";
+import EnvironmentScopedRoutes from "./components/EnvironmentScopedRoutes";
 
 import {
   ENVIRONMENT_SETTING,
-  ENVIRONMENT_DETAIL,
+  ENVIRONMENT_DETAIL
 } from "@lowcoder-ee/constants/routesURL";
 
 const Environments: React.FC = () => {
   return (
     <Switch>
-      <Route path={ENVIRONMENT_WORKSPACE_DETAIL}>
-        <WorkspaceDetail />
-      </Route>
-
-      <Route path={ENVIRONMENT_DETAIL}>
-        <EnvironmentDetail />
-      </Route>
+      {/* Route that shows the list of environments */}
       <Route exact path={ENVIRONMENT_SETTING}>
         <EnvironmentsList />
+      </Route>
+
+      {/* All other routes under /environments/:envId */}
+      <Route path={ENVIRONMENT_DETAIL}>
+        <EnvironmentScopedRoutes />
       </Route>
     </Switch>
   );
