@@ -5,6 +5,7 @@ import { useHistory } from "react-router-dom";
 import { useEnvironments } from "./hooks/useEnvironments";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
+import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
 
 const { Title } = Typography;
 
@@ -67,7 +68,7 @@ const EnvironmentsList: React.FC = () => {
 
   // Handle row click to navigate to environment detail
   const handleRowClick = (record: Environment) => {
-    history.push(`/home/settings/environments/${record.environmentId}`);
+    history.push(buildEnvironmentId(record.environmentId));
   };
 
   return (

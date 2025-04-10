@@ -27,7 +27,7 @@ export async function getEnvironments(): Promise<Environment[]> {
  */
 export async function getEnvironmentById(id: string): Promise<Environment> {
   try {
-    const response = await axios.get(`/api/plugins/enterprise/environments/${id}`);
+    const response = await axios.get(`/api/plugins/enterprise/environments?environmentId=${id}`);
     
     if (!response.data) {
       throw new Error('Failed to fetch environment');
