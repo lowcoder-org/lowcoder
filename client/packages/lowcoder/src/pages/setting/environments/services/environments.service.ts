@@ -315,19 +315,20 @@ export async function getWorkspaceDataSources(
     };
     
     // Make the API request to get data sources
-    const response = await axios.get<DataSourceWithMeta[]>(`${apiServiceUrl}/api/datasources/listByOrg`, { 
+    const response = await axios.get<{data:DataSourceWithMeta[]}>(`${apiServiceUrl}/api/datasources/listByOrg`, { 
       headers,
       params: {
         orgId: workspaceId
       }
     });
-    
+    console.log("data source response",response);
+  
     // Check if response is valid
     if (!response.data) {
       return [];
     }
     
-    return response.data;
+    return response.data.data ;
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
