@@ -1,11 +1,14 @@
 import React from 'react';
 import { Table, Tag, Empty, Spin } from 'antd';
 import { Workspace } from '../types/workspace.types';
+import history from '@lowcoder-ee/util/history';
+import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
 
 interface WorkspacesListProps {
   workspaces: Workspace[];
   loading: boolean;
   error?: string | null;
+  environmentId: string
 }
 
 /**
@@ -15,12 +18,17 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
   workspaces,
   loading,
   error,
+  environmentId
 }) => {
   // Format timestamp to date string
   const formatDate = (timestamp?: number): string => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
     return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  };
+
+  const handleRowClick = (workspace: Workspace) => {
+    history.push(`${buildEnvironmentWorkspaceId(environmentId, workspace.id)}`);
   };
 
   // Table columns definition
@@ -87,6 +95,10 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
       rowKey="id"
       pagination={{ pageSize: 10 }}
       size="middle"
+      onRow={(record) => ({
+        onClick: () => handleRowClick(record),
+        style: { cursor: 'pointer' } // Add pointer cursor to indicate clickable rows
+      })}
     />
   );
 };

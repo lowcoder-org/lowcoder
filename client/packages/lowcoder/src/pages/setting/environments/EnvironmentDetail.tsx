@@ -281,6 +281,7 @@ const EnvironmentDetail: React.FC = () => {
               workspaces={workspaces}
               loading={workspacesLoading && !workspacesError}
               error={workspacesError}
+              environmentId={environment.environmentId}
             />
           </Card>
         </TabPane>
