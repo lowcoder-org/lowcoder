@@ -259,7 +259,10 @@ export async function getWorkspaceApps(
       return [];
     }
     
-    return response.data.data;
+    const filteredApps = response.data.data.filter((app: App) => app.orgId === workspaceId);
+    
+    return filteredApps;
+  
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch apps';
