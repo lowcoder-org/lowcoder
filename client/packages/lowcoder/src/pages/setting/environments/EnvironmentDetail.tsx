@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { useParams } from "react-router-dom";
 import { 
   Spin, 
@@ -20,8 +20,7 @@ import {
   TeamOutlined, 
   UserOutlined 
 } from "@ant-design/icons";
-import { getEnvironmentById } from "./services/environments.service";
-import { Environment } from "./types/environment.types";
+import { useEnvironmentDetail } from './hooks/useEnvironmentDetail';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -33,37 +32,9 @@ const { TabPane } = Tabs;
 const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
   const { environmentId: id } = useParams<{ environmentId: string }>();
-  console.log(id);
   
-  // State for environment data and loading state
-  const [environment, setEnvironment] = useState<Environment | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-  
-  // Fetch environment data on mount and when ID changes
-  useEffect(() => {
-    fetchEnvironmentData();
-  }, [id]);
-  
-  // Function to fetch environment data
-  const fetchEnvironmentData = async () => {
-    setLoading(true);
-    setError(null);
-    
-    try {
-      const data = await getEnvironmentById(id);
-      setEnvironment(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to fetch environment details');
-    } finally {
-      setLoading(false);
-    }
-  };
-  
-  // Handle refresh button click
-  const handleRefresh = () => {
-    fetchEnvironmentData();
-  };
+  // Use the custom hook to handle data fetching and state management
+  const { environment, loading, error, refresh } = useEnvironmentDetail(id);
   
   // If loading, show spinner
   if (loading) {
@@ -84,7 +55,7 @@ const EnvironmentDetail: React.FC = () => {
         showIcon
         style={{ margin: '24px' }}
         action={
-          <Button type="primary" icon={<ReloadOutlined />} onClick={handleRefresh}>
+          <Button type="primary" icon={<ReloadOutlined />} onClick={refresh}>
             Try Again
           </Button>
         }
@@ -115,7 +86,7 @@ const EnvironmentDetail: React.FC = () => {
         </div>
         <Button 
           icon={<ReloadOutlined />} 
-          onClick={handleRefresh}
+          onClick={refresh}
         >
           Refresh
         </Button>
