@@ -12,14 +12,14 @@ import { ManagedOrg } from "../types/enterprise.types";
 
 export async function getManagedWorkspaces(
   environmentId: string,
-  apiServiceUrl: string
+
 ): Promise<ManagedOrg[]> {
-  if (!environmentId || !apiServiceUrl) {
-    throw new Error("Missing environmentId or apiServiceUrl");
+  if (!environmentId) {
+    throw new Error("Missing environmentId");
   }
 
   try {
-    const res = await axios.get(`${apiServiceUrl}/api/plugins/enterprise/org`);
+    const res = await axios.get(`/api/plugins/enterprise/org/list`);
     const all: ManagedOrg[] = res.data;
     return all.filter(org => org.environmentId === environmentId);
   } catch (err) {

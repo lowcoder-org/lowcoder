@@ -27,6 +27,7 @@ import UserGroupsList from "./components/UserGroupsList";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useEnvironmentWorkspaces } from "./hooks/useEnvironmentWorkspaces";
 import { useEnvironmentUserGroups } from "./hooks/useEnvironmentUserGroups";
+import { useManagedWorkspaces } from "./hooks/enterprise/useManagedWorkspaces";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -52,6 +53,13 @@ const EnvironmentDetail: React.FC = () => {
     refresh: refreshWorkspaces,
     workspaceStats,
   } = useEnvironmentWorkspaces(environment);
+
+  const {
+    managedWorkspaces,
+    managedLoading,
+    managedError,
+    refreshManagedWorkspaces,
+  } = useManagedWorkspaces(environment);
 
   const {
     userGroups,
