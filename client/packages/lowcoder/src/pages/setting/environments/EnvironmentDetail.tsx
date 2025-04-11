@@ -22,7 +22,6 @@ import {
   UserOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import { useEnvironmentDetail } from "./hooks/useEnvironmentDetail";
 import WorkspacesList from "./components/WorkspacesList";
 import UserGroupsList from "./components/UserGroupsList";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
