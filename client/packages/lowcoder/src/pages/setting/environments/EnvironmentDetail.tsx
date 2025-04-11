@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import { useParams } from "react-router-dom";
 import {
   Spin,
@@ -13,6 +13,7 @@ import {
   Button,
   Statistic,
   Divider,
+  message
 } from "antd";
 import {
   ReloadOutlined,
@@ -29,6 +30,8 @@ import { useEnvironmentWorkspaces } from "./hooks/useEnvironmentWorkspaces";
 import { useEnvironmentUserGroups } from "./hooks/useEnvironmentUserGroups";
 import { useManagedWorkspaces } from "./hooks/enterprise/useManagedWorkspaces";
 import { getMergedWorkspaces } from "./utils/getMergedWorkspaces";
+import { Workspace } from "./types/workspace.types";
+import { connectManagedWorkspace, unconnectManagedWorkspace } from "./services/enterprise.service";
 
 
 const { Title, Text } = Typography;
@@ -38,6 +41,12 @@ const { TabPane } = Tabs;
  * Environment Detail Page Component
  * Shows detailed information about a specific environment
  */
+
+type WorkspaceStats = {
+  total: number;
+  managed: number;
+  unmanaged: number;
+};
 const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
   const {
@@ -72,6 +81,22 @@ const EnvironmentDetail: React.FC = () => {
 
   // Use the custom hook to handle data fetching and state management
   // Use the custom hook to handle data fetching and state management
+
+  const [mergedWorkspaces, setMergedWorkspaces] = useState<Workspace[]>([]);
+  const [workspaceStats, setWorkspaceStats] = useState<WorkspaceStats>({
+    total: 0,
+    managed: 0,
+    unmanaged: 0,
+  });
+  
+
+  React.useEffect(() => {
+    if (workspaces && managedWorkspaces) {
+      const { merged, stats } = getMergedWorkspaces(workspaces, managedWorkspaces);
+      setMergedWorkspaces(merged);
+      setWorkspaceStats(stats);
+    }
+  }, [workspaces, managedWorkspaces]);
   
   // If loading, show spinner
   if (envLoading) {
@@ -121,7 +146,39 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
 
-  const { merged, stats: workspaceStats } = getMergedWorkspaces(workspaces, managedWorkspaces);
+  const { merged, stats: initialStats } = getMergedWorkspaces(workspaces, managedWorkspaces);
+ 
+
+
+  const handleToggleManaged = async (workspace: Workspace, checked: boolean) => {
+    try {
+      console.log("WORKSPACE", workspace);
+      if (checked) {
+        await connectManagedWorkspace(environment.environmentId, workspace.name, workspace.gid!);
+      } else {
+        await unconnectManagedWorkspace(workspace.gid!);
+      }
+  
+      // Optimistically update the local state
+      const updatedList = mergedWorkspaces.map((w) =>
+        w.id === workspace.id ? { ...w, managed: checked } : w
+      );
+  
+      const updatedManagedCount = updatedList.filter((w) => w.managed).length;
+  
+      setMergedWorkspaces(updatedList);
+      setWorkspaceStats({
+        total: updatedList.length,
+        managed: updatedManagedCount,
+        unmanaged: updatedList.length - updatedManagedCount,
+      });
+  
+      message.success(`${workspace.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+    } catch (err) {
+      message.error(`Failed to toggle managed state for ${workspace.name}`);
+    }
+  };
+  
 
   return (
     <div className="environment-detail-container" style={{ padding: "24px" }}>
@@ -297,10 +354,11 @@ const EnvironmentDetail: React.FC = () => {
 
             {/* Workspaces List */}
             <WorkspacesList
-              workspaces={merged}
+              workspaces={mergedWorkspaces} // ⬅️ Use local state!
               loading={workspacesLoading && !workspacesError}
               error={workspacesError}
               environmentId={environment.environmentId}
+              onToggleManaged={handleToggleManaged} // ⬅️ Add this to enable toggles
             />
           </Card>
         </TabPane>

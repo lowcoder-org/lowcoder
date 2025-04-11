@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Tag, Empty, Spin } from 'antd';
+import { Table, Tag, Empty, Spin, Switch, Space } from 'antd';
 import { Workspace } from '../types/workspace.types';
 import history from '@lowcoder-ee/util/history';
 import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
@@ -9,18 +9,18 @@ interface WorkspacesListProps {
   loading: boolean;
   error?: string | null;
   environmentId: string;
+  onToggleManaged?: (workspace: Workspace, checked: boolean) => void;
+  refreshing?: boolean;
 }
 
-/**
- * Component to display a list of workspaces in a table
- */
 const WorkspacesList: React.FC<WorkspacesListProps> = ({
   workspaces,
   loading,
   error,
   environmentId,
+  onToggleManaged,
+  refreshing = false,
 }) => {
-  // Format timestamp to date string
   const formatDate = (timestamp?: number): string => {
     if (!timestamp) return 'N/A';
     const date = new Date(timestamp);
@@ -31,7 +31,6 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
     history.push(`${buildEnvironmentWorkspaceId(environmentId, workspace.id)}`);
   };
 
-  // Table columns definition
   const columns = [
     {
       title: 'Name',
@@ -48,9 +47,7 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
-      render: (role: string) => (
-        <span>{role}</span>
-      ),
+      render: (role: string) => <span>{role}</span>,
     },
     {
       title: 'Creation Date',
@@ -71,14 +68,27 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
       title: 'Managed',
       key: 'managed',
       render: (record: Workspace) => (
-        <Tag color={record.managed ? 'green' : 'default'}>
-          {record.managed ? 'Managed' : 'Unmanaged'}
-        </Tag>
+        <Space>
+          <Tag color={record.managed ? 'green' : 'default'}>
+            {record.managed ? 'Managed' : 'Unmanaged'}
+          </Tag>
+          {onToggleManaged && (
+            <Switch
+              size="small"
+              checked={record.managed}
+              loading={refreshing}
+              onClick={(checked,e) => {
+                e.stopPropagation(); // ✅ THIS STOPS the row from being triggered
+                onToggleManaged(record, checked);
+              }}
+              onChange={() => {}}
+            />
+          )}
+        </Space>
       ),
     },
   ];
 
-  // If loading, show spinner
   if (loading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
@@ -87,7 +97,6 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
     );
   }
 
-  // If no workspaces or error, show empty state
   if (!workspaces || workspaces.length === 0 || error) {
     return (
       <Empty
@@ -106,7 +115,7 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
       size="middle"
       onRow={(record) => ({
         onClick: () => handleRowClick(record),
-        style: { cursor: 'pointer' }, // Add pointer cursor to indicate clickable rows
+        style: { cursor: 'pointer' },
       })}
     />
   );

@@ -41,11 +41,11 @@ export async function getManagedWorkspaces(
 
 export async function connectManagedWorkspace(
   environmentId: string,
-  apiServiceUrl: string,
   orgName: string,
-  orgTags: string[] = []
+  org_gid: string, // ✅ not optional
+  orgTags: string[] = [],
 ) {
-  if (!environmentId || !apiServiceUrl || !orgName) {
+  if (!environmentId || !orgName || !org_gid) {
     throw new Error("Missing required params to connect org");
   }
 
@@ -54,9 +54,10 @@ export async function connectManagedWorkspace(
       environment_id: environmentId,
       org_name: orgName,
       org_tags: orgTags,
+      org_gid,
     };
 
-    const res = await axios.post(`${apiServiceUrl}/api/plugins/enterprise/org`, payload);
+    const res = await axios.post(`/api/plugins/enterprise/org`, payload);
     return res.data;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to connect org";
@@ -67,27 +68,24 @@ export async function connectManagedWorkspace(
 
 
 
-
-
-
 /**
  * Fetch workspaces for a specific environment
  * @param apiServiceUrl - API service URL for the environment
  * @param orgId - ID of the workspace
  * 
  */
-export async function unconnectManagedWorkspace(
-  apiServiceUrl: string,
-  orgId: string
-) {
-  if (!apiServiceUrl || !orgId) {
-    throw new Error("Missing apiServiceUrl or orgId");
+export async function unconnectManagedWorkspace(orgGid: string) {
+  if (!orgGid) {
+    throw new Error("Missing orgGid to unconnect workspace");
   }
 
   try {
-    await axios.delete(`${apiServiceUrl}/api/plugins/enterprise/org/${orgId}`);
+    await axios.delete(`/api/plugins/enterprise/org`, {
+      params: { orgGid }, // ✅ pass as query param
+    });
   } catch (err) {
-    const errorMsg = err instanceof Error ? err.message : "Failed to unconnect org";
+    const errorMsg =
+      err instanceof Error ? err.message : "Failed to unconnect org";
     message.error(errorMsg);
     throw err;
   }
