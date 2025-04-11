@@ -28,6 +28,8 @@ import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useEnvironmentWorkspaces } from "./hooks/useEnvironmentWorkspaces";
 import { useEnvironmentUserGroups } from "./hooks/useEnvironmentUserGroups";
 import { useManagedWorkspaces } from "./hooks/enterprise/useManagedWorkspaces";
+import { getMergedWorkspaces } from "./utils/getMergedWorkspaces";
+
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -51,7 +53,6 @@ const EnvironmentDetail: React.FC = () => {
     loading: workspacesLoading,
     error: workspacesError,
     refresh: refreshWorkspaces,
-    workspaceStats,
   } = useEnvironmentWorkspaces(environment);
 
   const {
@@ -119,6 +120,8 @@ const EnvironmentDetail: React.FC = () => {
       />
     );
   }
+
+  const { merged, stats: workspaceStats } = getMergedWorkspaces(workspaces, managedWorkspaces);
 
   return (
     <div className="environment-detail-container" style={{ padding: "24px" }}>
@@ -294,7 +297,7 @@ const EnvironmentDetail: React.FC = () => {
 
             {/* Workspaces List */}
             <WorkspacesList
-              workspaces={workspaces}
+              workspaces={merged}
               loading={workspacesLoading && !workspacesError}
               error={workspacesError}
               environmentId={environment.environmentId}

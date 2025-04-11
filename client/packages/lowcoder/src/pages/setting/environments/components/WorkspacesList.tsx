@@ -8,7 +8,7 @@ interface WorkspacesListProps {
   workspaces: Workspace[];
   loading: boolean;
   error?: string | null;
-  environmentId: string
+  environmentId: string;
 }
 
 /**
@@ -18,7 +18,7 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
   workspaces,
   loading,
   error,
-  environmentId
+  environmentId,
 }) => {
   // Format timestamp to date string
   const formatDate = (timestamp?: number): string => {
@@ -66,7 +66,16 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
           {status}
         </Tag>
       ),
-    }
+    },
+    {
+      title: 'Managed',
+      key: 'managed',
+      render: (record: Workspace) => (
+        <Tag color={record.managed ? 'green' : 'default'}>
+          {record.managed ? 'Managed' : 'Unmanaged'}
+        </Tag>
+      ),
+    },
   ];
 
   // If loading, show spinner
@@ -82,7 +91,7 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
   if (!workspaces || workspaces.length === 0 || error) {
     return (
       <Empty
-        description={error || "No workspaces found"}
+        description={error || 'No workspaces found'}
         image={Empty.PRESENTED_IMAGE_SIMPLE}
       />
     );
@@ -97,7 +106,7 @@ const WorkspacesList: React.FC<WorkspacesListProps> = ({
       size="middle"
       onRow={(record) => ({
         onClick: () => handleRowClick(record),
-        style: { cursor: 'pointer' } // Add pointer cursor to indicate clickable rows
+        style: { cursor: 'pointer' }, // Add pointer cursor to indicate clickable rows
       })}
     />
   );
