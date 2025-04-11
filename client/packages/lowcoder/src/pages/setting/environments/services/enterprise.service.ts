@@ -90,3 +90,54 @@ export async function unconnectManagedWorkspace(orgGid: string) {
     throw err;
   }
 }
+
+
+
+
+// FOR APPS
+
+export async function getManagedApps(environmentId: string) {
+  const res = await axios.get(`/api/plugins/enterprise/app/list`);
+  const allApps = res.data;
+  return allApps.filter((app: any) => app.environmentId === environmentId);
+}
+
+// Connect an app
+export async function connectManagedApp(
+  environmentId: string,
+  app_name: string,
+  app_version: string,
+  app_gid: string,
+  app_tags: string[] = []
+) {
+  try {
+    const payload = {
+      environment_id: environmentId,
+      app_name,
+      app_version,
+      app_gid,
+      app_tags,
+    };
+
+    const res = await axios.post(`/api/plugins/enterprise/app`, payload);
+    return res.data;
+  } catch (err) {
+    const errorMsg =
+      err instanceof Error ? err.message : "Failed to connect app";
+    message.error(errorMsg);
+    throw err;
+  }
+}
+
+// Unconnect an app
+export async function unconnectManagedApp(appGid: string) {
+  try {
+    await axios.delete(`/api/plugins/enterprise/app`, {
+      params: { appGid },
+    });
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to unconnect app";
+    message.error(errorMsg);
+    throw err;
+  }
+}
