@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Tag, Empty, Spin, Avatar, Tooltip } from 'antd';
+import { Table, Tag, Empty, Spin, Avatar, Tooltip, Switch, Space } from 'antd';
 import { 
   AppstoreOutlined, 
   UserOutlined, 
@@ -12,6 +12,8 @@ interface AppsListProps {
   apps: App[];
   loading: boolean;
   error?: string | null;
+  onToggleManaged?: (app: App, checked: boolean) => void;
+
 }
 
 /**
@@ -21,6 +23,8 @@ const AppsList: React.FC<AppsListProps> = ({
   apps,
   loading,
   error,
+  onToggleManaged
+
 }) => {
   // Format timestamp to date string
   const formatDate = (timestamp?: number): string => {
@@ -89,7 +93,26 @@ const AppsList: React.FC<AppsListProps> = ({
           {status}
         </Tag>
       ),
-    }
+    },
+    {
+      title: 'Managed',
+      key: 'managed',
+      render: (record: App) => (
+        <Space>
+          <Tag color={record.managed ? 'green' : 'default'}>
+            {record.managed ? 'Managed' : 'Unmanaged'}
+          </Tag>
+          <Switch
+            size="small"
+            checked={record.managed}
+            onClick={(checked, e) => {
+              e.stopPropagation(); // Prevent navigation
+              onToggleManaged?.(record, checked);
+            }}
+          />
+        </Space>
+      ),
+    },
   ];
 
   // If loading, show spinner

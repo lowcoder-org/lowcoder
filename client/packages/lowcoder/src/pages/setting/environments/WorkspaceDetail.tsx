@@ -13,7 +13,8 @@ import {
   Button,
   Statistic,
   Divider,
-  Breadcrumb
+  Breadcrumb,
+  message
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -29,10 +30,14 @@ import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useWorkspace } from "./hooks/useWorkspace";
 import { useWorkspaceApps } from "./hooks/useWorkspaceApps";
 import { useWorkspaceDataSources } from "./hooks/useWorkspaceDataSources";
-
+import { useManagedApps } from "./hooks/enterprise/useManagedApps";
+import { App } from "./types/app.types";
+import { getMergedApps } from "./utils/getMergedApps";
+import { connectManagedApp, unconnectManagedApp } from "./services/enterprise.service";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
+
 
 
 const WorkspaceDetail: React.FC = () => {
@@ -72,8 +77,35 @@ const WorkspaceDetail: React.FC = () => {
       dataSourceStats,
     } = useWorkspaceDataSources(environment, workspaceId);
     
-   
-  
+    const { managedApps } = useManagedApps(environmentId);
+    const [mergedApps, setMergedApps] = useState<App[]>([]);
+
+    useEffect(() => {
+      setMergedApps(getMergedApps(apps, managedApps));
+    }, [apps, managedApps]);
+
+
+
+          
+    const handleToggleManagedApp = async (app: App, checked: boolean) => {
+      try {
+        if (checked) {
+          await connectManagedApp(environmentId, app.name, app.applicationGid!);
+        } else {
+          await unconnectManagedApp(app.applicationGid!);
+        }
+
+        setMergedApps((currentApps) =>
+          currentApps.map((a) =>
+            a.applicationId === app.applicationId ? { ...a, managed: checked } : a
+          )
+        );
+
+        message.success(`${app.name} is now ${checked ? "Managed" : "Unmanaged"}`);
+      } catch {
+        message.error(`Failed to toggle ${app.name}`);
+      }
+    };
     if (envLoading || workspaceLoading) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
@@ -187,10 +219,11 @@ const WorkspaceDetail: React.FC = () => {
             )}
             
             {/* Apps List */}
-            <AppsList 
-              apps={apps}
+            <AppsList
+              apps={mergedApps}
               loading={appsLoading}
               error={appsError}
+              onToggleManaged={handleToggleManagedApp}
             />
           </Card>
         </TabPane>

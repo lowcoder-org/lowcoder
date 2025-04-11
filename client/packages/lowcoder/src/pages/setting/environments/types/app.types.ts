@@ -22,4 +22,5 @@ export interface App {
     icon: string;
     published: boolean;
     folder: boolean;
+    managed?: boolean;
   }

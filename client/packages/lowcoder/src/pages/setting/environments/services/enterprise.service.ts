@@ -106,7 +106,6 @@ export async function getManagedApps(environmentId: string) {
 export async function connectManagedApp(
   environmentId: string,
   app_name: string,
-  app_version: string,
   app_gid: string,
   app_tags: string[] = []
 ) {
@@ -114,7 +113,6 @@ export async function connectManagedApp(
     const payload = {
       environment_id: environmentId,
       app_name,
-      app_version,
       app_gid,
       app_tags,
     };
