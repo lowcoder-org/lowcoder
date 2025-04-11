@@ -1,10 +1,6 @@
 # File upload
 
-<div align="left">
-
-<figure><img src="../../../.gitbook/assets/file-upload-l.svg" alt=""><figcaption><p>File Upload Component</p></figcaption></figure>
-
-</div>
+<div align="left"><figure><img src="../../../../.gitbook/assets/file-upload-l.svg" alt=""><figcaption><p>File Upload Component</p></figcaption></figure></div>
 
 ## Basics
 
@@ -12,10 +8,10 @@ The File upload helps you to able users to upload binary and text Files and proc
 
 ### File type
 
-You can input an array of strings to restrict the types of the files to be uploaded. The default value of file type is empty, meaning that no limitation is pre-defined. Each string value in a specified file type array should be a [unique file type specifier](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#unique\_file\_type\_specifiers) in one of the following formats.
+You can input an array of strings to restrict the types of the files to be uploaded. The default value of file type is empty, meaning that no limitation is pre-defined. Each string value in a specified file type array should be a [unique file type specifier](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#unique_file_type_specifiers) in one of the following formats.
 
 * A valid case-insensitive filename extension, starting with a period character ("."), such as `.png`, `.txt`, and `.pdf`.
-* A valid string in [MIME format](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics\_of\_HTTP/MIME\_types) without an extension.
+* A valid string in [MIME format](https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types) without an extension.
 * String `audio/*` indicating "any audio file".
 * String `video/*` indicating "any video file".
 * String `image/*` indicating "any image file".
@@ -28,7 +24,7 @@ For example, when the value of file type is `[".pdf", ".mp4", "image/*"]`, you c
 
 You can decide whether to upload a single file, multiple files, or a directory.
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload.png" alt=""><figcaption><p>Configure the File Upload to accept individual, multiple Files or whole Folders</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/App Editor  File Upload.png" alt=""><figcaption><p>Configure the File Upload to accept individual, multiple Files or whole Folders</p></figcaption></figure>
 
 ### Display uploaded files
 
@@ -40,7 +36,7 @@ The upload list presents the file names of all uploaded files in chronological o
 
 Toggle **Parse files** and Lowcoder will try to parse the uploaded file data structure into objects, arrays, or strings. This does not work with binary data but with structured text data like Excel, JSON, and CSV files. Excel files are only parseable if there is no formula/s applied on these.
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload Parse.png" alt=""><figcaption><p>Lowcoder can try to parse the content of the files so you can directly access it.</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/App Editor  File Upload Parse.png" alt=""><figcaption><p>Lowcoder can try to parse the content of the files so you can directly access it.</p></figcaption></figure>
 
 You can access the parsed result via the property `parsedValue`.&#x20;
 
@@ -52,19 +48,19 @@ For each uploaded file Lowcoder will try to parse and you can access the data of
 </strong>file1.parsedValue[0], file1.parsedValue[1], file1.parsedValue[2]
 </code></pre>
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload Display parsed File.png" alt=""><figcaption><p>You can access the contents of Excel, CSV and JSON Files as JSON Data object after upload and parse</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/App Editor  File Upload Display parsed File.png" alt=""><figcaption><p>You can access the contents of Excel, CSV and JSON Files as JSON Data object after upload and parse</p></figcaption></figure>
 
 ## Validation
 
 Under the validation tab, you can configure how many files are allowed to be uploaded, as well as the minimum and maximum size of a single file to be uploaded.
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload validation.png" alt=""><figcaption><p>You can define the minimal and maximal size of files that can get uploaded</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/App Editor  File Upload validation.png" alt=""><figcaption><p>You can define the minimal and maximal size of files that can get uploaded</p></figcaption></figure>
 
 ### Max files
 
 When the upload type is "Multiple" or "Directory", you can set **Max files** to limit the maximum number of files to upload. If the number of files to be uploaded exceeds this threshold, the latest uploaded files will replace the oldest ones.
 
-<figure><img src="../../../.gitbook/assets/App Editor  File Upload Validation Multiple.png" alt=""><figcaption><p>If multiple files can get uploaded, you can define the maximal amount of files</p></figcaption></figure>
+<figure><img src="../../../../.gitbook/assets/App Editor  File Upload Validation Multiple.png" alt=""><figcaption><p>If multiple files can get uploaded, you can define the maximal amount of files</p></figcaption></figure>
 
 ### File size
 
@@ -104,3 +100,28 @@ Files uploaded via the file upload component are stored in browser cache memory 
 ### Demo ( Inserting CSV File data into Database )
 
 {% embed url="https://demos.lowcoder.cloud/demo/clzia4nbk1ku89x77adrr1fes" %}
+
+### Properties of the File Upload component
+
+These properties are accessible in \{{ \}} notations, as well as in JavaScript Queries.
+
+| Property Name | Type    | Description                                                                         |
+| ------------- | ------- | ----------------------------------------------------------------------------------- |
+| value         | Array   | Returns the contents of the currently uploaded file in Base64 encoded format        |
+| disabled      | Boolean | Returns True or False based on whether the File Upload component is disabled or not |
+| files         | Array   | Returns the list of the currently uploaded files                                    |
+| hidden        | Boolean | Returns True or False based on whether the File Upload component is hidden or not   |
+| parsedValue   | Array   | Returns the uploaded file tobe parsed into an Object, Array or String               |
+
+### Events
+
+Events give you the ability to trigger further actions (with Event-Handlers)
+
+<table><thead><tr><th>Event Name</th><th width="385.29296875">Description</th></tr></thead><tbody><tr><td>Change</td><td>This event is triggered when some thing changes on File component</td></tr><tr><td>Parse</td><td>This event is triggered to Parse the uploaded file into an Object, Array or a String</td></tr></tbody></table>
+
+### Methods
+
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
+
+<table><thead><tr><th>Method Name</th><th width="414.25">Description</th></tr></thead><tbody><tr><td>clearValue</td><td>Clears all the currently uploaded files. It deletes all the uploaded files.</td></tr></tbody></table>
+

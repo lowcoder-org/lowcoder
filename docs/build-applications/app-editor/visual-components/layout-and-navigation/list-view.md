@@ -2,7 +2,7 @@
 
 The component **List View** displays rows of data. Similar to Form, Modal, and Drawer, it is also a container-like component that can hold other components or modules. For list viewing data, you first bind the data to a **List View** component and configure the naming rules for the items. Then, you design the display of the first row by dragging and dropping components, and this layout will be applied to all items within this component.
 
-The following is a demo of **List View**, displaying movies from [IMDB](https://www.imdb.com/chart/top/?ref\_=nv\_mv\_250) :&#x20;
+The following is a demo of **List View**, displaying movies from [IMDB](https://www.imdb.com/chart/top/?ref_=nv_mv_250) :&#x20;
 
 {% embed url="https://demos.lowcoder.cloud/demo/clz2tcvmi3cb5z9kdmrxcm9kl" %}
 
@@ -97,3 +97,24 @@ For example, drag an **Input** component into **List View**, and then you can re
 ```javascript
 {{listView1.items[0].rating1.value}}
 ```
+
+### Component Playground
+
+On Component Playground, you can interact with the List View component and explore it's Properties, Events and Methods. Play with different Styling properties to see the effect on the component.
+
+### Component Auto-Docs
+
+In the Auto-Docs of List View component, we have shown how to use different properties of the list View component. It also includes the Styling properties of the component.
+
+{% embed url="https://app.lowcoder.cloud/components/listView" %}
+
+### Properties of List View Component
+
+<table><thead><tr><th>Property Name</th><th width="454.8515625">Description</th></tr></thead><tbody><tr><td>data</td><td>JSON data used in the current ListView component</td></tr><tr><td>hidden</td><td>Returns True or False based on whether the ListView component is hidden or not</td></tr><tr><td>items</td><td>Exposing data of all the components inside the ListView component</td></tr><tr><td>pageNo</td><td>Returns the current Page Number of the ListView component</td></tr></tbody></table>
+
+### &#x20;Methods
+
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
+
+<table><thead><tr><th>Method Name</th><th width="425.68359375">Description</th></tr></thead><tbody><tr><td>setPage</td><td>Set the Page Number on the ListView component</td></tr></tbody></table>
+

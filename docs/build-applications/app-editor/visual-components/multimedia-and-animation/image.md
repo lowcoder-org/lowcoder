@@ -36,6 +36,32 @@ Toggle **Support click preview** in the **Properties** tab to allow users to pre
 
 In **Properties** > **Style**, change border color and set **Border radius** in pixels or by percentage.
 
+### Component Playground
+
+On Component Playground, you can interact with the Image component and explore it's Properties, Events and Methods. Play with different Styling properties to see the effect on the Image component.
+
+{% embed url="https://app.lowcoder.cloud/playground/image/1" %}
+
+### Component Auto-Docs
+
+In the Auto-Docs of Image component, we have shown how to use different properties of the Image component. It also includes the Styling properties of the Image component.
+
+{% embed url="https://app.lowcoder.cloud/components/image" %}
+
+#### Properties of the Image Component <a href="#properties-of-the-table" id="properties-of-the-table"></a>
+
+These properties are accessible in \{{ \}} notations, as well as in JavaScript Queries.
+
+<table><thead><tr><th width="176.38671875">Property Name</th><th width="114.9921875">Type</th><th>Description</th></tr></thead><tbody><tr><td>hidden</td><td>Boolean</td><td>Returns True or False based on whether the Modal  component is hidden or not</td></tr><tr><td>src</td><td>String</td><td>Returns String which contains the Image source</td></tr></tbody></table>
+
+#### Events <a href="#events" id="events"></a>
+
+Events give you the ability to trigger further actions (with Event-Handlers).
+
+<table><thead><tr><th width="152.5625">Event Name</th><th width="495.39453125">Description</th></tr></thead><tbody><tr><td>Click</td><td>Triggers when a User "clicks" on the Image</td></tr></tbody></table>
+
+#### Methods <a href="#methods" id="methods"></a>
+
 ## Insert/Retrieve an Image into/from Database
 
 {% embed url="https://demos.lowcoder.cloud/demo/clzilkh8x1ozt9x77uabp0vfa" %}

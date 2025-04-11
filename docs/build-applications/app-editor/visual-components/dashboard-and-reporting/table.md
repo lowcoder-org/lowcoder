@@ -18,7 +18,7 @@ Individual Settings for Borders in Tables
 Individual Grid Settings in the Table
 {% endembed %}
 
-Also, the Text Styles can be individualized for every column.
+Also, the Text Styles can be individualised for every column.
 
 {% embed url="https://app.supademo.com/demo/BQZNtDeTNXX9gVKD292sq" %}
 
@@ -44,17 +44,21 @@ Properties are read-only
 | selectedRow     | Object  | Provides Data for the Currently Selected Row, Indicating the Row That Triggers a Click Event If the User Clicks a Button/Link on the Row           |
 | selectedRows    | Array   | Useful in Multiple Selection Mode, Same as SelectedRow                                                                                             |
 | selectedIndex   |         | Selected Index in Display Data                                                                                                                     |
-| selectedIndexes | Array   | Selected Index in Display Data                                                                                                                     |
+| selectedIndexes | Array   | Useful in Multiple selection mode, Selected Indexes in Display Data                                                                                |
 | changeSet       | Object  | An Object Representing Changes to an Editable Table, Only Contains the Changed Cell. Rows Go First and Columns Go Second.                          |
 | toUpdateRows    | Array   | An Array of Objects for Rows to Be Updated in Editable Tables.                                                                                     |
 | pageNo          | Number  | Current Display Page, Starting from 1                                                                                                              |
 | pageSize        | Number  | How Many Rows per Page                                                                                                                             |
-| sortColumn      |         | The Name of the Currently Selected Sorted Column                                                                                                   |
+| sortColumn      | Object  | The Name of the Currently Selected Sorted Column                                                                                                   |
 | sortDesc        | Boolean | Whether the Current Row Is in Descending Order                                                                                                     |
 | pageOffset      | Number  | The Current Start of Paging, Used for Paging to Get Data. Example: Select \* from Users Limit \{{table1.pageSize\}} Offset \{{table1.pageOffset\}} |
 | displayData     | Array   | Data Displayed in the Current Table                                                                                                                |
 | filter          | Object  | Table Filtering Parameters                                                                                                                         |
 | data            | Array   | The JSON Data for the Table                                                                                                                        |
+| insertSet       | Object  | An Object representing the data of the Rows to be inserted in a Table                                                                              |
+| selectedCell    | Object  | Provides Column name and index of the Selected Cell                                                                                                |
+| sortColumns     | Array   | The Name of the Currently Selected Sorted Columns                                                                                                  |
+| toInsertRows    | Array   | An Array of Objects for Rows to Be Inserted in Editable Tables.                                                                                    |
 
 ### Events
 
@@ -80,11 +84,14 @@ Events give you the ability to trigger further actions (with Event-Handlers)
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
 
-| Method Name     | Description                               |
-| --------------- | ----------------------------------------- |
-| setFilter       | Set the Value of Property filter          |
-| setPage         | Set the Value of Property page            |
-| setSort         | Set the Value of Property sort            |
-| resetSelections | Set the Value of Property resetselections |
+| Method Name         | Description                                    |
+| ------------------- | ---------------------------------------------- |
+| setFilter           | Set the Value of Property filter               |
+| setPage             | Set the Value of Property page                 |
+| setSort             | Set the Value of Property sort                 |
+| resetSelections     | Set the Value of Property resetselections      |
+| setMultiSort        | Set the Value of Property sort                 |
+| cancelChanges       | Cancel the Changes to the Table                |
+| cancelInsertChanges | Cancel the to be inserted changes to the Table |
 
 \

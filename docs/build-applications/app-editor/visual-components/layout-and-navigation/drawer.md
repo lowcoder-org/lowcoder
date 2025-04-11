@@ -41,3 +41,26 @@ Triggerring "closeDrawer" is similar to triggering "openDrawer". When setting up
 1. Add a button and rename it as `gobackShopping`.
 2. Set the event handler of the button. Select "Control component" as the **Action** and select the component "cart" and method "closeDrawer". All these settings are auto-saved.
 3. Click the "Continue Shopping" button and the binded drawer "cart" is closed.
+
+### Component Playground
+
+On Component Playground, you can interact with the Drawer component and explore it's Properties, Events and Methods. Play with different Styling properties to see the effect on the Drawer component.
+
+{% embed url="https://app.lowcoder.cloud/playground/drawer/1" %}
+
+### Component Auto-Docs
+
+In the Auto-Docs of Drawer component, we have shown how to use different properties of the Drawer component. It also includes the Styling properties of the Drawer component.
+
+{% embed url="https://app.lowcoder.cloud/components/drawer" %}
+
+### Properties of the Drawer component
+
+<table><thead><tr><th>Property Name</th><th width="425.77734375">Description</th></tr></thead><tbody><tr><td>visibile</td><td>Returns True or False based on whether the Drawer component is visible or not</td></tr></tbody></table>
+
+### Methods
+
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
+
+<table><thead><tr><th width="140.265625">Method Name</th><th width="477.546875">Description</th></tr></thead><tbody><tr><td>openDrawer</td><td>Opens a Drawer component</td></tr><tr><td>closeDrawer</td><td>Closes a Drawer component</td></tr><tr><td>setVisible</td><td>Sets the value of property Visible</td></tr><tr><td>resetVisible</td><td>Resets the value of property Visible</td></tr><tr><td>clearVisible</td><td>Clears the value of propery Visible</td></tr></tbody></table>
+
