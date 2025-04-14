@@ -72,13 +72,7 @@ const EnvironmentDetail: React.FC = () => {
     refreshManagedWorkspaces,
   } = useManagedWorkspaces(environment);
 
-  const {
-    userGroups,
-    loading: userGroupsLoading,
-    error: userGroupsError,
-    refresh: refreshUserGroups,
-    userGroupStats,
-  } = useEnvironmentUserGroups(environment);
+
 
   // Use the custom hook to handle data fetching and state management
   // Use the custom hook to handle data fetching and state management

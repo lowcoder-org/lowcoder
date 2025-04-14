@@ -16,7 +16,6 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
     userGroups,
     loading: userGroupsLoading,
     error: userGroupsError,
-    refresh: refreshUserGroups,
     userGroupStats,
   } = useEnvironmentUserGroups(environment);
 
@@ -32,14 +31,6 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
         }}
       >
         <Title level={5}>User Groups in this Environment</Title>
-        <Button
-          icon={<SyncOutlined />}
-          onClick={refreshUserGroups}
-          size="small"
-          loading={userGroupsLoading}
-        >
-          Refresh User Groups
-        </Button>
       </div>
 
       {/* User Group Statistics */}
@@ -77,22 +68,6 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           type="error"
           showIcon
           style={{ marginBottom: "16px" }}
-          action={
-            userGroupsError.includes("No API key configured") ||
-            userGroupsError.includes("No API service URL configured") ? (
-              <Button size="small" type="primary" disabled>
-                Configuration Required
-              </Button>
-            ) : (
-              <Button
-                size="small"
-                type="primary"
-                onClick={refreshUserGroups}
-              >
-                Try Again
-              </Button>
-            )
-          }
         />
       )}
 
