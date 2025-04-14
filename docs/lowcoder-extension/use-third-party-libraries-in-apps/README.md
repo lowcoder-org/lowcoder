@@ -16,7 +16,7 @@ Lowcoder provides some JavaScript built-in libraries for use.
 Built-in Libraries can be used directly everywhere where you can use JavaScript.
 
 ```
-// loadash
+// lodash
 return _.chunk(['a', 'b', 'c', 'd'], 2);
 // => [['a', 'b'], ['c', 'd']]
 
@@ -107,11 +107,11 @@ You can check popular CDNs if they host your desired library as a minified packa
 
 ### Import / bind at the app level
 
-Navigate to the settings page and then click the plus sign **+** under the **JavaScript library** tab. Paste the **library** link and click **Add New**.  Lowcoder will now check, if the external library will be compatible and securely usable.
+Navigate to the Individualization page and then click the plus sign **+** under the **JavaScript library** tab. Paste the **library** link and click **Add New**.  Lowcoder will now check, if the external library will be compatible and securely usable.
 
 You can also click the download icon to quickly download any recommended JS library.
 
-<figure><img src="../../.gitbook/assets/App Editor  External Libraries.png" alt=""><figcaption><p>Bind an external JS Library to an individual App</p></figcaption></figure>
+<figure><img src="../../.gitbook/assets/Individualization JavaScript Libraries.png" alt=""><figcaption><p>Bind an external JS Library to an individual App</p></figcaption></figure>
 
 Now, you can create a JS query and insert code.
 
