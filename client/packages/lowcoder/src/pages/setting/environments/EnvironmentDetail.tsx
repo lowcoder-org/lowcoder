@@ -58,40 +58,6 @@ const EnvironmentDetail: React.FC = () => {
   } = useEnvironmentContext();  
   
   
-  const {
-    workspaces,
-    loading: workspacesLoading,
-    error: workspacesError,
-    refresh: refreshWorkspaces,
-  } = useEnvironmentWorkspaces(environment);
-
-  const {
-    managedWorkspaces,
-    managedLoading,
-    managedError,
-    refreshManagedWorkspaces,
-  } = useManagedWorkspaces(environment);
-
-
-
-  // Use the custom hook to handle data fetching and state management
-  // Use the custom hook to handle data fetching and state management
-
-  const [mergedWorkspaces, setMergedWorkspaces] = useState<Workspace[]>([]);
-  const [workspaceStats, setWorkspaceStats] = useState<WorkspaceStats>({
-    total: 0,
-    managed: 0,
-    unmanaged: 0,
-  });
-  
-
-  React.useEffect(() => {
-    if (workspaces && managedWorkspaces) {
-      const { merged, stats } = getMergedWorkspaces(workspaces, managedWorkspaces);
-      setMergedWorkspaces(merged);
-      setWorkspaceStats(stats);
-    }
-  }, [workspaces, managedWorkspaces]);
   
   // If loading, show spinner
   if (envLoading) {
@@ -135,41 +101,7 @@ const EnvironmentDetail: React.FC = () => {
       />
     );
   }
-
-  const { merged, stats: initialStats } = getMergedWorkspaces(workspaces, managedWorkspaces);
- 
-
-
-  const handleToggleManaged = async (workspace: Workspace, checked: boolean) => {
-    try {
-      console.log("WORKSPACE", workspace);
-      if (checked) {
-        await connectManagedWorkspace(environment.environmentId, workspace.name, workspace.gid!);
-      } else {
-        await unconnectManagedWorkspace(workspace.gid!);
-      }
-  
-      // Optimistically update the local state
-      const updatedList = mergedWorkspaces.map((w) =>
-        w.id === workspace.id ? { ...w, managed: checked } : w
-      );
-  
-      const updatedManagedCount = updatedList.filter((w) => w.managed).length;
-  
-      setMergedWorkspaces(updatedList);
-      setWorkspaceStats({
-        total: updatedList.length,
-        managed: updatedManagedCount,
-        unmanaged: updatedList.length - updatedManagedCount,
-      });
-  
-      message.success(`${workspace.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
-    } catch (err) {
-      message.error(`Failed to toggle managed state for ${workspace.name}`);
-    }
-  };
-  
-
+   
   return (
     <div className="environment-detail-container" style={{ padding: "24px" }}>
       {/* Header with environment name and controls */}
