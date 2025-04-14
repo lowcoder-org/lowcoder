@@ -170,6 +170,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const [validateState, setValidateState] = useState({});
   const changeRef = useRef(false)
   const touchRef = useRef(false);
+  const [localInputValue, setLocalInputValue] = useState<string>('');
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
@@ -182,19 +183,25 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   }, [defaultValue]);
 
   useEffect(() => {
+    if (inputValue !== localInputValue) {
+      setLocalInputValue(inputValue);
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
     if (!changeRef.current) return;
 
     setValidateState(
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: inputValue,
+          value: localInputValue,
         },
       })
     );
     propsRef.current.onEvent("change");
     changeRef.current = false;
-  }, [inputValue]);
+  }, [localInputValue]);
 
   useEffect(() => {
     if (!touchRef.current) return;
@@ -203,7 +210,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: props.value.value,
+          value: localInputValue,
         },
       })
     );
@@ -212,19 +219,26 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const debouncedOnChangeRef = useRef(
     debounce((value: string) => {
       props.value.onChange(value);
-      changeRef.current = true;
-      touchRef.current = true;
     }, 1000)
   );
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
+    setLocalInputValue(value);
+
+    changeRef.current = true;
+    touchRef.current = true;
     debouncedOnChangeRef.current?.(value);
   };
 
   return [
     {
-      ...textInputProps(props),
+      ...textInputProps({
+        ...props,
+        value: {
+          value: localInputValue,
+        } as any,
+      }),
       onChange: handleChange,
     },
     validateState,
