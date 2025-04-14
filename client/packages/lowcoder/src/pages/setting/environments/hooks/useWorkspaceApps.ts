@@ -1,68 +1,123 @@
+// hooks/useWorkspaceApps.ts
 import { useState, useEffect, useCallback } from "react";
-import { getWorkspaceApps } from "../services/environments.service";
+import { getMergedWorkspaceApps, MergedAppsResult } from "../services/apps.service";
+import { connectManagedApp, unconnectManagedApp } from "../services/enterprise.service";
 import { Environment } from "../types/environment.types";
 import { App } from "../types/app.types";
 
-interface AppStats {
-  total: number;
-  published: number;
+interface AppState extends MergedAppsResult {
+  loading: boolean;
+  error: string | null;
 }
 
-export const useWorkspaceApps = (
-  environment: Environment | null,
-  workspaceId: string
-) => {
-  const [apps, setApps] = useState<App[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
+export const useWorkspaceApps = (environment: Environment | null, workspaceId: string) => {
+  const [state, setState] = useState<AppState>({
+    apps: [],
+    stats: {
+      total: 0,
+      published: 0,
+      managed: 0,
+      unmanaged: 0
+    },
+    loading: false,
+    error: null
+  });
 
   const fetchApps = useCallback(async () => {
     if (!environment || !workspaceId) return;
 
-    setLoading(true);
-    setError(null);
+    setState(prev => ({ ...prev, loading: true, error: null }));
 
     try {
       const { environmentId, environmentApikey, environmentApiServiceUrl } = environment;
 
-      if (!environmentApikey || !environmentApiServiceUrl) {
-        setError("Missing API key or service URL for this environment. Apps cannot be fetched.");
-        setLoading(false);
+      // Validate required configuration
+      if (!environmentApikey) {
+        setState(prev => ({ 
+          ...prev, 
+          loading: false, 
+          error: "No API key configured for this environment. Apps cannot be fetched." 
+        }));
         return;
       }
 
-      const data = await getWorkspaceApps(
+      if (!environmentApiServiceUrl) {
+        setState(prev => ({ 
+          ...prev, 
+          loading: false, 
+          error: "No API service URL configured for this environment. Apps cannot be fetched." 
+        }));
+        return;
+      }
+
+      // Use the service function to get merged apps
+      const result = await getMergedWorkspaceApps(
         workspaceId,
+        environmentId,
         environmentApikey,
         environmentApiServiceUrl
       );
-
-      setApps(data);
+      
+      // Update state with result
+      setState({
+        ...result,
+        loading: false,
+        error: null
+      });
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch apps"
-      );
-    } finally {
-      setLoading(false);
+      setState(prev => ({
+        ...prev,
+        loading: false,
+        error: err instanceof Error ? err.message : "Failed to fetch apps"
+      }));
     }
   }, [environment, workspaceId]);
 
   useEffect(() => {
-    if (environment) {
+    if (environment && workspaceId) {
       fetchApps();
     }
-  }, [environment, fetchApps]);
+  }, [environment, workspaceId, fetchApps]);
 
-  const appStats: AppStats = {
-    total: apps.length,
-    published: apps.filter(app => app.published).length,
+  const toggleManagedStatus = async (app: App, checked: boolean) => {
+    try {
+      if (!environment) return false;
+      
+      if (checked) {
+        await connectManagedApp(environment.environmentId, app.name, app.applicationGid!);
+      } else {
+        await unconnectManagedApp(app.applicationGid!);
+      }
+
+      // Optimistically update the state
+      setState(prev => {
+        // Update apps with the new managed status
+        const updatedApps = prev.apps.map(a =>
+          a.applicationId === app.applicationId ? { ...a, managed: checked } : a
+        );
+        
+        // Recalculate stats
+        const managedCount = updatedApps.filter(a => a.managed).length;
+        
+        return {
+          ...prev,
+          apps: updatedApps,
+          stats: {
+            ...prev.stats,
+            managed: managedCount,
+            unmanaged: updatedApps.length - managedCount
+          }
+        };
+      });
+
+      return true; // Success indicator
+    } catch (err) {
+      return false; // Failure indicator
+    }
   };
 
   return {
-    apps,
-    loading,
-    error,
-    refresh: fetchApps,
-    appStats,
+    ...state,
+    toggleManagedStatus,
   };
 };

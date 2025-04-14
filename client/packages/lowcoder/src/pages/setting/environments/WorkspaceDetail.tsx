@@ -34,6 +34,7 @@ import { useManagedApps } from "./hooks/enterprise/useManagedApps";
 import { App } from "./types/app.types";
 import { getMergedApps } from "./utils/getMergedApps";
 import { connectManagedApp, unconnectManagedApp } from "./services/enterprise.service";
+import AppsTab from "./components/AppsTab";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -61,14 +62,6 @@ const WorkspaceDetail: React.FC = () => {
     } = useWorkspace(environment, workspaceId);
 
     const {
-      apps,
-      loading: appsLoading,
-      error: appsError,
-      refresh: refreshApps,
-      appStats,
-    } = useWorkspaceApps(environment, workspaceId);
-
-    const {
       dataSources,
       loading: dataSourcesLoading,
       error: dataSourcesError,
@@ -76,35 +69,6 @@ const WorkspaceDetail: React.FC = () => {
       dataSourceStats,
     } = useWorkspaceDataSources(environment, workspaceId);
     
-    const { managedApps } = useManagedApps(environmentId);
-    const [mergedApps, setMergedApps] = useState<App[]>([]);
-
-    useEffect(() => {
-      setMergedApps(getMergedApps(apps, managedApps));
-    }, [apps, managedApps]);
-
-
-
-          
-    const handleToggleManagedApp = async (app: App, checked: boolean) => {
-      try {
-        if (checked) {
-          await connectManagedApp(environmentId, app.name, app.applicationGid!);
-        } else {
-          await unconnectManagedApp(app.applicationGid!);
-        }
-
-        setMergedApps((currentApps) =>
-          currentApps.map((a) =>
-            a.applicationId === app.applicationId ? { ...a, managed: checked } : a
-          )
-        );
-
-        message.success(`${app.name} is now ${checked ? "Managed" : "Unmanaged"}`);
-      } catch {
-        message.error(`Failed to toggle ${app.name}`);
-      }
-    };
     if (envLoading || workspaceLoading) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
@@ -167,64 +131,7 @@ const WorkspaceDetail: React.FC = () => {
           tab={<span><AppstoreOutlined /> Apps</span>} 
           key="apps"
         >
-          <Card>
-            {/* Header with refresh button */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <Title level={5}>Apps in this Workspace</Title>
-              <Button 
-                icon={<SyncOutlined />} 
-                onClick={refreshApps}
-                size="small"
-                loading={appsLoading}
-              >
-                Refresh Apps
-              </Button>
-            </div>
-            
-            {/* App Statistics */}
-            <Row gutter={16} style={{ marginBottom: '24px' }}>
-              <Col span={8}>
-                <Statistic 
-                  title="Total Apps" 
-                  value={appStats.total} 
-                  prefix={<AppstoreOutlined />} 
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="Published Apps" 
-                  value={appStats.published} 
-                  prefix={<AppstoreOutlined />} 
-                />
-              </Col>
-            </Row>
-            
-            <Divider style={{ margin: '16px 0' }} />
-            
-            {/* Show error if apps loading failed */}
-            {appsError && (
-              <Alert
-                message="Error loading apps"
-                description={appsError}
-                type="error"
-                showIcon
-                style={{ marginBottom: '16px' }}
-                action={
-                  <Button size="small" type="primary" onClick={refreshApps}>
-                    Try Again
-                  </Button>
-                }
-              />
-            )}
-            
-            {/* Apps List */}
-            <AppsList
-              apps={mergedApps}
-              loading={appsLoading}
-              error={appsError}
-              onToggleManaged={handleToggleManagedApp}
-            />
-          </Card>
+          <AppsTab environment={environment} workspaceId={workspaceId} />
         </TabPane>
         
        {/* Update the TabPane in WorkspaceDetail.tsx */}
