@@ -4,16 +4,10 @@ import {
   Spin,
   Typography,
   Card,
-  Row,
-  Col,
   Tag,
   Tabs,
   Alert,
   Descriptions,
-  Button,
-  Statistic,
-  Divider,
-  message
 } from "antd";
 import {
   ReloadOutlined,
@@ -23,15 +17,8 @@ import {
   UserOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import WorkspacesList from "./components/WorkspacesList";
-import UserGroupsList from "./components/UserGroupsList";
+
 import { useEnvironmentContext } from "./context/EnvironmentContext";
-import { useEnvironmentWorkspaces } from "./hooks/useEnvironmentWorkspaces";
-import { useEnvironmentUserGroups } from "./hooks/useEnvironmentUserGroups";
-import { useManagedWorkspaces } from "./hooks/enterprise/useManagedWorkspaces";
-import { getMergedWorkspaces } from "./utils/getMergedWorkspaces";
-import { Workspace } from "./types/workspace.types";
-import { connectManagedWorkspace, unconnectManagedWorkspace } from "./services/enterprise.service";
 import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
 
@@ -43,12 +30,6 @@ const { TabPane } = Tabs;
  * Environment Detail Page Component
  * Shows detailed information about a specific environment
  */
-
-type WorkspaceStats = {
-  total: number;
-  managed: number;
-  unmanaged: number;
-};
 const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
   const {
