@@ -49,9 +49,8 @@ const WorkspaceDetail: React.FC = () => {
     }>();
     const {
       environment,
-      loading: envLoading,
+      isLoadingEnvironment: envLoading,
       error: envError,
-      refresh: refreshEnvironment,
     } = useEnvironmentContext();
 
     const {

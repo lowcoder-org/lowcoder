@@ -51,9 +51,8 @@ const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
   const {
     environment,
-    loading: envLoading,
+    isLoadingEnvironment: envLoading,
     error: envError,
-    refresh,
   } = useEnvironmentContext();  
   
   
@@ -124,11 +123,6 @@ const EnvironmentDetail: React.FC = () => {
         type="error"
         showIcon
         style={{ margin: "24px" }}
-        action={
-          <Button type="primary" icon={<ReloadOutlined />} onClick={refresh}>
-            Try Again
-          </Button>
-        }
       />
     );
   }
@@ -198,9 +192,6 @@ const EnvironmentDetail: React.FC = () => {
           </Title>
           <Text type="secondary">ID: {environment.environmentId}</Text>
         </div>
-        <Button icon={<ReloadOutlined />} onClick={refresh}>
-          Refresh
-        </Button>
       </div>
 
       {/* Basic Environment Information Card */}
