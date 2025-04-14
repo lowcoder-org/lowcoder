@@ -32,6 +32,8 @@ import { useManagedWorkspaces } from "./hooks/enterprise/useManagedWorkspaces";
 import { getMergedWorkspaces } from "./utils/getMergedWorkspaces";
 import { Workspace } from "./types/workspace.types";
 import { connectManagedWorkspace, unconnectManagedWorkspace } from "./services/enterprise.service";
+import WorkspacesTab from "./components/WorkspacesTab";
+import UserGroupsTab from "./components/UserGroupsTab";
 
 
 const { Title, Text } = Typography;
@@ -253,105 +255,7 @@ const EnvironmentDetail: React.FC = () => {
           }
           key="workspaces"
         >
-          <Card>
-            {/* Header with refresh button */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "16px",
-              }}
-            >
-              <Title level={5}>Workspaces in this Environment</Title>
-              <Button
-                icon={<SyncOutlined />}
-                onClick={refreshWorkspaces}
-                size="small"
-                loading={workspacesLoading}
-              >
-                Refresh Workspaces
-              </Button>
-            </div>
-
-            {/* Workspace Statistics */}
-            <Row gutter={16} style={{ marginBottom: "24px" }}>
-              <Col span={8}>
-                <Statistic
-                  title="Total Workspaces"
-                  value={workspaceStats.total}
-                  prefix={<ClusterOutlined />}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title="Managed Workspaces"
-                  value={workspaceStats.managed}
-                  prefix={<ClusterOutlined />}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title="Unmanaged Workspaces"
-                  value={workspaceStats.unmanaged}
-                  prefix={<ClusterOutlined />}
-                />
-              </Col>
-            </Row>
-
-            <Divider style={{ margin: "16px 0" }} />
-
-            {/* Show error if workspace loading failed */}
-            {workspacesError && (
-              <Alert
-                message="Error loading workspaces"
-                description={workspacesError}
-                type="error"
-                showIcon
-                style={{ marginBottom: "16px" }}
-                action={
-                  workspacesError.includes("No API key configured") ? (
-                    <Button size="small" type="primary" disabled>
-                      API Key Required
-                    </Button>
-                  ) : (
-                    <Button
-                      size="small"
-                      type="primary"
-                      onClick={refreshWorkspaces}
-                    >
-                      Try Again
-                    </Button>
-                  )
-                }
-              />
-            )}
-
-            {(!environment.environmentApikey ||
-              !environment.environmentApiServiceUrl) &&
-              !workspacesError && (
-                <Alert
-                  message="Configuration Issue"
-                  description={
-                    !environment.environmentApikey
-                      ? "An API key is required to fetch workspaces for this environment."
-                      : "An API service URL is required to fetch workspaces for this environment."
-                  }
-                  type="warning"
-                  showIcon
-                  style={{ marginBottom: "16px" }}
-                />
-              )}
-
-            {/* Workspaces List */}
-            <WorkspacesList
-              workspaces={mergedWorkspaces} // ⬅️ Use local state!
-              loading={workspacesLoading && !workspacesError}
-              error={workspacesError}
-              environmentId={environment.environmentId}
-              onToggleManaged={handleToggleManaged} // ⬅️ Add this to enable toggles
-            />
-          </Card>
+          <WorkspacesTab environment={environment} />
         </TabPane>
         <TabPane
           tab={
@@ -360,106 +264,8 @@ const EnvironmentDetail: React.FC = () => {
             </span>
           }
           key="userGroups"
-        >
-          <Card>
-            {/* Header with refresh button */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "16px",
-              }}
-            >
-              <Title level={5}>User Groups in this Environment</Title>
-              <Button
-                icon={<SyncOutlined />}
-                onClick={refreshUserGroups}
-                size="small"
-                loading={userGroupsLoading}
-              >
-                Refresh User Groups
-              </Button>
-            </div>
-
-            {/* User Group Statistics */}
-            <Row gutter={16} style={{ marginBottom: "24px" }}>
-              <Col span={8}>
-                <Statistic
-                  title="Total User Groups"
-                  value={userGroupStats.total}
-                  prefix={<TeamOutlined />}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title="Total Users"
-                  value={userGroupStats.totalUsers}
-                  prefix={<UserOutlined />}
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic
-                  title="Admin Users"
-                  value={userGroupStats.adminUsers}
-                  prefix={<UserOutlined />}
-                />
-              </Col>
-            </Row>
-
-            <Divider style={{ margin: "16px 0" }} />
-
-            {/* Show error if user group loading failed */}
-            {userGroupsError && (
-              <Alert
-                message="Error loading user groups"
-                description={userGroupsError}
-                type="error"
-                showIcon
-                style={{ marginBottom: "16px" }}
-                action={
-                  userGroupsError.includes("No API key configured") ||
-                  userGroupsError.includes("No API service URL configured") ? (
-                    <Button size="small" type="primary" disabled>
-                      Configuration Required
-                    </Button>
-                  ) : (
-                    <Button
-                      size="small"
-                      type="primary"
-                      onClick={refreshUserGroups}
-                    >
-                      Try Again
-                    </Button>
-                  )
-                }
-              />
-            )}
-
-            {/* Show warning if no API key or API service URL is configured */}
-            {(!environment.environmentApikey ||
-              !environment.environmentApiServiceUrl) &&
-              !userGroupsError && (
-                <Alert
-                  message="Configuration Issue"
-                  description={
-                    !environment.environmentApikey
-                      ? "An API key is required to fetch user groups for this environment."
-                      : "An API service URL is required to fetch user groups for this environment."
-                  }
-                  type="warning"
-                  showIcon
-                  style={{ marginBottom: "16px" }}
-                />
-              )}
-
-            {/* User Groups List */}
-            <UserGroupsList
-              userGroups={userGroups}
-              loading={userGroupsLoading && !userGroupsError}
-              error={userGroupsError}
-            />
-          </Card>
+        > 
+          <UserGroupsTab environment={environment} />
         </TabPane>
       </Tabs>
     </div>
