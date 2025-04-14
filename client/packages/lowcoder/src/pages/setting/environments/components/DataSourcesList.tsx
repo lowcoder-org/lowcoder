@@ -1,140 +1,135 @@
-import React from 'react';
-import { Table, Tag, Empty, Spin, Badge, Tooltip } from 'antd';
-import { 
-  DatabaseOutlined, 
-  UserOutlined,
-  CheckCircleOutlined,
-  CloseCircleOutlined
-} from '@ant-design/icons';
-import { DataSourceWithMeta } from '../types/datasource.types';
+// components/DataSourcesList.tsx
+// Create this new file
+
+import React, { useState } from 'react';
+import { Table, Switch, Button, Space, Tooltip, Tag } from 'antd';
+import { CloudUploadOutlined } from '@ant-design/icons';
+import { DataSource } from '../types/datasource.types';
+import { Environment } from '../types/environment.types';
+import { ColumnsType } from 'antd/lib/table';
+import DeployDataSourceModal from './DeployDataSourceModal';
 
 interface DataSourcesListProps {
-  dataSources: DataSourceWithMeta[];
+  dataSources: DataSource[];
   loading: boolean;
-  error?: string | null;
+  error: string | null;
+  environment: Environment;
+  onToggleManaged: (dataSource: DataSource, checked: boolean) => Promise<void>;
+  onRefresh?: () => void;
 }
 
-/**
- * Component to display a list of data sources in a table
- */
 const DataSourcesList: React.FC<DataSourcesListProps> = ({
   dataSources,
   loading,
   error,
+  environment,
+  onToggleManaged,
+  onRefresh,
 }) => {
-  // Format timestamp to date string
-  const formatDate = (timestamp?: number): string => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  const [deployModalVisible, setDeployModalVisible] = useState(false);
+  const [selectedDataSource, setSelectedDataSource] = useState<DataSource | null>(null);
+
+  const handleDeploy = (dataSource: DataSource) => {
+    setSelectedDataSource(dataSource);
+    setDeployModalVisible(true);
   };
 
-  // Get icon for data source type
-  const getDataSourceTypeIcon = (type: string) => {
-    return <DatabaseOutlined />;
-  };
-
-  // Get color for data source status
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'NORMAL':
-        return 'green';
-      case 'ERROR':
-        return 'red';
-      case 'WARNING':
-        return 'orange';
-      default:
-        return 'default';
-    }
-  };
-
-  // Table columns definition
-  const columns = [
+  const columns: ColumnsType<DataSource> = [
     {
       title: 'Name',
+      dataIndex: 'name',
       key: 'name',
-      render: (record: DataSourceWithMeta) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          {getDataSourceTypeIcon(record.datasource.type)}
-          <span style={{ marginLeft: 8 }}>{record.datasource.name}</span>
-        </div>
-      ),
+      sorter: (a, b) => a.name.localeCompare(b.name),
     },
     {
       title: 'Type',
-      dataIndex: ['datasource', 'type'],
+      dataIndex: 'type',
       key: 'type',
-      render: (type: string) => (
-        <Tag color="blue">{type.toUpperCase()}</Tag>
-      ),
-    },
-    {
-      title: 'Created By',
-      dataIndex: 'creatorName',
-      key: 'creatorName',
-      render: (creatorName: string) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <UserOutlined style={{ marginRight: 8 }} />
-          <span>{creatorName}</span>
-        </div>
-      ),
-    },
-    {
-      title: 'Created',
-      key: 'createTime',
-      render: (record: DataSourceWithMeta) => formatDate(record.datasource.createTime),
+      filters: Array.from(new Set(dataSources.map(ds => ds.type)))
+        .map(type => ({ text: type, value: type })),
+      onFilter: (value, record) => record.type === value,
     },
     {
       title: 'Status',
+      dataIndex: 'datasourceStatus',
       key: 'status',
-      render: (record: DataSourceWithMeta) => (
-        <Tag color={getStatusColor(record.datasource.datasourceStatus)}>
-          {record.datasource.datasourceStatus}
+      render: (status: string) => (
+        <Tag color={status === 'ACTIVE' ? 'green' : 'orange'}>
+          {status}
         </Tag>
       ),
+      filters: Array.from(new Set(dataSources.map(ds => ds.datasourceStatus)))
+        .map(status => ({ text: status, value: status })),
+      onFilter: (value, record) => record.datasourceStatus === value,
     },
     {
-      title: 'Edit Access',
-      dataIndex: 'edit',
-      key: 'edit',
-      render: (edit: boolean) => (
-        <Tooltip title={edit ? 'You can edit this data source' : 'You cannot edit this data source'}>
-          {edit ? 
-            <CheckCircleOutlined style={{ color: '#52c41a' }} /> : 
-            <CloseCircleOutlined style={{ color: '#f5222d' }} />
-          }
-        </Tooltip>
+      title: 'DB Name',
+      dataIndex: ['datasourceConfig', 'database'],
+      key: 'database',
+      render: (database: string | null) => database || 'N/A',
+    },
+    {
+      title: 'Managed',
+      dataIndex: 'managed',
+      key: 'managed',
+      render: (managed: boolean, record: DataSource) => (
+        <Space>
+          <Switch
+            checked={managed}
+            onChange={(checked) => onToggleManaged(record, checked)}
+          />
+          <Tag color={managed ? 'blue' : 'gray'}>
+            {managed ? 'Managed' : 'Unmanaged'}
+          </Tag>
+        </Space>
+      ),
+      filters: [
+        { text: 'Managed', value: true },
+        { text: 'Unmanaged', value: false },
+      ],
+      onFilter: (value, record) => record.managed === Boolean(value),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record: DataSource) => (
+        <Space>
+          <Tooltip title="Deploy to another environment">
+            <Button
+              icon={<CloudUploadOutlined />}
+              onClick={() => handleDeploy(record)}
+              type="primary"
+              ghost
+            >
+              Deploy
+            </Button>
+          </Tooltip>
+        </Space>
       ),
     },
   ];
 
-  // If loading, show spinner
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-        <Spin tip="Loading data sources..." />
-      </div>
-    );
-  }
-
-  // If no data sources or error, show empty state
-  if (!dataSources || dataSources.length === 0 || error) {
-    return (
-      <Empty
-        description={error || "No data sources found"}
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      />
-    );
-  }
-
   return (
-    <Table
-      columns={columns}
-      dataSource={dataSources}
-      rowKey={(record) => record.datasource.id}
-      pagination={{ pageSize: 10 }}
-      size="middle"
-    />
+    <>
+      <Table
+        dataSource={dataSources}
+        columns={columns}
+        rowKey="id"
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+        locale={{
+          emptyText: error ? error : 'No data sources found',
+        }}
+      />
+      
+      <DeployDataSourceModal
+        visible={deployModalVisible}
+        dataSource={selectedDataSource}
+        currentEnvironment={environment}
+        onClose={() => setDeployModalVisible(false)}
+        onSuccess={onRefresh}
+      />
+    </>
   );
 };
 

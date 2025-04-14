@@ -1,10 +1,8 @@
 // services/dataSources.service.ts
-// Create this new file
-
 import axios from 'axios';
 import { message } from "antd";
-import { DataSource } from "../types/datasource.types";
-import { getManagedDataSources } from './enterprise.service';
+import { DataSource, DataSourceWithMeta } from "../types/datasource.types";
+import { getManagedDataSources } from "./enterprise.service";
 
 export interface DataSourceStats {
   total: number;
@@ -18,34 +16,63 @@ export interface MergedDataSourcesResult {
   stats: DataSourceStats;
 }
 
-// Get data sources for a workspace
-export const getWorkspaceDataSources = async (
-  workspaceId: string,
+// Get data sources for a workspace - using your correct implementation
+export async function getWorkspaceDataSources(
+  workspaceId: string, 
   apiKey: string,
   apiServiceUrl: string
-): Promise<DataSource[]> => {
+): Promise<DataSourceWithMeta[]> {
   try {
-    const response = await axios.get(
-      `${apiServiceUrl}/api/workspace/${workspaceId}/datasources`,
-      {
-        headers: {
-          'Authorization': `Bearer ${apiKey}`
-        }
+    // Check if required parameters are provided
+    if (!workspaceId) {
+      throw new Error('Workspace ID is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch data sources');
+    }
+    
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required to fetch data sources');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Make the API request to get data sources
+    const response = await axios.get<{data:DataSourceWithMeta[]}>(`${apiServiceUrl}/api/datasources/listByOrg`, { 
+      headers,
+      params: {
+        orgId: workspaceId
       }
-    );
-    return response.data || [];
+    });
+    console.log("data source response",response);
+  
+    // Check if response is valid
+    if (!response.data) {
+      return [];
+    }
+    
+    return response.data.data;
   } catch (error) {
-    console.error("Error fetching workspace data sources:", error);
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
+    message.error(errorMessage);
     throw error;
   }
-};
+}
 
 // Function to merge regular and managed data sources
-export const getMergedDataSources = (standardDataSources: DataSource[], managedDataSources: any[]): DataSource[] => {
-  return standardDataSources.map((dataSource) => ({
-    ...dataSource,
-    managed: managedDataSources.some((managedDs) => managedDs.datasourceGid === dataSource.gid),
-  }));
+export const getMergedDataSources = (standardDataSources: DataSourceWithMeta[], managedDataSources: any[]): DataSource[] => {
+  return standardDataSources.map((dataSourceWithMeta) => {
+    const dataSource = dataSourceWithMeta.datasource;
+    return {
+      ...dataSource,
+      managed: managedDataSources.some((managedDs) => managedDs.datasourceGid === dataSource.gid),
+    };
+  });
 };
 
 // Calculate data source statistics
@@ -70,14 +97,14 @@ export async function getMergedWorkspaceDataSources(
 ): Promise<MergedDataSourcesResult> {
   try {
     // First, get regular data sources for the workspace
-    const regularDataSources = await getWorkspaceDataSources(
+    const regularDataSourcesWithMeta = await getWorkspaceDataSources(
       workspaceId,
       apiKey,
       apiServiceUrl
     );
     
     // If no data sources, return early with empty result
-    if (!regularDataSources.length) {
+    if (!regularDataSourcesWithMeta.length) {
       return {
         dataSources: [],
         stats: {
@@ -99,7 +126,7 @@ export async function getMergedWorkspaceDataSources(
     }
     
     // Use the merge function
-    const mergedDataSources = getMergedDataSources(regularDataSources, managedDataSources);
+    const mergedDataSources = getMergedDataSources(regularDataSourcesWithMeta, managedDataSources);
     
     // Calculate stats
     const stats = calculateDataSourceStats(mergedDataSources);

@@ -35,6 +35,7 @@ import { App } from "./types/app.types";
 import { getMergedApps } from "./utils/getMergedApps";
 import { connectManagedApp, unconnectManagedApp } from "./services/enterprise.service";
 import AppsTab from "./components/AppsTab";
+import DataSourcesTab from "./components/DataSourcesTab";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -58,16 +59,7 @@ const WorkspaceDetail: React.FC = () => {
       workspace,
       loading: workspaceLoading,
       error: workspaceError,
-      refresh: refreshWorkspace
     } = useWorkspace(environment, workspaceId);
-
-    const {
-      dataSources,
-      loading: dataSourcesLoading,
-      error: dataSourcesError,
-      refresh: refreshDataSources,
-      dataSourceStats,
-    } = useWorkspaceDataSources(environment, workspaceId);
     
     if (envLoading || workspaceLoading) {
       return (
@@ -139,63 +131,7 @@ const WorkspaceDetail: React.FC = () => {
           tab={<span><DatabaseOutlined /> Data Sources</span>} 
           key="dataSources"
         >
-          <Card>
-            {/* Header with refresh button */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <Title level={5}>Data Sources in this Workspace</Title>
-              <Button 
-                icon={<SyncOutlined />} 
-                onClick={refreshDataSources}
-                size="small"
-                loading={dataSourcesLoading}
-              >
-                Refresh Data Sources
-              </Button>
-            </div>
-            
-            {/* Data Source Statistics */}
-            <Row gutter={16} style={{ marginBottom: '24px' }}>
-              <Col span={8}>
-                <Statistic 
-                  title="Total Data Sources" 
-                  value={dataSourceStats.total} 
-                  prefix={<DatabaseOutlined />} 
-                />
-              </Col>
-              <Col span={8}>
-                <Statistic 
-                  title="Data Source Types" 
-                  value={dataSourceStats.types} 
-                  prefix={<DatabaseOutlined />} 
-                />
-              </Col>
-            </Row>
-            
-            <Divider style={{ margin: '16px 0' }} />
-            
-            {/* Show error if data sources loading failed */}
-            {dataSourcesError && (
-              <Alert
-                message="Error loading data sources"
-                description={dataSourcesError}
-                type="error"
-                showIcon
-                style={{ marginBottom: '16px' }}
-                action={
-                  <Button size="small" type="primary" onClick={refreshDataSources}>
-                    Try Again
-                  </Button>
-                }
-              />
-            )}
-            
-            {/* Data Sources List */}
-            <DataSourcesList 
-              dataSources={dataSources}
-              loading={dataSourcesLoading}
-              error={dataSourcesError}
-            />
-          </Card>
+          <DataSourcesTab environment={environment} workspaceId={workspaceId} />
         </TabPane>
         
         <TabPane 
