@@ -1,147 +1,127 @@
-import React from 'react';
-import { Table, Tag, Empty, Spin, Avatar, Tooltip, Switch, Space } from 'antd';
-import { 
-  AppstoreOutlined, 
-  UserOutlined, 
-  CheckCircleOutlined, 
-  CloseCircleOutlined 
-} from '@ant-design/icons';
+// components/AppsList.tsx
+import React, { useState } from 'react';
+import { Table, Switch, Button, Space, Tooltip, Tag } from 'antd';
+import { CloudUploadOutlined } from '@ant-design/icons';
 import { App } from '../types/app.types';
+import { Environment } from '../types/environment.types';
+import DeployAppModal from './DeployAppModal';
+import { ColumnsType } from 'antd/lib/table';
 
 interface AppsListProps {
   apps: App[];
   loading: boolean;
-  error?: string | null;
-  onToggleManaged?: (app: App, checked: boolean) => void;
-
+  error: string | null;
+  environment: Environment;
+  onToggleManaged: (app: App, checked: boolean) => Promise<void>;
+  onRefresh?: () => void; // Make this optional since your current implementation doesn't have it
 }
 
-/**
- * Component to display a list of apps in a table
- */
 const AppsList: React.FC<AppsListProps> = ({
   apps,
   loading,
   error,
-  onToggleManaged
-
+  environment,
+  onToggleManaged,
+  onRefresh,
 }) => {
-  // Format timestamp to date string
-  const formatDate = (timestamp?: number): string => {
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
-    return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+  const [deployModalVisible, setDeployModalVisible] = useState(false);
+  const [selectedApp, setSelectedApp] = useState<App | null>(null);
+
+  const handleDeploy = (app: App) => {
+    setSelectedApp(app);
+    setDeployModalVisible(true);
   };
 
-  // Table columns definition
-  const columns = [
+  // Cast the value to boolean in onFilter to fix the type issue
+  const columns: ColumnsType<App> = [
     {
-      title: 'Title',
-      key: 'title',
-      render: (record: App) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar 
-            size="small" 
-            icon={<AppstoreOutlined />} 
-            src={record.icon || undefined} 
-            style={{ marginRight: 8 }}
-          />
-          <span>{record.title || record.name}</span>
-        </div>
-      ),
+      title: 'Name',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: (a: App, b: App) => a.name.localeCompare(b.name),
     },
     {
-      title: 'Created By',
-      dataIndex: 'createBy',
-      key: 'createBy',
-      render: (createBy: string) => (
-        <div style={{ display: 'flex', alignItems: 'center' }}>
-          <Avatar size="small" icon={<UserOutlined />} style={{ marginRight: 8 }} />
-          <span>{createBy}</span>
-        </div>
-      ),
-    },
-    {
-      title: 'Created',
-      key: 'createAt',
-      render: (record: App) => formatDate(record.createAt),
-    },
-    {
-      title: 'Last Modified',
-      key: 'lastModifyTime',
-      render: (record: App) => formatDate(record.lastModifyTime),
-    },
-    {
-      title: 'Published',
-      dataIndex: 'published',
-      key: 'published',
-      render: (published: boolean) => (
-        <Tooltip title={published ? 'Published' : 'Not Published'}>
-          {published ? 
-            <CheckCircleOutlined style={{ color: '#52c41a' }} /> : 
-            <CloseCircleOutlined style={{ color: '#f5222d' }} />
-          }
-        </Tooltip>
-      ),
+      title: 'Description',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
     },
     {
       title: 'Status',
-      dataIndex: 'applicationStatus',
-      key: 'applicationStatus',
-      render: (status: string) => (
-        <Tag color={status === 'NORMAL' ? 'green' : 'red'}>
-          {status}
+      dataIndex: 'published',
+      key: 'published',
+      render: (published: boolean) => (
+        <Tag color={published ? 'green' : 'orange'}>
+          {published ? 'Published' : 'Unpublished'}
         </Tag>
       ),
+      filters: [
+        { text: 'Published', value: true },
+        { text: 'Unpublished', value: false },
+      ],
+      onFilter: (value, record: App) => record.published === Boolean(value),
     },
     {
       title: 'Managed',
+      dataIndex: 'managed',
       key: 'managed',
-      render: (record: App) => (
+      render: (managed: boolean, record: App) => (
         <Space>
-          <Tag color={record.managed ? 'green' : 'default'}>
-            {record.managed ? 'Managed' : 'Unmanaged'}
-          </Tag>
           <Switch
-            size="small"
-            checked={record.managed}
-            onClick={(checked, e) => {
-              e.stopPropagation(); // Prevent navigation
-              onToggleManaged?.(record, checked);
-            }}
+            checked={managed}
+            onChange={(checked) => onToggleManaged(record, checked)}
           />
+          <Tag color={managed ? 'blue' : 'gray'}>
+            {managed ? 'Managed' : 'Unmanaged'}
+          </Tag>
+        </Space>
+      ),
+      filters: [
+        { text: 'Managed', value: true },
+        { text: 'Unmanaged', value: false },
+      ],
+      onFilter: (value, record: App) => record.managed === Boolean(value),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record: App) => (
+        <Space>
+          <Tooltip title="Deploy to another environment">
+            <Button
+              icon={<CloudUploadOutlined />}
+              onClick={() => handleDeploy(record)}
+              type="primary"
+              ghost
+            >
+              Deploy
+            </Button>
+          </Tooltip>
         </Space>
       ),
     },
   ];
 
-  // If loading, show spinner
-  if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-        <Spin tip="Loading apps..." />
-      </div>
-    );
-  }
-
-  // If no apps or error, show empty state
-  if (!apps || apps.length === 0 || error) {
-    return (
-      <Empty
-        description={error || "No apps found"}
-        image={Empty.PRESENTED_IMAGE_SIMPLE}
-      />
-    );
-  }
-
   return (
-    <Table
-      columns={columns}
-      dataSource={apps}
-      rowKey="applicationId"
-      pagination={{ pageSize: 10 }}
-      size="middle"
-    />
+    <>
+      <Table
+        dataSource={apps}
+        columns={columns}
+        rowKey="applicationId"
+        loading={loading}
+        pagination={{ pageSize: 10 }}
+        locale={{
+          emptyText: error ? error : 'No apps found',
+        }}
+      />
+      
+      <DeployAppModal
+        visible={deployModalVisible}
+        app={selectedApp}
+        currentEnvironment={environment}
+        onClose={() => setDeployModalVisible(false)}
+      />
+    </>
   );
 };
 

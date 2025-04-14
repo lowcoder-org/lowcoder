@@ -106,8 +106,9 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         apps={apps}
         loading={loading && !error}
         error={error}
+        environment={environment}
         onToggleManaged={handleToggleManagedApp}
-      />
+        />
     </Card>
   );
 };

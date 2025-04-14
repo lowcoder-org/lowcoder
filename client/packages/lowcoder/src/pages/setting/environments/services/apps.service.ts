@@ -3,6 +3,7 @@ import { message } from "antd";
 import { getWorkspaceApps } from "./environments.service";
 import { getManagedApps } from "./enterprise.service";
 import { App } from "../types/app.types";
+import axios from "axios";
 
 export interface AppStats {
   total: number;
@@ -15,6 +16,18 @@ export interface MergedAppsResult {
   apps: App[];
   stats: AppStats;
 }
+
+
+export interface DeployAppParams {
+  envId: string;
+  targetEnvId: string;
+  applicationId: string;
+  updateDependenciesIfNeeded?: boolean;
+  publishOnTarget?: boolean;
+  publicToAll?: boolean;
+  publicToMarketplace?: boolean;
+}
+
 
 // Use your existing merge function with slight modification
 export const getMergedApps = (standardApps: App[], managedApps: any[]): App[] => {
@@ -90,3 +103,30 @@ export async function getMergedWorkspaceApps(
     throw error;
   }
 }
+
+
+
+export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
+  try {
+    const response = await axios.post(
+      `/api/plugins/enterprise/deploy`, 
+      null, 
+      { 
+        params: {
+          envId: params.envId,
+          targetEnvId: params.targetEnvId,
+          applicationId: params.applicationId,
+          updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
+          publishOnTarget: params.publishOnTarget ?? false,
+          publicToAll: params.publicToAll ?? false,
+          publicToMarketplace: params.publicToMarketplace ?? false
+        }
+      }
+    );
+    
+    return response.status === 200;
+  } catch (error) {
+    console.error('Error deploying app:', error);
+    throw error;
+  }
+};
