@@ -139,3 +139,47 @@ export async function unconnectManagedApp(appGid: string) {
     throw err;
   }
 }
+
+// data sources
+
+export const getManagedDataSources = async (environmentId: string): Promise<any[]> => {
+  try {
+    const response = await axios.get(
+      `/api/plugins/enterprise/datasource/list?environmentId=${environmentId}`
+    );
+    return response.data || [];
+  } catch (error) {
+    console.error("Error fetching managed data sources:", error);
+    throw error;
+  }
+};
+
+// Connect a data source to be managed
+export const connectManagedDataSource = async (
+  environmentId: string,
+  name: string,
+  datasourceGid: string
+): Promise<void> => {
+  try {
+    await axios.post(`/api/plugins/enterprise/datasource`, {
+      environmentId,
+      name,
+      datasourceGid
+    });
+  } catch (error) {
+    console.error("Error connecting managed data source:", error);
+    throw error;
+  }
+};
+
+// Disconnect a managed data source
+export const unconnectManagedDataSource = async (
+  datasourceGid: string
+): Promise<void> => {
+  try {
+    await axios.delete(`/api/plugins/enterprise/datasource?datasourceGid=${datasourceGid}`);
+  } catch (error) {
+    console.error("Error disconnecting managed data source:", error);
+    throw error;
+  }
+};

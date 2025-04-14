@@ -28,6 +28,7 @@ export interface DataSourceConfig {
     pluginDefinition: any | null;
     createTime: number;
     datasourceConfig: DataSourceConfig;
+    managed?: boolean;
   }
   
   /**
