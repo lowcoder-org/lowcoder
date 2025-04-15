@@ -28,6 +28,7 @@ import DataSourcesTab from "./components/DataSourcesTab";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 import { appsConfig } from "./config/apps.config";
 import { dataSourcesConfig } from "./config/data-sources.config";
+import { queryConfig } from "./config/query.config";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -140,14 +141,12 @@ const WorkspaceDetail: React.FC = () => {
           tab={<span><CodeOutlined /> Queries</span>} 
           key="queries"
         >
-          <Card>
-            <Alert
-              message="Queries"
-              description="Queries feature will be implemented in the next phase."
-              type="info"
-              showIcon
-            />
-          </Card>
+          <DeployableItemsTab
+            environment={environment}
+            config={queryConfig}
+            additionalParams={{ workspaceId }}
+            title="Queries in this Workspace"
+          />
         </TabPane>
       </Tabs>
     </div>

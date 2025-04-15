@@ -392,12 +392,12 @@ export async function getWorkspaceQueries(
       headers,
       params
     });
-    
+    debugger
     // Check if response is valid
-    if (!response.data || !response.data.success === false) {
+    if (!response.data) {
       return { queries: [], total: 0 };
     }
-    
+    console.log("RESPONSE DATA QUERIES",response.data.data);
     // Map the response to include id field required by DeployableItem
     const queries = response.data.data.map(query => ({
       ...query,

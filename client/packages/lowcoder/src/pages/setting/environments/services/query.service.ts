@@ -20,24 +20,37 @@ export interface MergedQueriesResult {
     apiServiceUrl: string
   ): Promise<MergedQueriesResult> {
     try {
-      // Fetch both regular and managed queries
-      const [regularQueries, managedQueries] = await Promise.all([
-        getWorkspaceQueries(workspaceId, apiKey, apiServiceUrl),
-        getManagedQueries(environmentId)
-      ]);
+      // Fetch regular queries
+      
+      const regularQueries = await getWorkspaceQueries(workspaceId, apiKey, apiServiceUrl);
+      console.log("Regular queries response:", regularQueries);
+      
+      const managedQueries = await getManagedQueries(environmentId);
+      console.log("Managed queries response:", managedQueries);
       
       // Create a map of managed queries by GID for quick lookup
       const managedQueryGids = new Set(managedQueries.map(query => query.gid));
+      console.log("Managed query GIDs:", Array.from(managedQueryGids));
       
       // Mark regular queries as managed if they exist in managed queries
-      const mergedQueries = regularQueries.queries.map((query: Query ) => ({
-        ...query,
-        managed: managedQueryGids.has(query.gid)
-      }));
+      const mergedQueries = regularQueries.queries.map((query: Query) => {
+        const isManaged = managedQueryGids.has(query.gid);
+        console.log(`Query ${query.name} (gid: ${query.gid}) is ${isManaged ? "managed" : "not managed"}`);
+        
+        return {
+          ...query,
+          managed: isManaged
+        };
+      });
       
       // Calculate stats
       const total = mergedQueries.length;
       const managed = mergedQueries.filter(query => query.managed).length;
+      console.log("Generated stats:", {
+        total,
+        managed,
+        unmanaged: total - managed
+      });
       
       return {
         queries: mergedQueries,
@@ -49,6 +62,7 @@ export interface MergedQueriesResult {
       };
       
     } catch (error) {
+      console.error("Error in getMergedWorkspaceQueries:", error);
       throw error;
     }
   }
