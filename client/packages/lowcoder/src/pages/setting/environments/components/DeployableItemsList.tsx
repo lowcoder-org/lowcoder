@@ -27,16 +27,20 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
   additionalParams = {}
 }: DeployableItemsListProps<T, S>) {
   // Handle row click for navigation
-  const handleRowClick = (item: T) => {
-    // Build the route using the config and navigate
-    const route = config.buildDetailRoute({
-      environmentId: environment.environmentId,
-      itemId: item[config.idField] as string,
-      ...additionalParams
-    });
-    
-    history.push(route);
-  };
+ // Handle row click for navigation
+const handleRowClick = (item: T) => {
+  // Skip navigation if the route is just '#' (for non-navigable items)
+  if (config.buildDetailRoute({}) === '#') return;
+  
+  // Build the route using the config and navigate
+  const route = config.buildDetailRoute({
+    environmentId: environment.environmentId,
+    itemId: item[config.idField] as string,
+    ...additionalParams
+  });
+  
+  history.push(route);
+};
 
   // Generate columns based on config
   let columns = [...config.columns];
@@ -85,18 +89,21 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
     );
   }
 
+  const hasNavigation = config.buildDetailRoute({}) !== '#';
+
+
   return (
     <Table
-      columns={columns}
-      dataSource={items}
-      rowKey={config.idField}
-      pagination={{ pageSize: 10 }}
-      size="middle"
-      onRow={(record) => ({
-        onClick: () => handleRowClick(record),
-        style: { cursor: 'pointer' },
-      })}
-    />
+    columns={columns}
+    dataSource={items}
+    rowKey={config.idField}
+    pagination={{ pageSize: 10 }}
+    size="middle"
+    onRow={(record) => ({
+      onClick: hasNavigation ? () => handleRowClick(record) : undefined,
+      style: hasNavigation ? { cursor: 'pointer' } : undefined,
+    })}
+  />
   );
 }
 

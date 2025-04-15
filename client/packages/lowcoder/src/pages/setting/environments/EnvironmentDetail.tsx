@@ -22,6 +22,7 @@ import { useEnvironmentContext } from "./context/EnvironmentContext";
 import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
 import { workspaceConfig } from "./config/workspace.config";
+import { userGroupsConfig } from "./config/usergroups.config";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 
 
@@ -173,7 +174,13 @@ const EnvironmentDetail: React.FC = () => {
           }
           key="userGroups"
         > 
-          <UserGroupsTab environment={environment} />
+          {/* Using our new generic component with the user group config */}
+          <DeployableItemsTab
+            environment={environment}
+            config={userGroupsConfig}
+            title="User Groups in this Environment"
+          />
+
         </TabPane>
       </Tabs>
     </div>

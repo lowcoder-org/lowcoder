@@ -1,7 +1,10 @@
 /**
  * Represents a User Group entity in an environment
- */
-export interface UserGroup {
+*/
+
+import { DeployableItem, BaseStats } from "./deployable-item.types";
+
+export interface UserGroup extends DeployableItem {
     groupId: string;
     groupGid: string;
     groupName: string;
@@ -17,4 +20,15 @@ export interface UserGroup {
     syncDelete: boolean;
     devGroup: boolean;
     syncGroup: boolean;
+    id: string;
+    name: string;
   }
+
+
+  /**
+ * Statistics for User Groups
+ */
+export interface UserGroupStats extends BaseStats {
+  totalUsers: number;
+  adminUsers: number;
+}
