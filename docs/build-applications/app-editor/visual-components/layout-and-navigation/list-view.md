@@ -114,7 +114,12 @@ In the Auto-Docs of List View component, we have shown how to use different prop
 
 ### &#x20;Methods
 
-You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.&#x20;
 
-<table><thead><tr><th>Method Name</th><th width="425.68359375">Description</th></tr></thead><tbody><tr><td>setPage</td><td>Set the Page Number on the ListView component</td></tr></tbody></table>
+**setPage() :**&#x20;
 
+listView1.setPage() method sets the ListView's page property to be displayed on the ListView component. e.g. following code will set the 3nd page on the ListView component :
+
+```javascript
+listView1.setPage(3);
+```

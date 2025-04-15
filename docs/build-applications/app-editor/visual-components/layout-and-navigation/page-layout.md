@@ -31,5 +31,10 @@ These properties are accessible in \{{ \}} notations, as well as in JavaScript Q
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilised. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setSiderCollapsed</td><td>Set the value of the property siderCollapsed</td></tr></tbody></table>
+**setSiderCollapsed() :**&#x20;
 
+pageLayout1.setSiderCollapsed() method sets the siderCollapsed property of the Page Layout component. It takes True or False as an Argument. Following code collapses the Sider component on Page Layout.
+
+```javascript
+pageLayout1.setSiderCollapsed(true);
+```

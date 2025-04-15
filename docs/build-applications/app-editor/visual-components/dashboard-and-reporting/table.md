@@ -82,16 +82,110 @@ Events give you the ability to trigger further actions (with Event-Handlers)
 
 ### Methods
 
-You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.&#x20;
 
-| Method Name         | Description                                    |
-| ------------------- | ---------------------------------------------- |
-| setFilter           | Set the Value of Property filter               |
-| setPage             | Set the Value of Property page                 |
-| setSort             | Set the Value of Property sort                 |
-| resetSelections     | Set the Value of Property resetselections      |
-| setMultiSort        | Set the Value of Property sort                 |
-| cancelChanges       | Cancel the Changes to the Table                |
-| cancelInsertChanges | Cancel the to be inserted changes to the Table |
+**setPage() :**&#x20;
 
-\
+table1.setPage() method sets the table's page property to be displayed on Table component. e.g. following code will set the 2nd page on the Table component :
+
+```javascript
+table1.setPage(2);
+```
+
+**setFilter() :**&#x20;
+
+table1.setFilter() method sets single or multiple Filter conditions on the Table's data, and in return Table shows the filtered data as per the conditions set in the setFilter() method. Here's how it works :&#x20;
+
+```javascript
+// Single Filter condition
+table1.setFilter({
+  stackType: 'and',
+  filters: [
+  {
+    columnKey: 'name',
+    filterValue: 'Mano',
+    operator: 'contain'
+  }
+  ]
+})
+```
+
+In the above code, "stackType" sets the condition of "AND" or "OR" among different Filters. "filters" array include the  columnKey, filterValue and the operator.
+
+```javascript
+// Multiple Filter conditions
+table1.setFilter({
+  stackType: 'and',
+  filters: [
+    {
+    columnKey: 'name',
+    filterValue: 'a',
+    operator: 'contain'
+  },
+  {
+    columnKey: 'id',
+    filterValue: '1',
+    operator: 'contain'
+  }
+]
+})
+```
+
+In the above code, we have applied multiple filters on the Table.
+
+**setSort() :**&#x20;
+
+table1.setSort() method sorts an individual column on a Table in ascending or descending order. It takes two arguments :&#x20;
+
+1. ColumnKey
+2. Descending order
+
+```javascript
+// Descending order set to True
+table1.setSort("id", true);
+```
+
+The above code sorts the "ID" column in descending order. If descending order is set to 'false', then it will sort the "ID" column in ascending order.
+
+**setMultiSort() :**&#x20;
+
+table1.setMultiSort() method sorts the Table in ascending or descending order, based on multiple columns. It sorts first based on 1st column , and then based on the 2nd column :&#x20;
+
+```javascript
+// MultiSort
+table1.setMultiSort([
+  {
+    "column": "name",
+    "desc": true
+  },
+  {
+    "column": "id",
+    "desc": false
+  }])
+```
+
+**resetSelections() :**&#x20;
+
+table1.resetSelections() method resets the selected Row or Rows to the default ones. By default, 1st Row is selected in the Table in case of Single Row Select. If you click on let say 5th Row of the Table, it will get selected and if you run following code, then the table's 1st Row will be selected.
+
+In case of multiple row selected, following code will deselect all the selected rows.
+
+```javascript
+table1.resetSelections();
+```
+
+**cancelChanges() :**&#x20;
+
+table1.cancelChanges() method cancels the Updated + Inserted changes on an Editable table. Updated changes are those which you make to the existing Table data/rows. Inserted changes are the new Rows that you insert on the Table
+
+```javascript
+table1.cancelChanges();
+```
+
+**cancelInsertChanges() :**&#x20;
+
+table1.cancelInsertChanges() method only cancels the inserted changes on an Editable table.
+
+```javascript
+table1.cancelInsertChanges();
+```

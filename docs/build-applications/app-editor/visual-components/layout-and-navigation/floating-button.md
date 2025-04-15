@@ -35,5 +35,26 @@ These properties are accessible in \{{ \}} notations, as well as in JavaScript Q
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilised. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setValue</td><td>Set the data of the property Value</td></tr><tr><td>clearValue</td><td>Clear the data of the property Value</td></tr><tr><td>resetValue</td><td>Reset the data of the property Value</td></tr></tbody></table>
+**setValue() :**&#x20;
 
+floatingButton1.setValue() method sets the Floating button's Value property.
+
+```javascript
+floatingButton1.setValue();
+```
+
+**clearValue() :**&#x20;
+
+floatingButton1.clearValue() clears the Floating button's Value property and empties the current value from the component.
+
+```javascript
+floatingButton1.clearValue();
+```
+
+**resetValue() :**&#x20;
+
+floatingButton1.resetValue()  method resets the Floating button's value property to the default value of the component.
+
+```javascript
+floatingButton1.resetValue();
+```

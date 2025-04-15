@@ -43,5 +43,32 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th>Method Name</th><th width="426.51953125">Description</th></tr></thead><tbody><tr><td>setData</td><td>Set the data of the property Data</td></tr><tr><td>clear</td><td>Clear the data of the property Data</td></tr><tr><td>reset</td><td>ReSet the data of the property Data</td></tr></tbody></table>
+**setData() :**&#x20;
 
+form1.setData() method sets the Form's data property, which fills up all the components that are present/added into the Form component. This method takes Object as an argument. For example, for a Form having an input field, a number input field and a TextArea component, following code will set the Data of the Form component.
+
+```javascript
+form1.setData({
+  input1 : "John",
+  numberInput1 : 25,
+  textArea1: "Hello, I am John, 25 years old"
+});
+```
+
+Here, in the above code, "input1" refers to key/id of the Input field.
+
+**clear() :**&#x20;
+
+form1.clear() clears the Form's data property and empties the Form component.
+
+```javascript
+form1.clear();
+```
+
+**reset() :**&#x20;
+
+form1.reset() method resets the Form's data property to the default value of the Form component.
+
+```javascript
+form1.reset();
+```

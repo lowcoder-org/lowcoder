@@ -40,5 +40,26 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setVisible</td><td>Set the value of the property Visible</td></tr><tr><td>resetVisible</td><td>Reset the value of the property Visible</td></tr><tr><td>clearVisible</td><td>Clear the value of the property Visible</td></tr></tbody></table>
+**setVisible() :**&#x20;
 
+modal1.setVisible() method sets the Modal's Visible property, due to which Modal component is shown or not.
+
+```javascript
+modal1.setVisible(true);
+```
+
+**clearVisible() :**&#x20;
+
+modal1.clearVisible() clears the Modal's Visible property and empties the already set value in the Modal component.
+
+```javascript
+modal1.clearVisible();
+```
+
+**resetVisible() :**&#x20;
+
+modal1.resetVisible()  method resets the Modal's visible property to the default value of the Modal component.
+
+```javascript
+modal1.resetValue();
+```

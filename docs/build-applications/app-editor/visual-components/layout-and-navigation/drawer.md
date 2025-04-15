@@ -34,6 +34,11 @@ Usually, in an app, you trigger opening a drawer by an event such as clicking a 
 2. Set the event handler of the button. Select "Control component" as the **Action** and select the component "cart" and method "openDrawer". All these settings are auto-saved.
 3. Click the button `gotoCart` and the binded drawer "cart" is open.
 
+```javascript
+// Some code
+drawer1.openDrawer();
+```
+
 ### Trigger closeDrawer
 
 Triggerring "closeDrawer" is similar to triggering "openDrawer". When setting up the event handler, select the method "closeDrawer". For example, in the [Online Shopping demo](https://cloud.lowcoder.dev/apps/63a422a344075b798fe3ae06/view), closing a drawer that displays the shopping cart is implemented in the following steps.
@@ -41,6 +46,11 @@ Triggerring "closeDrawer" is similar to triggering "openDrawer". When setting up
 1. Add a button and rename it as `gobackShopping`.
 2. Set the event handler of the button. Select "Control component" as the **Action** and select the component "cart" and method "closeDrawer". All these settings are auto-saved.
 3. Click the "Continue Shopping" button and the binded drawer "cart" is closed.
+
+```javascript
+// Some code
+drawer1.closeDrawer();
+```
 
 ### Component Playground
 
@@ -62,5 +72,26 @@ In the Auto-Docs of Drawer component, we have shown how to use different propert
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="140.265625">Method Name</th><th width="477.546875">Description</th></tr></thead><tbody><tr><td>openDrawer</td><td>Opens a Drawer component</td></tr><tr><td>closeDrawer</td><td>Closes a Drawer component</td></tr><tr><td>setVisible</td><td>Sets the value of property Visible</td></tr><tr><td>resetVisible</td><td>Resets the value of property Visible</td></tr><tr><td>clearVisible</td><td>Clears the value of propery Visible</td></tr></tbody></table>
+**setVisible() :**&#x20;
 
+drawer1.setVisible() method sets the Drawer's Visible property, due to which Drawer component is shown or not.
+
+```javascript
+drawer1.setVisible(true);
+```
+
+**clearVisible() :**&#x20;
+
+drawer1.clearVisible() clears the Drawer's Visible property and empties the already set value in the Drawer component.
+
+```javascript
+drawer1.clearVisible();
+```
+
+**resetVisible() :**&#x20;
+
+drawer1.resetVisible()  method resets the drawer's visible property to the default value of the drawer component.
+
+```javascript
+drawer1.resetValue();
+```

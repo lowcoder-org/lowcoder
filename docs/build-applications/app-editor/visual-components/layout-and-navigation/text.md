@@ -34,5 +34,26 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilised. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setText</td><td>Set the data/value of the property Text</td></tr><tr><td>clearText</td><td>Clear the data/value of the property Text</td></tr><tr><td>resetText</td><td>Clear the data/value of the property Text</td></tr></tbody></table>
+**setText() :**&#x20;
 
+text1.setText() method sets the Text component's text property. It takes a String argument
+
+```javascript
+text1.setText("Text component's Text");
+```
+
+**clearText() :**&#x20;
+
+text1.clearText() clears the Text component's text property and empties the current value from the component.
+
+```javascript
+text1.clearText();
+```
+
+**resetText() :**&#x20;
+
+text1.resetValue()  method resets the Text component's text property to the default value of the component.
+
+```javascript
+text1.resetText();
+```

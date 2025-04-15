@@ -40,5 +40,26 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilised. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setKey</td><td>Set the data/value of the property selectedTabKey</td></tr><tr><td>clearKey</td><td>Clear the data/value of the property selectedTabKey</td></tr><tr><td>resetKey</td><td>Clear the data/value of the property selectedTabKey</td></tr></tbody></table>
+**setKey() :**&#x20;
 
+tabbedContainer1.setKey() method sets the tabbedContainer's SelectedTabKey property. It takes the value of the Tabs present in the Tabbed Container component. Following method selects the Tab with the Tab Value = 2.
+
+```javascript
+tabbedContainer1.setKey(2);
+```
+
+**clearKey() :**&#x20;
+
+tabbedContainer1.clearValue() clears the tabbedContainer's SelectedTabKey property, and removes the current value of SelectedTabKey.
+
+```javascript
+tabbedContainer1.clearKey();
+```
+
+**resetKey() :**&#x20;
+
+tabbedContainer1.resetKey()  method resets the tabbedContainer's SelectedTabKey property to the default value of the Tabbed Container component.
+
+```javascript
+tabbedContainer1.resetKey();
+```

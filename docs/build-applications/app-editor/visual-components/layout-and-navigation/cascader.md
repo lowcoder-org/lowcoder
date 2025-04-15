@@ -41,5 +41,26 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="177.9296875">Method Name</th><th width="485.80078125">Description</th></tr></thead><tbody><tr><td>setValue</td><td>Set the value of the property Value</td></tr><tr><td>resetValue</td><td>Reset the value of the property Value</td></tr><tr><td>clearValue</td><td>Clear the value of the property Value</td></tr></tbody></table>
+**setValue() :**&#x20;
 
+cascader1.setValue() method sets the Cascader's Value property, which is shown as selected in the Cascader component.
+
+```javascript
+cascader1.setValue(["New South Wales","Sydney","Sydney Opera House"]);
+```
+
+**clearValue() :**&#x20;
+
+tree1.clearValue() clears the Tree's Value property and empties the selected value in the Tree component.
+
+```javascript
+tree1.clearValue();
+```
+
+**resetValue() :**&#x20;
+
+tree1.resetValue()  method resets the Tree's value property to the default value of the Tree component.
+
+```javascript
+tree1.resetValue();
+```
