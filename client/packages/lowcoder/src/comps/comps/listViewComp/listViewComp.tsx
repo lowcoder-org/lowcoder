@@ -61,6 +61,7 @@ const childrenMap = {
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   horizontal: withDefault(BoolControl, false),
   minHorizontalWidth: withDefault(RadiusControl, '100px'),
+  enableSorting: withDefault(BoolControl, false),
 };
 
 const ListViewTmpComp = new UICompBuilder(childrenMap, () => <></>)

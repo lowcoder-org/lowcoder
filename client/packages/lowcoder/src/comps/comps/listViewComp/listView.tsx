@@ -23,8 +23,7 @@ import { childrenToProps } from "@lowcoder-ee/comps/generators/multi";
 import { AnimationStyleType } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { DndContext } from "@dnd-kit/core";
-import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { JSONObject } from "@lowcoder-ee/index.sdk";
 
@@ -94,7 +93,7 @@ const MinHorizontalWidthContext = createContext<MinHorizontalWidthContextType>({
   minHorizontalWidth: '100px',
 });
 
-const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number} ) => {
+const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number, enableSorting?: boolean} ) => {
   const {
     horizontalWidth,
     minHorizontalWidth
@@ -103,6 +102,24 @@ const ContainerInListView = (props: ContainerBaseProps & {itemIdx: number} ) => 
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: String(props.itemIdx),
   });
+
+  if (!props.enableSorting) {
+    return (
+      <div
+        style={{
+          width: horizontalWidth,
+          minWidth: minHorizontalWidth || '0px',
+        }}
+      >
+        <InnerGrid
+          {...props}
+          emptyRows={15}
+          containerPadding={[4, 4]}
+          hintPlaceholder={HintPlaceHolder}
+        />
+      </div>
+    )
+  }
 
   return (
     <div
@@ -139,6 +156,7 @@ type ListItemProps = {
   unMountFn?: () => void;
   minHorizontalWidth?: string;
   horizontalWidth: string;
+  enableSorting?: boolean;
 };
 
 function ListItem({
@@ -154,6 +172,7 @@ function ListItem({
     scrollContainerRef,
     minHeight,
     horizontalGridCells,
+    enableSorting,
   } = props;
 
   // disable the unmount function to save user's state with pagination
@@ -195,6 +214,7 @@ function ListItem({
         overflow={"hidden"}
         minHeight={minHeight}
         enableGridLines={true}
+        enableSorting={enableSorting}
       />
     </MinHorizontalWidthContext.Provider>
   );
@@ -247,6 +267,8 @@ export function ListView(props: Props) {
       total,
     };
   }, [children.pagination, totalCount]);
+
+  const enableSorting = useMemo(() => children.enableSorting.getView(), [children.enableSorting]);
 
   useEffect(() => {
     children.listData.dispatchChangeValueAction(data);
@@ -313,6 +335,7 @@ export function ListView(props: Props) {
                 unMountFn={unMountFn}
                 horizontalWidth={`${100 / noOfColumns}%`}
                 minHorizontalWidth={horizontal ? minHorizontalWidth : undefined}
+                enableSorting={enableSorting}
               />
             );
           })}
@@ -365,15 +388,20 @@ export function ListView(props: Props) {
                   $isGrid={noOfColumns > 1}
                   $autoHeight={autoHeight}
                 >
-                  <DndContext onDragEnd={handleDragEnd}>
-                    <SortableContext
-                      items={
-                        _.range(0, totalCount).map((colIdx) => String(colIdx))
-                      }
-                    >
-                      {renders}
-                    </SortableContext>
-                  </DndContext>
+                  {!enableSorting
+                    ? renders
+                    : (
+                      <DndContext onDragEnd={handleDragEnd}>
+                        <SortableContext
+                          items={
+                            _.range(0, totalCount).map((colIdx) => String(colIdx))
+                          }
+                        >
+                          {renders}
+                        </SortableContext>
+                      </DndContext>
+                    )
+                  }
                 </ListOrientationWrapper>
               )}
             >

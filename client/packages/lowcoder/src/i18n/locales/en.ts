@@ -2598,7 +2598,8 @@ export const en = {
     "itemDataNameDesc": "The Variable Name Referring to the Item's Data Object, Default as {default}",
     "itemsDesc": "Exposing Data of Components in List",
     "dataDesc": "The JSON Data Used in the Current List",
-    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty."
+    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty.",
+    "enableSorting": "Allow Sorting"
   },
   "navigation": {
     "addText": "Add Submenu Item",
