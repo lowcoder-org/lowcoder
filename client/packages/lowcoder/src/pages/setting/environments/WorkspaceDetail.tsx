@@ -27,6 +27,7 @@ import AppsTab from "./components/AppsTab";
 import DataSourcesTab from "./components/DataSourcesTab";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 import { appsConfig } from "./config/apps.config";
+import { dataSourcesConfig } from "./config/data-sources.config";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -127,7 +128,12 @@ const WorkspaceDetail: React.FC = () => {
           tab={<span><DatabaseOutlined /> Data Sources</span>} 
           key="dataSources"
         >
-          <DataSourcesTab environment={environment} workspaceId={workspaceId} />
+          <DeployableItemsTab
+            environment={environment}
+            config={dataSourcesConfig}
+            additionalParams={{ workspaceId }}
+            title="Data Sources in this Workspace"
+          />
         </TabPane>
         
         <TabPane 

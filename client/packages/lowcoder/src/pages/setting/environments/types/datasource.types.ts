@@ -1,6 +1,8 @@
 /**
  * Represents a DataSource configuration
  */
+
+import { DeployableItem, BaseStats } from "./deployable-item.types";
 export interface DataSourceConfig {
     usingUri: boolean;
     srvMode: boolean;
@@ -16,7 +18,7 @@ export interface DataSourceConfig {
   /**
    * Represents a DataSource entity
    */
-  export interface DataSource {
+  export interface DataSource extends DeployableItem {
     id: string;
     createdBy: string;
     gid: string;
@@ -38,4 +40,8 @@ export interface DataSourceConfig {
     datasource: DataSource;
     edit: boolean;
     creatorName: string;
+  }
+
+  export interface DataSourceStats extends BaseStats {
+    byType: Record<string, number>; // Count by each type
   }
