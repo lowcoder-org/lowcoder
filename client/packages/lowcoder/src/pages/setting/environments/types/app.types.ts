@@ -1,4 +1,6 @@
-export interface App {
+import { DeployableItem, BaseStats } from "./deployable-item.types";
+
+export interface App extends DeployableItem {
     orgId: string;
     applicationId: string;
     applicationGid: string;
@@ -23,4 +25,9 @@ export interface App {
     published: boolean;
     folder: boolean;
     managed?: boolean;
+    id: string
+  }
+
+  export interface AppStats extends BaseStats {
+    published: number
   }

@@ -11,10 +11,7 @@ import {
   Tabs, 
   Alert, 
   Button,
-  Statistic,
-  Divider,
   Breadcrumb,
-  message
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -22,20 +19,14 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
-  SyncOutlined,
   ArrowLeftOutlined
 } from "@ant-design/icons";
-import AppsList from './components/AppsList';
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useWorkspace } from "./hooks/useWorkspace";
-import { useWorkspaceApps } from "./hooks/useWorkspaceApps";
-import { useWorkspaceDataSources } from "./hooks/useWorkspaceDataSources";
-import { useManagedApps } from "./hooks/enterprise/useManagedApps";
-import { App } from "./types/app.types";
-import { getMergedApps } from "./utils/getMergedApps";
-import { connectManagedApp, unconnectManagedApp } from "./services/enterprise.service";
 import AppsTab from "./components/AppsTab";
 import DataSourcesTab from "./components/DataSourcesTab";
+import DeployableItemsTab from "./components/DeployableItemsTab";
+import { appsConfig } from "./config/apps.config";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -123,7 +114,12 @@ const WorkspaceDetail: React.FC = () => {
           tab={<span><AppstoreOutlined /> Apps</span>} 
           key="apps"
         >
-          <AppsTab environment={environment} workspaceId={workspaceId} />
+          <DeployableItemsTab
+            environment={environment}
+            config={appsConfig}
+            additionalParams={{ workspaceId }}
+            title="Apps in this Workspace"
+          />    
         </TabPane>
         
        {/* Update the TabPane in WorkspaceDetail.tsx */}
