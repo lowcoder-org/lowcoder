@@ -5,6 +5,7 @@ import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
 import {App} from "../types/app.types";
 import { DataSourceWithMeta } from '../types/datasource.types';
+import { Query, QueryResponse } from "../types/query.types";
 
 
 /**
@@ -332,6 +333,90 @@ export async function getWorkspaceDataSources(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+
+/**
+ * Fetch queries for a specific workspace
+ * @param workspaceId - ID of the workspace (orgId)
+ * @param apiKey - API key for the environment
+ * @param apiServiceUrl - API service URL for the environment
+ * @param options - Additional options (name filter, pagination)
+ * @returns Promise with an array of queries and metadata
+ */
+export async function getWorkspaceQueries(
+  workspaceId: string, 
+  apiKey: string,
+  apiServiceUrl: string,
+  options: {
+    name?: string;
+    pageNum?: number;
+    pageSize?: number;
+  } = {}
+): Promise<{ queries: Query[], total: number }> {
+  try {
+    // Check if required parameters are provided
+    if (!workspaceId) {
+      throw new Error('Workspace ID is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch queries');
+    }
+    
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required to fetch queries');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Prepare query parameters
+    const params: any = {
+      orgId: workspaceId
+    };
+    
+    // Add optional parameters if provided
+    if (options.name) params.name = options.name;
+    if (options.pageNum !== undefined) params.pageNum = options.pageNum;
+    if (options.pageSize !== undefined) params.pageSize = options.pageSize;
+    
+    // Make the API request to get queries
+    const response = await axios.get<QueryResponse>(`${apiServiceUrl}/api/library-queries/listByOrg`, { 
+      headers,
+      params
+    });
+    
+    // Check if response is valid
+    if (!response.data || !response.data.success === false) {
+      return { queries: [], total: 0 };
+    }
+    
+    // Map the response to include id field required by DeployableItem
+    const queries = response.data.data.map(query => ({
+      ...query,
+      // Map to DeployableItem fields if not already present
+      id: query.id,
+      name: query.name,
+      managed: false // Default to unmanaged
+    }));
+
+    console.log("queries",queries);
+    
+    return { 
+      queries, 
+      total: response.data.total 
+    };
+  
+  } catch (error) {
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch queries';
     message.error(errorMessage);
     throw error;
   }

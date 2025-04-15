@@ -1,6 +1,8 @@
 import axios from "axios";
 import { message } from "antd";
 import { ManagedOrg } from "../types/enterprise.types";
+import { Query } from "../types/query.types";
+
 
 /**
  * Fetch workspaces for a specific environment
@@ -186,3 +188,92 @@ export const unconnectManagedDataSource = async (
     throw error;
   }
 };
+
+
+
+
+export async function getManagedQueries(environmentId: string): Promise<Query[]> {
+  try {
+    if (!environmentId) {
+      throw new Error('Environment ID is required');
+    }
+    
+    // Get managed queries from the enterprise endpoint
+    const response = await axios.get(`/api/plugins/enterprise/qlQuery/list`, {
+      params: {
+        environmentId
+      }
+    });
+    
+    if (!response.data || !Array.isArray(response.data)) {
+      return [];
+    }
+    
+    // Map the response to match our Query interface
+    // Note: You may need to adjust this mapping based on the actual response structure
+    return response.data.map((item: any) => ({
+      id: item.id || item.qlQueryId,
+      gid: item.qlQueryGid,
+      name: item.qlQueryName,
+      organizationId: item.orgId,
+      libraryQueryDSL: item.libraryQueryDSL || {},
+      createTime: item.createTime,
+      creatorName: item.creatorName || '',
+      managed: true // These are managed queries
+    }));
+    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch managed queries';
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+export async function connectManagedQuery(
+  environmentId: string, 
+  queryName: string, 
+  queryGid: string
+): Promise<boolean> {
+  try {
+    if (!environmentId || !queryGid) {
+      throw new Error('Environment ID and Query GID are required');
+    }
+    
+    const response = await axios.post('/api/plugins/enterprise/qlQuery', {
+      environment_id: environmentId,
+      ql_query_name: queryName,
+      ql_query_tags: [],
+      ql_query_gid: queryGid
+    });
+    
+    return response.status === 200;
+    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to connect query';
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+
+export async function unconnectManagedQuery(queryGid: string): Promise<boolean> {
+  try {
+    if (!queryGid) {
+      throw new Error('Query GID is required');
+    }
+    
+    const response = await axios.delete(`/api/plugins/enterprise/qlQuery`, {
+      params: {
+        qlQueryGid: queryGid
+      }
+    });
+    
+    return response.status === 200;
+    
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect query';
+    message.error(errorMessage);
+    throw error;
+  }
+}
