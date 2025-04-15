@@ -7,7 +7,6 @@ import { DatabaseOutlined, SyncOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { useWorkspaceDataSources } from '../hooks/useWorkspaceDataSources';
-import DataSourcesList from './DataSourcesList';
 import { DataSource } from '../types/datasource.types';
 
 interface DataSourcesTabProps {
@@ -105,13 +104,13 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         )}
       
       {/* Data Sources List */}
-      <DataSourcesList
+      {/* <DataSourcesList
         dataSources={dataSources}
         loading={loading && !error}
         error={error}
         environment={environment}
         onToggleManaged={handleToggleManagedDataSource}
-      />
+      /> */}
     </Card>
   );
 };

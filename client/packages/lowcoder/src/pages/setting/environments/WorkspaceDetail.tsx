@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";
 import history from "@lowcoder-ee/util/history";
-import DataSourcesList from './components/DataSourcesList';
 import { 
   Spin, 
   Typography, 
@@ -23,8 +22,6 @@ import {
 } from "@ant-design/icons";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useWorkspace } from "./hooks/useWorkspace";
-import AppsTab from "./components/AppsTab";
-import DataSourcesTab from "./components/DataSourcesTab";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 import { appsConfig } from "./config/apps.config";
 import { dataSourcesConfig } from "./config/data-sources.config";

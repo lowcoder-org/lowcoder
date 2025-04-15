@@ -16,6 +16,12 @@ export interface MergedDataSourcesResult {
   stats: DataSourceStats;
 }
 
+export interface DeployDataSourceParams {
+  envId: string;
+  targetEnvId: string;
+  datasourceId: string;
+  updateDependenciesIfNeeded?: boolean;
+}
 // Get data sources for a workspace - using your correct implementation
 export async function getWorkspaceDataSources(
   workspaceId: string, 
@@ -144,34 +150,12 @@ export async function getMergedWorkspaceDataSources(
 }
 
 // Function to deploy a data source to another environment
-export interface DeployDataSourceParams {
-  envId: string;
-  targetEnvId: string;
-  datasourceId: string;
-  updateDependenciesIfNeeded?: boolean;
-}
-
-export const deployDataSource = async (
-  params: DeployDataSourceParams, 
-  apiServiceUrl: string
-): Promise<boolean> => {
+export async function deployDataSource(params: DeployDataSourceParams): Promise<boolean> {
   try {
-    const response = await axios.post(
-      `${apiServiceUrl}/api/plugins/enterprise/deploy-datasource`, 
-      null, 
-      { 
-        params: {
-          envId: params.envId,
-          targetEnvId: params.targetEnvId,
-          datasourceId: params.datasourceId,
-          updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
-        }
-      }
-    );
-    
+    const response = await axios.post('/api/plugins/enterprise/datasource/deploy', params);
     return response.status === 200;
   } catch (error) {
     console.error('Error deploying data source:', error);
     throw error;
   }
-};
+}

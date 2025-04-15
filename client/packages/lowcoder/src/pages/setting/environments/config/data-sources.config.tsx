@@ -5,7 +5,7 @@ import { DatabaseOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { DeployableItemConfig } from '../types/deployable-item.types';
 import { DataSource, DataSourceStats } from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
-import { getMergedWorkspaceDataSources } from '../services/datasources.service';
+import { getMergedWorkspaceDataSources, deployDataSource } from '../services/datasources.service';
 import { connectManagedDataSource, unconnectManagedDataSource } from '../services/enterprise.service';
 
 
@@ -144,5 +144,25 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
       console.error('Error toggling managed status:', error);
       return false;
     }
+  },
+  deploy: {
+    enabled: true,
+    fields: [
+      {
+        name: 'updateDependenciesIfNeeded',
+        label: 'Update Dependencies If Needed',
+        type: 'checkbox',
+        defaultValue: false
+      }
+    ],
+    prepareParams: (item: DataSource, values: any, sourceEnv: Environment, targetEnv: Environment) => {
+      return {
+        envId: sourceEnv.environmentId,
+        targetEnvId: targetEnv.environmentId,
+        datasourceId: item.id,
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+      };
+    },
+    execute: (params: any) => deployDataSource(params)
   }
 };

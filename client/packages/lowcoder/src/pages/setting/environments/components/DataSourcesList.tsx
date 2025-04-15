@@ -7,7 +7,6 @@ import { CloudUploadOutlined } from '@ant-design/icons';
 import { DataSource } from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
 import { ColumnsType } from 'antd/lib/table';
-import DeployDataSourceModal from './DeployDataSourceModal';
 
 interface DataSourcesListProps {
   dataSources: DataSource[];
@@ -122,13 +121,13 @@ const DataSourcesList: React.FC<DataSourcesListProps> = ({
         }}
       />
       
-      <DeployDataSourceModal
+      {/* <DeployDataSourceModal
         visible={deployModalVisible}
         dataSource={selectedDataSource}
         currentEnvironment={environment}
         onClose={() => setDeployModalVisible(false)}
         onSuccess={onRefresh}
-      />
+      /> */}
     </>
   );
 };
