@@ -1,0 +1,71 @@
+// types/deployable-item.types.ts
+import { ReactNode } from 'react';
+import { Environment } from './environment.types';
+
+// Base interface for all deployable items
+export interface DeployableItem {
+  id: string;
+  name: string;
+  managed?: boolean;
+  [key: string]: any; // Allow for item-specific properties
+}
+
+// Workspace specific implementation
+export interface Workspace extends DeployableItem {
+  id: string;
+  name: string;
+  role?: string;
+  creationDate?: number;
+  status?: string;
+  managed?: boolean;
+  gid?: string;
+}
+
+// Stats interface that can be extended for specific item types
+export interface BaseStats {
+  total: number;
+  managed: number;
+  unmanaged: number;
+}
+
+export interface WorkspaceStats extends BaseStats {}
+
+// Configuration for each deployable item type
+export interface DeployableItemConfig<T extends DeployableItem, S extends BaseStats> {
+  // Identifying info
+  type: string; // e.g., 'workspaces'
+  singularLabel: string; // e.g., 'Workspace'
+  pluralLabel: string; // e.g., 'Workspaces'
+  
+  // UI elements
+  icon: ReactNode; // Icon to use in stats
+  
+  // Navigation
+  buildDetailRoute: (params: Record<string, string>) => string;
+  
+  // Configuration
+  requiredEnvProps: string[]; // Required environment properties
+  
+  // Customization
+  idField: string; // Field to use as the ID (e.g., 'id')
+  
+  // Stats
+  renderStats: (stats: S) => ReactNode;
+  calculateStats: (items: T[]) => S;
+  
+  // Table configuration
+  columns: Array<{
+    title: string;
+    dataIndex?: string;
+    key: string;
+    render?: (value: any, record: T) => ReactNode;
+    ellipsis?: boolean;
+  }>;
+  
+  // Deployable configuration
+  enableManaged: boolean;
+  
+  // Service functions
+  fetchItems: (params: { environment: Environment, [key: string]: any }) => Promise<T[]>;
+  toggleManaged: (params: { item: T; checked: boolean; environment: Environment }) => Promise<boolean>;
+}

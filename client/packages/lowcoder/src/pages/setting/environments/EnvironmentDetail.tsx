@@ -21,6 +21,9 @@ import {
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
+import { workspaceConfig } from "./config/workspace.config";
+import DeployableItemsTab from "./components/DeployableItemsTab";
+
 
 
 const { Title, Text } = Typography;
@@ -154,15 +157,13 @@ const EnvironmentDetail: React.FC = () => {
 
       {/* Tabs for Workspaces and User Groups */}
       <Tabs defaultActiveKey="workspaces">
-        <TabPane
-          tab={
-            <span>
-              <ClusterOutlined /> Workspaces
-            </span>
-          }
-          key="workspaces"
-        >
-          <WorkspacesTab environment={environment} />
+      <TabPane tab="Workspaces" key="workspaces">
+          {/* Using our new generic component with the workspace config */}
+          <DeployableItemsTab
+            environment={environment}
+            config={workspaceConfig}
+            title="Workspaces in this Environment"
+          />
         </TabPane>
         <TabPane
           tab={
