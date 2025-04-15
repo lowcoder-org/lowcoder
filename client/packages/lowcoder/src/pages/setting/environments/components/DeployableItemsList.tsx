@@ -1,9 +1,11 @@
 // components/DeployableItemsList.tsx
 import React from 'react';
-import { Table, Tag, Empty, Spin, Switch, Space } from 'antd';
+import { Table, Tag, Empty, Spin, Switch, Space, Button, Tooltip } from 'antd';
+import { CloudUploadOutlined } from '@ant-design/icons';
 import history from '@lowcoder-ee/util/history';
 import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
+import { useDeployModal } from '../context/DeployModalContext';
 
 interface DeployableItemsListProps<T extends DeployableItem, S extends BaseStats> {
   items: T[];
@@ -26,6 +28,10 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
   onToggleManaged,
   additionalParams = {}
 }: DeployableItemsListProps<T, S>) {
+
+  const { openDeployModal } = useDeployModal();
+
+
   // Handle row click for navigation
  // Handle row click for navigation
 const handleRowClick = (item: T) => {
@@ -71,6 +77,32 @@ const handleRowClick = (item: T) => {
       ),
     });
   }
+
+   // Add deploy action column if enabled
+   if (config.deploy?.enabled) {
+    columns.push({
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record: T) => (
+        <Space>
+          <Tooltip title={`Deploy this ${config.singularLabel.toLowerCase()} to another environment`}>
+            <Button
+              icon={<CloudUploadOutlined />}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent row click navigation
+                openDeployModal(record, config, environment);
+              }}
+              type="primary"
+              ghost
+            >
+              Deploy
+            </Button>
+          </Tooltip>
+        </Space>
+      ),
+    });
+  }
+
 
   if (loading) {
     return (

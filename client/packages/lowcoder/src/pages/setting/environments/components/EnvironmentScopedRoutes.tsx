@@ -4,6 +4,7 @@ import { EnvironmentProvider } from "../context/EnvironmentContext";
 
 import EnvironmentDetail from "../EnvironmentDetail";
 import WorkspaceDetail from "../WorkspaceDetail";
+import { DeployModalProvider } from "../context/DeployModalContext";
 
 import {
   ENVIRONMENT_DETAIL,
@@ -15,6 +16,8 @@ const EnvironmentScopedRoutes: React.FC = () => {
 
   return (
     <EnvironmentProvider envId={environmentId}>
+
+      <DeployModalProvider>
       <Switch>
         <Route exact path={ENVIRONMENT_DETAIL}>
           <EnvironmentDetail />
@@ -24,6 +27,7 @@ const EnvironmentScopedRoutes: React.FC = () => {
           <WorkspaceDetail />
         </Route>
       </Switch>
+      </DeployModalProvider>
     </EnvironmentProvider>
   );
 };

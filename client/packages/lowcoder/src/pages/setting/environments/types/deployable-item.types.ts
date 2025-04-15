@@ -30,6 +30,15 @@ export interface BaseStats {
 
 export interface WorkspaceStats extends BaseStats {}
 
+
+export interface DeployField {
+  name: string;
+  label: string;
+  type: 'checkbox' | 'select' | 'input';
+  defaultValue?: any;
+  required?: boolean;
+  options?: Array<{label: string, value: any}>; // For select fields
+}
 // Configuration for each deployable item type
 export interface DeployableItemConfig<T extends DeployableItem, S extends BaseStats> {
   // Identifying info
@@ -68,4 +77,11 @@ export interface DeployableItemConfig<T extends DeployableItem, S extends BaseSt
   // Service functions
   fetchItems: (params: { environment: Environment, [key: string]: any }) => Promise<T[]>;
   toggleManaged: (params: { item: T; checked: boolean; environment: Environment }) => Promise<boolean>;
+
+  deploy?: {
+    enabled: boolean;
+    fields: DeployField[];
+    prepareParams: (item: T, values: any, sourceEnv: Environment, targetEnv: Environment) => any;
+    execute: (params: any) => Promise<any>;
+  };
 }

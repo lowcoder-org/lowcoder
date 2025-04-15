@@ -4,7 +4,7 @@ import { Row, Col, Statistic, Tag, Space, Button, Tooltip } from 'antd';
 import { AppstoreOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import {DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
-import { getMergedWorkspaceApps } from '../services/apps.service';
+import { getMergedWorkspaceApps, deployApp } from '../services/apps.service';
 import { connectManagedApp, unconnectManagedApp } from '../services/enterprise.service';
 import { App, AppStats } from '../types/app.types';
 
@@ -81,27 +81,6 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
         </Tag>
       ),
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record: App) => (
-        <Space>
-          <Tooltip title="Deploy to another environment">
-            <Button
-              icon={<CloudUploadOutlined />}
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent row click navigation
-                // Deploy action will be handled by the DeployItemModal
-              }}
-              type="primary"
-              ghost
-            >
-              Deploy
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
-    }
   ],
   
   // Deployment options
@@ -139,5 +118,48 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
       console.error('Error toggling managed status:', error);
       return false;
     }
+  },
+  // deployment options
+
+  deploy: {
+    enabled: true,
+    fields: [
+      {
+        name: 'updateDependenciesIfNeeded',
+        label: 'Update Dependencies If Needed',
+        type: 'checkbox',
+        defaultValue: false
+      },
+      {
+        name: 'publishOnTarget',
+        label: 'Publish On Target',
+        type: 'checkbox',
+        defaultValue: false
+      },
+      {
+        name: 'publicToAll',
+        label: 'Public To All',
+        type: 'checkbox',
+        defaultValue: false
+      },
+      {
+        name: 'publicToMarketplace',
+        label: 'Public To Marketplace',
+        type: 'checkbox',
+        defaultValue: false
+      }
+    ],
+    prepareParams: (item: App, values: any, sourceEnv: Environment, targetEnv: Environment) => {
+      return {
+        envId: sourceEnv.environmentId,
+        targetEnvId: targetEnv.environmentId,
+        applicationId: item.applicationId,
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
+        publishOnTarget: values.publishOnTarget,
+        publicToAll: values.publicToAll,
+        publicToMarketplace: values.publicToMarketplace,
+      };
+    },
+    execute: (params: any) => deployApp(params)
   }
 };
