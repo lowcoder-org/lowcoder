@@ -1,6 +1,7 @@
 package org.lowcoder.api.authentication;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.lowcoder.api.authentication.dto.APIKeyRequest;
 import org.lowcoder.api.authentication.dto.AuthConfigRequest;
 import org.lowcoder.api.authentication.service.AuthenticationApiService;
@@ -12,6 +13,7 @@ import org.lowcoder.api.usermanagement.view.APIKeyVO;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.user.model.APIKey;
+import org.lowcoder.domain.user.service.EmailCommunicationService;
 import org.lowcoder.domain.user.service.UserService;
 import org.lowcoder.sdk.auth.AbstractAuthConfig;
 import org.lowcoder.sdk.util.CookieHelper;
@@ -20,9 +22,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
+import reactor.core.publisher.Mono;
 
 @RequiredArgsConstructor
 @RestController
@@ -34,6 +36,7 @@ public class AuthenticationController implements AuthenticationEndpoints
     private final CookieHelper cookieHelper;
     private final BusinessEventPublisher businessEventPublisher;
     private final UserService userService;
+    private final EmailCommunicationService emailCommunicationService;
 
     /**
      * login by email or phone with password; or register by email for now.
@@ -133,5 +136,14 @@ public class AuthenticationController implements AuthenticationEndpoints
     public Mono<ResponseView<?>> bindEmail(@RequestParam String email) {
         return sessionUserService.getVisitor().flatMap(user -> userService.bindEmail(user, email))
                 .map(ResponseView::success);
+    }
+
+    @Override
+    public Mono<ResponseView<Boolean>> sendInvitationEmails(InviteEmailRequest req) {
+        boolean isSuccess = emailCommunicationService.sendInvitationEmails(req.emails(), 
+        req.inviteLink(), 
+        "You have been invited to join our platform. Click here to accept the invitation: %s");
+        
+        return Mono.just(ResponseView.success(isSuccess));
     }
 }

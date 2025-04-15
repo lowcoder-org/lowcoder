@@ -151,6 +151,15 @@ public interface AuthenticationEndpoints
 	)
 	@PostMapping("/email/bind")
 	public Mono<ResponseView<?>> bindEmail(@RequestParam String email);
+	
+	@Operation(
+			tags = TAG_AUTHENTICATION,
+			operationId = "sendInvitationEmails",
+			summary = "Send invitation emails",
+			description = "Send invitation emails to the specified addresses"
+	)
+	@PostMapping("/email/invite")
+	public Mono<ResponseView<Boolean>> sendInvitationEmails(@RequestBody InviteEmailRequest req);
 
     /**
      * @param loginId phone number or email for now.
@@ -159,4 +168,11 @@ public interface AuthenticationEndpoints
      */
     public record FormLoginRequest(String loginId, String password, boolean register, String source, String authId) {
     }
-}
+	/**
+	 * @param emails email addresses to send the invitation to
+	 * @param inviteLink the link to be included in the email
+	 */
+	public record InviteEmailRequest(String[] emails, String inviteLink) {
+	}
+}	
+

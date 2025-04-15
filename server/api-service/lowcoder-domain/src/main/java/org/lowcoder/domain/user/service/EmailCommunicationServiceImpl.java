@@ -50,7 +50,7 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
     }
 
     @Override
-    public boolean sendInviteEmail(String[] to, String inviteLink, String message) {
+    public boolean sendInvitationEmails(String[] to, String inviteLink, String message) {
         try {
             String subject = "You've been invited!";
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
@@ -62,7 +62,7 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
             mimeMessageHelper.setSubject(subject);
 
             // Construct the message with the invite link
-            String formattedMessage = String.format(message, String.join(", ", to), inviteLink);
+            String formattedMessage = String.format(message, inviteLink);
             mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
 
             javaMailSender.send(mimeMessage);
