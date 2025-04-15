@@ -161,11 +161,14 @@ export const connectManagedDataSource = async (
   datasourceGid: string
 ): Promise<void> => {
   try {
-    await axios.post(`/api/plugins/enterprise/datasource`, {
-      environmentId,
+    const payload = {
+      environment_id: environmentId,
       name,
-      datasourceGid
-    });
+      datasource_gid: datasourceGid,
+    };
+
+
+    await axios.post(`/api/plugins/enterprise/datasource`, payload);
   } catch (error) {
     console.error("Error connecting managed data source:", error);
     throw error;
