@@ -23,6 +23,9 @@ import org.lowcoder.domain.authentication.AuthenticationService;
 import org.lowcoder.domain.authentication.FindAuthConfig;
 import org.lowcoder.domain.authentication.context.AuthRequestContext;
 import org.lowcoder.domain.authentication.context.FormAuthRequestContext;
+import org.lowcoder.domain.group.model.GroupMember;
+import org.lowcoder.domain.group.service.GroupMemberService;
+import org.lowcoder.domain.organization.model.MemberRole;
 import org.lowcoder.domain.organization.model.OrgMember;
 import org.lowcoder.domain.organization.model.Organization;
 import org.lowcoder.domain.organization.model.OrganizationDomain;
@@ -73,6 +76,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
     private final JWTUtils jwtUtils;
     private final AuthProperties authProperties;
     private final CommonConfig commonConfig;
+    private final GroupMemberService groupMemberService;
 
     @Override
     public Mono<AuthUser> authenticateByForm(String loginId, String password, String source, boolean register, String authId, String orgId) {
@@ -143,7 +147,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                     return Mono.empty();
                 })
                 // after login
-                .delayUntil(user -> onUserLogin(authUser.getOrgId(), user, authUser.getSource()))
+                .delayUntil(user -> onUserLogin(authUser.getOrgId(), user, authUser.getSource(), authUser.getGroupId()))
                 // process invite
                 .delayUntil(__ -> {
                     if (StringUtils.isBlank(invitationId)) {
@@ -241,7 +245,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return organizationService.createDefault(user, isSuperAdmin).then();
     }
 
-    protected Mono<Void> onUserLogin(String orgId, User user, String source) {
+    protected Mono<Void> onUserLogin(String orgId, User user, String source, String groupId) {
         Mono<String> orgMono;
         if(commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
             orgMono = organizationService.getOrganizationInEnterpriseMode().map(HasIdAndAuditing::getId);
@@ -251,7 +255,14 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             }
             orgMono = Mono.just(orgId);
         }
-        return orgMono.flatMap(orgId2 -> orgApiService.tryAddUserToOrgAndSwitchOrg(orgId2, user.getId())).then();
+        Mono<GroupMember> groupMember = groupMemberService.getGroupMember(groupId, user.getId()).switchIfEmpty(Mono.defer(() -> {
+            GroupMember groupMember1 = GroupMember.builder()
+                    .groupId(groupId)
+                    .userId(user.getId())
+                    .build();
+            return groupMemberService.addMember(orgId, groupId, user.getId(), MemberRole.MEMBER).thenReturn(groupMember1);
+        }));
+        return orgMono.flatMap(orgId2 -> orgApiService.tryAddUserToOrgAndSwitchOrg(orgId2, user.getId())).then(groupMember).then();
     }
 
     @Override
