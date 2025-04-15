@@ -1,6 +1,7 @@
 /**
  * Get merged queries (both regular and managed) for a workspace
  */
+import axios from 'axios';
 import { getManagedQueries } from './enterprise.service';
 import { getWorkspaceQueries } from './environments.service';
 import { Query } from '../types/query.types';
@@ -12,6 +13,14 @@ export interface MergedQueriesResult {
       unmanaged: number;
     };
   }
+
+  export interface DeployQueryParams {
+    envId: string;
+    targetEnvId: string;
+    queryId: string;
+    updateDependenciesIfNeeded?: boolean;
+  }
+  
   
   export async function getMergedWorkspaceQueries(
     workspaceId: string,
@@ -63,6 +72,16 @@ export interface MergedQueriesResult {
       
     } catch (error) {
       console.error("Error in getMergedWorkspaceQueries:", error);
+      throw error;
+    }
+  }
+
+  export async function deployQuery(params: DeployQueryParams): Promise<boolean> {
+    try {
+      const response = await axios.post('/api/plugins/enterprise/qlQuery/deploy', params);
+      return response.status === 200;
+    } catch (error) {
+      console.error('Error deploying query:', error);
       throw error;
     }
   }

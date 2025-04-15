@@ -5,7 +5,8 @@ import { ApiOutlined } from '@ant-design/icons';
 import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Query } from '../types/query.types';
 import { connectManagedQuery, unconnectManagedQuery } from '../services/enterprise.service';
-import { getMergedWorkspaceQueries } from '../services/query.service';
+import { getMergedWorkspaceQueries, deployQuery } from '../services/query.service';
+import { Environment } from '../types/environment.types';
 
 // Define QueryStats interface
 export interface QueryStats {
@@ -117,5 +118,25 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
       console.error('Error toggling managed status:', error);
       return false;
     }
+  },
+  deploy: {
+    enabled: true,
+    fields: [
+      {
+        name: 'updateDependenciesIfNeeded',
+        label: 'Update Dependencies If Needed',
+        type: 'checkbox',
+        defaultValue: false
+      }
+    ],
+    prepareParams: (item: Query, values: any, sourceEnv: Environment, targetEnv: Environment) => {
+      return {
+        envId: sourceEnv.environmentId,
+        targetEnvId: targetEnv.environmentId,
+        queryId: item.id,
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+      };
+    },
+    execute: (params: any) => deployQuery(params)
   }
 };
