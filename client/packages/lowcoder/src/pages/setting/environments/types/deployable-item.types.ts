@@ -3,6 +3,13 @@ import { ReactNode } from 'react';
 import { Environment } from './environment.types';
 
 // Base interface for all deployable items
+export interface AuditConfig {
+  enabled: boolean;
+  icon?: React.ReactNode;
+  label?: string;
+  tooltip?: string;
+  getAuditUrl: (item: any, environment: Environment, additionalParams?: Record<string, any>) => string;
+}
 export interface DeployableItem {
   id: string;
   name: string;
@@ -61,6 +68,10 @@ export interface DeployableItemConfig<T extends DeployableItem, S extends BaseSt
   // Stats
   renderStats: (stats: S) => ReactNode;
   calculateStats: (items: T[]) => S;
+
+  // Add audit configuration
+  audit?: AuditConfig;
+  
   
   // Table configuration
   columns: Array<{

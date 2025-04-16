@@ -1,7 +1,7 @@
 // config/workspace.config.tsx
 import React from 'react';
 import { Row, Col, Statistic, Tag } from 'antd';
-import { ClusterOutlined } from '@ant-design/icons';
+import { ClusterOutlined, AuditOutlined } from '@ant-design/icons';
 import { Workspace, WorkspaceStats, DeployableItemConfig } from '../types/deployable-item.types';
 import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
 import { getMergedEnvironmentWorkspaces } from '../services/workspace.service';
@@ -98,6 +98,15 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
       environment.environmentApiServiceUrl!
     );
     return result.workspaces;
+  },
+
+  audit: {
+    enabled: true,
+    icon: <AuditOutlined />,
+    label: 'Audit',
+    tooltip: 'View audit logs for this workspace',
+    getAuditUrl: (item, environment) => 
+      `/setting/audit?environmentId=${environment.environmentId}&orgId=${item.id}&pageSize=100&pageNum=1`
   },
   
   toggleManaged: async ({ item, checked, environment }) => {

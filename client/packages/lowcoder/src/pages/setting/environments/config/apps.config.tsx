@@ -1,7 +1,7 @@
 // config/apps.config.tsx
 import React from 'react';
 import { Row, Col, Statistic, Tag, Space, Button, Tooltip } from 'antd';
-import { AppstoreOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, AuditOutlined } from '@ant-design/icons';
 import {DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import { getMergedWorkspaceApps, deployApp } from '../services/apps.service';
@@ -105,7 +105,16 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
       id: app.applicationId // Map applicationId to id for DeployableItem compatibility
     }));
   },
-  
+  audit: {
+    enabled: true,
+    icon: <AuditOutlined />,
+    label: 'Audit',
+    tooltip: 'View audit logs for this app',
+    getAuditUrl: (item, environment, additionalParams) => {
+      console.log("Additional params:", additionalParams);
+      return `/setting/audit?environmentId=${environment.environmentId}&orgId=${item.id}&appId=${additionalParams?.workspaceId}&pageSize=100&pageNum=1`
+    }
+  },
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {

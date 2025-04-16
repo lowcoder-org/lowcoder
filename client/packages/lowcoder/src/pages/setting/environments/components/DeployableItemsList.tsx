@@ -31,6 +31,15 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
 
   const { openDeployModal } = useDeployModal();
 
+  // Open audit page 
+  const openAuditPage = (item: T, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (config.audit?.getAuditUrl) {
+      const auditUrl = config.audit.getAuditUrl(item, environment, additionalParams);
+      window.open(auditUrl, '_blank');
+    }
+  };
+
 
   // Handle row click for navigation
  // Handle row click for navigation
@@ -103,6 +112,25 @@ const handleRowClick = (item: T) => {
     });
   }
 
+  const hasAudit = config.audit?.enabled;
+
+// Add audit column if enabled - SEPARATE CONDITION
+    if (config.audit?.enabled) {
+      columns.push({
+        title: 'Audit',
+        key: 'audit',
+        render: (_, record: T) => (
+          <Tooltip title={config.audit?.tooltip || `View audit logs`}>
+            <Button
+              icon={config.audit?.icon}
+              onClick={(e) => openAuditPage(record, e)}
+            >
+              {config.audit?.label || 'Audit'}
+            </Button>
+          </Tooltip>
+        ),
+      });
+    }
 
   if (loading) {
     return (
