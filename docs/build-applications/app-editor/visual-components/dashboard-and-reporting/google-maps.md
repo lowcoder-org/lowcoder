@@ -142,3 +142,41 @@ To display only the Map and use the JavaScript API, "Map Embed API" and "Maps Ja
 Now you can create and see your Google Maps API Key. It is suggested that you limit the Traffic by a Domain or IP Range.
 
 <figure><img src="../../../../.gitbook/assets/Google Maps APIs API Key.png" alt=""><figcaption></figcaption></figure>
+
+#### Properties of the Google Map <a href="#properties-of-the-table" id="properties-of-the-table"></a>
+
+These properties are accessible in \{{ \}} notations, as well as in JavaScript Queries.
+
+<table><thead><tr><th width="176.38671875">Property Name</th><th width="114.9921875">Type</th><th>Description</th></tr></thead><tbody><tr><td>data</td><td>Array</td><td>Returns an Array containing the data fed to the chartsGeooMap component</td></tr><tr><td>lastInteractionData</td><td>Object</td><td>Returns an Object containing the details about the Location point, which a User interacted most lately </td></tr><tr><td>selectedPoints</td><td>Array</td><td></td></tr><tr><td>title</td><td>String</td><td>Returns title of the Chart</td></tr></tbody></table>
+
+#### Events <a href="#events" id="events"></a>
+
+Events give you the ability to trigger further actions (with Event-Handlers).
+
+<table><thead><tr><th width="201.359375">Event Name</th><th width="495.39453125">Description</th></tr></thead><tbody><tr><td>MapReady</td><td>MapReady event gets triggered when Map is completley loaded, and is ready for the User interaction.</td></tr><tr><td>Zoom Level Change</td><td>This event gets triggered when Zoom level of the Map is changed.</td></tr><tr><td>Center Position Change</td><td>This event gets triggered when Map is dragged and it's center position changes OR when default lat, lon are changed.</td></tr></tbody></table>
+
+#### Methods <a href="#methods" id="methods"></a>
+
+You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
+
+**getMapCenterPosition() :**&#x20;
+
+chartsGeoMap1.getMapCenterPosition() method returns an object that contains the center position of the Geo Map i.e, lat, long.
+
+```javascript
+chartsGeoMap1.getMapCenterPosition();
+```
+
+**getMapInstance() :**&#x20;
+
+```javascript
+chartsGeoMap1.getMapInstance();
+```
+
+**getMapZoomLevel() :**&#x20;
+
+chartsGeoMap1.getMapZoomLevel() method returns the current Zoom level on the Geo Map.
+
+```javascript
+chartsGeoMap1.getMapZoomLevel();
+```

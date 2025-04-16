@@ -65,5 +65,147 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="247.83984375">Method Name</th><th width="446.3984375">Description</th></tr></thead><tbody><tr><td>clearDeletedEvents</td><td>Clears the data in the property toDeletedEvent</td></tr><tr><td>clearInsertedEvents</td><td>Clears the data in the property toInsertedEvent</td></tr><tr><td>clearUpdatedEvents</td><td>Clears the data in the property toUpdatedEvent</td></tr><tr><td>setResources</td><td>Set the data for the property Resources</td></tr><tr><td>clearResources</td><td>Clear the data for the property Resources</td></tr><tr><td>resetResources</td><td>Reset the data for the property Resources</td></tr><tr><td>setDayGridDayView</td><td>Switches the Calendar view to 'Day Grid Day', displaying a Single day in a grid layout that includes all events for that day.</td></tr><tr><td>setDayGridWeeklyView</td><td>Switches the Calendar view to 'Day Grid Week', where the days of the week are displayed as Columns and Events are laid out in Grid form.</td></tr><tr><td>setDayGridMonthlyView</td><td>Switches the Calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.</td></tr><tr><td>setListWeekView</td><td>Switches the Calendar view to 'List Week', which provides a list-style overview of all the events happening throughout the week.</td></tr><tr><td>setMultiMonthYearView</td><td>Switches the Calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.</td></tr><tr><td>setResourceTimeGridDayView</td><td>Switches the Calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of the Single day along the horizontal axis.</td></tr><tr><td>setResourceTimelineDayView</td><td>Switches the Calendar view to 'Resource Timeline Day', showing Events against a timeline for a Single day, segmented by Resources.</td></tr><tr><td>setTimeGridDayView</td><td>Switches the Calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a Single day.</td></tr><tr><td>setTimeGridWeekView</td><td>Switches the Calendar view to 'Day Grid Week', where the days of the week are displayed as Columns and Events are laid out in Grid form.</td></tr></tbody></table>
+**setResources() :**&#x20;
 
+calendar1.setResources() method sets the Calendar's Resources property. This method takes an Array of Object/s as an argument.
+
+```javascript
+calendar1.setResources(
+  [
+    {
+        "id": "1",
+        "title": "South Auditorium"
+    },
+    {
+        "id": "2",
+        "title": "West Auditorium",
+        "eventColor": "gree"
+    },
+    {
+        "id": "3",
+        "title": "HQ Auditorium",
+        "children": [
+            {
+                "id": "r1",
+                "title": "Room 1"
+            },
+            {
+                "id": "r2",
+                "title": "Room 2"
+            }
+        ]
+    }
+]);
+```
+
+**clearResources() :**&#x20;
+
+calendar1.clearResources() method clears the Calendar's Resources property, and removes all the Resources.
+
+```javascript
+calendar1.clearResources();
+```
+
+**resetResources() :**&#x20;
+
+calendar1.resetResources() method resets the Calendar's Resources property to the default data.
+
+```javascript
+calendar1.clearResources();
+```
+
+**clearInsertedEvents() :**&#x20;
+
+calendar1.clearInsertedEvents() method clears any newly inserted event on the Calendar component. It clears the value of the **toInsertedEvents** property.
+
+```javascript
+calendar1.clearInsertedEvents();
+```
+
+**clearUpdatedEvents() :**&#x20;
+
+calendar1.clearUpdatedEvents() method clears any updated details on the event of the Calendar component. It clears the value of the **toUpdatedEvents** property.
+
+```javascript
+calendar1.clearUpdatedEvents();
+```
+
+**clearDeletedEvents() :**
+
+calendar1.clearDeletedEvents() method clears any deleted event from the Calendar component. It clears the value of the **toDeletedEvents** property.
+
+```javascript
+calendar1.clearDeletedEvents();
+```
+
+**setDayGridDayView() :**&#x20;
+
+calendar1.setDayGridDayView() method sets the Calendar view where list of the current Day's Events is shown. It switches the Calendar view to 'Day Grid Day', displaying a Single day in a grid layout that includes all events for that day.
+
+```javascript
+calendar1.setDayGridDayView();
+```
+
+**setDayGridMonthView() :**
+
+calendar1.setDayGridMonthView() method sets the Calendar view where current Month is shown. It switches the Calendar view to 'Day Grid Month', presenting the entire month in a grid with events displayed on their respective days.
+
+```javascript
+calendar1.setDayGridMonthView();
+```
+
+**setDayGridWeekView() :**
+
+calendar1.setDayGridWeekView() method sets the Calendar view where list of the current Week's Events is shown. It switches the Calendar view to 'Day Grid Week', where the days of the week are displayed as Columns and Events are laid out in Grid form.
+
+```javascript
+calendar1.setDayGridWeekView();
+```
+
+**setListWeekView() :**
+
+calendar1.setListWeekView() method sets the Calendar view where only those days of the Week are shown which have some Events. It switches the Calendar view to 'List Week', which provides a list-style overview of all the events happening throughout the week.
+
+```javascript
+calendar1.setListWeekView();
+```
+
+**setMultiMonthYearView() :**&#x20;
+
+calendar1.setMultiMonthYearView() method sets the Calendar view where Full current year is shown on the Calendar component with all the 12 months. It switches the Calendar view to 'Multi Month Year', showing multiple months at once, allowing for long-term planning and overview.
+
+```javascript
+calendar1.setMultiMonthYearView();
+```
+
+**setTimeGridDayView() :**
+
+calendar1.setTimeGridDayView() method sets the Calendar view where current Day is shown with full 24 hours timeline. It switches the Calendar view to 'Time Grid Day', which shows a detailed hourly schedule for a Single day.
+
+```javascript
+calendar1.setTimeGridDayView();
+```
+
+**setTimeGridWeekView() :**
+
+calendar1.setTimeGridWeekView() method sets the Calendar view where current Week is shown with full 7 days and 24 hours timeline. It switches the Calendar view to 'Day Grid Week', where the days of the week are displayed as Columns and Events are laid out in Grid form.
+
+```javascript
+calendar1.setTimeGridWeekView();
+```
+
+**setResourceTimeGridDayView() :**
+
+calendar1.setResourceTimeGridDayView() is yet to be implemented. It switches the Calendar view to 'Resource Time Grid Day', which displays resources along the vertical axis and the hours of the Single day along the horizontal axis.
+
+```javascript
+calendar1.setResourceTimeGridDayView();
+```
+
+**setResourceTimelineDayView() :**
+
+calendar1.setResourceTimelineDayView() is yet to be implemented. It switches the Calendar view to 'Resource Timeline Day', showing Events against a timeline for a Single day, segmented by Resources.
+
+```javascript
+calendar1.setResourceTimelineDayView();
+```

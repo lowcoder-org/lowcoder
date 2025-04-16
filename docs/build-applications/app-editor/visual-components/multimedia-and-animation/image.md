@@ -60,8 +60,6 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 <table><thead><tr><th width="152.5625">Event Name</th><th width="495.39453125">Description</th></tr></thead><tbody><tr><td>Click</td><td>Triggers when a User "clicks" on the Image</td></tr></tbody></table>
 
-#### Methods <a href="#methods" id="methods"></a>
-
 ## Insert/Retrieve an Image into/from Database
 
 {% embed url="https://demos.lowcoder.cloud/demo/clzilkh8x1ozt9x77uabp0vfa" %}

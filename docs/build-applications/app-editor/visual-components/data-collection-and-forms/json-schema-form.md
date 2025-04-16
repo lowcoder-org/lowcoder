@@ -41,4 +41,30 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th>Method Name</th><th width="426.51953125">Description</th></tr></thead><tbody><tr><td>setData</td><td>Set the data of the property Data</td></tr><tr><td>clear</td><td>Clear the data of the property Data</td></tr><tr><td>reset</td><td>ReSet the data of the property Data</td></tr></tbody></table>
+**setData() :**&#x20;
+
+jsonSchemaForm1.setData() method sets the json Schema Form's data property, which fills up all the components that are present/added into the json Schema Form component. This method takes Object as an argument. For example, for a json Schema Form having an input field, a number input field and a Date component, following code will set the Data of the json Schema Form component.
+
+```javascript
+jsonSchemaForm1.setData({
+  name: "Alison",
+  phone: "+44 20 7123 4567",
+  birthday: "1999-09-09"
+});
+```
+
+**clearData() :**&#x20;
+
+jsonSchemaForm1.clearData() clears the json Schema Form's Data property and empties the values from the json Schema Form component.
+
+```javascript
+jsonSchemaForm1.clearData();
+```
+
+**resetData() :**&#x20;
+
+jsonSchemaForm1.resetData()  method resets the json Schema Form's Data property to the default data of the json Schema Form component.
+
+```javascript
+jsonSchemaForm1.resetData();
+```

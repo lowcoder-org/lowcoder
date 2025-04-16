@@ -18,8 +18,6 @@ You can input an array of strings to restrict the types of the files to be uploa
 
 For example, when the value of file type is `[".pdf", ".mp4", "image/*"]`, you can upload PDF files, MP4 files, and any type of image files.
 
-
-
 ### Upload type
 
 You can decide whether to upload a single file, multiple files, or a directory.
@@ -123,5 +121,10 @@ Events give you the ability to trigger further actions (with Event-Handlers)
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events
 
-<table><thead><tr><th>Method Name</th><th width="414.25">Description</th></tr></thead><tbody><tr><td>clearValue</td><td>Clears all the currently uploaded files. It deletes all the uploaded files.</td></tr></tbody></table>
+**clearValue() :**&#x20;
 
+file1.clearValue() clears the File component's value property and removes the uploaded file from the File component.
+
+```javascript
+file1.clearValue();
+```

@@ -45,11 +45,82 @@ Events give you the ability to trigger further actions (with Event-Handlers).
 
 You have the capability to engage with components via their respective methods, which can be accessed by their designated names within any segment where JavaScript is utilized. Additionally, these components can be activated through the 'Control Component' action, which is triggered in response to specific events.
 
-<table><thead><tr><th width="172.3359375">Method Name</th><th width="479.24609375">Description</th></tr></thead><tbody><tr><td>setValue</td><td>Set the data/value of the Value property</td></tr><tr><td>setDefaultValue</td><td>Set the data/value of the Default Value property</td></tr><tr><td>setRangeText</td><td>Set the minimum and maximum length of the characters in input type component</td></tr><tr><td>setSelectionRange</td><td>Set the data/value of the Selection Range property</td></tr><tr><td>select</td><td>Set the Text type of the Input type component</td></tr><tr><td>clearValue</td><td>Clear the data/value of the Value property</td></tr><tr><td>clearDefaultValue</td><td>Clear the data/value of the Default Value property</td></tr><tr><td>resetDefaultValue</td><td>Reset the data/value of the Default Value property</td></tr><tr><td>resetValue</td><td>Reset the data/value of the Value property</td></tr><tr><td>click</td><td>Set what happens on Click event on the Input type component</td></tr></tbody></table>
+**setValue() :**&#x20;
 
+input1.setValue() method sets the Input's Value property, which gets shown in the Input component.
 
+```javascript
+input1.setValue("John Nick");
+```
 
+**clearValue() :**&#x20;
 
+input1.clearValue() clears the Input's Value property and empties the value from the Input component.
 
+```javascript
+input1.clearValue();
+```
 
+**resetValue() :**&#x20;
 
+input1.resetValue()  method resets the Input's value property to the default value of the Input component.
+
+```javascript
+input1.resetValue();
+```
+
+**setDefaultValue() :**&#x20;
+
+input1.setDefaultValue() method sets the Input's Default value, which gets shown in the Input component as default.
+
+```javascript
+input1.setDefaultValue("John Nick");
+```
+
+**clearDefaultValue() :**&#x20;
+
+input1.clearDefaultValue() clears the Input's Default value and empties the value from the Input component.
+
+```javascript
+input1.clearDefaultValue();
+```
+
+**resetDefaultValue() :**&#x20;
+
+input1.resetDefaultValue()  method resets the Input's Default value to the default value of the Input component.
+
+```javascript
+input1.resetDefaultValue();
+```
+
+**setRangeText() :**&#x20;
+
+input1.setRangeText() method sets the minimum and maximum value of the inout component. Value of the Input component should lie between the minimum and maximum limits.
+
+```javascript
+input1.setRangeText(3,6);
+```
+
+**setSelectionRange() :**&#x20;
+
+input1.setSelectionRange() sets the Selection Range of the Input component.
+
+```javascript
+input1.setSelectionRange();
+```
+
+**click() :**&#x20;
+
+input1.click()  method sets what happens when User clicks on the Input component.
+
+```javascript
+input1.click();
+```
+
+**select() :**&#x20;
+
+input1.select()  method selects the text type of the Input component.
+
+```javascript
+input1.select();
+```
