@@ -6,6 +6,7 @@ import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
 import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
+import EditEnvironmentModal from "./components/EditEnvironmentModal";
 
 const { Title } = Typography;
 
@@ -15,7 +16,19 @@ const { Title } = Typography;
  */
 const EnvironmentsList: React.FC = () => {
   // Use the shared context instead of a local hook
-  const { environments, isLoadingEnvironments, error, refreshEnvironments } = useEnvironmentContext();
+  const { 
+    environments, 
+    isLoadingEnvironments, 
+    error, 
+    refreshEnvironments,
+    updateEnvironmentData 
+  } = useEnvironmentContext();
+
+  // State for edit modal
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false);
+
 
   // State for search input
   const [searchText, setSearchText] = useState("");
@@ -37,6 +50,33 @@ const EnvironmentsList: React.FC = () => {
   // Handle row click to navigate to environment detail
   const handleRowClick = (record: Environment) => {
     history.push(buildEnvironmentId(record.environmentId));
+  };
+
+
+  // Handle edit button click
+  const handleEditClick = (environment: Environment) => {
+    setSelectedEnvironment(environment);
+    setIsEditModalVisible(true);
+  };
+  
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsEditModalVisible(false);
+    setSelectedEnvironment(null);
+  };
+  
+  // Handle save environment
+  const handleSaveEnvironment = async (environmentId: string, data: Partial<Environment>) => {
+    setIsUpdating(true);
+    try {
+      // Use the context function to update the environment
+      // This will automatically update both the environments list and the detail view
+      await updateEnvironmentData(environmentId, data);
+    } catch (error) {
+      console.error('Failed to update environment:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -94,8 +134,18 @@ const EnvironmentsList: React.FC = () => {
           environments={filteredEnvironments}
           loading={isLoadingEnvironments}
           onRowClick={handleRowClick}
+          onEditClick={handleEditClick}
         />
       )}
+
+      {/* Edit Environment Modal */}
+      <EditEnvironmentModal
+        visible={isEditModalVisible}
+        environment={selectedEnvironment}
+        onClose={handleCloseModal}
+        onSave={handleSaveEnvironment}
+        loading={isUpdating}
+      />
     </div>
   );
 };

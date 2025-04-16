@@ -8,6 +8,44 @@ import { DataSourceWithMeta } from '../types/datasource.types';
 import { Query, QueryResponse } from "../types/query.types";
 
 
+
+
+export async function updateEnvironment(
+  environmentId: string, 
+  environmentData: Partial<Environment>
+): Promise<Environment> {
+  if (!environmentId) {
+    throw new Error("Missing environmentId");
+  }
+
+  try {
+    // Convert frontend model to API model
+    const payload = {
+      environment_description: environmentData.environmentDescription || "",
+      environment_icon: environmentData.environmentIcon || "",
+      environment_name: environmentData.environmentName || "",
+      environment_apikey: environmentData.environmentApikey || "",
+      environment_type: environmentData.environmentType || "",
+      environment_api_service_url: environmentData.environmentApiServiceUrl || "",
+      environment_frontend_url: environmentData.environmentFrontendUrl || "",
+      environment_node_service_url: environmentData.environmentNodeServiceUrl || "",
+      isMaster: environmentData.isMaster || false
+    };
+
+    const res = await axios.put(`/api/plugins/enterprise/environments`, payload, {
+      params: { environmentId }
+    });
+    
+    return res.data;
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to update environment";
+    message.error(errorMsg);
+    throw err;
+  }
+}
+
+
+
 /**
  * Fetch all environments
  * @returns Promise with environments data

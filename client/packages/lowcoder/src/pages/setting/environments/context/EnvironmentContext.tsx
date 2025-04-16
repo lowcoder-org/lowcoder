@@ -1,4 +1,3 @@
-// src/contexts/EnvironmentContext.tsx
 import React, {
   createContext,
   useContext,
@@ -7,10 +6,11 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import { useHistory } from "react-router-dom";
+import { message } from "antd";
 import {
   getEnvironmentById,
   getEnvironments,
+  updateEnvironment,
 } from "../services/environments.service";
 import { Environment } from "../types/environment.types";
 
@@ -29,6 +29,7 @@ interface EnvironmentContextState {
   // Functions
   refreshEnvironment: (envId?: string) => Promise<void>;
   refreshEnvironments: () => Promise<void>;
+  updateEnvironmentData: (envId: string, data: Partial<Environment>) => Promise<Environment>;
 }
 
 const EnvironmentContext = createContext<EnvironmentContextState | undefined>(undefined);
@@ -101,6 +102,35 @@ export const EnvironmentProvider: React.FC<ProviderProps> = ({
     }
   }, []);
 
+  // Function to update an environment
+// Function to update an environment
+const updateEnvironmentData = useCallback(async (
+  environmentId: string, 
+  data: Partial<Environment>
+): Promise<Environment> => {
+  try {
+    const updatedEnv = await updateEnvironment(environmentId, data);
+    
+    // Show success message
+    message.success("Environment updated successfully");
+    
+    // Refresh the environments list
+    fetchEnvironments();
+    
+    // If we're viewing a single environment and it's the one we updated,
+    // refresh that environment data as well
+    if (environment && environment.environmentId === environmentId) {
+      fetchEnvironment(environmentId);
+    }
+    
+    return updatedEnv;
+  } catch (err) {
+    const errorMessage = err instanceof Error ? err.message : "Failed to update environment";
+    message.error(errorMessage);
+    throw err;
+  }
+}, [environment, fetchEnvironment, fetchEnvironments]);
+
   // Initial data loading - just fetch environments list
   useEffect(() => {
     fetchEnvironments();
@@ -115,6 +145,7 @@ export const EnvironmentProvider: React.FC<ProviderProps> = ({
     error,
     refreshEnvironment: fetchEnvironment,
     refreshEnvironments: fetchEnvironments,
+    updateEnvironmentData,
   };
 
   return (

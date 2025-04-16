@@ -1,11 +1,16 @@
 import React from 'react';
-import { Table, Tag } from 'antd';
+import { Table, Tag, Button, Tooltip } from 'antd';
+import { EditOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
+
+
 
 interface EnvironmentsTableProps {
   environments: Environment[];
   loading: boolean;
   onRowClick: (record: Environment) => void;
+  onEditClick: (record: Environment) => void;
+
 }
 
 /**
@@ -14,13 +19,17 @@ interface EnvironmentsTableProps {
 const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   environments,
   loading,
-  onRowClick
+  onRowClick,
+  onEditClick,
 }) => {
   // Get color for environment type/stage
   const getTypeColor = (type: string): string => {
+    if (!type) return 'default'; 
+    
     switch (type.toUpperCase()) {
       case 'DEV': return 'blue';
       case 'TEST': return 'orange';
+      case 'PREPROD': return 'purple';
       case 'PROD': return 'green';
       default: return 'default';
     }
@@ -50,8 +59,8 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       dataIndex: 'environmentType',
       key: 'environmentType',
       render: (type: string) => (
-        <Tag color={getTypeColor(type)}>
-          {type.toUpperCase()}
+        <Tag color={getTypeColor(type || '')}>
+          {type ? type.toUpperCase() : 'UNKNOWN'}
         </Tag>
       ),
     },
@@ -65,6 +74,24 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
         </Tag>
       ),
     },
+    {
+      title: 'Actions',
+      key: 'actions',
+      width: 100,
+      render: (_: any, record: Environment) => (
+        <Tooltip title="Edit Environment">
+          <Button
+            icon={<EditOutlined />}
+            type="text"
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click
+              onEditClick(record);
+            }}
+            aria-label="Edit Environment"
+          />
+        </Tooltip>
+      ),
+    }
   ];
 
   return (
