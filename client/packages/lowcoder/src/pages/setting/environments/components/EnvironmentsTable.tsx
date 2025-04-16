@@ -9,7 +9,6 @@ interface EnvironmentsTableProps {
   environments: Environment[];
   loading: boolean;
   onRowClick: (record: Environment) => void;
-  onEditClick: (record: Environment) => void;
 
 }
 
@@ -20,7 +19,6 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   environments,
   loading,
   onRowClick,
-  onEditClick,
 }) => {
   // Get color for environment type/stage
   const getTypeColor = (type: string): string => {
@@ -74,24 +72,6 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
         </Tag>
       ),
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 100,
-      render: (_: any, record: Environment) => (
-        <Tooltip title="Edit Environment">
-          <Button
-            icon={<EditOutlined />}
-            type="text"
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent row click
-              onEditClick(record);
-            }}
-            aria-label="Edit Environment"
-          />
-        </Tooltip>
-      ),
-    }
   ];
 
   return (

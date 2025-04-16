@@ -20,15 +20,9 @@ const EnvironmentsList: React.FC = () => {
     environments, 
     isLoadingEnvironments, 
     error, 
-    refreshEnvironments,
-    updateEnvironmentData 
   } = useEnvironmentContext();
 
-  // State for edit modal
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [selectedEnvironment, setSelectedEnvironment] = useState<Environment | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false);
-
+  console.log("Environments:", environments);
 
   // State for search input
   const [searchText, setSearchText] = useState("");
@@ -50,33 +44,6 @@ const EnvironmentsList: React.FC = () => {
   // Handle row click to navigate to environment detail
   const handleRowClick = (record: Environment) => {
     history.push(buildEnvironmentId(record.environmentId));
-  };
-
-
-  // Handle edit button click
-  const handleEditClick = (environment: Environment) => {
-    setSelectedEnvironment(environment);
-    setIsEditModalVisible(true);
-  };
-  
-  // Handle modal close
-  const handleCloseModal = () => {
-    setIsEditModalVisible(false);
-    setSelectedEnvironment(null);
-  };
-  
-  // Handle save environment
-  const handleSaveEnvironment = async (environmentId: string, data: Partial<Environment>) => {
-    setIsUpdating(true);
-    try {
-      // Use the context function to update the environment
-      // This will automatically update both the environments list and the detail view
-      await updateEnvironmentData(environmentId, data);
-    } catch (error) {
-      console.error('Failed to update environment:', error);
-    } finally {
-      setIsUpdating(false);
-    }
   };
 
   return (
@@ -101,13 +68,6 @@ const EnvironmentsList: React.FC = () => {
             prefix={<SearchOutlined />}
             allowClear
           />
-          <Button 
-            icon={<ReloadOutlined />} 
-            onClick={() => refreshEnvironments()} 
-            loading={isLoadingEnvironments}
-          >
-            Refresh
-          </Button>
         </Space>
       </div>
 
@@ -134,18 +94,8 @@ const EnvironmentsList: React.FC = () => {
           environments={filteredEnvironments}
           loading={isLoadingEnvironments}
           onRowClick={handleRowClick}
-          onEditClick={handleEditClick}
         />
       )}
-
-      {/* Edit Environment Modal */}
-      <EditEnvironmentModal
-        visible={isEditModalVisible}
-        environment={selectedEnvironment}
-        onClose={handleCloseModal}
-        onSave={handleSaveEnvironment}
-        loading={isUpdating}
-      />
     </div>
   );
 };
