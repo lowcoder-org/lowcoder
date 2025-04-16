@@ -15,16 +15,23 @@ import {
 import { Environment } from "../types/environment.types";
 
 interface EnvironmentContextState {
+  // Environment data
   environment: Environment | null;
   environments: Environment[];
+  
+  // Loading states
   isLoadingEnvironment: boolean;
   isLoadingEnvironments: boolean;
+  
+  // Error state
   error: string | null;
+  
+  // Functions
+  refreshEnvironment: (envId?: string) => Promise<void>;
+  refreshEnvironments: () => Promise<void>;
 }
 
-const EnvironmentContext = createContext<EnvironmentContextState | undefined>(
-  undefined
-);
+const EnvironmentContext = createContext<EnvironmentContextState | undefined>(undefined);
 
 export const useEnvironmentContext = () => {
   const context = useContext(EnvironmentContext);
@@ -37,65 +44,77 @@ export const useEnvironmentContext = () => {
 };
 
 interface ProviderProps {
-  envId: string;
   children: ReactNode;
 }
 
 export const EnvironmentProvider: React.FC<ProviderProps> = ({
-  envId,
   children,
 }) => {
+  // State for environment data
   const [environment, setEnvironment] = useState<Environment | null>(null);
   const [environments, setEnvironments] = useState<Environment[]>([]);
 
-  // Separate loading states
-  const [isLoadingEnvironment, setIsLoadingEnvironment] =
-    useState<boolean>(true);
-  const [isLoadingEnvironments, setIsLoadingEnvironments] =
-    useState<boolean>(true);
+  // Loading states
+  const [isLoadingEnvironment, setIsLoadingEnvironment] = useState<boolean>(false);
+  const [isLoadingEnvironments, setIsLoadingEnvironments] = useState<boolean>(true);
 
+  // Error state
   const [error, setError] = useState<string | null>(null);
-  const history = useHistory();
 
-  const fetchEnvironment = useCallback(async () => {
+  // Function to fetch a specific environment by ID
+  const fetchEnvironment = useCallback(async (environmentId?: string) => {
+    // Only fetch if we have an environment ID
+    if (!environmentId) {
+      setEnvironment(null);
+      return;
+    }
+    
     setIsLoadingEnvironment(true);
+    setError(null);
+    
     try {
-      const data = await getEnvironmentById(envId);
+      const data = await getEnvironmentById(environmentId);
       console.log("Environment data:", data);
       setEnvironment(data);
     } catch (err) {
-      setError("Environment not found or failed to load");
-      history.push("/404"); // or a centralized error route
+      const errorMessage = err instanceof Error ? err.message : "Environment not found or failed to load";
+      setError(errorMessage);
     } finally {
       setIsLoadingEnvironment(false);
     }
-  }, [envId, history]);
+  }, []);
 
+  // Function to fetch all environments
   const fetchEnvironments = useCallback(async () => {
     setIsLoadingEnvironments(true);
+    setError(null);
+    
     try {
       const data = await getEnvironments();
       console.log("Environments data:", data);
       setEnvironments(data);
     } catch (err) {
-      setError("Failed to load environments list");
+      const errorMessage = err instanceof Error ? err.message : "Failed to load environments list";
+      setError(errorMessage);
     } finally {
       setIsLoadingEnvironments(false);
     }
   }, []);
 
+  // Initial data loading - just fetch environments list
   useEffect(() => {
-    fetchEnvironment();
     fetchEnvironments();
-  }, [fetchEnvironment, fetchEnvironments]);
+  }, [fetchEnvironments]);
 
-
+  // Create the context value
   const value: EnvironmentContextState = {
     environment,
     environments,
     isLoadingEnvironment,
     isLoadingEnvironments,
     error,
+    refreshEnvironment: fetchEnvironment,
+    refreshEnvironments: fetchEnvironments,
   };
 
   return (

@@ -19,8 +19,6 @@ import {
 } from "@ant-design/icons";
 
 import { useEnvironmentContext } from "./context/EnvironmentContext";
-import WorkspacesTab from "./components/WorkspacesTab";
-import UserGroupsTab from "./components/UserGroupsTab";
 import { workspaceConfig } from "./config/workspace.config";
 import { userGroupsConfig } from "./config/usergroups.config";
 import DeployableItemsTab from "./components/DeployableItemsTab";
@@ -38,55 +36,30 @@ const EnvironmentDetail: React.FC = () => {
   // Get environment ID from URL params
   const {
     environment,
-    isLoadingEnvironment: envLoading,
-    error: envError,
+    isLoadingEnvironment,
+    error
   } = useEnvironmentContext();  
   
   
   
-  // If loading, show spinner
-  if (envLoading) {
+  if (isLoadingEnvironment) {
     return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100%",
-          padding: "50px",
-        }}
-      >
-        <Spin size="large" tip="Loading environment details..." />
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
+        <Spin size="large" tip="Loading environment..." />
       </div>
     );
   }
 
-  // If error, show error message
-  if (envError) {
+  if (error || !environment) {
     return (
       <Alert
-        message="Error loading environment details"
-        description={envError}
+        message="Error loading environment"
+        description={error || "Environment not found"}
         type="error"
         showIcon
-        style={{ margin: "24px" }}
       />
     );
   }
-
-  // If no environment data, show message
-  if (!environment) {
-    return (
-      <Alert
-        message="Environment not found"
-        description="The requested environment could not be found"
-        type="warning"
-        showIcon
-        style={{ margin: "24px" }}
-      />
-    );
-  }
-   
   return (
     <div className="environment-detail-container" style={{ padding: "24px" }}>
       {/* Header with environment name and controls */}

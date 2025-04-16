@@ -1,7 +1,6 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Switch, Route, useParams } from "react-router-dom";
-import { EnvironmentProvider } from "../context/EnvironmentContext";
-
+import { useEnvironmentContext } from "../context/EnvironmentContext";
 import EnvironmentDetail from "../EnvironmentDetail";
 import WorkspaceDetail from "../WorkspaceDetail";
 import { DeployModalProvider } from "../context/DeployModalContext";
@@ -11,13 +10,23 @@ import {
   ENVIRONMENT_WORKSPACE_DETAIL,
 } from "@lowcoder-ee/constants/routesURL";
 
+/**
+ * Component for routes scoped to a specific environment
+ * Uses the environment ID from the URL parameters to fetch the specific environment
+ */
 const EnvironmentScopedRoutes: React.FC = () => {
-    const { environmentId } = useParams<{ environmentId: string }>();
+  const { environmentId } = useParams<{ environmentId: string }>();
+  const { refreshEnvironment } = useEnvironmentContext();
+  
+  // When the environmentId changes, fetch the specific environment
+  useEffect(() => {
+    if (environmentId) {
+      refreshEnvironment(environmentId);
+    }
+  }, [environmentId, refreshEnvironment]);
 
   return (
-    <EnvironmentProvider envId={environmentId}>
-
-      <DeployModalProvider>
+    <DeployModalProvider>
       <Switch>
         <Route exact path={ENVIRONMENT_DETAIL}>
           <EnvironmentDetail />
@@ -27,8 +36,7 @@ const EnvironmentScopedRoutes: React.FC = () => {
           <WorkspaceDetail />
         </Route>
       </Switch>
-      </DeployModalProvider>
-    </EnvironmentProvider>
+    </DeployModalProvider>
   );
 };
 

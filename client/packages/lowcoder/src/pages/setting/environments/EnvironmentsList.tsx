@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Table, Typography, Alert, Input, Button, Space, Empty } from "antd";
+import { Typography, Alert, Input, Button, Space, Empty } from "antd";
 import { SearchOutlined, ReloadOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
-import { useEnvironments } from "./hooks/useEnvironments";
+import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
 import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
@@ -11,16 +11,16 @@ const { Title } = Typography;
 
 /**
  * Environment Listing Page Component
- * Displays a basic table of environments
+ * Displays a table of environments
  */
 const EnvironmentsList: React.FC = () => {
-  // Use our custom hook to get environments data and states
-  const { environments, loading, error, refresh } = useEnvironments();
+  // Use the shared context instead of a local hook
+  const { environments, isLoadingEnvironments, error, refreshEnvironments } = useEnvironmentContext();
 
   // State for search input
   const [searchText, setSearchText] = useState("");
 
-  // Hook for navigation (using history instead of navigate)
+  // Hook for navigation
   const history = useHistory();
 
   // Filter environments based on search text
@@ -33,38 +33,6 @@ const EnvironmentsList: React.FC = () => {
       env.environmentType.toLowerCase().includes(searchLower)
     );
   });
-
-  // Define table columns - updated to match the actual data structure
-  const columns = [
-    {
-      title: "Name",
-      dataIndex: "environmentName",
-      key: "environmentName",
-      render: (name: string) => name || "Unnamed Environment",
-    },
-    {
-      title: "Domain",
-      dataIndex: "environmentFrontendUrl",
-      key: "environmentFrontendUrl",
-      render: (url: string) => url || "No URL",
-    },
-    {
-      title: "ID",
-      dataIndex: "environmentId",
-      key: "environmentId",
-    },
-    {
-      title: "Stage",
-      dataIndex: "environmentType",
-      key: "environmentType",
-    },
-    {
-      title: "Master",
-      dataIndex: "isMaster",
-      key: "isMaster",
-      render: (isMaster: boolean) => (isMaster ? "Yes" : "No"),
-    },
-  ];
 
   // Handle row click to navigate to environment detail
   const handleRowClick = (record: Environment) => {
@@ -93,7 +61,11 @@ const EnvironmentsList: React.FC = () => {
             prefix={<SearchOutlined />}
             allowClear
           />
-          <Button icon={<ReloadOutlined />} onClick={refresh} loading={loading}>
+          <Button 
+            icon={<ReloadOutlined />} 
+            onClick={() => refreshEnvironments()} 
+            loading={isLoadingEnvironments}
+          >
             Refresh
           </Button>
         </Space>
@@ -111,7 +83,7 @@ const EnvironmentsList: React.FC = () => {
       )}
 
       {/* Empty state handling */}
-      {!loading && environments.length === 0 && !error ? (
+      {!isLoadingEnvironments && environments.length === 0 && !error ? (
         <Empty
           description="No environments found"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -120,7 +92,7 @@ const EnvironmentsList: React.FC = () => {
         /* Table component */
         <EnvironmentsTable
           environments={filteredEnvironments}
-          loading={loading}
+          loading={isLoadingEnvironments}
           onRowClick={handleRowClick}
         />
       )}
