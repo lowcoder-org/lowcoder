@@ -7,7 +7,15 @@ import { DataSource, DataSourceStats } from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
 import { getMergedWorkspaceDataSources, deployDataSource } from '../services/datasources.service';
 import { connectManagedDataSource, unconnectManagedDataSource } from '../services/enterprise.service';
-
+import { 
+  createNameColumn, 
+  createTypeColumn,
+  createDatabaseColumn,
+  createDatasourceStatusColumn,
+  createManagedColumn, 
+  createDeployColumn,
+  createAuditColumn 
+} from '../utils/columnFactories';
 
 
 export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats> = {
@@ -111,6 +119,33 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
     
     return result.dataSources;
   },
+
+  getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
+    const columns = [
+      createNameColumn<DataSource>(),
+      createTypeColumn<DataSource>(),
+      createDatabaseColumn<DataSource>(),
+      createDatasourceStatusColumn<DataSource>(),
+    ];
+    
+    // Add managed column if enabled
+    if (dataSourcesConfig.enableManaged && onToggleManaged) {
+      columns.push(createManagedColumn(onToggleManaged, refreshing));
+    }
+    
+    // Add deploy column if enabled
+    if (dataSourcesConfig.deploy?.enabled && openDeployModal) {
+      columns.push(createDeployColumn(dataSourcesConfig, environment, openDeployModal));
+    }
+    
+    // Add audit column if enabled
+    if (dataSourcesConfig.audit?.enabled) {
+      columns.push(createAuditColumn(dataSourcesConfig, environment, additionalParams));
+    }
+    
+    return columns;
+  },
+  
   
   toggleManaged: async ({ item, checked, environment }) => {
     try {

@@ -8,6 +8,16 @@ import { connectManagedQuery, unconnectManagedQuery } from '../services/enterpri
 import { getMergedWorkspaceQueries, deployQuery } from '../services/query.service';
 import { Environment } from '../types/environment.types';
 
+import { 
+  createNameColumn, 
+  createCreatorColumn,
+  createDateColumn,
+  createQueryTypeColumn,
+  createManagedColumn, 
+  createDeployColumn,
+  createAuditColumn 
+} from '../utils/columnFactories';
+
 // Define QueryStats interface
 export interface QueryStats {
   total: number;
@@ -55,8 +65,6 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
       unmanaged: total - managed
     };
   },
-  
-  // Table configuration
   columns: [
     {
       title: 'Name',
@@ -64,28 +72,56 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
       key: 'name',
     },
     {
-      title: 'Creator',
-      dataIndex: 'creatorName',
-      key: 'creatorName',
+      title: 'Type',
+      dataIndex: 'type',
+      key: 'type',
+      render: (type: string) => (
+        <Tag color="blue">{type || 'Unknown'}</Tag>
+      ),
     },
     {
-      title: 'Creation Date',
-      key: 'createTime',
-      render: (_, record: Query) => {
-        if (!record.createTime) return 'N/A';
-        const date = new Date(record.createTime);
-        return `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-      },
+      title: 'Database',
+      key: 'database',
+      render: (_, record: Query) => (
+        <span>{record.datasourceConfig?.database || 'N/A'}</span>
+      ),
     },
     {
-      title: 'Query Type',
-      key: 'queryType',
-      render: (_, record: Query) => {
-        const queryType = record.libraryQueryDSL?.query?.compType || 'Unknown';
-        return <Tag color="blue">{queryType}</Tag>;
-      },
-    }
+      title: 'Status',
+      dataIndex: 'datasourceStatus',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color={status === 'NORMAL' ? 'green' : 'red'}>
+          {status}
+        </Tag>
+      ),
+    },
   ],
+  getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
+    const columns = [
+      createNameColumn<Query>(),
+      createCreatorColumn<Query>(),
+      createDateColumn<Query>('createTime', 'Creation Date'),
+      createQueryTypeColumn<Query>(),
+    ];
+    
+    // Add managed column if enabled
+    if (queryConfig.enableManaged && onToggleManaged) {
+      columns.push(createManagedColumn(onToggleManaged, refreshing));
+    }
+    
+    // Add deploy column if enabled
+    if (queryConfig.deploy?.enabled && openDeployModal) {
+      columns.push(createDeployColumn(queryConfig, environment, openDeployModal));
+    }
+    
+    // Add audit column if enabled
+    if (queryConfig.audit?.enabled) {
+      columns.push(createAuditColumn(queryConfig, environment, additionalParams));
+    }
+    
+    return columns;
+  },
   
   // Deployment options
   enableManaged: true,

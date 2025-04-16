@@ -5,7 +5,14 @@ import { TeamOutlined, UserOutlined } from '@ant-design/icons';
 import { getEnvironmentUserGroups } from '../services/environments.service';
 import { UserGroup, UserGroupStats } from '../types/userGroup.types';
 import { DeployableItemConfig } from '../types/deployable-item.types';
-
+import { 
+  createUserGroupNameColumn,
+  createGroupIdColumn,
+  createUserCountColumn, 
+  createDateColumn,
+  createGroupTypeColumn,
+  createAuditColumn 
+} from '../utils/columnFactories';
 
 const formatDate = (timestamp: number): string => {
   if (!timestamp) return 'N/A';
@@ -120,6 +127,25 @@ export const userGroupsConfig: DeployableItemConfig<UserGroup, UserGroupStats> =
   // No managed status for user groups
   enableManaged: false,
   
+  getColumns: ({ environment, additionalParams }) => {
+    const columns = [
+      createGroupIdColumn<UserGroup>(),
+      createUserGroupNameColumn<UserGroup>(),
+    
+      createUserCountColumn<UserGroup>(),
+      createDateColumn<UserGroup>('createTime', 'Created'),
+      createGroupTypeColumn<UserGroup>(),
+    ];
+    
+    // User groups aren't managed, so we don't add the managed column
+    
+    // Add audit column if enabled
+    if (userGroupsConfig.audit?.enabled) {
+      columns.push(createAuditColumn(userGroupsConfig, environment, additionalParams));
+    }
+    
+    return columns;
+  },
   // Service functions
   fetchItems: async ({ environment }) => {
     const userGroups = await getEnvironmentUserGroups(

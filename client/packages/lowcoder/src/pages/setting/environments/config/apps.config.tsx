@@ -8,6 +8,17 @@ import { getMergedWorkspaceApps, deployApp } from '../services/apps.service';
 import { connectManagedApp, unconnectManagedApp } from '../services/enterprise.service';
 import { App, AppStats } from '../types/app.types';
 
+
+import { 
+  createNameColumn, 
+  createDescriptionColumn, 
+  createPublishedColumn, 
+  createManagedColumn, 
+  createDeployColumn,
+  createAuditColumn, 
+  createIdColumn
+} from '../utils/columnFactories';
+
 // Define AppStats interface if not already defined
 
 
@@ -59,6 +70,31 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
   },
   
   // Table configuration
+  getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
+    const columns = [
+      createIdColumn<App>(),
+      createNameColumn<App>(),
+      createPublishedColumn<App>(),
+    ];
+    
+    // Add managed column if enabled
+    if (appsConfig.enableManaged && onToggleManaged) {
+      columns.push(createManagedColumn(onToggleManaged, refreshing));
+    }
+    
+    // Add deploy column if enabled
+    if (appsConfig.deploy?.enabled && openDeployModal) {
+      columns.push(createDeployColumn(appsConfig, environment, openDeployModal));
+    }
+    
+    // Add audit column if enabled
+    if (appsConfig.audit?.enabled) {
+      columns.push(createAuditColumn(appsConfig, environment, additionalParams));
+    }
+    
+    return columns;
+  },
+
   columns: [
     {
       title: 'Name',
@@ -66,21 +102,28 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
       key: 'name',
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
+      title: 'ID',
+      dataIndex: 'id',
+      key: 'id',
       ellipsis: true,
     },
     {
+      title: 'Role',
+      dataIndex: 'role',
+      key: 'role',
+      render: (role: string) => <span>{role}</span>,
+    },
+   
+    {
       title: 'Status',
-      dataIndex: 'published',
-      key: 'published',
-      render: (published: boolean) => (
-        <Tag color={published ? 'green' : 'orange'}>
-          {published ? 'Published' : 'Unpublished'}
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: string) => (
+        <Tag color={status === 'ACTIVE' ? 'green' : 'red'} className="status-tag">
+          {status}
         </Tag>
       ),
-    },
+    }
   ],
   
   // Deployment options

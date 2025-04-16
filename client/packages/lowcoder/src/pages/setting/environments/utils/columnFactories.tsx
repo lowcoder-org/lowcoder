@@ -1,6 +1,6 @@
 // utils/columnFactories.tsx
 import React from 'react';
-import { Tag, Space, Switch, Button, Tooltip } from 'antd';
+import { Tag, Space, Switch, Button, Tooltip, Badge} from 'antd';
 import { CloudUploadOutlined, AuditOutlined } from '@ant-design/icons';
 import { ColumnType } from 'antd/lib/table';
 import { DeployableItem, DeployableItemConfig, BaseStats } from '../types/deployable-item.types';
@@ -118,6 +118,182 @@ export function createAuditColumn<T extends DeployableItem>(
           </Button>
         </Tooltip>
       );
+    },
+  };
+}
+
+
+export function createDescriptionColumn<T extends { description?: string }>(): ColumnType<T> {
+  return {
+    title: 'Description',
+    dataIndex: 'description',
+    key: 'description',
+    ellipsis: true,
+  };
+}
+
+
+export function createDeployColumn<T extends DeployableItem, S extends BaseStats>(
+  config: DeployableItemConfig<T, S>,
+  environment: Environment,
+  openDeployModal: (item: T, config: DeployableItemConfig<T, S>, environment: Environment) => void
+): ColumnType<T> {
+  return {
+    title: 'Actions',
+    key: 'actions',
+    render: (_, record: T) => (
+      <Space>
+        <Tooltip title={`Deploy this ${config.singularLabel.toLowerCase()} to another environment`}>
+          <Button
+            icon={<CloudUploadOutlined />}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent row click navigation
+              openDeployModal(record, config, environment);
+            }}
+            type="primary"
+            ghost
+          >
+            Deploy
+          </Button>
+        </Tooltip>
+      </Space>
+    ),
+  };
+}
+
+
+// App-specific columns
+export function createPublishedColumn<T extends { published?: boolean }>(): ColumnType<T> {
+  return {
+    title: 'Status',
+    dataIndex: 'published',
+    key: 'published',
+    render: (published: boolean) => (
+      <Tag color={published ? 'green' : 'orange'}>
+        {published ? 'Published' : 'Unpublished'}
+      </Tag>
+    ),
+  };
+}
+
+// Data Source specific columns
+export function createTypeColumn<T extends { type?: string }>(): ColumnType<T> {
+  return {
+    title: 'Type',
+    dataIndex: 'type',
+    key: 'type',
+    render: (type: string) => (
+      <Tag color="blue">{type || 'Unknown'}</Tag>
+    ),
+  };
+}
+
+export function createDatabaseColumn<T extends { datasourceConfig?: { database?: string | null } }>(): ColumnType<T> {
+  return {
+    title: 'Database',
+    key: 'database',
+    render: (_, record: T) => (
+      <span>{record.datasourceConfig?.database || 'N/A'}</span>
+    ),
+  };
+}
+
+export function createDatasourceStatusColumn<T extends { datasourceStatus?: string }>(): ColumnType<T> {
+  return {
+    title: 'Status',
+    dataIndex: 'datasourceStatus',
+    key: 'status',
+    render: (status: string) => (
+      <Tag color={status === 'NORMAL' ? 'green' : 'red'}>
+        {status}
+      </Tag>
+    ),
+  };
+}
+
+
+// Query-specific column factories to add to columnFactories.tsx
+export function createCreatorColumn<T extends { creatorName?: string }>(): ColumnType<T> {
+  return {
+    title: 'Creator',
+    dataIndex: 'creatorName',
+    key: 'creatorName',
+  };
+}
+
+export function createQueryTypeColumn<T extends { libraryQueryDSL?: { query?: { compType?: string } } }>(): ColumnType<T> {
+  return {
+    title: 'Query Type',
+    key: 'queryType',
+    render: (_, record: T) => {
+      const queryType = record.libraryQueryDSL?.query?.compType || 'Unknown';
+      return <Tag color="blue">{queryType}</Tag>;
+    },
+  };
+}
+
+export function createUserGroupNameColumn<T extends { 
+  groupName?: string; 
+  allUsersGroup?: boolean; 
+  devGroup?: boolean;
+}>(): ColumnType<T> {
+  return {
+    title: 'Name',
+    dataIndex: 'groupName',
+    key: 'groupName',
+    render: (name: string, record: T) => (
+      <div>
+        <span>{record.groupName}</span>
+        {record.allUsersGroup && (
+          <Tag color="blue" style={{ marginLeft: 8 }}>All Users</Tag>
+        )}
+        {record.devGroup && (
+          <Tag color="orange" style={{ marginLeft: 8 }}>Dev</Tag>
+        )}
+      </div>
+    ),
+  };
+}
+
+export function createGroupIdColumn<T extends { groupId?: string }>(): ColumnType<T> {
+  return {
+    title: 'ID',
+    dataIndex: 'groupId',
+    key: 'groupId',
+    ellipsis: true,
+  };
+}
+
+export function createUserCountColumn<T extends { 
+  stats?: { userCount: number; adminUserCount: number; }
+}>(): ColumnType<T> {
+  return {
+    title: 'Users',
+    key: 'userCount',
+    render: (_, record: T) => (
+      <div>
+        <Badge count={record.stats?.userCount || 0} showZero style={{ backgroundColor: '#52c41a' }} />
+        <span style={{ marginLeft: 8 }}>
+          ({record.stats?.adminUserCount || 0} admin{(record.stats?.adminUserCount || 0) !== 1 ? 's' : ''})
+        </span>
+      </div>
+    ),
+  };
+}
+
+export function createGroupTypeColumn<T extends { 
+  allUsersGroup?: boolean; 
+  devGroup?: boolean;
+  syncGroup?: boolean;
+}>(): ColumnType<T> {
+  return {
+    title: 'Type',
+    key: 'type',
+    render: (_, record: T) => {
+      if (record.allUsersGroup) return <Tag color="blue">Global</Tag>;
+      if (record.devGroup) return <Tag color="orange">Dev</Tag>;
+      if (record.syncGroup) return <Tag color="purple">Sync</Tag>;
+      return <Tag color="default">Standard</Tag>;
     },
   };
 }

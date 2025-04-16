@@ -99,8 +99,8 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
   // New getColumns method
   getColumns: ({ environment, refreshing, onToggleManaged, additionalParams }) => {
     const columns = [
-      createNameColumn<Workspace>(),
       createIdColumn<Workspace>(),
+      createNameColumn<Workspace>(),
       createRoleColumn<Workspace>(),
       createDateColumn<Workspace>('creationDate', 'Creation Date'),
       createStatusColumn<Workspace>()
