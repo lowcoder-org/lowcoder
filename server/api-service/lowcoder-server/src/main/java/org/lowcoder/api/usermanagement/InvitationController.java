@@ -62,7 +62,7 @@ public class InvitationController implements InvitationEndpoints
     public Mono<ResponseView<Boolean>> sendInvitationEmails(InviteEmailRequest req) {
         return invitationApiService.create(req.orgId()).map(invitation -> 
                 emailCommunicationService.sendInvitationEmails(req.emails(), 
-                config.getLowcoderPublicUrl() + "/" + invitation.getInviteCode(), 
+                config.getLowcoderPublicUrl() + "/invite/" + invitation.getInviteCode(), 
                     "You have been invited to join our platform. Click here to accept the invitation: %s"))
             .map(ResponseView::success);
     }
