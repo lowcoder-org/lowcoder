@@ -76,7 +76,7 @@ export interface DeployableItemConfig<T extends DeployableItem, S extends BaseSt
   columns: ColumnType<T>[];
   
   // New method to generate columns
-  getColumns?: (params: {
+  getColumns: (params: {
     environment: Environment;
     refreshing: boolean;
     onToggleManaged?: (item: T, checked: boolean) => Promise<boolean>;
