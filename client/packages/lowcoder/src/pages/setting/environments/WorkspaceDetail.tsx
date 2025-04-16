@@ -109,68 +109,101 @@ const WorkspaceDetail: React.FC = () => {
     }
   
   return (
-    <div className="workspace-detail-container" style={{ padding: '24px', flex: 1 }}>
+    <div
+      className="workspace-detail-container"
+      style={{ padding: "24px", flex: 1 }}
+    >
       {/* Breadcrumb navigation */}
-      <Breadcrumb style={{ marginBottom: '16px' }}>
-        <Breadcrumb.Item onClick={() => history.push('/home/settings/environments')}>
+      <Breadcrumb style={{ marginBottom: "16px" }}>
+        <Breadcrumb.Item
+          onClick={() => history.push("/home/settings/environments")}
+        >
           <HomeOutlined /> Environments
         </Breadcrumb.Item>
-        <Breadcrumb.Item onClick={() => history.push(`/home/settings/environments/${environmentId}`)}>
+        <Breadcrumb.Item
+          onClick={() =>
+            history.push(`/home/settings/environments/${environmentId}`)
+          }
+        >
           <TeamOutlined /> {environment.environmentName}
         </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          {workspace.name}
-        </Breadcrumb.Item>
+        <Breadcrumb.Item>{workspace.name}</Breadcrumb.Item>
       </Breadcrumb>
-      
-      {/* Header with workspace name and controls */}
-      <div className="workspace-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
 
+      {/* Workspace header with details and actions */}
+      <Card
+        style={{ marginBottom: "24px" }}
+        bodyStyle={{ padding: "16px 24px" }}
+      >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          {/* Left section - Workspace info */}
           <div>
-            <Title level={4} style={{ margin: 0 }}>{workspace.name}</Title>
-            <Tag color={workspace.managed ? 'green' : 'default'} style={{ marginTop: '8px' }}>
-              {workspace.managed ? 'Managed' : 'Unmanaged'}
-            </Tag>
+            <Title level={3} style={{ margin: 0 }}>
+              {workspace.name}
+            </Title>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginTop: "8px",
+              }}
+            >
+              <Text type="secondary" style={{ marginRight: "16px" }}>
+                ID: {workspace.id}
+              </Text>
+              <Tag color={workspace.managed ? "green" : "default"}>
+                {workspace.managed ? "Managed" : "Unmanaged"}
+              </Tag>
+            </div>
           </div>
-          
-          <Space>
-            <Switch 
-              checked={workspace.managed}
-              onChange={handleToggleManaged}
-              checkedChildren="Managed"
-              unCheckedChildren="Unmanaged"
-            />
+
+          {/* Right section - Actions */}
+          <Space size="middle">
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Text style={{ marginRight: "8px" }}>Managed:</Text>
+              <Switch
+                checked={workspace.managed}
+                onChange={handleToggleManaged}
+                checkedChildren="Yes"
+                unCheckedChildren="No"
+              />
+            </div>
             <Button
               type="primary"
               icon={<CloudUploadOutlined />}
-              onClick={() => openDeployModal(workspace, workspaceConfig, environment)}
+              onClick={() =>
+                openDeployModal(workspace, workspaceConfig, environment)
+              }
               disabled={!workspace.managed}
             >
               Deploy
             </Button>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() =>
+                history.push(`/home/settings/environments/${environmentId}`)
+              }
+            >
+              Back
+            </Button>
           </Space>
         </div>
+      </Card>
 
-
-        <div>
-          <Button 
-            type="link" 
-            icon={<ArrowLeftOutlined />} 
-            onClick={() => history.push(`/home/settings/environments/${environmentId}`)}
-            style={{ marginLeft: -12, marginRight: 8 }}
-          >
-            Back to Environment
-          </Button>
-          <Title level={3}>{workspace.name}</Title>
-          <Text type="secondary">ID: {workspace.id}</Text>
-        </div>
-      </div>
-      
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs defaultActiveKey="apps">
-        <TabPane 
-          tab={<span><AppstoreOutlined /> Apps</span>} 
+        <TabPane
+          tab={
+            <span>
+              <AppstoreOutlined /> Apps
+            </span>
+          }
           key="apps"
         >
           <DeployableItemsTab
@@ -178,12 +211,16 @@ const WorkspaceDetail: React.FC = () => {
             config={appsConfig}
             additionalParams={{ workspaceId }}
             title="Apps in this Workspace"
-          />    
+          />
         </TabPane>
-        
-       {/* Update the TabPane in WorkspaceDetail.tsx */}
-        <TabPane 
-          tab={<span><DatabaseOutlined /> Data Sources</span>} 
+
+        {/* Update the TabPane in WorkspaceDetail.tsx */}
+        <TabPane
+          tab={
+            <span>
+              <DatabaseOutlined /> Data Sources
+            </span>
+          }
           key="dataSources"
         >
           <DeployableItemsTab
@@ -193,9 +230,13 @@ const WorkspaceDetail: React.FC = () => {
             title="Data Sources in this Workspace"
           />
         </TabPane>
-        
-        <TabPane 
-          tab={<span><CodeOutlined /> Queries</span>} 
+
+        <TabPane
+          tab={
+            <span>
+              <CodeOutlined /> Queries
+            </span>
+          }
           key="queries"
         >
           <DeployableItemsTab
