@@ -6,6 +6,15 @@ import { Workspace, WorkspaceStats, DeployableItemConfig } from '../types/deploy
 import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
 import { getMergedEnvironmentWorkspaces } from '../services/workspace.service';
 import { connectManagedWorkspace, unconnectManagedWorkspace } from '../services/enterprise.service';
+import { 
+  createNameColumn, 
+  createIdColumn, 
+  createRoleColumn, 
+  createDateColumn, 
+  createStatusColumn, 
+  createManagedColumn, 
+  createAuditColumn 
+} from '../utils/columnFactories';
 
 export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = {
   // Basic info
@@ -47,7 +56,7 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
     };
   },
   
-  // Table configuration
+  // Original columns for backward compatibility
   columns: [
     {
       title: 'Name',
@@ -87,10 +96,29 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
     }
   ],
   
-  // Deployment options
+  // New getColumns method
+  getColumns: ({ environment, refreshing, onToggleManaged, additionalParams }) => {
+    const columns = [
+      createNameColumn<Workspace>(),
+      createIdColumn<Workspace>(),
+      createRoleColumn<Workspace>(),
+      createDateColumn<Workspace>('creationDate', 'Creation Date'),
+      createStatusColumn<Workspace>()
+    ];
+    
+
+    // Add audit column if enabled
+    if (workspaceConfig.audit?.enabled) {
+      columns.push(createAuditColumn(workspaceConfig, environment, additionalParams));
+    }
+    
+    return columns;
+  },
+  
+  // Enable managed functionality
   enableManaged: true,
   
-  // Service functions
+  // Fetch function
   fetchItems: async ({ environment }) => {
     const result = await getMergedEnvironmentWorkspaces(
       environment.environmentId,
@@ -99,16 +127,8 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
     );
     return result.workspaces;
   },
-
-  audit: {
-    enabled: true,
-    icon: <AuditOutlined />,
-    label: 'Audit',
-    tooltip: 'View audit logs for this workspace',
-    getAuditUrl: (item, environment) => 
-      `/setting/audit?environmentId=${environment.environmentId}&orgId=${item.id}&pageSize=100&pageNum=1`
-  },
   
+  // Toggle managed status
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
@@ -121,5 +141,15 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
       console.error('Error toggling managed status:', error);
       return false;
     }
+  },
+  
+  // Audit configuration
+  audit: {
+    enabled: true,
+    icon: <AuditOutlined />,
+    label: 'Audit',
+    tooltip: 'View audit logs for this workspace',
+    getAuditUrl: (item, environment) => 
+      `/setting/audit?environmentId=${environment.environmentId}&orgId=${item.id}&pageSize=100&pageNum=1`
   }
 };

@@ -1,6 +1,8 @@
 // types/deployable-item.types.ts
 import { ReactNode } from 'react';
 import { Environment } from './environment.types';
+import { ColumnType } from 'antd/lib/table';
+
 
 // Base interface for all deployable items
 export interface AuditConfig {
@@ -29,12 +31,13 @@ export interface Workspace extends DeployableItem {
 }
 
 // Stats interface that can be extended for specific item types
+// Base interface for stats
 export interface BaseStats {
   total: number;
   managed: number;
   unmanaged: number;
+  [key: string]: any;
 }
-
 export interface WorkspaceStats extends BaseStats {}
 
 
@@ -69,18 +72,22 @@ export interface DeployableItemConfig<T extends DeployableItem, S extends BaseSt
   renderStats: (stats: S) => ReactNode;
   calculateStats: (items: T[]) => S;
 
+  // Original columns (will be deprecated)
+  columns: ColumnType<T>[];
+  
+  // New method to generate columns
+  getColumns?: (params: {
+    environment: Environment;
+    refreshing: boolean;
+    onToggleManaged?: (item: T, checked: boolean) => Promise<boolean>;
+    openDeployModal?: (item: T, config: DeployableItemConfig<T, S>, environment: Environment) => void;
+    additionalParams?: Record<string, any>;
+  }) => ColumnType<T>[];
+
   // Add audit configuration
   audit?: AuditConfig;
   
   
-  // Table configuration
-  columns: Array<{
-    title: string;
-    dataIndex?: string;
-    key: string;
-    render?: (value: any, record: T) => ReactNode;
-    ellipsis?: boolean;
-  }>;
   
   // Deployable configuration
   enableManaged: boolean;

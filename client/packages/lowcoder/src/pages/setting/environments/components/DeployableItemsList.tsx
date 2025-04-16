@@ -40,83 +40,91 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
     }
   };
 
-
   // Handle row click for navigation
- // Handle row click for navigation
-const handleRowClick = (item: T) => {
-  // Skip navigation if the route is just '#' (for non-navigable items)
-  if (config.buildDetailRoute({}) === '#') return;
-  
-  // Build the route using the config and navigate
-  const route = config.buildDetailRoute({
-    environmentId: environment.environmentId,
-    itemId: item[config.idField] as string,
-    ...additionalParams
-  });
-  
-  history.push(route);
-};
-
-  // Generate columns based on config
-  let columns = [...config.columns];
-  
-  // Add managed column if enabled
-  if (config.enableManaged) {
-    columns.push({
-      title: 'Managed',
-      key: 'managed',
-      render: (_, record: T) => (
-        <Space>
-          <Tag color={record.managed ? 'green' : 'default'}>
-            {record.managed ? 'Managed' : 'Unmanaged'}
-          </Tag>
-          {onToggleManaged && (
-            <Switch
-              size="small"
-              checked={!!record.managed}
-              loading={refreshing}
-              onClick={(checked, e) => {
-                e.stopPropagation(); // Stop row click event
-                onToggleManaged(record, checked);
-              }}
-              onChange={() => {}}
-            />
-          )}
-        </Space>
-      ),
+  const handleRowClick = (item: T) => {
+    // Skip navigation if the route is just '#' (for non-navigable items)
+    if (config.buildDetailRoute({}) === '#') return;
+    
+    // Build the route using the config and navigate
+    const route = config.buildDetailRoute({
+      environmentId: environment.environmentId,
+      itemId: item[config.idField] as string,
+      ...additionalParams
     });
-  }
+    
+    history.push(route);
+  };
 
-   // Add deploy action column if enabled
-   if (config.deploy?.enabled) {
-    columns.push({
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record: T) => (
-        <Space>
-          <Tooltip title={`Deploy this ${config.singularLabel.toLowerCase()} to another environment`}>
-            <Button
-              icon={<CloudUploadOutlined />}
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent row click navigation
-                openDeployModal(record, config, environment);
-              }}
-              type="primary"
-              ghost
-            >
-              Deploy
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
-    });
-  }
+  // Determine columns - Use new getColumns method if available, fall back to old approach
+  const columns = config.getColumns ? 
+    config.getColumns({
+      environment,
+      refreshing,
+      onToggleManaged,
+      openDeployModal,
+      additionalParams 
+    }) :
+    generateLegacyColumns();
+    
+  // Legacy column generation for backward compatibility
+  function generateLegacyColumns() {
+    let legacyColumns = [...config.columns];
+    
+    // Add managed column if enabled
+    if (config.enableManaged) {
+      legacyColumns.push({
+        title: 'Managed',
+        key: 'managed',
+        render: (_, record: T) => (
+          <Space>
+            <Tag color={record.managed ? 'green' : 'default'}>
+              {record.managed ? 'Managed' : 'Unmanaged'}
+            </Tag>
+            {onToggleManaged && (
+              <Switch
+                size="small"
+                checked={!!record.managed}
+                loading={refreshing}
+                onClick={(checked, e) => {
+                  e.stopPropagation(); // Stop row click event
+                  onToggleManaged(record, checked);
+                }}
+                onChange={() => {}}
+              />
+            )}
+          </Space>
+        ),
+      });
+    }
 
-  const hasAudit = config.audit?.enabled;
+    // Add deploy action column if enabled
+    if (config.deploy?.enabled) {
+      legacyColumns.push({
+        title: 'Actions',
+        key: 'actions',
+        render: (_, record: T) => (
+          <Space>
+            <Tooltip title={`Deploy this ${config.singularLabel.toLowerCase()} to another environment`}>
+              <Button
+                icon={<CloudUploadOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent row click navigation
+                  openDeployModal(record, config, environment);
+                }}
+                type="primary"
+                ghost
+              >
+                Deploy
+              </Button>
+            </Tooltip>
+          </Space>
+        ),
+      });
+    }
 
-// Add audit column if enabled - SEPARATE CONDITION
+    // Add audit column if enabled
     if (config.audit?.enabled) {
-      columns.push({
+      legacyColumns.push({
         title: 'Audit',
         key: 'audit',
         render: (_, record: T) => (
@@ -131,6 +139,9 @@ const handleRowClick = (item: T) => {
         ),
       });
     }
+    
+    return legacyColumns;
+  }
 
   if (loading) {
     return (
@@ -151,19 +162,18 @@ const handleRowClick = (item: T) => {
 
   const hasNavigation = config.buildDetailRoute({}) !== '#';
 
-
   return (
     <Table
-    columns={columns}
-    dataSource={items}
-    rowKey={config.idField}
-    pagination={{ pageSize: 10 }}
-    size="middle"
-    onRow={(record) => ({
-      onClick: hasNavigation ? () => handleRowClick(record) : undefined,
-      style: hasNavigation ? { cursor: 'pointer' } : undefined,
-    })}
-  />
+      columns={columns}
+      dataSource={items}
+      rowKey={config.idField}
+      pagination={{ pageSize: 10 }}
+      size="middle"
+      onRow={(record) => ({
+        onClick: hasNavigation ? () => handleRowClick(record) : undefined,
+        style: hasNavigation ? { cursor: 'pointer' } : undefined,
+      })}
+    />
   );
 }
 
