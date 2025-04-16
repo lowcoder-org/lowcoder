@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Tag, Button, Tooltip } from 'antd';
-import { EditOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Tooltip, Space } from 'antd';
+import { EditOutlined, AuditOutlined} from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 
 
@@ -32,6 +32,14 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       default: return 'default';
     }
   };
+
+   // Open audit page in new tab
+   const openAuditPage = (environmentId: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent row click from triggering
+    const auditUrl = `/setting/audit?environmentId=${environmentId}`;
+    window.open(auditUrl, '_blank');
+  };
+
 
   // Define table columns
   const columns = [
@@ -70,6 +78,23 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
         <Tag color={isMaster ? 'green' : 'default'}>
           {isMaster ? 'Yes' : 'No'}
         </Tag>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: Environment) => (
+        <Space size="middle" onClick={e => e.stopPropagation()}>
+          <Tooltip title="View Audit Logs">
+            <Button 
+              icon={<AuditOutlined />} 
+              size="small"
+              onClick={(e) => openAuditPage(record.environmentId, e)}
+            >
+              Audit
+            </Button>
+          </Tooltip>
+        </Space>
       ),
     },
   ];
