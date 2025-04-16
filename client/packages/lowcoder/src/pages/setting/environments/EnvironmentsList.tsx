@@ -47,7 +47,7 @@ const EnvironmentsList: React.FC = () => {
   };
 
   return (
-    <div className="environments-container" style={{ padding: "24px" }}>
+    <div className="environments-container" style={{ padding: "24px", flex:1 }}>
       {/* Header section with title and controls */}
       <div
         className="environments-header"
