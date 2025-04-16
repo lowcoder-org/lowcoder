@@ -11,6 +11,10 @@ import {
   Alert, 
   Button,
   Breadcrumb,
+  Space,
+  Tag,
+  Switch, 
+  message
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -18,7 +22,8 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
-  ArrowLeftOutlined
+  ArrowLeftOutlined, 
+  CloudUploadOutlined
 } from "@ant-design/icons";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { useWorkspace } from "./hooks/useWorkspace";
@@ -26,6 +31,9 @@ import DeployableItemsTab from "./components/DeployableItemsTab";
 import { appsConfig } from "./config/apps.config";
 import { dataSourcesConfig } from "./config/data-sources.config";
 import { queryConfig } from "./config/query.config";
+import { useDeployableItems } from "./hooks/useDeployableItems";
+import { workspaceConfig } from "./config/workspace.config";
+import { useDeployModal } from "./context/DeployModalContext";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -45,12 +53,36 @@ const WorkspaceDetail: React.FC = () => {
       error: envError,
     } = useEnvironmentContext();
 
-    const {
-      workspace,
-      loading: workspaceLoading,
-      error: workspaceError,
-    } = useWorkspace(environment, workspaceId);
+    const {openDeployModal} = useDeployModal();
+
+     // Use our generic hook with the workspace config
+      const {
+        items: workspaces,
+        stats: workspaceStats,
+        loading: workspaceLoading,
+        error : workspaceError,
+        toggleManagedStatus,
+        refreshItems
+      } = useDeployableItems(
+        workspaceConfig,
+        environment,
+        { workspaceId } // Additional params if needed
+      );
+      
+        // Find the current workspace in the items array
+  const workspace = workspaces.find(w => w.id === workspaceId);
+
+  const handleToggleManaged = async (checked: boolean) => {
+    if (!workspace) return;
     
+    const success = await toggleManagedStatus(workspace, checked);
+    if (success) {
+      message.success(`Workspace is now ${checked ? 'Managed' : 'Unmanaged'}`);
+    } else {
+      message.error('Failed to change managed status');
+    }
+  };
+
     if (envLoading || workspaceLoading) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
@@ -93,6 +125,34 @@ const WorkspaceDetail: React.FC = () => {
       
       {/* Header with workspace name and controls */}
       <div className="workspace-header" style={{ marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+
+          <div>
+            <Title level={4} style={{ margin: 0 }}>{workspace.name}</Title>
+            <Tag color={workspace.managed ? 'green' : 'default'} style={{ marginTop: '8px' }}>
+              {workspace.managed ? 'Managed' : 'Unmanaged'}
+            </Tag>
+          </div>
+          
+          <Space>
+            <Switch 
+              checked={workspace.managed}
+              onChange={handleToggleManaged}
+              checkedChildren="Managed"
+              unCheckedChildren="Unmanaged"
+            />
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => openDeployModal(workspace, workspaceConfig, environment)}
+              disabled={!workspace.managed}
+            >
+              Deploy
+            </Button>
+          </Space>
+        </div>
+
+
         <div>
           <Button 
             type="link" 
