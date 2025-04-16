@@ -8,6 +8,9 @@ import {
   Tabs,
   Alert,
   Descriptions,
+  Dropdown,
+  Menu,
+  Button,
 } from "antd";
 import {
   ReloadOutlined,
@@ -16,17 +19,21 @@ import {
   TeamOutlined,
   UserOutlined,
   SyncOutlined,
+  EditOutlined,
+  EllipsisOutlined,
+  MoreOutlined,
 } from "@ant-design/icons";
 
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { workspaceConfig } from "./config/workspace.config";
 import { userGroupsConfig } from "./config/usergroups.config";
 import DeployableItemsTab from "./components/DeployableItemsTab";
-
-
+import EditEnvironmentModal from "./components/EditEnvironmentModal";
+import { Environment } from "./types/environment.types";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
+
 
 /**
  * Environment Detail Page Component
@@ -37,10 +44,47 @@ const EnvironmentDetail: React.FC = () => {
   const {
     environment,
     isLoadingEnvironment,
-    error
+    error,
+    updateEnvironmentData
   } = useEnvironmentContext();  
   
   
+  
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Handle edit menu item click
+  const handleEditClick = () => {
+    setIsEditModalVisible(true);
+  };
+  
+  // Handle modal close
+  const handleCloseModal = () => {
+    setIsEditModalVisible(false);
+  };
+  
+  // Handle save environment
+  const handleSaveEnvironment = async (environmentId: string, data: Partial<Environment>) => {
+    setIsUpdating(true);
+    try {
+      await updateEnvironmentData(environmentId, data);
+      handleCloseModal();
+    } catch (error) {
+      console.error('Failed to update environment:', error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
+  // Dropdown menu for environment actions
+  const actionsMenu = (
+    <Menu>
+      <Menu.Item key="edit" icon={<EditOutlined />} onClick={handleEditClick}>
+        Edit Environment
+      </Menu.Item>
+      {/* Add more menu items here if needed */}
+    </Menu>
+  );
   
   if (isLoadingEnvironment) {
     return (
@@ -78,6 +122,13 @@ const EnvironmentDetail: React.FC = () => {
           </Title>
           <Text type="secondary">ID: {environment.environmentId}</Text>
         </div>
+        <Dropdown overlay={actionsMenu} trigger={['click']}>
+          <Button 
+            icon={<MoreOutlined />} 
+            shape="circle"
+            size="large"
+          />
+        </Dropdown>
       </div>
 
       {/* Basic Environment Information Card */}
@@ -156,6 +207,17 @@ const EnvironmentDetail: React.FC = () => {
 
         </TabPane>
       </Tabs>
+      {/* Edit Environment Modal */}
+      {environment && (
+        <EditEnvironmentModal
+          visible={isEditModalVisible}
+          environment={environment}
+          onClose={handleCloseModal}
+          onSave={handleSaveEnvironment}
+          loading={isUpdating}
+        />
+      )}
+
     </div>
   );
 };
