@@ -109,7 +109,7 @@ const WorkspaceDetail: React.FC = () => {
     }
   
   return (
-    <div className="workspace-detail-container" style={{ padding: '24px' }}>
+    <div className="workspace-detail-container" style={{ padding: '24px', flex: 1 }}>
       {/* Breadcrumb navigation */}
       <Breadcrumb style={{ marginBottom: '16px' }}>
         <Breadcrumb.Item onClick={() => history.push('/home/settings/environments')}>
