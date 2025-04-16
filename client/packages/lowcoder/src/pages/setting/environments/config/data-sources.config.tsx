@@ -91,26 +91,6 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
         </Tag>
       ),
     },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_, record: DataSource) => (
-        <Space>
-          <Tooltip title="Deploy to another environment">
-            <Button
-              icon={<CloudUploadOutlined />}
-              onClick={(e) => {
-                e.stopPropagation(); // Prevent row click navigation
-              }}
-              type="primary"
-              ghost
-            >
-              Deploy
-            </Button>
-          </Tooltip>
-        </Space>
-      ),
-    }
   ],
   
   // Deployment options
