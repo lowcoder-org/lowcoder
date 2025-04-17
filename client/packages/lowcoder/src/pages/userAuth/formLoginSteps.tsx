@@ -4,7 +4,7 @@ import {
   ConfirmButton,
   StyledRouteLink,
 } from "pages/userAuth/authComponents";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import UserApi from "api/userApi";
 import { useRedirectUrl } from "util/hooks";
@@ -19,7 +19,7 @@ import { Divider } from "antd";
 import Flex from "antd/es/flex";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import OrgApi from "@lowcoder-ee/api/orgApi";
-import { AccountLoginWrapper } from "./formLoginAdmin";
+import FormLogin, { AccountLoginWrapper } from "./formLoginAdmin";
 import { default as Button } from "antd/es/button";
 import LeftOutlined from "@ant-design/icons/LeftOutlined";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
@@ -28,6 +28,9 @@ import history from "util/history";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
 import {fetchOrgPaginationByEmail} from "@lowcoder-ee/util/pagination/axios";
 import PaginationComp from "@lowcoder-ee/util/pagination/Pagination";
+import { getSystemConfigFetching } from "@lowcoder-ee/redux/selectors/configSelectors";
+import Spin from "antd/es/spin";
+import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 
 const StyledCard = styled.div<{$selected: boolean}>`
   display: flex;
@@ -107,17 +110,27 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
   const authId = systemConfig?.form.id;
-  const isFormLoginEnabled = systemConfig?.form.enableLogin;
+  const isFormLoginEnabled = systemConfig?.form.enableLogin; // check from configs
   const [orgLoading, setOrgLoading] = useState(false);
   const [orgList, setOrgList] = useState<OrgItem[]>([]);
   const [currentStep, setCurrentStep] = useState<CurrentStepEnum>(CurrentStepEnum.EMAIL);
   const [organizationId, setOrganizationId] = useState<string|undefined>(props.organizationId);
   const [skipWorkspaceStep, setSkipWorkspaceStep] = useState<boolean>(false);
   const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
+  const [signinEnabled, setSigninEnabled] = useState<boolean>(true); // check from server settings
   const serverSettings = useSelector(getServerSettings);
+  const isFetchingConfig = useSelector(getSystemConfigFetching);
   const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+
+  const isEmailLoginEnabled = useMemo(() => {
+    return isFormLoginEnabled && signinEnabled;
+  }, [isFormLoginEnabled, signinEnabled]);
+ 
+  const isEnterpriseMode = useMemo(() => {
+    return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
+  }, [serverSettings]);
 
   useEffect(() => {
     if (account)
@@ -133,11 +146,13 @@ export default function FormLoginSteps(props: FormLoginProps) {
   }, [pageSize, currentPage])
 
   useEffect(() => {
-    const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
-    if (!LOWCODER_EMAIL_SIGNUP_ENABLED) {
-      return setSignupEnabled(true);
-    }
+    const {
+      LOWCODER_EMAIL_SIGNUP_ENABLED,
+      LOWCODER_EMAIL_AUTH_ENABLED,
+    } = serverSettings;
+
     setSignupEnabled(LOWCODER_EMAIL_SIGNUP_ENABLED === 'true');
+    setSigninEnabled(LOWCODER_EMAIL_AUTH_ENABLED === 'true');
   }, [serverSettings]);
 
   const { onSubmit, loading } = useAuthSubmit(
@@ -167,8 +182,9 @@ export default function FormLoginSteps(props: FormLoginProps) {
     }
 
     setOrgLoading(true);
+    // for enterprise mode, we will not ask for email in first step
     fetchOrgPaginationByEmail({
-      email: account,
+      email: isEnterpriseMode ? ' ' : account,
       pageNum: currentPage,
       pageSize: pageSize
     })
@@ -177,16 +193,13 @@ export default function FormLoginSteps(props: FormLoginProps) {
           setElements({elements: resp.data || [], total: resp.total || 1})
           setOrgList(resp.data);
           if (!resp.data.length) {
-            // history.push(
-            //   AUTH_REGISTER_URL,
-            //   {...location.state || {}, email: account},
-            // )
-            // return;
             throw new Error(trans("userAuth.userNotFound"));
           }
           if (resp.data.length === 1) {
-            setOrganizationId(resp.data[0].orgId);
-            dispatch(fetchConfigAction(resp.data[0].orgId));
+            // in Enterprise mode, we will get org data in different format
+            const selectedOrgId = isEnterpriseMode ? resp.data[0].id : resp.data[0].orgId;
+            setOrganizationId(selectedOrgId);
+            dispatch(fetchConfigAction(selectedOrgId));
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
             return;
           }
@@ -201,6 +214,39 @@ export default function FormLoginSteps(props: FormLoginProps) {
       .finally(() => {
         setOrgLoading(false);
       });
+  }
+
+  useEffect(() => {
+    if (isEnterpriseMode) {
+      // dispatch(fetchConfigAction());
+      fetchOrgsByEmail();
+    }
+  }, [isEnterpriseMode]);
+
+  if (isEnterpriseMode) {
+    return (
+      <Spin indicator={<LoadingOutlined style={{ fontSize: 30 }} />} spinning={isFetchingConfig}>
+        { isEmailLoginEnabled && <FormLogin /> }
+        <ThirdPartyAuth
+          invitationId={invitationId}
+          invitedOrganizationId={organizationId}
+          authGoal="login"
+        />
+        {signupEnabled && (
+          <>
+            <Divider/>
+            <AuthBottomView>
+              <StyledRouteLink to={{
+                pathname: AUTH_REGISTER_URL,
+                state: {...location.state || {}, email: account}
+              }}>
+                {trans("userAuth.register")}
+              </StyledRouteLink>
+            </AuthBottomView>
+          </>
+        )}
+      </Spin>
+    );
   }
 
   if(currentStep === CurrentStepEnum.EMAIL) {
@@ -281,10 +327,10 @@ export default function FormLoginSteps(props: FormLoginProps) {
         }} />
         <StepHeader
           title={
-            isFormLoginEnabled ? trans("userAuth.enterPassword") : trans("userAuth.selectAuthProvider")
+            isEmailLoginEnabled ? trans("userAuth.enterPassword") : trans("userAuth.selectAuthProvider")
           }
         />
-        {isFormLoginEnabled && (
+        {isEmailLoginEnabled && (
           <>
             <PasswordInput
               className="form-input password-input"
@@ -316,7 +362,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           />
         )}
       </AccountLoginWrapper>
-      {isFormLoginEnabled && signupEnabled && (
+      {isEmailLoginEnabled && signupEnabled && (
         <>
           <Divider/>
           <AuthBottomView>

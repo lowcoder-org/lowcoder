@@ -63,11 +63,15 @@ function UserRegister() {
       return inviteInfo?.invitedOrganizationId;
     }
     return orgId;
-  }, [ inviteInfo, orgId ])
+  }, [ inviteInfo, orgId ]);
 
   const authId = systemConfig?.form.id;
 
   const serverSettings = useSelector(getServerSettings);
+
+  const isEnterpriseMode = useMemo(() => {
+    return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
+  }, [serverSettings]);
 
   useEffect(() => {
     const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
@@ -160,7 +164,7 @@ function UserRegister() {
             {trans("userAuth.register")}
           </ConfirmButton>
           <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
-          {organizationId && (
+          {(organizationId || isEnterpriseMode) && (
             <ThirdPartyAuth
               invitationId={invitationId}
               invitedOrganizationId={organizationId}
