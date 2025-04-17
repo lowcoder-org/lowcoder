@@ -109,11 +109,13 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
   return (
-    <div className="environment-detail-container" style={{ padding: "24px", flex: 1 }}>
-
-    <Breadcrumb style={{ marginBottom: "16px" }}>
+    <div
+      className="environment-detail-container"
+      style={{ padding: "24px", flex: 1 }}
+    >
+      <Breadcrumb style={{ marginBottom: "16px" }}>
         <Breadcrumb.Item>
-          <span 
+          <span
             style={{ cursor: "pointer" }}
             onClick={() => history.push("/setting/environments")}
           >
@@ -122,7 +124,6 @@ const EnvironmentDetail: React.FC = () => {
         </Breadcrumb.Item>
         <Breadcrumb.Item>{environment.environmentName}</Breadcrumb.Item>
       </Breadcrumb>
-  
 
       {/* Header with environment name and controls */}
       <div
@@ -131,25 +132,25 @@ const EnvironmentDetail: React.FC = () => {
           marginBottom: "24px",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "center",
+          alignItems: "flex-start", // Changed from center to allow wrapping
+          flexWrap: "wrap", // Allow wrapping on small screens
+          gap: "16px", // Add spacing between wrapped elements
         }}
       >
-        <div>
-          <Title level={3}>
+        <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
+          <Title level={3} style={{ margin: 0, wordBreak: "break-word" }}>
             {environment.environmentName || "Unnamed Environment"}
           </Title>
           <Text type="secondary">ID: {environment.environmentId}</Text>
         </div>
-        <Dropdown overlay={actionsMenu} trigger={['click']}>
-          <Button 
-            icon={<MoreOutlined />} 
-            shape="circle"
-            size="large"
-          />
-        </Dropdown>
+        <div style={{ flexShrink: 0 }}>
+          <Dropdown overlay={actionsMenu} trigger={["click"]}>
+            <Button icon={<MoreOutlined />} shape="circle" size="large" />
+          </Dropdown>
+        </div>
       </div>
 
-      {/* Basic Environment Information Card */}
+      {/* Basic Environment Information Card - improved responsiveness */}
       <Card
         title="Environment Overview"
         style={{ marginBottom: "24px" }}
@@ -157,7 +158,9 @@ const EnvironmentDetail: React.FC = () => {
       >
         <Descriptions
           bordered
+          layout="vertical" // Change to vertical layout on smaller screens
           column={{ xxl: 4, xl: 3, lg: 3, md: 2, sm: 1, xs: 1 }}
+          size="small" // Use smaller size on mobile
         >
           <Descriptions.Item label="Domain">
             {environment.environmentFrontendUrl ? (
@@ -200,7 +203,7 @@ const EnvironmentDetail: React.FC = () => {
 
       {/* Tabs for Workspaces and User Groups */}
       <Tabs defaultActiveKey="workspaces">
-      <TabPane tab="Workspaces" key="workspaces">
+        <TabPane tab="Workspaces" key="workspaces">
           {/* Using our new generic component with the workspace config */}
           <DeployableItemsTab
             environment={environment}
@@ -215,14 +218,13 @@ const EnvironmentDetail: React.FC = () => {
             </span>
           }
           key="userGroups"
-        > 
+        >
           {/* Using our new generic component with the user group config */}
           <DeployableItemsTab
             environment={environment}
             config={userGroupsConfig}
             title="User Groups in this Environment"
           />
-
         </TabPane>
       </Tabs>
       {/* Edit Environment Modal */}
@@ -235,7 +237,6 @@ const EnvironmentDetail: React.FC = () => {
           loading={isUpdating}
         />
       )}
-
     </div>
   );
 };
