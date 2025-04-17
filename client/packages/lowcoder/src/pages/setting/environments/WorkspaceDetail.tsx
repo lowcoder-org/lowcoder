@@ -100,7 +100,7 @@ const WorkspaceDetail: React.FC = () => {
           showIcon
           style={{ margin: '24px' }}
           action={
-            <Button type="primary" onClick={() => history.push(`/home/settings/environments/${environmentId}`)}>
+            <Button type="primary" onClick={() => history.push(`/setting/environments/${environmentId}`)}>
               Back to Environment
             </Button>
           }
@@ -193,7 +193,7 @@ const WorkspaceDetail: React.FC = () => {
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={() =>
-                history.push(`/home/settings/environments/${environmentId}`)
+                history.push(`/setting/environments/${environmentId}`)
               }
             >
               Back
