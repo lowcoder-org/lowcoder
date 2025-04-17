@@ -115,17 +115,23 @@ const WorkspaceDetail: React.FC = () => {
     >
       {/* Breadcrumb navigation */}
       <Breadcrumb style={{ marginBottom: "16px" }}>
-        <Breadcrumb.Item
-          onClick={() => history.push("/home/settings/environments")}
-        >
-          <HomeOutlined /> Environments
+        <Breadcrumb.Item>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => history.push("/setting/environments")}
+          >
+            <HomeOutlined /> Environments
+          </span>
         </Breadcrumb.Item>
-        <Breadcrumb.Item
-          onClick={() =>
-            history.push(`/home/settings/environments/${environmentId}`)
-          }
-        >
-          <TeamOutlined /> {environment.environmentName}
+        <Breadcrumb.Item>
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() =>
+              history.push(`/setting/environments/${environmentId}`)
+            }
+          >
+            <TeamOutlined /> {environment.environmentName}
+          </span>
         </Breadcrumb.Item>
         <Breadcrumb.Item>{workspace.name}</Breadcrumb.Item>
       </Breadcrumb>

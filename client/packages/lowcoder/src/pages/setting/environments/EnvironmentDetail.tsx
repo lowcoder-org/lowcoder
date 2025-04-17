@@ -11,6 +11,7 @@ import {
   Dropdown,
   Menu,
   Button,
+  Breadcrumb,
 } from "antd";
 import {
   ReloadOutlined,
@@ -22,6 +23,7 @@ import {
   EditOutlined,
   EllipsisOutlined,
   MoreOutlined,
+  HomeOutlined
 } from "@ant-design/icons";
 
 import { useEnvironmentContext } from "./context/EnvironmentContext";
@@ -30,6 +32,7 @@ import { userGroupsConfig } from "./config/usergroups.config";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 import EditEnvironmentModal from "./components/EditEnvironmentModal";
 import { Environment } from "./types/environment.types";
+import history from "@lowcoder-ee/util/history";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -106,6 +109,20 @@ const EnvironmentDetail: React.FC = () => {
   }
   return (
     <div className="environment-detail-container" style={{ padding: "24px", flex: 1 }}>
+
+    <Breadcrumb style={{ marginBottom: "16px" }}>
+        <Breadcrumb.Item>
+          <span 
+            style={{ cursor: "pointer" }}
+            onClick={() => history.push("/setting/environments")}
+          >
+            <HomeOutlined /> Environments
+          </span>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>{environment.environmentName}</Breadcrumb.Item>
+      </Breadcrumb>
+  
+
       {/* Header with environment name and controls */}
       <div
         className="environment-header"
