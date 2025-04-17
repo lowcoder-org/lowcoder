@@ -141,26 +141,36 @@ export function createDeployColumn<T extends DeployableItem, S extends BaseStats
   return {
     title: 'Actions',
     key: 'actions',
-    render: (_, record: T) => (
-      <Space>
-        <Tooltip title={`Deploy this ${config.singularLabel.toLowerCase()} to another environment`}>
-          <Button
-            icon={<CloudUploadOutlined />}
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent row click navigation
-              openDeployModal(record, config, environment);
-            }}
-            type="primary"
-            ghost
+    render: (_, record: T) => {
+      // Check if the item is managed
+      const isManaged = record.managed === true;
+      
+      return (
+        <Space>
+          <Tooltip title={isManaged 
+            ? `Deploy this ${config.singularLabel.toLowerCase()} to another environment` 
+            : `Item must be managed before it can be deployed`}
           >
-            Deploy
-          </Button>
-        </Tooltip>
-      </Space>
-    ),
+            <Button
+              icon={<CloudUploadOutlined />}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent row click navigation
+                if (isManaged) {
+                  openDeployModal(record, config, environment);
+                }
+              }}
+              type="primary"
+              ghost
+              disabled={!isManaged}
+            >
+              Deploy
+            </Button>
+          </Tooltip>
+        </Space>
+      );
+    },
   };
 }
-
 
 // App-specific columns
 export function createPublishedColumn<T extends { published?: boolean }>(): ColumnType<T> {
