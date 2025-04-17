@@ -14,7 +14,8 @@ import {
   Space,
   Tag,
   Switch, 
-  message
+  message,
+  Tooltip
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -180,16 +181,24 @@ const WorkspaceDetail: React.FC = () => {
                 unCheckedChildren="No"
               />
             </div>
-            <Button
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              onClick={() =>
-                openDeployModal(workspace, workspaceConfig, environment)
+            <Tooltip
+              title={
+                !workspace.managed
+                  ? "Workspace must be managed before it can be deployed"
+                  : "Deploy this workspace to another environment"
               }
-              disabled={!workspace.managed}
             >
-              Deploy
-            </Button>
+              <Button
+                type="primary"
+                icon={<CloudUploadOutlined />}
+                onClick={() =>
+                  openDeployModal(workspace, workspaceConfig, environment)
+                }
+                disabled={!workspace.managed}
+              >
+                Deploy
+              </Button>
+            </Tooltip>
             <Button
               icon={<ArrowLeftOutlined />}
               onClick={() =>
