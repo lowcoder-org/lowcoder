@@ -102,8 +102,10 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
       createIdColumn<Workspace>(),
       createNameColumn<Workspace>(),
       createRoleColumn<Workspace>(),
+      createManagedColumn<Workspace>(),
       createDateColumn<Workspace>('creationDate', 'Creation Date'),
       createStatusColumn<Workspace>()
+
     ];
     
 
