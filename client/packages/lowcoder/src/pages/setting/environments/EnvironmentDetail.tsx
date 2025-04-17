@@ -126,15 +126,16 @@ const EnvironmentDetail: React.FC = () => {
       </Breadcrumb>
 
       {/* Header with environment name and controls */}
+      {/* Header with environment name and controls */}
       <div
         className="environment-header"
         style={{
           marginBottom: "24px",
           display: "flex",
           justifyContent: "space-between",
-          alignItems: "flex-start", // Changed from center to allow wrapping
-          flexWrap: "wrap", // Allow wrapping on small screens
-          gap: "16px", // Add spacing between wrapped elements
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: "16px",
         }}
       >
         <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
@@ -144,9 +145,13 @@ const EnvironmentDetail: React.FC = () => {
           <Text type="secondary">ID: {environment.environmentId}</Text>
         </div>
         <div style={{ flexShrink: 0 }}>
-          <Dropdown overlay={actionsMenu} trigger={["click"]}>
-            <Button icon={<MoreOutlined />} shape="circle" size="large" />
-          </Dropdown>
+          <Button
+            icon={<EditOutlined />}
+            onClick={handleEditClick}
+            type="primary"
+          >
+            Edit Environment
+          </Button>
         </div>
       </div>
 
