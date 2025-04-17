@@ -88,6 +88,7 @@ const EnvironmentDetail: React.FC = () => {
       {/* Add more menu items here if needed */}
     </Menu>
   );
+  debugger
   
   if (isLoadingEnvironment) {
     return (

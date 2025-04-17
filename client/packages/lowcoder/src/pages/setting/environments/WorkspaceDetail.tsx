@@ -84,30 +84,22 @@ const WorkspaceDetail: React.FC = () => {
     }
   };
 
-    if (envLoading || workspaceLoading) {
+    if (envLoading || workspaceLoading ) {
       return (
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
           <Spin size="large" tip="Loading workspace details..." />
         </div>
       );
     }
-    
-    if (envError || workspaceError || !environment || !workspace) {
+
+    if (!environment || !workspace) {
       return (
-        <Alert
-          message="Error loading workspace details"
-          description={envError || workspaceError || "Workspace not found."}
-          type="error"
-          showIcon
-          style={{ margin: '24px' }}
-          action={
-            <Button type="primary" onClick={() => history.push(`/setting/environments/${environmentId}`)}>
-              Back to Environment
-            </Button>
-          }
-        />
-      );
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
+          <Typography.Title level={3}>Workspace not found</Typography.Title>
+        </div>  
+      ) 
     }
+
   
   return (
     <div
