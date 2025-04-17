@@ -177,11 +177,12 @@ export default function FormLoginSteps(props: FormLoginProps) {
           setElements({elements: resp.data || [], total: resp.total || 1})
           setOrgList(resp.data);
           if (!resp.data.length) {
-            history.push(
-              AUTH_REGISTER_URL,
-              {...location.state || {}, email: account},
-            )
-            return;
+            // history.push(
+            //   AUTH_REGISTER_URL,
+            //   {...location.state || {}, email: account},
+            // )
+            // return;
+            throw new Error(trans("userAuth.userNotFound"));
           }
           if (resp.data.length === 1) {
             setOrganizationId(resp.data[0].orgId);
@@ -228,7 +229,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
             <AuthBottomView>
               <StyledRouteLink to={{
                 pathname: AUTH_REGISTER_URL,
-                state: location.state
+                state: {...location.state || {}, email: account}
               }}>
                 {trans("userAuth.register")}
               </StyledRouteLink>

@@ -3205,6 +3205,7 @@ export const en = {
     "enterPassword": "Enter your password",
     "selectAuthProvider": "Select Authentication Provider",
     "selectWorkspace": "Select your workspace",
+    "userNotFound": "User not found. Please make sure you entered the correct email."
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
