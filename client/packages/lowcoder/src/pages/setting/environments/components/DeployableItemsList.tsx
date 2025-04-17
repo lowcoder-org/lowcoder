@@ -46,13 +46,13 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
     history.push(route);
   };
 
-  // Determine columns - Use new getColumns method if available, fall back to old approach
+  // Get columns from config
   const columns = config.getColumns({
-      environment,
-      refreshing,
-      onToggleManaged,
-      openDeployModal,
-      additionalParams 
+    environment,
+    refreshing,
+    onToggleManaged,
+    openDeployModal,
+    additionalParams 
     }) 
     
 
@@ -82,6 +82,7 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
       rowKey={config.idField}
       pagination={{ pageSize: 10 }}
       size="middle"
+      scroll={{ x: 'max-content' }} 
       onRow={(record) => ({
         onClick: hasNavigation ? () => handleRowClick(record) : undefined,
         style: hasNavigation ? { cursor: 'pointer' } : undefined,
