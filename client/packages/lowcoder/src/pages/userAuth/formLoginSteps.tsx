@@ -155,6 +155,13 @@ export default function FormLoginSteps(props: FormLoginProps) {
     setSigninEnabled(LOWCODER_EMAIL_AUTH_ENABLED === 'true');
   }, [serverSettings]);
 
+  const afterLoginSuccess = () => {
+    if (props.organizationId) {
+      localStorage.setItem("lowcoder_login_orgId", props.organizationId);
+    }
+    fetchUserAfterAuthSuccess?.();
+  }
+
   const { onSubmit, loading } = useAuthSubmit(
     () =>
       UserApi.formLogin({
@@ -168,7 +175,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
       }),
     false,
     redirectUrl,
-    fetchUserAfterAuthSuccess,
+    afterLoginSuccess,
   );
 
   const fetchOrgsByEmail = () => {
@@ -274,7 +281,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
             <Divider/>
             <AuthBottomView>
               <StyledRouteLink to={{
-                pathname: AUTH_REGISTER_URL,
+                pathname: props.organizationId ? `/org/${props.organizationId}/auth/register` : AUTH_REGISTER_URL,
                 state: {...location.state || {}, email: account}
               }}>
                 {trans("userAuth.register")}

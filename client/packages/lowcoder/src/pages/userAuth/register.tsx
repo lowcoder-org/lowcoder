@@ -86,6 +86,13 @@ function UserRegister() {
     };
   }, [serverSettings]);
   
+  const afterLoginSuccess = () => {
+    if (organizationId) {
+      localStorage.setItem("lowcoder_login_orgId", organizationId);
+    }
+    fetchUserAfterAuthSuccess?.();
+  }
+
   const { loading, onSubmit } = useAuthSubmit(
     () =>
       UserApi.formLogin({
@@ -99,7 +106,7 @@ function UserRegister() {
       }),
     false,
     redirectUrl,
-    fetchUserAfterAuthSuccess,
+    afterLoginSuccess,
   );
 
   const checkEmailExist = () => {
