@@ -30,6 +30,8 @@ import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Badge from "antd/es/badge";
 import { CrownFilled } from "@ant-design/icons";
 import { SUBSCRIPTION_SETTING } from "@lowcoder-ee/constants/routesURL";
+import { useSimpleSubscriptionContext } from "@lowcoder-ee/util/context/SimpleSubscriptionContext";
+import { SubscriptionProductsEnum } from "@lowcoder-ee/constants/subscriptionConstants";
 
 const ButtonWrapper = styled.div`
   width: 100%;
@@ -227,6 +229,11 @@ export const IconPicker = (props: {
   const [ downloading, setDownloading ] = useState(false)
   const [ searchText, setSearchText ] = useState<string>('')
   const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
+  const { subscriptions } = useSimpleSubscriptionContext();
+
+  const mediaPackSubscription = subscriptions.find(
+    sub => sub.product === SubscriptionProductsEnum.MEDIAPACKAGE && sub.status === 'active'
+  );
 
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
@@ -319,7 +326,7 @@ export const IconPicker = (props: {
               onClick={() => {
                 // check if premium content then show subscription popup
                 // TODO: if user has subscription then skip this if block
-                if (icon.price !== 0) {
+                if (!mediaPackSubscription) {
                   CustomModal.confirm({
                     title: trans("iconScout.buySubscriptionTitle"),
                     content: trans("iconScout.buySubscriptionContent"),
