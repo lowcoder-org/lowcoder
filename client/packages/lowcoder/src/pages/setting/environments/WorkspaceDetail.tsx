@@ -27,7 +27,6 @@ import {
   CloudUploadOutlined
 } from "@ant-design/icons";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
-import { useWorkspace } from "./hooks/useWorkspace";
 import DeployableItemsTab from "./components/DeployableItemsTab";
 import { appsConfig } from "./config/apps.config";
 import { dataSourcesConfig } from "./config/data-sources.config";
