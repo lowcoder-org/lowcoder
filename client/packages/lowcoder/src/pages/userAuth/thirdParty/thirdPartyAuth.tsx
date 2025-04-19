@@ -8,7 +8,7 @@ import history from "util/history";
 import { LoginLogoStyle, LoginLabelStyle, StyledLoginButton } from "pages/userAuth/authComponents";
 import { useSelector } from "react-redux";
 import { getSystemConfigFetching, selectSystemConfig } from "redux/selectors/configSelectors";
-import React from "react";
+import React, { useMemo } from "react";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import styled from "styled-components";
 import { trans } from "i18n";
@@ -19,6 +19,7 @@ import { useRedirectUrl } from "util/hooks";
 import { MultiIconDisplay } from "../../../comps/comps/multiIconDisplay";
 import Spin from "antd/es/spin";
 import { LoadingOutlined } from "@ant-design/icons";
+import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
 
 const { Text } = Typography;
 
@@ -111,7 +112,16 @@ export function ThirdPartyAuth(props: {
 }) {
   const systemConfigFetching = useSelector(getSystemConfigFetching);
   const systemConfig = useSelector(selectSystemConfig);
+  const serverSettings = useSelector(getServerSettings);
   const isFormLoginEnabled = systemConfig?.form.enableLogin;
+
+  const isEmailLoginEnabled = useMemo(() => {
+    return isFormLoginEnabled && serverSettings.LOWCODER_EMAIL_AUTH_ENABLED === 'true';
+  }, [isFormLoginEnabled, serverSettings]);
+
+  const isEmailSignupEnabled = useMemo(() => {
+    return serverSettings.LOWCODER_EMAIL_SIGNUP_ENABLED === 'true';
+  }, [serverSettings]);
   
   if (systemConfigFetching) {
     return <Spin indicator={<LoadingOutlined style={{ fontSize: 15, marginTop: '16px' }} spin />} />;
@@ -140,7 +150,10 @@ export function ThirdPartyAuth(props: {
   });
   return (
     <ThirdPartyLoginButtonWrapper>
-      { isFormLoginEnabled && Boolean(socialLoginButtons.length) && (
+      { (
+        (isEmailLoginEnabled && props.authGoal === 'login')
+        || (isEmailSignupEnabled && props.authGoal === 'register')
+      ) && Boolean(socialLoginButtons.length) && (
         <Divider plain>
           <Text type="secondary">or</Text>
         </Divider>

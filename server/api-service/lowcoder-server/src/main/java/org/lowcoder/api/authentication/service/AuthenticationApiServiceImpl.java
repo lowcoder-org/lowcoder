@@ -348,7 +348,10 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return sessionUserService.getVisitor()
                 .flatMapIterable(user ->
                         new ArrayList<>(user.getApiKeysList())
-                );
+                )
+                .doOnNext(apiKey -> {
+                    apiKey.setToken(apiKey.getToken().substring(0, 6) + "*************" + apiKey.getToken().substring(apiKey.getToken().length() - 6));
+                });
     }
 
     private Mono<Void> removeTokensByAuthId(String authId) {
