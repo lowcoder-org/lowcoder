@@ -65,13 +65,19 @@ export const getAuditLogs = async (params = {}) => {
   return response.data;
 };
 
-export const getAuditLogStatistics = async (groupByParam : string) => {
-  const response = await axios.get(`/api/plugins/enterprise/audit-logs/statistics?groupByParam=${groupByParam}`);
+export const getAuditLogStatistics = async (params = {}) => {
+  const query = new URLSearchParams(params).toString();
+  const response = await axios.get(`/api/plugins/enterprise/audit-logs/statistics?groupByParam=eventTypeId${query ? `&${query}` : ''}`);
   return response.data;
 };
 
 export const getMeta = async (formData = {}) => {
-  const response = await axios.post(`/api/meta`, formData);
+  const response = await axios.post(`/api/meta/`, formData);
+  return response.data;
+}
+
+export const getEnvironmentsByIds = async (formData: string[] = []) => {
+  const response = await axios.post(`/api/plugins/enterprise/environments/byIds`, formData);
   return response.data;
 }
 

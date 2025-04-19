@@ -10,17 +10,17 @@ import {
   } from "../theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
-import { fetchCommonSettings } from "@lowcoder-ee/redux/reduxActions/commonSettingsActions";
-import ReactECharts from "echarts-for-react";
-import { getAuditLogs } from "api/enterpriseApi";
+import { getAuditLogs, getAuditLogStatistics, getEnvironmentsByIds, getMeta } from "api/enterpriseApi";
 import EventTypeTimeChart from "./charts/eventTypesTime";
-import { debounce } from "lodash";
+import { debounce, uniqBy } from "lodash";
 import { DatePicker } from "antd";
 import dayjs, { Dayjs } from "dayjs";
 import { Link, useLocation } from "react-router-dom";
 import history from "util/history";
 import { SETTING_URL } from "@lowcoder-ee/constants/routesURL";
 import { EyeOutlined } from "@ant-design/icons";
+import { AuditLog, AuditLogStat, eventTypes } from "./auditContants";
+import Statistics from "./components/statistics";
 
 const { RangePicker } = DatePicker;
 
@@ -42,45 +42,6 @@ const StyleThemeSettingsCover = styled.div`
   border-radius: 10px 10px 0 0;
 `;
 
-const eventTypes = [
-  { value: "USER_LOGIN", label: trans("enterprise.USER_LOGIN"), color: "#1890ff" },
-  { value: "USER_LOGOUT", label: trans("enterprise.USER_LOGOUT"), color: "#1d39c4" },
-  { value: "APPLICATION_CREATE", label: trans("enterprise.APPLICATION_CREATE"), color: "#52c41a" },
-  { value: "APPLICATION_DELETE", label: trans("enterprise.APPLICATION_DELETE"), color: "#389e0d" },
-  { value: "APPLICATION_UPDATE", label: trans("enterprise.APPLICATION_UPDATE"), color: "#237804" },
-  { value: "APPLICATION_MOVE", label: trans("enterprise.APPLICATION_MOVE"), color: "#135200" },
-  { value: "APPLICATION_RECYCLED", label: trans("enterprise.APPLICATION_RECYCLED"), color: "#00474f" },
-  { value: "APPLICATION_RESTORE", label: trans("enterprise.APPLICATION_RESTORE"), color: "#003a8c" },
-  { value: "APPLICATION_PUBLISH", label: trans("enterprise.APPLICATION_PUBLISH"), color: "#002766" },
-  { value: "APPLICATION_VERSION_CHANGE", label: trans("enterprise.APPLICATION_VERSION_CHANGE"), color: "#0050b3" },
-  { value: "APPLICATION_SHARING_CHANGE", label: trans("enterprise.APPLICATION_SHARING_CHANGE"), color: "#1890ff" },
-  { value: "APPLICATION_PERMISSION_CHANGE", label: trans("enterprise.APPLICATION_PERMISSION_CHANGE"), color: "#1d39c4" },
-  { value: "FOLDER_CREATE", label: trans("enterprise.FOLDER_CREATE"), color: "#faad14" },
-  { value: "FOLDER_DELETE", label: trans("enterprise.FOLDER_DELETE"), color: "#d48806" },
-  { value: "FOLDER_UPDATE", label: trans("enterprise.FOLDER_UPDATE"), color: "#ad6800" },
-  { value: "QUERY_EXECUTION", label: trans("enterprise.QUERY_EXECUTION"), color: "#722ed1" },
-  { value: "GROUP_CREATE", label: trans("enterprise.GROUP_CREATE"), color: "#f5222d" },
-  { value: "GROUP_UPDATE", label: trans("enterprise.GROUP_UPDATE"), color: "#cf1322" },
-  { value: "GROUP_DELETE", label: trans("enterprise.GROUP_DELETE"), color: "#a8071a" },
-  { value: "GROUP_MEMBER_ADD", label: trans("enterprise.GROUP_MEMBER_ADD"), color: "#820014" },
-  { value: "GROUP_MEMBER_ROLE_UPDATE", label: trans("enterprise.GROUP_MEMBER_ROLE_UPDATE"), color: "#5c0011" },
-  { value: "GROUP_MEMBER_LEAVE", label: trans("enterprise.GROUP_MEMBER_LEAVE"), color: "#8c8c8c" },
-  { value: "GROUP_MEMBER_REMOVE", label: trans("enterprise.GROUP_MEMBER_REMOVE"), color: "#595959" },
-  { value: "SERVER_START_UP", label: trans("enterprise.SERVER_START_UP"), color: "#8c8c8c" },
-  { value: "SERVER_INFO", label: trans("enterprise.SERVER_INFO"), color: "#595959" },
-  { value: "DATA_SOURCE_CREATE", label: trans("enterprise.DATA_SOURCE_CREATE"), color: "#f5222d" },
-  { value: "DATA_SOURCE_UPDATE", label: trans("enterprise.DATA_SOURCE_UPDATE"), color: "#cf1322" },
-  { value: "DATA_SOURCE_DELETE", label: trans("enterprise.DATA_SOURCE_DELETE"), color: "#a8071a" },
-  { value: "DATA_SOURCE_PERMISSION_GRANT", label: trans("enterprise.DATA_SOURCE_PERMISSION_GRANT"), color: "#820014" },
-  { value: "DATA_SOURCE_PERMISSION_UPDATE", label: trans("enterprise.DATA_SOURCE_PERMISSION_UPDATE"), color: "#5c0011" },
-  { value: "DATA_SOURCE_PERMISSION_DELETE", label: trans("enterprise.DATA_SOURCE_PERMISSION_DELETE"), color: "#8c8c8c" },
-  { value: "LIBRARY_QUERY_CREATE", label: trans("enterprise.LIBRARY_QUERY_CREATE"), color: "#722ed1" },
-  { value: "LIBRARY_QUERY_UPDATE", label: trans("enterprise.LIBRARY_QUERY_UPDATE"), color: "#531dab" },
-  { value: "LIBRARY_QUERY_DELETE", label: trans("enterprise.LIBRARY_QUERY_DELETE"), color: "#391085" },
-  { value: "LIBRARY_QUERY_PUBLISH", label: trans("enterprise.LIBRARY_QUERY_PUBLISH"), color: "#22075e" },
-  { value: "API_CALL_EVENT", label: trans("enterprise.API_CALL_EVENT"), color: "#8c8c8c" },
-];
-
 export const getEventColor = (eventType: string): string => {
   const matchedType = eventTypes.find((et) => et.value === eventType);
   return matchedType ? matchedType.color : "#8c8c8c";
@@ -92,23 +53,14 @@ export const getEventLabel = (eventType: string): string => {
 };
 
 export function AuditLogDashboard() {
-
-  type AuditLog = {
-    eventType: string;
-    eventTime: string;
-    environmentId: string;
-    orgId: string;
-    userId: string;
-    appId: string;
-  };
-
   const currentUser = useSelector(getUser);
   const location = useLocation();
 
   const [allLogs, setAllLogs] = useState<AuditLog[]>([]); 
   const [currentPageLogs, setCurrentPageLogs] = useState<AuditLog[]>([]);
+  const [statistics, setStatistics] = useState<AuditLogStat[]>([]);
+  const [dataMap, setDataMap] = useState<Record<string, any>>({});
 
-  // const [logs, setLogs] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [form] = Form.useForm();
@@ -143,6 +95,66 @@ export function AuditLogDashboard() {
     form.setFieldsValue(getQueryParams());
   }, []);
 
+  const findUniqueDataIds = async () => {
+    if (!allLogs.length) {
+      return setDataMap({});
+    }
+
+    const uniqueOrgIds: string[] = uniqBy(allLogs, 'orgId').map(item => item.orgId);
+    const uniqueUserIds: string[] = uniqBy(allLogs, 'userId').map(item => item.userId);
+    const uniqueEnvIds: string[] = uniqBy(allLogs, 'environmentId').map(item => item.environmentId);
+
+    const metaResponse = await getMeta({
+      orgIds: uniqueOrgIds,
+      userIds: uniqueUserIds,
+      appIds: [],
+      groupIds: [],
+      bundleIds: [],
+      datasourceIds: [],
+      folderIds: [],
+      libraryQueryIds: []
+    });
+
+    const envResponse = await getEnvironmentsByIds(uniqueEnvIds);
+
+    const tempDataMap: Record<string, any> = {};
+    metaResponse.data?.orgs?.forEach((org: { id: string; name: string; }) => {
+      tempDataMap[org.id] = org.name;
+    });
+    metaResponse.data?.users?.forEach((user: { id: string; name: string; }) => {
+      tempDataMap[user.id] = user.name;
+    });
+    envResponse.data?.forEach((env: { environmentId: string; environmentType: string; }) => {
+      tempDataMap[env.environmentId] = env.environmentType;
+    });
+    setDataMap(tempDataMap);
+  }
+
+  useEffect(() => {
+    findUniqueDataIds();
+  }, [allLogs]);
+
+  const getCleanedParams = (newPage?: number) => {
+    const formValues = form.getFieldsValue();
+  
+    let cleanedParams = Object.fromEntries(
+      Object.entries({
+        ...formValues,
+        fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
+        toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
+      }).filter(([key, value]) => value !== undefined && value !== null && value !== "" && key !== 'dateRange')
+    );
+    if (newPage) {
+      cleanedParams = {
+        ...cleanedParams,
+        pageSize: 100, // Always fetch 500 from API
+        pageNum: newPage, // API page number
+      }
+    }
+
+    return cleanedParams;
+  }
+  
   const handleQueryParams = (queryParams: Record<string, string>) => {
     const params = new URLSearchParams();
     Object.keys(queryParams).map((key) => {
@@ -155,27 +167,28 @@ export function AuditLogDashboard() {
     })
     history.push({ search: params.toString() })
   }
+  
+  const fetchStatistics = async () => {
+    const cleanedParams = getCleanedParams();
+
+    const stats = await getAuditLogStatistics(cleanedParams);
+    setStatistics(stats?.data || []);
+  }
 
   // Fetch Logs with all form values if set
   const fetchLogs = async (newPage: number, resetData: boolean = false) => {
-    const formValues = form.getFieldsValue();
-  
-    const cleanedParams = Object.fromEntries(
-      Object.entries({
-        ...formValues,
-        pageSize: 100, // Always fetch 500 from API
-        pageNum: newPage, // API page number
-        fromTimestamp: formValues.dateRange?.[0] ? formValues.dateRange[0].toISOString() : undefined,
-        toTimestamp: formValues.dateRange?.[1] ? formValues.dateRange[1].toISOString() : undefined,
-      }).filter(([key, value]) => value !== undefined && value !== null && value !== "" && key !== 'dateRange')
-    );
+    const cleanedParams = getCleanedParams(newPage);
 
     handleQueryParams(cleanedParams as any);
 
     setLoading(true);
     try {
       const data = await getAuditLogs(cleanedParams);
-  
+      // fetch statistics only when page is 1
+      if (newPage === 1) {
+        fetchStatistics();
+      }
+
       if (resetData) {
         setAllLogs(data.data || []);
         setPagination({ pageSize: 25, current: 1 }); // Reset pagination
@@ -328,26 +341,38 @@ export function AuditLogDashboard() {
       dataIndex: "environmentId",
       key: "environmentId",
       render: (text: string) => (
-        <a onClick={() => handleClickFilter("environmentId", text)}>{text}</a>
+        <a onClick={() => handleClickFilter("environmentId", text)}>{dataMap[text] ?? text}</a>
       ),
     },
     {
       title: "Org ID",
       dataIndex: "orgId",
       key: "orgId",
-      render: (text: string) => <a onClick={() => handleClickFilter("orgId", text)}>{text}</a>,
+      render: (text: string) => (
+        <a onClick={() => handleClickFilter("orgId", text)}>{dataMap[text] ?? text}</a>
+      ),
     },
     {
       title: "User ID",
       dataIndex: "userId",
       key: "userId",
-      render: (text: string) => <a onClick={() => handleClickFilter("userId", text)}>{text}</a>,
+      render: (text: string) => (
+        <a onClick={() => handleClickFilter("userId", text)}>{dataMap[text] ?? text}</a>
+      ),
     },
     {
       title: "App ID",
       dataIndex: "appId",
       key: "appId",
-      render: (text: string) => <a onClick={() => handleClickFilter("appId", text)}>{text}</a>,
+      render: (text: string, record: any) => (
+        <a onClick={() => handleClickFilter("appId", text)}>
+          {
+            record.details?.applicationName
+            || record.details?.applicationId
+            || '-'
+          }
+        </a>
+      ),
     }
   ];
 
@@ -418,6 +443,9 @@ export function AuditLogDashboard() {
               </Flex>
             </Form>
           </Card>
+          {Boolean(statistics.length) && !loading && (
+            <Statistics stats={statistics} />
+          )}
           <Card>
             {loading ? (
               <Skeleton active paragraph={{ rows: 5 }} />
