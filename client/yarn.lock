@@ -2953,6 +2953,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@lottiefiles/dotlottie-react@npm:^0.13.0":
+  version: 0.13.0
+  resolution: "@lottiefiles/dotlottie-react@npm:0.13.0"
+  dependencies:
+    "@lottiefiles/dotlottie-web": 0.40.1
+  peerDependencies:
+    react: ^17 || ^18 || ^19
+  checksum: bafe6ded727aab991ff03f6ff5a2fd1a41b1f429b36175f34140017fc684e0a8ef7f7b713d189bd49948c4b728fe1d05c7d8c20a0bea0d8c1ae1ed87614fe843
+  languageName: node
+  linkType: hard
+
+"@lottiefiles/dotlottie-web@npm:0.40.1":
+  version: 0.40.1
+  resolution: "@lottiefiles/dotlottie-web@npm:0.40.1"
+  checksum: a79e60c33845311cb055ea661abb2f4211063e149788aea724afbed05a09ae569d50b4c0e5825d13eb5fc62a33c3dc74f2f3900fdb1e99f8594feddc72d2cc27
+  languageName: node
+  linkType: hard
+
 "@lottiefiles/react-lottie-player@npm:^3.5.3":
   version: 3.6.0
   resolution: "@lottiefiles/react-lottie-player@npm:3.6.0"
@@ -14057,6 +14075,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fortawesome/free-regular-svg-icons": ^6.5.1
     "@fortawesome/free-solid-svg-icons": ^6.5.1
     "@fortawesome/react-fontawesome": latest
+    "@lottiefiles/dotlottie-react": ^0.13.0
     "@manaflair/redux-batch": ^1.0.0
     "@rjsf/antd": ^5.21.2
     "@rjsf/core": ^5.21.2

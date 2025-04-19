@@ -7,7 +7,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
-import React, { Suspense, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, Suspense, useEffect, useRef, useState } from "react";
 import type ReactQuill from "react-quill";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
@@ -19,7 +19,7 @@ import {
   readOnlyPropertyView,
   showDataLoadingIndicatorsPropertyView,
 } from "comps/utils/propertyUtils";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { trans } from "i18n";
 import { default as Skeleton } from "antd/es/skeleton";
 import { styleControl } from "comps/controls/styleControl";
@@ -294,9 +294,15 @@ function RichTextEditor(props: IProps) {
 }
 
 const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
-  const handleChange = (v: string) => {
-    props.value.onChange(v);
-    props.onEvent("change");
+  const debouncedOnChangeRef = useRef(
+    debounce((value: string) => {
+      props.value.onChange(value);
+      props.onEvent("change");
+    }, 1000)
+  );
+
+  const handleChange = (value: string) => {
+    debouncedOnChangeRef.current?.(value);
   };
 
   return (

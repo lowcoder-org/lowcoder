@@ -1,7 +1,7 @@
 package org.lowcoder.api.application;
 
 
-import jakarta.persistence.Tuple;
+
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +27,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
+
 
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +74,7 @@ public class ApplicationApiServiceIntegrationTest {
                         "app05",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
-                        null))
+                        null, null, null))
                 .delayUntil(__ -> deleteMono)
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest));
 
@@ -108,7 +108,7 @@ public class ApplicationApiServiceIntegrationTest {
                         "app03",
                         ApplicationType.APPLICATION.getValue(),
                         Map.of("comp", "list", "queries", Set.of(Map.of("datasourceId", datasource.getId()))),
-                        null))
+                        null, null, null))
                 .delayUntil(__ -> deleteMono)
                 .flatMap(createApplicationRequest -> applicationApiService.create(createApplicationRequest))
                 .flatMap(applicationView -> {
@@ -129,7 +129,7 @@ public class ApplicationApiServiceIntegrationTest {
     @Test
     @WithMockUser
     public void testUpdateEditingStateSuccess() {
-        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null));
+        Mono<ApplicationView> applicationViewMono = applicationApiService.create(new CreateApplicationRequest("org01", null, "app1", ApplicationType.APPLICATION.getValue(), Map.of("comp", "list"), null, null, null));
         Mono<ApplicationView> updateEditStateMono = applicationViewMono.delayUntil(app -> applicationApiService.updateEditState(app.getApplicationInfoView().getApplicationId(), new ApplicationEndpoints.UpdateEditStateRequest(true)));
         Mono<ApplicationView> app = updateEditStateMono.flatMap(applicationView -> applicationApiService.getEditingApplication(applicationView.getApplicationInfoView().getApplicationId()));
         StepVerifier.create(app)

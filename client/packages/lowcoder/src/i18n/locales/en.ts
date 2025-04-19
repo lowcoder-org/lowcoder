@@ -2639,7 +2639,8 @@ export const en = {
     "itemDataNameDesc": "The Variable Name Referring to the Item's Data Object, Default as {default}",
     "itemsDesc": "Exposing Data of Components in List",
     "dataDesc": "The JSON Data Used in the Current List",
-    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty."
+    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty.",
+    "enableSorting": "Allow Sorting"
   },
   "navigation": {
     "addText": "Add Submenu Item",
@@ -3307,6 +3308,7 @@ export const en = {
     "enterPassword": "Enter your password",
     "selectAuthProvider": "Select Authentication Provider",
     "selectWorkspace": "Select your workspace",
+    "userNotFound": "User not found. Please make sure you entered the correct email."
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -3883,9 +3885,17 @@ export const en = {
     "loop": "Loop",
     "auto": "Auto",
     "onHover": "On Hover",
+    "onTrigger": "On Trigger",
     "singlePlay": "Single Play",
     "endlessLoop": "Endless Loop",
-    "keepLastFrame": "Keep Last Frame displayed"
+    "keepLastFrame": "Keep Last Frame displayed",
+    "fit": "Fit",
+    "align": "Align",
+    "load": "On Load",
+    "play": "On Play",
+    "pause": "On Pause",
+    "stop": "On Stop",
+    "complete": "On Complete",
   },
   "timeLine": {
     "titleColor": "Title Color",
@@ -4191,6 +4201,15 @@ export const en = {
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 
+  iconScout: {
+    "searchImage": "Search Image",
+    "searchAnimation": "Search Animation",
+    "searchIcon": "Search Icon",
+    "noResults": "No results found.",
+    "buySubscriptionTitle": "Unlock Premium Assets",
+    "buySubscriptionContent": "This asset is exclusive to Media Package Subscribers. Subscribe to Media Package and download high-quality assets without limits!",
+    "buySubscriptionButton": "Subscribe Now",
+  }
 };
 
 // const jsonString = JSON.stringify(en, null, 2);

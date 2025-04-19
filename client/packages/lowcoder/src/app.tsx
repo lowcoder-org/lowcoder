@@ -62,6 +62,7 @@ import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
 import { fetchBrandingSetting } from "./redux/reduxActions/enterpriseActions";
 import { EnterpriseProvider } from "./util/context/EnterpriseContext";
+import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -295,8 +296,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               key="font-ubuntu"
               href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap"
               rel="stylesheet"
-            />,
-            // adding Clearbit Support for Analytics
+            />
           ]}
         </Helmet>
         <SystemWarning />
@@ -315,33 +315,35 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 component={LazyPublicAppEditor}
               />
 
-              <LazyRoute
-                fallback="layout"
-                path={APP_EDITOR_URL}
-                component={LazyAppEditor}
-              />
-              <LazyRoute
-                fallback="layout"
-                path={[
-                  USER_PROFILE_URL,
-                  NEWS_URL,
-                  ORG_HOME_URL,
-                  ALL_APPLICATIONS_URL,
-                  DATASOURCE_CREATE_URL,
-                  DATASOURCE_EDIT_URL,
-                  DATASOURCE_URL,
-                  SUPPORT_URL,
-                  QUERY_LIBRARY_URL,
-                  FOLDERS_URL,
-                  FOLDER_URL,
-                  TRASH_URL,
-                  SETTING_URL,
-                  MARKETPLACE_URL,
-                  ADMIN_APP_URL
-                ]}
-                // component={ApplicationListPage}
-                component={LazyApplicationHome}
-              />
+              <SimpleSubscriptionContextProvider>
+                <LazyRoute
+                  fallback="layout"
+                  path={APP_EDITOR_URL}
+                  component={LazyAppEditor}
+                />
+                <LazyRoute
+                  fallback="layout"
+                  path={[
+                    USER_PROFILE_URL,
+                    NEWS_URL,
+                    ORG_HOME_URL,
+                    ALL_APPLICATIONS_URL,
+                    DATASOURCE_CREATE_URL,
+                    DATASOURCE_EDIT_URL,
+                    DATASOURCE_URL,
+                    SUPPORT_URL,
+                    QUERY_LIBRARY_URL,
+                    FOLDERS_URL,
+                    FOLDER_URL,
+                    TRASH_URL,
+                    SETTING_URL,
+                    MARKETPLACE_URL,
+                    ADMIN_APP_URL
+                  ]}
+                  // component={ApplicationListPage}
+                  component={LazyApplicationHome}
+                />
+              </SimpleSubscriptionContextProvider>
               <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute

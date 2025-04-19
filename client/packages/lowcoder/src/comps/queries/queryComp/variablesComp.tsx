@@ -1,4 +1,4 @@
-import { simpleMultiComp } from "../../generators";
+import { MultiCompBuilder, simpleMultiComp } from "../../generators";
 import { SimpleNameComp } from "@lowcoder-ee/comps/comps/simpleNameComp";
 import { StringControl } from "@lowcoder-ee/comps/controls/codeControl";
 import { list } from "@lowcoder-ee/comps/generators/list";
@@ -9,7 +9,9 @@ import { KeyValueList } from "components/keyValueList";
 import { trans } from "i18n";
 import { PopupCard } from "components/popupCard";
 import { EditorContext, EditorState } from "@lowcoder-ee/comps/editorState";
-import { migrateOldData } from "@lowcoder-ee/comps/generators/simpleGenerators";
+import { withExposingRaw } from "@lowcoder-ee/comps/generators/withExposing";
+import { NameAndExposingInfo } from "@lowcoder-ee/comps/utils/exposingTypes";
+import { fromRecord } from "lowcoder-core";
 
 interface VariablesParams {
   // variables: string[]; todo support parse variables
@@ -50,26 +52,29 @@ const VariableKey = ({children, dispatch}: any) => {
     </>
   )
 }
-const VariableItem = class extends simpleMultiComp({
+
+const VariableItemBase = new MultiCompBuilder({
   key: SimpleNameComp,
   value: StringControl,
-}) {
-  propertyView(params: VariablesParams): ReactNode {
-    return (
-      <>
-        <div style={{ display: "flex", gap: "8px", flexGrow: 1 }}>
-          <VariableKey
-            children={this.children}
-            dispatch={this.dispatch}
-            />
-          <div style={{ width: "232px", flexGrow: 1 }}>
-            {this.children.value.propertyView({ placeholder: "value" })}
-          </div>
-        </div>
-      </>
-    )
-  }
-}
+}, (props) => props)
+.setPropertyViewFn((children, dispatch) => (<>
+  <div style={{ display: "flex", gap: "8px", flexGrow: 1 }}>
+    <VariableKey
+      children={children}
+      dispatch={dispatch}
+      />
+    <div style={{ width: "232px", flexGrow: 1 }}>
+      {children.value.propertyView({ placeholder: "value" })}
+    </div>
+  </div>
+</>))
+.build()
+
+const VariableItem = withExposingRaw(VariableItemBase, {}, (comp) =>
+  fromRecord({
+    value: comp.children.value.exposingNode(),
+  })
+);
 
 const VariableListPropertyViewWrapper = ({children}: any) => {
   const editorState = useContext(EditorContext);
@@ -77,6 +82,14 @@ const VariableListPropertyViewWrapper = ({children}: any) => {
 }
 
 export const VariablesComp = class extends list(VariableItem) {
+  nameAndExposingInfo(): NameAndExposingInfo {
+    const result: NameAndExposingInfo = {};
+    Object.values(this.children).forEach((comp) => {
+      result[comp.children.key.getView()] = comp.exposingInfo();
+    })
+    return result;
+  }
+
   genNewName(editorState: EditorState) {
     const name = editorState.getNameGenerator().genItemName("variable");
     return name;
@@ -98,7 +111,8 @@ export const VariablesComp = class extends list(VariableItem) {
         {(editorState: EditorState) => (
           <ControlPropertyViewWrapper {...params}>
             <KeyValueList
-              list={this.getView().map((child) => child.propertyView(params))}
+              allowDeletingAll
+              list={this.getView().map((child) => child.getPropertyView())}
               onAdd={() => this.add(editorState)}
               onDelete={(item, index) => this.dispatch(this.deleteAction(index))}
             />

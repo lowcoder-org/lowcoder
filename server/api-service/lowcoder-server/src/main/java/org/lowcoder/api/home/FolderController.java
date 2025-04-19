@@ -8,6 +8,7 @@ import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.application.model.ApplicationType;
 import org.lowcoder.domain.folder.model.Folder;
+import org.lowcoder.domain.folder.model.FolderElement;
 import org.lowcoder.domain.folder.service.FolderElementRelationService;
 import org.lowcoder.domain.folder.service.FolderService;
 import org.lowcoder.domain.permission.model.ResourceRole;
@@ -92,7 +93,7 @@ public class FolderController implements FolderEndpoints
     @Override
     public Mono<ResponseView<Void>> move(@PathVariable("id") String applicationLikeId,
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
-        return folderElementRelationService.getByElementIds(List.of(applicationLikeId)).next().flatMap(folderElement ->
+        return folderElementRelationService.getByElementIds(List.of(applicationLikeId)).next().defaultIfEmpty(new FolderElement(null, null)).flatMap(folderElement ->
                 gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
                     folderApiService.move(applicationLikeId, objectId.orElse(null))
                         .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
