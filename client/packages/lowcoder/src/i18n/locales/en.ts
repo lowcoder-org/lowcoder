@@ -3783,9 +3783,17 @@ export const en = {
     "loop": "Loop",
     "auto": "Auto",
     "onHover": "On Hover",
+    "onTrigger": "On Trigger",
     "singlePlay": "Single Play",
     "endlessLoop": "Endless Loop",
-    "keepLastFrame": "Keep Last Frame displayed"
+    "keepLastFrame": "Keep Last Frame displayed",
+    "fit": "Fit",
+    "align": "Align",
+    "load": "On Load",
+    "play": "On Play",
+    "pause": "On Pause",
+    "stop": "On Stop",
+    "complete": "On Complete",
   },
   "timeLine": {
     "titleColor": "Title Color",
@@ -4090,6 +4098,15 @@ export const en = {
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 
+  iconScout: {
+    "searchImage": "Search Image",
+    "searchAnimation": "Search Animation",
+    "searchIcon": "Search Icon",
+    "noResults": "No results found.",
+    "buySubscriptionTitle": "Unlock Premium Assets",
+    "buySubscriptionContent": "This asset is exclusive to Media Package Subscribers. Subscribe to Media Package and download high-quality assets without limits!",
+    "buySubscriptionButton": "Subscribe Now",
+  }
 };
 
 // const jsonString = JSON.stringify(en, null, 2);
