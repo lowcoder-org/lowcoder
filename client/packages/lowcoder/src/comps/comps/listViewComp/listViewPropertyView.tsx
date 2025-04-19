@@ -57,6 +57,9 @@ export function listPropertyView(compType: ListCompType) {
           <Section name={sectionNames.interaction}>
             {hiddenPropertyView(children)}
             {showDataLoadingIndicatorsPropertyView(children)}
+            {children.enableSorting.propertyView({
+              label: trans('listView.enableSorting'),
+            })}
           </Section>
         )}
 
