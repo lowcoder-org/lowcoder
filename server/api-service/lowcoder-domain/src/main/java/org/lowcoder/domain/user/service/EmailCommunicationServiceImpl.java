@@ -49,4 +49,32 @@ public class EmailCommunicationServiceImpl implements EmailCommunicationService 
 
     }
 
+    @Override
+    public boolean sendInvitationEmails(String[] to, String inviteLink, String message) {
+        try {
+            String subject = "You've been invited!";
+            MimeMessage mimeMessage = javaMailSender.createMimeMessage();
+
+            MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true);
+
+            mimeMessageHelper.setFrom(config.getNotificationsEmailSender());
+            mimeMessageHelper.setTo(to);
+            mimeMessageHelper.setSubject(subject);
+
+            // Construct the message with the invite link
+            String formattedMessage = String.format(message, inviteLink);
+            mimeMessageHelper.setText(formattedMessage, true); // Set HTML to true to allow links
+
+            javaMailSender.send(mimeMessage);
+
+            return true;
+
+        } catch (Exception e) {
+            log.error("Failed to send mail to: {}, Exception: ", to, e);
+            return false;
+        }
+
+
+    }
+
 }
