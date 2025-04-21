@@ -86,7 +86,12 @@ export function withSelectedMultiContext<TCtor extends MultiCompConstructor>(
         action.editDSL
         || isCustomAction<LazyCompReadyAction>(action, "LazyCompReady")
         || isCustomAction<ModuleReadyAction>(action, "moduleReady")
-      ) && action.path[1] === SELECTED_KEY) {
+      ) && (
+        action.path[1] === SELECTED_KEY
+        || ( // special check added for modules inside list view
+          isCustomAction<ModuleReadyAction>(action, "moduleReady")
+          && action.path[1] === this.selection)
+      )) {
         // broadcast
         const newAction = {
           ...action,

@@ -191,7 +191,8 @@ function InnerCustomComponent(props: IProps) {
     iframe.addEventListener("load", handleIFrameLoad);
 
     // in dev, load from sdk bundle and on prod load from build package
-    const src = import.meta.env.DEV
+    const src = (REACT_APP_BUNDLE_TYPE && REACT_APP_BUNDLE_TYPE === 'sdk')
+      || (import.meta.env && import.meta.env.DEV)
       ? trans('customComponent.entryUrl')
       : `${window.location.origin}/custom_component/custom_component.html`;
 

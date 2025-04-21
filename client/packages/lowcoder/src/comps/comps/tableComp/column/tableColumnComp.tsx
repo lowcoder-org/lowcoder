@@ -356,7 +356,7 @@ export class ColumnComp extends ColumnInitComp {
               preInputNode: <StyledBorderRadiusIcon as={IconRadius} title="" />,
               placeholder: '3px',
             })}
-            {this.children.textSize.propertyView({
+            {columnType !== 'markdown' && this.children.textSize.propertyView({
               label: trans('style.textSize'),
               preInputNode: <StyledTextSizeIcon as={TextSizeIcon} title="" />,
               placeholder: '14px',

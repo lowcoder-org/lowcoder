@@ -15,7 +15,10 @@ import {
   lightenColor,
   toHex,
   UnderlineCss,
-  EventModalStyleType
+  EventModalStyleType,
+  DateParser,
+  isValidColor,
+  Theme,
 } from "lowcoder-sdk";
 import styled from "styled-components";
 import dayjs from "dayjs";
@@ -26,6 +29,10 @@ import {
   ViewContentArg,
 } from "@fullcalendar/core";
 import { default as Form } from "antd/es/form";
+
+type Theme = typeof Theme;
+type EventModalStyleType = typeof EventModalStyleType;
+type CalendarStyleType = typeof CalendarStyleType;
 
 export const Wrapper = styled.div<{
   $editable?: boolean;
@@ -1135,3 +1142,32 @@ export const viewClassNames = (info: ViewContentArg) => {
   return className;
 };
 
+export const formattedEvents = (events: EventType[], theme?: Theme) => {
+  return events.map((item: EventType) => {
+    return {
+      title: item.label,
+      label: item.label,
+      id: item.id,
+      start: dayjs(item.start, DateParser).format(),
+      end: dayjs(item.end, DateParser).format(),
+      allDay: item.allDay,
+      ...(item.resourceId ? { resourceId: item.resourceId } : {}),
+      ...(item.groupId ? { groupId: item.groupId } : {}),
+      backgroundColor: item.backgroundColor,
+      extendedProps: {   // Ensure color is in extendedProps
+        color: isValidColor(item.color || "") ? item.color : theme?.theme?.primary,
+        detail: item.detail,
+        titleColor: item.titleColor,
+        detailColor: item.detailColor,
+        titleFontWeight: item.titleFontWeight,
+        titleFontStyle: item.titleFontStyle,
+        detailFontWeight: item.detailFontWeight,
+        detailFontStyle: item.detailFontStyle,
+        animation: item?.animation,
+        animationDelay: item?.animationDelay,
+        animationDuration: item?.animationDuration,
+        animationIterationCount: item?.animationIterationCount
+      }
+    }
+  })
+}
