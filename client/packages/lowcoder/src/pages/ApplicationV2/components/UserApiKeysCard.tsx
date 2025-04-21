@@ -14,6 +14,8 @@ import CreateApiKeyModal from "./CreateApiKeyModal";
 import { fetchApiKeysAction } from "redux/reduxActions/userActions";
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
+import Alert from "antd/es/alert";
+import { CopyOutlined } from "@ant-design/icons";
 
 const TableStyled = styled(Table)`
   .ant-table-tbody > tr > td {
@@ -37,10 +39,16 @@ const CreateButton = styled(TacoButton)`
   box-shadow: none;
 `;
 
+export type ApiKeyType = {
+  id: string;
+  token: string;
+}
+
 export default function UserApiKeysCard() {
   const dispatch = useDispatch();
   const apiKeys = useSelector(getApiKeys);
   const [modalVisible, setModalVisible] = useState(false);
+  const [newApiKey, setNewApiKey] = useState<ApiKeyType>();
 
   const handleCopy = (value: string) => {
     navigator.clipboard.writeText(value).then(() => {
@@ -66,13 +74,11 @@ export default function UserApiKeysCard() {
             {trans("profile.createApiKey")}
           </CreateButton>
         </Flex>
+        {Boolean(newApiKey) && <Alert message={trans("profile.apiKeyInfo")} type="info" style={{marginBottom: '16px'}}/>}
         <TableStyled
           tableLayout={"auto"}
           scroll={{ x: "100%" }}
           pagination={false}
-          onRow={(record) => ({
-            
-          })}
           columns={[
             {
               title: trans("profile.apiKeyName"),
@@ -95,16 +101,19 @@ export default function UserApiKeysCard() {
               title: trans("profile.apiKey"),
               dataIndex: "token",
               ellipsis: true,
-              render: (value: string) => {
-                const startToken = value.substring(0, 6);
-                const endToken = value.substring(value.length - 6);
-                return (
-                  <Tooltip placement="topLeft" title={ trans("profile.apiKeyCopy")}>
-                    <div onClick={() => handleCopy(value)} style={{ cursor: 'pointer' }}>
-                      {`${startToken}********************${endToken}`}
-                    </div>
-                  </Tooltip>
-                )
+              render: (value: string, record: any) => {
+                if (newApiKey?.id === record.id) {
+                  return (
+                    <Tooltip placement="topLeft" title={ trans("profile.apiKeyCopy")}>
+                      <div onClick={() => handleCopy(newApiKey?.token!)} style={{ cursor: 'pointer' }}>
+                        {value}
+                        &nbsp;
+                        <CopyOutlined />
+                      </div>
+                    </Tooltip>
+                  )
+                }
+                return <div>{value}</div>
               }
             },
             { title: " ", dataIndex: "operation", width: "208px" },
@@ -145,8 +154,9 @@ export default function UserApiKeysCard() {
       <CreateApiKeyModal
         modalVisible={modalVisible}
         closeModal={() => setModalVisible(false)}
-        onConfigCreate={() => {
+        onConfigCreate={(apiKey?: ApiKeyType) => {
           setModalVisible(false);
+          setNewApiKey(apiKey);
           dispatch(fetchApiKeysAction());
         }}
       />

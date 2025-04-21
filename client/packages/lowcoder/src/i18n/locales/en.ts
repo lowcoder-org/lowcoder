@@ -3079,6 +3079,7 @@ export const en = {
     "memberOfOrgs": "Workspaces Membership",
     "apiKeys": "API Keys",
     "createApiKey": "Create API Key",
+    "apiKeyInfo": "Make sure to copy your new API key now. You won't be able to see it again.",
     "apiKeyName": "Name",
     "apiKeyDescription": "Description",
     "apiKeyCopy": "Click the Api Key to get the value in your clipboard",
