@@ -204,7 +204,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           }
           if (resp.data.length === 1) {
             // in Enterprise mode, we will get org data in different format
-            const selectedOrgId = isEnterpriseMode ? resp.data[0].id : resp.data[0].orgId;
+            const selectedOrgId = resp.data[0]?.id || resp.data[0]?.orgId;
             setOrganizationId(selectedOrgId);
             dispatch(fetchConfigAction(selectedOrgId));
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
@@ -239,7 +239,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           invitedOrganizationId={organizationId}
           authGoal="login"
         />
-        {signupEnabled && (
+        {(isFormLoginEnabled && signupEnabled) && (
           <>
             <Divider/>
             <AuthBottomView>

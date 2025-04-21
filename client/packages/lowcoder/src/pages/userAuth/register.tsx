@@ -26,8 +26,10 @@ import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import history from "util/history";
 import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Spin from "antd/es/spin";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
+import { fetchOrgPaginationByEmail } from "@lowcoder-ee/util/pagination/axios";
 
 const StyledFormInput = styled(FormInput)`
   margin-bottom: 16px;
@@ -45,6 +47,7 @@ const RegisterContent = styled(FormWrapperMobile)`
 
 function UserRegister() {
   const location = useLocation();
+  const dispatch = useDispatch();
   const [submitBtnDisable, setSubmitBtnDisable] = useState(false);
   const [account, setAccount] = useState(() => {
     const { email } = (location.state || {}) as any;
@@ -53,11 +56,16 @@ function UserRegister() {
   const [password, setPassword] = useState("");
   const [orgLoading, setOrgLoading] = useState(false);
   const [lastEmailChecked, setLastEmailChecked] = useState("");
+  const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
+  const [signinEnabled, setSigninEnabled] = useState<boolean>(true);
   const redirectUrl = useRedirectUrl();
+  const serverSettings = useSelector(getServerSettings);
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
-
+  const isFormLoginEnabled = systemConfig?.form.enableLogin;
+  const authId = systemConfig?.form.id;
   const orgId = useParams<any>().orgId;
+
   const organizationId = useMemo(() => {
     if(inviteInfo?.invitedOrganizationId) {
       return inviteInfo?.invitedOrganizationId;
@@ -65,13 +73,34 @@ function UserRegister() {
     return orgId;
   }, [ inviteInfo, orgId ]);
 
-  const authId = systemConfig?.form.id;
-
-  const serverSettings = useSelector(getServerSettings);
+  const isEmailLoginEnabled = useMemo(() => {
+    return isFormLoginEnabled && signinEnabled;
+  }, [isFormLoginEnabled, signinEnabled]);
 
   const isEnterpriseMode = useMemo(() => {
     return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
   }, [serverSettings]);
+
+  useEffect(() => {
+    if (isEnterpriseMode) {
+      // dispatch(fetchConfigAction());
+      fetchOrgPaginationByEmail({
+          email: ' ',
+          pageNum: 1,
+          pageSize: 10,
+        })
+        .then((resp) => {
+          if (resp.success) {
+            const orgList = resp.data || [];
+            if (orgList.length) {
+              // in Enterprise mode, we will get org data in different format
+              const selectedOrgId = orgList[0]?.id || orgList[0]?.orgId;
+              dispatch(fetchConfigAction(selectedOrgId));
+            }
+          }
+        })
+    }
+  }, [isEnterpriseMode]);
 
   useEffect(() => {
     const { LOWCODER_EMAIL_SIGNUP_ENABLED } = serverSettings;
@@ -143,34 +172,38 @@ function UserRegister() {
         type="large"
       >
         <RegisterContent>
-          <StyledFormInput
-            className="form-input"
-            label={trans("userAuth.email")}
-            defaultValue={account}
-            onChange={(value, valid) => setAccount(valid ? value : "")}
-            onBlur={checkEmailExist}
-            placeholder={trans("userAuth.inputEmail")}
-            checkRule={{
-              check: checkEmailValid,
-              errorMsg: trans("userAuth.inputValidEmail"),
-            }}
-          />
-          <StyledPasswordInput
-            className="form-input"
-            passInputConf={{label:trans("password.label"), placeholder: trans("password.placeholder")}}
-            confirmPassConf={{label:trans("password.conformLabel"), placeholder: trans("password.conformPlaceholder")}}
-            valueCheck={checkPassWithMsg}
-            onChange={(value, valid) => setPassword(valid ? value : "")}
-            doubleCheck
-          />
-          <ConfirmButton
-            disabled={!account || !password || submitBtnDisable}
-            onClick={onSubmit}
-            loading={loading}
-          >
-            {trans("userAuth.register")}
-          </ConfirmButton>
-          <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
+          { isFormLoginEnabled && (
+            <>
+              <StyledFormInput
+                className="form-input"
+                label={trans("userAuth.email")}
+                defaultValue={account}
+                onChange={(value, valid) => setAccount(valid ? value : "")}
+                onBlur={checkEmailExist}
+                placeholder={trans("userAuth.inputEmail")}
+                checkRule={{
+                  check: checkEmailValid,
+                  errorMsg: trans("userAuth.inputValidEmail"),
+                }}
+              />
+              <StyledPasswordInput
+                className="form-input"
+                passInputConf={{label:trans("password.label"), placeholder: trans("password.placeholder")}}
+                confirmPassConf={{label:trans("password.conformLabel"), placeholder: trans("password.conformPlaceholder")}}
+                valueCheck={checkPassWithMsg}
+                onChange={(value, valid) => setPassword(valid ? value : "")}
+                doubleCheck
+              />
+              <ConfirmButton
+                disabled={!account || !password || submitBtnDisable}
+                onClick={onSubmit}
+                loading={loading}
+              >
+                {trans("userAuth.register")}
+              </ConfirmButton>
+              <TermsAndPrivacyInfo onCheckChange={(e) => setSubmitBtnDisable(!e.target.checked)} />
+            </>
+          )}
           {(organizationId || isEnterpriseMode) && (
             <ThirdPartyAuth
               invitationId={invitationId}
@@ -179,14 +212,18 @@ function UserRegister() {
             />
           )}
         </RegisterContent>
-        <Divider/>
-        <StyledRouteLinkLogin to={{
-          pathname: orgId
-            ? ORG_AUTH_LOGIN_URL.replace(':orgId', orgId)
-            : AUTH_LOGIN_URL,
-          state: location.state
-        }}>{trans("userAuth.userLogin")}
-        </StyledRouteLinkLogin>
+        {isFormLoginEnabled && (
+          <>
+            <Divider/>
+            <StyledRouteLinkLogin to={{
+              pathname: orgId
+                ? ORG_AUTH_LOGIN_URL.replace(':orgId', orgId)
+                : AUTH_LOGIN_URL,
+              state: location.state
+            }}>{trans("userAuth.userLogin")}
+            </StyledRouteLinkLogin>
+          </>
+        )}
       </AuthContainer>
     </Spin>
   );
