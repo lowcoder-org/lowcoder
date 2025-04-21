@@ -104,8 +104,14 @@ export default function ApplicationHome() {
     if (user.currentOrgId) {
       dispatch(fetchDeploymentIdAction());
     }
-    dispatch(fetchHomeData({}));
   }, [user.currentOrgId]);
+
+  useEffect(() => {
+    // tricky check, will be called for anonymous user to redirect to login page
+    if (user.isAnonymous) {
+      dispatch(fetchHomeData({}));
+    }
+  }, [user.isAnonymous])
 
   useEffect(() => {
     if(Boolean(deploymentId)) {
