@@ -5,10 +5,10 @@ import {
 } from "constants/authConstants";
 import { WhiteLoading } from "lowcoder-design";
 import history from "util/history";
-import { LoginLogoStyle, LoginLabelStyle, StyledLoginButton } from "pages/userAuth/authComponents";
+import { LoginLogoStyle, LoginLabelStyle, StyledLoginButton, TermsAndPrivacyInfo } from "pages/userAuth/authComponents";
 import { useSelector } from "react-redux";
 import { getSystemConfigFetching, selectSystemConfig } from "redux/selectors/configSelectors";
-import React, { useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import styled from "styled-components";
 import { trans } from "i18n";
@@ -40,6 +40,7 @@ function ThirdPartyLoginButton(props: {
   autoJump?: boolean;
   authGoal: ThirdPartyAuthGoal;
   label: string;
+  disabled?: boolean;
 }) {
   const { config, label } = props;
   const loginRedirectUrl = useRedirectUrl();
@@ -93,7 +94,7 @@ function ThirdPartyLoginButton(props: {
     : `Sign in with ${label}`;
 
   return (
-    <StyledLoginButton buttonType="normal" onClick={onLoginClick}>
+    <StyledLoginButton buttonType="normal" onClick={onLoginClick} disabled={props.disabled}>
       {config.icon && <MultiIconDisplay identifier={config.icon} width="20px" height="20px" style={{ marginRight: "20px", flexShrink: 0, color: "#000" }} />}
       {!config.icon && <LoginLogoStyle alt={config.name} src={config.logo} title={config.name} />}
       <LoginLabelStyle className="auth-label">
@@ -114,6 +115,7 @@ export function ThirdPartyAuth(props: {
   const systemConfig = useSelector(selectSystemConfig);
   const serverSettings = useSelector(getServerSettings);
   const isFormLoginEnabled = systemConfig?.form.enableLogin;
+  const [disableButtons, setDisableButtons] = useState(false);
 
   const isEmailLoginEnabled = useMemo(() => {
     return isFormLoginEnabled && serverSettings.LOWCODER_EMAIL_AUTH_ENABLED === 'true';
@@ -145,6 +147,7 @@ export function ThirdPartyAuth(props: {
         invitationId={props.invitationId}
         invitedOrganizationId={props.invitedOrganizationId}
         label={props.labelFormatter ? props.labelFormatter(config.name) : config.name}
+        disabled={disableButtons}
       />
     );
   });
@@ -152,13 +155,16 @@ export function ThirdPartyAuth(props: {
     <ThirdPartyLoginButtonWrapper>
       { (
         (isEmailLoginEnabled && props.authGoal === 'login')
-        || (isEmailSignupEnabled && props.authGoal === 'register')
+        || (isEmailLoginEnabled && isEmailSignupEnabled && props.authGoal === 'register')
       ) && Boolean(socialLoginButtons.length) && (
         <Divider plain>
           <Text type="secondary">or</Text>
         </Divider>
       )}
       {socialLoginButtons}
+      {!isFormLoginEnabled && (
+        <TermsAndPrivacyInfo onCheckChange={(e) => setDisableButtons(!e.target.checked)} />
+      )}
     </ThirdPartyLoginButtonWrapper>
   );
 }
