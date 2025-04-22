@@ -58,11 +58,12 @@ function UserRegister() {
   const [lastEmailChecked, setLastEmailChecked] = useState("");
   const [signupEnabled, setSignupEnabled] = useState<boolean>(true);
   const [signinEnabled, setSigninEnabled] = useState<boolean>(true);
+  const [defaultOrgId, setDefaultOrgId] = useState<string|undefined>();
   const redirectUrl = useRedirectUrl();
   const serverSettings = useSelector(getServerSettings);
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
   const invitationId = inviteInfo?.invitationId;
-  const isFormLoginEnabled = systemConfig?.form.enableLogin;
+  const isFormLoginEnabled = systemConfig ? systemConfig?.form.enableLogin : true;
   const authId = systemConfig?.form.id;
   const orgId = useParams<any>().orgId;
 
@@ -70,8 +71,11 @@ function UserRegister() {
     if(inviteInfo?.invitedOrganizationId) {
       return inviteInfo?.invitedOrganizationId;
     }
-    return orgId;
-  }, [ inviteInfo, orgId ]);
+    if (orgId) {
+      return orgId;
+    }
+    return defaultOrgId;
+  }, [ inviteInfo, orgId, defaultOrgId ]);
 
   const isEmailLoginEnabled = useMemo(() => {
     return isFormLoginEnabled && signinEnabled;
@@ -79,6 +83,16 @@ function UserRegister() {
 
   const isEnterpriseMode = useMemo(() => {
     return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
+  }, [serverSettings]);
+
+  useEffect(() => {
+    const {
+      LOWCODER_EMAIL_SIGNUP_ENABLED,
+      LOWCODER_EMAIL_AUTH_ENABLED,
+    } = serverSettings;
+
+    setSignupEnabled(LOWCODER_EMAIL_SIGNUP_ENABLED === 'true');
+    setSigninEnabled(LOWCODER_EMAIL_AUTH_ENABLED === 'true');
   }, [serverSettings]);
 
   useEffect(() => {
@@ -95,6 +109,7 @@ function UserRegister() {
             if (orgList.length) {
               // in Enterprise mode, we will get org data in different format
               const selectedOrgId = orgList[0]?.id || orgList[0]?.orgId;
+              setDefaultOrgId(selectedOrgId);
               dispatch(fetchConfigAction(selectedOrgId));
             }
           }
@@ -172,7 +187,7 @@ function UserRegister() {
         type="large"
       >
         <RegisterContent>
-          { isFormLoginEnabled && (
+          { isEmailLoginEnabled && (
             <>
               <StyledFormInput
                 className="form-input"
@@ -212,7 +227,7 @@ function UserRegister() {
             />
           )}
         </RegisterContent>
-        {isFormLoginEnabled && (
+        {isEmailLoginEnabled && (
           <>
             <Divider/>
             <StyledRouteLinkLogin to={{

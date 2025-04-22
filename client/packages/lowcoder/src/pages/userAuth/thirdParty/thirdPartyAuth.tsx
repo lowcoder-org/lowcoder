@@ -154,8 +154,8 @@ export function ThirdPartyAuth(props: {
   return (
     <ThirdPartyLoginButtonWrapper>
       { (
-        (isFormLoginEnabled && props.authGoal === 'login')
-        || (isFormLoginEnabled && isEmailSignupEnabled && props.authGoal === 'register')
+        (isEmailLoginEnabled && props.authGoal === 'login')
+        || (isEmailLoginEnabled && isEmailSignupEnabled && props.authGoal === 'register')
       ) && Boolean(socialLoginButtons.length) && (
         <Divider plain>
           <Text type="secondary">or</Text>

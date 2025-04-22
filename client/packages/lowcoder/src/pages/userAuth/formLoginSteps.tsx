@@ -127,7 +127,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const isEmailLoginEnabled = useMemo(() => {
     return isFormLoginEnabled && signinEnabled;
   }, [isFormLoginEnabled, signinEnabled]);
- 
+  
   const isEnterpriseMode = useMemo(() => {
     return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
   }, [serverSettings]);
@@ -239,7 +239,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           invitedOrganizationId={organizationId}
           authGoal="login"
         />
-        {(isFormLoginEnabled && signupEnabled) && (
+        {(isEmailLoginEnabled && signupEnabled) && (
           <>
             <Divider/>
             <AuthBottomView>
