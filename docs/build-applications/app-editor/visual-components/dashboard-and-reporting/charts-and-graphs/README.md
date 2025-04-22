@@ -73,4 +73,16 @@ Apart from the built-in charts and graphs, you can also plot your data with [Apa
 
 For an instance of using Echarts, see [Stacked Area Chart](https://cloud.lowcoder.dev/apps/63779dd6c54c5224c70ea537/view).
 
-To style your charts, the [Theme Editor of ECharts](https://echarts.apache.org/en/theme-builder.html) is a good tool. It can export a JSON, which you also can use in the Workspace Themes section to style both Chart types. The native ones and the ECharts.&#x20;
+To style your charts, the [Theme Editor of ECharts](https://echarts.apache.org/en/theme-builder.html) is a good tool. It can export a JSON, which you also can use in the Workspace Themes section to style both Chart types. The native ones and the ECharts.
+
+### Common Properties of the Chart Components
+
+These properties are accessible in \{{ \}} notations, as well as in JavaScript Queries.&#x20;
+
+<table><thead><tr><th width="176.38671875">Property Name</th><th width="114.9921875">Type</th><th>Description</th></tr></thead><tbody><tr><td>data</td><td>Array</td><td>Returns an Array containing the data fed to the chartsGeooMap component</td></tr><tr><td>lastInteractionData</td><td>Object</td><td>Returns an Object containing the details about the Location point, which a User interacted most lately </td></tr><tr><td>selectedPoints</td><td>Array</td><td></td></tr><tr><td>title</td><td>String</td><td>Returns title of the Chart</td></tr></tbody></table>
+
+#### Common Events of the Chart Components <a href="#events" id="events"></a>
+
+Events give you the ability to trigger further actions (with Event-Handlers).
+
+<table><thead><tr><th width="201.359375">Event Name</th><th width="495.39453125">Description</th></tr></thead><tbody><tr><td>Select</td><td>Select event gets triggered when a User selects a Chart component</td></tr><tr><td>UnSelect</td><td>UnSelect event gets triggered when a User unselects a Chart component</td></tr><tr><td>Click</td><td>Click event gets triggered when a User clicks on a Chart component</td></tr></tbody></table>

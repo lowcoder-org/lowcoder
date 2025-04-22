@@ -49,6 +49,18 @@ To display the Premium Views (Resource Timeline and Resource Grid), you must pur
 
 You can enter the License Key in the Property Settings Menu. As soon as you enter the License Key, the Premium Views will be available at the Dropdown "Default View".
 
+### Component Playground
+
+On Component Playground, you can interact with the Calendar component and explore it's Properties, Events and Methods. Play with different Styling properties to see the effect on the Calendar component.
+
+{% embed url="https://app.lowcoder.cloud/playground/calendar/1" %}
+
+### Component Auto-Docs
+
+In the Auto-Docs of Calendar component, we have shown how to use different properties of the Calendar component. It also includes the Styling properties of the Calendar component.
+
+{% embed url="https://app.lowcoder.cloud/components/calendar" %}
+
 ### Properties of the Calendar
 
 These properties are accessible in \{{ \}} notations, as well as in JavaScript Queries.&#x20;
@@ -209,3 +221,4 @@ calendar1.setResourceTimelineDayView() is yet to be implemented. It switches the
 ```javascript
 calendar1.setResourceTimelineDayView();
 ```
+
