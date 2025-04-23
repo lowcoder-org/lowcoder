@@ -230,10 +230,16 @@ export default function FormLoginSteps(props: FormLoginProps) {
     }
   }, [isEnterpriseMode]);
 
-  if (isEnterpriseMode) {
+  useEffect(() => {
+    if (Boolean(props.organizationId)) {
+      fetchOrgsByEmail();
+    }
+  }, [props.organizationId]);
+
+  if (isEnterpriseMode || Boolean(props.organizationId)) {
     return (
       <Spin indicator={<LoadingOutlined style={{ fontSize: 30 }} />} spinning={isFetchingConfig}>
-        { isEmailLoginEnabled && <FormLogin /> }
+        { isEmailLoginEnabled && <FormLogin organizationId={props.organizationId} /> }
         <ThirdPartyAuth
           invitationId={invitationId}
           invitedOrganizationId={organizationId}
@@ -244,7 +250,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
             <Divider/>
             <AuthBottomView>
               <StyledRouteLink to={{
-                pathname: AUTH_REGISTER_URL,
+                pathname: props.organizationId ? `/org/${props.organizationId}/auth/register` : AUTH_REGISTER_URL,
                 state: {...location.state || {}, email: account}
               }}>
                 {trans("userAuth.register")}
