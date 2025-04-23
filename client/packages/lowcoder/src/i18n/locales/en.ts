@@ -463,6 +463,8 @@ export const en = {
     "resetDesc": "Triggers on Reset timer",
     "refresh": "Refresh",
     "refreshDesc": "Triggers on Refresh",
+    "sortChange": "Sort Change",
+    "sortChangeDesc": "Triggers on Sorting Changes",
   },
 
 
