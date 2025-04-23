@@ -245,7 +245,7 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
         return organizationService.createDefault(user, isSuperAdmin).then();
     }
 
-    protected Mono<Void> onUserLogin(String orgId, User user, String source, String groupId) {
+    protected Mono<Void> onUserLogin(String orgId, User user, String source, String groupIdToJoin) {
         Mono<String> orgMono;
         if(commonConfig.getWorkspace().getMode() == WorkspaceMode.ENTERPRISE) {
             orgMono = organizationService.getOrganizationInEnterpriseMode().map(HasIdAndAuditing::getId);
@@ -255,12 +255,12 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
             }
             orgMono = Mono.just(orgId);
         }
-        Mono<GroupMember> groupMember = groupMemberService.getGroupMember(groupId, user.getId()).switchIfEmpty(Mono.defer(() -> {
+        Mono<GroupMember> groupMember = groupIdToJoin == null ? Mono.empty() : groupMemberService.getGroupMember(groupIdToJoin, user.getId()).switchIfEmpty(Mono.defer(() -> {
             GroupMember groupMember1 = GroupMember.builder()
-                    .groupId(groupId)
+                    .groupId(groupIdToJoin)
                     .userId(user.getId())
                     .build();
-            return groupMemberService.addMember(orgId, groupId, user.getId(), MemberRole.MEMBER).thenReturn(groupMember1);
+            return groupMemberService.addMember(orgId, groupIdToJoin, user.getId(), MemberRole.MEMBER).thenReturn(groupMember1);
         }));
         return orgMono.flatMap(orgId2 -> orgApiService.tryAddUserToOrgAndSwitchOrg(orgId2, user.getId())).then(groupMember).then();
     }
