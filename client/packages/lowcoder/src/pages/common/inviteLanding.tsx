@@ -45,7 +45,7 @@ function InviteLanding(props: InviteLandingProp) {
           orgId = inviteInfo.invitedOrganizationId;
           const inviteState = inviteInfo ? { ...inviteInfo, invitationId } : { invitationId };
           history.push({
-            pathname: AUTH_LOGIN_URL,
+            pathname: `/org/${orgId}/auth/login`,
             state: {
               inviteInfo: inviteState,
             },

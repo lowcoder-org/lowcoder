@@ -369,6 +369,7 @@ export function ListView(props: Props) {
     newData.splice(toIndex, 0, movedItem);
 
     children.listData.dispatchChangeValueAction(newData);
+    children.onEvent.getView()('sortChange');
   };
 
   // log.debug("renders: ", renders);
