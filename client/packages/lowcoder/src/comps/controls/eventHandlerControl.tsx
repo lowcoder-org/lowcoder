@@ -489,7 +489,11 @@ export const resetEvent: EventConfigType = {
   value: "reset",
   description: trans("event.resetDesc"),
 };
-
+export const sortChangeEvent: EventConfigType = {
+  label: trans("event.sortChange"),
+  value: "sortChange",
+  description: trans("event.sortChangeDesc"),
+};
 
 // Meeting Events
 

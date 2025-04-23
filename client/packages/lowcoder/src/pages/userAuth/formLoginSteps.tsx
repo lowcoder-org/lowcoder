@@ -127,7 +127,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
   const isEmailLoginEnabled = useMemo(() => {
     return isFormLoginEnabled && signinEnabled;
   }, [isFormLoginEnabled, signinEnabled]);
- 
+  
   const isEnterpriseMode = useMemo(() => {
     return serverSettings?.LOWCODER_WORKSPACE_MODE === "ENTERPRISE" || serverSettings?.LOWCODER_WORKSPACE_MODE === "SINGLEWORKSPACE";
   }, [serverSettings]);
@@ -204,7 +204,7 @@ export default function FormLoginSteps(props: FormLoginProps) {
           }
           if (resp.data.length === 1) {
             // in Enterprise mode, we will get org data in different format
-            const selectedOrgId = isEnterpriseMode ? resp.data[0].id : resp.data[0].orgId;
+            const selectedOrgId = resp.data[0]?.id || resp.data[0]?.orgId;
             setOrganizationId(selectedOrgId);
             dispatch(fetchConfigAction(selectedOrgId));
             setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
@@ -230,21 +230,27 @@ export default function FormLoginSteps(props: FormLoginProps) {
     }
   }, [isEnterpriseMode]);
 
-  if (isEnterpriseMode) {
+  useEffect(() => {
+    if (Boolean(props.organizationId)) {
+      fetchOrgsByEmail();
+    }
+  }, [props.organizationId]);
+
+  if (isEnterpriseMode || Boolean(props.organizationId)) {
     return (
       <Spin indicator={<LoadingOutlined style={{ fontSize: 30 }} />} spinning={isFetchingConfig}>
-        { isEmailLoginEnabled && <FormLogin /> }
+        { isEmailLoginEnabled && <FormLogin organizationId={props.organizationId} /> }
         <ThirdPartyAuth
           invitationId={invitationId}
           invitedOrganizationId={organizationId}
           authGoal="login"
         />
-        {signupEnabled && (
+        {(isEmailLoginEnabled && signupEnabled) && (
           <>
             <Divider/>
             <AuthBottomView>
               <StyledRouteLink to={{
-                pathname: AUTH_REGISTER_URL,
+                pathname: props.organizationId ? `/org/${props.organizationId}/auth/register` : AUTH_REGISTER_URL,
                 state: {...location.state || {}, email: account}
               }}>
                 {trans("userAuth.register")}
