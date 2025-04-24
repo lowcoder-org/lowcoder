@@ -37,6 +37,40 @@ import { FunnelChartConfig } from "../basicChartComp/chartConfigs/funnelChartCon
 import {EchartsTitleVerticalConfig} from "../chartComp/chartConfigs/echartsTitleVerticalConfig";
 import {EchartsTitleConfig} from "../basicChartComp/chartConfigs/echartsTitleConfig";
 
+// Enhanced default data for bar charts
+export const barChartDefaultData = [
+  {
+    month: "Jan",
+    sales: 1200,
+    target: 1000
+  },
+  {
+    month: "Feb",
+    sales: 1500,
+    target: 1200
+  },
+  {
+    month: "Mar",
+    sales: 1300,
+    target: 1400
+  },
+  {
+    month: "Apr",
+    sales: 1800,
+    target: 1500
+  },
+  {
+    month: "May",
+    sales: 1600,
+    target: 1700
+  },
+  {
+    month: "Jun",
+    sales: 2100,
+    target: 1900
+  }
+];
+
 export const ChartTypeOptions = [
   {
     label: trans("chart.bar"),
@@ -241,9 +275,9 @@ const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
-  title: withDefault(StringControl, trans("echarts.defaultTitle")),
-  data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
-  xAxisKey: valueComp<string>(""), // x-axis, key from data
+  title: withDefault(StringControl, trans("barChart.defaultTitle")),
+  data: jsonControl(toJSONObjectArray, barChartDefaultData),
+  xAxisKey: valueComp<string>("month"), // x-axis, key from data
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
   xAxisData: jsonControl(toArray, []),
   series: SeriesListComp,
