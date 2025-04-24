@@ -421,26 +421,51 @@ export const enObj: I18nObjects = {
   },
   defaultTreeChartOption: {
     data: [{
-        name: "Parent",
-        children: [
-          {
-            name: "Child 1",
-            children: [
-              { name: "Child 1-1" },
-              { name: "Child 1-2" }
-            ]
-          },
-          {
-            name: "Child 2",
-            children: [
-              { name: "Child 2-1" },
-              { name: "Child 2-2" }
-            ]
-          }
-        ]
-      }],
-    pointColor: "#380e81",
-    lineColor: "#1a93b8",
+      name: "Company Structure",
+      children: [
+        {
+          name: "Executive",
+          children: [
+            { name: "CEO", value: 1 },
+            { name: "CFO", value: 1 },
+            { name: "COO", value: 1 }
+          ]
+        },
+        {
+          name: "Product",
+          children: [
+            { name: "Engineering", value: 25 },
+            { name: "Design", value: 10 },
+            { name: "Product Management", value: 8 }
+          ]
+        },
+        {
+          name: "Marketing",
+          children: [
+            { name: "Social Media", value: 5 },
+            { name: "Content", value: 7 },
+            { name: "Analytics", value: 3 }
+          ]
+        }
+      ]
+    }],
+    pointColor: "#3498db",
+    lineColor: "#95a5a6",
+    label: {
+      show: true,
+      position: "right",
+      distance: 5,
+      fontSize: 12,
+      color: "#333"
+    },
+    emphasis: {
+      focus: "descendant"
+    },
+    expandAndCollapse: true,
+    initialTreeDepth: 2,
+    layout: "orthogonal",
+    orient: "horizontal",
+    symbolSize: 10
   },
   defaultTreemapChartOption: {
     data: [
