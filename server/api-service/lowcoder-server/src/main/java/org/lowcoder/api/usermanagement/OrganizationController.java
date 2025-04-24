@@ -68,17 +68,7 @@ public class OrganizationController implements OrganizationEndpoints
                     .map(OrgView::new)
                     .cache();
         } else {
-            // Not SAAS: check if user exists and is a member of the org
-            flux = userService.findByEmailDeep(email)
-                    .flatMapMany(user -> 
-                        organizationService.getOrganizationInEnterpriseMode().flux()
-                            .flatMap(org -> 
-                                orgMemberService.getOrgMember(org.getId(), user.getId())
-                                    .filter(orgMember -> !orgMember.isInvalid())
-                                    .map(__ -> new OrgView(org))
-                            )
-                    )
-                    .cache();
+            flux = organizationService.getOrganizationInEnterpriseMode().flux().map(OrgView::new).cache();
         }
         var newflux = flux.sort((OrgView o1, OrgView o2) -> {
             if (o1.getOrgName() == null || o2.getOrgName() == null) {
