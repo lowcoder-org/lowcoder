@@ -62,3 +62,8 @@ logging:
 
 default:
   query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10s}
+
+lowcoder:
+  node-server:
+    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
+    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}

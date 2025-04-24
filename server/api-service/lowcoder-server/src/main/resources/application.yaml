@@ -130,3 +130,8 @@ management:
       enabled: true
     diskspace:
       enabled: false
+      
+lowcoder:
+  node-server:
+    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
+    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}

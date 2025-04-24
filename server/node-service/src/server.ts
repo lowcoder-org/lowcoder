@@ -9,6 +9,7 @@ import { collectDefaultMetrics } from "prom-client";
 import apiRouter from "./routes/apiRouter";
 import systemRouter from "./routes/systemRouter";
 import cors, { CorsOptions } from "cors";
+import bodyParser from "body-parser";
 collectDefaultMetrics();
 
 const prefix = "/node-service";
@@ -31,6 +32,15 @@ router.use(morgan("dev"));
 
 /** Parse the request */
 router.use(express.urlencoded({ extended: false }));
+
+/** Custom middleware: use raw body for encrypted requests */
+router.use((req, res, next) => {
+  if (req.headers["x-encrypted"]) {
+    bodyParser.text({ type: "*/*" })(req, res, next);
+  } else {
+    bodyParser.json()(req, res, next);
+  }
+});
 
 /** Takes care of JSON data */
 router.use(
