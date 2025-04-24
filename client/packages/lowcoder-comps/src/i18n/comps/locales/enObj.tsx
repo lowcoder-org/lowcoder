@@ -309,18 +309,22 @@ export const enObj: I18nObjects = {
   },
   defaultSankeyChartOption: {
     data: [
-      {name: "Category A", color: '#67F9D8'},
-      {name: "Category B", color: '#FFE434'},
-      {name: "Category C", color: '#56A3F1'},
-      {name: "Category D", color: '#FF917C'},
-      {name: "Category E", color: '#FF6347'}
+      {name: "Website Visits", color: '#3498db'},
+      {name: "Product Page", color: '#2ecc71'},
+      {name: "Cart", color: '#f39c12'},
+      {name: "Checkout", color: '#e74c3c'},
+      {name: "Purchase", color: '#9b59b6'},
+      {name: "Abandoned", color: '#95a5a6'}
     ],
     links: [
-      { source: 'Category A', target: 'Category B', value: 10 },
-      { source: 'Category A', target: 'Category C', value: 15 },
-      { source: 'Category B', target: 'Category D', value: 25 },
-      { source: 'Category C', target: 'Category D', value: 20 },
-      { source: 'Category D', target: 'Category E', value: 30 }
+      { source: 'Website Visits', target: 'Product Page', value: 1000 },
+      { source: 'Website Visits', target: 'Abandoned', value: 300 },
+      { source: 'Product Page', target: 'Cart', value: 700 },
+      { source: 'Product Page', target: 'Abandoned', value: 300 },
+      { source: 'Cart', target: 'Checkout', value: 400 },
+      { source: 'Cart', target: 'Abandoned', value: 300 },
+      { source: 'Checkout', target: 'Purchase', value: 350 },
+      { source: 'Checkout', target: 'Abandoned', value: 50 }
     ]
   },
   defaultCandleStickChartOption: {
