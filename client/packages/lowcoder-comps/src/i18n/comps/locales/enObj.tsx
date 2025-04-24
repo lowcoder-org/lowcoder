@@ -470,38 +470,68 @@ export const enObj: I18nObjects = {
   defaultTreemapChartOption: {
     data: [
       {
-        name: 'Category A',
-        value: 100,
+        name: 'Company Budget',
+        value: 1000,
         children: [
           {
-            name: 'Subcategory A1',
-            value: 70,
+            name: 'Product Development',
+            value: 400,
+            itemStyle: { color: '#3498db' },
             children: [
-              { name: 'Item A1-1', value: 10 },
-              { name: 'Item A1-2', value: 20 },
-              { name: 'Item A1-3', value: 10 },
-              { name: 'Item A1-4', value: 30 }
+              { name: 'Engineering', value: 250, itemStyle: { color: '#3498db' } },
+              { name: 'Design', value: 80, itemStyle: { color: '#5dade2' } },
+              { name: 'Research', value: 70, itemStyle: { color: '#85c1e9' } }
+            ]
+          },
+          {
+            name: 'Marketing',
+            value: 300,
+            itemStyle: { color: '#2ecc71' },
+            children: [
+              { name: 'Digital Advertising', value: 150, itemStyle: { color: '#2ecc71' } },
+              { name: 'Content Creation', value: 80, itemStyle: { color: '#58d68d' } },
+              { name: 'Events', value: 70, itemStyle: { color: '#80e5a8' } }
+            ]
+          },
+          {
+            name: 'Operations',
+            value: 200,
+            itemStyle: { color: '#e74c3c' },
+            children: [
+              { name: 'Office Space', value: 100, itemStyle: { color: '#e74c3c' } },
+              { name: 'Equipment', value: 50, itemStyle: { color: '#ec7063' } },
+              { name: 'Utilities', value: 50, itemStyle: { color: '#f1948a' } }
+            ]
+          },
+          {
+            name: 'HR',
+            value: 100,
+            itemStyle: { color: '#9b59b6' },
+            children: [
+              { name: 'Recruiting', value: 30, itemStyle: { color: '#9b59b6' } },
+              { name: 'Training', value: 40, itemStyle: { color: '#af7ac5' } },
+              { name: 'Benefits', value: 30, itemStyle: { color: '#c39bd3' } }
             ]
           }
         ]
-      },
-      {
-        name: 'Category B',
-        value: 80,
-        children: [
-          {
-            name: 'Subcategory B1',
-            value: 50,
-            children: [
-              { name: 'Item B1-1', value: 20 },
-              { name: 'Item B1-2', value: 15 },
-              { name: 'Item B1-3', value: 15 }
-            ]
-          },
-        ]
       }
     ],
-    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1']
+    label: {
+      show: true,
+      formatter: '{b}',
+      fontSize: 12,
+      color: '#333',
+      position: 'inside'
+    },
+    itemStyle: {
+      borderColor: '#fff',
+      borderWidth: 1,
+      gapWidth: 1
+    },
+    breadcrumb: {
+      show: true
+    },
+    roam: false
   },
   defaultSunburstChartOption: {
     data: [
