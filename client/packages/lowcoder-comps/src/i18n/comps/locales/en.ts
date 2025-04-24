@@ -317,6 +317,8 @@ export const en = {
 
   },
   lineChart: {
+    title: 'Title',
+    defaultTitle: 'Line Chart',
     cellSize: "Cell Size",
     range: "Range",
     markLines: "Mark Lines",
