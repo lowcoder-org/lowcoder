@@ -535,48 +535,67 @@ export const enObj: I18nObjects = {
   },
   defaultSunburstChartOption: {
     data: [
-       {
-          name: "Grandparent",
-          children: [
-            {
-              name: "Parent A",
-              children: [
-                {name: "Child A1", value: 10},
-                {name: "Child A2", value: 20}
-              ]
-            },
-            {
-              name: "Parent B",
-              children: [
-                {name: "Child B1", value: 15},
-                {name: "Child B2", value: 25}
-              ]
-            }
-          ]
-        }
+      {
+        name: "Traffic",
+        children: [
+          {
+            name: "Direct",
+            value: 350,
+            children: [
+              {name: "New", value: 200},
+              {name: "Return", value: 150}
+            ]
+          },
+          {
+            name: "Social",
+            value: 300,
+            children: [
+              {name: "FB", value: 120},
+              {name: "IG", value: 100},
+              {name: "TW", value: 80}
+            ]
+          },
+          {
+            name: "Search",
+            value: 400,
+            children: [
+              {name: "Google", value: 300},
+              {name: "Bing", value: 100}
+            ]
+          }
+        ]
+      }
     ],
     levels: [
       {
         itemStyle: {
-          color: '#f6e58d'
-        },
+          color: '#3498db',
+          borderWidth: 2,
+          borderColor: 'white'
+        }
       },
       {
         itemStyle: {
-          color: '#12e192'
-        },
+          color: '#2ecc71',
+          borderWidth: 1,
+          borderColor: 'white'
+        }
       },
       {
         itemStyle: {
-          color: '#ffbe76'
-        },
-      },
-      {
-        itemStyle: {
-          color: '#007979'
-        },
+          color: '#e74c3c',
+          borderWidth: 1,
+          borderColor: 'white'
+        }
       }
-    ]
+    ],
+    label: {
+      show: true,
+      formatter: '{b}',
+      fontSize: 12,
+      color: 'white'
+    },
+    radius: ['20%', '90%']
   },
   defaultCalendarChartOption: {
     data:[
