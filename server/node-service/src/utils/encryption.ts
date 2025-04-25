@@ -1,37 +1,23 @@
-import { createDecipheriv, createHash } from "crypto";
+import { createDecipheriv, pbkdf2Sync } from "crypto";
 import { badRequest } from "../common/error";
 
-// Spring's Encryptors.text uses AES-256-CBC with a key derived from password and salt (hex).
-// The encrypted string format is: hex(salt) + encryptedBase64
-// See: https://docs.spring.io/spring-security/site/docs/current/api/org/springframework/security/crypto/encrypt/Encryptors.html
-
+// Spring's Encryptors.text uses AES-256-CBC with PBKDF2 (HmacSHA1, 1024 iterations).
 const ALGORITHM = "aes-256-cbc";
 const KEY_LENGTH = 32; // 256 bits
 const IV_LENGTH = 16;  // 128 bits
+const ITERATIONS = 1024;
+const DIGEST = "sha1";
 
 // You must set these to match your Java config:
 const PASSWORD = process.env.LOWCODER_NODE_SERVICE_SECRET || "lowcoderpwd";
 const SALT_HEX = process.env.LOWCODER_NODE_SERVICE_SECRET_SALT || "lowcodersalt";
 
 /**
- * Convert a string to its binary representation, then to a hex string.
- */
-function stringToHexFromBinary(str: string): string {
-  // Convert string to binary (Buffer), then to hex string
-  return Buffer.from(str, "utf8").toString("hex");
-}
-
-/**
- * Derive key from password and salt using SHA-256 (Spring's default).
+ * Derive key from password and salt using PBKDF2WithHmacSHA1 (Spring's default).
  */
 function deriveKey(password: string, saltHex: string): Buffer {
-  // Convert salt string to binary, then to hex string
-  const saltHexFromBinary = stringToHexFromBinary(saltHex);
-  const salt = Buffer.from(saltHexFromBinary, "hex");
-  const hash = createHash("sha256");
-  hash.update(password);
-  hash.update(salt);
-  return hash.digest();
+  const salt = Buffer.from(saltHex, "utf8");
+  return pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, DIGEST);
 }
 
 /**
@@ -39,12 +25,10 @@ function deriveKey(password: string, saltHex: string): Buffer {
  */
 export async function decryptString(encrypted: string): Promise<string> {
   try {
-    // Spring's format: hex(salt) + encryptedBase64
-    // But if you know salt, encrypted is just Base64(IV + ciphertext)
+    // Spring's format: hex(salt) + encryptedHex(IV + ciphertext)
     const key = deriveKey(PASSWORD, SALT_HEX);
 
-    // Spring's Encryptors.text prepends a random IV (16 bytes) to the ciphertext, all base64 encoded.
-    const encryptedBuf = Buffer.from(encrypted, "base64");
+    const encryptedBuf = Buffer.from(encrypted, "hex");
     const iv = encryptedBuf.slice(0, IV_LENGTH);
     const ciphertext = encryptedBuf.slice(IV_LENGTH);
 
