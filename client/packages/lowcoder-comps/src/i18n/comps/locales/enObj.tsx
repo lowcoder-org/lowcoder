@@ -410,23 +410,27 @@ export const enObj: I18nObjects = {
     ]
   },
   defaultGraphChartOption: {
-     color:{
-       pointColor: "#0000ff",
-       lineColor: "#00000033"
-     },
-     categories: [
-        {name: "Nodes"},
-        {name: "Edges"}
-      ],
-      nodes: [
-        {name: "Node 1", category: 0},
-        {name: "Node 2", category: 0},
-        {name: "Node 3", category: 0}
-      ],
-      links: [
-        {source: "Node 1", target: "Node 2", category: 1},
-        {source: "Node 2", target: "Node 3", category: 1}
-      ]
+    color: {
+      pointColor: "#4285F4",
+      lineColor: "#00000045"
+    },
+    categories: [
+      {name: "Person", itemStyle: {color: "#4285F4"}},
+      {name: "Company", itemStyle: {color: "#34A853"}},
+      {name: "Project", itemStyle: {color: "#EA4335"}}
+    ],
+    nodes: [
+      {id: "1", name: "John Smith", value: 25, category: 0, symbolSize: 25},
+      {id: "2", name: "Jane Doe", value: 20, category: 0, symbolSize: 20},
+      {id: "3", name: "Acme Inc", value: 30, category: 1, symbolSize: 30},
+      {id: "4", name: "Project X", value: 25, category: 2, symbolSize: 25}
+    ],
+    links: [
+      {source: "1", target: "3", value: 8, lineStyle: {width: 2}},
+      {source: "1", target: "4", value: 6, lineStyle: {width: 2}},
+      {source: "2", target: "3", value: 5, lineStyle: {width: 1}},
+      {source: "3", target: "4", value: 9, lineStyle: {width: 3}}
+    ]
   },
   defaultTreeChartOption: {
     data: [{
