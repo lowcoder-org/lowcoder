@@ -329,21 +329,30 @@ export const enObj: I18nObjects = {
   },
   defaultCandleStickChartOption: {
     xAxis: {
-      data: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
-    },
-    axisColor: ['#f0f0f0', '#ffffff'],
-    data:[
-      [22, 25, 18, 26],
-      [25, 23, 22, 27],
-      [23, 24, 21, 25],
-      [24, 26, 23, 27],
-      [23, 21, 20, 25]
+      data: [
+        "2024-03-01", "2024-03-04", "2024-03-05", "2024-03-06", "2024-03-07",
+        "2024-03-08", "2024-03-11", "2024-03-12", "2024-03-13", "2024-03-14"
       ],
+    },
+    axisColor: ['#E9EBF1', '#ffffff'],
+    data: [
+      // Format: [open, close, lowest, highest]
+      [185.43, 188.52, 184.74, 189.12], // Bullish day
+      [188.32, 186.85, 186.21, 189.95], // Bearish day
+      [186.90, 187.65, 185.83, 188.12], // Small bullish day
+      [187.75, 185.20, 184.90, 187.85], // Bearish day
+      [185.35, 189.20, 185.15, 189.45], // Strong bullish day
+      [189.10, 187.50, 186.80, 189.30], // Bearish day
+      [187.60, 190.25, 187.40, 190.50], // Strong bullish day
+      [190.15, 189.75, 188.90, 191.20], // Small bearish day
+      [189.80, 192.35, 189.60, 192.50], // Strong bullish day
+      [192.40, 191.85, 191.20, 193.15]  // Small bearish day
+    ],
     itemStyle: {
-      color: '#ec0000',       // Body color (rising)
-      color0: '#00da3c',      // Body color (falling)
-      borderColor: '#ec0000', // Border color (rising)
-      borderColor0: '#00da3c', // Border color (falling)
+      color: '#26A69A',      // Bullish candle color (green)
+      color0: '#EF5350',     // Bearish candle color (red)
+      borderColor: '#26A69A', // Bullish border color
+      borderColor0: '#EF5350' // Bearish border color
     }
   },
   defaultRadarChartOption: {
