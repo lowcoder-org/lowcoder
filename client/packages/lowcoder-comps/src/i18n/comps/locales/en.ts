@@ -76,7 +76,9 @@ export const en = {
     pointSizeTooltip: "Set the Point Size of the Chart.",
     defaultlineWidth: '2',
     lineWidth: "Line Width",
-    lineWidthTooltip: "Set the Line Width of the Chart."
+    lineWidthTooltip: "Set the Line Width of the Chart.",
+    labelVisibility: "Label",
+    labelVisibilityTooltip: "Show or hide the Label of the Chart."
   },
   graphChart: {
     categories: 'Categories',
