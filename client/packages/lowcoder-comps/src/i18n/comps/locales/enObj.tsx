@@ -358,21 +358,21 @@ export const enObj: I18nObjects = {
   defaultRadarChartOption: {
     color: ['#6ee1d5', '#a7dd85'],
     indicator: [
-      { name: "Indicator 1", max: 100 },
-      { name: "Indicator 2", max: 100 },
-      { name: "Indicator 3", max: 100 },
-      { name: "Indicator 4", max: 100 },
-      { name: "Indicator 5", max: 100 },
-      { name: "Indicator 6", max: 100 }
+      { name: "Performance", max: 100 },
+      { name: "Reliability", max: 100 },
+      { name: "Efficiency", max: 100 },
+      { name: "User Satisfaction", max: 100 },
+      { name: "Cost Effectiveness", max: 100 },
+      { name: "Scalability", max: 100 }
     ],
     series: [
       {
-        "name": "Data A",
-        "value": [90, 80, 70, 70, 80, 70],
+        "name": "Current System",
+        "value": [85, 72, 78, 65, 82, 68],
       },
       {
-        name: "Data B",
-        value: [60, 60, 40, 50, 50, 40],
+        name: "Competitor System",
+        value: [67, 82, 58, 73, 45, 79],
         areaColor: '#ff00ff77',
         lineColor: '#ff00ff77',
         lineWidth: 2,
