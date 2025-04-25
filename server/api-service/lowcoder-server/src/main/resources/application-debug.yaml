@@ -37,6 +37,9 @@ common:
   cookie-name: LOWCODER_DEBUG_TOKEN
   js-executor:
     host: "http://127.0.0.1:6060"
+    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
+    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}
+    is-encrypted: ${LOWCODER_NODE_SERVICE_ENCRYPTED:false}
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   plugin-dirs:
@@ -62,8 +65,3 @@ logging:
 
 default:
   query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10s}
-
-lowcoder:
-  node-server:
-    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
-    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}

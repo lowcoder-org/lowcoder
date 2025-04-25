@@ -74,6 +74,9 @@ common:
     corsAllowedDomainString: ${LOWCODER_CORS_DOMAINS:*}
   js-executor:
     host: ${LOWCODER_NODE_SERVICE_URL:http://127.0.0.1:6060}
+    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
+    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}
+    is-encrypted: ${LOWCODER_NODE_SERVICE_ENCRYPTED:false}
   max-query-request-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
   max-query-response-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
   max-upload-size: ${LOWCODER_MAX_REQUEST_SIZE:20m}
@@ -130,8 +133,3 @@ management:
       enabled: true
     diskspace:
       enabled: false
-      
-lowcoder:
-  node-server:
-    password: ${LOWCODER_NODE_SERVICE_SECRET:lowcoderpwd}
-    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:lowcodersalt}

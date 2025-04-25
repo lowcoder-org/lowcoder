@@ -20,15 +20,13 @@ public class EncryptionServiceImpl implements EncryptionService {
 
     @Autowired
     public EncryptionServiceImpl(
-        CommonConfig commonConfig,
-        @Value("${lowcoder.node-server.password}") String password,
-        @Value("${lowcoder.node-server.salt}") String salt
+        CommonConfig commonConfig
     ) {
         Encrypt encrypt = commonConfig.getEncrypt();
         String saltInHex = Hex.encodeHexString(encrypt.getSalt().getBytes());
         this.textEncryptor = Encryptors.text(encrypt.getPassword(), saltInHex);
-        String saltInHexForNodeServer = Hex.encodeHexString(salt.getBytes());
-        this.textEncryptorForNodeServer = Encryptors.text(password, saltInHexForNodeServer);
+        String saltInHexForNodeServer = Hex.encodeHexString(commonConfig.getJsExecutor().getSalt().getBytes());
+        this.textEncryptorForNodeServer = Encryptors.text(commonConfig.getJsExecutor().getPassword(), saltInHexForNodeServer);
     }
 
     @Override

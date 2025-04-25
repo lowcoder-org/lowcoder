@@ -10,6 +10,7 @@ import org.lowcoder.domain.plugin.client.dto.DatasourcePluginDefinition;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.infra.js.NodeServerClient;
 import org.lowcoder.infra.js.NodeServerHelper;
+import org.lowcoder.sdk.config.CommonConfig;
 import org.lowcoder.sdk.config.CommonConfigHelper;
 import org.lowcoder.sdk.exception.ServerException;
 import org.lowcoder.sdk.models.DatasourceTestResult;
@@ -48,6 +49,7 @@ public class DatasourcePluginClient implements NodeServerClient {
             .build();
 
     private final CommonConfigHelper commonConfigHelper;
+    private final CommonConfig commonConfig;
     private final NodeServerHelper nodeServerHelper;
     private final EncryptionService encryptionService;
 
@@ -134,13 +136,23 @@ public class DatasourcePluginClient implements NodeServerClient {
                                 "dataSourceConfig", datasourceConfig
                         );
                         String json = OBJECT_MAPPER.writeValueAsString(body);
-                        String encrypted = encryptionService.encryptStringForNodeServer(json);
-                        return WEB_CLIENT
+
+                        boolean encryptionEnabled = commonConfig.getJsExecutor().isEncrypted();
+                        String payload;
+                        WebClient.RequestBodySpec requestSpec = WEB_CLIENT
                                 .post()
                                 .uri(nodeServerHelper.createUri(RUN_PLUGIN_QUERY))
-                                .header(HttpHeaders.ACCEPT_LANGUAGE, language)
-                                .header("X-Encrypted", "true") // Optional: custom header to indicate encryption
-                                .bodyValue(encrypted)
+                                .header(HttpHeaders.ACCEPT_LANGUAGE, language);
+
+                        if (encryptionEnabled) {
+                            payload = encryptionService.encryptStringForNodeServer(json);
+                            requestSpec = requestSpec.header("X-Encrypted", "true");
+                        } else {
+                            payload = json;
+                        }
+
+                        return requestSpec
+                                .bodyValue(payload)
                                 .exchangeToMono(response -> {
                                     if (response.statusCode().is2xxSuccessful()) {
                                         return response.bodyToMono(Map.class)
