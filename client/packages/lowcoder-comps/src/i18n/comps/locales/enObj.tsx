@@ -623,28 +623,31 @@ export const enObj: I18nObjects = {
   },
   defaultThemeriverChartOption: {
     data: [
-      ['2025-01-01', 12, 'Product A'],
-      ['2025-01-01', 10, 'Product B'],
-      ['2025-01-01', 15, 'Product C'],
-      ['2025-01-01', 8, 'Product D'],
-      ['2025-01-02', 14, 'Product A'],
-      ['2025-01-02', 9, 'Product B'],
-      ['2025-01-02', 16, 'Product C'],
-      ['2025-01-02', 7, 'Product D'],
-      ['2025-01-03', 16, 'Product A'],
-      ['2025-01-03', 12, 'Product B'],
-      ['2025-01-03', 18, 'Product C'],
-      ['2025-01-03', 10, 'Product D'],
-      ['2025-01-04', 20, 'Product A'],
-      ['2025-01-04', 15, 'Product B'],
-      ['2025-01-04', 22, 'Product C'],
-      ['2025-01-04', 12, 'Product D'],
-      ['2025-01-05', 18, 'Product A'],
-      ['2025-01-05', 13, 'Product B'],
-      ['2025-01-05', 20, 'Product C'],
-      ['2025-01-05', 11, 'Product D']
+      // Technology sector data - January to December
+      ['2024-01', 125, 'Smartphones'],
+      ['2024-02', 138, 'Smartphones'],
+      ['2024-03', 152, 'Smartphones'],
+      ['2024-04', 167, 'Smartphones'],
+      
+      ['2024-01', 95, 'Laptops'],
+      ['2024-02', 110, 'Laptops'],
+      ['2024-03', 125, 'Laptops'],
+      ['2024-04', 120, 'Laptops'],
+    
+      ['2024-01', 55, 'Tablets'],
+      ['2024-02', 60, 'Tablets'],
+      ['2024-03', 65, 'Tablets'],
+      ['2024-04', 72, 'Tablets'],
+      
+      ['2024-01', 30, 'Wearables'],
+      ['2024-02', 42, 'Wearables'],
+      ['2024-03', 55, 'Wearables'],
+      ['2024-04', 68, 'Wearables'],
+      
+ 
+   
     ],
-    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1']
+    color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4']
   },
 
   defaultMapJsonOption: defaultMapData,
