@@ -30,6 +30,7 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.lowcoder.api.util.Pagination.fluxToPageResponseView;
@@ -59,15 +60,23 @@ public class OrganizationController implements OrganizationEndpoints
     public Mono<PageResponseView<?>> getOrganizationByUser(@PathVariable String email,
                                                            @RequestParam(required = false, defaultValue = "1") Integer pageNum,
                                                            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
-        Flux<?> flux;
+        Flux<OrgView> flux;
         if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
-            flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
+            flux = userService.findByEmailDeep(email).flux()
+                    .flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                     .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                    .map(OrgView::new).cache();
+                    .map(OrgView::new)
+                    .cache();
         } else {
-            flux = organizationService.getOrganizationInEnterpriseMode().flux().cache();
+            flux = organizationService.getOrganizationInEnterpriseMode().flux().map(OrgView::new).cache();
         }
-        return fluxToPageResponseView(pageNum, pageSize, flux);
+        var newflux = flux.sort((OrgView o1, OrgView o2) -> {
+            if (o1.getOrgName() == null || o2.getOrgName() == null) {
+                return 0;
+            }
+            return o1.getOrgName().compareTo(o2.getOrgName());
+        });
+        return fluxToPageResponseView(pageNum, pageSize, newflux);
     }
 
     @Override

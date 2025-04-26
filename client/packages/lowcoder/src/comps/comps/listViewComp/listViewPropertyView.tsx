@@ -55,8 +55,12 @@ export function listPropertyView(compType: ListCompType) {
 
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
           <Section name={sectionNames.interaction}>
+            {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
             {showDataLoadingIndicatorsPropertyView(children)}
+            {children.enableSorting.propertyView({
+              label: trans('listView.enableSorting'),
+            })}
           </Section>
         )}
 

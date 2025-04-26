@@ -21,7 +21,7 @@ import {
   TriggerTypeStyled,
 } from "lowcoder-design";
 import { BottomTabs } from "pages/editor/bottom/BottomTabs";
-import { useContext, useMemo } from "react";
+import { useCallback, useContext, useDeferredValue, useEffect, useMemo, useState } from "react";
 import { useSelector } from "react-redux";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
 import { BottomResTypeEnum } from "types/bottomRes";
@@ -552,7 +552,7 @@ function findQueryInNestedStructure(
     const regex = new RegExp(
       `{{\\s*[!?]?(\\s*${queryName}\\b(\\.[^}\\s]*)?\\s*)(\\?[^}:]*:[^}]*)?\\s*}}`
     );
-    return regex.test(structure);
+    return structure === queryName || regex.test(structure);
   }
 
   if (typeof structure === "object" && structure !== null) {
@@ -565,13 +565,12 @@ function findQueryInNestedStructure(
 }
 
 function collectComponentsUsingQuery(comps: any, queryName: string) {
-
   // Select all active components
   const components = Object.values(comps);
 
   // Filter components that reference the query by name
   const componentsUsingQuery = components.filter((component: any) => {
-    return findQueryInNestedStructure(component.children, queryName);
+    return findQueryInNestedStructure(component.toJsonValue(), queryName);
   });
 
   return componentsUsingQuery;
@@ -596,7 +595,7 @@ function collectQueryUsageDetails(component: any, queryName: string): any[] {
         // Check if the string contains the query
         const regex = new RegExp(`{{\\s*[!?]?(\\s*${queryName}\\b(\\.[^}\\s]*)?\\s*)(\\?[^}:]*:[^}]*)?\\s*}}`);
         const entriesToRemove = ["children", "comp", "unevaledValue", "value"];
-        if (regex.test(value)) {
+        if (value === queryName || regex.test(value)) {
           console.log("tester",component.children);
           results.push({
             componentType: component.children.compType?.value || "Unknown Component",
@@ -724,39 +723,65 @@ export function ComponentUsagePanel(props: {
 }
 
 // a usage display to show which components make use of this query
-export const QueryUsagePropertyView = (props: {
+export const QueryUsagePropertyView = React.memo((props: {
   comp: InstanceType<typeof QueryComp>;
   placement?: PageType;
 }) => {
   const { comp, placement = "editor" } = props;
+  const [ loading, setLoading ] = useState(false);
+  const [ usageObjects, setUsageObjects ] = useState<any[]>([]);
   const editorState = useContext(EditorContext);
-  const queryName = comp.children.name.getView();
-  const componentsUsingQuery = collectComponentsUsingQuery(editorState.getAllUICompMap(), queryName);
-  
-  const usageObjects = buildQueryUsageDataset(componentsUsingQuery, queryName);
+  const queryName = useMemo(() => comp.children.name.getView(), [comp.children.name]);
+  const allUICompMap = useMemo(() => editorState.getAllUICompMap(), []);
 
-  const handleSelect = (componentType: string,componentName: string, path: string) => {
+
+  const buildUsageDataset = useCallback(async () => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const componentsUsingQuery = collectComponentsUsingQuery(allUICompMap, queryName);
+        const usageObjs = buildQueryUsageDataset(componentsUsingQuery, queryName);
+        setUsageObjects(usageObjs);
+        resolve(true);
+      }, 2000);
+    })
+  }, [queryName, allUICompMap]);
+
+  const findQueryUsageObjects = useCallback(async () => {
+    setLoading(true);
+    try {
+      await buildUsageDataset();
+    } catch(e) {
+      console.error(e);
+    } finally {
+      setLoading(false);
+    }
+  }, [buildQueryUsageDataset]);
+
+  useEffect(() => {
+    findQueryUsageObjects();
+  }, [findQueryUsageObjects]);
+
+  const handleSelect = useCallback((componentType: string,componentName: string, path: string) => {
     editorState.setSelectedCompNames(new Set([componentName]));
     // console.log(`Selected Component: ${componentName}, Path: ${path}`);
-  };
+  }, []);
 
-  if (usageObjects.length > 0) {
-    return (
-      <>
-        <Divider />
-        <QuerySectionWrapper>
-          <QueryConfigWrapper>
-            <QueryConfigLabel>{trans("query.componentsUsingQueryTitle")}</QueryConfigLabel>
-            <ComponentUsagePanel components={usageObjects} onSelect={handleSelect} />
-          </QueryConfigWrapper>
-        </QuerySectionWrapper>
-      </>
-    );
-  } else {
-    return <div></div>;
+  if (loading || !Boolean(usageObjects?.length)) {
+    return <></>
   }
-  
-};
+
+  return (
+    <>
+      <Divider />
+      <QuerySectionWrapper>
+        <QueryConfigWrapper>
+          <QueryConfigLabel>{trans("query.componentsUsingQueryTitle")}</QueryConfigLabel>
+          <ComponentUsagePanel components={usageObjects} onSelect={handleSelect} />
+        </QueryConfigWrapper>
+      </QuerySectionWrapper>
+    </>
+  );
+});
 
 
 function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType) {
