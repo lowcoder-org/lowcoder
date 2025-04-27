@@ -37,7 +37,7 @@ public interface GuiSqlCommand {
     }
 
     static String parseTable(Map<String, Object> commandDetail) {
-        String table = MapUtils.getString(commandDetail, TABLE_KEY, null);
+        String table = MapUtils.getString(commandDetail, TABLE_KEY, (String)null);
         if (StringUtils.isBlank(table)) {
             throw new PluginException(INVALID_GUI_SETTINGS, "GUI_FIELD_EMPTY");
         }

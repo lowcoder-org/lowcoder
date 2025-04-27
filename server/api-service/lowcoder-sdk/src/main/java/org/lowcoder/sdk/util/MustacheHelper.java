@@ -173,7 +173,7 @@ public final class MustacheHelper {
 
         }
 
-        if (currentToken.length() > 0) {
+        if (!currentToken.isEmpty()) {
             tokens.add(currentToken.toString());
         }
 
@@ -243,7 +243,7 @@ public final class MustacheHelper {
     }
 
     private static void clearAndPushToken(StringBuilder tokenBuilder, List<String> tokenList) {
-        if (tokenBuilder.length() > 0) {
+        if (!tokenBuilder.isEmpty()) {
             tokenList.add(tokenBuilder.toString());
             tokenBuilder.setLength(0);
         }
@@ -537,11 +537,11 @@ public final class MustacheHelper {
                 start = i;
             } else {
                 if (query.charAt(i) == quote) {
-                    return Range.between(start, i + 1);
+                    return Range.of(start, i + 1);
                 }
             }
         }
-        return Range.between(-1, -1);
+        return Range.of(-1, -1);
     }
 
     private static boolean isQuote(String query, int index) {

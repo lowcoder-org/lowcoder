@@ -10,6 +10,7 @@ import org.lowcoder.infra.event.APICallEvent;
 import org.lowcoder.plugin.api.event.LowcoderEvent;
 import org.lowcoder.sdk.constants.Authentication;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
@@ -38,7 +39,7 @@ public class ApiEventFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return chain.filter(exchange).then(
             Mono.deferContextual(contextView -> {
-                if (exchange.getResponse().getStatusCode().is2xxSuccessful()) {
+                if (exchange.getResponse().getStatusCode() != null && exchange.getResponse().getStatusCode().is2xxSuccessful()) {
                     String token = contextView.get(VISITOR_TOKEN);
                     ((Mono<OrgMember>) contextView.get(CURRENT_ORG_MEMBER))
                             .flatMap(orgMember -> {
@@ -54,7 +55,7 @@ public class ApiEventFilter implements WebFilter {
     }
 
     private void emitEvent(ServerHttpRequest request, String token, OrgMember orgMember, ContextView contextView) {
-        MultiValueMap<String, String> headers = writableHttpHeaders(request.getHeaders());
+        MultiValueMap<String, String> headers = new HttpHeaders(request.getHeaders());
         headers.remove("Cookie");
         Optional<String> ipAddressOptional = headers.remove("X-Real-IP").stream().findFirst();
         String ipAddress = ipAddressOptional.orElse("");

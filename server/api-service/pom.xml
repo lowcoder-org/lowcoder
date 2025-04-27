@@ -11,8 +11,8 @@
 	<version>${revision}</version>
 
 	<properties>
-		<revision>2.7.5</revision>
-		<java.version>17</java.version>
+		<revision>2.7.4</revision>
+		<java.version>21</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<javadoc.disabled>true</javadoc.disabled>
@@ -97,6 +97,7 @@
 						<target>${java.version}</target>
 						<compilerArgs>
 							<arg>-parameters</arg>
+							<arg>-proc:full</arg>
 						</compilerArgs>
 					</configuration>
 				</plugin>

@@ -5,9 +5,9 @@ import com.google.common.util.concurrent.MoreExecutors;
 import jakarta.annotation.Nonnull;
 import lombok.extern.slf4j.Slf4j;
 import org.lowcoder.sdk.destructor.DestructorUtil;
+import org.springframework.lang.CheckReturnValue;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.CheckReturnValue;
 import java.time.Duration;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
