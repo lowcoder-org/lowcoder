@@ -36,6 +36,10 @@ export function sankeyChartPropertyView(
         {children.draggable.propertyView({label: trans("sankeyChart.draggable"), tooltip: trans("sankeyChart.draggableTooltip")})}
         {children.focus.propertyView({label: trans("sankeyChart.focus"), tooltip: trans("sankeyChart.focusTooltip")})}
         {children.tooltip.propertyView({label: trans("sankeyChart.tooltip"), tooltip: trans("echarts.tooltipTooltip")})}
+        {children.labelVisibility.propertyView({
+          label: trans("treeChart.labelVisibility"), 
+          tooltip: trans("echarts.labelVisibilityTooltip")
+        })}
 
       </Section>
       <Section name={sectionNames.interaction}>

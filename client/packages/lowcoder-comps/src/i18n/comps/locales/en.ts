@@ -216,6 +216,8 @@ export const en = {
     defaultTop:'15',
     bottom: 'Bottom',
     defaultBottom:'10',
+    labelVisibility: "Label",
+    labelVisibilityTooltip: "Show or hide the Label of the Chart."
   },
   funnelChart: {
     title: 'Title',
