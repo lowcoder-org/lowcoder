@@ -562,7 +562,7 @@ function EditorView(props: EditorViewProps) {
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
             // adding Hubspot Support for Analytics
-            <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+            <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
@@ -611,7 +611,7 @@ function EditorView(props: EditorViewProps) {
         <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
         <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
         // adding Clearbit Support for Analytics
-        <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+        <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
       ]}
     </Helmet>
     <Height100Div
