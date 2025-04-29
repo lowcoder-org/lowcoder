@@ -62,9 +62,11 @@ public class OrganizationController implements OrganizationEndpoints
                                                            @RequestParam(required = false, defaultValue = "0") Integer pageSize) {
         Flux<OrgView> flux;
         if (commonConfig.getWorkspace().getMode() == WorkspaceMode.SAAS) {
-            flux = userService.findByEmailDeep(email).flux().flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
+            flux = userService.findByEmailDeep(email).flux()
+                    .flatMap(user -> orgMemberService.getAllActiveOrgs(user.getId()))
                     .flatMap(orgMember -> organizationService.getById(orgMember.getOrgId()))
-                    .map(OrgView::new).cache();
+                    .map(OrgView::new)
+                    .cache();
         } else {
             flux = organizationService.getOrganizationInEnterpriseMode().flux().map(OrgView::new).cache();
         }
