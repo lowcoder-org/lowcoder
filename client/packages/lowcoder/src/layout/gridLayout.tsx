@@ -5,7 +5,7 @@ import { ModulePrimaryColor, PrimaryColor } from "constants/style";
 import _, { isEqual } from "lodash";
 import log from "loglevel";
 import React, { DragEvent, DragEventHandler, MouseEventHandler, ReactElement } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { isDirectionKey, isFilterInputTarget, modKeyPressed } from "util/keyUtils";
 import {
@@ -1037,6 +1037,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     // log.debug("GridLayout render. layout: ", layout, " oriLayout: ", this.state.layout, " extraLayout: ", this.props.extraLayout);
     const layouts = Object.values(layout);
     const maxLayoutPos = Math.max(...layouts.map(l => l.pos || 0))
+
     return (
       <LayoutContainer
         ref={this.ref}
@@ -1054,11 +1055,11 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
         onDragOver={isDroppable ? this.onDragOver : _.noop}
         onKeyDown={this.onKeyDown}
       >
-        <ReactResizeDetector
+        <ResizeWrapper
+          targetRef={this.ref}
           onResize={(width?: number, height?: number) => {
             if (height) this.innerHeight = height;
           }}
-          observerOptions={{ box: "border-box" }}
         >
           <div style={contentStyle}>
             {showGridLines && this.gridLines()}
@@ -1072,7 +1073,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
             }
             {this.hintPlaceholder()}
           </div>
-        </ReactResizeDetector>
+        </ResizeWrapper>
       </LayoutContainer>
     );
   }
@@ -1101,6 +1102,23 @@ const LayoutContainer = styled.div<{
     display: none;
   }`}
 `;
+
+const ResizeWrapper = (props: {
+  targetRef: React.RefObject<HTMLDivElement>;
+  children: JSX.Element | React.ReactNode;
+  onResize: (width?: number, height?: number) => void;
+}) => {
+
+  useResizeDetector({
+    targetRef: props.targetRef,
+    onResize: ({width, height}: ResizePayload) => props.onResize(width ?? undefined, height ?? undefined),
+    observerOptions: { box: "border-box" },
+  })
+
+  return (
+    <>{props.children}</>
+  )
+}
 
 export const ReactGridLayout = React.memo(GridLayout, (prev, next) => isEqual(prev, next));
 
