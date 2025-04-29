@@ -19,8 +19,8 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import { trans } from "i18n";
 import { changeValueAction, multiChangeAction } from "lowcoder-core";
 import { Section, sectionNames, UndoIcon } from "lowcoder-design";
-import React, { Suspense, useEffect, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import React, { Suspense, useEffect, useRef, useState } from "react";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import type SignatureCanvasType from "react-signature-canvas";
 import styled from "styled-components";
 import { UICompBuilder } from "../generators";
@@ -115,6 +115,7 @@ let SignatureTmpComp = (function () {
     let canvas: SignatureCanvasType | null = null;
     const [isBegin, setIsBegin] = useState(false);
     const [canvasSize, setCanvasSize] = useState([0, 0]);
+    const conRef = useRef<HTMLDivElement>(null);
 
     const updateValue = (isClear: boolean = false) => {
       const clear = isClear || canvas?.toData().length === 0;
@@ -127,76 +128,79 @@ let SignatureTmpComp = (function () {
         );
       }
     };
+
+    useResizeDetector({
+      targetRef: conRef,
+      onResize: ({width, height}: ResizePayload) => {
+        width && height && setCanvasSize([width, height]);
+        updateValue(true);
+      },
+    });
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
       inputFieldStyle:props.inputFieldStyle,
       children: (
-        <ReactResizeDetector
-          onResize={(width, height) => {
-            width && height && setCanvasSize([width, height]);
-            updateValue(true);
+        <Wrapper
+          ref={conRef}
+          onMouseDown={(e) => {
+            e.preventDefault();
           }}
+          $style={props.inputFieldStyle}
+          $isEmpty={!props.value && !isBegin}
         >
-          <Wrapper
-            onMouseDown={(e) => {
-              e.preventDefault();
-            }}
-            $style={props.inputFieldStyle}
-            $isEmpty={!props.value && !isBegin}
-          >
-            <div className="signature">
-              <Suspense fallback={<Skeleton />}>
-                <SignatureCanvas
-                  ref={(ref) => {
-                    canvas = ref;
-                  }}
-                  penColor={props.inputFieldStyle.pen}
-                  clearOnResize={false}
-                  canvasProps={{
-                    className: "sigCanvas",
-                    width: canvasSize[0],
-                    height: canvasSize[1],
-                  }}
-                  onEnd={() => {
-                    updateValue();
-                    setIsBegin(false);
-                    props.onEvent("change");
-                  }}
-                  onBegin={() => setIsBegin(true)}
-                />
-              </Suspense>
-            </div>
-            {(props.showClear || props.showUndo) && (
-              <div className="footer">
-                {props.showUndo && (
-                  <span className="anticon">
-                    <UndoIcon
-                      onClick={() => {
-                        const data = canvas?.toData();
-                        if (data) {
-                          data?.pop();
-                          canvas?.fromData(data);
-                          updateValue();
-                          props.onEvent("change");
-                        }
-                      }}
-                    />
-                  </span>
-                )}
-                {props.showClear && (
-                  <DeleteOutlined
+          <div key="signature" className="signature">
+            <Suspense fallback={<Skeleton />}>
+              <SignatureCanvas
+                ref={(ref) => {
+                  canvas = ref;
+                }}
+                penColor={props.inputFieldStyle.pen}
+                clearOnResize={false}
+                canvasProps={{
+                  className: "sigCanvas",
+                  width: canvasSize[0],
+                  height: canvasSize[1],
+                }}
+                onEnd={() => {
+                  updateValue();
+                  setIsBegin(false);
+                  props.onEvent("change");
+                }}
+                onBegin={() => setIsBegin(true)}
+              />
+            </Suspense>
+          </div>
+          {(props.showClear || props.showUndo) && (
+            <div key="footer" className="footer">
+              {props.showUndo && (
+                <span className="anticon">
+                  <UndoIcon
                     onClick={() => {
-                      updateValue(true);
-                      props.onEvent("change");
+                      const data = canvas?.toData();
+                      if (data) {
+                        data?.pop();
+                        canvas?.fromData(data);
+                        updateValue();
+                        props.onEvent("change");
+                      }
                     }}
                   />
-                )}
-              </div>
-            )}
-            {!(isBegin || props.value) && <div className="empty">{props.tips}</div>}
-          </Wrapper>
-        </ReactResizeDetector>
+                </span>
+              )}
+              {props.showClear && (
+                <DeleteOutlined
+                  onClick={() => {
+                    updateValue(true);
+                    props.onEvent("change");
+                  }}
+                />
+              )}
+            </div>
+          )}
+          {!(isBegin || props.value) && <div key="empty" className="empty">{props.tips}</div>}
+        </Wrapper>
       ),
     });
   })

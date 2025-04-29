@@ -10,7 +10,7 @@ import { ChangeEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
 import { PositionControl } from "comps/controls/dropdownControl";
 import { useEffect, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import  { useResizeDetector } from "react-resize-detector";
 import { ArrayStringControl } from "comps/controls/codeControl";
 import { styleControl } from "comps/controls/styleControl";
 import { AnimationStyle, AnimationStyleType, CarouselStyle } from "comps/controls/styleControlConstants";
@@ -56,26 +56,30 @@ let CarouselBasicComp = (function () {
         setHeight(containerRef.current.clientHeight);
       }
     };
+
+    useResizeDetector({
+      targetRef: containerRef,
+      onResize,
+    });
+
     return (
       <Container
         ref={containerRef}
         $bg={props.style.background}
         $animationStyle={props.animationStyle}
       >
-        <ReactResizeDetector onResize={onResize}>
-          <Carousel
-            dots={props.showDots}
-            dotPosition={props.dotPosition}
-            autoplay={props.autoPlay}
-            afterChange={() => props.onEvent("change")}
-          >
-            {props.data.map((url, index) => (
-              <div key={index}>
-                <CarouselItem $src={url} style={{ height }} />
-              </div>
-            ))}
-          </Carousel>
-        </ReactResizeDetector>
+        <Carousel
+          dots={props.showDots}
+          dotPosition={props.dotPosition}
+          autoplay={props.autoPlay}
+          afterChange={() => props.onEvent("change")}
+        >
+          {props.data.map((url, index) => (
+            <div key={index}>
+              <CarouselItem $src={url} style={{ height }} />
+            </div>
+          ))}
+        </Carousel>
       </Container>
     );
   })

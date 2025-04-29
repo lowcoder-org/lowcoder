@@ -11,7 +11,7 @@ import { trans } from "i18n";
 import { NumberControl, StringControl } from "comps/controls/codeControl";
 import { default as Transfer } from "antd/es/transfer";
 import type { TransferKey } from "antd/es/transfer/interface";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { changeEvent, eventHandlerControl, searchEvent, selectedChangeEvent } from "../controls/eventHandlerControl";
 import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -111,33 +111,36 @@ const TransferView = React.memo((props: RecordConstructorToView<typeof childrenM
     setHeight(container?.clientHeight ?? 0);
   };
   
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector onResize={onResize}>
-      <Container
-        ref={conRef}
-        $style={props.style}
-      >
-        <Transfer
-          listStyle={{
-            width: width,
-            height: height,
-          }}
-          showSearch={props.showSearch}
-          dataSource={props.items.value as any}
-          titles={[props.targetTitle, props.sourceTitle]}
-          targetKeys={props.targetKeys.value}
-          selectedKeys={selectedKeys}
-          onChange={handleChange}
-          onSelectChange={onSelectChange}
-          render={(item: RecordType) => item.title}
-          oneWay={props.oneWay}
-          onSearch={handleSearch}
-          pagination={props.pagination ? {
-            pageSize: props.pageSize || 10,
-          } : false}
-        />
-      </Container>
-    </ReactResizeDetector>
+    <Container
+      ref={conRef}
+      $style={props.style}
+    >
+      <Transfer
+        listStyle={{
+          width: width,
+          height: height,
+        }}
+        showSearch={props.showSearch}
+        dataSource={props.items.value as any}
+        titles={[props.targetTitle, props.sourceTitle]}
+        targetKeys={props.targetKeys.value}
+        selectedKeys={selectedKeys}
+        onChange={handleChange}
+        onSelectChange={onSelectChange}
+        render={(item: RecordType) => item.title}
+        oneWay={props.oneWay}
+        onSearch={handleSearch}
+        pagination={props.pagination ? {
+          pageSize: props.pageSize || 10,
+        } : false}
+      />
+    </Container>
   );
 });
 
