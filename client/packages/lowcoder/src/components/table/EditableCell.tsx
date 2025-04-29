@@ -84,7 +84,7 @@ interface EditableCellProps<T> extends CellProps {
   changeValue?: T | null;
 }
 
-export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
+function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
   const {
     dispatch,
     normalView,
@@ -157,9 +157,10 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       <ColumnTypeView
         textOverflow={props.textOverflow}
       >
-        {status === "toSave" && !isEditing && <EditableChip />}
+        {status === "toSave" && !isEditing && <EditableChip key={`editable-chip`}/>}
         <CellWrapper tooltipTitle={props.cellTooltip}>
           <div
+            key={`normal-view`}
             tabIndex={editable ? 0 : -1 }
             onFocus={enterEditFn}
           >
@@ -170,6 +171,7 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
         {editable && (
           <CellWrapper tooltipTitle={props.cellTooltip}>
             <div
+              key={`editable-view`}
               style={{
                 position: 'absolute',
                 top: 0,
@@ -186,3 +188,5 @@ export function EditableCell<T extends JSONValue>(props: EditableCellProps<T>) {
       </ColumnTypeView>
   );
 }
+
+export const EditableCell = React.memo(EditableCellComp) as typeof EditableCellComp;

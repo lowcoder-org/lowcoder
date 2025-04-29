@@ -273,7 +273,7 @@ export const ColumnTagsComp = (function () {
         // The actual eval value is of type number or boolean
         const tagText = String(tag);
         return (
-          <div>
+          <div key={`${tag.split(' ').join('_')}-${index}`}>
             <TagStyled color={getTagColor(tagText, tagOptions)} icon={getTagIcon(tagText, tagOptions)} key={index} >
               {tagText}
             </TagStyled>

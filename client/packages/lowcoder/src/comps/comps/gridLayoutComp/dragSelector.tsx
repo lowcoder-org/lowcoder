@@ -49,6 +49,11 @@ class DragSelectorComp extends React.Component<SectionProps, SectionState> {
     this._onMouseUp = this._onMouseUp.bind(this);
   }
 
+  componentWillUnmount(): void {
+    window.document.removeEventListener("mousemove", this._onMouseMove);
+    window.document.removeEventListener("mouseup", this._onMouseUp);
+  }
+
   _onMouseDown(e: React.MouseEvent<HTMLDivElement>) {
     if (e.button === 2 || e.nativeEvent.which === 2) {
       return;
