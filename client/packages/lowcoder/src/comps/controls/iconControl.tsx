@@ -224,7 +224,11 @@ export const IconControlView = memo((props: { value: string }) => {
       return renderIcon;
     }
 
-    return <StyledImage src={value} alt="" />;
+    if (value) {
+      return <StyledImage src={value} alt="" />;
+    }
+
+    return '';
   }, [icon, value, IconDictionary[value]])
 });
 
