@@ -26,6 +26,7 @@ export const defaultJoyrideFloaterProps: FloaterType = {
       filter: "unset",
     },
   },
+  content: ""
 };
 
 export type UserGuideLocationState = {
