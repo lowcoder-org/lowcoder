@@ -167,13 +167,14 @@ export function getEchartsConfig(
             position: "top",
             verticalAlign: "middle",
             align: "right",
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 11),
+            // ...styleWrapper(props?.detailStyle, theme?.detailStyle, 11),
           },
           leaves: {
             label: {
               position: "bottom",
               verticalAlign: "middle",
               align: "left"
+              // ...styleWrapper(props?.detailStyle, theme?.detailStyle, 11),
             }
           },
           itemStyle: {
