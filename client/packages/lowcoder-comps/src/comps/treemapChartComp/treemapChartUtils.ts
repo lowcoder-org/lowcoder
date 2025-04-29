@@ -172,7 +172,6 @@ export function getEchartsConfig(
           },
           label: {
             show: props?.labelVisibility,
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 12),
           }
         }
       ]
