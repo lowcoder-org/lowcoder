@@ -164,7 +164,6 @@ export function getEchartsConfig(
           label: {
             show: props.labelVisibility,
             position: props.echartsLabelConfig.top,
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle,15)
           },
           data: props?.echartsData.length !== 0 && props?.echartsData?.map(item => ({
               name: item.name,
