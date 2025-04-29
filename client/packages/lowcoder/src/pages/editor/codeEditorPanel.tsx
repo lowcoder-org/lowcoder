@@ -164,6 +164,7 @@ export const CodeEditorPanel = (props: {
       getPopupContainer={(node: any) => node.parentNode.parentNode}
       popup={() => (
         <Draggable
+          nodeRef={draggableRef}
           positionOffset={{ x: "-50%", y: "-50%" }}
           disabled={unDraggable}
           bounds={bounds}
