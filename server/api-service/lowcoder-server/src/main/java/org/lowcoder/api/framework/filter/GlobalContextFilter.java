@@ -120,7 +120,7 @@ public class GlobalContextFilter implements WebFilter, Ordered {
     @SuppressWarnings("ConstantConditions")
     private String getOrCreateRequestId(final ServerHttpRequest request) {
         if (!request.getHeaders().containsKey(REQUEST_ID_HEADER)) {
-            request.mutate().header(REQUEST_ID_HEADER, generate()).build();
+            request.getHeaders().add(REQUEST_ID_HEADER, generate());
         }
 
         return request.getHeaders().get(REQUEST_ID_HEADER).get(0);
