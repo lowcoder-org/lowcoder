@@ -23,12 +23,14 @@ import { getDataSourceTypeConfig } from "./generate";
 import { DataSourceTypeConfig, TableColumn } from "./generate/dataSourceCommon";
 import { CompConfig } from "./generate/comp";
 import { uiCompRegistry } from "comps/uiCompRegistry";
-import { arrayMove, SortableContainer, SortableElement, SortableHandle } from "react-sortable-hoc";
 import { trans } from "i18n";
 import log from "loglevel";
 import { Datasource } from "@lowcoder-ee/constants/datasourceConstants";
 import DataSourceIcon from "components/DataSourceIcon";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { DndContext } from "@dnd-kit/core";
+import { SortableContext, useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 const OpenDialogButton = styled.span`
   &:hover {
@@ -421,20 +423,26 @@ const CustomEditText = (props: {
   );
 };
 
-const DragHandle = SortableHandle(() => <StyledDragIcon />);
-
-const SortableItem = SortableElement<{
-  item: RowItem,
-  form: FormInstance,
-}>((props: { item: RowItem; form: FormInstance }) => {
+const SortableItem = (props: { item: RowItem; form: FormInstance; index: number }) => {
   const { item, form } = props;
   const { columnName, columnType, compItems } = item;
   const disabled = !Form.useWatch(["columns", columnName, "enabled"], form);
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: String(props.index),
+  });
+
   return (
-    <DataRow disabled={disabled}>
+    <DataRow
+      ref={setNodeRef}
+      disabled={disabled}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+      }}
+    >
       <CellName>
         <LineWrapper>
-          <DragHandle />
+          <StyledDragIcon {...attributes} {...listeners} />
           <FormItem
             name={["columns", columnName, "enabled"]}
             valuePropName="checked"
@@ -477,12 +485,9 @@ const SortableItem = SortableElement<{
       </CellRequired>
     </DataRow>
   );
-});
+};
 
-const SortableBody = SortableContainer<{
-  items: RowItem[],
-  form: FormInstance,
-}>((props: { items: RowItem[]; form: FormInstance }) => {
+const SortableBody = (props: { items: RowItem[]; form: FormInstance }) => {
   return (
     <DataBody>
       {props.items.map((t, index) => {
@@ -498,7 +503,7 @@ const SortableBody = SortableContainer<{
       })}
     </DataBody>
   );
-});
+};
 
 function getEmptyText(dataSourceNum: number, tableNum: number, columnNum: number): string {
   if (dataSourceNum === 0) {
@@ -581,7 +586,27 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
     form.setFieldsValue({ columns: initColumns });
     setItems(initItems);
   }, [dataSourceTypeConfig, tableStructure]);
+  
+  const handleDragEnd = (e: { active: { id: string }; over: { id: string } | null }) => {
+    console.log('handleDragEnd', e);
+    if (!e.over) {
+      return;
+    }
+    const fromIndex = Number(e.active.id);
+    const toIndex = Number(e.over.id);
+    if (fromIndex < 0 || toIndex < 0 || fromIndex === toIndex) {
+      return;
+    }
+    
+    const newData = [...items];
+    const [movedItem] = newData.splice(fromIndex, 1);
+    newData.splice(toIndex, 0, movedItem);
+
+    setItems(newData);
+  };
+  
   const emptyText = getEmptyText(dataSourceItems.length, tableStructures.length, items.length);
+  
   return (
     <>
       <Form form={form} preserve={false}>
@@ -633,16 +658,18 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
               <CellComp $head={true}>{trans("formComp.compType")}</CellComp>
               <CellRequired $head={true}>{trans("formComp.required")}</CellRequired>
             </HeaderRow>
-            <SortableBody
-              items={items}
-              form={form}
-              useDragHandle
-              onSortEnd={({ oldIndex, newIndex }) => {
-                if (oldIndex !== newIndex) {
-                  setItems(arrayMove(items, oldIndex, newIndex));
-                }
-              }}
-            />
+            <DndContext
+              onDragEnd={handleDragEnd}
+            >
+              <SortableContext
+                items={items.map((_, itemIdx) => String(itemIdx))}
+              >
+                <SortableBody
+                  items={items}
+                  form={form}
+                />
+              </SortableContext>
+            </DndContext>
             <ModalFooterWrapper>
               <TacoButton
                 buttonType="primary"
