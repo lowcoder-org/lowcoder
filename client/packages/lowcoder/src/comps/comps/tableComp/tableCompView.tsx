@@ -551,7 +551,7 @@ type CustomTableProps<RecordType> = Omit<TableProps<RecordType>, "components" | 
   onCellClick: (columnName: string, dataIndex: string) => void;
 };
 
-function TableCellView(props: {
+const TableCellView = React.memo((props: {
   record: RecordType;
   title: string;
   rowColorFn: RowColorViewType;
@@ -565,7 +565,7 @@ function TableCellView(props: {
   tableSize?: string;
   autoHeight?: boolean;
   loading?: boolean;
-}) {
+}) => {
   const {
     record,
     title,
@@ -648,9 +648,9 @@ function TableCellView(props: {
       {tdView}
     </TableCellContext.Provider>
   );
-}
+});
 
-function TableRowView(props: any) {
+const TableRowView = React.memo((props: any) => {
   const [hover, setHover] = useState(false);
   const [selected, setSelected] = useState(false);
   return (
@@ -665,12 +665,12 @@ function TableRowView(props: any) {
       ></tr>
     </TableRowContext.Provider>
   );
-}
+});
 
 /**
  * A table with adjustable column width, width less than 0 means auto column width
  */
-function ResizeableTable<RecordType extends object>(props: CustomTableProps<RecordType>) {
+function ResizeableTableComp<RecordType extends object>(props: CustomTableProps<RecordType>) {
   const [resizeData, setResizeData] = useState({
     index: -1,
     width: -1,
@@ -760,8 +760,10 @@ function ResizeableTable<RecordType extends object>(props: CustomTableProps<Reco
     ></Table>
   );
 }
+ResizeableTableComp.whyDidYouRender = true;
 
-ResizeableTable.whyDidYouRender = true;
+const ResizeableTable = React.memo(ResizeableTableComp) as typeof ResizeableTableComp;
+
 
 const createNewEmptyRow = (
   rowIndex: number,
@@ -776,11 +778,11 @@ const createNewEmptyRow = (
   return emptyRowData;
 }
 
-export function TableCompView(props: {
+export const TableCompView = React.memo((props: {
   comp: InstanceType<typeof TableImplComp>;
   onRefresh: (allQueryNames: Array<string>, setLoading: (loading: boolean) => void) => void;
   onDownload: (fileName: string) => void;
-}) {
+}) => {
   const [emptyRowsMap, setEmptyRowsMap] = useState<Record<string, RecordType>>({});
   const editorState = useContext(EditorContext);
   const currentTheme = useContext(ThemeContext)?.theme;
@@ -1101,4 +1103,4 @@ export function TableCompView(props: {
 
     </BackgroundColorContext.Provider>
   );
-}
+});

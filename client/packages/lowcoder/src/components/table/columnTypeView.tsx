@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
 const ColumnTypeViewWrapper = styled.div<{
@@ -73,13 +73,13 @@ function childIsOverflow(nodes: HTMLCollection): boolean {
   return false;
 }
 
-export default function ColumnTypeView(props: {
+function ColumnTypeView(props: {
   children: React.ReactNode,
   textOverflow?: boolean,
 }) {
 
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const hoverViewRef = useRef<HTMLDivElement>(null);
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const hoverViewRef = useRef<HTMLDivElement | null>(null);
   const [isHover, setIsHover] = useState(false);
   const [hasOverflow, setHasOverflow] = useState(false);
   const [adjustedPosition, setAdjustedPosition] = useState<{
@@ -90,13 +90,12 @@ export default function ColumnTypeView(props: {
     width?: number;
   }>({ done: false });
   const [delayHandler, setDelayHandler] = useState<any>();
-  const delayMouseEnter = useMemo(() => {
-    return () =>
-      setDelayHandler(
-        setTimeout(() => {
-          setIsHover(true);
-        }, 300)
-      );
+  const delayMouseEnter = useCallback(() => {
+    setDelayHandler(
+      setTimeout(() => {
+        setIsHover(true);
+      }, 300)
+    );
   }, []);
 
   useEffect(() => {
@@ -172,14 +171,21 @@ export default function ColumnTypeView(props: {
     });
   }, [isHover, hasOverflow]);
 
+  useEffect(() => {
+    return () => {
+      hoverViewRef.current = null;
+      wrapperRef.current = null;
+
+      clearTimeout(delayHandler);
+    }
+  }, [])
+
   return (
     <>
       <ColumnTypeViewWrapper
         ref={wrapperRef}
         $textOverflow={props.textOverflow}
-        onMouseEnter={() => {
-          delayMouseEnter();
-        }}
+        onMouseEnter={delayMouseEnter}
         onMouseLeave={() => {
           clearTimeout(delayHandler);
           setIsHover(false);
@@ -208,3 +214,5 @@ export default function ColumnTypeView(props: {
     </>
   );
 }
+
+export default React.memo(ColumnTypeView);
