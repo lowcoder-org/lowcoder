@@ -7,6 +7,8 @@ import { trans } from "i18n";
 import { useStyle } from "comps/controls/styleControl";
 import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -20,8 +22,23 @@ export const ButtonTypeOptions = [
     value: "default",
   },
   {
-    label: trans("text"),
+    label: trans("table.text"),
     value: "text",
+  },
+] as const;
+
+export const ButtonDisplayOptions = [
+  {
+    label: trans("table.text"),
+    value: "text",
+  },
+  {
+    label: trans("table.icon"),
+    value: "icon",
+  },
+  {
+    label: trans("table.textAndIcon"),
+    value: "textAndIcon",
   },
 ] as const;
 
@@ -32,12 +49,17 @@ export const ButtonComp = (function () {
     onClick: ActionSelectorControlInContext,
     loading: BoolCodeControl,
     disabled: BoolCodeControl,
+    displayMode: dropdownControl(ButtonDisplayOptions, "text"),
+    icon: IconControl,
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
       const ButtonStyled = () => {
         const style = useStyle(ButtonStyle);
+        const showIcon = props.displayMode === "icon" || props.displayMode === "textAndIcon";
+        const showText = props.displayMode === "text" || props.displayMode === "textAndIcon";
+        
         return (
           <Button100
             type={props.buttonType}
@@ -46,9 +68,10 @@ export const ButtonComp = (function () {
             disabled={props.disabled}
             $buttonStyle={props.buttonType === "primary" ? style : undefined}
             style={{margin: 0}}
+            icon={showIcon && hasIcon(props.icon) ? props.icon : undefined}
           >
             {/* prevent the button from disappearing */}
-            {!props.text ? " " : props.text}
+            {showText ? (!props.text ? " " : props.text) : null}
           </Button100>
         );
       };
@@ -58,10 +81,21 @@ export const ButtonComp = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.text.propertyView({
-          label: trans("table.columnValue"),
-          tooltip: ColumnValueTooltip,
+        {children.displayMode.propertyView({
+          label: trans("table.displayMode"),
+          radioButton: true,
         })}
+        {(children.displayMode.getView() === "text" || children.displayMode.getView() === "textAndIcon") && 
+          children.text.propertyView({
+            label: trans("table.columnValue"),
+            tooltip: ColumnValueTooltip,
+          })
+        }
+        {(children.displayMode.getView() === "icon" || children.displayMode.getView() === "textAndIcon") && 
+          children.icon.propertyView({
+            label: trans("table.icon"),
+          })
+        }
         {children.buttonType.propertyView({
           label: trans("table.type"),
           radioButton: true,
