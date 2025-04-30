@@ -291,13 +291,14 @@ export async function getWorkspaceApps(
       Authorization: `Bearer ${apiKey}`
     };
     
-    // Make the API request to get apps
-    // Include the orgId as a query parameter if needed
+    // First, switch to the target workspace
+    await axios.put(`${apiServiceUrl}/api/organizations/switchOrganization/${workspaceId}`, {}, { 
+      headers 
+    });
+    
+    // Then fetch applications without the orgId parameter
     const response = await axios.get(`${apiServiceUrl}/api/applications/list`, { 
-      headers,
-      params: {
-        orgId: workspaceId
-      }
+      headers
     });
     
     // Check if response is valid
@@ -305,9 +306,7 @@ export async function getWorkspaceApps(
       return [];
     }
     
-    const filteredApps = response.data.data.filter((app: App) => app.orgId === workspaceId);
-    
-    return filteredApps;
+    return response.data.data;
   
   } catch (error) {
     // Handle and transform error
@@ -430,7 +429,7 @@ export async function getWorkspaceQueries(
       headers,
       params
     });
-    debugger
+    
     // Check if response is valid
     if (!response.data) {
       return { queries: [], total: 0 };
