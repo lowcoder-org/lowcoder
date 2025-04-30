@@ -22,7 +22,7 @@ export async function getManagedWorkspaces(
 
   try {
     const res = await axios.get(`/api/plugins/enterprise/org/list`);
-    const all: ManagedOrg[] = res.data;
+    const all: ManagedOrg[] = res.data.data;
     return all.filter(org => org.environmentId === environmentId);
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to fetch managed workspaces";
@@ -100,7 +100,7 @@ export async function unconnectManagedWorkspace(orgGid: string) {
 
 export async function getManagedApps(environmentId: string) {
   const res = await axios.get(`/api/plugins/enterprise/app/list`);
-  const allApps = res.data;
+  const allApps = res.data.data;
   return allApps.filter((app: any) => app.environmentId === environmentId);
 }
 
@@ -149,7 +149,7 @@ export const getManagedDataSources = async (environmentId: string): Promise<any[
     const response = await axios.get(
       `/api/plugins/enterprise/datasource/list?environmentId=${environmentId}`
     );
-    return response.data || [];
+    return response.data.data || [];
   } catch (error) {
     console.error("Error fetching managed data sources:", error);
     throw error;
@@ -204,14 +204,15 @@ export async function getManagedQueries(environmentId: string): Promise<Query[]>
         environmentId
       }
     });
+    console.log("Managed queries response function:", response.data);
     
-    if (!response.data || !Array.isArray(response.data)) {
+    if (!response.data.data || !Array.isArray(response.data.data)) {
       return [];
     }
     
     // Map the response to match our Query interface
     // Note: You may need to adjust this mapping based on the actual response structure
-    return response.data.map((item: any) => ({
+    return response.data.data.map((item: any) => ({
       id: item.id || item.qlQueryId,
       gid: item.qlQueryGid,
       name: item.qlQueryName,
