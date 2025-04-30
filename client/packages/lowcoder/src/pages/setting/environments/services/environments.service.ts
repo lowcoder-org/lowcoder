@@ -58,7 +58,7 @@ export async function getEnvironments(): Promise<Environment[]> {
     );
 
     // Return the data array directly from response.data
-    return response.data || [];
+    return response.data.data || [];
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environments";
@@ -82,7 +82,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
       throw new Error("Failed to fetch environment");
     }
 
-    return response.data;
+    return response.data.data;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environment";
