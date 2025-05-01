@@ -46,17 +46,13 @@ import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
     display: string,
-    gridTemplateColumns: string,
-    columnGap: string,
-    gridTemplateRows: string,
-    rowGap: string,
+    flexWrap: string,
+    gap: string,
   } | undefined;
 }>`
   display: ${(props) => props.$style?.display};
-  grid-template-columns: ${(props) => props.$style?.gridTemplateColumns};
-  grid-template-rows: ${(props) => props.$style?.gridTemplateRows};
-  column-gap: ${(props) => props.$style?.columnGap};
-  row-gap: ${(props) => props.$style?.rowGap};
+  flex-wrap: ${(props) => props.$style?.flexWrap};
+  gap: ${(props) => props.$style?.gap};
 
   border-radius: ${(props) => props.$style?.radius};
   border-width: ${(props) => props.$style?.borderWidth};
@@ -67,11 +63,14 @@ const ContainWrapper = styled.div<{
   ${props => props.$style && getBackgroundStyle(props.$style)}
 `;
 
-const ColWrapper = styled(Col)<{
+const ColWrapper = styled.div<{
   $style: ResponsiveLayoutColStyleType | undefined,
-  $minWidth?: string,
+  $width?: string,
   $matchColumnsHeight: boolean,
 }>`
+  flex: ${props => props.$width ? "0 0 " + props.$width : "1 1 0"};
+  min-width: 0; /* Prevent flex items from overflowing */
+  
   > div {
     height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
     border-radius: ${(props) => props.$style?.radius};
@@ -94,11 +93,8 @@ const childrenMap = {
   horizontalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   matchColumnsHeight: withDefault(BoolControl, true),
-  templateRows: withDefault(StringControl, "1fr"),
-  rowGap: withDefault(StringControl, "20px"),
-  templateColumns: withDefault(StringControl, "1fr 1fr"),
+  gap: withDefault(StringControl, "20px"),
   mainScrollbar: withDefault(BoolControl, false),
-  columnGap: withDefault(StringControl, "20px"),
   style: styleControl(ContainerStyle, 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle')
 };
@@ -129,10 +125,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
     containers,
     dispatch,
     matchColumnsHeight,
-    templateRows,
-    rowGap,
-    templateColumns,
-    columnGap,
+    gap,
     columnStyle,
     horizontalGridCells,
     mainScrollbar
@@ -145,24 +138,21 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
         <ScrollBar style={{ margin: "0px", padding: "0px" }} overflow="scroll" hideScrollbar={!mainScrollbar}>
           <ContainWrapper $style={{
             ...props.style,
-            display: "grid",
-            gridTemplateColumns: templateColumns,
-            columnGap,
-            gridTemplateRows: templateRows,
-            rowGap,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: gap,
           }}>
             {columns.map(column => {
               const id = String(column.id);
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
               if(!containers[id]) return null
               const containerProps = containers[id].children;
-              const noOfColumns = columns.length;
+              
               return (
-                <BackgroundColorContext.Provider value={props.columnStyle.background}>
+                <BackgroundColorContext.Provider value={props.columnStyle.background} key={id}>
                   <ColWrapper
-                    key={id}
                     $style={props.columnStyle}
-                    $minWidth={column.minWidth}
+                    $width={column.minWidth}
                     $matchColumnsHeight={matchColumnsHeight}
                   >
                     <ColumnContainer
@@ -227,10 +217,7 @@ export const ResponsiveLayoutBaseComp = (function () {
               {controlItem({}, (
                 <div style={{ marginTop: '8px' }}>{trans("responsiveLayout.columnsSpacing")}</div>
               ))}
-              {children.templateColumns.propertyView({label: trans("responsiveLayout.columnDefinition"), tooltip: trans("responsiveLayout.columnsDefinitionTooltip")})}
-              {children.templateRows.propertyView({label: trans("responsiveLayout.rowDefinition"), tooltip: trans("responsiveLayout.rowsDefinitionTooltip")})}
-              {children.columnGap.propertyView({label: trans("responsiveLayout.columnGap")})}
-              {children.rowGap.propertyView({label: trans("responsiveLayout.rowGap")})}
+              {children.gap.propertyView({label: trans("responsiveLayout.gap")})}
             </Section>
             </>
           )}

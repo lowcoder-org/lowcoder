@@ -3899,6 +3899,7 @@ export const en = {
     "rowDefinition": "Row Definition",
     "columnGap": "Column Gap",
     "rowGap": "Row Gap",
+    "gap": "Gap",
     "atLeastOneColumnError": "Responsive Layout Keeps at Least One Column",
     "columnsPerRow": "Columns per Row",
     "columnsSpacing": "Columns Spacing (px)",
