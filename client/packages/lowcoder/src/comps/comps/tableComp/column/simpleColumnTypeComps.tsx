@@ -27,21 +27,6 @@ export const ButtonTypeOptions = [
   },
 ] as const;
 
-export const ButtonDisplayOptions = [
-  {
-    label: trans("table.text"),
-    value: "text",
-  },
-  {
-    label: trans("table.icon"),
-    value: "icon",
-  },
-  {
-    label: trans("table.textAndIcon"),
-    value: "textAndIcon",
-  },
-] as const;
-
 export const ButtonComp = (function () {
   const childrenMap = {
     text: StringControl,
@@ -49,16 +34,18 @@ export const ButtonComp = (function () {
     onClick: ActionSelectorControlInContext,
     loading: BoolCodeControl,
     disabled: BoolCodeControl,
-    displayMode: dropdownControl(ButtonDisplayOptions, "text"),
-    icon: IconControl,
+    prefixIcon: IconControl,
+    suffixIcon: IconControl,
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
       const ButtonStyled = () => {
         const style = useStyle(ButtonStyle);
-        const showIcon = props.displayMode === "icon" || props.displayMode === "textAndIcon";
-        const showText = props.displayMode === "text" || props.displayMode === "textAndIcon";
+        const hasText = !!props.text;
+        const hasPrefixIcon = hasIcon(props.prefixIcon);
+        const hasSuffixIcon = hasIcon(props.suffixIcon);
+        const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
         
         return (
           <Button100
@@ -67,11 +54,16 @@ export const ButtonComp = (function () {
             loading={props.loading}
             disabled={props.disabled}
             $buttonStyle={props.buttonType === "primary" ? style : undefined}
-            style={{margin: 0}}
-            icon={showIcon && hasIcon(props.icon) ? props.icon : undefined}
+            style={{
+              margin: 0,
+              width: iconOnly ? 'auto' : undefined,
+              minWidth: iconOnly ? 'auto' : undefined,
+              padding: iconOnly ? '0 8px' : undefined
+            }}
+            icon={hasPrefixIcon ? props.prefixIcon : undefined}
           >
-            {/* prevent the button from disappearing */}
-            {showText ? (!props.text ? " " : props.text) : null}
+            {hasText ? props.text : (iconOnly ? null : " ")}
+            {hasSuffixIcon && !props.loading && <span style={{ marginLeft: hasText ? '8px' : 0 }}>{props.suffixIcon}</span>}
           </Button100>
         );
       };
@@ -81,21 +73,16 @@ export const ButtonComp = (function () {
   )
     .setPropertyViewFn((children) => (
       <>
-        {children.displayMode.propertyView({
-          label: trans("table.displayMode"),
-          radioButton: true,
+        {children.text.propertyView({
+          label: trans("table.columnValue"),
+          tooltip: ColumnValueTooltip,
         })}
-        {(children.displayMode.getView() === "text" || children.displayMode.getView() === "textAndIcon") && 
-          children.text.propertyView({
-            label: trans("table.columnValue"),
-            tooltip: ColumnValueTooltip,
-          })
-        }
-        {(children.displayMode.getView() === "icon" || children.displayMode.getView() === "textAndIcon") && 
-          children.icon.propertyView({
-            label: trans("table.icon"),
-          })
-        }
+        {children.prefixIcon.propertyView({
+          label: trans("button.prefixIcon"),
+        })}
+        {children.suffixIcon.propertyView({
+          label: trans("button.suffixIcon"),
+        })}
         {children.buttonType.propertyView({
           label: trans("table.type"),
           radioButton: true,
