@@ -81,15 +81,27 @@ const ContainWrapper = styled.div<{
   ${props => props.$style && getBackgroundStyle(props.$style)}
 `;
 
+const getColumnWidth = (column: any): string => {
+  // Use explicit width if available
+  if (column.width) {
+    return column.width;
+  }
+  
+  // No explicit width - return auto to let flex handle it
+  return 'auto';
+};
+
 const ColWrapper = styled.div<{
   $style: ResponsiveLayoutColStyleType | undefined,
   $width: string,
   $matchColumnsHeight: boolean,
   $useFlexLayout: boolean,
+  $hasExplicitWidth: boolean,
 }>`
   ${props => props.$useFlexLayout ? `
-    flex: ${props.$width === '100%' ? '1 0 100%' : `0 0 ${props.$width}`};
-    max-width: ${props.$width};
+    ${props.$hasExplicitWidth 
+      ? `flex: 0 0 ${props.$width}; max-width: ${props.$width};` 
+      : 'flex: 1 1 0%; min-width: 0;'}
   ` : ''}
   
   > div {
@@ -143,20 +155,6 @@ const ColumnContainer = (props: ColumnContainerProps) => {
   );
 };
 
-const getColumnWidth = (column: any): string => {
-  // Use explicit width if available
-  if (column.width) {
-    // For percentage values, calculate precisely to accommodate gaps
-    if (column.width.endsWith('%')) {
-      return column.width;
-    }
-    return column.width;
-  }
-  
-  // If minWidth is set, use it or default to equal distribution
-  return column.minWidth || 'auto';
-};
-
 const ColumnLayout = (props: ColumnLayoutProps) => {
   let {
     columns, 
@@ -195,6 +193,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
               if(!containers[id]) return null
               const containerProps = containers[id].children;
               const columnWidth = getColumnWidth(column);
+              const hasExplicitWidth = !!column.width;
               
               return (
                 <BackgroundColorContext.Provider key={id} value={props.columnStyle.background}>
@@ -203,6 +202,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                     $width={columnWidth}
                     $matchColumnsHeight={matchColumnsHeight}
                     $useFlexLayout={useFlexLayout}
+                    $hasExplicitWidth={hasExplicitWidth}
                   >
                     <ColumnContainer
                       layout={containerProps.layout.getView()}

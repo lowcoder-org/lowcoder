@@ -647,8 +647,8 @@ ColumnOption = class extends ColumnOption implements OptionCompProperty {
 
 export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   initOptions: [
-    { id: 0, key: "Column1", label: "Column1", width: "50%" },
-    { id: 1, key: "Column2", label: "Column2", width: "50%" },
+    { id: 0, key: "Column1", label: "Column1", width: "" },
+    { id: 1, key: "Column2", label: "Column2", width: "" },
   ],
   uniqField: "key",
   autoIncField: "id",
