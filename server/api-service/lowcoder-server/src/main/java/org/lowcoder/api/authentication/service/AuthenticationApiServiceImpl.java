@@ -98,10 +98,23 @@ public class AuthenticationApiServiceImpl implements AuthenticationApiService {
                 })
                 .flatMap(findAuthConfig -> {
                     context.setAuthConfig(findAuthConfig.authConfig());
+                    // Check if email/password is superadmin before checking EMAIL provider enable
                     if (findAuthConfig.authConfig().getSource().equals("EMAIL")) {
-                        if(StringUtils.isBlank(context.getOrgId())) {
+                        if (StringUtils.isBlank(context.getOrgId())) {
                             context.setOrgId(Optional.ofNullable(findAuthConfig.organization()).map(Organization::getId).orElse(null));
                         }
+                        // --- Superadmin check start ---
+                        if (context instanceof FormAuthRequestContext formContext) {
+                            String email = formContext.getLoginId();
+                            String password = formContext.getPassword();
+                            String superAdminEmail = commonConfig.getSuperAdmin().getUserName();
+                            String superAdminPassword = commonConfig.getSuperAdmin().getPassword();
+                            if (StringUtils.equalsIgnoreCase(email, superAdminEmail) && StringUtils.equals(password, superAdminPassword)) {
+                                // Allow superadmin login even if EMAIL provider is disabled
+                                return Mono.just(findAuthConfig);
+                            }
+                        }
+                        // --- Superadmin check end ---
                         if(!findAuthConfig.authConfig().getEnable()) {
                             return Mono.error(new BizException(EMAIL_PROVIDER_DISABLED, "EMAIL_PROVIDER_DISABLED"));
                         }
