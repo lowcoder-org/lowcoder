@@ -40,6 +40,7 @@ import { ControlItemCompBuilder } from "comps/generators/controlCompBuilder";
 import { ColorControl } from "./colorControl";
 import { StringStateControl } from "./codeStateControl";
 import { reduceInContext } from "../utils/reduceContext";
+import React from "react";
 
 const OptionTypes = [
   {
@@ -65,10 +66,13 @@ type OptionControlParam = {
   title?: string;
   // The new option's label name
   newOptionLabel?: string;
+  // Whether to use flex layout (for column options)
+  useFlexLayout?: boolean;
 };
 
 type OptionPropertyParam = {
   autoMap?: boolean;
+  useFlexLayout?: boolean;
 };
 
 interface OptionCompProperty {
@@ -176,7 +180,7 @@ export function manualOptionsControl<T extends OptionsControlType>(
           itemTitle={(comp) => comp.children.label.getView()}
           popoverTitle={() => trans("edit")}
           content={(comp) => {
-            return hasPropertyView(comp) ? comp.propertyView({}) : comp.getPropertyView();
+            return hasPropertyView(comp) ? comp.propertyView({ useFlexLayout: param.useFlexLayout }) : comp.getPropertyView();
           }}
           items={manualComp.getView()}
           onAdd={() => {
@@ -576,7 +580,7 @@ const StyledContent = styled.div`
   }
 `;
 
-const ColumnOption = new MultiCompBuilder(
+let ColumnOption = new MultiCompBuilder(
   {
     id: valueComp<number>(-1),
     label: StringControl,
@@ -591,48 +595,55 @@ const ColumnOption = new MultiCompBuilder(
     padding: withDefault(StringControl, ""),
   },
   (props) => props
-)
-.setPropertyViewFn((children) => (
-  <StyledContent>
-    {children.minWidth.propertyView({
-      label: trans('responsiveLayout.minWidth'),
-      preInputNode: <StyledIcon as={WidthIcon} title="" />,
-      placeholder: '3px',
-    })}
-    {children.width.propertyView({
-      label: trans('responsiveLayout.width'),
-      preInputNode: <StyledIcon as={WidthIcon} title="" />,
-      placeholder: '50%',
-    })}
-    {children.background.propertyView({
-      label: trans('style.background'),
-    })}
-    {children.backgroundImage.propertyView({
-      label: `Background Image`,
-      // preInputNode: <StyledIcon as={ImageCompIcon} title="" />,
-      placeholder: 'https://temp.im/350x400',
-    })}
-    {children.border.propertyView({
-      label: trans('style.border')
-    })}
-    {children.radius.propertyView({
-      label: trans('style.borderRadius'),
-      preInputNode: <StyledIcon as={IconRadius} title="" />,	
-      placeholder: '3px',
-    })}
-    {children.margin.propertyView({
-      label: trans('style.margin'),
-      preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
-      placeholder: '3px',
-    })}
-    {children.padding.propertyView({
-      label: trans('style.padding'),
-      preInputNode: <StyledIcon as={CompressIcon} title="" />,	
-      placeholder: '3px',
-    })}
-  </StyledContent>
-))
-  .build();
+).build();
+
+// Add propertyView method through class extension
+ColumnOption = class extends ColumnOption implements OptionCompProperty {
+  propertyView(param: OptionPropertyParam) {
+    const useFlexLayout = param?.useFlexLayout !== undefined ? param.useFlexLayout : true;
+    
+    return (
+      <StyledContent>
+        {useFlexLayout && this.children.minWidth.propertyView({
+          label: trans('responsiveLayout.minWidth'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,
+          placeholder: '3px',
+        })}
+        {useFlexLayout && this.children.width.propertyView({
+          label: trans('responsiveLayout.width'),
+          preInputNode: <StyledIcon as={WidthIcon} title="" />,
+          placeholder: '50%',
+        })}
+        {this.children.background.propertyView({
+          label: trans('style.background'),
+        })}
+        {this.children.backgroundImage.propertyView({
+          label: `Background Image`,
+          // preInputNode: <StyledIcon as={ImageCompIcon} title="" />,
+          placeholder: 'https://temp.im/350x400',
+        })}
+        {this.children.border.propertyView({
+          label: trans('style.border')
+        })}
+        {this.children.radius.propertyView({
+          label: trans('style.borderRadius'),
+          preInputNode: <StyledIcon as={IconRadius} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.margin.propertyView({
+          label: trans('style.margin'),
+          preInputNode: <StyledIcon as={ExpandIcon} title="" />,	
+          placeholder: '3px',
+        })}
+        {this.children.padding.propertyView({
+          label: trans('style.padding'),
+          preInputNode: <StyledIcon as={CompressIcon} title="" />,	
+          placeholder: '3px',
+        })}
+      </StyledContent>
+    );
+  }
+};
 
 export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   initOptions: [

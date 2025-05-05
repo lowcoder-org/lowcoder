@@ -121,7 +121,7 @@ const childrenMap = {
   columnGap: withDefault(StringControl, "0"),
   style: styleControl(ContainerStyle, 'style'),
   columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
-  useFlexLayout: withDefault(BoolControl, true),
+  useFlexLayout: withDefault(BoolControl, false),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
@@ -239,6 +239,7 @@ export const ResponsiveLayoutBaseComp = (function () {
             {children.columns.propertyView({
               title: trans("responsiveLayout.column"),
               newOptionLabel: trans("responsiveLayout.addColumn"),
+              useFlexLayout: children.useFlexLayout.getView(),
             })}
           </Section>
 
