@@ -604,11 +604,6 @@ ColumnOption = class extends ColumnOption implements OptionCompProperty {
     
     return (
       <StyledContent>
-        {useFlexLayout && this.children.minWidth.propertyView({
-          label: trans('responsiveLayout.minWidth'),
-          preInputNode: <StyledIcon as={WidthIcon} title="" />,
-          placeholder: '3px',
-        })}
         {useFlexLayout && this.children.width.propertyView({
           label: trans('responsiveLayout.width'),
           preInputNode: <StyledIcon as={WidthIcon} title="" />,
