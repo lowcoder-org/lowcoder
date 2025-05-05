@@ -163,14 +163,15 @@ export function getEchartsConfig(
           symbolSize: props?.pointSize || 20, // Control the size of the nodes
           data: props?.echartsData.length !== 0 && props?.echartsData || props.echartsOption.data,
           label: {
+            show: props?.labelVisibility,
             position: "top",
             verticalAlign: "middle",
             align: "right",
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle, 11),
           },
           leaves: {
             label: {
-              position: "bottom",
+              show: props?.labelVisibility,
+              position: "right",
               verticalAlign: "middle",
               align: "left"
             }

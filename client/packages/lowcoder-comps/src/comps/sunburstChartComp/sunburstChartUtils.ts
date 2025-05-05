@@ -168,7 +168,6 @@ export function getEchartsConfig(
           label: {
             show: props?.labelVisibility,
             rotate: 'tangential',
-            ...styleWrapper(props?.detailStyle, theme?.detailStyle,11)
           },
         }
       ],

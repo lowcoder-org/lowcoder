@@ -309,57 +309,70 @@ export const enObj: I18nObjects = {
   },
   defaultSankeyChartOption: {
     data: [
-      {name: "Category A", color: '#67F9D8'},
-      {name: "Category B", color: '#FFE434'},
-      {name: "Category C", color: '#56A3F1'},
-      {name: "Category D", color: '#FF917C'},
-      {name: "Category E", color: '#FF6347'}
+      {name: "Website Visits", color: '#3498db'},
+      {name: "Product Page", color: '#2ecc71'},
+      {name: "Cart", color: '#f39c12'},
+      {name: "Checkout", color: '#e74c3c'},
+      {name: "Purchase", color: '#9b59b6'},
+      {name: "Abandoned", color: '#95a5a6'}
     ],
     links: [
-      { source: 'Category A', target: 'Category B', value: 10 },
-      { source: 'Category A', target: 'Category C', value: 15 },
-      { source: 'Category B', target: 'Category D', value: 25 },
-      { source: 'Category C', target: 'Category D', value: 20 },
-      { source: 'Category D', target: 'Category E', value: 30 }
+      { source: 'Website Visits', target: 'Product Page', value: 1000 },
+      { source: 'Website Visits', target: 'Abandoned', value: 300 },
+      { source: 'Product Page', target: 'Cart', value: 700 },
+      { source: 'Product Page', target: 'Abandoned', value: 300 },
+      { source: 'Cart', target: 'Checkout', value: 400 },
+      { source: 'Cart', target: 'Abandoned', value: 300 },
+      { source: 'Checkout', target: 'Purchase', value: 350 },
+      { source: 'Checkout', target: 'Abandoned', value: 50 }
     ]
   },
   defaultCandleStickChartOption: {
     xAxis: {
-      data: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5"],
-    },
-    axisColor: ['#f0f0f0', '#ffffff'],
-    data:[
-      [22, 25, 18, 26],
-      [25, 23, 22, 27],
-      [23, 24, 21, 25],
-      [24, 26, 23, 27],
-      [23, 21, 20, 25]
+      data: [
+        "2024-03-01", "2024-03-04", "2024-03-05", "2024-03-06", "2024-03-07",
+        "2024-03-08", "2024-03-11", "2024-03-12", "2024-03-13", "2024-03-14"
       ],
+    },
+    axisColor: ['#E9EBF1', '#ffffff'],
+    data: [
+      // Format: [open, close, lowest, highest]
+      [185.43, 188.52, 184.74, 189.12], // Bullish day
+      [188.32, 186.85, 186.21, 189.95], // Bearish day
+      [186.90, 187.65, 185.83, 188.12], // Small bullish day
+      [187.75, 185.20, 184.90, 187.85], // Bearish day
+      [185.35, 189.20, 185.15, 189.45], // Strong bullish day
+      [189.10, 187.50, 186.80, 189.30], // Bearish day
+      [187.60, 190.25, 187.40, 190.50], // Strong bullish day
+      [190.15, 189.75, 188.90, 191.20], // Small bearish day
+      [189.80, 192.35, 189.60, 192.50], // Strong bullish day
+      [192.40, 191.85, 191.20, 193.15]  // Small bearish day
+    ],
     itemStyle: {
-      color: '#ec0000',       // Body color (rising)
-      color0: '#00da3c',      // Body color (falling)
-      borderColor: '#ec0000', // Border color (rising)
-      borderColor0: '#00da3c', // Border color (falling)
+      color: '#26A69A',      // Bullish candle color (green)
+      color0: '#EF5350',     // Bearish candle color (red)
+      borderColor: '#26A69A', // Bullish border color
+      borderColor0: '#EF5350' // Bearish border color
     }
   },
   defaultRadarChartOption: {
     color: ['#6ee1d5', '#a7dd85'],
     indicator: [
-      { name: "Indicator 1", max: 100 },
-      { name: "Indicator 2", max: 100 },
-      { name: "Indicator 3", max: 100 },
-      { name: "Indicator 4", max: 100 },
-      { name: "Indicator 5", max: 100 },
-      { name: "Indicator 6", max: 100 }
+      { name: "Performance", max: 100 },
+      { name: "Reliability", max: 100 },
+      { name: "Efficiency", max: 100 },
+      { name: "User Satisfaction", max: 100 },
+      { name: "Cost Effectiveness", max: 100 },
+      { name: "Scalability", max: 100 }
     ],
     series: [
       {
-        "name": "Data A",
-        "value": [90, 80, 70, 70, 80, 70],
+        "name": "Current System",
+        "value": [85, 72, 78, 65, 82, 68],
       },
       {
-        name: "Data B",
-        value: [60, 60, 40, 50, 50, 40],
+        name: "Competitor System",
+        value: [67, 82, 58, 73, 45, 79],
         areaColor: '#ff00ff77',
         lineColor: '#ff00ff77',
         lineWidth: 2,
@@ -397,127 +410,205 @@ export const enObj: I18nObjects = {
     ]
   },
   defaultGraphChartOption: {
-     color:{
-       pointColor: "#0000ff",
-       lineColor: "#00000033"
-     },
-     categories: [
-        {name: "Nodes"},
-        {name: "Edges"}
-      ],
-      nodes: [
-        {name: "Node 1", category: 0},
-        {name: "Node 2", category: 0},
-        {name: "Node 3", category: 0}
-      ],
-      links: [
-        {source: "Node 1", target: "Node 2", category: 1},
-        {source: "Node 2", target: "Node 3", category: 1}
-      ]
+    color: {
+      pointColor: "#4285F4",
+      lineColor: "#00000045"
+    },
+    categories: [
+      {name: "Person", itemStyle: {color: "#4285F4"}},
+      {name: "Company", itemStyle: {color: "#34A853"}},
+      {name: "Project", itemStyle: {color: "#EA4335"}}
+    ],
+    nodes: [
+      {id: "1", name: "John Smith", value: 25, category: 0, symbolSize: 25},
+      {id: "2", name: "Jane Doe", value: 20, category: 0, symbolSize: 20},
+      {id: "3", name: "Acme Inc", value: 30, category: 1, symbolSize: 30},
+      {id: "4", name: "Project X", value: 25, category: 2, symbolSize: 25}
+    ],
+    links: [
+      {source: "1", target: "3", value: 8, lineStyle: {width: 2}},
+      {source: "1", target: "4", value: 6, lineStyle: {width: 2}},
+      {source: "2", target: "3", value: 5, lineStyle: {width: 1}},
+      {source: "3", target: "4", value: 9, lineStyle: {width: 3}}
+    ]
   },
   defaultTreeChartOption: {
     data: [{
-        name: "Parent",
-        children: [
-          {
-            name: "Child 1",
-            children: [
-              { name: "Child 1-1" },
-              { name: "Child 1-2" }
-            ]
-          },
-          {
-            name: "Child 2",
-            children: [
-              { name: "Child 2-1" },
-              { name: "Child 2-2" }
-            ]
-          }
-        ]
-      }],
-    pointColor: "#380e81",
-    lineColor: "#1a93b8",
+      name: "Company Structure",
+      children: [
+        {
+          name: "Executive",
+          children: [
+            { name: "CEO", value: 1 },
+            { name: "CFO", value: 1 },
+            { name: "COO", value: 1 }
+          ]
+        },
+        {
+          name: "Product",
+          children: [
+            { name: "Engineering", value: 25 },
+            { name: "Design", value: 10 },
+            { name: "Product Management", value: 8 }
+          ]
+        },
+        {
+          name: "Marketing",
+          children: [
+            { name: "Social Media", value: 5 },
+            { name: "Content", value: 7 },
+            { name: "Analytics", value: 3 }
+          ]
+        }
+      ]
+    }],
+    pointColor: "#3498db",
+    lineColor: "#95a5a6",
+    label: {
+      show: true,
+      position: "right",
+      distance: 5,
+      fontSize: 12,
+      color: "#333"
+    },
+    emphasis: {
+      focus: "descendant"
+    },
+    expandAndCollapse: true,
+    initialTreeDepth: 2,
+    layout: "orthogonal",
+    orient: "horizontal",
+    symbolSize: 10
   },
   defaultTreemapChartOption: {
     data: [
       {
-        name: 'Category A',
-        value: 100,
+        name: 'Company Budget',
+        value: 1000,
         children: [
           {
-            name: 'Subcategory A1',
-            value: 70,
+            name: 'Product Development',
+            value: 400,
+            itemStyle: { color: '#3498db' },
             children: [
-              { name: 'Item A1-1', value: 10 },
-              { name: 'Item A1-2', value: 20 },
-              { name: 'Item A1-3', value: 10 },
-              { name: 'Item A1-4', value: 30 }
+              { name: 'Engineering', value: 250, itemStyle: { color: '#3498db' } },
+              { name: 'Design', value: 80, itemStyle: { color: '#5dade2' } },
+              { name: 'Research', value: 70, itemStyle: { color: '#85c1e9' } }
+            ]
+          },
+          {
+            name: 'Marketing',
+            value: 300,
+            itemStyle: { color: '#2ecc71' },
+            children: [
+              { name: 'Digital Advertising', value: 150, itemStyle: { color: '#2ecc71' } },
+              { name: 'Content Creation', value: 80, itemStyle: { color: '#58d68d' } },
+              { name: 'Events', value: 70, itemStyle: { color: '#80e5a8' } }
+            ]
+          },
+          {
+            name: 'Operations',
+            value: 200,
+            itemStyle: { color: '#e74c3c' },
+            children: [
+              { name: 'Office Space', value: 100, itemStyle: { color: '#e74c3c' } },
+              { name: 'Equipment', value: 50, itemStyle: { color: '#ec7063' } },
+              { name: 'Utilities', value: 50, itemStyle: { color: '#f1948a' } }
+            ]
+          },
+          {
+            name: 'HR',
+            value: 100,
+            itemStyle: { color: '#9b59b6' },
+            children: [
+              { name: 'Recruiting', value: 30, itemStyle: { color: '#9b59b6' } },
+              { name: 'Training', value: 40, itemStyle: { color: '#af7ac5' } },
+              { name: 'Benefits', value: 30, itemStyle: { color: '#c39bd3' } }
             ]
           }
         ]
-      },
-      {
-        name: 'Category B',
-        value: 80,
-        children: [
-          {
-            name: 'Subcategory B1',
-            value: 50,
-            children: [
-              { name: 'Item B1-1', value: 20 },
-              { name: 'Item B1-2', value: 15 },
-              { name: 'Item B1-3', value: 15 }
-            ]
-          },
-        ]
       }
     ],
-    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1']
+    label: {
+      show: true,
+      formatter: '{b}',
+      fontSize: 12,
+      color: '#333',
+      position: 'inside'
+    },
+    itemStyle: {
+      borderColor: '#fff',
+      borderWidth: 1,
+      gapWidth: 1
+    },
+    breadcrumb: {
+      show: true
+    },
+    roam: false
   },
   defaultSunburstChartOption: {
     data: [
-       {
-          name: "Grandparent",
-          children: [
-            {
-              name: "Parent A",
-              children: [
-                {name: "Child A1", value: 10},
-                {name: "Child A2", value: 20}
-              ]
-            },
-            {
-              name: "Parent B",
-              children: [
-                {name: "Child B1", value: 15},
-                {name: "Child B2", value: 25}
-              ]
-            }
-          ]
-        }
+      {
+        name: "Traffic",
+        children: [
+          {
+            name: "Direct",
+            value: 350,
+            children: [
+              {name: "New", value: 200},
+              {name: "Return", value: 150}
+            ]
+          },
+          {
+            name: "Social",
+            value: 300,
+            children: [
+              {name: "FB", value: 120},
+              {name: "IG", value: 100},
+              {name: "TW", value: 80}
+            ]
+          },
+          {
+            name: "Search",
+            value: 400,
+            children: [
+              {name: "Google", value: 300},
+              {name: "Bing", value: 100}
+            ]
+          }
+        ]
+      }
     ],
     levels: [
       {
         itemStyle: {
-          color: '#f6e58d'
-        },
+          color: '#3498db',
+          borderWidth: 2,
+          borderColor: 'white'
+        }
       },
       {
         itemStyle: {
-          color: '#12e192'
-        },
+          color: '#2ecc71',
+          borderWidth: 1,
+          borderColor: 'white'
+        }
       },
       {
         itemStyle: {
-          color: '#ffbe76'
-        },
-      },
-      {
-        itemStyle: {
-          color: '#007979'
-        },
+          color: '#e74c3c',
+          borderWidth: 1,
+          borderColor: 'white'
+        }
       }
-    ]
+    ],
+    label: {
+      show: true,
+      formatter: '{b}',
+      fontSize: 12,
+      color: 'white'
+    },
+    radius: ['20%', '90%']
   },
   defaultCalendarChartOption: {
     data:[
@@ -536,28 +627,31 @@ export const enObj: I18nObjects = {
   },
   defaultThemeriverChartOption: {
     data: [
-      ['2025-01-01', 12, 'Product A'],
-      ['2025-01-01', 10, 'Product B'],
-      ['2025-01-01', 15, 'Product C'],
-      ['2025-01-01', 8, 'Product D'],
-      ['2025-01-02', 14, 'Product A'],
-      ['2025-01-02', 9, 'Product B'],
-      ['2025-01-02', 16, 'Product C'],
-      ['2025-01-02', 7, 'Product D'],
-      ['2025-01-03', 16, 'Product A'],
-      ['2025-01-03', 12, 'Product B'],
-      ['2025-01-03', 18, 'Product C'],
-      ['2025-01-03', 10, 'Product D'],
-      ['2025-01-04', 20, 'Product A'],
-      ['2025-01-04', 15, 'Product B'],
-      ['2025-01-04', 22, 'Product C'],
-      ['2025-01-04', 12, 'Product D'],
-      ['2025-01-05', 18, 'Product A'],
-      ['2025-01-05', 13, 'Product B'],
-      ['2025-01-05', 20, 'Product C'],
-      ['2025-01-05', 11, 'Product D']
+      // Technology sector data - January to December
+      ['2024-01', 125, 'Smartphones'],
+      ['2024-02', 138, 'Smartphones'],
+      ['2024-03', 152, 'Smartphones'],
+      ['2024-04', 167, 'Smartphones'],
+      
+      ['2024-01', 95, 'Laptops'],
+      ['2024-02', 110, 'Laptops'],
+      ['2024-03', 125, 'Laptops'],
+      ['2024-04', 120, 'Laptops'],
+    
+      ['2024-01', 55, 'Tablets'],
+      ['2024-02', 60, 'Tablets'],
+      ['2024-03', 65, 'Tablets'],
+      ['2024-04', 72, 'Tablets'],
+      
+      ['2024-01', 30, 'Wearables'],
+      ['2024-02', 42, 'Wearables'],
+      ['2024-03', 55, 'Wearables'],
+      ['2024-04', 68, 'Wearables'],
+      
+ 
+   
     ],
-    color: ['#5470C6', '#91CC75', '#FAC858', '#6b51a1']
+    color: ['#5470c6', '#91cc75', '#fac858', '#ee6666', '#73c0de', '#3ba272', '#fc8452', '#9a60b4']
   },
 
   defaultMapJsonOption: defaultMapData,

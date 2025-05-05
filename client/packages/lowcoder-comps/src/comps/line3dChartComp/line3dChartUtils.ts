@@ -178,7 +178,6 @@ export function getEchartsConfig(
       },
     }
   };
-  console.log(config);
   return config;
 }
 

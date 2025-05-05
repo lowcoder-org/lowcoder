@@ -29,6 +29,10 @@ export function treeChartPropertyView(
         {children.lineWidth.propertyView({ label: trans("treeChart.lineWidth"), tooltip: trans("treeChart.lineWidthTooltip") })}
 
         {children.tooltip.propertyView({label: trans("treeChart.tooltip")})}
+        {children.labelVisibility.propertyView({
+          label: trans("treeChart.labelVisibility"), 
+          tooltip: trans("echarts.labelVisibilityTooltip")
+        })}
 
       </Section>
       <Section name={sectionNames.interaction}>

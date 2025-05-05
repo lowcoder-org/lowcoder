@@ -273,6 +273,7 @@ let chartJsonModeChildren: any = {
   edgeShape: withDefault(BoolControl, true),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  labelVisibility: withDefault(BoolControl, true),
 }
 
 if (RadarLabelStyle && EchartDefaultChartStyle && EchartDefaultTextStyle) {
