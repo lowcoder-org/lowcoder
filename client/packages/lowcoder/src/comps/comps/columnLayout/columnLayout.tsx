@@ -43,16 +43,34 @@ import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 
+// Extended ContainerStyleType for our specific needs
+interface ExtendedContainerStyleType extends ContainerStyleType {
+  display?: string;
+  gridTemplateColumns?: string;
+  gridTemplateRows?: string;
+  columnGap?: string;
+  rowGap?: string;
+  [key: string]: string | undefined;
+}
+
 const ContainWrapper = styled.div<{
-  $style: ContainerStyleType & {
-    display: string,
-    flexWrap: string,
-    gap: string,
-  } | undefined;
+  $style: ExtendedContainerStyleType | undefined;
+  $useFlexLayout: boolean;
 }>`
-  display: ${(props) => props.$style?.display};
-  flex-wrap: ${(props) => props.$style?.flexWrap};
-  gap: ${(props) => props.$style?.gap};
+  display: ${(props) => props.$useFlexLayout ? 'flex' : props.$style?.display};
+  flex-wrap: ${(props) => props.$useFlexLayout ? 'wrap' : 'nowrap'};
+  
+  ${(props) => !props.$useFlexLayout && `
+    grid-template-columns: ${props.$style?.gridTemplateColumns};
+    grid-template-rows: ${props.$style?.gridTemplateRows};
+    column-gap: ${props.$style?.columnGap};
+    row-gap: ${props.$style?.rowGap};
+  `}
+  
+  ${(props) => props.$useFlexLayout && `
+    column-gap: ${props.$style?.columnGap || '0'};
+    row-gap: ${props.$style?.rowGap || '0'};
+  `}
 
   border-radius: ${(props) => props.$style?.radius};
   border-width: ${(props) => props.$style?.borderWidth};
@@ -65,11 +83,14 @@ const ContainWrapper = styled.div<{
 
 const ColWrapper = styled.div<{
   $style: ResponsiveLayoutColStyleType | undefined,
-  $width?: string,
+  $width: string,
   $matchColumnsHeight: boolean,
+  $useFlexLayout: boolean,
 }>`
-  flex: ${props => props.$width ? "0 0 " + props.$width : "1 1 0"};
-  min-width: 0; /* Prevent flex items from overflowing */
+  ${props => props.$useFlexLayout ? `
+    flex: ${props.$width === '100%' ? '1 0 100%' : `0 0 ${props.$width}`};
+    max-width: ${props.$width};
+  ` : ''}
   
   > div {
     height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
@@ -93,10 +114,14 @@ const childrenMap = {
   horizontalGridCells: SliderControl,
   autoHeight: AutoHeightControl,
   matchColumnsHeight: withDefault(BoolControl, true),
-  gap: withDefault(StringControl, "20px"),
+  templateRows: withDefault(StringControl, "1fr"),
+  rowGap: withDefault(StringControl, "0"),
+  templateColumns: withDefault(StringControl, "1fr 1fr"),
   mainScrollbar: withDefault(BoolControl, false),
+  columnGap: withDefault(StringControl, "0"),
   style: styleControl(ContainerStyle, 'style'),
-  columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle')
+  columnStyle: styleControl(ResponsiveLayoutColStyle , 'columnStyle'),
+  useFlexLayout: withDefault(BoolControl, true),
 };
 
 type ViewProps = RecordConstructorToView<typeof childrenMap>;
@@ -118,6 +143,19 @@ const ColumnContainer = (props: ColumnContainerProps) => {
   );
 };
 
+const getColumnWidth = (column: any): string => {
+  // Use explicit width if available
+  if (column.width) {
+    // For percentage values, calculate precisely to accommodate gaps
+    if (column.width.endsWith('%')) {
+      return column.width;
+    }
+    return column.width;
+  }
+  
+  // If minWidth is set, use it or default to equal distribution
+  return column.minWidth || 'auto';
+};
 
 const ColumnLayout = (props: ColumnLayoutProps) => {
   let {
@@ -125,10 +163,14 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
     containers,
     dispatch,
     matchColumnsHeight,
-    gap,
+    templateRows,
+    rowGap,
+    templateColumns,
+    columnGap,
     columnStyle,
     horizontalGridCells,
-    mainScrollbar
+    mainScrollbar,
+    useFlexLayout,
   } = props;
 
   return (
@@ -136,24 +178,31 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
       <DisabledContext.Provider value={props.disabled}>
         <div style={{ height: "inherit", overflow: "auto"}}>
         <ScrollBar style={{ margin: "0px", padding: "0px" }} overflow="scroll" hideScrollbar={!mainScrollbar}>
-          <ContainWrapper $style={{
-            ...props.style,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: gap,
-          }}>
+          <ContainWrapper 
+            $style={{
+              ...props.style,
+              display: "grid",
+              gridTemplateColumns: templateColumns,
+              columnGap,
+              gridTemplateRows: templateRows,
+              rowGap,
+            }}
+            $useFlexLayout={useFlexLayout}
+          >
             {columns.map(column => {
               const id = String(column.id);
               const childDispatch = wrapDispatch(wrapDispatch(dispatch, "containers"), id);
               if(!containers[id]) return null
               const containerProps = containers[id].children;
+              const columnWidth = getColumnWidth(column);
               
               return (
-                <BackgroundColorContext.Provider value={props.columnStyle.background} key={id}>
+                <BackgroundColorContext.Provider key={id} value={props.columnStyle.background}>
                   <ColWrapper
                     $style={props.columnStyle}
-                    $width={column.minWidth}
+                    $width={columnWidth}
                     $matchColumnsHeight={matchColumnsHeight}
+                    $useFlexLayout={useFlexLayout}
                   >
                     <ColumnContainer
                       layout={containerProps.layout.getView()}
@@ -210,6 +259,10 @@ export const ResponsiveLayoutBaseComp = (function () {
               {children.horizontalGridCells.propertyView({
                 label: trans('prop.horizontalGridCells'),
               })}
+              {children.useFlexLayout.propertyView({
+                label: trans("responsiveLayout.useFlexLayout"),
+                tooltip: trans("responsiveLayout.useFlexLayoutTooltip")
+              })}
             </Section>
             <Section name={trans("responsiveLayout.columnsLayout")}>
               {children.matchColumnsHeight.propertyView({ label: trans("responsiveLayout.matchColumnsHeight")
@@ -217,7 +270,16 @@ export const ResponsiveLayoutBaseComp = (function () {
               {controlItem({}, (
                 <div style={{ marginTop: '8px' }}>{trans("responsiveLayout.columnsSpacing")}</div>
               ))}
-              {children.gap.propertyView({label: trans("responsiveLayout.gap")})}
+              {!children.useFlexLayout.getView() && children.templateColumns.propertyView({
+                label: trans("responsiveLayout.columnDefinition"), 
+                tooltip: trans("responsiveLayout.columnsDefinitionTooltip")
+              })}
+              {!children.useFlexLayout.getView() && children.templateRows.propertyView({
+                label: trans("responsiveLayout.rowDefinition"), 
+                tooltip: trans("responsiveLayout.rowsDefinitionTooltip")
+              })}
+              {children.columnGap.propertyView({label: trans("responsiveLayout.columnGap")})}
+              {children.rowGap.propertyView({label: trans("responsiveLayout.rowGap")})}
             </Section>
             </>
           )}

@@ -582,6 +582,7 @@ const ColumnOption = new MultiCompBuilder(
     label: StringControl,
     key: StringControl,
     minWidth: withDefault(RadiusControl, ""),
+    width: withDefault(RadiusControl, ""),
     background: withDefault(ColorControl, ""),
     backgroundImage: withDefault(StringControl, ""),
     border: withDefault(ColorControl, ""),
@@ -597,6 +598,11 @@ const ColumnOption = new MultiCompBuilder(
       label: trans('responsiveLayout.minWidth'),
       preInputNode: <StyledIcon as={WidthIcon} title="" />,
       placeholder: '3px',
+    })}
+    {children.width.propertyView({
+      label: trans('responsiveLayout.width'),
+      preInputNode: <StyledIcon as={WidthIcon} title="" />,
+      placeholder: '50%',
     })}
     {children.background.propertyView({
       label: trans('style.background'),
@@ -630,8 +636,8 @@ const ColumnOption = new MultiCompBuilder(
 
 export const ColumnOptionControl = manualOptionsControl(ColumnOption, {
   initOptions: [
-    { id: 0, key: "Column1", label: "Column1" },
-    { id: 1, key: "Column2", label: "Column2" },
+    { id: 0, key: "Column1", label: "Column1", width: "50%" },
+    { id: 1, key: "Column2", label: "Column2", width: "50%" },
   ],
   uniqField: "key",
   autoIncField: "id",
