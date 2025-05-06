@@ -20,7 +20,7 @@ class SliderControl extends SimpleComp<number> {
       <ControlPropertyViewWrapper {...params}>
         <Slider 
           style={{ width: "90%", margin: "8px 5% 0 5%"}}
-          min={8}  // Define the minimum value for the slider
+          min={1}  // Define the minimum value for the slider
           max={48} // Define the maximum value for the slider
           value={this.value || 24}
           onChange={(value) => this.dispatchChangeValueAction(value)} // this.dispatchChangeValueAction(value)}
