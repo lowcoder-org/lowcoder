@@ -54,6 +54,18 @@ export default function BPMNEditorExample() {
           }}
           compFactory={ChartCompWithDefault}
         />
+        <Example
+          title="Naming Downloaded File - Click on Download link"
+          height={400}
+          width={1000}
+          hideSettings={true}
+          config={{
+            designer: true,
+            svgDownload: true,
+            imageName: "Lowcoder_Image",
+          }}
+          compFactory={ChartCompWithDefault}
+        />
       </ExampleGroup>
 
       <ExampleGroup
@@ -71,7 +83,9 @@ export default function BPMNEditorExample() {
               "margin": "10px",
               "textSize": "30px",
               "backgroundColor": "#D7D9E0",
-              "border": "#222222"
+              "border": "#222222",
+              "radius": "20px",
+              "borderWidth": "3px",
             },
           }}
           compFactory={ChartCompWithDefault}

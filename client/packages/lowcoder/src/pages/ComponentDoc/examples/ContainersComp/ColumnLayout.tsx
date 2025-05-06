@@ -1140,6 +1140,1025 @@ export default function ColumnLayoutExample() {
             compFactory={ColumnLayoutComp}
           />
         </ExampleGroup>
+
+        <ExampleGroup
+          title="Styling Properties"
+          description="The Following Examples Show the different Styling Properties of the Column Layout Component."
+        >
+            <Example
+                title="Style"
+                    hideSettings={true}
+                    width={1000}
+                    config={{
+                    containers: {
+                        "0": {
+                            "layout": {
+                                "164dcb77": {
+                                    "i": "164dcb77",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 3,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "164dcb77": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text1"
+                                }
+                            }
+                        },
+                        "1": {
+                            "layout": {
+                                "6e4f0687": {
+                                    "i": "6e4f0687",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 5,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "6e4f0687": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text3"
+                                }
+                            }
+                        },
+                        "2": {
+                            "layout": {
+                                "b47baba7": {
+                                    "i": "b47baba7",
+                                    "h": 10,
+                                    "w": 18,
+                                    "x": 5,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "b47baba7": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text2"
+                                }
+                            }
+                        },
+                        "3": {
+                            "layout": {
+                                "ce02a8ee": {
+                                    "i": "ce02a8ee",
+                                    "h": 8,
+                                    "w": 17,
+                                    "x": 2,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "ce02a8ee": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text4"
+                                }
+                            }
+                        },
+                        "4": {
+                            "layout": {
+                                "7ff66f36": {
+                                    "i": "7ff66f36",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "7ff66f36": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text5"
+                                }
+                            }
+                        },
+                        "5": {
+                            "layout": {
+                                "8e25033d": {
+                                    "i": "8e25033d",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 3,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "8e25033d": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text6"
+                                }
+                            }
+                        },
+                        "6": {
+                            "layout": {
+                                "e92230c": {
+                                    "i": "e92230c",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 2,
+                                    "y": 3,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "e92230c": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text7"
+                                }
+                            }
+                        },
+                        "7": {
+                            "layout": {
+                                "5e09b262": {
+                                    "i": "5e09b262",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "5e09b262": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text8"
+                                }
+                            }
+                        },
+                        "8": {
+                            "layout": {
+                                "1bc7c61f": {
+                                    "i": "1bc7c61f",
+                                    "h": 8,
+                                    "w": 20,
+                                    "x": 1,
+                                    "y": 2,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "1bc7c61f": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text9"
+                                }
+                            }
+                        }
+                    },
+                    columns: {
+                        "manual": [
+                            {
+                                "id": 0,
+                                "label": "Column1",
+                                "key": "Column1",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 1,
+                                "label": "Column2",
+                                "key": "Column2",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 2,
+                                "label": "Add Column1",
+                                "key": "Add Column1",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 3,
+                                "label": "Add Column2",
+                                "key": "Add Column2",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 4,
+                                "label": "Add Column3",
+                                "key": "Add Column3",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 5,
+                                "label": "Add Column4",
+                                "key": "Add Column4",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 6,
+                                "label": "Add Column5",
+                                "key": "Add Column5",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 7,
+                                "label": "Add Column6",
+                                "key": "Add Column6",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 8,
+                                "label": "Add Column7",
+                                "key": "Add Column7",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            }
+                        ]
+                    },
+                    templateRows: "1fr 3fr 1fr",
+                    templateColumns: "1fr 3fr 1fr",
+                    style: {
+                        "border": "#EBFF04",
+                        "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                        "radius": "20px",
+                        "borderWidth": "5px",
+                        "margin": "10px",
+                        "padding": "20px",
+                        },
+                    matchColumnsHeight: true,
+                    }}
+                    compFactory={ColumnLayoutComp}
+            />
+            <Example
+                title="Style"
+                    hideSettings={true}
+                    width={1000}
+                    config={{
+                    containers: {
+                        "0": {
+                            "layout": {
+                                "164dcb77": {
+                                    "i": "164dcb77",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 3,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "164dcb77": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text1"
+                                }
+                            }
+                        },
+                        "1": {
+                            "layout": {
+                                "6e4f0687": {
+                                    "i": "6e4f0687",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 5,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "6e4f0687": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text3"
+                                }
+                            }
+                        },
+                        "2": {
+                            "layout": {
+                                "b47baba7": {
+                                    "i": "b47baba7",
+                                    "h": 10,
+                                    "w": 18,
+                                    "x": 5,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "b47baba7": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row1, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text2"
+                                }
+                            }
+                        },
+                        "3": {
+                            "layout": {
+                                "ce02a8ee": {
+                                    "i": "ce02a8ee",
+                                    "h": 8,
+                                    "w": 17,
+                                    "x": 2,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "ce02a8ee": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text4"
+                                }
+                            }
+                        },
+                        "4": {
+                            "layout": {
+                                "7ff66f36": {
+                                    "i": "7ff66f36",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "7ff66f36": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text5"
+                                }
+                            }
+                        },
+                        "5": {
+                            "layout": {
+                                "8e25033d": {
+                                    "i": "8e25033d",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 3,
+                                    "y": 16,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "8e25033d": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row2, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text6"
+                                }
+                            }
+                        },
+                        "6": {
+                            "layout": {
+                                "e92230c": {
+                                    "i": "e92230c",
+                                    "h": 8,
+                                    "w": 19,
+                                    "x": 2,
+                                    "y": 3,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "e92230c": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column1",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text7"
+                                }
+                            }
+                        },
+                        "7": {
+                            "layout": {
+                                "5e09b262": {
+                                    "i": "5e09b262",
+                                    "h": 6,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 4,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "5e09b262": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column2",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text8"
+                                }
+                            }
+                        },
+                        "8": {
+                            "layout": {
+                                "1bc7c61f": {
+                                    "i": "1bc7c61f",
+                                    "h": 8,
+                                    "w": 20,
+                                    "x": 1,
+                                    "y": 2,
+                                    "pos": 0
+                                }
+                            },
+                            "items": {
+                                "1bc7c61f": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Row3, Column3",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "text9"
+                                }
+                            }
+                        }
+                    },
+                    columns: {
+                        "manual": [
+                            {
+                                "id": 0,
+                                "label": "Column1",
+                                "key": "Column1",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 1,
+                                "label": "Column2",
+                                "key": "Column2",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 2,
+                                "label": "Add Column1",
+                                "key": "Add Column1",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 3,
+                                "label": "Add Column2",
+                                "key": "Add Column2",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 4,
+                                "label": "Add Column3",
+                                "key": "Add Column3",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 5,
+                                "label": "Add Column4",
+                                "key": "Add Column4",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 6,
+                                "label": "Add Column5",
+                                "key": "Add Column5",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 7,
+                                "label": "Add Column6",
+                                "key": "Add Column6",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            },
+                            {
+                                "id": 8,
+                                "label": "Add Column7",
+                                "key": "Add Column7",
+                                "minWidth": "",
+                                "background": "",
+                                "backgroundImage": "",
+                                "border": "",
+                                "radius": "",
+                                "margin": "",
+                                "padding": ""
+                            }
+                        ]
+                    },
+                    templateRows: "1fr 3fr 1fr",
+                    templateColumns: "1fr 3fr 1fr",
+                    style: {
+                        "border": "#EBFF04",
+                        "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                        "radius": "20px",
+                        "borderWidth": "5px",
+                        "margin": "10px",
+                        "padding": "20px",
+                        },
+                    columnStyle: {
+                        "background": "linear-gradient(45deg, #d53369 0%, #daae51 100%)",
+                        "border": "#FFFF07",
+                        "radius": "50px",
+                        "borderWidth": "3px",
+                        "borderStyle": "solid",
+                        "margin": "10px",
+                        "padding": "15px",
+                        },
+                    matchColumnsHeight: true,
+                    }}
+                    compFactory={ColumnLayoutComp}
+            />
+        </ExampleGroup>
       </>
     );
   }

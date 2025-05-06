@@ -139,6 +139,102 @@ export default function FileExample() {
           compFactory={FileComp}
         />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties on the Cascader Component."
+      >
+        <Example
+          title="Background Color, Border Radius,Style,Width,Color"
+          config={{
+            style: {
+              "background": "#00FFFF",
+              "border": "#3377FF",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "borderStyle": "solid",
+            },
+          }}
+          compFactory={FileComp}
+        />
+        <Example
+          title="Margin & Padding"
+          config={{
+            style: {
+              "background": "#00FFFF",
+              "border": "#3377FF",
+              "radius": "10px",
+              "borderWidth": "3px",
+              "margin": "10px",
+              "padding": "10px",
+              "borderStyle": "dashed",
+            },
+          }}
+          compFactory={FileComp}
+        />
+        <Example
+          title="Text Color, Size, Weight, Font family, Border properties"
+          config={{
+            style: {
+              "margin": "5px",
+              "padding": "5px",
+              "label": "#3377FF",
+              "textTransform": "Uppercase",
+              "textDecoration": "underline",
+              "textSize": "13px",
+              "textWeight": "bold",
+              "fontFamily": "Courier New",
+              "fontStyle": "Italic",
+              "border": "#36B389",
+              "borderStyle": "solid",
+              "borderWidth": "2px"
+            },
+          }}
+          compFactory={FileComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Cascader Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={FileComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={FileComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={FileComp}
+        />
+      </ExampleGroup>
     </>
   );
 }
