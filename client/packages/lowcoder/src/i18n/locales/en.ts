@@ -3910,8 +3910,6 @@ export const en = {
     "rowStyle": "Row Style",
     "columnStyle": "Column Style",
     "minWidth": "Min. Width",
-    "width": "Width",
-    "widthTooltip": "Set the column width (e.g., '300px', '50%', '100%'). When set to 100%, columns will stack vertically.",
     "rowBreak": "Row Break",
     "useComponentWidth" : "Use Self Size",
     "useComponentWidthDesc" : "Use the container width instead the App width",
@@ -3920,8 +3918,6 @@ export const en = {
     "columnsLayout": "Columns Layout",
     "columnsDefinitionTooltip": "Columns can be defined freely based on the CSS columns properties. For example, 'auto auto' will create two columns with equal width. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-columns",
     "rowsDefinitionTooltip": "Rows can be defined freely based on the CSS rows properties. For example, 'auto auto' will create two rows with equal height. Read more here: https://css-tricks.com/almanac/properties/g/grid-template-rows",
-    "useFlexLayout": "Use Flexible Layout",
-    "useFlexLayoutTooltip": "Enable responsive behavior where columns can wrap when there's not enough space"
   },
   "splitLayout" : {
     "column": "View Areas",
