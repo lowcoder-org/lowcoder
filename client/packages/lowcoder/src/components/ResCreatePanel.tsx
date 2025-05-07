@@ -25,6 +25,7 @@ import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { JS_CODE_ID } from "constants/datasourceConstants";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;
@@ -145,6 +146,7 @@ const ResButton = (props: {
       type: BottomResTypeEnum.Query,
       extra: {
         compType: "js",
+        dataSourceId: JS_CODE_ID,
       },
     },
     libraryQuery: {
@@ -316,6 +318,17 @@ export function ResCreatePanel(props: ResCreateModalProps) {
                         {trans("query.importFromFile")}
                       </DataSourceButton>
                     </Upload>
+                  </DataSourceListWrapper>
+                </div>
+              </>
+            )}
+                      
+            {placement === "queryLibrary" && (
+              <>
+                <div className="section-title">{trans("code")}</div>
+                <div className="section">
+                  <DataSourceListWrapper $placement={placement}>
+                    <ResButton size={buttonSize} identifier={"js"} onSelect={onSelect} />
                   </DataSourceListWrapper>
                 </div>
               </>
