@@ -39,7 +39,7 @@ export interface DataUIViewProps extends DateCompViewProps {
   onChange: DatePickerProps<Dayjs>['onChange'];
   onPanelChange: () => void;
   onClickDateTimeZone:(value:any)=>void;
-  
+  tabIndex?: number;
 }
 
 const DateMobileUIView = React.lazy(() =>

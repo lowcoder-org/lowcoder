@@ -42,6 +42,7 @@ import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { NumberControl } from "comps/controls/codeControl";
 
 const PasswordStyle = styled(InputPassword)<{
   $style: InputLikeStyleType;
@@ -63,6 +64,7 @@ let PasswordTmpComp = (function () {
     labelStyle: styleControl(LabelStyle,'labelStyle'),
     inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'), 
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     const [inputProps, validateState] = useTextInputProps(props);
@@ -76,6 +78,7 @@ let PasswordTmpComp = (function () {
           ref={props.viewRef}
           visibilityToggle={props.visibilityToggle}
           $style={props.inputFieldStyle}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
       ),
       style: props.style,
@@ -105,6 +108,7 @@ let PasswordTmpComp = (function () {
                 })}
                 {readOnlyPropertyView(children)}
                 {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+                {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               </Section><Section name={sectionNames.validation}>
                 {requiredPropertyView(children)}
                 {children.showValidationWhenEmpty.propertyView({label: trans("prop.showEmptyValidation")})}

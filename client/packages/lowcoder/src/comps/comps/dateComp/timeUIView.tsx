@@ -34,6 +34,7 @@ export interface TimeUIViewProps extends TimeCompViewProps {
   value: dayjs.Dayjs | null;
   onChange: (value: dayjs.Dayjs | null) => void;
   handleTimeZoneChange: (value:any) => void;
+  tabIndex?: number;
 }
 
 export const TimeUIView = (props: TimeUIViewProps) => {

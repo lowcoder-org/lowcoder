@@ -6,6 +6,7 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
+import { NumberControl } from "comps/controls/codeControl";
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -13,6 +14,7 @@ const RangeSliderBasicComp = (function () {
     start: numberExposingStateControl("start", 10),
     end: numberExposingStateControl("end", 60),
     vertical: BoolControl,
+    tabIndex: NumberControl,
   };
   return new UICompBuilder(childrenMap, (props, dispatch) => {
     return props.label({
@@ -36,6 +38,7 @@ const RangeSliderBasicComp = (function () {
             $style={props.inputFieldStyle}
             style={{ margin: 0 }}
             $vertical={Boolean(props.vertical) || false}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
             onChange={([start, end]) => {
               props.start.onChange(start);
               props.end.onChange(end);
@@ -60,6 +63,7 @@ const RangeSliderBasicComp = (function () {
               tooltip: trans("rangeSlider.stepTooltip"),
             })}
             {children.vertical.propertyView({ label: trans("slider.vertical") })}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
 
           <SliderPropertyView {...children} />

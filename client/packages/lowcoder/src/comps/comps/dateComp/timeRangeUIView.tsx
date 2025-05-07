@@ -39,6 +39,7 @@ export interface TimeRangeUIViewProps extends TimeCompViewProps {
   placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
   handleTimeRangeZoneChange: (value:any) => void;
+  tabIndex?: number;
 }
 
 export const TimeRangeUIView = (props: TimeRangeUIViewProps) => {

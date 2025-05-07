@@ -20,7 +20,7 @@ import {
 import styled, { css } from "styled-components";
 import { UICompBuilder } from "../../generators";
 import { FormDataPropertyView } from "../formComp/formDataConstants";
-import { jsonControl } from "comps/controls/codeControl";
+import { jsonControl, NumberControl } from "comps/controls/codeControl";
 import { dropdownControl } from "comps/controls/dropdownControl";
 import {
   getStyle,
@@ -92,6 +92,7 @@ const childrenMap = {
   inputFieldStyle: styleControl(InputLikeStyle , 'inputFieldStyle'),
   childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  tabIndex: NumberControl,
 };
 
 const getValidate = (value: any): "" | "warning" | "error" | undefined => {
@@ -271,6 +272,7 @@ let AutoCompleteCompBase = (function () {
                 suffix={hasIcon(props.suffixIcon) && props.suffixIcon}
                 status={getValidate(validateState)}
                 onPressEnter={undefined}
+                tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
               />
           </AutoComplete>
         </>
@@ -353,6 +355,9 @@ let AutoCompleteCompBase = (function () {
             hasTooltip={true}
           >
             {children.animationStyle.getPropertyView()}
+          </Section>
+          <Section name={sectionNames.advanced}>
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         </>
       );

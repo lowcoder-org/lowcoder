@@ -176,6 +176,7 @@ export const en = {
     "width": "Width",
     "selectApp": "Select App",
     "showCount": "Show Count",
+    "tabIndex": "Tab Index",
     "textType": "Text Type",
     "customRule": "Custom Rule",
     "customRuleTooltip": "Non-empty string indicates an error; empty or null means validation passed. Example: ",
