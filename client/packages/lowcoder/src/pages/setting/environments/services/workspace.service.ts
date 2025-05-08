@@ -85,14 +85,20 @@ export async function deployWorkspace(params: {
   envId: string;
   targetEnvId: string;
   workspaceId: string;
-  updateDependenciesIfNeeded?: boolean;
 }): Promise<boolean> {
   try {
-    const response = await axios.post('/api/plugins/enterprise/deploy', params);
+    // Use the new endpoint format with only essential parameters
+    const response = await axios.post('/api/plugins/enterprise/org/deploy', null, {
+      params: {
+        orgGid: params.workspaceId, // Using workspaceId as orgGid
+        envId: params.envId,
+        targetEnvId: params.targetEnvId
+      }
+    });
     return response.status === 200;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to deploy workspace';
-    message.error(errorMessage);
-    throw error;
+    // Don't show message directly, let the calling component handle it
+    throw new Error(errorMessage);
   }
 }

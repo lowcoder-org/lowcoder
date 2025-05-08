@@ -159,20 +159,17 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
   // Deploy configuration
   deploy: {
     enabled: true,
-    fields: [
-      {
-        name: 'updateDependenciesIfNeeded',
-        label: 'Update Dependencies If Needed',
-        type: 'checkbox',
-        defaultValue: false
-      }
-    ],
+    fields: [],
     prepareParams: (item: Workspace, values: any, sourceEnv: Environment, targetEnv: Environment) => {
+      if (!item.gid) {
+        console.error('Missing workspace.gid when deploying workspace:', item);
+      }
+      console.log('item.gid', item.gid);
+      
       return {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
-        workspaceId: item.id,
-        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+        workspaceId: item.gid
       };
     },
     execute: (params: any) => deployWorkspace(params)
