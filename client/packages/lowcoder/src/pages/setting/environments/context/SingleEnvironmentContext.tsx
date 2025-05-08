@@ -11,6 +11,7 @@ import React, {
   import { useParams } from "react-router-dom";
   import { getEnvironmentById, updateEnvironment } from "../services/environments.service";
   import { Environment } from "../types/environment.types";
+  import { useEnvironmentContext } from './EnvironmentContext';
   
   interface SingleEnvironmentContextState {
     // Environment data
@@ -51,6 +52,9 @@ import React, {
     // Get environmentId from URL params if not provided as prop
     const { envId } = useParams<{ envId: string }>();
     const environmentId = propEnvironmentId || envId;
+    
+    // Access the environments context to refresh the list
+    const { refreshEnvironments } = useEnvironmentContext();
     
     // State for environment data
     const [environment, setEnvironment] = useState<Environment | null>(null);
@@ -98,8 +102,11 @@ import React, {
         // Show success message
         message.success("Environment updated successfully");
         
-        // Update local state
-        setEnvironment(updatedEnv);
+        // Refresh both the single environment and environments list
+        await Promise.all([
+          fetchEnvironment(),  // Refresh the current environment
+          refreshEnvironments() // Refresh the environments list
+        ]);
         
         return updatedEnv;
       } catch (err) {
@@ -107,7 +114,7 @@ import React, {
         message.error(errorMessage);
         throw err;
       }
-    }, [environment, environmentId]);
+    }, [environment, environmentId, fetchEnvironment, refreshEnvironments]);
   
     // Load environment data when the component mounts or environmentId changes
     useEffect(() => {
