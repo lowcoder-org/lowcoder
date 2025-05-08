@@ -11,7 +11,7 @@ const NoShake = css`
   transform-style: preserve-3d;
 `;
 
-export const CompIconDiv = styled.div<{ $h: number; $w: number, $isSelected?: boolean }>`
+export const CompIconDiv = styled.div<{ $h: number; $w: number, $isSelected?: boolean, $color?: string }>`
   ${NoShake};
   padding: 3px;
   background: #ffffff;
@@ -49,6 +49,15 @@ export const CompIconDiv = styled.div<{ $h: number; $w: number, $isSelected?: bo
     box-shadow: 0 0 5px 0 rgba(51, 119, 255, 0.15);
     transform-style: preserve-3d;
     backface-visibility: hidden;
+  `}
+
+  ${props => props.$color && `
+    svg > *[fill='#B480DE'] {
+      fill: ${props.$color};
+    }
+    svg > *[stroke='#B480DE'] {
+      stroke: ${props.$color};
+    }
   `}
 `;
 

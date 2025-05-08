@@ -60,6 +60,8 @@ import GlobalInstances from 'components/GlobalInstances';
 import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
+import { fetchBrandingSetting } from "./redux/reduxActions/enterpriseActions";
+import { EnterpriseProvider } from "./util/context/EnterpriseContext";
 import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
@@ -95,6 +97,7 @@ type AppIndexProps = {
   defaultHomePage: string | null | undefined;
   fetchHomeDataFinished: boolean;
   fetchConfig: (orgId?: string) => void;
+  fetchBrandingSetting: (orgId?: string) => void;
   fetchHomeData: (currentUserAnonymous?: boolean | undefined) => void;
   fetchLowcoderCompVersions: () => void;
   getCurrentUser: () => void;
@@ -122,6 +125,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
       if (!this.props.currentUserAnonymous) {
         this.props.fetchHomeData(this.props.currentUserAnonymous);
         this.props.fetchLowcoderCompVersions();
+        this.props.fetchBrandingSetting(this.props.currentOrgId);
       }
     }
   }
@@ -454,6 +458,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
     dispatch(fetchHomeData({}));
   },
+  fetchBrandingSetting: (orgId?: string) => dispatch(fetchBrandingSetting({ orgId })),
   fetchLowcoderCompVersions: async () => {
     try {
       dispatch(setLowcoderCompsLoading(true));
@@ -481,7 +486,9 @@ export function bootstrap() {
   const root = createRoot(container!);
   root.render(
     <Provider store={reduxStore}>
+      <EnterpriseProvider>
         <AppIndexWithProps />
+      </EnterpriseProvider>
     </Provider>
   );
 }

@@ -9,6 +9,7 @@ import SideBar from "components/layout/SideBar";
 import { CNMainContent, CNSidebar } from "constants/styleSelectors";
 import { SideBarSection, SideBarSectionProps } from "./SideBarSection";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
 
@@ -16,8 +17,14 @@ type LayoutProps = {
   sections: SideBarSectionProps[];
 };
 
-const SideBarV2 = styled(SideBar)`
-  background: #f7f9fc !important;
+const SideBarV2 = styled(SideBar)<{
+  $bgColor?: string,
+  $fontColor?: string,
+  $activeBgColor?: string,
+  $activeFontColor?: string,
+}>`
+  background: ${props => props.$bgColor ? props.$bgColor : '#f7f9fc'} !important;
+  ${props => props.$fontColor && `color: ${props.$fontColor}`};
   padding: 28px 10px;
   border-right: 1px solid #ebebeb;
 
@@ -50,7 +57,6 @@ const DrawerContentWrapper = styled.div`
 `;
 
 export function Layout(props: LayoutProps) {
-
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 

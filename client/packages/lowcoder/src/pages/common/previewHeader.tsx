@@ -26,6 +26,8 @@ import MobileOutlined from "@ant-design/icons/MobileOutlined";
 import TabletOutlined from "@ant-design/icons/TabletOutlined";
 import DesktopOutlined from "@ant-design/icons/DesktopOutlined";
 import { DeviceOrientation, DeviceType, EditorContext } from "@lowcoder-ee/comps/editorState";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
+import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
 
 const HeaderFont = styled.div<{ $bgColor: string }>`
   font-weight: 500;
@@ -111,6 +113,10 @@ const Wrapper = styled.div`
   }
 `;
 
+const BrandLogo = styled.img`
+  height: 28px;
+`
+
 export function HeaderProfile(props: { user: User }) {
   const { user } = props;
   const fetchingUser = useSelector(isFetchingUser);
@@ -149,14 +155,21 @@ const PreviewHeaderComp = () => {
   const isPublicApp = useSelector(isPublicApplication);
   const applicationId = useApplicationId();
   const templateId = useSelector(getTemplateId);
-  const brandingConfig = useSelector(getBrandingConfig);
+  const brandingSettings = useSelector(getBrandingSetting);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
   const isViewMarketplaceMode = params.viewMode === 'view_marketplace' || isPublicApp;
 
   const headerStart = (
     <>
       <StyledLink onClick={() => !isPublicApp && history.push(ALL_APPLICATIONS_URL)}>
-        <LogoIcon branding={true} />
+        {/* <LogoIcon branding={true} /> */}
+        { brandingSettings?.config_set?.squareLogo
+          ? (
+            Boolean(brandingSettings?.orgId)
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.squareLogo} />
+          ) : <LogoIcon branding={true} />
+        }
       </StyledLink>
       {isViewMarketplaceMode && (
         <HeaderStartDropdown
@@ -165,7 +178,7 @@ const PreviewHeaderComp = () => {
         />
       )}
       {!isViewMarketplaceMode && (
-        <HeaderFont $bgColor={brandingConfig?.headerColor ?? "#2c2c2c"}>
+        <HeaderFont $bgColor={brandingSettings?.config_set?.appHeaderColor ?? "#2c2c2c"}>
           {application && application.name}
         </HeaderFont>
       )}
@@ -256,7 +269,7 @@ const PreviewHeaderComp = () => {
       headerStart={headerStart}
       headerMiddle={headerMiddle}
       headerEnd={headerEnd}
-      style={{ backgroundColor: brandingConfig?.headerColor }}
+      style={{ backgroundColor: brandingSettings?.config_set?.appHeaderColor }}
     />
   );
 };
