@@ -4,6 +4,7 @@ import { getEnvironmentWorkspaces } from "./environments.service";
 import { getManagedWorkspaces } from "./enterprise.service";
 import { Workspace } from "../types/workspace.types";
 import { ManagedOrg } from "../types/enterprise.types";
+import axios from "axios";
 
 export interface WorkspaceStats {
   total: number;
@@ -70,6 +71,27 @@ export async function getMergedEnvironmentWorkspaces(
   } catch (error) {
     const errorMessage = 
       error instanceof Error ? error.message : "Failed to fetch workspaces";
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+/**
+ * Deploy a workspace to another environment
+ * @param params Deployment parameters
+ * @returns Promise with boolean indicating success
+ */
+export async function deployWorkspace(params: {
+  envId: string;
+  targetEnvId: string;
+  workspaceId: string;
+  updateDependenciesIfNeeded?: boolean;
+}): Promise<boolean> {
+  try {
+    const response = await axios.post('/api/plugins/enterprise/deploy', params);
+    return response.status === 200;
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy workspace';
     message.error(errorMessage);
     throw error;
   }

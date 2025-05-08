@@ -3,8 +3,9 @@ import React from 'react';
 import { Row, Col, Statistic, Tag } from 'antd';
 import { ClusterOutlined, AuditOutlined } from '@ant-design/icons';
 import { Workspace, WorkspaceStats, DeployableItemConfig } from '../types/deployable-item.types';
+import { Environment } from '../types/environment.types';
 import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
-import { getMergedEnvironmentWorkspaces } from '../services/workspace.service';
+import { getMergedEnvironmentWorkspaces, deployWorkspace } from '../services/workspace.service';
 import { connectManagedWorkspace, unconnectManagedWorkspace } from '../services/enterprise.service';
 import { 
   createNameColumn, 
@@ -153,5 +154,27 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
     tooltip: 'View audit logs for this workspace',
     getAuditUrl: (item, environment) => 
       `/setting/audit?environmentId=${environment.environmentId}&orgId=${item.id}&pageSize=100&pageNum=1`
+  },
+  
+  // Deploy configuration
+  deploy: {
+    enabled: true,
+    fields: [
+      {
+        name: 'updateDependenciesIfNeeded',
+        label: 'Update Dependencies If Needed',
+        type: 'checkbox',
+        defaultValue: false
+      }
+    ],
+    prepareParams: (item: Workspace, values: any, sourceEnv: Environment, targetEnv: Environment) => {
+      return {
+        envId: sourceEnv.environmentId,
+        targetEnvId: targetEnv.environmentId,
+        workspaceId: item.id,
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+      };
+    },
+    execute: (params: any) => deployWorkspace(params)
   }
 };
