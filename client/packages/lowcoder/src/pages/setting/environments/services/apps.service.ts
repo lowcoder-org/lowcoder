@@ -109,13 +109,13 @@ export async function getMergedWorkspaceApps(
 export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
   try {
     const response = await axios.post(
-      `/api/plugins/enterprise/deploy`, 
+      `/api/plugins/enterprise/app/deploy`, 
       null, 
       { 
         params: {
+          applicationId: params.applicationId,
           envId: params.envId,
           targetEnvId: params.targetEnvId,
-          applicationId: params.applicationId,
           updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
           publishOnTarget: params.publishOnTarget ?? false,
           publicToAll: params.publicToAll ?? false,
@@ -126,7 +126,8 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
     
     return response.status === 200;
   } catch (error) {
-    console.error('Error deploying app:', error);
-    throw error;
+    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy app';
+    // Don't show message directly, let the calling component handle it
+    throw new Error(errorMessage);
   }
 };
