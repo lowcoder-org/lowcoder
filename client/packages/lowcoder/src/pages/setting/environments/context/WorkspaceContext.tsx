@@ -10,8 +10,9 @@ import React, {
   import { message } from "antd";
   import { useParams } from "react-router-dom";
   import { useSingleEnvironmentContext } from "./SingleEnvironmentContext";
-  import { fetchWorkspaceById} from "../services/environments.service";
+  import { fetchWorkspaceById } from "../services/environments.service";
   import { Workspace } from "../types/workspace.types";
+  import { getManagedWorkspaces, connectManagedWorkspace, unconnectManagedWorkspace } from "../services/enterprise.service";
   
   interface WorkspaceContextState {
     // Workspace data
@@ -25,6 +26,7 @@ import React, {
     
     // Functions
     refreshWorkspace: () => Promise<void>;
+    toggleManagedStatus: (checked: boolean) => Promise<boolean>;
   }
   
   const WorkspaceContext = createContext<WorkspaceContextState | undefined>(undefined);
@@ -71,8 +73,29 @@ import React, {
       setError(null);
       
       try {
-        const data = await fetchWorkspaceById(environment.environmentId, workspaceId, environment.environmentApikey, environment.environmentApiServiceUrl!);
-        setWorkspace(data);
+        // Fetch the workspace data
+        const workspaceData = await fetchWorkspaceById(
+          environment.environmentId, 
+          workspaceId, 
+          environment.environmentApikey, 
+          environment.environmentApiServiceUrl!
+        );
+        
+        if (!workspaceData) {
+          throw new Error("Workspace not found");
+        }
+        
+        // Fetch managed workspaces to check if this one is managed
+        const managedWorkspaces = await getManagedWorkspaces(environment.environmentId);
+        
+        // Set the managed status
+        const isManaged = managedWorkspaces.some(org => org.orgGid === workspaceData.gid);
+        
+        // Update the workspace with managed status
+        setWorkspace({
+          ...workspaceData,
+          managed: isManaged
+        });
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Workspace not found or failed to load";
         setError(errorMessage);
@@ -81,6 +104,35 @@ import React, {
       }
     }, [workspaceId, environment]);
   
+    // Function to toggle managed status
+    const toggleManagedStatus = useCallback(async (checked: boolean): Promise<boolean> => {
+      if (!workspace || !environment) {
+        return false;
+      }
+      
+      try {
+        if (checked) {
+          // Connect the workspace as managed
+          await connectManagedWorkspace(
+            environment.environmentId,
+            workspace.name,
+            workspace.gid!
+          );
+        } else {
+          // Disconnect the managed workspace
+          await unconnectManagedWorkspace(workspace.gid!);
+        }
+        
+        // Update local state
+        setWorkspace(prev => prev ? { ...prev, managed: checked } : null);
+        
+        return true;
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : "Failed to update managed status";
+        message.error(errorMessage);
+        return false;
+      }
+    }, [workspace, environment]);
   
     // Load workspace data when the component mounts or dependencies change
     useEffect(() => {
@@ -93,6 +145,7 @@ import React, {
       isLoading,
       error,
       refreshWorkspace: fetchWorkspace,
+      toggleManagedStatus
     };
   
     return (
