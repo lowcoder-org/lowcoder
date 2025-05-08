@@ -61,8 +61,11 @@ const EnvironmentDetail: React.FC = () => {
     
     setIsUpdating(true);
     try {
-      await updateEnvironmentData(data);
+      // Close the modal first, before the update completes
       handleCloseModal();
+      
+      // Then update the environment data
+      await updateEnvironmentData(data);
     } catch (error) {
       console.error('Failed to update environment:', error);
     } finally {
