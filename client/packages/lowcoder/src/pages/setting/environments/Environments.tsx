@@ -1,30 +1,28 @@
+// client/packages/lowcoder/src/pages/setting/environments/Environments.tsx
 import React from "react";
-import { Switch, Route } from "react-router-dom";
+import { Switch, Route, useRouteMatch } from "react-router-dom";
 import { EnvironmentProvider } from "./context/EnvironmentContext";
+import EnvironmentRoutes from "./routes/EnvironmentRoutes";
 import EnvironmentsList from "./EnvironmentsList";
-import EnvironmentScopedRoutes from "./components/EnvironmentScopedRoutes";
-
-import {
-  ENVIRONMENT_SETTING,
-  ENVIRONMENT_DETAIL
-} from "@lowcoder-ee/constants/routesURL";
 
 /**
- * Top-level Environments component that wraps all environment-related routes
- * with the EnvironmentProvider for shared state management
+ * Top-level Environments component
+ * Provides the EnvironmentProvider at the top level
  */
 const Environments: React.FC = () => {
+  const { path } = useRouteMatch();
+  
   return (
     <EnvironmentProvider>
       <Switch>
-        {/* Route that shows the list of environments */}
-        <Route exact path={ENVIRONMENT_SETTING}>
+        {/* Environment list route */}
+        <Route exact path={path}>
           <EnvironmentsList />
         </Route>
-
-        {/* All other routes under /environments/:envId */}
-        <Route path={ENVIRONMENT_DETAIL}>
-          <EnvironmentScopedRoutes />
+        
+        {/* All routes that need a specific environment */}
+        <Route path={`${path}/:envId`}>
+          <EnvironmentRoutes />
         </Route>
       </Switch>
     </EnvironmentProvider>

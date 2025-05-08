@@ -34,7 +34,7 @@ import { queryConfig } from "./config/query.config";
 import { useDeployableItems } from "./hooks/useDeployableItems";
 import { workspaceConfig } from "./config/workspace.config";
 import { useDeployModal } from "./context/DeployModalContext";
-
+import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -49,9 +49,9 @@ const WorkspaceDetail: React.FC = () => {
     }>();
     const {
       environment,
-      isLoadingEnvironment: envLoading,
+      isLoading: envLoading,
       error: envError,
-    } = useEnvironmentContext();
+    } = useSingleEnvironmentContext();
 
     const {openDeployModal} = useDeployModal();
 

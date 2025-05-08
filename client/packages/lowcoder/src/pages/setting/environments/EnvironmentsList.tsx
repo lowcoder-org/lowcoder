@@ -18,7 +18,7 @@ const EnvironmentsList: React.FC = () => {
   // Use the shared context instead of a local hook
   const { 
     environments, 
-    isLoadingEnvironments, 
+    isLoading, 
     error, 
   } = useEnvironmentContext();
 
@@ -83,7 +83,7 @@ const EnvironmentsList: React.FC = () => {
       )}
 
       {/* Empty state handling */}
-      {!isLoadingEnvironments && environments.length === 0 && !error ? (
+      {!isLoading && environments.length === 0 && !error ? (
         <Empty
           description="No environments found"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -92,7 +92,7 @@ const EnvironmentsList: React.FC = () => {
         /* Table component */
         <EnvironmentsTable
           environments={filteredEnvironments}
-          loading={isLoadingEnvironments}
+          loading={isLoading}
           onRowClick={handleRowClick}
         />
       )}

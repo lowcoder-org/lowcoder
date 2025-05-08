@@ -1,5 +1,4 @@
 import React, {useState} from "react";
-import { useParams } from "react-router-dom";
 import {
   Spin,
   Typography,
@@ -8,25 +7,18 @@ import {
   Tabs,
   Alert,
   Descriptions,
-  Dropdown,
   Menu,
   Button,
   Breadcrumb,
 } from "antd";
 import {
-  ReloadOutlined,
   LinkOutlined,
-  ClusterOutlined,
   TeamOutlined,
-  UserOutlined,
-  SyncOutlined,
   EditOutlined,
-  EllipsisOutlined,
-  MoreOutlined,
   HomeOutlined
 } from "@ant-design/icons";
 
-import { useEnvironmentContext } from "./context/EnvironmentContext";
+import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
 import { workspaceConfig } from "./config/workspace.config";
 import { userGroupsConfig } from "./config/usergroups.config";
 import DeployableItemsTab from "./components/DeployableItemsTab";
@@ -37,21 +29,18 @@ import history from "@lowcoder-ee/util/history";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
-
 /**
  * Environment Detail Page Component
  * Shows detailed information about a specific environment
  */
 const EnvironmentDetail: React.FC = () => {
-  // Get environment ID from URL params
+  // Use the SingleEnvironmentContext instead of EnvironmentContext
   const {
     environment,
-    isLoadingEnvironment,
+    isLoading,
     error,
     updateEnvironmentData
-  } = useEnvironmentContext();  
-  
-  
+  } = useSingleEnvironmentContext();  
   
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -67,10 +56,12 @@ const EnvironmentDetail: React.FC = () => {
   };
   
   // Handle save environment
-  const handleSaveEnvironment = async (environmentId: string, data: Partial<Environment>) => {
+  const handleSaveEnvironment = async (data: Partial<Environment>) => {
+    if (!environment) return;
+    
     setIsUpdating(true);
     try {
-      await updateEnvironmentData(environmentId, data);
+      await updateEnvironmentData(data);
       handleCloseModal();
     } catch (error) {
       console.error('Failed to update environment:', error);
@@ -89,7 +80,7 @@ const EnvironmentDetail: React.FC = () => {
     </Menu>
   );
   
-  if (isLoadingEnvironment) {
+  if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
         <Spin size="large" tip="Loading environment..." />
@@ -107,6 +98,7 @@ const EnvironmentDetail: React.FC = () => {
       />
     );
   }
+  
   return (
     <div
       className="environment-detail-container"
@@ -124,7 +116,6 @@ const EnvironmentDetail: React.FC = () => {
         <Breadcrumb.Item>{environment.environmentName}</Breadcrumb.Item>
       </Breadcrumb>
 
-      {/* Header with environment name and controls */}
       {/* Header with environment name and controls */}
       <div
         className="environment-header"
@@ -231,6 +222,7 @@ const EnvironmentDetail: React.FC = () => {
           />
         </TabPane>
       </Tabs>
+      
       {/* Edit Environment Modal */}
       {environment && (
         <EditEnvironmentModal

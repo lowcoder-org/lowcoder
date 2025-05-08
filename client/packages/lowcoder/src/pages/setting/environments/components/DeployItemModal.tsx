@@ -4,7 +4,6 @@ import { Modal, Form, Select, Checkbox, Button, message, Spin, Input } from 'ant
 import { Environment } from '../types/environment.types';
 import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
-
 interface DeployItemModalProps<T extends DeployableItem, S extends BaseStats> {
   visible: boolean;
   item: T | null;
@@ -23,7 +22,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   onSuccess
 }: DeployItemModalProps<T, S>) {
   const [form] = Form.useForm();
-  const { environments, isLoadingEnvironments } = useEnvironmentContext();
+  const { environments, isLoading } = useEnvironmentContext();
   const [deploying, setDeploying] = useState(false);
   
   useEffect(() => {
@@ -34,7 +33,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   
   // Filter out source environment from target list
   const targetEnvironments = environments.filter(
-    env => env.environmentId !== sourceEnvironment.environmentId
+    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId
   );
   
   const handleDeploy = async () => {
@@ -76,7 +75,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
       footer={null}
       destroyOnClose
     >
-      {isLoadingEnvironments ? (
+      {isLoading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>
           <Spin tip="Loading environments..." />
         </div>

@@ -8,7 +8,7 @@ interface EditEnvironmentModalProps {
   visible: boolean;
   environment: Environment | null;
   onClose: () => void;
-  onSave: (environmentId: string, data: Partial<Environment>) => Promise<void>;
+  onSave: (data: Partial<Environment>) => Promise<void>; // Updated signature
   loading?: boolean;
 }
 
@@ -45,7 +45,7 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
       const values = await form.validateFields();
       setSubmitLoading(true);
       
-      await onSave(environment.environmentId, values);
+      await onSave(values); // Call with only the data parameter
       onClose();
     } catch (error) {
       if (error instanceof Error) {
