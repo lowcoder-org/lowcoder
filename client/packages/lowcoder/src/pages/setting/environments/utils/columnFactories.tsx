@@ -69,6 +69,13 @@ export function createManagedColumn<T extends DeployableItem>(
   return {
     title: 'Managed',
     key: 'managed',
+    filterMode: 'menu',
+    filters: [
+      { text: 'Managed', value: true },
+      { text: 'Unmanaged', value: false },
+    ],
+    onFilter: (value, record) => record.managed === value,
+    filterMultiple: false,
     render: (_, record: T) => (
       <Space>
         <Tag color={record.managed ? 'green' : 'default'}>
@@ -178,6 +185,13 @@ export function createPublishedColumn<T extends { published?: boolean }>(): Colu
     title: 'Status',
     dataIndex: 'published',
     key: 'published',
+    filterMode: 'menu',
+    filters: [
+      { text: 'Published', value: true },
+      { text: 'Unpublished', value: false },
+    ],
+    onFilter: (value, record) => record.published === value,
+    filterMultiple: false,
     render: (published: boolean) => (
       <Tag color={published ? 'green' : 'orange'}>
         {published ? 'Published' : 'Unpublished'}
