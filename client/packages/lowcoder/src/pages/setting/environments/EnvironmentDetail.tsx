@@ -93,12 +93,37 @@ const EnvironmentDetail: React.FC = () => {
 
   if (error || !environment) {
     return (
-      <Alert
-        message="Error loading environment"
-        description={error || "Environment not found"}
-        type="error"
-        showIcon
-      />
+      <div style={{ padding: "24px", flex: 1 }}>
+        <Breadcrumb style={{ marginBottom: "16px" }}>
+          <Breadcrumb.Item>
+            <span
+              style={{ cursor: "pointer" }}
+              onClick={() => history.push("/setting/environments")}
+            >
+              <HomeOutlined /> Environments
+            </span>
+          </Breadcrumb.Item>
+          <Breadcrumb.Item>Not Found</Breadcrumb.Item>
+        </Breadcrumb>
+        
+        <Card>
+          <div style={{ textAlign: "center", padding: "40px 0" }}>
+            <Title level={3} style={{ color: "#ff4d4f" }}>
+              Environment Not Found
+            </Title>
+            <Text type="secondary" style={{ display: "block", margin: "16px 0" }}>
+              {error || "The environment you're looking for doesn't exist or you don't have permission to view it."}
+            </Text>
+            <Button 
+              type="primary"
+              onClick={() => history.push("/setting/environments")}
+              style={{ marginTop: "16px" }}
+            >
+              Return to Environments List
+            </Button>
+          </div>
+        </Card>
+      </div>
     );
   }
   
