@@ -15,7 +15,8 @@ import {
   createQueryTypeColumn,
   createManagedColumn, 
   createDeployColumn,
-  createAuditColumn 
+  createAuditColumn,
+  createGidColumn
 } from '../utils/columnFactories';
 
 // Define QueryStats interface
@@ -100,6 +101,7 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
   getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
     const columns = [
       createNameColumn<Query>(),
+      createGidColumn<Query>(),
       createCreatorColumn<Query>(),
       createDateColumn<Query>('createTime', 'Creation Date'),
       createQueryTypeColumn<Query>(),

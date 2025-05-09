@@ -14,7 +14,8 @@ import {
   createDatasourceStatusColumn,
   createManagedColumn, 
   createDeployColumn,
-  createAuditColumn 
+  createAuditColumn,
+  createGidColumn
 } from '../utils/columnFactories';
 
 
@@ -123,6 +124,7 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
   getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
     const columns = [
       createNameColumn<DataSource>(),
+      createGidColumn<DataSource>(),
       createTypeColumn<DataSource>(),
       createDatabaseColumn<DataSource>(),
       createDatasourceStatusColumn<DataSource>(),

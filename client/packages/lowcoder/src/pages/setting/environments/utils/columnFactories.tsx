@@ -24,6 +24,24 @@ export function createIdColumn<T extends { id: string }>(): ColumnType<T> {
   };
 }
 
+export function createGidColumn<T extends { gid?: string }>(): ColumnType<T> {
+  return {
+    title: 'GID',
+    dataIndex: 'gid',
+    key: 'gid',
+    ellipsis: true,
+  };
+}
+
+export function createApplicationGidColumn<T extends { applicationGid?: string }>(): ColumnType<T> {
+  return {
+    title: 'GID',
+    dataIndex: 'applicationGid',
+    key: 'applicationGid',
+    ellipsis: true,
+  };
+}
+
 export function createRoleColumn<T extends { role?: string }>(): ColumnType<T> {
   return {
     title: 'Role',

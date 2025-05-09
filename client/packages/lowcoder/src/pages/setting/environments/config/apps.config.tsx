@@ -16,7 +16,8 @@ import {
   createManagedColumn, 
   createDeployColumn,
   createAuditColumn, 
-  createIdColumn
+  createIdColumn,
+  createApplicationGidColumn
 } from '../utils/columnFactories';
 
 // Define AppStats interface if not already defined
@@ -73,6 +74,7 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
   getColumns: ({ environment, refreshing, onToggleManaged, openDeployModal, additionalParams }) => {
     const columns = [
       createIdColumn<App>(),
+      createApplicationGidColumn<App>(),
       createNameColumn<App>(),
       createPublishedColumn<App>(),
     ];
