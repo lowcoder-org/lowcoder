@@ -1,11 +1,13 @@
 // components/DeployableItemsList.tsx
-import React from 'react';
-import { Table, Tag, Empty, Spin, Switch, Space, Button, Tooltip } from 'antd';
-import { CloudUploadOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Table, Tag, Empty, Spin, Switch, Space, Button, Tooltip, Input } from 'antd';
+import { CloudUploadOutlined, SearchOutlined } from '@ant-design/icons';
 import history from '@lowcoder-ee/util/history';
 import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import { useDeployModal } from '../context/DeployModalContext';
+
+const { Search } = Input;
 
 interface DeployableItemsListProps<T extends DeployableItem, S extends BaseStats> {
   items: T[];
@@ -30,6 +32,14 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
 }: DeployableItemsListProps<T, S>) {
 
   const { openDeployModal } = useDeployModal();
+  const [searchText, setSearchText] = useState('');
+  
+  // Filter items based on search
+  const filteredItems = searchText
+    ? items.filter(item => 
+        item.name.toLowerCase().includes(searchText.toLowerCase()) || 
+        item.id.toLowerCase().includes(searchText.toLowerCase()))
+    : items;
 
   // Handle row click for navigation
   const handleRowClick = (item: T) => {
@@ -53,8 +63,7 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
     onToggleManaged,
     openDeployModal,
     additionalParams 
-    }) 
-    
+    });
 
   if (loading) {
     return (
@@ -76,18 +85,36 @@ function DeployableItemsList<T extends DeployableItem, S extends BaseStats>({
   const hasNavigation = config.buildDetailRoute({}) !== '#';
 
   return (
-    <Table
-      columns={columns}
-      dataSource={items}
-      rowKey={config.idField}
-      pagination={{ pageSize: 10 }}
-      size="middle"
-      scroll={{ x: 'max-content' }} 
-      onRow={(record) => ({
-        onClick: hasNavigation ? () => handleRowClick(record) : undefined,
-        style: hasNavigation ? { cursor: 'pointer' } : undefined,
-      })}
-    />
+    <>
+      {/* Search Bar */}
+      <div style={{ marginBottom: 16 }}>
+        <Search
+          placeholder={`Search ${config.pluralLabel} by name or ID`}
+          allowClear
+          onSearch={value => setSearchText(value)}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: 300 }}
+        />
+        {searchText && filteredItems.length !== items.length && (
+          <div style={{ marginTop: 8 }}>
+            Showing {filteredItems.length} of {items.length} {config.pluralLabel.toLowerCase()}
+          </div>
+        )}
+      </div>
+      
+      <Table
+        columns={columns}
+        dataSource={filteredItems}
+        rowKey={config.idField}
+        pagination={{ pageSize: 10 }}
+        size="middle"
+        scroll={{ x: 'max-content' }} 
+        onRow={(record) => ({
+          onClick: hasNavigation ? () => handleRowClick(record) : undefined,
+          style: hasNavigation ? { cursor: 'pointer' } : undefined,
+        })}
+      />
+    </>
   );
 }
 
