@@ -1,9 +1,11 @@
 // components/DeployItemModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, Checkbox, Button, message, Spin, Input } from 'antd';
+import { Modal, Form, Select, Checkbox, Button, message, Spin, Input, Tag, Space } from 'antd';
 import { Environment } from '../types/environment.types';
 import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
+import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
+
 interface DeployItemModalProps<T extends DeployableItem, S extends BaseStats> {
   visible: boolean;
   item: T | null;
@@ -84,6 +86,18 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
           form={form}
           layout="vertical"
         >
+          {/* Source environment display */}
+          <Form.Item label="Source Environment">
+            <Space>
+              <strong>{sourceEnvironment.environmentName}</strong>
+              {sourceEnvironment.environmentType && (
+                <Tag color={getEnvironmentTagColor(sourceEnvironment.environmentType)}>
+                  {formatEnvironmentType(sourceEnvironment.environmentType)}
+                </Tag>
+              )}
+            </Space>
+          </Form.Item>
+
           <Form.Item
             name="targetEnvId"
             label="Target Environment"
@@ -92,7 +106,14 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
             <Select placeholder="Select target environment">
               {targetEnvironments.map((env) => (
                 <Select.Option key={env.environmentId} value={env.environmentId}>
-                  {env.environmentName}
+                  <Space>
+                    {env.environmentName}
+                    {env.environmentType && (
+                      <Tag color={getEnvironmentTagColor(env.environmentType)}>
+                        {formatEnvironmentType(env.environmentType)}
+                      </Tag>
+                    )}
+                  </Space>
                 </Select.Option>
               ))}
             </Select>

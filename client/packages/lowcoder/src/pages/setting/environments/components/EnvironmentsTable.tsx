@@ -2,6 +2,7 @@ import React from 'react';
 import { Table, Tag, Button, Tooltip, Space } from 'antd';
 import { EditOutlined, AuditOutlined} from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
+import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 
 
 
@@ -20,19 +21,6 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   loading,
   onRowClick,
 }) => {
-  // Get color for environment type/stage
-  const getTypeColor = (type: string): string => {
-    if (!type) return 'default'; 
-    
-    switch (type.toUpperCase()) {
-      case 'DEV': return 'blue';
-      case 'TEST': return 'orange';
-      case 'PREPROD': return 'purple';
-      case 'PROD': return 'green';
-      default: return 'default';
-    }
-  };
-
    // Open audit page in new tab
    const openAuditPage = (environmentId: string, e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent row click from triggering
@@ -65,8 +53,8 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       dataIndex: 'environmentType',
       key: 'environmentType',
       render: (type: string) => (
-        <Tag color={getTypeColor(type || '')}>
-          {type ? type.toUpperCase() : 'UNKNOWN'}
+        <Tag color={getEnvironmentTagColor(type)}>
+          {formatEnvironmentType(type)}
         </Tag>
       ),
     },
