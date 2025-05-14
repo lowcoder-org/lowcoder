@@ -3,6 +3,23 @@ import { Request, Response } from "express";
 import _ from "lodash";
 import { Config } from "lowcoder-sdk/dataSource";
 import * as pluginServices from "../services/plugin";
+// Add import for decryption utility
+import { decryptString } from "../utils/encryption"; // <-- implement this utility as needed
+
+async function getDecryptedBody(req: Request): Promise<any> {
+  if (req.headers["x-encrypted"]) {
+    // Assume body is a raw encrypted string, decrypt and parse as JSON
+    const encrypted = typeof req.body === "string" ? req.body : req.body?.toString?.();
+    if (!encrypted) throw badRequest("Missing encrypted body");
+    const decrypted = await decryptString(encrypted);
+    try {
+      return JSON.parse(decrypted);
+    } catch (e) {
+      throw badRequest("Failed to parse decrypted body as JSON");
+    }
+  }
+  return req.body;
+}
 
 export async function listPlugins(req: Request, res: Response) {
   let ids = req.query["id"] || [];
@@ -15,11 +32,9 @@ export async function listPlugins(req: Request, res: Response) {
 }
 
 export async function runPluginQuery(req: Request, res: Response) {
-  const { pluginName, dsl, context, dataSourceConfig } = req.body;
+  const body = await getDecryptedBody(req);
+  const { pluginName, dsl, context, dataSourceConfig } = body;
   const ctx = pluginServices.getPluginContext(req);
-
-
-  // console.log("pluginName: ", pluginName, "dsl: ", dsl, "context: ", context, "dataSourceConfig: ", dataSourceConfig, "ctx: ", ctx);
 
   const result = await pluginServices.runPluginQuery(
     pluginName,
@@ -32,7 +47,8 @@ export async function runPluginQuery(req: Request, res: Response) {
 }
 
 export async function validatePluginDataSourceConfig(req: Request, res: Response) {
-  const { pluginName, dataSourceConfig } = req.body;
+  const body = await getDecryptedBody(req);
+  const { pluginName, dataSourceConfig } = body;
   const ctx = pluginServices.getPluginContext(req);
   const result = await pluginServices.validatePluginDataSourceConfig(
     pluginName,
@@ -50,10 +66,11 @@ type GetDynamicDefReqBody = {
 
 export async function getDynamicDef(req: Request, res: Response) {
   const ctx = pluginServices.getPluginContext(req);
-  if (!Array.isArray(req.body)) {
+  const body = await getDecryptedBody(req);
+  if (!Array.isArray(body)) {
     throw badRequest("request body is not a valid array");
   }
-  const fields = req.body as GetDynamicDefReqBody;
+  const fields = body as GetDynamicDefReqBody;
   const result: Config[] = [];
   for (const item of fields) {
     const def = await pluginServices.getDynamicConfigDef(
