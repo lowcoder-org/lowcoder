@@ -78,7 +78,14 @@ export interface MergedQueriesResult {
 
   export async function deployQuery(params: DeployQueryParams): Promise<boolean> {
     try {
-      const response = await axios.post('/api/plugins/enterprise/qlQuery/deploy', params);
+      const response = await axios.post('/api/plugins/enterprise/qlQuery/deploy', null, {
+        params: {
+          envId: params.envId,
+          targetEnvId: params.targetEnvId,
+          queryId: params.queryId,
+          updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
+        }
+      });
       return response.status === 200;
     } catch (error) {
       console.error('Error deploying query:', error);
