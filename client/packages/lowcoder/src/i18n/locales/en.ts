@@ -2547,6 +2547,7 @@ export const en = {
     "success": "Form Generated Successfully",
     "selectCompType": "Select Component Type",
     "dataSource": "Data Source: ",
+    "invalidFormMessage": "Custom Invalid Form Message",
     "selectSource": "Select Source",
     "table": "Table: ",
     "selectTable": "Select Table",
