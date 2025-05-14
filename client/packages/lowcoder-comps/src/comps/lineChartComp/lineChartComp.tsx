@@ -302,13 +302,13 @@ export const LineChartCompWithDefault = withDefault(LineChartComp, {
   series: [
     {
       dataIndex: genRandomKey(),
-      seriesName: trans("chart.spending"),
-      columnName: "spending",
+      seriesName: "Sales",
+      columnName: "sales",
     },
     {
       dataIndex: genRandomKey(),
-      seriesName: trans("chart.budget"),
-      columnName: "budget",
+      seriesName: "Growth",
+      columnName: "growth",
     },
   ],
 });

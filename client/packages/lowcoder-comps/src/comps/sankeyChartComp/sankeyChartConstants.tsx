@@ -277,6 +277,7 @@ let chartJsonModeChildren: any = {
   focus: withDefault(BoolControl, true),
   tooltip: withDefault(BoolControl, true),
   legendVisibility: withDefault(BoolControl, true),
+  labelVisibility: withDefault(BoolControl, true),
 }
 
 if (EchartDefaultChartStyle && EchartDefaultTextStyle && RadarLabelStyle && SankeyLineStyle) {

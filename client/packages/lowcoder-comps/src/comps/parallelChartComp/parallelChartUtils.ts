@@ -180,7 +180,6 @@ export function getEchartsConfig(
     parallelAxis: props.data[0].map((c, i) => ({ dim: i, name: c, type: typeof props.data[1][i] === 'string'?'category':'value'}))
   };
 
-  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

@@ -217,9 +217,34 @@ const ChartOptionComp = withType(ChartOptionMap, "scatter");
 const EchartsOptionComp = withType(EchartsOptionMap, "funnel");
 export type CharOptionCompType = keyof typeof ChartOptionMap;
 
+export const SCATTER_CHART_DEMO_DATA = [
+ 
+    { hours: 1.5, score: 62, student: "Alex M." },
+    { hours: 2.0, score: 65, student: "Sarah P." },
+    { hours: 2.5, score: 71, student: "James W." },
+    { hours: 2.8, score: 69, student: "Emma L." },
+    { hours: 3.0, score: 75, student: "Michael R." },
+    { hours: 3.2, score: 73, student: "Lisa K." },
+    { hours: 3.5, score: 78, student: "David H." },
+    { hours: 3.8, score: 77, student: "Sophie T." },
+    { hours: 4.0, score: 82, student: "Ryan B." },
+    { hours: 4.2, score: 84, student: "Nina C." },
+    { hours: 4.5, score: 86, student: "Thomas G." },
+    { hours: 4.8, score: 88, student: "Maria S." },
+    { hours: 5.0, score: 89, student: "Daniel F." },
+    { hours: 5.2, score: 91, student: "Anna D." },
+    { hours: 5.5, score: 90, student: "Kevin P." },
+    { hours: 5.8, score: 93, student: "Rachel M." },
+    { hours: 6.0, score: 95, student: "John L." },
+    { hours: 6.2, score: 94, student: "Emily W." },
+    { hours: 3.0, score: 68, student: "Chris B." },  // outlier - lower performance
+    { hours: 5.0, score: 96, student: "Jessica H." } // outlier - higher performance
+  
+]
+
 export const chartUiModeChildren = {
   title: withDefault(StringControl, trans("echarts.defaultTitle")),
-  data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
+  data: jsonControl(toJSONObjectArray, SCATTER_CHART_DEMO_DATA),
   xAxisKey: valueComp<string>(""), // x-axis, key from data
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
   xAxisData: jsonControl(toArray, []),
