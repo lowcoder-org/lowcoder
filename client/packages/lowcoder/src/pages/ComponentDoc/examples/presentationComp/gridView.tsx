@@ -95,6 +95,8 @@ const container={
   }
 };
 
+const rows= "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Godfather Part II\",\n    \"url\": \"https://www.imdb.com/title/tt0071562/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMWMwMGQzZTItY2JlNC00OWZiLWIyMDctNDk2ZDQ2YjRjMWQ0XkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"12 Angry Men\",\n    \"url\": \"https://www.imdb.com/title/tt0050083/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMWU4N2FjNzYtNTVkNC00NzQ0LTg0MjAtYTJlMjFhNGUxZDFmXkEyXkFqcGdeQXVyNjc1NTYyMjg@._V1_UX45_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"8.9\",\n    \"title\": \"Schindler's List\",\n    \"url\": \"https://www.imdb.com/title/tt0108052/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BNDE4OTMxMTctNmRhYy00NWE2LTg3YzItYTk3M2UwOTU5Njg4XkEyXkFqcGdeQXVyNjU0OTQ0OTY@._V1_UX45_CR0,0,45,67_AL_.jpg\"\n  }\n]";
+
 export default function GridViewExample() {
 
   const blackListConfig: string[] = [
@@ -234,6 +236,111 @@ export default function GridViewExample() {
             noOfRows: "[\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Shawshank Redemption\",\n    \"url\": \"https://www.imdb.com/title/tt0111161/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMDFkYTc0MGEtZmNhMC00ZDIzLWFmNTEtODM1ZmRlYWMwMWFmXkEyXkFqcGdeQXVyMTMxODk2OTU@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.2\",\n    \"title\": \"The Godfather\",\n    \"url\": \"https://www.imdb.com/title/tt0068646/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BM2MyNjYxNmUtYTAwNi00MTYxLWJmNWYtYzZlODY3ZTk3OTFlXkEyXkFqcGdeQXVyNzkwMjQ5NzM@._V1_UY67_CR1,0,45,67_AL_.jpg\"\n  },\n  {\n    \"rate\": \"9.0\",\n    \"title\": \"The Dark Knight\",\n    \"url\": \"https://www.imdb.com/title/tt0468569/\",\n    \"cover\": \"https://m.media-amazon.com/images/M/MV5BMTMxNTMwODM0NF5BMl5BanBnXkFtZTcwODAyMTk2Mw@@._V1_UY67_CR0,0,45,67_AL_.jpg\"\n  }\n]",
           }}
           blackListConfig={blackListConfig}
+          compFactory={GridComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling Properties on the ListView Component."
+
+      >
+        <Example
+          title="Background Color, Border Color & Radius"
+          hideSettings
+          config={{
+            container: container,
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "border": "#043CFF",
+              "radius": "20px",
+            },
+            noOfRows: rows,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={GridComp}
+        />
+        <Example
+          title="Rotation - 45 Deg"
+          hideSettings
+          config={{
+            container: container,
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "border": "#043CFF",
+              "radius": "20px",
+              "rotation": "45deg"
+            },
+            noOfRows: rows,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={GridComp}
+        />
+        <Example
+          title="Rotation - 135 Deg"
+          hideSettings
+          config={{
+            container: container,
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "border": "#043CFF",
+              "radius": "20px",
+              "rotation": "135deg"
+            },
+            noOfRows: rows,
+          }}
+          blackListConfig={blackListConfig}
+          compFactory={GridComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the List View Component."
+        >
+        <Example
+          title="Bounce Animation"
+          hideSettings={true}
+          config={{
+            noOfRows: rows,
+            container: container, 
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={GridComp}
+        />
+        <Example
+          title="Swing Animation"
+          hideSettings={true}
+          config={{
+            noOfRows: rows,
+            container: container, 
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={GridComp}
+        />
+        <Example
+          title="Tada Animation"
+          hideSettings={true}
+          config={{
+            noOfRows: rows,
+            container: container, 
+            animationStyle: {
+            "animation": "tada",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
           compFactory={GridComp}
         />
       </ExampleGroup>

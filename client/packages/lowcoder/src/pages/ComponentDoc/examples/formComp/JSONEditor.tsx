@@ -18,9 +18,6 @@ export default function JsonEditorExample() {
           title="A Simple JSON Editor Form "
           hideSettings={true}
           config={{
-            schema: schema,
-            uiSchema: uiSchema,
-            data: data,
           }}
           compFactory={JsonEditorComp}
         />
@@ -28,9 +25,6 @@ export default function JsonEditorExample() {
           title="Hiding the JSON Editor Form "
           hideSettings={true}
           config={{
-            schema: schema,
-            uiSchema: uiSchema,
-            data: data,
             hidden: true,
           }}
           compFactory={JsonEditorComp}
@@ -127,6 +121,51 @@ export default function JsonEditorExample() {
           compFactory={JsonEditorComp}
         />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the JSON Editor Component."
+        >
+        <Example
+          title="Bounce Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+         compFactory={JsonEditorComp}
+        />
+        <Example
+          title="Swing Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={JsonEditorComp}
+        />
+      <Example
+      title="Tada Animation"
+      hideSettings={true}
+      config={{
+          animationStyle: {
+          "animation": "tada",
+          "animationDelay": "1s",
+          "animationDuration": "3s",
+          "animationIterationCount": "infinite"
+          },
+      }}
+      compFactory={JsonEditorComp}
+      />
+      </ExampleGroup> 
     </>
   );
 }
