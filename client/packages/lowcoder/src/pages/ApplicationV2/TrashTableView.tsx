@@ -9,6 +9,7 @@ import { deleteApplication, restoreApplication } from "../../redux/reduxActions/
 import { HomeRes } from "./HomeLayout";
 import { trans, transToNode } from "../../i18n";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -59,11 +60,13 @@ export const TrashTableView = (props: { resources: HomeRes[] , setModify: any, m
             return (
               <NameWrapper>
                 {Icon && (
-                  <Icon
-                    width={"24px"}
-                    height={"24px"}
-                    style={{ marginRight: "10px", flexShrink: 0 }}
-                  />
+                  <BrandedIcon>
+                    <Icon
+                      width={"24px"}
+                      height={"24px"}
+                      style={{ marginRight: "10px", flexShrink: 0 }}
+                    />
+                  </BrandedIcon>
                 )}
                 {item.name}
               </NameWrapper>

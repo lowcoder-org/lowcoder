@@ -28,6 +28,7 @@ import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Spin from "antd/es/spin";
 import { useDispatch, useSelector } from "react-redux";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { fetchOrgPaginationByEmail } from "@lowcoder-ee/util/pagination/axios";
 
@@ -62,6 +63,7 @@ function UserRegister() {
   const redirectUrl = useRedirectUrl();
   const serverSettings = useSelector(getServerSettings);
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
+  const { isEnterpriseActive } = useEnterpriseContext();
   const invitationId = inviteInfo?.invitationId;
   const isFormLoginEnabled = systemConfig ? systemConfig?.form.enableLogin : true;
   const authId = systemConfig?.form.id;
@@ -188,6 +190,7 @@ function UserRegister() {
         heading={registerHeading}
         subHeading={registerSubHeading}
         type="large"
+        isEE={isEnterpriseActive}
       >
         <RegisterContent>
           { isEmailLoginEnabled && (

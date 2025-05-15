@@ -22,6 +22,7 @@ import { MoveToFolderModal } from "./MoveToFolderModal";
 import { trans } from "../../i18n";
 import { useParams } from "react-router-dom";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { BrandedIcon } from "@lowcoder-ee/components/BrandedIcon";
 
 const OperationWrapper = styled.div`
   display: flex;
@@ -119,11 +120,13 @@ export const HomeTableView = (props: { resources: HomeRes[], setModify?: any, mo
               return (
                 <NameWrapper>
                   {Icon && (
-                    <Icon
-                      width={"24px"}
-                      height={"24px"}
-                      style={{ marginRight: "10px", flexShrink: 0 }}
-                    />
+                    <BrandedIcon>
+                      <Icon
+                        width={"24px"}
+                        height={"24px"}
+                        style={{ marginRight: "10px", flexShrink: 0 }}
+                      />
+                    </BrandedIcon>
                   )}
                   <TypographyText
                     ellipsis={true}

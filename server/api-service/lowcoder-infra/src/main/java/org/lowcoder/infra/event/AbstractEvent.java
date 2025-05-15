@@ -1,5 +1,6 @@
 package org.lowcoder.infra.event;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
@@ -57,7 +58,16 @@ public abstract class AbstractEvent implements LowcoderEvent
 			try {
 				f.setAccessible(Boolean.TRUE);
 				value = f.get(this);
-				details.put(f.getName(), value);
+				JsonInclude jsonInclude = f.getAnnotation(JsonInclude.class);
+				if (jsonInclude != null && jsonInclude.value() == JsonInclude.Include.NON_NULL) {
+					// Include only if value is not null
+					if (value != null) {
+						details.put(f.getName(), value);
+					}
+				} else {
+					// Include regardless of value
+					details.put(f.getName(), value);
+				}
 			} catch (Exception e) {
             }
 
