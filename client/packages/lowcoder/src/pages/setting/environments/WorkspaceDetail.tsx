@@ -34,6 +34,7 @@ import { appsConfig } from "./config/apps.config";
 import { dataSourcesConfig } from "./config/data-sources.config";
 import { queryConfig } from "./config/query.config";
 
+import AppsTab from "./components/AppsTab";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -160,14 +161,13 @@ const WorkspaceDetail: React.FC = () => {
 
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs defaultActiveKey="apps">
-        <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
-          <DeployableItemsTab
-            environment={environment}
-            config={appsConfig}
-            additionalParams={{ workspaceId: workspace.id }}
-            title="Apps in this Workspace"
-          />
-        </TabPane>
+      // Replace the Apps TabPane in WorkspaceDetail.tsx with this:
+          <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
+            <AppsTab
+              environment={environment}
+              workspace={workspace}
+            />
+          </TabPane>
 
         <TabPane tab={<span><DatabaseOutlined /> Data Sources</span>} key="dataSources">
           <DeployableItemsTab
