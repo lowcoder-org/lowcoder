@@ -8,9 +8,9 @@ import {
 import { getVersionOptions } from "@lowcoder-ee/util/versionOptions";
 import { trans } from "../../i18n";
 
-export const VersionDataForm = (props: { form: any; preserve: boolean }) => {
-  const { form, preserve } = props;
-  const versionOptions = getVersionOptions();
+export const VersionDataForm = (props: { form: any; preserve: boolean, latestVersion?: string }) => {
+  const { form, preserve, latestVersion } = props;
+  const versionOptions = getVersionOptions(latestVersion);
 
   return (
     <DatasourceForm

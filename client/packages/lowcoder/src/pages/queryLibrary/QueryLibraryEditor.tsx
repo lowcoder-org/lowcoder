@@ -367,7 +367,7 @@ const PublishModal = (props: {
         </div>
       }
     >
-      <VersionDataForm form={form} preserve={false} />
+      <VersionDataForm form={form} preserve={false} latestVersion={props?.latestVersion} />
     </CustomModal>
   );
 };
