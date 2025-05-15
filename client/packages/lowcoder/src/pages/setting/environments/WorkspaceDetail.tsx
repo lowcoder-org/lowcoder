@@ -36,6 +36,8 @@ import { queryConfig } from "./config/query.config";
 
 import AppsTab from "./components/AppsTab";
 import DataSourcesTab from "./components/DataSourcesTab";
+import QueriesTab from "./components/QueriesTab";
+
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -176,15 +178,13 @@ const WorkspaceDetail: React.FC = () => {
             workspace={workspace}
           />
         </TabPane>
-
         <TabPane tab={<span><CodeOutlined /> Queries</span>} key="queries">
-          <DeployableItemsTab
+          <QueriesTab
             environment={environment}
-            config={queryConfig}
-            additionalParams={{ workspaceId: workspace.id }}
-            title="Queries in this Workspace"
+            workspace={workspace}
           />
         </TabPane>
+        
       </Tabs>
     </div>
   );
