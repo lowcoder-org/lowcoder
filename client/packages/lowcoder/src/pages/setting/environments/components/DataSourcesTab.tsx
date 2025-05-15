@@ -1,12 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, DatabaseOutlined, AuditOutlined } from '@ant-design/icons';
+import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { 
+  SyncOutlined, 
+  CloudUploadOutlined, 
+  DatabaseOutlined, 
+  AuditOutlined,
+  ApiOutlined,
+  CheckCircleFilled,
+  CloudServerOutlined,
+  DisconnectOutlined
+} from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
 import { DataSource } from '../types/datasource.types';
 import { getMergedWorkspaceDataSources } from '../services/datasources.service';
-import { Switch, Spin, Empty } from 'antd';
+import { Switch, Spin, Empty, Avatar } from 'antd';
 import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { useDeployModal } from '../context/DeployModalContext';
 import { dataSourcesConfig } from '../config/data-sources.config';
@@ -125,23 +134,47 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
   // Table columns
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <span className="datasource-name">{text}</span>
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      ellipsis: true,
+      title: 'Data Source',
+      key: 'datasource',
+      render: (dataSource: DataSource) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            style={{ 
+              backgroundColor: getDataSourceColor(dataSource.type),
+              marginRight: 12
+            }}
+            shape="square"
+            icon={<DatabaseOutlined />}
+          />
+          <div>
+            <div style={{ fontWeight: 500 }}>{dataSource.name}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+              {dataSource.id}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Type',
       dataIndex: 'type',
       key: 'type',
       render: (type: string) => (
-        <Tag color="blue">{type}</Tag>
+        <Tag color={getDataSourceColor(type)} style={{ borderRadius: '12px', padding: '2px 12px' }}>
+          {type}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (dataSource: DataSource) => (
+        <Tag 
+          color={dataSource.managed ? 'processing' : 'default'} 
+          style={{ borderRadius: '12px' }}
+        >
+          {dataSource.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {dataSource.managed ? 'Managed' : 'Unmanaged'}
+        </Tag>
       ),
     },
     {
@@ -152,7 +185,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
           checked={!!dataSource.managed}
           onChange={(checked: boolean) => handleToggleManaged(dataSource, checked)}
           loading={refreshing}
-          size="small"
         />
       ),
     },
@@ -164,7 +196,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
-              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`;
@@ -177,7 +208,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
           <Tooltip title={!dataSource.managed ? "Data source must be managed before it can be deployed" : "Deploy this data source to another environment"}>
             <Button
               type="primary"
-              size="small"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(dataSource, dataSourcesConfig, environment)}
               disabled={!dataSource.managed}
@@ -190,41 +220,84 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
     }
   ];
 
+  // Helper function to get color based on data source type
+  const getDataSourceColor = (type: string) => {
+    const colorMap: {[key: string]: string} = {
+      'mysql': '#4479A1',
+      'postgres': '#336791',
+      'mongodb': '#4DB33D',
+      'redis': '#DC382D',
+      'rest': '#FF6C37',
+      'graphql': '#E10098',
+      'elasticsearch': '#005571',
+      'oracle': '#F80000',
+      'mssql': '#CC2927',
+      'snowflake': '#29B5E8'
+    };
+    
+    return colorMap[type.toLowerCase()] || '#1890ff';
+  };
+
+  // Stat card component
+  const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '28px', 
+          opacity: 0.8, 
+          color: '#1890ff',
+          padding: '12px',
+          backgroundColor: 'rgba(24, 144, 255, 0.1)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
-    <Card>
-      {/* Header with refresh button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5}>Data Sources in this Workspace</Title>
+    <div style={{ padding: '16px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "24px",
+        background: 'linear-gradient(135deg, #1890ff 0%, #13c2c2 100%)',
+        padding: '20px 24px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <div>
+          <Title level={4} style={{ color: 'white', margin: 0 }}>
+            <DatabaseOutlined style={{ marginRight: 10 }} /> Data Sources
+          </Title>
+          <p style={{ marginBottom: 0 }}>Manage your workspace data connections</p>
+        </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
+          type="primary"
+          ghost
         >
           Refresh
         </Button>
       </div>
-
-      {/* Stats display */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Total Data Sources</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Types</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.types}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Managed</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.managed}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Unmanaged</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.unmanaged}</div>
-        </div>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
 
       {/* Error display */}
       {error && (
@@ -233,7 +306,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
@@ -244,49 +317,95 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
-      {/* Content */}
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-          <Spin tip="Loading data sources..." />
-        </div>
-      ) : dataSources.length === 0 ? (
-        <Empty
-          description={error || "No data sources found in this workspace"}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : (
-        <>
-          {/* Search Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <Search
-              placeholder="Search data sources by name or ID"
-              allowClear
-              onSearch={value => setSearchText(value)}
-              onChange={e => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-            {searchText && filteredDataSources.length !== dataSources.length && (
-              <div style={{ marginTop: 8 }}>
-                Showing {filteredDataSources.length} of {dataSources.length} data sources
-              </div>
-            )}
-          </div>
-          
-          <Table
-            columns={columns}
-            dataSource={filteredDataSources}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            scroll={{ x: 'max-content' }}
+      {/* Stats display */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Total Data Sources" 
+            value={stats.total} 
+            icon={<DatabaseOutlined />} 
           />
-        </>
-      )}
-    </Card>
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Available Types" 
+            value={stats.types} 
+            icon={<ApiOutlined />} 
+          />
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Managed" 
+            value={stats.managed} 
+            icon={<CloudServerOutlined />} 
+          />
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Unmanaged" 
+            value={stats.unmanaged} 
+            icon={<DisconnectOutlined />} 
+          />
+        </Col>
+      </Row>
+
+      {/* Content */}
+      <Card 
+        style={{ 
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}
+      >
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="Loading data sources..." />
+          </div>
+        ) : dataSources.length === 0 ? (
+          <Empty
+            description={error || "No data sources found in this workspace"}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <>
+            {/* Search Bar */}
+            <div style={{ marginBottom: 20 }}>
+              <Search
+                placeholder="Search data sources by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              {searchText && filteredDataSources.length !== dataSources.length && (
+                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                  Showing {filteredDataSources.length} of {dataSources.length} data sources
+                </div>
+              )}
+            </div>
+            
+            <Table
+              columns={columns}
+              dataSource={filteredDataSources}
+              rowKey="id"
+              pagination={{ 
+                pageSize: 10,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} data sources`
+              }}
+              rowClassName={() => 'datasource-row'}
+              style={{ 
+                borderRadius: '8px', 
+                overflow: 'hidden'
+              }}
+            />
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 

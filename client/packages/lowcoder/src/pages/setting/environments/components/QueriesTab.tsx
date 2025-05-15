@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, CodeOutlined, AuditOutlined } from '@ant-design/icons';
+import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { 
+  SyncOutlined, 
+  CloudUploadOutlined, 
+  CodeOutlined, 
+  AuditOutlined, 
+  UserOutlined,
+  CloudServerOutlined,
+  DisconnectOutlined,
+  ApiOutlined,
+  ThunderboltOutlined
+} from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
 import { Query } from '../types/query.types';
 import { getMergedWorkspaceQueries } from '../services/query.service';
-import { Switch, Spin, Empty } from 'antd';
+import { Switch, Spin, Empty, Avatar } from 'antd';
 import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { useDeployModal } from '../context/DeployModalContext';
 import { queryConfig } from '../config/query.config';
@@ -121,24 +131,68 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
         query.id.toLowerCase().includes(searchText.toLowerCase()))
     : queries;
 
+  // Helper function to generate colors from strings
+  const stringToColor = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
   // Table columns
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <span className="query-name">{text}</span>
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      ellipsis: true,
+      title: 'Query',
+      key: 'query',
+      render: (query: Query) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            style={{ 
+              backgroundColor: stringToColor(query.name),
+              marginRight: 12
+            }}
+            shape="square"
+            icon={<CodeOutlined />}
+          >
+          </Avatar>
+          <div>
+            <div style={{ fontWeight: 500 }}>{query.name}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+              {query.id}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Creator',
       dataIndex: 'creatorName',
       key: 'creatorName',
+      render: (creatorName: string) => (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar 
+            size="small" 
+            icon={<UserOutlined />} 
+            style={{ backgroundColor: '#1890ff' }} 
+          />
+          {creatorName}
+        </div>
+      )
+    },
+    {
+      title: 'Status',
+      key: 'status',
+      render: (query: Query) => (
+        <Tag 
+          color={query.managed ? 'processing' : 'default'} 
+          style={{ borderRadius: '12px' }}
+        >
+          {query.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {query.managed ? 'Managed' : 'Unmanaged'}
+        </Tag>
+      ),
     },
     {
       title: 'Managed',
@@ -148,7 +202,6 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
           checked={!!query.managed}
           onChange={(checked: boolean) => handleToggleManaged(query, checked)}
           loading={refreshing}
-          size="small"
         />
       ),
     },
@@ -160,7 +213,6 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
-              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&queryId=${query.id}&pageSize=100&pageNum=1`;
@@ -173,7 +225,6 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
           <Tooltip title={!query.managed ? "Query must be managed before it can be deployed" : "Deploy this query to another environment"}>
             <Button
               type="primary"
-              size="small"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(query, queryConfig, environment)}
               disabled={!query.managed}
@@ -186,37 +237,66 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
     }
   ];
 
+  // Stat card component
+  const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '28px', 
+          opacity: 0.8, 
+          color: '#1890ff',
+          padding: '12px',
+          backgroundColor: 'rgba(24, 144, 255, 0.1)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
-    <Card>
-      {/* Header with refresh button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5}>Queries in this Workspace</Title>
+    <div style={{ padding: '16px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "24px",
+        background: 'linear-gradient(135deg, #722ed1 0%, #eb2f96 100%)',
+        padding: '20px 24px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <div>
+          <Title level={4} style={{ color: 'white', margin: 0 }}>
+            <ThunderboltOutlined style={{ marginRight: 10 }} /> Queries
+          </Title>
+          <p style={{ marginBottom: 0 }}>Manage your workspace API queries</p>
+        </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
+          type="primary"
+          ghost
         >
           Refresh
         </Button>
       </div>
-
-      {/* Stats display */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Total Queries</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Managed</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.managed}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Unmanaged</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.unmanaged}</div>
-        </div>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
 
       {/* Error display */}
       {error && (
@@ -225,7 +305,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
@@ -236,49 +316,88 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
-      {/* Content */}
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-          <Spin tip="Loading queries..." />
-        </div>
-      ) : queries.length === 0 ? (
-        <Empty
-          description={error || "No queries found in this workspace"}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : (
-        <>
-          {/* Search Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <Search
-              placeholder="Search queries by name or ID"
-              allowClear
-              onSearch={value => setSearchText(value)}
-              onChange={e => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-            {searchText && filteredQueries.length !== queries.length && (
-              <div style={{ marginTop: 8 }}>
-                Showing {filteredQueries.length} of {queries.length} queries
-              </div>
-            )}
-          </div>
-          
-          <Table
-            columns={columns}
-            dataSource={filteredQueries}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            scroll={{ x: 'max-content' }}
+      {/* Stats display */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Total Queries" 
+            value={stats.total} 
+            icon={<CodeOutlined />} 
           />
-        </>
-      )}
-    </Card>
+        </Col>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Managed" 
+            value={stats.managed} 
+            icon={<CloudServerOutlined />} 
+          />
+        </Col>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Unmanaged" 
+            value={stats.unmanaged} 
+            icon={<DisconnectOutlined />} 
+          />
+        </Col>
+      </Row>
+
+      {/* Content */}
+      <Card 
+        style={{ 
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}
+      >
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="Loading queries..." />
+          </div>
+        ) : queries.length === 0 ? (
+          <Empty
+            description={error || "No queries found in this workspace"}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <>
+            {/* Search Bar */}
+            <div style={{ marginBottom: 20 }}>
+              <Search
+                placeholder="Search queries by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              {searchText && filteredQueries.length !== queries.length && (
+                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                  Showing {filteredQueries.length} of {queries.length} queries
+                </div>
+              )}
+            </div>
+            
+            <Table
+              columns={columns}
+              dataSource={filteredQueries}
+              rowKey="id"
+              pagination={{ 
+                pageSize: 10,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} queries`
+              }}
+              rowClassName={() => 'query-row'}
+              style={{ 
+                borderRadius: '8px', 
+                overflow: 'hidden'
+              }}
+            />
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 
