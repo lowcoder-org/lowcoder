@@ -152,7 +152,14 @@ export async function getMergedWorkspaceDataSources(
 // Function to deploy a data source to another environment
 export async function deployDataSource(params: DeployDataSourceParams): Promise<boolean> {
   try {
-    const response = await axios.post('/api/plugins/enterprise/datasource/deploy', params);
+    const response = await axios.post('/api/plugins/enterprise/datasource/deploy', null, {
+      params: {
+        envId: params.envId,
+        targetEnvId: params.targetEnvId,
+        datasourceId: params.datasourceId,
+        updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
+      }
+    });
     return response.status === 200;
   } catch (error) {
     console.error('Error deploying data source:', error);

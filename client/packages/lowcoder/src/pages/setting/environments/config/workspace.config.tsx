@@ -14,7 +14,8 @@ import {
   createDateColumn, 
   createStatusColumn, 
   createManagedColumn, 
-  createAuditColumn 
+  createAuditColumn,
+  createGidColumn 
 } from '../utils/columnFactories';
 
 export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = {
@@ -101,6 +102,7 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
   getColumns: ({ environment, refreshing, onToggleManaged, additionalParams }) => {
     const columns = [
       createIdColumn<Workspace>(),
+      createGidColumn<Workspace>(),
       createNameColumn<Workspace>(),
       createRoleColumn<Workspace>(),
       createManagedColumn<Workspace>(),
