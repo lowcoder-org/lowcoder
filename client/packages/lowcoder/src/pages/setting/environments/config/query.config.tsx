@@ -6,6 +6,7 @@ import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Query } from '../types/query.types';
 import { connectManagedQuery, unconnectManagedQuery } from '../services/enterprise.service';
 import { getMergedWorkspaceQueries, deployQuery } from '../services/query.service';
+import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { Environment } from '../types/environment.types';
 
 import { 
@@ -145,11 +146,19 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        await connectManagedQuery(environment.environmentId, item.name, item.gid);
+        return await setManagedObject(
+          item.gid,
+          environment.environmentId,
+          ManagedObjectType.QUERY,
+          item.name
+        );
       } else {
-        await unconnectManagedQuery(item.gid);
+        return await unsetManagedObject(
+          item.gid,
+          environment.environmentId,
+          ManagedObjectType.QUERY
+        );
       }
-      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

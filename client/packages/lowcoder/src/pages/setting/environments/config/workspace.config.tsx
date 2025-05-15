@@ -7,6 +7,7 @@ import { Environment } from '../types/environment.types';
 import { buildEnvironmentWorkspaceId } from '@lowcoder-ee/constants/routesURL';
 import { getMergedEnvironmentWorkspaces, deployWorkspace } from '../services/workspace.service';
 import { connectManagedWorkspace, unconnectManagedWorkspace } from '../services/enterprise.service';
+import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { 
   createNameColumn, 
   createIdColumn, 
@@ -135,11 +136,19 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        await connectManagedWorkspace(environment.environmentId, item.name, item.gid!);
+        return await setManagedObject(
+          item.gid!,
+          environment.environmentId,
+          ManagedObjectType.ORG,
+          item.name
+        );
       } else {
-        await unconnectManagedWorkspace(item.gid!);
+        return await unsetManagedObject(
+          item.gid!,
+          environment.environmentId,
+          ManagedObjectType.ORG
+        );
       }
-      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

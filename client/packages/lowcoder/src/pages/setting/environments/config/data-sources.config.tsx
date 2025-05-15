@@ -7,6 +7,7 @@ import { DataSource, DataSourceStats } from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
 import { getMergedWorkspaceDataSources, deployDataSource } from '../services/datasources.service';
 import { connectManagedDataSource, unconnectManagedDataSource } from '../services/enterprise.service';
+import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { 
   createNameColumn, 
   createTypeColumn,
@@ -150,11 +151,19 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        await connectManagedDataSource(environment.environmentId, item.name, item.gid);
+        return await setManagedObject(
+          item.gid,
+          environment.environmentId,
+          ManagedObjectType.DATASOURCE,
+          item.name
+        );
       } else {
-        await unconnectManagedDataSource(item.gid);
+        return await unsetManagedObject(
+          item.gid,
+          environment.environmentId,
+          ManagedObjectType.DATASOURCE
+        );
       }
-      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

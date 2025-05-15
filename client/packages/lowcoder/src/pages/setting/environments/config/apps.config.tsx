@@ -5,7 +5,8 @@ import { AppstoreOutlined, AuditOutlined } from '@ant-design/icons';
 import {DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import { getMergedWorkspaceApps, deployApp } from '../services/apps.service';
-import { connectManagedApp, unconnectManagedApp } from '../services/enterprise.service';
+import { connectManagedApp, unconnectManagedApp } from '../services/enterprise.service'; 
+import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { App, AppStats } from '../types/app.types';
 
 
@@ -161,11 +162,19 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        await connectManagedApp(environment.environmentId, item.name, item.applicationGid!);
+        return await setManagedObject(
+          item.applicationGid!,
+          environment.environmentId,
+          ManagedObjectType.APP,
+          item.name
+        );
       } else {
-        await unconnectManagedApp(item.applicationGid!);
+        return await unsetManagedObject(
+          item.applicationGid!,
+          environment.environmentId,
+          ManagedObjectType.APP
+        );
       }
-      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;
