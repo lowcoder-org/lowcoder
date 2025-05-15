@@ -1,13 +1,13 @@
 // context/DeployModalContext.tsx
 import React, { createContext, useContext, useState } from 'react';
-import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
+import { DeployableItemConfig } from '../types/deployable-item.types';
 import { Environment } from '../types/environment.types';
 import DeployItemModal from '../components/DeployItemModal';
 
 interface DeployModalContextType {
-  openDeployModal: <T extends DeployableItem, S extends BaseStats>(
-    item: T,
-    config: DeployableItemConfig<T, S>,
+  openDeployModal: (
+    item: any,
+    config: DeployableItemConfig,
     sourceEnvironment: Environment,
     onSuccess?: () => void
   ) => void;
@@ -18,8 +18,8 @@ const DeployModalContext = createContext<DeployModalContextType | undefined>(und
 export const DeployModalProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const [modalState, setModalState] = useState<{
     visible: boolean;
-    item: DeployableItem | null;
-    config: DeployableItemConfig<any, any> | null;
+    item: any | null;
+    config: DeployableItemConfig | null;
     sourceEnvironment: Environment | null;
     onSuccess?: () => void;
   }>({
@@ -29,9 +29,9 @@ export const DeployModalProvider: React.FC<{children: React.ReactNode}> = ({ chi
     sourceEnvironment: null
   });
   
-  const openDeployModal = <T extends DeployableItem, S extends BaseStats>(
-    item: T,
-    config: DeployableItemConfig<T, S>,
+  const openDeployModal = (
+    item: any,
+    config: DeployableItemConfig,
     sourceEnvironment: Environment,
     onSuccess?: () => void
   ) => {

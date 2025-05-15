@@ -2,15 +2,9 @@
 import { message } from "antd";
 import { getWorkspaceApps } from "./environments.service";
 import { getManagedApps } from "./enterprise.service";
-import { App } from "../types/app.types";
+import { App, AppStats } from "../types/app.types";
 import axios from "axios";
 
-export interface AppStats {
-  total: number;
-  published: number;
-  managed: number;
-  unmanaged: number;
-}
 
 export interface MergedAppsResult {
   apps: App[];

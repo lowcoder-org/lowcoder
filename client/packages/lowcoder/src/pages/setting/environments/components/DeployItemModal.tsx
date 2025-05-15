@@ -2,27 +2,27 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Select, Checkbox, Button, message, Spin, Input, Tag, Space } from 'antd';
 import { Environment } from '../types/environment.types';
-import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
+import { DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 
-interface DeployItemModalProps<T extends DeployableItem, S extends BaseStats> {
+interface DeployItemModalProps {
   visible: boolean;
-  item: T | null;
+  item: any | null;
   sourceEnvironment: Environment;
-  config: DeployableItemConfig<T, S>;
+  config: DeployableItemConfig;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
+function DeployItemModal({
   visible,
   item,
   sourceEnvironment,
   config,
   onClose,
   onSuccess
-}: DeployItemModalProps<T, S>) {
+}: DeployItemModalProps) {
   const [form] = Form.useForm();
   const { environments, isLoading } = useEnvironmentContext();
   const [deploying, setDeploying] = useState(false);
@@ -39,7 +39,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   );
   
   const handleDeploy = async () => {
-    if (!config.deploy?.enabled || !item) return;
+      if (!config.deploy || !item) return;
     
     try {
       const values = await form.validateFields();
@@ -63,7 +63,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
       onClose();
     } catch (error) {
       console.error('Deployment error:', error);
-      message.error(`Failed to deploy ${config.singularLabel.toLowerCase()}`);
+      message.error(`Failed to deploy ${config.deploy.singularLabel.toLowerCase()}`);
     } finally {
       setDeploying(false);
     }
@@ -71,7 +71,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   
   return (
     <Modal
-      title={`Deploy ${config.singularLabel}: ${item?.name || ''}`}
+      title={`Deploy ${config.deploy.singularLabel}: ${item?.name || ''}`}
       open={visible}
       onCancel={onClose}
       footer={null}

@@ -4,14 +4,10 @@
 import axios from 'axios';
 import { getManagedQueries } from './enterprise.service';
 import { getWorkspaceQueries } from './environments.service';
-import { Query } from '../types/query.types';
+import { Query, QueryStats } from '../types/query.types';
 export interface MergedQueriesResult {
     queries: Query[];
-    stats: {
-      total: number;
-      managed: number;
-      unmanaged: number;
-    };
+    stats: QueryStats;
   }
 
   export interface DeployQueryParams {

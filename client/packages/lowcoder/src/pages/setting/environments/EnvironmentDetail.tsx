@@ -19,9 +19,6 @@ import {
 } from "@ant-design/icons";
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
-import { workspaceConfig } from "./config/workspace.config";
-import { userGroupsConfig } from "./config/usergroups.config";
-import DeployableItemsTab from "./components/DeployableItemsTab";
 import EditEnvironmentModal from "./components/EditEnvironmentModal";
 import { Environment } from "./types/environment.types";
 import history from "@lowcoder-ee/util/history";

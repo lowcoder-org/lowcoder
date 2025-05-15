@@ -28,12 +28,7 @@ import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext"
 import { useWorkspaceContext } from "./context/WorkspaceContext";
 import { useDeployModal } from "./context/DeployModalContext";
 
-import DeployableItemsTab from "./components/DeployableItemsTab";
 import { workspaceConfig } from "./config/workspace.config";
-import { appsConfig } from "./config/apps.config";
-import { dataSourcesConfig } from "./config/data-sources.config";
-import { queryConfig } from "./config/query.config";
-
 import AppsTab from "./components/AppsTab";
 import DataSourcesTab from "./components/DataSourcesTab";
 import QueriesTab from "./components/QueriesTab";

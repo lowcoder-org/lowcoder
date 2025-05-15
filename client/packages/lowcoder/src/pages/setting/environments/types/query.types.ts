@@ -1,5 +1,4 @@
 // types/query.types.ts
-import { DeployableItem, BaseStats } from './deployable-item.types';
 
 export interface LibraryQueryDSL {
   query: {
@@ -32,11 +31,10 @@ export interface LibraryQueryDSL {
     cancelPrevious: boolean;
     depQueryName: string;
     delayTime: string;
-    managed?: boolean;
   };
 }
 
-export interface Query extends DeployableItem {
+export interface Query  {
   id: string;
   gid: string;
   organizationId: string;
@@ -44,9 +42,10 @@ export interface Query extends DeployableItem {
   libraryQueryDSL: LibraryQueryDSL;
   createTime: number;
   creatorName: string;
+  managed?: boolean;
 }
 
-export interface QueryStats extends BaseStats {
+export interface QueryStats  {
   total: number;
   managed: number;
   unmanaged: number;

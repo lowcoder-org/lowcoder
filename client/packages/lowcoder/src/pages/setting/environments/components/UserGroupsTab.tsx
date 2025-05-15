@@ -3,7 +3,7 @@ import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space } from 
 import { SyncOutlined, TeamOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
-import { UserGroup } from '../types/userGroup.types';
+import { UserGroup, UserGroupsTabStats } from '../types/userGroup.types';
 import { getEnvironmentUserGroups } from '../services/environments.service';
 import { Spin, Empty } from 'antd';
 
@@ -15,10 +15,11 @@ interface UserGroupsTabProps {
 
 const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
   const [userGroups, setUserGroups] = useState<UserGroup[]>([]);
-  const [stats, setStats] = useState({
+  const [stats, setStats] = useState<UserGroupsTabStats>({
     total: 0,
-    active: 0,
-    inactive: 0
+    allUsers: 0,
+    developers: 0,
+    custom: 0
   });
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
@@ -40,22 +41,28 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
         return;
       }
       
-      const groups = await getEnvironmentUserGroups(
+      const response = await getEnvironmentUserGroups(
         environment.environmentId,
         environment.environmentApikey,
         environment.environmentApiServiceUrl
       );
       
+      // Extract the groups from the data array in the response
+      const groups = response|| [];
+      
       setUserGroups(groups);
       
       // Calculate stats
       const total = groups.length;
-      const active = groups.filter(group => group.state === 'ACTIVE').length;
+      const allUsers = groups.filter((group: UserGroup) => group.allUsersGroup).length;
+      const developers = groups.filter((group: UserGroup) => group.devGroup).length;
+      const custom = total - (allUsers + developers);
       
       setStats({
         total,
-        active,
-        inactive: total - active
+        allUsers,
+        developers,
+        custom
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch user groups");
@@ -78,48 +85,48 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
   // Filter user groups based on search
   const filteredUserGroups = searchText
     ? userGroups.filter(group => 
-        group.name.toLowerCase().includes(searchText.toLowerCase()) || 
-        group.id.toLowerCase().includes(searchText.toLowerCase()))
+        group.groupName.toLowerCase().includes(searchText.toLowerCase()) || 
+        group.groupId.toLowerCase().includes(searchText.toLowerCase()))
     : userGroups;
 
   // Table columns
   const columns = [
     {
       title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
+      dataIndex: 'groupName',
+      key: 'groupName',
       render: (text: string) => <span className="group-name">{text}</span>
     },
     {
       title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
+      dataIndex: 'groupId',
+      key: 'groupId',
       ellipsis: true,
     },
     {
       title: 'Type',
-      dataIndex: 'type',
       key: 'type',
-      render: (type: string) => (
-        <Tag color={type === 'USER' ? 'blue' : 'purple'}>
-          {type}
-        </Tag>
-      ),
+      render: (_: any, group: UserGroup) => {
+        if (group.allUsersGroup) return <Tag color="blue">All Users</Tag>;
+        if (group.devGroup) return <Tag color="purple">Developers</Tag>;
+        return <Tag color="default">Custom</Tag>;
+      },
     },
     {
-      title: 'Status',
-      dataIndex: 'state',
-      key: 'state',
-      render: (state: string) => (
-        <Tag color={state === 'ACTIVE' ? 'green' : 'red'}>
-          {state}
-        </Tag>
-      ),
+      title: 'Members',
+      key: 'members',
+      render: (_: any, group: UserGroup) => group.stats?.userCount || 0,
     },
     {
-      title: 'Member Count',
-      dataIndex: 'memberCount',
-      key: 'memberCount',
+      title: 'Admin Members',
+      key: 'adminMembers',
+      render: (_: any, group: UserGroup) => group.stats?.adminUserCount || 0,
+    },
+    {
+      title: 'Created',
+      dataIndex: 'createTime',
+      key: 'createTime',
+      render: (createTime: number) => new Date(createTime).toLocaleDateString(),
     }
   ];
 
@@ -144,12 +151,16 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
         </div>
         <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Active</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.active}</div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>All Users Groups</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.allUsers}</div>
         </div>
         <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Inactive</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.inactive}</div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Developer Groups</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.developers}</div>
+        </div>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Custom Groups</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.custom}</div>
         </div>
       </div>
 
@@ -208,7 +219,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           <Table
             columns={columns}
             dataSource={filteredUserGroups}
-            rowKey="id"
+            rowKey="groupId"
             pagination={{ pageSize: 10 }}
             size="middle"
             scroll={{ x: 'max-content' }}
