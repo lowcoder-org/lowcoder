@@ -25,7 +25,8 @@ import DeployableItemsTab from "./components/DeployableItemsTab";
 import EditEnvironmentModal from "./components/EditEnvironmentModal";
 import { Environment } from "./types/environment.types";
 import history from "@lowcoder-ee/util/history";
-
+import WorkspacesTab from "./components/WorkspacesTab";
+import UserGroupsTab from "./components/UserGroupsTab";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -227,13 +228,10 @@ const EnvironmentDetail: React.FC = () => {
       {/* Tabs for Workspaces and User Groups */}
       <Tabs defaultActiveKey="workspaces">
         <TabPane tab="Workspaces" key="workspaces">
-          {/* Using our new generic component with the workspace config */}
-          <DeployableItemsTab
-            environment={environment}
-            config={workspaceConfig}
-            title="Workspaces in this Environment"
-          />
+          {/* Using our new standalone WorkspacesTab component */}
+          <WorkspacesTab environment={environment} />
         </TabPane>
+
         <TabPane
           tab={
             <span>
@@ -242,15 +240,11 @@ const EnvironmentDetail: React.FC = () => {
           }
           key="userGroups"
         >
-          {/* Using our new generic component with the user group config */}
-          <DeployableItemsTab
-            environment={environment}
-            config={userGroupsConfig}
-            title="User Groups in this Environment"
-          />
+          {/* Now using our standalone UserGroupsTab component */}
+          <UserGroupsTab environment={environment} />
         </TabPane>
       </Tabs>
-      
+
       {/* Edit Environment Modal */}
       {environment && (
         <EditEnvironmentModal
