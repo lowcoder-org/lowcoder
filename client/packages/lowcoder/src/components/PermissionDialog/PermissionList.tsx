@@ -1,5 +1,8 @@
 import { ASSETS_URI } from "constants/apiConstants";
-import { ApplicationPermissionType, ApplicationRoleType } from "constants/applicationConstants";
+import {
+  ApplicationPermissionType,
+  ApplicationRoleType,
+} from "constants/applicationConstants";
 import {
   CommonErrorLabel,
   CommonGrayLabel,
@@ -101,15 +104,22 @@ function PermissionLiItem(props: {
         side={32}
         userName={permissionItem.name}
         source={permissionItem.avatar && ASSETS_URI(permissionItem.avatar)}
-        svg={SvgIcon && <SvgIcon $color={getInitialsAndColorCode(permissionItem.name)[1]} />}
+        svg={
+          SvgIcon && (
+            <SvgIcon $color={getInitialsAndColorCode(permissionItem.name)[1]} />
+          )
+        }
       />
       <PermissionItemName title={permissionItem.name}>
-        {permissionItem.type === "GROUP" && trans("home.groupWithSquareBrackets")}
+        {permissionItem.type === "GROUP" &&
+          trans("home.groupWithSquareBrackets")}
         {permissionItem.name}
       </PermissionItemName>
       {isCreator && <CreatorTag>{trans("home.creator")}</CreatorTag>}
       {isCreator || permissionItem.type === "ORG_ADMIN" ? (
-        <CommonGrayLabel style={{ color: "color: #B8B9BF", margin: "0 24px 0 auto" }}>
+        <CommonGrayLabel
+          style={{ color: "color: #B8B9BF", margin: "0 24px 0 auto" }}
+        >
           {props.ownerLabel}
         </CommonGrayLabel>
       ) : (
@@ -145,7 +155,9 @@ function PermissionLiItem(props: {
             value="delete"
             permissionid={permissionItem.permissionId}
           >
-            <CommonErrorLabel $fontSize={13}>{trans("remove")}</CommonErrorLabel>
+            <CommonErrorLabel $fontSize={13}>
+              {trans("remove")}
+            </CommonErrorLabel>
           </CustomSelect.Option>
         </StyledRoleSelect>
       )}
@@ -153,7 +165,10 @@ function PermissionLiItem(props: {
   );
 }
 
-export type PermissionItemsType = { permissionItem: PermissionItem; isCreator?: boolean }[];
+export type PermissionItemsType = {
+  permissionItem: PermissionItem;
+  isCreator?: boolean;
+}[];
 export const PermissionList = (props: {
   ownerLabel: string;
   supportRoles: { label: string; value: PermissionRole }[];
@@ -163,7 +178,7 @@ export const PermissionList = (props: {
 }) => (
   <>
     <CommonTextLabel style={{ marginBottom: "4px" }}>
-      {trans("home.memberPermissionList")}
+      {`${trans("memberSettings.title")}:`}
     </CommonTextLabel>
     <UserPermissionUl $height={201}>
       {props.permissionItems.map((item, index) => (

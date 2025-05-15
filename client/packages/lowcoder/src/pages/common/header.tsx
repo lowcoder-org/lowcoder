@@ -1,8 +1,8 @@
 import { default as Dropdown } from "antd/es/dropdown";
 import { default as Skeleton } from "antd/es/skeleton";
 import { default as Radio, RadioChangeEvent } from "antd/es/radio";
-import { default as Statistic} from "antd/es/statistic";
-import { default as Flex} from "antd/es/flex";
+import { default as Statistic } from "antd/es/statistic";
+import { default as Flex } from "antd/es/flex";
 import { default as Popover } from "antd/es/popover";
 import { default as Typography } from "antd/es/typography";
 import LayoutHeader from "components/layout/Header";
@@ -40,7 +40,10 @@ import {
   recoverSnapshotAction,
   setShowAppSnapshot,
 } from "redux/reduxActions/appSnapshotActions";
-import { currentApplication, isPublicApplication } from "redux/selectors/applicationSelector";
+import {
+  currentApplication,
+  isPublicApplication,
+} from "redux/selectors/applicationSelector";
 import {
   getSelectedAppSnapshot,
   showAppSnapshotSelector,
@@ -59,8 +62,8 @@ import { getBrandingConfig } from "../../redux/selectors/configSelectors";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { EditorContext } from "../../comps/editorState";
 import Tooltip from "antd/es/tooltip";
-import { LockOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import Avatar from 'antd/es/avatar';
+import { LockOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
+import Avatar from "antd/es/avatar";
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
@@ -194,7 +197,7 @@ const GrayBtn = styled(TacoButton)`
       color: #ffffff;
       border: none;
     }
-    
+
     &[disabled] {
       cursor: not-allowed;
     }
@@ -314,10 +317,8 @@ const StyledRefreshIcon = styled(RefreshIcon)`
 // Add the lock icon logic for disabled options
 const DropdownMenuStyled = styled(DropdownMenu)`
   .ant-dropdown-menu-item:hover {
-    background: ${(props) =>
-      props.disabled ? 'inherit' : '#edf4fa'};
-    cursor: ${(props) =>
-      props.disabled ? 'not-allowed' : 'pointer'};
+    background: ${(props) => (props.disabled ? "inherit" : "#edf4fa")};
+    cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
   }
 `;
 
@@ -343,7 +344,7 @@ function HeaderProfile(props: { user: User }) {
   );
 }
 
-const setCountdown = () => dayjs().add(3, 'minutes').toISOString();
+const setCountdown = () => dayjs().add(3, "minutes").toISOString();
 
 export type PanelStatus = { left: boolean; bottom: boolean; right: boolean };
 export type TogglePanel = (panel?: keyof PanelStatus) => void;
@@ -373,27 +374,28 @@ export default function Header(props: HeaderProps) {
   const applicationId = useApplicationId();
   const dispatch = useDispatch();
   const showAppSnapshot = useSelector(showAppSnapshotSelector);
-  const {selectedSnapshot, isArchivedSnapshot} = useSelector(getSelectedAppSnapshot);
+  const { selectedSnapshot, isArchivedSnapshot } = useSelector(
+    getSelectedAppSnapshot
+  );
   const { appType } = useContext(ExternalEditorContext);
   const [editName, setEditName] = useState(false);
   const [editing, setEditing] = useState(false);
   const [permissionDialogVisible, setPermissionDialogVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<CurrentUser>();
-  const [enableCheckEditingStatus, setEnableCheckEditingStatus] = useState<boolean>(false);
+  const [enableCheckEditingStatus, setEnableCheckEditingStatus] =
+    useState<boolean>(false);
   const editingCountdown = useRef(setCountdown());
 
   const isModule = appType === AppTypeEnum.Module;
 
   useEffect(() => {
-    if(blockEditing && application && Boolean(application?.editingUserId)) {
-      UserApi.getUserDetail(application.editingUserId!)
-        .then(resp => {
-          if (validateResponse(resp)) {
-
-            console.log('editing user', resp.data.data);
-            setEditingUser(resp.data.data);
-          }
-        });
+    if (blockEditing && application && Boolean(application?.editingUserId)) {
+      UserApi.getUserDetail(application.editingUserId!).then((resp) => {
+        if (validateResponse(resp)) {
+          console.log("editing user", resp.data.data);
+          setEditingUser(resp.data.data);
+        }
+      });
     }
   }, [blockEditing]);
 
@@ -423,7 +425,6 @@ export default function Header(props: HeaderProps) {
     toggleEditorModeStatus(value);
     editorState.setEditorModeStatus(value);
   };
-
 
   const headerStart = (
     <>
@@ -514,7 +515,7 @@ export default function Header(props: HeaderProps) {
                       application.applicationId,
                       selectedSnapshot.snapshotId,
                       selectedSnapshot.createTime,
-                      isArchivedSnapshot,
+                      isArchivedSnapshot
                     )
                   );
                 },
@@ -539,52 +540,65 @@ export default function Header(props: HeaderProps) {
         {/* Display a hint about who is editing the app */}
         {blockEditing && Boolean(applicationId) && (
           <>
-          <Popover
-            style={{ width: 200 }}
-            content={() => {
-              return (
-                <Flex vertical gap={10} align="center" style={{maxWidth : "250px"}}>
-                  <Text style={{textAlign : "center"}}> 
-                    {trans("header.AppEditingBlockedHint")}
-                  </Text>
-                  <StyledCountdown
-                    title={trans("header.AppEditingBlocked")}
-                    value={editingCountdown.current}
-                    onFinish={() => {
-                      setEnableCheckEditingStatus(true)
-                    }}
-                  />
-                  <Tooltip
-                    title={trans("header.AppEditingBlockedMessage")}
-                    placement="bottom"
+            <Popover
+              style={{ width: 200 }}
+              content={() => {
+                return (
+                  <Flex
+                    vertical
+                    gap={10}
+                    align="center"
+                    style={{ maxWidth: "250px" }}
                   >
-                    <TacoButton
-                      style={{width: '100%'}}
-                      buttonType="primary"
-                      disabled={blockEditing && !enableCheckEditingStatus}
-                      onClick={() => {
-                        fetchApplication?.();
-                        setEnableCheckEditingStatus(false);
-                        editingCountdown.current = setCountdown();
+                    <Text style={{ textAlign: "center" }}>
+                      {trans("header.AppEditingBlockedHint")}
+                    </Text>
+                    <StyledCountdown
+                      title={trans("header.AppEditingBlocked")}
+                      value={editingCountdown.current}
+                      onFinish={() => {
+                        setEnableCheckEditingStatus(true);
                       }}
+                    />
+                    <Tooltip
+                      title={trans("header.AppEditingBlockedMessage")}
+                      placement="bottom"
                     >
-                      <StyledRefreshIcon />
-                      <span>{trans("header.AppEditingBlockedCheckStatus")}</span>
-                    </TacoButton>
-                  </Tooltip>
-                </Flex>
-              )
-            }}
-            trigger="hover"
-          >
-            <EditingNoticeWrapper>
-              <ProfileImage source={user.avatarUrl} userName={user.username} side={24} />
-              <EditingHintText>
-                {`${editingUser?.email || trans("header.AppEditingBlockedSomeone")}` + " " + trans("header.AppEditingBlockedMessageSnipped")}
-              </EditingHintText>
-              <WarningIcon />
-            </EditingNoticeWrapper>
-          </Popover>
+                      <TacoButton
+                        style={{ width: "100%" }}
+                        buttonType="primary"
+                        disabled={blockEditing && !enableCheckEditingStatus}
+                        onClick={() => {
+                          fetchApplication?.();
+                          setEnableCheckEditingStatus(false);
+                          editingCountdown.current = setCountdown();
+                        }}
+                      >
+                        <StyledRefreshIcon />
+                        <span>
+                          {trans("header.AppEditingBlockedCheckStatus")}
+                        </span>
+                      </TacoButton>
+                    </Tooltip>
+                  </Flex>
+                );
+              }}
+              trigger="hover"
+            >
+              <EditingNoticeWrapper>
+                <ProfileImage
+                  source={user.avatarUrl}
+                  userName={user.username}
+                  side={24}
+                />
+                <EditingHintText>
+                  {`${editingUser?.email || trans("header.AppEditingBlockedSomeone")}` +
+                    " " +
+                    trans("header.AppEditingBlockedMessageSnipped")}
+                </EditingHintText>
+                <WarningIcon />
+              </EditingNoticeWrapper>
+            </Popover>
           </>
         )}
 
@@ -598,15 +612,18 @@ export default function Header(props: HeaderProps) {
           />
         )}
         {canManageApp(user, application) && (
-          <GrayBtn onClick={() => setPermissionDialogVisible(true)} disabled={blockEditing}>
-            {SHARE_TITLE}
+          <GrayBtn
+            onClick={() => setPermissionDialogVisible(true)}
+            disabled={blockEditing}
+          >
+            {trans("header.deploy")}
           </GrayBtn>
         )}
-  
+
         <PreviewBtn buttonType="primary" onClick={() => preview(applicationId)}>
           {trans("header.preview")}
         </PreviewBtn>
-  
+
         <Dropdown
           className="cypress-header-dropdown"
           placement="bottomRight"
@@ -616,31 +633,21 @@ export default function Header(props: HeaderProps) {
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {
                 if (blockEditing) return; // Prevent clicks if the app is being edited by someone else
-                if (e.key === "deploy") {
-                  dispatch(publishApplication({ applicationId }));
-                } else if (e.key === "snapshot") {
+                if (e.key === "snapshot") {
                   dispatch(setShowAppSnapshot(true));
                 }
               }}
               items={[
                 {
-                  key: "deploy",
-                  label: (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
-                        {trans("header.deploy")}
-                      </CommonTextLabel>
-                    </div>
-                  ),
-                  disabled: blockEditing,
-                },
-                {
                   key: "snapshot",
                   label: (
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      {blockEditing && <LockOutlined style={{ marginRight: '8px' }} />}
-                      <CommonTextLabel style= {{color: blockEditing ? "#ccc" : "#222"}}>
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      {blockEditing && (
+                        <LockOutlined style={{ marginRight: "8px" }} />
+                      )}
+                      <CommonTextLabel
+                        style={{ color: blockEditing ? "#ccc" : "#222" }}
+                      >
                         {trans("header.snapshot")}
                       </CommonTextLabel>
                     </div>
@@ -655,7 +662,7 @@ export default function Header(props: HeaderProps) {
             <PackUpIcon />
           </PackUpBtn>
         </Dropdown>
-  
+
         <HeaderProfile user={user} />
       </>
     );

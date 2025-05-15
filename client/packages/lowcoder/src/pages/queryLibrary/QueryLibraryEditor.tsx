@@ -1,5 +1,8 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { fetchDatasource, fetchDataSourceTypes } from "../../redux/reduxActions/datasourceActions";
+import {
+  fetchDatasource,
+  fetchDataSourceTypes,
+} from "../../redux/reduxActions/datasourceActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getUser } from "../../redux/selectors/usersSelectors";
 import {
@@ -22,7 +25,7 @@ import { useCompInstance } from "../../comps/utils/useCompInstance";
 import { QueryLibraryComp } from "../../comps/comps/queryLibrary/queryLibraryComp";
 import { useSearchParam, useThrottle } from "react-use";
 import { Comp } from "lowcoder-core";
-import {LibraryQuery} from "../../api/queryLibraryApi";
+import { LibraryQuery } from "../../api/queryLibraryApi";
 import { NameGenerator } from "../../comps/utils";
 import { QueryLibraryHistoryView } from "./QueryLibraryHistoryView";
 import { default as Form } from "antd/es/form";
@@ -46,8 +49,10 @@ import { importQueryLibrary } from "./importQueryLibrary";
 import { registryDataSourcePlugin } from "constants/queryConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Helmet } from "react-helmet";
-import {fetchQLPaginationByOrg} from "@lowcoder-ee/util/pagination/axios";
+import { fetchQLPaginationByOrg } from "@lowcoder-ee/util/pagination/axios";
 import { isEmpty } from "lodash";
+import { getVersionOptions } from "@lowcoder-ee/util/versionOptions";
+import { VersionDataForm } from "../common/versionDataForm";
 
 const Wrapper = styled.div`
   display: flex;
@@ -68,7 +73,7 @@ interface ElementsState {
 
 function transformData(input: LibraryQuery[]) {
   const output: any = {};
-  input.forEach(item => {
+  input.forEach((item) => {
     output[item.id] = item;
   });
   return output;
@@ -84,11 +89,16 @@ export const QueryLibraryEditor = () => {
   const forwardQueryId = useSearchParam("forwardQueryId");
 
   const [isCreatePanelShow, showCreatePanel] = useState(false);
-  const [selectedQuery, setSelectedQuery] = useState<string>(forwardQueryId ?? "");
+  const [selectedQuery, setSelectedQuery] = useState<string>(
+    forwardQueryId ?? ""
+  );
   const [publishModalVisible, setPublishModalVisible] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [isDataSourceReady, setIsDataSourceReady] = useState(false);
-  const [elements, setElements] = useState<ElementsState>({ elements: [], total: 0 });
+  const [elements, setElements] = useState<ElementsState>({
+    elements: [],
+    total: 0,
+  });
   const [queryLibrary, setQueryLibrary] = useState<any>({});
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -119,29 +129,28 @@ export const QueryLibraryEditor = () => {
   useSaveQueryLibrary(libraryQuery, comp);
 
   useEffect(() => {
-        try {
-            fetchQLPaginationByOrg(
-                {
-                    name: searchValues,
-                    pageNum: currentPage,
-                    pageSize: pageSize,
-                }
-            ).then(result => {
-                if (result.success){
-                    setElements({elements: result.data || [], total: result.total || 1})
-                    setQueryLibrary(transformData(result.data || []));
-                }
-            });
-        } catch (error) {
-            console.error(error)
+    try {
+      fetchQLPaginationByOrg({
+        name: searchValues,
+        pageNum: currentPage,
+        pageSize: pageSize,
+      }).then((result) => {
+        if (result.success) {
+          setElements({
+            elements: result.data || [],
+            total: result.total || 1,
+          });
+          setQueryLibrary(transformData(result.data || []));
         }
-  }, [currentPage, pageSize, searchValues, modify])
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }, [currentPage, pageSize, searchValues, modify]);
 
-    useEffect( () => {
-            if (searchValues !== "")
-                setCurrentPage(1);
-        }, [searchValues]
-    );
+  useEffect(() => {
+    if (searchValues !== "") setCurrentPage(1);
+  }, [searchValues]);
 
   useEffect(() => {
     if (orgId) {
@@ -169,7 +178,7 @@ export const QueryLibraryEditor = () => {
   useEffect(() => {
     if (!forwardQueryId && !queryLibrary[selectedQuery]) {
       // @ts-ignore
-        setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
+      setSelectedQuery(Object.values(queryLibrary)?.[0]?.id);
     }
   }, [dispatch, Object.keys(queryLibrary).length]);
 
@@ -189,13 +198,13 @@ export const QueryLibraryEditor = () => {
     })
     .map((info) => info.datasource);
 
-    const recentlyUsed = Object.values(queryLibrary)
+  const recentlyUsed = Object.values(queryLibrary)
     .map((i: any) => i.libraryQueryDSL?.query.datasourceId)
     .map((id) => datasource.find((d) => d.id === id))
     .filter((i) => !!i) as Datasource[];
 
   const nameGenerator = new NameGenerator();
-    nameGenerator.init(Object.values(queryLibrary).map((t: any) => t.name));
+  nameGenerator.init(Object.values(queryLibrary).map((t: any) => t.name));
   const newName = nameGenerator.genItemName(trans("queryLibrary.unnamed"));
 
   const handleAdd = (type: BottomResTypeEnum, extraInfo?: any) => {
@@ -218,7 +227,6 @@ export const QueryLibraryEditor = () => {
             setModify(!modify);
           }, 200);
           setCurrentPage(Math.ceil(elements.total / pageSize));
-
         },
         () => {}
       )
@@ -229,7 +237,7 @@ export const QueryLibraryEditor = () => {
   return (
     <>
       <Helmet>{<title>{trans("home.queryLibrary")}</title>}</Helmet>
-        <Wrapper>
+      <Wrapper>
         <LeftNav
           selectedQuery={isCreatePanelShow ? undefined : selectedQuery}
           queryList={Object.values(queryLibrary)}
@@ -237,7 +245,7 @@ export const QueryLibraryEditor = () => {
           onSelect={(id) => {
             setSelectedQuery(id);
             showCreatePanel(false);
-          } }
+          }}
           setCurrentPage={setCurrentPage}
           setPageSize={setPageSize}
           currentPage={currentPage}
@@ -255,13 +263,14 @@ export const QueryLibraryEditor = () => {
             <QueryLibraryHistoryView
               libraryQueryId={selectedQuery}
               compContainer={container}
-              onClose={() => setShowHistory(false)} />
+              onClose={() => setShowHistory(false)}
+            />
           ) : (
             comp.propertyView({
               onPublish: () => setPublishModalVisible(true),
               onHistoryShow: () => setShowHistory(true),
               setModify: setModify,
-              modify: modify
+              modify: modify,
             })
           )}
 
@@ -272,26 +281,30 @@ export const QueryLibraryEditor = () => {
               onSelect={handleAdd}
               onClose={() => showCreatePanel(false)}
               placement={"queryLibrary"}
-              onImport={(options) => importQueryLibrary({
-                dispatch: dispatch,
-                options: options,
-                orgId: orgId,
-                onSuccess: (resp) => {
-                  setSelectedQuery(resp.data.data.id);
-                  showCreatePanel(false);
-                  setTimeout(() => {
-                    setModify(!modify);
-                  }, 200);
-                  setCurrentPage(Math.ceil(elements.total / pageSize));
-                },
-              })} />
+              onImport={(options) =>
+                importQueryLibrary({
+                  dispatch: dispatch,
+                  options: options,
+                  orgId: orgId,
+                  onSuccess: (resp) => {
+                    setSelectedQuery(resp.data.data.id);
+                    showCreatePanel(false);
+                    setTimeout(() => {
+                      setModify(!modify);
+                    }, 200);
+                    setCurrentPage(Math.ceil(elements.total / pageSize));
+                  },
+                })
+              }
+            />
           )}
         </RightContent>
         <PublishModal
           libraryQueryId={comp?.children.query.children.id.getView() || ""}
           visible={publishModalVisible}
           onClose={() => setPublishModalVisible(false)}
-          latestVersion={Object.values(selectedRecords)?.[0]?.tag} />
+          latestVersion={Object.values(selectedRecords)?.[0]?.tag}
+        />
       </Wrapper>
     </>
   );
@@ -319,7 +332,13 @@ const PublishModal = (props: {
       width="600px"
       title={trans("queryLibrary.publishNewVersion")}
       footer={
-        <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 16px 0" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            padding: "16px 16px 0",
+          }}
+        >
           <TacoButton
             buttonType="primary"
             loading={loading}
@@ -333,7 +352,9 @@ const PublishModal = (props: {
                     onSuccessCallback: () => {
                       props.onClose();
                       setLoading(false);
-                      messageInstance.success(trans("queryLibrary.publishSuccess"));
+                      messageInstance.success(
+                        trans("queryLibrary.publishSuccess")
+                      );
                     },
                     onErrorCallback: () => setLoading(false),
                   })
@@ -346,44 +367,10 @@ const PublishModal = (props: {
         </div>
       }
     >
-      <DatasourceForm form={form} preserve={false} style={{ gap: "12px" }}>
-        <FormSection>
-          <FormRadioItem
-            name={"tag"}
-            label={trans("queryLibrary.version")}
-            options={versionOptions}
-            initialValue={versionOptions[1].value}
-          />
-          <FormInputItem name={"commitMessage"} label={trans("queryLibrary.desc")} />
-        </FormSection>
-      </DatasourceForm>
+      <VersionDataForm form={form} preserve={false} />
     </CustomModal>
   );
 };
-
-function getVersionOptions(version?: string): Array<CheckboxOptionType> {
-  if (!version) {
-    return [
-      { label: "v1.0.0", value: "v1.0.0" },
-      { label: "v0.1.0", value: "v0.1.0" },
-    ];
-  }
-  const [major, minor, patch] = version.slice(1).split(".");
-  return [
-    {
-      label: ["v" + (Number(major) + 1), 0, 0].join("."),
-      value: ["v" + (Number(major) + 1), 0, 0].join("."),
-    },
-    {
-      label: ["v" + major, Number(minor) + 1, 0].join("."),
-      value: ["v" + major, Number(minor) + 1, 0].join("."),
-    },
-    {
-      label: ["v" + major, minor, Number(patch) + 1].join("."),
-      value: ["v" + major, minor, Number(patch) + 1].join("."),
-    },
-  ];
-}
 
 function useSaveQueryLibrary(
   query: LibraryQuery,
@@ -419,7 +406,7 @@ function useSaveQueryLibrary(
       return setPrevQueryId(queryId);
     }
     if (!Boolean(prevJsonStr) && Boolean(curJsonStr)) {
-      setPrevComp(comp)
+      setPrevComp(comp);
       return setPrevJsonStr(curJsonStr);
     }
     if (prevJsonStr === curJsonStr) {

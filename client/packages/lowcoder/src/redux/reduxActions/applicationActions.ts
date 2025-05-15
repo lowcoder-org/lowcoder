@@ -8,6 +8,7 @@ import {
 } from "constants/applicationConstants";
 import { JSONValue } from "util/jsonTypes";
 import { CommonSettingResponseData } from "api/commonSettingApi";
+import { ApplicationPublishRequest } from "@lowcoder-ee/api/applicationApi";
 
 export interface HomeDataPayload {
   applicationType?: AppTypeEnum;
@@ -114,6 +115,7 @@ export const updateAppMetaAction = (payload: UpdateAppMetaPayload) => ({
 
 export type PublishApplicationPayload = {
   applicationId: string;
+  request: ApplicationPublishRequest;
 };
 export const publishApplication = (payload: PublishApplicationPayload) => ({
   type: ReduxActionTypes.PUBLISH_APPLICATION,
@@ -148,7 +150,9 @@ export const fetchApplicationInfo = (payload: FetchAppInfoPayload) => ({
 export type FetchAppPermissionPayload = {
   applicationId: string;
 };
-export const fetchApplicationPermissions = (payload: FetchAppPermissionPayload) => ({
+export const fetchApplicationPermissions = (
+  payload: FetchAppPermissionPayload
+) => ({
   type: ReduxActionTypes.FETCH_APP_PERMISSIONS,
   payload: payload,
 });
@@ -163,7 +167,9 @@ export const updateAppPermission = (payload: UpdateAppPermissionPayload) => ({
   payload: payload,
 });
 
-export const updateAppPermissionInfo = (payload: Partial<AppPermissionInfo>) => ({
+export const updateAppPermissionInfo = (
+  payload: Partial<AppPermissionInfo>
+) => ({
   type: ReduxActionTypes.UPDATE_APP_PERMISSION_INFO,
   payload: payload,
 });
