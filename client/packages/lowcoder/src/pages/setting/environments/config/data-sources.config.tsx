@@ -151,19 +151,22 @@ export const dataSourcesConfig: DeployableItemConfig<DataSource, DataSourceStats
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        return await setManagedObject(
+        // Connect the data source as managed
+        await setManagedObject(
           item.gid,
           environment.environmentId,
           ManagedObjectType.DATASOURCE,
           item.name
         );
       } else {
-        return await unsetManagedObject(
+        // Disconnect the managed data source
+        await unsetManagedObject(
           item.gid,
           environment.environmentId,
           ManagedObjectType.DATASOURCE
         );
       }
+      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

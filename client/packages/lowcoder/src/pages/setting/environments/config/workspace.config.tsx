@@ -136,19 +136,22 @@ export const workspaceConfig: DeployableItemConfig<Workspace, WorkspaceStats> = 
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        return await setManagedObject(
+        // Connect the workspace as managed
+        await setManagedObject(
           item.gid!,
           environment.environmentId,
           ManagedObjectType.ORG,
           item.name
         );
       } else {
-        return await unsetManagedObject(
+        // Disconnect the managed workspace
+        await unsetManagedObject(
           item.gid!,
           environment.environmentId,
           ManagedObjectType.ORG
         );
       }
+      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

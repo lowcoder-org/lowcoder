@@ -162,19 +162,22 @@ export const appsConfig: DeployableItemConfig<App, AppStats> = {
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        return await setManagedObject(
+        // Connect the app as managed
+        await setManagedObject(
           item.applicationGid!,
           environment.environmentId,
           ManagedObjectType.APP,
           item.name
         );
       } else {
-        return await unsetManagedObject(
+        // Disconnect the managed app
+        await unsetManagedObject(
           item.applicationGid!,
           environment.environmentId,
           ManagedObjectType.APP
         );
       }
+      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;

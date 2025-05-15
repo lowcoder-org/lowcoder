@@ -146,19 +146,22 @@ export const queryConfig: DeployableItemConfig<Query, QueryStats> = {
   toggleManaged: async ({ item, checked, environment }) => {
     try {
       if (checked) {
-        return await setManagedObject(
+        // Connect the query as managed
+        await setManagedObject(
           item.gid,
           environment.environmentId,
           ManagedObjectType.QUERY,
           item.name
         );
       } else {
-        return await unsetManagedObject(
+        // Disconnect the managed query
+        await unsetManagedObject(
           item.gid,
           environment.environmentId,
           ManagedObjectType.QUERY
         );
       }
+      return true;
     } catch (error) {
       console.error('Error toggling managed status:', error);
       return false;
