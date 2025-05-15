@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined } from '@ant-design/icons';
+import { SyncOutlined, CloudUploadOutlined, AuditOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
@@ -110,6 +110,36 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
         <Tag color={status === 'ACTIVE' ? 'green' : 'red'}>
           {status}
         </Tag>
+      ),
+    },
+    {
+      title: 'Managed',
+      key: 'managed',
+      render: (_: any, workspace: Workspace) => (
+        <Tag color={workspace.managed ? 'blue' : 'default'}>
+          {workspace.managed ? 'Managed' : 'Unmanaged'}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, workspace: Workspace) => (
+        <Space onClick={(e) => e.stopPropagation()}>
+          <Tooltip title="View Audit Logs">
+            <Button
+              icon={<AuditOutlined />}
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&pageSize=100&pageNum=1`;
+                window.open(auditUrl, '_blank');
+              }}
+            >
+              Audit
+            </Button>
+          </Tooltip>
+        </Space>
       ),
     },
   ];

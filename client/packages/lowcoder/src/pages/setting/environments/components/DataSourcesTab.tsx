@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, DatabaseOutlined } from '@ant-design/icons';
+import { SyncOutlined, CloudUploadOutlined, DatabaseOutlined, AuditOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
@@ -10,6 +10,7 @@ import { Switch, Spin, Empty } from 'antd';
 import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { useDeployModal } from '../context/DeployModalContext';
 import { dataSourcesConfig } from '../config/data-sources.config';
+import history from "@lowcoder-ee/util/history";
 
 const { Search } = Input;
 
@@ -160,6 +161,19 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
       key: 'actions',
       render: (_: any, dataSource: DataSource) => (
         <Space onClick={(e) => e.stopPropagation()}>
+          <Tooltip title="View Audit Logs">
+            <Button
+              icon={<AuditOutlined />}
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`;
+                window.open(auditUrl, '_blank');
+              }}
+            >
+              Audit
+            </Button>
+          </Tooltip>
           <Tooltip title={!dataSource.managed ? "Data source must be managed before it can be deployed" : "Deploy this data source to another environment"}>
             <Button
               type="primary"
