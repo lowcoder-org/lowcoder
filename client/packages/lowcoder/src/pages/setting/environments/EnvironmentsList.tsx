@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Typography, Alert, Input, Button, Space, Empty, Card, Spin, Row, Col, Tooltip, Badge } from "antd";
-import { SearchOutlined, ReloadOutlined,  CloudServerOutlined} from "@ant-design/icons";
+import { SearchOutlined,  CloudServerOutlined, SyncOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { Environment } from "./types/environment.types";
@@ -110,16 +110,20 @@ const EnvironmentsList: React.FC = () => {
           </Col>
           <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
             <Space size="middle">
-              <Button
-                icon={<ReloadOutlined spin={isRefreshing} />}
-                onClick={handleRefresh}
-                type="primary"
-                ghost
-                loading={isLoading && !isRefreshing}
-                size="large"
-              >
-                Refresh
-              </Button>
+            <Button 
+              icon={<SyncOutlined spin={isRefreshing} />} 
+              onClick={handleRefresh}
+              loading={isLoading}
+              type="default"
+              style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                borderColor: 'rgba(255, 255, 255, 0.4)',
+                color: 'white',
+                fontWeight: 500
+              }}
+            >
+              Refresh
+          </Button>
             </Space>
           </Col>
         </Row>
