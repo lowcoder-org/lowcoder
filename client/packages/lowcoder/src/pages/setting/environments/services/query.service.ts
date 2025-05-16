@@ -2,7 +2,7 @@
  * Get merged queries (both regular and managed) for a workspace
  */
 import axios from 'axios';
-import { getManagedQueries } from './enterprise.service';
+import { getManagedObjects, ManagedObject, ManagedObjectType } from './managed-objects.service';
 import { getWorkspaceQueries } from './environments.service';
 import { Query, QueryStats } from '../types/query.types';
 export interface MergedQueriesResult {
@@ -30,11 +30,11 @@ export interface MergedQueriesResult {
       const regularQueries = await getWorkspaceQueries(workspaceId, apiKey, apiServiceUrl);
       console.log("Regular queries response:", regularQueries);
       
-      const managedQueries = await getManagedQueries(environmentId);
-      console.log("Managed queries response:", managedQueries);
+      const managedObjects = await getManagedObjects(environmentId, ManagedObjectType.QUERY);
+      console.log("Managed queries response:", managedObjects);
       
-      // Create a map of managed queries by GID for quick lookup
-      const managedQueryGids = new Set(managedQueries.map(query => query.gid));
+      // Create a set of managed query GIDs for quick lookup
+      const managedQueryGids = new Set(managedObjects.map(obj => obj.objGid));
       console.log("Managed query GIDs:", Array.from(managedQueryGids));
       
       // Mark regular queries as managed if they exist in managed queries

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { message } from "antd";
 import { DataSource, DataSourceWithMeta } from "../types/datasource.types";
-import { getManagedDataSources } from "./enterprise.service";
+import { getManagedObjects, ManagedObject, ManagedObjectType } from "./managed-objects.service";
 
 export interface DataSourceStats {
   total: number;
@@ -71,12 +71,12 @@ export async function getWorkspaceDataSources(
 }
 
 // Function to merge regular and managed data sources
-export const getMergedDataSources = (standardDataSources: DataSourceWithMeta[], managedDataSources: any[]): DataSource[] => {
+export const getMergedDataSources = (standardDataSources: DataSourceWithMeta[], managedObjects: ManagedObject[]): DataSource[] => {
   return standardDataSources.map((dataSourceWithMeta) => {
     const dataSource = dataSourceWithMeta.datasource;
     return {
       ...dataSource,
-      managed: managedDataSources.some((managedDs) => managedDs.datasourceGid === dataSource.gid),
+      managed: managedObjects.some((obj) => obj.objGid === dataSource.gid && obj.objType === ManagedObjectType.DATASOURCE),
     };
   });
 };
@@ -123,16 +123,16 @@ export async function getMergedWorkspaceDataSources(
     }
     
     // Only fetch managed data sources if we have regular data sources
-    let managedDataSources = [];
+    let managedObjects: ManagedObject[] = [];
     try {
-      managedDataSources = await getManagedDataSources(environmentId);
+      managedObjects = await getManagedObjects(environmentId, ManagedObjectType.DATASOURCE);
     } catch (error) {
       console.error("Failed to fetch managed data sources:", error);
       // Continue with empty managed list
     }
     
     // Use the merge function
-    const mergedDataSources = getMergedDataSources(regularDataSourcesWithMeta, managedDataSources);
+    const mergedDataSources = getMergedDataSources(regularDataSourcesWithMeta, managedObjects);
     
     // Calculate stats
     const stats = calculateDataSourceStats(mergedDataSources);

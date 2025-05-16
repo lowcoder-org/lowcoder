@@ -9,6 +9,15 @@ export enum ManagedObjectType {
   DATASOURCE = "DATASOURCE"
 }
 
+// Add this interface after the ManagedObjectType enum
+export interface ManagedObject {
+  id: string;
+  managedId: string;
+  objGid: string;
+  environmentId: string;
+  objType: ManagedObjectType;
+}
+
 /**
  * Check if an object is managed
  * @param objGid - Object's global ID
@@ -116,39 +125,28 @@ export async function unsetManagedObject(
   }
 }
 
-/**
- * Get all managed objects of a specific type for an environment
- * NOTE: This function is commented out as the endpoint is not yet implemented
- * TODO: Uncomment when the /managed-obj/list endpoint is available
- * 
- * @param environmentId - Environment ID 
- * @param objType - Object type (ORG, APP, QUERY, DATASOURCE)
- * @returns Promise with an array of managed objects
- */
-/*
+// Add this new function
 export async function getManagedObjects(
   environmentId: string,
-  objType: ManagedObjectType
-): Promise<any[]> {
+  objType?: ManagedObjectType
+): Promise<ManagedObject[]> {
   try {
-    if (!environmentId || !objType) {
-      throw new Error("Missing required parameters");
+    if (!environmentId) {
+      throw new Error("Missing environment ID");
     }
 
     const response = await axios.get(`/api/plugins/enterprise/managed-obj/list`, {
       params: {
         environmentId,
-        objType
+        ...(objType && { objType }) // Only include objType in params if it's provided
       }
     });
 
-    return response.data.data || [];
+    return response.data.data;
   } catch (error) {
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : `Failed to fetch managed ${objType.toLowerCase()}s`;
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch managed objects";
     message.error(errorMessage);
     throw error;
   }
 }
-*/ 
+

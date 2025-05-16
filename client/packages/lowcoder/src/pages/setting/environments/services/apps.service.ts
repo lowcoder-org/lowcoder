@@ -4,6 +4,7 @@ import { getWorkspaceApps } from "./environments.service";
 import { getManagedApps } from "./enterprise.service";
 import { App, AppStats } from "../types/app.types";
 import axios from "axios";
+import { getManagedObjects, ManagedObject } from "./managed-objects.service";
 
 
 export interface MergedAppsResult {
@@ -24,10 +25,13 @@ export interface DeployAppParams {
 
 
 // Use your existing merge function with slight modification
-export const getMergedApps = (standardApps: App[], managedApps: any[]): App[] => {
+export const getMergedApps = (standardApps: App[], managedObjects: ManagedObject[]): App[] => {
   return standardApps.map((app) => ({
     ...app,
-    managed: managedApps.some((managedApp) => managedApp.appGid === app.applicationGid),
+    managed: managedObjects.some((managedObj) => 
+      managedObj.objGid === app.applicationGid && 
+      managedObj.objType === "APP"
+    ),
   }));
 };
 
@@ -71,17 +75,17 @@ export async function getMergedWorkspaceApps(
       };
     }
     
-    // Only fetch managed apps if we have regular apps
-    let managedApps = [];
+    // Fetch managed objects instead of managed apps
+    let managedObjects: ManagedObject[] = [];
     try {
-      managedApps = await getManagedApps(environmentId);
+      managedObjects = await getManagedObjects(environmentId);
     } catch (error) {
-      console.error("Failed to fetch managed apps:", error);
+      console.error("Failed to fetch managed objects:", error);
       // Continue with empty managed list
     }
     
-    // Use your existing merge function
-    const mergedApps = getMergedApps(regularApps, managedApps);
+    // Use the updated merge function
+    const mergedApps = getMergedApps(regularApps, managedObjects);
     
     // Calculate stats
     const stats = calculateAppStats(mergedApps);
