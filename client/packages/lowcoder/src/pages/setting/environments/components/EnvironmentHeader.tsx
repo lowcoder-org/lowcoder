@@ -73,9 +73,15 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
           <Button
             icon={<EditOutlined />}
             onClick={onEditClick}
-            type="primary"
-            ghost
+            type="default"
             size="large"
+            style={{
+              background: 'white',
+              color: '#1890ff',
+              borderColor: 'white',
+              fontWeight: 500,
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
           >
             Edit Environment
           </Button>

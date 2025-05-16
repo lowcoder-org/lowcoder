@@ -234,8 +234,13 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
-          type="primary"
-          ghost
+          type="default"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: 'rgba(255, 255, 255, 0.4)',
+            color: 'white',
+            fontWeight: 500
+          }}
         >
           Refresh
         </Button>
