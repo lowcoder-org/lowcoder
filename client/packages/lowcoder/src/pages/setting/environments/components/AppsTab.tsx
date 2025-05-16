@@ -3,7 +3,6 @@ import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Toolti
 import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
-import { Workspace } from '../types/workspace.types';
 import { App, AppStats } from '../types/app.types';
 import { getMergedWorkspaceApps } from '../services/apps.service';
 import { Switch, Spin, Empty, Avatar } from 'antd';
@@ -16,10 +15,10 @@ const { Search } = Input;
 
 interface AppsTabProps {
   environment: Environment;
-  workspace: Workspace;
+  workspaceId: string;
 }
 
-const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
+const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
   const [apps, setApps] = useState<App[]>([]);
   const [stats, setStats] = useState<AppStats>({
     total: 0,
@@ -35,14 +34,14 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
 
   // Fetch apps
   const fetchApps = async () => {
-    if (!workspace.id || !environment) return;
+    if (!workspaceId || !environment) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const result = await getMergedWorkspaceApps(
-        workspace.id,
+        workspaceId,
         environment.environmentId,
         environment.environmentApikey,
         environment.environmentApiServiceUrl!
@@ -71,7 +70,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
 
   useEffect(() => {
     fetchApps();
-  }, [environment, workspace]);
+  }, [environment, workspaceId]);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -196,7 +195,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&appId=${app.applicationId}&pageSize=100&pageNum=1`;
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&appId=${app.applicationId}&pageSize=100&pageNum=1`;
                 window.open(auditUrl, '_blank');
               }}
             >

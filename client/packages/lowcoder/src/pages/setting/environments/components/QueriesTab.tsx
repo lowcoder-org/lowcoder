@@ -26,10 +26,10 @@ const { Search } = Input;
 
 interface QueriesTabProps {
   environment: Environment;
-  workspace: Workspace;
+  workspaceId: string;
 }
 
-const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
+const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => {
   const [queries, setQueries] = useState<Query[]>([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -44,14 +44,14 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
 
   // Fetch queries
   const fetchQueries = async () => {
-    if (!workspace.id || !environment) return;
+    if (!workspaceId || !environment) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const result = await getMergedWorkspaceQueries(
-        workspace.id,
+        workspaceId,
         environment.environmentId,
         environment.environmentApikey,
         environment.environmentApiServiceUrl!
@@ -69,7 +69,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
 
   useEffect(() => {
     fetchQueries();
-  }, [environment, workspace]);
+  }, [environment, workspaceId]);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -215,7 +215,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspace }) => {
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&queryId=${query.id}&pageSize=100&pageNum=1`;
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&queryId=${query.id}&pageSize=100&pageNum=1`;
                 window.open(auditUrl, '_blank');
               }}
             >

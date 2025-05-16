@@ -172,20 +172,20 @@ const WorkspaceDetail: React.FC = () => {
         <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
           <AppsTab
             environment={environment}
-            workspace={workspace}
+            workspaceId={workspace.id}
           />
         </TabPane>
 
         <TabPane tab={<span><DatabaseOutlined /> Data Sources</span>} key="dataSources">
           <DataSourcesTab
             environment={environment}
-            workspace={workspace}
+            workspaceId={workspace.id}
           />
         </TabPane>
         <TabPane tab={<span><CodeOutlined /> Queries</span>} key="queries">
           <QueriesTab
             environment={environment}
-            workspace={workspace}
+            workspaceId={workspace.id}
           />
         </TabPane>
         

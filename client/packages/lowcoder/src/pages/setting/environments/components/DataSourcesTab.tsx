@@ -12,7 +12,6 @@ import {
 } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
-import { Workspace } from '../types/workspace.types';
 import { DataSource } from '../types/datasource.types';
 import { getMergedWorkspaceDataSources } from '../services/datasources.service';
 import { Switch, Spin, Empty, Avatar } from 'antd';
@@ -25,10 +24,10 @@ const { Search } = Input;
 
 interface DataSourcesTabProps {
   environment: Environment;
-  workspace: Workspace;
+  workspaceId: string;
 }
 
-const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace }) => {
+const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceId }) => {
   const [dataSources, setDataSources] = useState<DataSource[]>([]);
   const [stats, setStats] = useState({
     total: 0,
@@ -44,14 +43,14 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
 
   // Fetch data sources
   const fetchDataSources = async () => {
-    if (!workspace.id || !environment) return;
+    if (!workspaceId || !environment) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const result = await getMergedWorkspaceDataSources(
-        workspace.id,
+        workspaceId,
         environment.environmentId,
         environment.environmentApikey,
         environment.environmentApiServiceUrl!
@@ -69,7 +68,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
 
   useEffect(() => {
     fetchDataSources();
-  }, [environment, workspace]);
+  }, [environment, workspaceId]);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -198,7 +197,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspace 
               icon={<AuditOutlined />}
               onClick={(e) => {
                 e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`;
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&datasourceId=${dataSource.id}&pageSize=100&pageNum=1`;
                 window.open(auditUrl, '_blank');
               }}
             >
