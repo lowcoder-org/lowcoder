@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Tag, Typography, Row, Col } from 'antd';
 import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
+import { getEnvironmentTagColor, getEnvironmentHeaderGradient } from '../utils/environmentUtils';
 
 const { Title, Text } = Typography;
 
@@ -18,36 +19,12 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
   environment, 
   onEditClick 
 }) => {
-  // Determine header gradient based on environment type
-  const getHeaderGradient = () => {
-    switch(environment.environmentType) {
-      case 'production':
-        return 'linear-gradient(135deg, #f5222d 0%, #fa8c16 100%)';
-      case 'testing':
-        return 'linear-gradient(135deg, #fa8c16 0%, #faad14 100%)';
-      default:
-        return 'linear-gradient(135deg, #1890ff 0%, #096dd9 100%)';
-    }
-  };
-
-  // Get environment type tag color
-  const getEnvironmentTypeColor = () => {
-    switch(environment.environmentType) {
-      case 'production':
-        return 'red';
-      case 'testing':
-        return 'orange';
-      default:
-        return 'blue';
-    }
-  };
-
   return (
     <div
       className="environment-header"
       style={{
         marginBottom: "24px",
-        background: getHeaderGradient(),
+        background: getEnvironmentHeaderGradient(environment.environmentType),
         padding: '20px 24px',
         borderRadius: '8px',
         color: 'white',
@@ -78,7 +55,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
                   ID: {environment.environmentId}
                 </Text>
                 <Tag 
-                  color={getEnvironmentTypeColor()}
+                  color={getEnvironmentTagColor(environment.environmentType)}
                   style={{ marginLeft: 0, borderRadius: '12px' }}
                 >
                   {environment.environmentType}

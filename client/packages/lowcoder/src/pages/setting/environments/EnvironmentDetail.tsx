@@ -26,6 +26,7 @@ import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
 import EnvironmentHeader from "./components/EnvironmentHeader";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
+import { getEnvironmentTagColor } from "./utils/environmentUtils";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -74,15 +75,7 @@ const EnvironmentDetail: React.FC = () => {
     }
   };
   
-  // Dropdown menu for environment actions
-  const actionsMenu = (
-    <Menu>
-      <Menu.Item key="edit" icon={<EditOutlined />} onClick={handleEditClick}>
-        Edit Environment
-      </Menu.Item>
-      {/* Add more menu items here if needed */}
-    </Menu>
-  );
+ 
   
   if (isLoading) {
     return (
@@ -149,18 +142,6 @@ const EnvironmentDetail: React.FC = () => {
       title: environment.environmentName
     }
   ];
-  
-  // Get environment type tag color
-  const getEnvironmentTypeColor = () => {
-    switch(environment.environmentType) {
-      case 'production':
-        return 'red';
-      case 'testing':
-        return 'orange';
-      default:
-        return 'blue';
-    }
-  };
 
   return (
     <div
@@ -202,7 +183,7 @@ const EnvironmentDetail: React.FC = () => {
           </Descriptions.Item>
           <Descriptions.Item label="Environment Type">
             <Tag
-              color={getEnvironmentTypeColor()}
+              color={getEnvironmentTagColor(environment.environmentType)}
               style={{ borderRadius: '12px' }}
             >
               {environment.environmentType}
