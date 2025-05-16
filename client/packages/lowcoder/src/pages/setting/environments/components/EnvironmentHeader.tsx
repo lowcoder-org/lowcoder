@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Tag, Typography, Row, Col } from 'antd';
-import { EditOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { EditOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor, getEnvironmentHeaderGradient } from '../utils/environmentUtils';
 
@@ -44,7 +44,7 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
               alignItems: 'center',
               justifyContent: 'center'
             }}>
-              <EnvironmentOutlined />
+              <CloudServerOutlined />
             </div>
             <div>
               <Title level={3} style={{ margin: '0 0 4px 0', color: 'white' }}>

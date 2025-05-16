@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Typography, Alert, Input, Button, Space, Empty, Card, Spin, Row, Col, Tooltip, Badge } from "antd";
-import { SearchOutlined, ReloadOutlined, PlusOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { SearchOutlined, ReloadOutlined,  CloudServerOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { Environment } from "./types/environment.types";
@@ -96,7 +96,7 @@ const EnvironmentsList: React.FC = () => {
                 justifyContent: 'center',
                 boxShadow: '0 4px 8px rgba(0,0,0,0.1)'
               }}>
-                <EnvironmentOutlined />
+                <CloudServerOutlined />
               </div>
               <div>
                 <Title level={2} style={{ margin: '0 0 4px 0', color: 'white' }}>
@@ -119,13 +119,6 @@ const EnvironmentsList: React.FC = () => {
                 size="large"
               >
                 Refresh
-              </Button>
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                size="large"
-              >
-                New Environment
               </Button>
             </Space>
           </Col>

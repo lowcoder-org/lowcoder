@@ -1,6 +1,6 @@
 import React from 'react';
 import { Table, Tag, Button, Tooltip, Space, Card, Row, Col, Typography, Avatar } from 'antd';
-import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled } from '@ant-design/icons';
+import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled, CloudServerOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 
@@ -79,7 +79,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                       fontSize: '20px'
                     }}
                     size={48}
-                    icon={<EnvironmentOutlined />}
+                    icon={<CloudServerOutlined />}
                   />
                   <div>
                     <Title level={5} style={{ margin: 0, marginBottom: '4px' }}>
