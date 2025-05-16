@@ -59,29 +59,20 @@ export async function isManagedObject(
 export async function setManagedObject(
   objGid: string,
   environmentId: string,
-  objType: ManagedObjectType,
-  objName?: string,
-  objTags: string[] = []
+  objType: ManagedObjectType
 ): Promise<boolean> {
   try {
     if (!objGid || !environmentId || !objType) {
       throw new Error("Missing required parameters");
     }
 
-    const response = await axios.post(`/api/plugins/enterprise/managed-obj`, 
-      // Include optional parameters in the request body instead of query params
-      {
-        objName,
-        objTags: objTags.length > 0 ? objTags : undefined
-      },
-      {
-        params: {
-          objGid,
-          environmentId,
-          objType
-        }
-      }
-    );
+    const requestBody = {
+      objGid,
+      environmentId,
+      objType
+    };
+
+    const response = await axios.post(`/api/plugins/enterprise/managed-obj`, requestBody);
 
     return response.status === 200;
   } catch (error) {
@@ -90,6 +81,7 @@ export async function setManagedObject(
     throw error;
   }
 }
+
 
 /**
  * Set an object as unmanaged

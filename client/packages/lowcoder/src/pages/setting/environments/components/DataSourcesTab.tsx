@@ -85,7 +85,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
           dataSource.gid,
           environment.environmentId,
           ManagedObjectType.DATASOURCE,
-          dataSource.name
         );
       } else {
         await unsetManagedObject(

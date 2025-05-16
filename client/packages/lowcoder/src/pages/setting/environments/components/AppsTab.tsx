@@ -87,7 +87,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           app.applicationGid,
           environment.environmentId,
           ManagedObjectType.APP,
-          app.name
+          
         );
       } else {
         await unsetManagedObject(

@@ -118,7 +118,7 @@ import React, {
             workspace.gid!,
             environment.environmentId,
             ManagedObjectType.ORG,
-            workspace.name
+            
           
           );
         } else {

@@ -86,7 +86,6 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           query.gid,
           environment.environmentId,
           ManagedObjectType.QUERY,
-          query.name
         );
       } else {
         await unsetManagedObject(
