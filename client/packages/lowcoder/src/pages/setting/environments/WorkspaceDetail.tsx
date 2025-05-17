@@ -3,14 +3,8 @@ import history from "@lowcoder-ee/util/history";
 import { 
   Spin, 
   Typography, 
-  Card, 
   Tabs, 
-  Button,
-  Space,
-  Tag,
-  Switch, 
   message,
-  Tooltip
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -18,8 +12,6 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
-  ArrowLeftOutlined, 
-  CloudUploadOutlined
 } from "@ant-design/icons";
 
 // Use the context hooks
@@ -32,8 +24,8 @@ import AppsTab from "./components/AppsTab";
 import DataSourcesTab from "./components/DataSourcesTab";
 import QueriesTab from "./components/QueriesTab";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
+import WorkspaceHeader from "./components/WorkspaceHeader";
 
-const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 const WorkspaceDetail: React.FC = () => {
@@ -41,6 +33,8 @@ const WorkspaceDetail: React.FC = () => {
   const { environment } = useSingleEnvironmentContext();
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
+
+  console.log("workspace render", workspace);  
 
   const [isToggling, setIsToggling] = useState(false);
 
@@ -109,63 +103,14 @@ const WorkspaceDetail: React.FC = () => {
       {/* Modern Breadcrumbs navigation */}
       <ModernBreadcrumbs items={breadcrumbItems} />
 
-      {/* Workspace header with details and actions */}
-      <Card style={{ marginBottom: "24px" }} bodyStyle={{ padding: "16px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {/* Left section - Workspace info */}
-          <div>
-            <Title level={3} style={{ margin: 0 }}>
-              {workspace.name}
-            </Title>
-            <div style={{ display: "flex", alignItems: "center", marginTop: "8px" }}>
-              <Text type="secondary" style={{ marginRight: "16px" }}>
-                ID: {workspace.id}
-              </Text>
-              <Tag color={workspace.managed ? "green" : "default"}>
-                {workspace.managed ? "Managed" : "Unmanaged"}
-              </Tag>
-            </div>
-          </div>
-
-          {/* Right section - Actions */}
-          <Space size="middle">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Text style={{ marginRight: "8px" }}>Managed:</Text>
-              <Switch
-                checked={!!workspace.managed}
-                onChange={handleToggleManaged}
-                loading={isToggling}
-                checkedChildren="Yes"
-                unCheckedChildren="No"
-              />
-            </div>
-            <Tooltip
-              title={
-                !workspace.managed
-                  ? "Workspace must be managed before it can be deployed"
-                  : "Deploy this workspace to another environment"
-              }
-            >
-              <Button
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                onClick={() =>
-                  openDeployModal(workspace, workspaceConfig, environment)
-                }
-                disabled={!workspace.managed}
-              >
-                Deploy
-              </Button>
-            </Tooltip>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => history.push(`/setting/environments/${environment.environmentId}`)}
-            >
-              Back
-            </Button>
-          </Space>
-        </div>
-      </Card>
+      {/* New Workspace Header */}
+      <WorkspaceHeader
+        workspace={workspace}
+        environment={environment}
+        isToggling={isToggling}
+        onToggleManagedStatus={handleToggleManaged}
+        onDeploy={() => openDeployModal(workspace, workspaceConfig, environment)}
+      />
 
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs defaultActiveKey="apps" className="modern-tabs" type="card">
