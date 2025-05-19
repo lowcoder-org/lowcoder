@@ -43,11 +43,12 @@ const HeaderWrapper = styled.div`
   margin-bottom: 24px;
 `;
 
-const GradientBanner = styled.div`
-  background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%);
+const GradientBanner = styled.div<{ avatarColor: string }>`
+  background: linear-gradient(135deg, ${props => props.avatarColor} 0%, #feb47b 100%);
   height: 140px;
   position: relative;
   overflow: hidden;
+  transition: background 1s ease-in-out;
   
   &::before {
     content: '';
@@ -74,12 +75,22 @@ const GradientBanner = styled.div`
       transform: translate(100px, 100px);
     }
   }
+
+  &:hover {
+    background: linear-gradient(135deg, #feb47b 0%, ${props => props.avatarColor} 100%);
+    transition: background 1s ease-in-out;
+  }
 `;
 
 const ContentContainer = styled.div`
   background-color: white;
   padding: 24px;
   position: relative;
+  transition: transform 0.3s ease-in-out;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
 `;
 
 const AvatarContainer = styled.div`
@@ -169,20 +180,13 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
     });
   };
 
-  // Mock data - in a real app this would come from props
-  const stats = {
-    users: 12,
-    apps: 24,
-    datasources: 8,
-    queries: 15,
-    lastUpdated: "2023-08-15T10:30:00Z"
-  };
+  
 
   
 
   return (
     <HeaderWrapper>
-      <GradientBanner>
+      <GradientBanner avatarColor={getAvatarColor(workspace.name)}>
         <StatusBadge $active={workspace.managed}>
           {workspace.managed ? "Managed" : "Unmanaged"}
         </StatusBadge>
