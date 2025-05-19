@@ -99,7 +99,12 @@ const WorkspaceDetail: React.FC = () => {
   ];
 
   return (
-    <div className="workspace-detail-container" style={{ padding: "24px", flex: 1 }}>
+    <div className="workspace-detail-container" style={{ 
+      padding: "24px", 
+      flex: 1,
+      minWidth: "1000px",
+      overflowX: "auto"
+    }}>
       {/* Modern Breadcrumbs navigation */}
       <ModernBreadcrumbs items={breadcrumbItems} />
 
