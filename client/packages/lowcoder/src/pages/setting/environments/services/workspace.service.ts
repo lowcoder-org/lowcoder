@@ -1,7 +1,7 @@
 // services/workspacesService.ts (or wherever makes sense in your structure)
 import { message } from "antd";
 import { getEnvironmentWorkspaces } from "./environments.service";
-import { getManagedObjects, ManagedObject, ManagedObjectType } from "./managed-objects.service";
+import { getManagedObjects, getSingleManagedObject, ManagedObject, ManagedObjectType, setManagedObject } from "./managed-objects.service";
 import { Workspace } from "../types/workspace.types";
 import { ManagedOrg } from "../types/enterprise.types";
 import axios from "axios";
@@ -95,6 +95,27 @@ export async function deployWorkspace(params: {
         targetEnvId: params.targetEnvId
       }
     });
+
+    // After successful deployment, set the managed object in target environment
+    if (response.status === 200) {
+      const res = await getSingleManagedObject(
+        params.workspaceId,
+        params.envId,
+        ManagedObjectType.ORG
+      );
+      // managedID => res.managedId
+      //objGID = res.objGid
+      // targetEnvId = params.targetEnvId
+      // objType = ManagedObjectType.ORG
+      await setManagedObject(
+        res?.objGid!,
+        params.targetEnvId,
+        ManagedObjectType.ORG,
+        res?.managedId!
+      );
+    }
+
+
     return response.status === 200;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to deploy workspace';

@@ -68,7 +68,8 @@ export async function isManagedObject(
 export async function setManagedObject(
   objGid: string,
   environmentId: string,
-  objType: ManagedObjectType
+  objType: ManagedObjectType,
+  managedId?: string
 ): Promise<boolean> {
   try {
     if (!objGid || !environmentId || !objType) {
@@ -78,7 +79,8 @@ export async function setManagedObject(
     const requestBody = {
       objGid,
       environmentId,
-      objType
+      objType,
+      ...(managedId && { managedId })
     };
 
     const response = await axios.post(`/api/plugins/enterprise/managed-obj`, requestBody);
@@ -145,6 +147,44 @@ export async function getManagedObjects(
     return response.data.data;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch managed objects";
+    message.error(errorMessage);
+    throw error;
+  }
+}
+
+/**
+ * Get a single managed object by its parameters
+ * @param objGid - Object's global ID
+ * @param environmentId - Environment ID
+ * @param objType - Object type (ORG, APP, QUERY, DATASOURCE)
+ * @returns Promise with ManagedObject if found
+ */
+export async function getSingleManagedObject(
+  objGid: string,
+  environmentId: string,
+  objType: ManagedObjectType
+): Promise<ManagedObject | null> {
+  try {
+    if (!objGid || !environmentId || !objType) {
+      throw new Error("Missing required parameters");
+    }
+
+    const response = await axios.get(`/api/plugins/enterprise/managed-obj`, {
+      params: {
+        objGid,
+        environmentId,
+        objType
+      }
+    });
+
+    return response.data.data || null;
+  } catch (error) {
+    // If the object doesn't exist as managed, return null instead of throwing
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch managed object";
     message.error(errorMessage);
     throw error;
   }
