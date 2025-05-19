@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col, Avatar } from 'antd';
-import { SyncOutlined, AuditOutlined, TeamOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined } from '@ant-design/icons';
+import { SyncOutlined, AuditOutlined, TeamOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
@@ -26,6 +26,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch workspaces
   const fetchWorkspaces = async () => {
@@ -73,12 +74,16 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
     history.push(`/setting/environments/${environment.environmentId}/workspaces/${workspace.id}`);
   };
 
-  // Filter workspaces based on search
+  // Filter workspaces based on search and managed status
   const filteredWorkspaces = searchText
     ? workspaces.filter(workspace => 
         workspace.name.toLowerCase().includes(searchText.toLowerCase()) || 
         workspace.id.toLowerCase().includes(searchText.toLowerCase()))
     : workspaces;
+
+  const displayedWorkspaces = showManagedOnly
+    ? filteredWorkspaces.filter(workspace => workspace.managed)
+    : filteredWorkspaces;
 
   // Helper function to generate colors from strings
   const stringToColor = (str: string) => {
@@ -301,8 +306,8 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           />
         ) : (
           <>
-            {/* Search Bar */}
-            <div style={{ marginBottom: 20 }}>
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <Search
                 placeholder="Search workspaces by name or ID"
                 allowClear
@@ -311,16 +316,28 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
                 style={{ width: 300 }}
                 size="large"
               />
-              {searchText && filteredWorkspaces.length !== workspaces.length && (
-                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
-                  Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
-                </div>
-              )}
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#52c41a' : 'white',
+                  color: showManagedOnly ? 'white' : '#52c41a',
+                  borderColor: '#52c41a'
+                }}
+              />
             </div>
+            
+            {searchText && displayedWorkspaces.length !== workspaces.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedWorkspaces.length} of {workspaces.length} workspaces
+              </div>
+            )}
             
             <Table
               columns={columns}
-              dataSource={filteredWorkspaces}
+              dataSource={displayedWorkspaces}
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
