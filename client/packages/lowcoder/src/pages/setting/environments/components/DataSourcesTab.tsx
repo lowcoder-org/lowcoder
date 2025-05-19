@@ -8,7 +8,8 @@ import {
   ApiOutlined,
   CheckCircleFilled,
   CloudServerOutlined,
-  DisconnectOutlined
+  DisconnectOutlined,
+  FilterOutlined
 } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
@@ -40,6 +41,7 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const { openDeployModal } = useDeployModal();
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch data sources
   const fetchDataSources = async () => {
@@ -122,12 +124,16 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
     }
   };
 
-  // Filter data sources based on search
+  // Filter data sources based on managed status and search
   const filteredDataSources = searchText
     ? dataSources.filter(ds => 
         ds.name.toLowerCase().includes(searchText.toLowerCase()) || 
         ds.id.toString().toLowerCase().includes(searchText.toLowerCase()))
     : dataSources;
+
+  const displayedDataSources = showManagedOnly
+    ? filteredDataSources.filter(ds => ds.managed)
+    : filteredDataSources;
 
   // Table columns
   const columns = [
@@ -356,6 +362,29 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         </Col>
       </Row>
 
+      {/* Update the search and filter bar */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+        <Search
+          placeholder="Search data sources by name or ID"
+          allowClear
+          onSearch={value => setSearchText(value)}
+          onChange={e => setSearchText(e.target.value)}
+          style={{ width: 300 }}
+          size="large"
+        />
+        <Button 
+          onClick={() => setShowManagedOnly(!showManagedOnly)}
+          type="default"
+          icon={<FilterOutlined />}
+          style={{
+            marginLeft: '8px',
+            backgroundColor: showManagedOnly ? '#1890ff' : 'white',
+            color: showManagedOnly ? 'white' : '#1890ff',
+            borderColor: '#1890ff'
+          }}
+        />
+      </div>
+
       {/* Content */}
       <Card 
         style={{ 
@@ -375,25 +404,15 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         ) : (
           <>
             {/* Search Bar */}
-            <div style={{ marginBottom: 20 }}>
-              <Search
-                placeholder="Search data sources by name or ID"
-                allowClear
-                onSearch={value => setSearchText(value)}
-                onChange={e => setSearchText(e.target.value)}
-                style={{ width: 300 }}
-                size="large"
-              />
-              {searchText && filteredDataSources.length !== dataSources.length && (
-                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
-                  Showing {filteredDataSources.length} of {dataSources.length} data sources
-                </div>
-              )}
-            </div>
+            {searchText &&  displayedDataSources.length !== dataSources.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedDataSources.length} of {dataSources.length} data sources
+              </div>
+            )}
             
             <Table
               columns={columns}
-              dataSource={filteredDataSources}
+              dataSource={displayedDataSources}
               rowKey="id"
               pagination={{ 
                 pageSize: 10,

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined } from '@ant-design/icons';
+import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { App, AppStats } from '../types/app.types';
@@ -31,6 +31,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const { openDeployModal } = useDeployModal();
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch apps
   const fetchApps = async () => {
@@ -131,6 +132,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         app.name.toLowerCase().includes(searchText.toLowerCase()) || 
         app.applicationId.toLowerCase().includes(searchText.toLowerCase()))
     : apps;
+
+  const displayedApps = showManagedOnly
+    ? filteredApps.filter(app => app.managed)
+    : filteredApps;
 
   // Table columns
   const columns = [
@@ -366,8 +371,8 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           />
         ) : (
           <>
-            {/* Search Bar */}
-            <div style={{ marginBottom: 20 }}>
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <Search
                 placeholder="Search apps by name or ID"
                 allowClear
@@ -376,16 +381,28 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
                 style={{ width: 300 }}
                 size="large"
               />
-              {searchText && filteredApps.length !== apps.length && (
-                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
-                  Showing {filteredApps.length} of {apps.length} apps
-                </div>
-              )}
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#1890ff' : 'white',
+                  color: showManagedOnly ? 'white' : '#1890ff',
+                  borderColor: '#1890ff'
+                }}
+              />
             </div>
+            
+            {searchText && displayedApps.length !== apps.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedApps.length} of {apps.length} apps
+              </div>
+            )}
             
             <Table
               columns={columns}
-              dataSource={filteredApps}
+              dataSource={displayedApps}
               rowKey="applicationId"
               pagination={{ 
                 pageSize: 10,

@@ -9,7 +9,8 @@ import {
   CloudServerOutlined,
   DisconnectOutlined,
   ApiOutlined,
-  ThunderboltOutlined
+  ThunderboltOutlined,
+  FilterOutlined
 } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
@@ -41,6 +42,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const { openDeployModal } = useDeployModal();
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch queries
   const fetchQueries = async () => {
@@ -129,6 +131,10 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
         query.name.toLowerCase().includes(searchText.toLowerCase()) || 
         query.id.toLowerCase().includes(searchText.toLowerCase()))
     : queries;
+
+  const displayedQueries = showManagedOnly
+    ? filteredQueries.filter(query => query.managed)
+    : filteredQueries;
 
   // Helper function to generate colors from strings
   const stringToColor = (str: string) => {
@@ -367,8 +373,8 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           />
         ) : (
           <>
-            {/* Search Bar */}
-            <div style={{ marginBottom: 20 }}>
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
               <Search
                 placeholder="Search queries by name or ID"
                 allowClear
@@ -377,16 +383,28 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
                 style={{ width: 300 }}
                 size="large"
               />
-              {searchText && filteredQueries.length !== queries.length && (
-                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
-                  Showing {filteredQueries.length} of {queries.length} queries
-                </div>
-              )}
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#1890ff' : 'white',
+                  color: showManagedOnly ? 'white' : '#1890ff',
+                  borderColor: '#1890ff'
+                }}
+              />
             </div>
+            
+            {searchText && displayedQueries.length !== queries.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedQueries.length} of {queries.length} queries
+              </div>
+            )}
             
             <Table
               columns={columns}
-              dataSource={filteredQueries}
+              dataSource={displayedQueries}
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
