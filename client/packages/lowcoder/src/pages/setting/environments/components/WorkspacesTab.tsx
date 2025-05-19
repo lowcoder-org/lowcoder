@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, AuditOutlined } from '@ant-design/icons';
+import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col, Avatar } from 'antd';
+import { SyncOutlined, AuditOutlined, TeamOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { Workspace } from '../types/workspace.types';
@@ -26,6 +26,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch workspaces
   const fetchWorkspaces = async () => {
@@ -68,34 +69,88 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
     fetchWorkspaces();
   };
 
-  // Toggle managed status
-
-
   // Handle row click for navigation
   const handleRowClick = (workspace: Workspace) => {
     history.push(`/setting/environments/${environment.environmentId}/workspaces/${workspace.id}`);
   };
 
-  // Filter workspaces based on search
+  // Filter workspaces based on search and managed status
   const filteredWorkspaces = searchText
     ? workspaces.filter(workspace => 
         workspace.name.toLowerCase().includes(searchText.toLowerCase()) || 
         workspace.id.toLowerCase().includes(searchText.toLowerCase()))
     : workspaces;
 
+  const displayedWorkspaces = showManagedOnly
+    ? filteredWorkspaces.filter(workspace => workspace.managed)
+    : filteredWorkspaces;
+
+  // Helper function to generate colors from strings
+  const stringToColor = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+  // Stat card component
+  const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '28px', 
+          opacity: 0.8, 
+          color: '#52c41a',
+          padding: '12px',
+          backgroundColor: 'rgba(82, 196, 26, 0.1)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+
   // Table columns
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <span className="workspace-name">{text}</span>
-    },
-    {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      ellipsis: true,
+      title: 'Workspace',
+      key: 'workspace',
+      render: (workspace: Workspace) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            style={{ 
+              backgroundColor: stringToColor(workspace.name),
+              marginRight: 12
+            }}
+            shape="square"
+          >
+            {workspace.name.charAt(0).toUpperCase()}
+          </Avatar>
+          <div>
+            <div style={{ fontWeight: 500 }}>{workspace.name}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+              {workspace.id}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Role',
@@ -107,7 +162,8 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       dataIndex: 'status',
       key: 'status',
       render: (status: string) => (
-        <Tag color={status === 'ACTIVE' ? 'green' : 'red'}>
+        <Tag color={status === 'ACTIVE' ? 'green' : 'red'} style={{ borderRadius: '12px' }}>
+          {status === 'ACTIVE' ? <CheckCircleFilled style={{ marginRight: 4 }} /> : null}
           {status}
         </Tag>
       ),
@@ -116,7 +172,14 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
       title: 'Managed',
       key: 'managed',
       render: (_: any, workspace: Workspace) => (
-        <Tag color={workspace.managed ? 'blue' : 'default'}>
+        <Tag 
+          color={workspace.managed ? 'processing' : 'default'}
+          style={{ borderRadius: '12px' }}
+        >
+          {workspace.managed 
+            ? <CloudServerOutlined style={{ marginRight: 4 }} /> 
+            : <DisconnectOutlined style={{ marginRight: 4 }} />
+          }
           {workspace.managed ? 'Managed' : 'Unmanaged'}
         </Tag>
       ),
@@ -129,7 +192,6 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
-              size="small"
               onClick={(e) => {
                 e.stopPropagation();
                 const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&pageSize=100&pageNum=1`;
@@ -145,36 +207,39 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
   ];
 
   return (
-    <Card>
-      {/* Header with refresh button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5}>Workspaces in this Environment</Title>
+    <div style={{ padding: '16px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "24px",
+        background: 'linear-gradient(135deg, #52c41a 0%, #13c2c2 100%)',
+        padding: '20px 24px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <div>
+          <Title level={4} style={{ color: 'white', margin: 0 }}>
+            <TeamOutlined style={{ marginRight: 10 }} /> Workspaces
+          </Title>
+          <p style={{ marginBottom: 0 }}>Manage workspaces in this environment</p>
+        </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
+          type="default"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: 'rgba(255, 255, 255, 0.4)',
+            color: 'white',
+            fontWeight: 500
+          }}
         >
           Refresh
         </Button>
       </div>
-
-      {/* Stats display */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Total Workspaces</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Managed</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.managed}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Unmanaged</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.unmanaged}</div>
-        </div>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
 
       {/* Error display */}
       {error && (
@@ -183,7 +248,7 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
@@ -194,53 +259,104 @@ const WorkspacesTab: React.FC<WorkspacesTabProps> = ({ environment }) => {
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
+      {/* Stats display */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Total Workspaces" 
+            value={stats.total} 
+            icon={<TeamOutlined />} 
+          />
+        </Col>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Managed Workspaces" 
+            value={stats.managed} 
+            icon={<CloudServerOutlined />} 
+          />
+        </Col>
+        <Col xs={24} sm={8}>
+          <StatCard 
+            title="Unmanaged Workspaces" 
+            value={stats.unmanaged} 
+            icon={<DisconnectOutlined />} 
+          />
+        </Col>
+      </Row>
+
       {/* Content */}
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-          <Spin tip="Loading workspaces..." />
-        </div>
-      ) : workspaces.length === 0 ? (
-        <Empty
-          description={error || "No workspaces found in this environment"}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : (
-        <>
-          {/* Search Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <Search
-              placeholder="Search workspaces by name or ID"
-              allowClear
-              onSearch={value => setSearchText(value)}
-              onChange={e => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-            {searchText && filteredWorkspaces.length !== workspaces.length && (
-              <div style={{ marginTop: 8 }}>
-                Showing {filteredWorkspaces.length} of {workspaces.length} workspaces
+      <Card 
+        style={{ 
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}
+      >
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="Loading workspaces..." />
+          </div>
+        ) : workspaces.length === 0 ? (
+          <Empty
+            description={error || "No workspaces found in this environment"}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <>
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <Search
+                placeholder="Search workspaces by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#52c41a' : 'white',
+                  color: showManagedOnly ? 'white' : '#52c41a',
+                  borderColor: '#52c41a'
+                }}
+              />
+            </div>
+            
+            {searchText && displayedWorkspaces.length !== workspaces.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedWorkspaces.length} of {workspaces.length} workspaces
               </div>
             )}
-          </div>
-          
-          <Table
-            columns={columns}
-            dataSource={filteredWorkspaces}
-            rowKey="id"
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            scroll={{ x: 'max-content' }}
-            onRow={(record) => ({
-              onClick: () => handleRowClick(record),
-              style: { cursor: 'pointer' }
-            })}
-          />
-        </>
-      )}
-    </Card>
+            
+            <Table
+              columns={columns}
+              dataSource={displayedWorkspaces}
+              rowKey="id"
+              pagination={{ 
+                pageSize: 10,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} workspaces`
+              }}
+              style={{ 
+                borderRadius: '8px', 
+                overflow: 'hidden'
+              }}
+              onRow={(record) => ({
+                onClick: () => handleRowClick(record),
+                style: { cursor: 'pointer' }
+              })}
+              rowClassName={() => 'workspace-row'}
+            />
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 

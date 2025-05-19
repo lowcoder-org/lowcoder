@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space } from 'antd';
-import { SyncOutlined, TeamOutlined } from '@ant-design/icons';
+import { Card, Button, Alert, message, Table, Tag, Input, Space, Row, Col, Avatar, Tooltip } from 'antd';
+import { SyncOutlined, TeamOutlined, UserOutlined, UsergroupAddOutlined, SettingOutlined, CodeOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { UserGroup, UserGroupsTabStats } from '../types/userGroup.types';
@@ -89,82 +89,162 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
         group.groupId.toLowerCase().includes(searchText.toLowerCase()))
     : userGroups;
 
+  // Helper function to generate colors from strings
+  const stringToColor = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+  // Stat card component
+  const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '28px', 
+          opacity: 0.8, 
+          color: '#722ed1',
+          padding: '12px',
+          backgroundColor: 'rgba(114, 46, 209, 0.1)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+
   // Table columns
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'groupName',
-      key: 'groupName',
-      render: (text: string) => <span className="group-name">{text}</span>
-    },
-    {
-      title: 'ID',
-      dataIndex: 'groupId',
-      key: 'groupId',
-      ellipsis: true,
+      title: 'User Group',
+      key: 'group',
+      render: (group: UserGroup) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            style={{ 
+              backgroundColor: stringToColor(group.groupName),
+              marginRight: 12
+            }}
+            shape="square"
+          >
+            {group.groupName.charAt(0).toUpperCase()}
+          </Avatar>
+          <div>
+            <div style={{ fontWeight: 500 }}>{group.groupName}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+              {group.groupId}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
       title: 'Type',
       key: 'type',
       render: (_: any, group: UserGroup) => {
-        if (group.allUsersGroup) return <Tag color="blue">All Users</Tag>;
-        if (group.devGroup) return <Tag color="purple">Developers</Tag>;
-        return <Tag color="default">Custom</Tag>;
+        if (group.allUsersGroup) return (
+          <Tag color="blue" style={{ borderRadius: '12px' }}>
+            <UserOutlined style={{ marginRight: 4 }} /> All Users
+          </Tag>
+        );
+        if (group.devGroup) return (
+          <Tag color="purple" style={{ borderRadius: '12px' }}>
+            <CodeOutlined style={{ marginRight: 4 }} /> Developers
+          </Tag>
+        );
+        return (
+          <Tag color="default" style={{ borderRadius: '12px' }}>
+            <SettingOutlined style={{ marginRight: 4 }} /> Custom
+          </Tag>
+        );
       },
     },
     {
       title: 'Members',
       key: 'members',
-      render: (_: any, group: UserGroup) => group.stats?.userCount || 0,
+      render: (_: any, group: UserGroup) => (
+        <Tooltip title="Total number of members in this group">
+          <Tag style={{ borderRadius: '12px', backgroundColor: '#f6f6f6', color: '#333' }}>
+            <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.userCount || 0}
+          </Tag>
+        </Tooltip>
+      ),
     },
     {
       title: 'Admin Members',
       key: 'adminMembers',
-      render: (_: any, group: UserGroup) => group.stats?.adminUserCount || 0,
+      render: (_: any, group: UserGroup) => (
+        <Tooltip title="Number of admin users in this group">
+          <Tag style={{ borderRadius: '12px', backgroundColor: '#fff1f0', color: '#cf1322' }}>
+            <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.adminUserCount || 0}
+          </Tag>
+        </Tooltip>
+      ),
     },
     {
       title: 'Created',
       dataIndex: 'createTime',
       key: 'createTime',
-      render: (createTime: number) => new Date(createTime).toLocaleDateString(),
+      render: (createTime: number) => (
+        <span style={{ color: '#8c8c8c' }}>
+          {new Date(createTime).toLocaleDateString()}
+        </span>
+      ),
     }
   ];
 
   return (
-    <Card>
-      {/* Header with refresh button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5}>User Groups in this Environment</Title>
+    <div style={{ padding: '16px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "24px",
+        background: 'linear-gradient(135deg, #722ed1 0%, #eb2f96 100%)',
+        padding: '20px 24px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <div>
+          <Title level={4} style={{ color: 'white', margin: 0 }}>
+            <UsergroupAddOutlined style={{ marginRight: 10 }} /> User Groups
+          </Title>
+          <p style={{ marginBottom: 0 }}>Manage user groups in this environment</p>
+        </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
+          type="default"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: 'rgba(255, 255, 255, 0.4)',
+            color: 'white',
+            fontWeight: 500
+          }}
         >
           Refresh
         </Button>
       </div>
-
-      {/* Stats display */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Total Groups</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>All Users Groups</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.allUsers}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Developer Groups</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.developers}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Custom Groups</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.custom}</div>
-        </div>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
 
       {/* Error display */}
       {error && (
@@ -173,7 +253,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
@@ -184,49 +264,95 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
-      {/* Content */}
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-          <Spin tip="Loading user groups..." />
-        </div>
-      ) : userGroups.length === 0 ? (
-        <Empty
-          description={error || "No user groups found in this environment"}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : (
-        <>
-          {/* Search Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <Search
-              placeholder="Search user groups by name or ID"
-              allowClear
-              onSearch={value => setSearchText(value)}
-              onChange={e => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-            {searchText && filteredUserGroups.length !== userGroups.length && (
-              <div style={{ marginTop: 8 }}>
-                Showing {filteredUserGroups.length} of {userGroups.length} user groups
-              </div>
-            )}
-          </div>
-          
-          <Table
-            columns={columns}
-            dataSource={filteredUserGroups}
-            rowKey="groupId"
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            scroll={{ x: 'max-content' }}
+      {/* Stats display */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={24} sm={12} md={6}>
+          <StatCard 
+            title="Total Groups" 
+            value={stats.total} 
+            icon={<TeamOutlined />} 
           />
-        </>
-      )}
-    </Card>
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <StatCard 
+            title="All Users Groups" 
+            value={stats.allUsers} 
+            icon={<UserOutlined />} 
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <StatCard 
+            title="Developer Groups" 
+            value={stats.developers} 
+            icon={<CodeOutlined />} 
+          />
+        </Col>
+        <Col xs={24} sm={12} md={6}>
+          <StatCard 
+            title="Custom Groups" 
+            value={stats.custom} 
+            icon={<SettingOutlined />} 
+          />
+        </Col>
+      </Row>
+
+      {/* Content */}
+      <Card 
+        style={{ 
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}
+      >
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="Loading user groups..." />
+          </div>
+        ) : userGroups.length === 0 ? (
+          <Empty
+            description={error || "No user groups found in this environment"}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <>
+            {/* Search Bar */}
+            <div style={{ marginBottom: 20 }}>
+              <Search
+                placeholder="Search user groups by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              {searchText && filteredUserGroups.length !== userGroups.length && (
+                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                  Showing {filteredUserGroups.length} of {userGroups.length} user groups
+                </div>
+              )}
+            </div>
+            
+            <Table
+              columns={columns}
+              dataSource={filteredUserGroups}
+              rowKey="groupId"
+              pagination={{ 
+                pageSize: 10,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} user groups`
+              }}
+              style={{ 
+                borderRadius: '8px', 
+                overflow: 'hidden'
+              }}
+              rowClassName={() => 'group-row'}
+            />
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 

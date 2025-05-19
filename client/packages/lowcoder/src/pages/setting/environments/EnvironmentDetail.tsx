@@ -3,19 +3,19 @@ import {
   Spin,
   Typography,
   Card,
-  Tag,
   Tabs,
   Alert,
   Descriptions,
   Menu,
   Button,
-  Breadcrumb,
+  Tag,
 } from "antd";
 import {
   LinkOutlined,
-  TeamOutlined,
+  HomeOutlined,
+  AppstoreOutlined,
+  UsergroupAddOutlined,
   EditOutlined,
-  HomeOutlined
 } from "@ant-design/icons";
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
@@ -24,6 +24,9 @@ import { Environment } from "./types/environment.types";
 import history from "@lowcoder-ee/util/history";
 import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
+import EnvironmentHeader from "./components/EnvironmentHeader";
+import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
+import { getEnvironmentTagColor } from "./utils/environmentUtils";
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
@@ -42,6 +45,7 @@ const EnvironmentDetail: React.FC = () => {
   
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
+  const [activeTab, setActiveTab] = useState('workspaces');
   
   // Handle edit menu item click
   const handleEditClick = () => {
@@ -71,15 +75,7 @@ const EnvironmentDetail: React.FC = () => {
     }
   };
   
-  // Dropdown menu for environment actions
-  const actionsMenu = (
-    <Menu>
-      <Menu.Item key="edit" icon={<EditOutlined />} onClick={handleEditClick}>
-        Edit Environment
-      </Menu.Item>
-      {/* Add more menu items here if needed */}
-    </Menu>
-  );
+ 
   
   if (isLoading) {
     return (
@@ -90,21 +86,27 @@ const EnvironmentDetail: React.FC = () => {
   }
 
   if (error || !environment) {
+    const errorItems = [
+      {
+        key: 'environments',
+        title: (
+          <span>
+            <HomeOutlined /> Environments
+          </span>
+        ),
+        onClick: () => history.push("/setting/environments")
+      },
+      {
+        key: 'notFound',
+        title: 'Not Found'
+      }
+    ];
+
     return (
       <div style={{ padding: "24px", flex: 1 }}>
-        <Breadcrumb style={{ marginBottom: "16px" }}>
-          <Breadcrumb.Item>
-            <span
-              style={{ cursor: "pointer" }}
-              onClick={() => history.push("/setting/environments")}
-            >
-              <HomeOutlined /> Environments
-            </span>
-          </Breadcrumb.Item>
-          <Breadcrumb.Item>Not Found</Breadcrumb.Item>
-        </Breadcrumb>
+        <ModernBreadcrumbs items={errorItems} />
         
-        <Card>
+        <Card style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
           <div style={{ textAlign: "center", padding: "40px 0" }}>
             <Title level={3} style={{ color: "#ff4d4f" }}>
               Environment Not Found
@@ -124,58 +126,41 @@ const EnvironmentDetail: React.FC = () => {
       </div>
     );
   }
-  
+
+  const breadcrumbItems = [
+    {
+      key: 'environments',
+      title: (
+        <span>
+          <HomeOutlined /> Environments
+        </span>
+      ),
+      onClick: () => history.push("/setting/environments")
+    },
+    {
+      key: 'currentEnvironment',
+      title: environment.environmentName
+    }
+  ];
+
   return (
     <div
       className="environment-detail-container"
       style={{ padding: "24px", flex: 1 }}
     >
-      <Breadcrumb style={{ marginBottom: "16px" }}>
-        <Breadcrumb.Item>
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={() => history.push("/setting/environments")}
-          >
-            <HomeOutlined /> Environments
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{environment.environmentName}</Breadcrumb.Item>
-      </Breadcrumb>
+      {/* Environment Header Component */}
+      <EnvironmentHeader 
+        environment={environment} 
+        onEditClick={handleEditClick} 
+      />
 
-      {/* Header with environment name and controls */}
-      <div
-        className="environment-header"
-        style={{
-          marginBottom: "24px",
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "flex-start",
-          flexWrap: "wrap",
-          gap: "16px",
-        }}
-      >
-        <div style={{ flex: "1 1 auto", minWidth: "200px" }}>
-          <Title level={3} style={{ margin: 0, wordBreak: "break-word" }}>
-            {environment.environmentName || "Unnamed Environment"}
-          </Title>
-          <Text type="secondary">ID: {environment.environmentId}</Text>
-        </div>
-        <div style={{ flexShrink: 0 }}>
-          <Button
-            icon={<EditOutlined />}
-            onClick={handleEditClick}
-            type="primary"
-          >
-            Edit Environment
-          </Button>
-        </div>
-      </div>
+   
 
       {/* Basic Environment Information Card - improved responsiveness */}
       <Card
         title="Environment Overview"
-        style={{ marginBottom: "24px" }}
-        extra={environment.isMaster && <Tag color="green">Master</Tag>}
+        style={{ marginBottom: "24px", borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+        className="environment-overview-card"
       >
         <Descriptions
           bordered
@@ -198,22 +183,17 @@ const EnvironmentDetail: React.FC = () => {
           </Descriptions.Item>
           <Descriptions.Item label="Environment Type">
             <Tag
-              color={
-                environment.environmentType === "production"
-                  ? "red"
-                  : environment.environmentType === "testing"
-                    ? "orange"
-                    : "blue"
-              }
+              color={getEnvironmentTagColor(environment.environmentType)}
+              style={{ borderRadius: '12px' }}
             >
               {environment.environmentType}
             </Tag>
           </Descriptions.Item>
           <Descriptions.Item label="API Key Status">
             {environment.environmentApikey ? (
-              <Tag color="green">Configured</Tag>
+              <Tag color="green" style={{ borderRadius: '12px' }}>Configured</Tag>
             ) : (
-              <Tag color="red">Not Configured</Tag>
+              <Tag color="red" style={{ borderRadius: '12px' }}>Not Configured</Tag>
             )}
           </Descriptions.Item>
           <Descriptions.Item label="Master Environment">
@@ -222,9 +202,24 @@ const EnvironmentDetail: React.FC = () => {
         </Descriptions>
       </Card>
 
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
       {/* Tabs for Workspaces and User Groups */}
-      <Tabs defaultActiveKey="workspaces">
-        <TabPane tab="Workspaces" key="workspaces">
+      <Tabs 
+        defaultActiveKey="workspaces"
+        activeKey={activeTab}
+        onChange={setActiveTab}
+        className="modern-tabs"
+        type="card"
+      >
+        <TabPane 
+          tab={
+            <span>
+              <AppstoreOutlined /> Workspaces
+            </span>
+          } 
+          key="workspaces"
+        >
           {/* Using our new standalone WorkspacesTab component */}
           <WorkspacesTab environment={environment} />
         </TabPane>
@@ -232,7 +227,7 @@ const EnvironmentDetail: React.FC = () => {
         <TabPane
           tab={
             <span>
-              <TeamOutlined /> User Groups
+              <UsergroupAddOutlined /> User Groups
             </span>
           }
           key="userGroups"

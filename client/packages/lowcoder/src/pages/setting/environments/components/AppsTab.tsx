@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, AuditOutlined } from '@ant-design/icons';
+import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
-import { Workspace } from '../types/workspace.types';
 import { App, AppStats } from '../types/app.types';
 import { getMergedWorkspaceApps } from '../services/apps.service';
-import { Switch, Spin, Empty } from 'antd';
+import { Switch, Spin, Empty, Avatar } from 'antd';
 import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { useDeployModal } from '../context/DeployModalContext';
 import { appsConfig } from '../config/apps.config';
@@ -16,10 +15,10 @@ const { Search } = Input;
 
 interface AppsTabProps {
   environment: Environment;
-  workspace: Workspace;
+  workspaceId: string;
 }
 
-const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
+const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
   const [apps, setApps] = useState<App[]>([]);
   const [stats, setStats] = useState<AppStats>({
     total: 0,
@@ -32,17 +31,18 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
   const [error, setError] = useState<string | null>(null);
   const [searchText, setSearchText] = useState('');
   const { openDeployModal } = useDeployModal();
+  const [showManagedOnly, setShowManagedOnly] = useState(false);
 
   // Fetch apps
   const fetchApps = async () => {
-    if (!workspace.id || !environment) return;
+    if (!workspaceId || !environment) return;
     
     setLoading(true);
     setError(null);
     
     try {
       const result = await getMergedWorkspaceApps(
-        workspace.id,
+        workspaceId,
         environment.environmentId,
         environment.environmentApikey,
         environment.environmentApiServiceUrl!
@@ -71,7 +71,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
 
   useEffect(() => {
     fetchApps();
-  }, [environment, workspace]);
+  }, [environment, workspaceId]);
 
   // Handle refresh
   const handleRefresh = () => {
@@ -88,7 +88,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
           app.applicationGid,
           environment.environmentId,
           ManagedObjectType.APP,
-          app.name
+          
         );
       } else {
         await unsetManagedObject(
@@ -133,28 +133,50 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
         app.applicationId.toLowerCase().includes(searchText.toLowerCase()))
     : apps;
 
+  const displayedApps = showManagedOnly
+    ? filteredApps.filter(app => app.managed)
+    : filteredApps;
+
   // Table columns
   const columns = [
     {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string) => <span className="app-name">{text}</span>
+      title: 'App',
+      key: 'app',
+      render: (app: App) => (
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <Avatar 
+            style={{ 
+              backgroundColor: stringToColor(app.name),
+              marginRight: 12
+            }}
+            shape="square"
+          >
+            {app.name.charAt(0).toUpperCase()}
+          </Avatar>
+          <div>
+            <div style={{ fontWeight: 500 }}>{app.name}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+              {app.applicationId}
+            </div>
+          </div>
+        </div>
+      ),
     },
     {
-      title: 'ID',
-      dataIndex: 'applicationId',
-      key: 'applicationId', 
-      ellipsis: true,
-    },
-    {
-      title: 'Published',
-      dataIndex: 'published',
-      key: 'published',
-      render: (published: boolean) => (
-        <Tag color={published ? 'green' : 'default'}>
-          {published ? 'Published' : 'Draft'}
-        </Tag>
+      title: 'Status',
+      key: 'status',
+      render: (app: App) => (
+        <Space direction="vertical" size={0}>
+          <Tag color={app.published ? 'success' : 'default'} style={{ borderRadius: '12px' }}>
+            {app.published ? <CheckCircleFilled /> : null} {app.published ? 'Published' : 'Draft'}
+          </Tag>
+          <Tag 
+            color={app.managed ? 'processing' : 'default'} 
+            style={{ marginTop: 8, borderRadius: '12px' }}
+          >
+            {app.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {app.managed ? 'Managed' : 'Unmanaged'}
+          </Tag>
+        </Space>
       ),
     },
     {
@@ -165,7 +187,6 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
           checked={!!app.managed}
           onChange={(checked: boolean) => handleToggleManaged(app, checked)}
           loading={refreshing}
-          size="small"
         />
       ),
     },
@@ -174,23 +195,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
       key: 'actions',
       render: (_: any, app: App) => (
         <Space onClick={(e) => e.stopPropagation()}>
-          <Tooltip title="View Audit Logs">
-            <Button
-              icon={<AuditOutlined />}
-              size="small"
-              onClick={(e) => {
-                e.stopPropagation();
-                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspace.id}&appId=${app.applicationId}&pageSize=100&pageNum=1`;
-                window.open(auditUrl, '_blank');
-              }}
-            >
-              Audit
-            </Button>
-          </Tooltip>
+         
           <Tooltip title={!app.managed ? "App must be managed before it can be deployed" : "Deploy this app to another environment"}>
             <Button
               type="primary"
-              size="small"
               icon={<CloudUploadOutlined />}
               onClick={() => openDeployModal(app, appsConfig, environment)}
               disabled={!app.managed}
@@ -198,46 +206,99 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
               Deploy
             </Button>
           </Tooltip>
+          <Tooltip title="View Audit Logs">
+            <Button
+              icon={<AuditOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                const auditUrl = `/setting/audit?environmentId=${environment.environmentId}&orgId=${workspaceId}&appId=${app.applicationId}&pageSize=100&pageNum=1`;
+                window.open(auditUrl, '_blank');
+              }}
+            >
+              Audit
+            </Button>
+          </Tooltip>
         </Space>
       ),
     }
   ];
 
+  // Helper function to generate colors from strings
+  const stringToColor = (str: string) => {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    
+    const hue = Math.abs(hash % 360);
+    return `hsl(${hue}, 70%, 50%)`;
+  };
+
+  // Stat card component
+  const StatCard = ({ title, value, icon }: { title: string; value: number; icon: React.ReactNode }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '8px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '28px', 
+          opacity: 0.8, 
+          color: '#1890ff',
+          padding: '12px',
+          backgroundColor: 'rgba(24, 144, 255, 0.1)',
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {icon}
+        </div>
+      </div>
+    </Card>
+  );
+
   return (
-    <Card>
-      {/* Header with refresh button */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
-        <Title level={5}>Apps in this Workspace</Title>
+    <div style={{ padding: '16px 0' }}>
+      {/* Header */}
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        marginBottom: "24px",
+        background: 'linear-gradient(135deg, #1890ff 0%, #722ed1 100%)',
+        padding: '20px 24px',
+        borderRadius: '8px',
+        color: 'white'
+      }}>
+        <div>
+          <Title level={4} style={{ color: 'white', margin: 0 }}>
+            <AppstoreOutlined style={{ marginRight: 10 }} /> Apps
+          </Title>
+          <p style={{ marginBottom: 0 }}>Manage your workspace applications</p>
+        </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
+          type="default"
+          style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.2)',
+            borderColor: 'rgba(255, 255, 255, 0.4)',
+            color: 'white',
+            fontWeight: 500
+          }}
         >
           Refresh
         </Button>
       </div>
-
-      {/* Stats display */}
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '24px', marginBottom: '16px' }}>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Total Apps</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.total}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Published Apps</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.published}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Managed Apps</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.managed}</div>
-        </div>
-        <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c' }}>Unmanaged Apps</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{stats.unmanaged}</div>
-        </div>
-      </div>
-
-      <Divider style={{ margin: "16px 0" }} />
 
       {/* Error display */}
       {error && (
@@ -246,7 +307,7 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
@@ -257,49 +318,107 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspace }) => {
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "20px" }}
         />
       )}
 
+      {/* Stats display */}
+      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Total Apps" 
+            value={stats.total} 
+            icon={<AppstoreOutlined />} 
+          />
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Published Apps" 
+            value={stats.published} 
+            icon={<CheckCircleFilled />} 
+          />
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Managed Apps" 
+            value={stats.managed} 
+            icon={<CloudServerOutlined />} 
+          />
+        </Col>
+        <Col xs={12} sm={12} md={6}>
+          <StatCard 
+            title="Unmanaged Apps" 
+            value={stats.unmanaged} 
+            icon={<DisconnectOutlined />} 
+          />
+        </Col>
+      </Row>
+
       {/* Content */}
-      {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-          <Spin tip="Loading apps..." />
-        </div>
-      ) : apps.length === 0 ? (
-        <Empty
-          description={error || "No apps found in this workspace"}
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-        />
-      ) : (
-        <>
-          {/* Search Bar */}
-          <div style={{ marginBottom: 16 }}>
-            <Search
-              placeholder="Search apps by name or ID"
-              allowClear
-              onSearch={value => setSearchText(value)}
-              onChange={e => setSearchText(e.target.value)}
-              style={{ width: 300 }}
-            />
-            {searchText && filteredApps.length !== apps.length && (
-              <div style={{ marginTop: 8 }}>
-                Showing {filteredApps.length} of {apps.length} apps
+      <Card 
+        style={{ 
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}
+      >
+        {loading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
+            <Spin size="large" tip="Loading apps..." />
+          </div>
+        ) : apps.length === 0 ? (
+          <Empty
+            description={error || "No apps found in this workspace"}
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+          />
+        ) : (
+          <>
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <Search
+                placeholder="Search apps by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#1890ff' : 'white',
+                  color: showManagedOnly ? 'white' : '#1890ff',
+                  borderColor: '#1890ff'
+                }}
+              />
+            </div>
+            
+            {searchText && displayedApps.length !== apps.length && (
+              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                Showing {displayedApps.length} of {apps.length} apps
               </div>
             )}
-          </div>
-          
-          <Table
-            columns={columns}
-            dataSource={filteredApps}
-            rowKey="applicationId"
-            pagination={{ pageSize: 10 }}
-            size="middle"
-            scroll={{ x: 'max-content' }}
-          />
-        </>
-      )}
-    </Card>
+            
+            <Table
+              columns={columns}
+              dataSource={displayedApps}
+              rowKey="applicationId"
+              pagination={{ 
+                pageSize: 10,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} apps`
+              }}
+              rowClassName={() => 'app-row'}
+              style={{ 
+                borderRadius: '8px', 
+                overflow: 'hidden'
+              }}
+            />
+          </>
+        )}
+      </Card>
+    </div>
   );
 };
 
