@@ -197,6 +197,17 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
       key: 'actions',
       render: (_: any, dataSource: DataSource) => (
         <Space onClick={(e) => e.stopPropagation()}>
+       
+          <Tooltip title={!dataSource.managed ? "Data source must be managed before it can be deployed" : "Deploy this data source to another environment"}>
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => openDeployModal(dataSource, dataSourcesConfig, environment)}
+              disabled={!dataSource.managed}
+            >
+              Deploy
+            </Button>
+          </Tooltip>
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
@@ -207,16 +218,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
               }}
             >
               Audit
-            </Button>
-          </Tooltip>
-          <Tooltip title={!dataSource.managed ? "Data source must be managed before it can be deployed" : "Deploy this data source to another environment"}>
-            <Button
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              onClick={() => openDeployModal(dataSource, dataSourcesConfig, environment)}
-              disabled={!dataSource.managed}
-            >
-              Deploy
             </Button>
           </Tooltip>
         </Space>

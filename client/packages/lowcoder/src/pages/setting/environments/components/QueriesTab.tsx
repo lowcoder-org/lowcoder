@@ -215,6 +215,17 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       key: 'actions',
       render: (_: any, query: Query) => (
         <Space onClick={(e) => e.stopPropagation()}>
+      
+          <Tooltip title={!query.managed ? "Query must be managed before it can be deployed" : "Deploy this query to another environment"}>
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => openDeployModal(query, queryConfig, environment)}
+              disabled={!query.managed}
+            >
+              Deploy
+            </Button>
+          </Tooltip>
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
@@ -225,16 +236,6 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
               }}
             >
               Audit
-            </Button>
-          </Tooltip>
-          <Tooltip title={!query.managed ? "Query must be managed before it can be deployed" : "Deploy this query to another environment"}>
-            <Button
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              onClick={() => openDeployModal(query, queryConfig, environment)}
-              disabled={!query.managed}
-            >
-              Deploy
             </Button>
           </Tooltip>
         </Space>

@@ -195,6 +195,17 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
       key: 'actions',
       render: (_: any, app: App) => (
         <Space onClick={(e) => e.stopPropagation()}>
+         
+          <Tooltip title={!app.managed ? "App must be managed before it can be deployed" : "Deploy this app to another environment"}>
+            <Button
+              type="primary"
+              icon={<CloudUploadOutlined />}
+              onClick={() => openDeployModal(app, appsConfig, environment)}
+              disabled={!app.managed}
+            >
+              Deploy
+            </Button>
+          </Tooltip>
           <Tooltip title="View Audit Logs">
             <Button
               icon={<AuditOutlined />}
@@ -205,16 +216,6 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
               }}
             >
               Audit
-            </Button>
-          </Tooltip>
-          <Tooltip title={!app.managed ? "App must be managed before it can be deployed" : "Deploy this app to another environment"}>
-            <Button
-              type="primary"
-              icon={<CloudUploadOutlined />}
-              onClick={() => openDeployModal(app, appsConfig, environment)}
-              disabled={!app.managed}
-            >
-              Deploy
             </Button>
           </Tooltip>
         </Space>
