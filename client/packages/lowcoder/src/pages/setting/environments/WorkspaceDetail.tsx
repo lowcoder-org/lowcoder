@@ -111,6 +111,9 @@ const WorkspaceDetail: React.FC = () => {
               <Text type="secondary" style={{ marginRight: "16px" }}>
                 ID: {workspace.id}
               </Text>
+              <Text type="secondary" style={{ marginRight: "16px" }}>
+                GID: {workspace.gid || 'N/A'}
+              </Text>
               <Tag color={workspace.managed ? "green" : "default"}>
                 {workspace.managed ? "Managed" : "Unmanaged"}
               </Tag>
