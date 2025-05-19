@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col, Avatar } from 'antd';
 import { 
   SyncOutlined, 
   CloudUploadOutlined, 
@@ -15,7 +15,7 @@ import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { DataSource } from '../types/datasource.types';
 import { getMergedWorkspaceDataSources } from '../services/datasources.service';
-import { Switch, Spin, Empty, Avatar } from 'antd';
+import { Switch, Spin, Empty } from 'antd';
 import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../services/managed-objects.service';
 import { useDeployModal } from '../context/DeployModalContext';
 import { dataSourcesConfig } from '../config/data-sources.config';
@@ -362,29 +362,6 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         </Col>
       </Row>
 
-      {/* Update the search and filter bar */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
-        <Search
-          placeholder="Search data sources by name or ID"
-          allowClear
-          onSearch={value => setSearchText(value)}
-          onChange={e => setSearchText(e.target.value)}
-          style={{ width: 300 }}
-          size="large"
-        />
-        <Button 
-          onClick={() => setShowManagedOnly(!showManagedOnly)}
-          type="default"
-          icon={<FilterOutlined />}
-          style={{
-            marginLeft: '8px',
-            backgroundColor: showManagedOnly ? '#1890ff' : 'white',
-            color: showManagedOnly ? 'white' : '#1890ff',
-            borderColor: '#1890ff'
-          }}
-        />
-      </div>
-
       {/* Content */}
       <Card 
         style={{ 
@@ -403,7 +380,29 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
           />
         ) : (
           <>
-            {/* Search Bar */}
+            {/* Search and Filter Bar */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+              <Search
+                placeholder="Search data sources by name or ID"
+                allowClear
+                onSearch={value => setSearchText(value)}
+                onChange={e => setSearchText(e.target.value)}
+                style={{ width: 300 }}
+                size="large"
+              />
+              <Button 
+                onClick={() => setShowManagedOnly(!showManagedOnly)}
+                type="default"
+                icon={<FilterOutlined />}
+                style={{
+                  marginLeft: '8px',
+                  backgroundColor: showManagedOnly ? '#1890ff' : 'white',
+                  color: showManagedOnly ? 'white' : '#1890ff',
+                  borderColor: '#1890ff'
+                }}
+              />
+            </div>
+            
             {searchText &&  displayedDataSources.length !== dataSources.length && (
               <div style={{ marginTop: 8, color: '#8c8c8c' }}>
                 Showing {displayedDataSources.length} of {dataSources.length} data sources
