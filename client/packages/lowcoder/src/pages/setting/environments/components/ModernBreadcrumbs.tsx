@@ -19,24 +19,30 @@ interface ModernBreadcrumbsProps extends BreadcrumbProps {
 const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({ items = [], ...props }) => {
   return (
     <div className="modern-breadcrumb" style={{
-      background: '#f0f2f5',
-      padding: '12px 24px',
+      background: '#e6f7ff',
+      padding: '10px 20px',
       borderRadius: '8px',
       marginBottom: '20px',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+      boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+      display: 'flex',
+      alignItems: 'center'
     }}>
-      <Breadcrumb {...props}>
+      <Breadcrumb {...props} separator="/">
         {items.map(item => (
           <Breadcrumb.Item key={item.key}>
             {item.onClick ? (
               <span
-                style={{ cursor: "pointer" }}
+                style={{ cursor: "pointer", color: '#1890ff', fontWeight: '500' }}
                 onClick={item.onClick}
+                onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+                onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
               >
                 {item.title}
               </span>
             ) : (
-              item.title
+              <span style={{ color: '#595959', fontWeight: '500' }}>
+                {item.title}
+              </span>
             )}
           </Breadcrumb.Item>
         ))}

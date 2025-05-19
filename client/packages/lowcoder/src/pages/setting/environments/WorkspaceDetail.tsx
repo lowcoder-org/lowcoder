@@ -105,9 +105,6 @@ const WorkspaceDetail: React.FC = () => {
       minWidth: "1000px",
       overflowX: "auto"
     }}>
-      {/* Modern Breadcrumbs navigation */}
-      <ModernBreadcrumbs items={breadcrumbItems} />
-
       {/* New Workspace Header */}
       <WorkspaceHeader
         workspace={workspace}
@@ -116,6 +113,9 @@ const WorkspaceDetail: React.FC = () => {
         onToggleManagedStatus={handleToggleManaged}
         onDeploy={() => openDeployModal(workspace, workspaceConfig, environment)}
       />
+
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
 
       {/* Tabs for Apps, Data Sources, and Queries */}
       <Tabs defaultActiveKey="apps" className="modern-tabs" type="card">

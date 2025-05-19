@@ -148,13 +148,13 @@ const EnvironmentDetail: React.FC = () => {
       className="environment-detail-container"
       style={{ padding: "24px", flex: 1 }}
     >
-      <ModernBreadcrumbs items={breadcrumbItems} />
-
       {/* Environment Header Component */}
       <EnvironmentHeader 
         environment={environment} 
         onEditClick={handleEditClick} 
       />
+
+   
 
       {/* Basic Environment Information Card - improved responsiveness */}
       <Card
@@ -202,6 +202,8 @@ const EnvironmentDetail: React.FC = () => {
         </Descriptions>
       </Card>
 
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
       {/* Tabs for Workspaces and User Groups */}
       <Tabs 
         defaultActiveKey="workspaces"
