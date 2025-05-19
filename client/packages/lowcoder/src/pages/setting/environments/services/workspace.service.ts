@@ -1,7 +1,7 @@
 // services/workspacesService.ts (or wherever makes sense in your structure)
 import { message } from "antd";
 import { getEnvironmentWorkspaces } from "./environments.service";
-import { getManagedObjects, getSingleManagedObject, ManagedObject, ManagedObjectType, setManagedObject } from "./managed-objects.service";
+import { getManagedObjects, ManagedObject, ManagedObjectType, transferManagedObject } from "./managed-objects.service";
 import { Workspace } from "../types/workspace.types";
 import { ManagedOrg } from "../types/enterprise.types";
 import axios from "axios";
@@ -98,20 +98,11 @@ export async function deployWorkspace(params: {
 
     // After successful deployment, set the managed object in target environment
     if (response.status === 200) {
-      const res = await getSingleManagedObject(
+      await transferManagedObject(
         params.workspaceId,
         params.envId,
-        ManagedObjectType.ORG
-      );
-      // managedID => res.managedId
-      //objGID = res.objGid
-      // targetEnvId = params.targetEnvId
-      // objType = ManagedObjectType.ORG
-      await setManagedObject(
-        res?.objGid!,
         params.targetEnvId,
-        ManagedObjectType.ORG,
-        res?.managedId!
+        ManagedObjectType.ORG
       );
     }
 

@@ -2,7 +2,7 @@
 import axios from 'axios';
 import { message } from "antd";
 import { DataSource, DataSourceWithMeta } from "../types/datasource.types";
-import { getManagedObjects, ManagedObject, ManagedObjectType } from "./managed-objects.service";
+import { getManagedObjects, ManagedObject, ManagedObjectType  , transferManagedObject } from "./managed-objects.service";
 
 export interface DataSourceStats {
   total: number;
@@ -160,6 +160,14 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
         updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
       }
     });
+    if (response.status === 200) {
+      await transferManagedObject(
+        params.datasourceId,
+        params.envId,
+        params.targetEnvId,
+        ManagedObjectType.DATASOURCE
+      );
+    }
     return response.status === 200;
   } catch (error) {
     console.error('Error deploying data source:', error);

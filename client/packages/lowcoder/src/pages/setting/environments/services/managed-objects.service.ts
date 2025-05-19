@@ -190,3 +190,18 @@ export async function getSingleManagedObject(
   }
 }
 
+
+export async function transferManagedObject(objGid: string, sourceEnvId: string, targetEnvId: string, objType: ManagedObjectType): Promise<void> {
+  try {
+    const managedObject = await getSingleManagedObject(objGid, sourceEnvId, objType);
+    if (managedObject) {
+      await setManagedObject(managedObject.objGid, targetEnvId, objType, managedObject.managedId);
+    } else {
+      throw new Error(`Managed object not found for objGid: ${objGid}`);
+    }
+  } catch (error) {
+    console.error('Error transferring managed object:', error);
+    throw error;
+  }
+}
+

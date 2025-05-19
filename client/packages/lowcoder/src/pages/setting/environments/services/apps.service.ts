@@ -5,6 +5,7 @@ import { getManagedApps } from "./enterprise.service";
 import { App, AppStats } from "../types/app.types";
 import axios from "axios";
 import { getManagedObjects, ManagedObject } from "./managed-objects.service";
+import { ManagedObjectType, transferManagedObject } from "./managed-objects.service";
 
 
 export interface MergedAppsResult {
@@ -121,6 +122,15 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
         }
       }
     );
+    
+    if (response.status === 200) {
+      await transferManagedObject(
+        params.applicationId,
+        params.envId,
+        params.targetEnvId,
+        ManagedObjectType.APP
+      );
+    }
     
     return response.status === 200;
   } catch (error) {
