@@ -1,4 +1,4 @@
-import { StringControl } from "comps/controls/codeControl";
+import { StringControl, NumberControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { BoolCodeControl } from "../controls/codeControl";
 import { stringExposingStateControl } from "comps/controls/codeStateControl";
@@ -180,6 +180,7 @@ const childrenMap = {
   toolbar: withDefault(StringControl, JSON.stringify(toolbarOptions)),
   onEvent: ChangeEventHandlerControl,
   style: styleControl(RichTextEditorStyle , 'style'),
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
@@ -196,6 +197,7 @@ interface IProps {
   onChange: (value: string) => void;
   $style: RichTextEditorStyleType;
   contentScrollBar: boolean;
+  tabIndex?: number;
 }
 
 const ReactQuillEditor = React.lazy(() => import("react-quill"));
@@ -225,6 +227,15 @@ function RichTextEditor(props: IProps) {
     500,
     [props.placeholder]
   );
+
+  useEffect(() => {
+    if (editorRef.current && props.tabIndex !== undefined) {
+      const editor = editorRef.current.getEditor();
+      if (editor && editor.scroll && editor.scroll.domNode) {
+        (editor.scroll.domNode as HTMLElement).tabIndex = props.tabIndex;
+      }
+    }
+  }, [props.tabIndex, key]); // Also re-run when key changes due to placeholder update
 
   const contains = (parent: HTMLElement, descendant: HTMLElement) => {
     try {
@@ -316,6 +327,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
       onChange={handleChange}
       $style={props.style}
       contentScrollBar={props.contentScrollBar}
+      tabIndex={props.tabIndex}
     />
   );
 })
@@ -334,6 +346,7 @@ const RichTextEditorCompBase = new UICompBuilder(childrenMap, (props) => {
             {children.onEvent.getPropertyView()}
             {hiddenPropertyView(children)}
             {readOnlyPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             {showDataLoadingIndicatorsPropertyView(children)}
           </Section>
         )}
