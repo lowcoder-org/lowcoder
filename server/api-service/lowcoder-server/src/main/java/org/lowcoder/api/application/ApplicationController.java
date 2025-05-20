@@ -84,7 +84,7 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted) {
+    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId, @RequestParam(required = false) Boolean withDeleted) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.getEditingApplication(appId, withDeleted)
                 .delayUntil(__ -> applicationApiService.updateUserApplicationLastViewTime(appId))
@@ -92,7 +92,7 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted) {
+    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @RequestParam(required = false) Boolean withDeleted) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL, withDeleted)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
@@ -120,7 +120,8 @@ public class ApplicationController implements ApplicationEndpoints {
 
     @Override
     public Mono<ResponseView<ApplicationView>> update(@PathVariable String applicationId,
-            @RequestBody Application newApplication) {
+            @RequestBody Application newApplication,
+            @RequestParam(required = false) Boolean updateStatus) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.update(appId, newApplication)
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_UPDATE))
