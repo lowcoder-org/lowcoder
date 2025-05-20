@@ -89,7 +89,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the DSL data of a Lowcoder Application in edit-mode by its ID."
 	)
     @GetMapping("/{applicationId}")
-    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId);
+    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,
@@ -98,7 +98,7 @@ public interface ApplicationEndpoints
 		    description = "Retrieve the DSL data of a Lowcoder Application in view-mode by its ID."
 	)
     @GetMapping("/{applicationId}/view")
-    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId);
+    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted);
 
 	@Operation(
 			tags = TAG_APPLICATION_MANAGEMENT,

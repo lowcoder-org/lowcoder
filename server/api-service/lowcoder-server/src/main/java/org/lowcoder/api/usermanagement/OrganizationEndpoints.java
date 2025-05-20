@@ -191,7 +191,7 @@ public interface OrganizationEndpoints
 			description = "Retrieve details of a specific Organization within Lowcoder using its unique ID."
 	)
 	@GetMapping("/{orgId}")
-	public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId);
+	public Mono<ResponseView<Organization>> getOrganization(@PathVariable String orgId, @PathVariable Boolean includeDeleted);
 
     public record UpdateOrgCommonSettingsRequest(String key, Object value) {
 

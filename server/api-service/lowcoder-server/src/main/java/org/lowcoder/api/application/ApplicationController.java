@@ -84,17 +84,17 @@ public class ApplicationController implements ApplicationEndpoints {
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId) {
+    public Mono<ResponseView<ApplicationView>> getEditingApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getEditingApplication(appId)
+            applicationApiService.getEditingApplication(appId, withDeleted)
                 .delayUntil(__ -> applicationApiService.updateUserApplicationLastViewTime(appId))
                 .map(ResponseView::success));
     }
 
     @Override
-    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId) {
+    public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @PathVariable Boolean withDeleted) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL)
+            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL, withDeleted)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success));
@@ -103,7 +103,7 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE)
+            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE, false)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success));
@@ -112,7 +112,7 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.AGENCY_PROFILE)
+            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.AGENCY_PROFILE, false)
                 .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
                 .map(ResponseView::success));
