@@ -27,7 +27,7 @@ import UserGroupsTab from "./components/UserGroupsTab";
 import EnvironmentHeader from "./components/EnvironmentHeader";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import { getEnvironmentTagColor } from "./utils/environmentUtils";
-const { Title, Text } = Typography;
+import ErrorComponent from './components/ErrorComponent';
 const { TabPane } = Tabs;
 
 /**
@@ -80,50 +80,18 @@ const EnvironmentDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
-        <Spin size="large" tip="Loading environment..." />
+        <Spin size="large" tip="Loading environment..." style={{ display: 'block', textAlign: 'center' }} />
       </div>
     );
   }
 
   if (error || !environment) {
-    const errorItems = [
-      {
-        key: 'environments',
-        title: (
-          <span>
-            <HomeOutlined /> Environments
-          </span>
-        ),
-        onClick: () => history.push("/setting/environments")
-      },
-      {
-        key: 'notFound',
-        title: 'Not Found'
-      }
-    ];
-
     return (
-      <div style={{ padding: "24px", flex: 1 }}>
-        <ModernBreadcrumbs items={errorItems} />
-        
-        <Card style={{ borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-          <div style={{ textAlign: "center", padding: "40px 0" }}>
-            <Title level={3} style={{ color: "#ff4d4f" }}>
-              Environment Not Found
-            </Title>
-            <Text type="secondary" style={{ display: "block", margin: "16px 0" }}>
-              {error || "The environment you're looking for doesn't exist or you don't have permission to view it."}
-            </Text>
-            <Button 
-              type="primary"
-              onClick={() => history.push("/setting/environments")}
-              style={{ marginTop: "16px" }}
-            >
-              Return to Environments List
-            </Button>
-          </div>
-        </Card>
-      </div>
+      <ErrorComponent 
+        errorMessage={"Environment Not Found"}
+        returnPath="/setting/environments"
+        returnLabel="Return to Environments List"
+      />
     );
   }
 
