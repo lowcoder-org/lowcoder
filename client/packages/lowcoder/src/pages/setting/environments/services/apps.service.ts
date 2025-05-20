@@ -18,6 +18,7 @@ export interface DeployAppParams {
   envId: string;
   targetEnvId: string;
   applicationId: string;
+  applicationGid: string;
   updateDependenciesIfNeeded?: boolean;
   publishOnTarget?: boolean;
   publicToAll?: boolean;
@@ -125,7 +126,7 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
     
     if (response.status === 200) {
       await transferManagedObject(
-        params.applicationId,
+        params.applicationGid,
         params.envId,
         params.targetEnvId,
         ManagedObjectType.APP

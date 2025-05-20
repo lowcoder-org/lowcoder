@@ -15,6 +15,7 @@ export interface MergedQueriesResult {
     targetEnvId: string;
     queryId: string;
     updateDependenciesIfNeeded?: boolean;
+    queryGid: string;
   }
   
   
@@ -84,7 +85,7 @@ export interface MergedQueriesResult {
       });
       if (response.status === 200) {
         await transferManagedObject(
-          params.queryId,
+          params.queryGid,
           params.envId,
           params.targetEnvId,
           ManagedObjectType.QUERY

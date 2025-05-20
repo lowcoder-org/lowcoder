@@ -20,7 +20,9 @@ export interface DeployDataSourceParams {
   envId: string;
   targetEnvId: string;
   datasourceId: string;
+  datasourceGid: string;
   updateDependenciesIfNeeded?: boolean;
+ 
 }
 // Get data sources for a workspace - using your correct implementation
 export async function getWorkspaceDataSources(
@@ -157,12 +159,12 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
         envId: params.envId,
         targetEnvId: params.targetEnvId,
         datasourceId: params.datasourceId,
-        updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
+        updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
       }
     });
     if (response.status === 200) {
       await transferManagedObject(
-        params.datasourceId,
+        params.datasourceGid,
         params.envId,
         params.targetEnvId,
         ManagedObjectType.DATASOURCE
