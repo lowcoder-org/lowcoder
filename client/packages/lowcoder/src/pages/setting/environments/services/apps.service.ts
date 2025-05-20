@@ -80,7 +80,7 @@ export async function getMergedWorkspaceApps(
     // Fetch managed objects instead of managed apps
     let managedObjects: ManagedObject[] = [];
     try {
-      managedObjects = await getManagedObjects(environmentId);
+      managedObjects = await getManagedObjects(environmentId, ManagedObjectType.APP);
     } catch (error) {
       console.error("Failed to fetch managed objects:", error);
       // Continue with empty managed list
