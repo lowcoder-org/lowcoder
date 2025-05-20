@@ -1,7 +1,7 @@
 // services/workspacesService.ts (or wherever makes sense in your structure)
 import { message } from "antd";
 import { getEnvironmentWorkspaces } from "./environments.service";
-import { getManagedWorkspaces } from "./enterprise.service";
+import { getManagedObjects, ManagedObject, ManagedObjectType, transferManagedObject } from "./managed-objects.service";
 import { Workspace } from "../types/workspace.types";
 import { ManagedOrg } from "../types/enterprise.types";
 import axios from "axios";
@@ -43,9 +43,9 @@ export async function getMergedEnvironmentWorkspaces(
     }
     
     // Only fetch managed workspaces if we have regular workspaces
-    let managedOrgs: ManagedOrg[] = [];
+    let managedObjects: ManagedObject[] = [];
     try {
-      managedOrgs = await getManagedWorkspaces(environmentId);
+      managedObjects = await getManagedObjects(environmentId, ManagedObjectType.ORG);
     } catch (error) {
       console.error("Failed to fetch managed workspaces:", error);
       // Continue with empty managed list
@@ -54,7 +54,7 @@ export async function getMergedEnvironmentWorkspaces(
     // Merge the workspaces
     const mergedWorkspaces = regularWorkspaces.map(ws => ({
       ...ws,
-      managed: managedOrgs.some(org => org.orgGid === ws.gid)
+      managed: managedObjects.some(obj => obj.objGid === ws.gid && obj.objType === ManagedObjectType.ORG)
     }));
     
     // Calculate stats
@@ -95,6 +95,18 @@ export async function deployWorkspace(params: {
         targetEnvId: params.targetEnvId
       }
     });
+
+    // After successful deployment, set the managed object in target environment
+    if (response.status === 200) {
+      await transferManagedObject(
+        params.workspaceId,
+        params.envId,
+        params.targetEnvId,
+        ManagedObjectType.ORG
+      );
+    }
+
+
     return response.status === 200;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : 'Failed to deploy workspace';

@@ -12,7 +12,7 @@ import React, {
   import { useSingleEnvironmentContext } from "./SingleEnvironmentContext";
   import { fetchWorkspaceById } from "../services/environments.service";
   import { Workspace } from "../types/workspace.types";
-  import { getManagedWorkspaces, connectManagedWorkspace, unconnectManagedWorkspace } from "../services/enterprise.service";
+  import { getManagedObjects, ManagedObjectType, setManagedObject, unsetManagedObject } from "../services/managed-objects.service";
   
   interface WorkspaceContextState {
     // Workspace data
@@ -86,10 +86,10 @@ import React, {
         }
         
         // Fetch managed workspaces to check if this one is managed
-        const managedWorkspaces = await getManagedWorkspaces(environment.environmentId);
+        const managedWorkspaces = await getManagedObjects(environment.environmentId, ManagedObjectType.ORG);
         
         // Set the managed status
-        const isManaged = managedWorkspaces.some(org => org.orgGid === workspaceData.gid);
+        const isManaged = managedWorkspaces.some(org => org.objGid === workspaceData.gid);
         
         // Update the workspace with managed status
         setWorkspace({
@@ -113,14 +113,20 @@ import React, {
       try {
         if (checked) {
           // Connect the workspace as managed
-          await connectManagedWorkspace(
+          await setManagedObject(
+            workspace.gid!,
             environment.environmentId,
-            workspace.name,
-            workspace.gid!
+            ManagedObjectType.ORG,
+            
+          
           );
         } else {
           // Disconnect the managed workspace
-          await unconnectManagedWorkspace(workspace.gid!);
+          await unsetManagedObject(
+            workspace.gid!,
+            environment.environmentId, 
+            ManagedObjectType.ORG 
+          );
         }
         
         // Update local state

@@ -61,7 +61,7 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
       title="Edit Environment"
       open={visible}
       onCancel={onClose}
-      maskClosable={false}
+      maskClosable={true}
       destroyOnClose={true}
       footer={[
         <Button key="back" onClick={onClose}>

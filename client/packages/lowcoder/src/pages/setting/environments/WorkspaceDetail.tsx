@@ -3,15 +3,8 @@ import history from "@lowcoder-ee/util/history";
 import { 
   Spin, 
   Typography, 
-  Card, 
   Tabs, 
-  Button,
-  Breadcrumb,
-  Space,
-  Tag,
-  Switch, 
   message,
-  Tooltip
 } from "antd";
 import { 
   AppstoreOutlined, 
@@ -19,8 +12,6 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
-  ArrowLeftOutlined, 
-  CloudUploadOutlined
 } from "@ant-design/icons";
 
 // Use the context hooks
@@ -28,13 +19,13 @@ import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext"
 import { useWorkspaceContext } from "./context/WorkspaceContext";
 import { useDeployModal } from "./context/DeployModalContext";
 
-import DeployableItemsTab from "./components/DeployableItemsTab";
 import { workspaceConfig } from "./config/workspace.config";
-import { appsConfig } from "./config/apps.config";
-import { dataSourcesConfig } from "./config/data-sources.config";
-import { queryConfig } from "./config/query.config";
+import AppsTab from "./components/AppsTab";
+import DataSourcesTab from "./components/DataSourcesTab";
+import QueriesTab from "./components/QueriesTab";
+import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
+import WorkspaceHeader from "./components/WorkspaceHeader";
 
-const { Title, Text } = Typography;
 const { TabPane } = Tabs;
 
 const WorkspaceDetail: React.FC = () => {
@@ -42,6 +33,8 @@ const WorkspaceDetail: React.FC = () => {
   const { environment } = useSingleEnvironmentContext();
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
+
+  console.log("workspace render", workspace);  
 
   const [isToggling, setIsToggling] = useState(false);
 
@@ -80,115 +73,72 @@ const WorkspaceDetail: React.FC = () => {
     );
   }
 
+  const breadcrumbItems = [
+    {
+      key: 'environments',
+      title: (
+        <span>
+          <HomeOutlined /> Environments
+        </span>
+      ),
+      onClick: () => history.push("/setting/environments")
+    },
+    {
+      key: 'environment',
+      title: (
+        <span>
+          <TeamOutlined /> {environment.environmentName}
+        </span>
+      ),
+      onClick: () => history.push(`/setting/environments/${environment.environmentId}`)
+    },
+    {
+      key: 'workspace',
+      title: workspace.name
+    }
+  ];
+
   return (
-    <div className="workspace-detail-container" style={{ padding: "24px", flex: 1 }}>
-      {/* Breadcrumb navigation */}
-      <Breadcrumb style={{ marginBottom: "16px" }}>
-        <Breadcrumb.Item>
-          <span style={{ cursor: "pointer" }} onClick={() => history.push("/setting/environments")}>
-            <HomeOutlined /> Environments
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <span
-            style={{ cursor: "pointer" }}
-            onClick={() => history.push(`/setting/environments/${environment.environmentId}`)}
-          >
-            <TeamOutlined /> {environment.environmentName}
-          </span>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>{workspace.name}</Breadcrumb.Item>
-      </Breadcrumb>
+    <div className="workspace-detail-container" style={{ 
+      padding: "24px", 
+      flex: 1,
+      minWidth: "1000px",
+      overflowX: "auto"
+    }}>
+      {/* New Workspace Header */}
+      <WorkspaceHeader
+        workspace={workspace}
+        environment={environment}
+        isToggling={isToggling}
+        onToggleManagedStatus={handleToggleManaged}
+        onDeploy={() => openDeployModal(workspace, workspaceConfig, environment)}
+      />
 
-      {/* Workspace header with details and actions */}
-      <Card style={{ marginBottom: "24px" }} bodyStyle={{ padding: "16px 24px" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          {/* Left section - Workspace info */}
-          <div>
-            <Title level={3} style={{ margin: 0 }}>
-              {workspace.name}
-            </Title>
-            <div style={{ display: "flex", alignItems: "center", marginTop: "8px" }}>
-              <Text type="secondary" style={{ marginRight: "16px" }}>
-                ID: {workspace.id}
-              </Text>
-              <Text type="secondary" style={{ marginRight: "16px" }}>
-                GID: {workspace.gid || 'N/A'}
-              </Text>
-              <Tag color={workspace.managed ? "green" : "default"}>
-                {workspace.managed ? "Managed" : "Unmanaged"}
-              </Tag>
-            </div>
-          </div>
-
-          {/* Right section - Actions */}
-          <Space size="middle">
-            <div style={{ display: "flex", alignItems: "center" }}>
-              <Text style={{ marginRight: "8px" }}>Managed:</Text>
-              <Switch
-                checked={!!workspace.managed}
-                onChange={handleToggleManaged}
-                loading={isToggling}
-                checkedChildren="Yes"
-                unCheckedChildren="No"
-              />
-            </div>
-            <Tooltip
-              title={
-                !workspace.managed
-                  ? "Workspace must be managed before it can be deployed"
-                  : "Deploy this workspace to another environment"
-              }
-            >
-              <Button
-                type="primary"
-                icon={<CloudUploadOutlined />}
-                onClick={() =>
-                  openDeployModal(workspace, workspaceConfig, environment)
-                }
-                disabled={!workspace.managed}
-              >
-                Deploy
-              </Button>
-            </Tooltip>
-            <Button
-              icon={<ArrowLeftOutlined />}
-              onClick={() => history.push(`/setting/environments/${environment.environmentId}`)}
-            >
-              Back
-            </Button>
-          </Space>
-        </div>
-      </Card>
+      {/* Modern Breadcrumbs navigation */}
+      <ModernBreadcrumbs items={breadcrumbItems} />
 
       {/* Tabs for Apps, Data Sources, and Queries */}
-      <Tabs defaultActiveKey="apps">
+      <Tabs defaultActiveKey="apps" className="modern-tabs" type="card">
         <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
-          <DeployableItemsTab
+          <AppsTab
             environment={environment}
-            config={appsConfig}
-            additionalParams={{ workspaceId: workspace.id }}
-            title="Apps in this Workspace"
+            workspaceId={workspace.id}
           />
         </TabPane>
 
         <TabPane tab={<span><DatabaseOutlined /> Data Sources</span>} key="dataSources">
-          <DeployableItemsTab
+          <DataSourcesTab
             environment={environment}
-            config={dataSourcesConfig}
-            additionalParams={{ workspaceId: workspace.id }}
-            title="Data Sources in this Workspace"
+            workspaceId={workspace.id}
           />
         </TabPane>
-
         <TabPane tab={<span><CodeOutlined /> Queries</span>} key="queries">
-          <DeployableItemsTab
+          <QueriesTab
             environment={environment}
-            config={queryConfig}
-            additionalParams={{ workspaceId: workspace.id }}
-            title="Queries in this Workspace"
+            workspaceId={workspace.id}
           />
         </TabPane>
+        
       </Tabs>
     </div>
   );

@@ -1,26 +1,28 @@
 // components/DeployItemModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, Checkbox, Button, message, Spin, Input } from 'antd';
+import { Modal, Form, Select, Checkbox, Button, message, Spin, Input, Tag, Space } from 'antd';
 import { Environment } from '../types/environment.types';
-import { DeployableItem, BaseStats, DeployableItemConfig } from '../types/deployable-item.types';
+import { DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
-interface DeployItemModalProps<T extends DeployableItem, S extends BaseStats> {
+import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
+
+interface DeployItemModalProps {
   visible: boolean;
-  item: T | null;
+  item: any | null;
   sourceEnvironment: Environment;
-  config: DeployableItemConfig<T, S>;
+  config: DeployableItemConfig;
   onClose: () => void;
   onSuccess?: () => void;
 }
 
-function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
+function DeployItemModal({
   visible,
   item,
   sourceEnvironment,
   config,
   onClose,
   onSuccess
-}: DeployItemModalProps<T, S>) {
+}: DeployItemModalProps) {
   const [form] = Form.useForm();
   const { environments, isLoading } = useEnvironmentContext();
   const [deploying, setDeploying] = useState(false);
@@ -37,7 +39,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   );
   
   const handleDeploy = async () => {
-    if (!config.deploy?.enabled || !item) return;
+      if (!config.deploy || !item) return;
     
     try {
       const values = await form.validateFields();
@@ -61,7 +63,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
       onClose();
     } catch (error) {
       console.error('Deployment error:', error);
-      message.error(`Failed to deploy ${config.singularLabel.toLowerCase()}`);
+      message.error(`Failed to deploy ${config.deploy.singularLabel.toLowerCase()}`);
     } finally {
       setDeploying(false);
     }
@@ -69,7 +71,7 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
   
   return (
     <Modal
-      title={`Deploy ${config.singularLabel}: ${item?.name || ''}`}
+      title={`Deploy ${config.deploy.singularLabel}: ${item?.name || ''}`}
       open={visible}
       onCancel={onClose}
       footer={null}
@@ -84,6 +86,18 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
           form={form}
           layout="vertical"
         >
+          {/* Source environment display */}
+          <Form.Item label="Source Environment">
+            <Space>
+              <strong>{sourceEnvironment.environmentName}</strong>
+              {sourceEnvironment.environmentType && (
+                <Tag color={getEnvironmentTagColor(sourceEnvironment.environmentType)}>
+                  {formatEnvironmentType(sourceEnvironment.environmentType)}
+                </Tag>
+              )}
+            </Space>
+          </Form.Item>
+
           <Form.Item
             name="targetEnvId"
             label="Target Environment"
@@ -92,7 +106,14 @@ function DeployItemModal<T extends DeployableItem, S extends BaseStats>({
             <Select placeholder="Select target environment">
               {targetEnvironments.map((env) => (
                 <Select.Option key={env.environmentId} value={env.environmentId}>
-                  {env.environmentName}
+                  <Space>
+                    {env.environmentName}
+                    {env.environmentType && (
+                      <Tag color={getEnvironmentTagColor(env.environmentType)}>
+                        {formatEnvironmentType(env.environmentType)}
+                      </Tag>
+                    )}
+                  </Space>
                 </Select.Option>
               ))}
             </Select>
