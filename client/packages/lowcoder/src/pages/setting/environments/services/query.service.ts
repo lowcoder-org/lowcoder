@@ -29,19 +29,15 @@ export interface MergedQueriesResult {
       // Fetch regular queries
       
       const regularQueries = await getWorkspaceQueries(workspaceId, apiKey, apiServiceUrl);
-      console.log("Regular queries response:", regularQueries);
       
       const managedObjects = await getManagedObjects(environmentId, ManagedObjectType.QUERY);
-      console.log("Managed queries response:", managedObjects);
       
       // Create a set of managed query GIDs for quick lookup
       const managedQueryGids = new Set(managedObjects.map(obj => obj.objGid));
-      console.log("Managed query GIDs:", Array.from(managedQueryGids));
       
       // Mark regular queries as managed if they exist in managed queries
       const mergedQueries = regularQueries.queries.map((query: Query) => {
         const isManaged = managedQueryGids.has(query.gid);
-        console.log(`Query ${query.name} (gid: ${query.gid}) is ${isManaged ? "managed" : "not managed"}`);
         
         return {
           ...query,
@@ -52,11 +48,6 @@ export interface MergedQueriesResult {
       // Calculate stats
       const total = mergedQueries.length;
       const managed = mergedQueries.filter(query => query.managed).length;
-      console.log("Generated stats:", {
-        total,
-        managed,
-        unmanaged: total - managed
-      });
       
       return {
         queries: mergedQueries,

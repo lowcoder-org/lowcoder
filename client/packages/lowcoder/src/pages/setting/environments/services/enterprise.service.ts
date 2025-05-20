@@ -204,7 +204,6 @@ export async function getManagedQueries(environmentId: string): Promise<Query[]>
         environmentId
       }
     });
-    console.log("Managed queries response function:", response.data);
     
     if (!response.data.data || !Array.isArray(response.data.data)) {
       return [];

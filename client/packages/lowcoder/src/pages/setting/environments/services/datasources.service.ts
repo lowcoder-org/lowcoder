@@ -56,7 +56,6 @@ export async function getWorkspaceDataSources(
         orgId: workspaceId
       }
     });
-    console.log("data source response",response);
   
     // Check if response is valid
     if (!response.data) {

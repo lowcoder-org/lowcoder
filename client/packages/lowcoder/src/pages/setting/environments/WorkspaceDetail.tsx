@@ -34,7 +34,6 @@ const WorkspaceDetail: React.FC = () => {
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
 
-  console.log("workspace render", workspace);  
 
   const [isToggling, setIsToggling] = useState(false);
 

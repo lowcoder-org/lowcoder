@@ -195,7 +195,6 @@ export async function getEnvironmentUserGroups(
     
     // Make the API request to get user groups
     const response = await axios.get(`${apiServiceUrl}/api/groups/list`, { headers });
-    console.log(response);
     
     // Check if response is valid
     if (!response.data) {
@@ -359,8 +358,7 @@ export async function getWorkspaceDataSources(
         orgId: workspaceId
       }
     });
-    console.log("data source response",response);
-  
+    
     // Check if response is valid
     if (!response.data) {
       return [];
@@ -434,7 +432,7 @@ export async function getWorkspaceQueries(
     if (!response.data) {
       return { queries: [], total: 0 };
     }
-    console.log("RESPONSE DATA QUERIES",response.data.data);
+    
     // Map the response to include id field required by DeployableItem
     const queries = response.data.data.map(query => ({
       ...query,
@@ -444,8 +442,6 @@ export async function getWorkspaceQueries(
       managed: false // Default to unmanaged
     }));
 
-    console.log("queries",queries);
-    
     return { 
       queries, 
       total: response.data.total 
