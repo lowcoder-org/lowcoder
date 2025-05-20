@@ -144,12 +144,12 @@ public class ApplicationApiServiceTest {
                 .cache();
 
         // edit dsl before publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl before publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -158,12 +158,12 @@ public class ApplicationApiServiceTest {
                 .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish", "1.0.0"))).cache();
 
         // edit dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -172,12 +172,12 @@ public class ApplicationApiServiceTest {
                 .delayUntil(id -> applicationApiService.update(id, Application.builder().editingApplicationDSL(Map.of("comp", "table")).build())).cache();
 
         // edit dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "list"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
@@ -186,12 +186,12 @@ public class ApplicationApiServiceTest {
                 .delayUntil(id -> applicationApiService.publish(id, new ApplicationPublishRequest("Test Publish 2", "2.0.0"))).cache();
 
         // edit dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
         // published dsl after publish
-        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL)))
+        StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getPublishedApplication(id, ApplicationRequestType.PUBLIC_TO_ALL, false)))
                 .assertNext(applicationView -> Assertions.assertEquals(Map.of("comp", "table"), applicationView.getApplicationDSL()))
                 .verifyComplete();
 
