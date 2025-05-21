@@ -27,7 +27,7 @@ import _ from "lodash";
 import dayjs from "dayjs";
 import { ConstructorToComp } from "lowcoder-core";
 import { ScrollBar, Section, sectionNames } from "lowcoder-design";
-import React, { useContext, useEffect, useMemo } from "react";
+import React, { useContext, useEffect, useMemo, useCallback } from "react";
 import { useInterval, useTitle, useWindowSize } from "react-use";
 import { useCurrentUser } from "util/currentUser";
 import { LocalStorageComp } from "./localStorageComp";
@@ -53,9 +53,16 @@ const CurrentUserHookComp = hookToStateComp(() => {
 
 function useCurrentTime() {
   const [time, setTime] = React.useState(0);
-  useInterval(() => {
-    setTime(new Date().getTime());
-  }, 1000);
+  
+  // Add cleanup for the interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().getTime());
+    }, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
   return useMemo(
     () => ({
       time: time,
@@ -126,6 +133,23 @@ function SelectHookView(props: {
   const editorState = useContext(EditorContext);
   const selectedComp = editorState.selectedComp();
 
+  // Memoize the comp tree calculation
+  const compTree = useMemo(() => {
+    if (!props.comp || !(props.comp as any).getCompTree) return null;
+    return (props.comp as any).getCompTree();
+  }, [props.comp]);
+
+  // Memoize the child components calculation
+  const allChildComp = useMemo(() => {
+    if (!compTree) return {};
+    return getAllCompItems(compTree);
+  }, [compTree]);
+
+  // Memoize the click handler
+  const handleClick = useCallback(() => {
+    editorState.setSelectedCompNames(new Set([props.compName]));
+  }, [editorState, props.compName]);
+
   // Select the modal and its subcomponents on the left to display the modal
   useEffect(() => {
     if (
@@ -151,7 +175,6 @@ function SelectHookView(props: {
         );
     } else {
       // all child components of modal
-      const allChildComp = getAllCompItems((props.comp as any).getCompTree());
       const selectChildComp = Object.values(allChildComp).find(
         (child) => child === selectedComp
       );
@@ -166,14 +189,10 @@ function SelectHookView(props: {
         );
       }
     }
-  }, [selectedComp, editorState.selectSource]);
+  }, [selectedComp, editorState.selectSource, allChildComp]);
 
   return (
-    <div
-      onClick={() =>
-        editorState.setSelectedCompNames(new Set([props.compName]))
-      }
-    >
+    <div onClick={handleClick}>
       {props.children}
     </div>
   );
