@@ -12,7 +12,7 @@ import {
   TacoButton,
 } from "lowcoder-design";
 import _ from "lodash";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AppState } from "redux/reducers";
 import { fetchDatasourceStructure } from "redux/reduxActions/datasourceActions";
@@ -552,13 +552,22 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
   const dataSourceId: string | undefined = Form.useWatch("dataSourceId", form);
   const dataSourceItems = useDataSourceItems();
   const dataSourceItem = dataSourceItems.find((t) => t.dataSource.id === dataSourceId);
+  
+  // Cleanup form on unmount
+  useEffect(() => {
+    return () => {
+      form.resetFields();
+    };
+  }, [form]);
+
   // default to the first item
   useEffect(() => {
     if (!dataSourceItem) {
       const id = dataSourceItems.length > 0 ? dataSourceItems[0].dataSource.id : undefined;
       form.setFieldsValue({ dataSourceId: id });
     }
-  }, [dataSourceItems]);
+  }, [dataSourceItems, dataSourceItem, form]);
+
   // Refetch when changed
   const dispatch = useDispatch();
   useEffect(() => {
@@ -570,25 +579,27 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
   const tableName: string | undefined = Form.useWatch("tableName", form);
   const tableStructures = useTableStructures(dataSourceId);
   const tableStructure = tableStructures.find((t) => t.name === tableName);
+  
   // default to the first one
   useEffect(() => {
     if (!tableStructure) {
       const name = tableStructures.length > 0 ? tableStructures[0].name : undefined;
       form.setFieldsValue({ tableName: name });
     }
-  }, [tableStructures]);
+  }, [tableStructures, tableStructure, form]);
+
   // Columns of the data table, saved to support drag and drop
   const [items, setItems] = useState<RowItem[]>([]);
   const dataSourceTypeConfig = dataSourceItem?.typeConfig;
+  
   useEffect(() => {
     const { initItems, initColumns } = getInitItemsAndColumns(dataSourceTypeConfig, tableStructure);
     // Set the initial value by the method. Because if another table has the same column name, setting via initialValue is invalid.
     form.setFieldsValue({ columns: initColumns });
     setItems(initItems);
-  }, [dataSourceTypeConfig, tableStructure]);
+  }, [dataSourceTypeConfig, tableStructure, form]);
   
-  const handleDragEnd = (e: { active: { id: string }; over: { id: string } | null }) => {
-    console.log('handleDragEnd', e);
+  const handleDragEnd = useCallback((e: { active: { id: string }; over: { id: string } | null }) => {
     if (!e.over) {
       return;
     }
@@ -603,7 +614,7 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
     newData.splice(toIndex, 0, movedItem);
 
     setItems(newData);
-  };
+  }, [items]);
   
   const emptyText = getEmptyText(dataSourceItems.length, tableStructures.length, items.length);
   
@@ -688,27 +699,40 @@ const CreateFormBody = (props: { onCreate: CreateHandler }) => {
 
 export const CreateForm = (props: { onCreate: CreateHandler }) => {
   const [visible, setVisible] = useState(false);
+  
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    setVisible(true);
+    e.stopPropagation();
+  }, []);
+  
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    e.stopPropagation();
+  }, []);
+  
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
+  
+  const handleCancel = useCallback(() => {
+    setVisible(false);
+  }, []);
+
   return (
     <>
-      <OpenDialogButton
-        onMouseDown={(e) => {
-          setVisible(true);
-          e.stopPropagation();
-        }}
-      >
+      <OpenDialogButton onMouseDown={handleMouseDown}>
         {trans("formComp.openDialogButton")}
       </OpenDialogButton>
       <div
-        onKeyDown={(e) => e.stopPropagation()}
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+        onMouseDown={handleMouseDown}
+        onClick={handleClick}
       >
         <CustomModal
           open={visible}
           destroyOnClose={true}
           title={trans("formComp.generateForm")}
           footer={null}
-          onCancel={() => setVisible(false)}
+          onCancel={handleCancel}
           width="600px"
           children={<CreateFormBody {...props} />}
           styles={{ body: {padding: 0} }}
