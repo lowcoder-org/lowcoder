@@ -1,6 +1,6 @@
 import { default as AntdTabs } from "antd/es/tabs";
 import { GreyTextColor, TabActiveColor } from "constants/style";
-import { ReactNode } from "react";
+import { ReactNode, memo } from "react";
 import styled from "styled-components";
 
 export const Tabs = styled(AntdTabs)`
@@ -52,7 +52,7 @@ interface TabTitleProps {
   text: ReactNode;
 }
 
-export const TabTitle = function TabTitle(props: TabTitleProps) {
+export const TabTitle = memo(function TabTitle(props: TabTitleProps) {
   const { icon, text } = props;
   return (
     <TabTitleWrapper>
@@ -60,4 +60,6 @@ export const TabTitle = function TabTitle(props: TabTitleProps) {
       {text}
     </TabTitleWrapper>
   );
-};
+});
+
+TabTitle.displayName = 'TabTitle';
