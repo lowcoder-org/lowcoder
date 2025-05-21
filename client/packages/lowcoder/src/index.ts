@@ -1,5 +1,5 @@
 import "core-js/actual";
-import '@ant-design/v5-patch-for-react-19';
+// import '@ant-design/v5-patch-for-react-19';
 
 import ResizeObserver from "resize-observer-polyfill";
 import numbro from "numbro";

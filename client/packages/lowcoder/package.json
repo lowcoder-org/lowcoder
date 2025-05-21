@@ -7,7 +7,6 @@
   "types": "src/index.sdk.ts",
   "dependencies": {
     "@ant-design/icons": "^6.0.0",
-    "@ant-design/v5-patch-for-react-19": "^1.0.3",
     "@codemirror/autocomplete": "^6.11.1",
     "@codemirror/commands": "^6.3.2",
     "@codemirror/lang-css": "^6.2.1",
