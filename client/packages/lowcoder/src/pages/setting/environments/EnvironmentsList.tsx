@@ -139,10 +139,7 @@ const EnvironmentsList: React.FC = () => {
                 borderRadius: '12px', 
                 boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
               }}
-              headStyle={{ 
-                borderBottom: '1px solid #f0f0f0',
-                padding: '16px 24px'
-              }}
+              styles={{ header: { borderBottom: '1px solid #f0f0f0', padding: '16px 24px' } }}
               bodyStyle={{ padding: '24px' }}
             >
               <Row gutter={[32, 16]} justify="space-around">
@@ -191,10 +188,7 @@ const EnvironmentsList: React.FC = () => {
           borderRadius: '12px', 
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
         }}
-        headStyle={{ 
-          borderBottom: '1px solid #f0f0f0',
-          padding: '16px 24px'
-        }}
+        styles={{ header: { borderBottom: '1px solid #f0f0f0', padding: '16px 24px' } }}
         bodyStyle={{ padding: '24px' }}
         extra={
           <Input

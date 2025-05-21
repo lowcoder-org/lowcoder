@@ -99,7 +99,7 @@ export async function deployWorkspace(params: {
     // After successful deployment, set the managed object in target environment
     if (response.status === 200) {
       await transferManagedObject(
-        params.workspaceId,
+        params.workspaceId, // first param has to be GID
         params.envId,
         params.targetEnvId,
         ManagedObjectType.ORG

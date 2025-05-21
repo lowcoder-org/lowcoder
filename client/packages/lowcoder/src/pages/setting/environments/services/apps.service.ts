@@ -18,6 +18,7 @@ export interface DeployAppParams {
   envId: string;
   targetEnvId: string;
   applicationId: string;
+  applicationGid: string;
   updateDependenciesIfNeeded?: boolean;
   publishOnTarget?: boolean;
   publicToAll?: boolean;
@@ -79,7 +80,7 @@ export async function getMergedWorkspaceApps(
     // Fetch managed objects instead of managed apps
     let managedObjects: ManagedObject[] = [];
     try {
-      managedObjects = await getManagedObjects(environmentId);
+      managedObjects = await getManagedObjects(environmentId, ManagedObjectType.APP);
     } catch (error) {
       console.error("Failed to fetch managed objects:", error);
       // Continue with empty managed list
@@ -125,7 +126,7 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
     
     if (response.status === 200) {
       await transferManagedObject(
-        params.applicationId,
+        params.applicationGid,
         params.envId,
         params.targetEnvId,
         ManagedObjectType.APP

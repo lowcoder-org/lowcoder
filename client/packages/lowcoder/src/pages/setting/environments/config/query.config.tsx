@@ -24,7 +24,8 @@ export const queryConfig: DeployableItemConfig = {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
         queryId: item.id,
-        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
+        queryGid: item.gid,
       };
     },
     execute: (params: any) => deployQuery(params)

@@ -23,7 +23,8 @@ export const dataSourcesConfig: DeployableItemConfig = {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
         datasourceId: item.id,
-        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded
+        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
+        datasourceGid: item.gid
       };
     },
     execute: (params: any) => deployDataSource(params)

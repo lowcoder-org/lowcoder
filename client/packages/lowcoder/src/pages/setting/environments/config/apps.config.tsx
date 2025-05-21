@@ -50,6 +50,7 @@ export const appsConfig: DeployableItemConfig = {
         publishOnTarget: values.publishOnTarget,
         publicToAll: values.publicToAll,
         publicToMarketplace: values.publicToMarketplace,
+        applicationGid: item.applicationGid,
       };
     },
     execute: (params: any) => deployApp(params)

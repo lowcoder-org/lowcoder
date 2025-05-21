@@ -25,6 +25,7 @@ import DataSourcesTab from "./components/DataSourcesTab";
 import QueriesTab from "./components/QueriesTab";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import WorkspaceHeader from "./components/WorkspaceHeader";
+import ErrorComponent from "./components/ErrorComponent";
 
 const { TabPane } = Tabs;
 
@@ -34,7 +35,6 @@ const WorkspaceDetail: React.FC = () => {
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
 
-  console.log("workspace render", workspace);  
 
   const [isToggling, setIsToggling] = useState(false);
 
@@ -58,18 +58,18 @@ const WorkspaceDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
-        <Spin size="large" tip="Loading workspace details..." />
+        <Spin size="large" tip="Loading workspace details..." style={{ display: 'block', textAlign: 'center' }} />
       </div>
     );
   }
 
   if (error || !environment || !workspace) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
-        <Typography.Title level={3}>
-          {error || "Workspace not found"}
-        </Typography.Title>
-      </div>  
+      <ErrorComponent 
+        errorMessage={"Workspace not found"}
+        returnPath="/setting/environments"
+        returnLabel="Return to Environments List"
+      />
     );
   }
 
