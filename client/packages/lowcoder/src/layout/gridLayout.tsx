@@ -4,7 +4,7 @@ import type { UICompType } from "comps/uiCompRegistry";
 import { ModulePrimaryColor, PrimaryColor } from "constants/style";
 import _, { isEqual } from "lodash";
 import log from "loglevel";
-import React, { DragEvent, DragEventHandler, MouseEventHandler, ReactElement } from "react";
+import React, { DragEvent, DragEventHandler, MouseEventHandler, ReactElement, useEffect } from "react";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { isDirectionKey, isFilterInputTarget, modKeyPressed } from "util/keyUtils";
@@ -121,6 +121,22 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
   innerRef = React.createRef<HTMLDivElement>();
   ref = this.props.innerRef ?? this.innerRef;
   innerHeight = 0;
+
+  throttleDebug = _.throttle(log.debug, 200);
+
+  componentWillUnmount() {
+    // Cleanup throttled debug function
+    this.throttleDebug.cancel();
+    
+    // Clear any remaining dragging data
+    draggingUtils.clearData();
+    
+    // Remove any remaining event listeners
+    if (this.ref.current) {
+      // The event listener is added in the render method using onKeyDown prop
+      // No need to manually remove it as React handles cleanup
+    }
+  }
 
   static getDerivedStateFromProps(
     nextProps: Readonly<GridLayoutProps>,
@@ -280,6 +296,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
 
     const recoverDragStartFn = () => {
       this.setState({ ops: undefined });
+      // Ensure dragging data is cleared
+      draggingUtils.clearData();
     };
 
     // -------- set DragStart varibles --------
@@ -393,6 +411,7 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     const oldResizeItem = draggingUtils.getData<LayoutItem>(DRAGGING_ITEM);
 
     this.props.onResizeStop?.(layout, oldResizeItem, layout[i], undefined, e, node);
+    // Ensure dragging data is cleared
     draggingUtils.clearData();
     this.onLayoutMaybeChanged(this.getUILayout());
   };
@@ -766,8 +785,6 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
     return 0;
   }
 
-  // only for onDragOver
-  throttleDebug = _.throttle(log.debug, 200);
   // Called while dragging an element. Part of browser native drag/drop API.
   // Native event target might be the layout itself, or an element within the layout.
   onDragOver: DragEventHandler<HTMLElement> = (e) => {
@@ -934,6 +951,8 @@ class GridLayout extends React.Component<GridLayoutProps, GridLayoutState> {
        */
       flyOverInfo && flyOverInfo.dropFn();
     }
+    // Ensure dragging data is cleared
+    draggingUtils.clearData();
   };
 
   getUILayout(ops?: LayoutOps, setHiddenCompHeightZero: boolean = false): Layout {
@@ -1108,17 +1127,18 @@ const ResizeWrapper = (props: {
   children: JSX.Element | React.ReactNode;
   onResize: (width?: number, height?: number) => void;
 }) => {
-
-  useResizeDetector({
+  const { width, height } = useResizeDetector({
     targetRef: props.targetRef,
-    onResize: ({width, height}: ResizePayload) => props.onResize(width ?? undefined, height ?? undefined),
-    observerOptions: { box: "border-box" },
-  })
+    onResize: ({ width, height }: ResizePayload) => {
+      props.onResize(width ?? undefined, height ?? undefined);
+    },
+    handleHeight: true,
+    refreshMode: 'debounce',
+    refreshRate: 100,
+  });
 
-  return (
-    <>{props.children}</>
-  )
-}
+  return <>{props.children}</>;
+};
 
 export const ReactGridLayout = React.memo(GridLayout, (prev, next) => isEqual(prev, next));
 

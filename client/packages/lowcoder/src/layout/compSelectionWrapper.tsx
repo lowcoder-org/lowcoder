@@ -14,6 +14,7 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useEffect,
 } from "react";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
@@ -251,7 +252,6 @@ const ResizableChildren = React.memo((props: {
       || props.compType === 'collapsibleContainer'
       || props.compType === 'container'
     ),
-    // skipOnMount: true,
     refreshMode: "debounce",
     refreshRate: 0,
     onResize: ({width, height}: ResizePayload) => props.onInnerResize(width ?? undefined, height ?? undefined),
@@ -291,7 +291,16 @@ export const CompSelectionWrapper = React.memo((props: {
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
   const editorState = useContext(EditorContext);
-  let [hover, setHover] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Reset state
+      setHover(false);
+    };
+  }, []);
+
   const onMouseOver = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -305,8 +314,9 @@ export const CompSelectionWrapper = React.memo((props: {
       }
       setHover(true);
     },
-    [nameDivRef.current, setHover]
+    [nameDivRef.current]
   );
+
   const onMouseOut = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -364,13 +374,13 @@ export const CompSelectionWrapper = React.memo((props: {
     return props.autoHeight && !props.placeholder;
   }, [props.autoHeight, props.placeholder]);
 
-  const { ref: wrapperRef } = useResizeDetector({
-    onResize: ({width, height}: ResizePayload) => props.onWrapperResize(width ?? undefined, height ?? undefined),
-    handleHeight: needResizeDetector,
-    handleWidth: false,
-    refreshMode: 'debounce',
-    refreshRate: 100,
-  });
+  // const { ref: wrapperRef } = useResizeDetector({
+  //   onResize: ({width, height}: ResizePayload) => props.onWrapperResize(width ?? undefined, height ?? undefined),
+  //   handleHeight: needResizeDetector,
+  //   handleWidth: false,
+  //   refreshMode: 'debounce',
+  //   refreshRate: 100,
+  // });
 
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
   const { nameConfig, resizeIconSize } = props;
@@ -380,7 +390,7 @@ export const CompSelectionWrapper = React.memo((props: {
       <SelectableDiv
         {...selectableDivProps}
         $compType={props.compType}
-        ref={wrapperRef}
+        // ref={wrapperRef}
         $needResizeDetector={needResizeDetector}
       >
         {props.isSelectable && nameConfig.show && (hover || props.isSelected || props.hidden) && (
@@ -419,12 +429,12 @@ export const CompSelectionWrapper = React.memo((props: {
           </>
         )}
         {!needResizeDetector && props.children}
-        {needResizeDetector && Boolean(wrapperRef.current) && (
+        {needResizeDetector && (
           <ResizableChildren
             compType={props.compType}
             onInnerResize={props.onInnerResize}
           >
-            {props.children}
+            <>{props.children}</>
           </ResizableChildren>
         )}
       </SelectableDiv>
