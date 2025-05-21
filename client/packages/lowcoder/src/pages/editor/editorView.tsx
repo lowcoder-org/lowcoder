@@ -485,8 +485,13 @@ function EditorView(props: EditorViewProps) {
       "orientationchange" in window ? "orientationchange" : "resize";
     window.addEventListener(eventType, updateSize);
     updateSize();
-    return () => window.removeEventListener(eventType, updateSize);
-  }, []);
+
+    return () => {
+      window.removeEventListener(eventType, updateSize);
+      savePanelStatus(panelStatus);
+      saveEditorModeStatus(editorModeStatus);
+    };
+  }, [panelStatus, editorModeStatus]);
 
   const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
@@ -511,7 +516,7 @@ function EditorView(props: EditorViewProps) {
     if (isViewMode) return uiComp.getView();
 
     return (
-      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
         <DeviceWrapper
             deviceType={editorState.deviceType}
             deviceOrientation={editorState.deviceOrientation}
@@ -531,7 +536,16 @@ function EditorView(props: EditorViewProps) {
     editorState.deviceOrientation,
   ]);
 
-  // we check if we are on the public cloud
+  useEffect(() => {
+    return () => {
+      setPanelStatus(DefaultPanelStatus);
+      setEditorModeStatus("both");
+      setShowShortcutList(false);
+      setMenuKey(SiderKey.State);
+      setHeight(undefined);
+    };
+  }, []);
+
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
   if (readOnly && hideHeader) {

@@ -1,4 +1,4 @@
-import React, { useCallback, useContext } from "react";
+import React, { useCallback, useContext, useRef, useEffect } from "react";
 import { EditorContext, EditorState } from "comps/editorState";
 import { GridCompOperator } from "comps/utils/gridCompOperator";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -15,6 +15,7 @@ import { clickCompNameClass } from "base/codeEditor/clickCompName";
 import { getShortcutAction } from "pages/common/shortcutConfigs";
 import { preview } from "constants/routesURL";
 import { useApplicationId } from "util/hooks";
+import { useUnmount } from "react-use";
 
 type Props = {
   children: React.ReactNode;
@@ -118,8 +119,17 @@ export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
   const { history: editorHistory } = useContext(ExternalEditorContext);
   const { togglePanel, panelStatus, toggleShortcutList } = props;
   const applicationId = useApplicationId();
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const onKeyDown = useCallback(
     (e: KeyboardEvent) => {
+      if (!mountedRef.current) return;
       setGlobalState(editorState, e);
       handleGlobalKeyDown(
         e,
@@ -133,17 +143,28 @@ export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
     },
     [editorState, editorHistory, togglePanel, toggleShortcutList, applicationId]
   );
+
   const setGlobalStateCb = useCallback(
-    (e: KeyboardEvent | MouseEvent) => setGlobalState(editorState, e),
+    (e: KeyboardEvent | MouseEvent) => {
+      if (!mountedRef.current) return;
+      setGlobalState(editorState, e);
+    },
     [editorState]
   );
+
   const onMouseDown = useCallback(
     (e: MouseEvent) => {
+      if (!mountedRef.current) return;
       setGlobalState(editorState, e);
       handleMouseDown(e, editorState, () => !panelStatus.left && togglePanel("left"));
     },
     [editorState, panelStatus, togglePanel]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <GlobalShortcutsWrapper
       disabled={props.disabled}
@@ -152,8 +173,9 @@ export const EditorGlobalHotKeys = React.memo((props: GlobalProps) => {
       // fix the problem when a user press keys without focus
       onMouseMoveCapture={setGlobalStateCb}
       onMouseDownCapture={onMouseDown}
-      children={props.children}
-    />
+    >
+      {props.children}
+    </GlobalShortcutsWrapper>
   );
 })
 
@@ -188,28 +210,59 @@ function handleEditorKeyDown(e: React.KeyboardEvent, editorState: EditorState) {
 
 export const EditorHotKeys = React.memo((props: Props) => {
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const onKeyDown = useCallback(
-    (e: React.KeyboardEvent) => handleEditorKeyDown(e, editorState),
+    (e: React.KeyboardEvent) => {
+      if (!mountedRef.current) return;
+      handleEditorKeyDown(e, editorState);
+    },
     [editorState]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <ShortcutsWrapper
       disabled={props.disabled}
       onKeyDown={onKeyDown}
       style={{ width: "100%", height: "100%" }}
-      children={props.children}
-    />
+    >
+      {props.children}
+    </ShortcutsWrapper>
   );
 })
 
 export const CustomShortcutWrapper = React.memo((props: { children: React.ReactNode }) => {
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
   const handleCustomShortcut = useCallback(
     (e: KeyboardEvent) => {
+      if (!mountedRef.current) return;
       editorState.getAppSettingsComp().children.customShortcuts.handleKeyEvent(e);
     },
     [editorState]
   );
+
+  useUnmount(() => {
+    mountedRef.current = false;
+  });
+
   return (
     <GlobalShortcutsWrapper onKeyDownCapture={handleCustomShortcut}>
       {props.children}
