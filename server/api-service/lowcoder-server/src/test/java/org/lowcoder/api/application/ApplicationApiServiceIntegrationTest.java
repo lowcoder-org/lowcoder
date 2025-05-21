@@ -116,7 +116,7 @@ public class ApplicationApiServiceIntegrationTest {
                             .editingApplicationDSL(applicationView.getApplicationDSL())
                             .name("app03")
                             .build();
-                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application);
+                    return applicationApiService.update(applicationView.getApplicationInfoView().getApplicationId(), application, false);
                 });
 
         StepVerifier.create(applicationViewMono)

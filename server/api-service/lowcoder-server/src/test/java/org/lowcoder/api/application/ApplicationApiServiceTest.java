@@ -169,7 +169,7 @@ public class ApplicationApiServiceTest {
 
         // update
         applicationIdMono = applicationIdMono
-                .delayUntil(id -> applicationApiService.update(id, Application.builder().editingApplicationDSL(Map.of("comp", "table")).build())).cache();
+                .delayUntil(id -> applicationApiService.update(id, Application.builder().editingApplicationDSL(Map.of("comp", "table")).build(), false)).cache();
 
         // edit dsl after publish
         StepVerifier.create(applicationIdMono.flatMap(id -> applicationApiService.getEditingApplication(id, false)))
