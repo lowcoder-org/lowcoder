@@ -9,6 +9,7 @@ import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { DATE_TIME_FORMAT } from "util/dateTimeUtils";
 import { DateEdit, formatDate } from "./columnDateComp";
+import React, { useCallback, useEffect, useRef } from "react";
 
 const childrenMap = {
   text: StringControl,
@@ -16,15 +17,52 @@ const childrenMap = {
   inputFormat: withDefault(StringControl, DATE_TIME_FORMAT),
 };
 
-let inputFormat = DATE_TIME_FORMAT;
-
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
+
+// Memoized DateTimeEdit component
+const DateTimeEdit = React.memo((props: {
+  value: string;
+  onChange: (value: string) => void;
+  onChangeEnd: () => void;
+  inputFormat: string;
+}) => {
+  const mountedRef = useRef(true);
+
+  // Memoize event handlers
+  const handleChange = useCallback((value: string) => {
+    if (!mountedRef.current) return;
+    props.onChange(value);
+  }, [props.onChange]);
+
+  const handleChangeEnd = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  return (
+    <DateEdit
+      value={props.value}
+      onChange={handleChange}
+      onChangeEnd={handleChangeEnd}
+      showTime={true}
+      inputFormat={props.inputFormat}
+    />
+  );
+});
+
+DateTimeEdit.displayName = 'DateTimeEdit';
 
 export const DateTimeComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       return formatDate(value, props.format);
     },
@@ -32,12 +70,11 @@ export const DateTimeComp = (function () {
     getBaseValue
   )
     .setEditViewFn((props) => (
-      <DateEdit
+      <DateTimeEdit
         value={props.value}
         onChange={props.onChange}
         onChangeEnd={props.onChangeEnd}
-        showTime={true}
-        inputFormat={inputFormat}
+        inputFormat={props.otherProps?.inputFormat}
       />
     ))
     .setPropertyViewFn((children) => (
