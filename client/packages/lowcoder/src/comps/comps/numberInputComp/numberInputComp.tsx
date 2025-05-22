@@ -272,6 +272,7 @@ const childrenMap = {
   min: UndefinedNumberControl,
   max: UndefinedNumberControl,
   customRule: CustomRuleControl,
+  tabIndex: NumberControl,
 
   ...formDataChildren,
 };
@@ -330,6 +331,7 @@ const CustomInputNumber = (props: RecordConstructorToView<typeof childrenMap>) =
       precision={props.precision}
       $style={props.inputFieldStyle}
       prefix={hasIcon(props.prefixIcon) ? props.prefixIcon : props.prefixText.value}
+      tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       onPressEnter={() => {
         handleFinish();
         props.onEvent("submit");
@@ -436,6 +438,7 @@ let NumberInputTmpComp = (function () {
             })}
             {children.controls.propertyView({ label: trans("numberInput.controls") })}
             {readOnlyPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         )}
 

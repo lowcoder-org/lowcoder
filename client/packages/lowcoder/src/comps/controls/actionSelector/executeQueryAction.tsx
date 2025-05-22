@@ -9,7 +9,7 @@ import { getPromiseAfterDispatch } from "util/promiseUtils";
 import { trans } from "i18n";
 import { withDefault } from "comps/generators";
 import { keyValueListControl} from "comps/controls/keyValueListControl";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 
 const ExecuteQueryPropertyView = ({
   comp,
@@ -19,16 +19,25 @@ const ExecuteQueryPropertyView = ({
   placement?: "query" | "table"
 }) => {
   const getQueryOptions = useCallback((editorState?: EditorState) => {
-    const options: { label: string; value: string; variables?: Record<string, string> }[] =
-      editorState
-        ?.queryCompInfoList()
-        .map((info) => {
+    if (!editorState) return [];
+      const options: {
+        label: string;
+        value: string;
+        variables?: Record<string, string>
+      }[] = editorState.getQueriesComp()
+        .getView()
+        .map((item) => {
+          const name = item.children.name.getView();
+          const qVariables: Record<string, string> = {};
+          item.children.variables.toJsonValue().forEach(v => {
+            qVariables[v.key!] = '';
+          });
           return {
-            label: info.name,
-            value: info.name,
-            variables: info.data.variables,
+            label: name,
+            value: name,
+            variables: qVariables,
           }
-      })
+        })
         .filter(
           // Filter out the current query under query
           (option) => {
@@ -67,7 +76,7 @@ const ExecuteQueryPropertyView = ({
       indicatorForAll: true,
     });
   }, [comp.children.queryVariables.getView()])
-  
+
   return (
     <>
       <BranchDiv $type={"inline"}>
@@ -114,19 +123,19 @@ const ExecuteQueryTmpAction = (function () {
 export class ExecuteQueryAction extends ExecuteQueryTmpAction {
   override getView() {
     const queryName = this.children.queryName.getView();
-    // const queryParams = keyValueListToSearchStr(Array.isArray(this?.children?.query) ? (this.children.query as unknown as any[]).map((i: any) => i.getView() as KeyValue) : []);
-    const result = this.children.queryVariables.toJsonValue()
-      .filter(item => item.key !== "" && item.value !== "")
-      .map(item => ({[item.key as string]: item.value}))
-      .reduce((acc, curr) => Object.assign(acc, curr), {});
-    
-    result.$queryName = queryName;
     if (!queryName) {
       return () => Promise.resolve();
     }
 
-    return () =>
-      getPromiseAfterDispatch(
+    let result = Object.values(this.children.queryVariables.getView())
+      .filter((item) => item.children.key.getView() !== "" && item.children.value.getView() !== "")
+      .map((item) => ({[item.children.key.getView() as string]: {value: item.children.value.getView()}}))
+      .reduce((acc, curr) => Object.assign(acc, curr), {});
+    
+    result.$queryName = {value: this.children.queryName.getView()};
+    
+    return () => {
+      return getPromiseAfterDispatch(
         this.dispatch,
         routeByNameAction(
           queryName,
@@ -134,6 +143,7 @@ export class ExecuteQueryAction extends ExecuteQueryTmpAction {
         ),
         { notHandledError: trans("eventHandler.notHandledError") }
       );
+    }
   }
 
   displayName() {

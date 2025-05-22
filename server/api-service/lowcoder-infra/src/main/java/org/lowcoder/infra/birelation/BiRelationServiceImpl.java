@@ -132,6 +132,7 @@ public class BiRelationServiceImpl implements BiRelationService {
         Query query = new Query();
         query.addCriteria(where(BIZ_TYPE).is(bizType));
         query.addCriteria(where(SOURCE_ID).is(sourceId));
+        query.addCriteria(where(RELATION).is("super_admin").not());
         return mongoUpsertHelper.remove(query, BiRelation.class);
     }
 

@@ -25,6 +25,9 @@ public class AuthUser {
 
     private String orgId;
 
+    // Add groupId for group mapping
+    private String groupId;
+
     private AuthRequestContext authContext;
 
     /**

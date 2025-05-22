@@ -82,6 +82,41 @@ export const XAxisDirectionOptions = [
 
 export type XAxisDirectionType = ValueFromOption<typeof XAxisDirectionOptions>;
 
+// Add this new code block:
+// Realistic pie chart demo data with proper categories and values
+export const defaultPieChartData = [
+  {
+    category: "Market Share",
+    name: "Samsung",
+    value: 21.8
+  },
+  {
+    category: "Market Share",
+    name: "Apple",
+    value: 20.5
+  },
+  {
+    category: "Market Share",
+    name: "Xiaomi",
+    value: 13.4
+  },
+  {
+    category: "Market Share",
+    name: "Oppo",
+    value: 8.8
+  },
+  {
+    category: "Market Share",
+    name: "Vivo",
+    value: 8.1
+  },
+  {
+    category: "Market Share",
+    name: "Others",
+    value: 27.4
+  }
+];
+
 export const noDataAxisConfig = {
   animation: false,
   xAxis: {
@@ -241,8 +276,8 @@ export type CharOptionCompType = keyof typeof ChartOptionMap;
 
 export const chartUiModeChildren = {
   title: withDefault(StringControl, trans("echarts.defaultTitle")),
-  data: jsonControl(toJSONObjectArray, i18nObjs.defaultDataSource),
-  xAxisKey: valueComp<string>(""), // x-axis, key from data
+  data: jsonControl(toJSONObjectArray, defaultPieChartData),
+  xAxisKey: valueComp<string>("name"),
   xAxisDirection: dropdownControl(XAxisDirectionOptions, "horizontal"),
   xAxisData: jsonControl(toArray, []),
   series: SeriesListComp,

@@ -142,9 +142,15 @@ const TimelineComp = (
             dispatch(changeChildAction("clickedIndex", index, false));
             onEvent("click");
           }}
+          // for responsiveness
           style={{
             cursor: "pointer",
             color: value?.titleColor || style?.titleColor,
+            whiteSpace: "normal",
+            wordWrap: "break-word",
+            textAlign: "left",
+            height: "auto",
+            padding: "0"
           }}
         >
           <b>{value?.title}</b>

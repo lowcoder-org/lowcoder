@@ -1,6 +1,6 @@
 import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
-import { BoolCodeControl } from "../../controls/codeControl";
+import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { LabelControl } from "../../controls/labelControl";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -115,6 +115,7 @@ export const getStyle = (style: CheckboxStyleType) => {
 const CheckboxGroup = styled(AntdCheckboxGroup) <{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
+  tabIndex?: number;
 }>`
   min-height: 32px;
   ${(props) => props.$style && getStyle(props.$style)}
@@ -156,6 +157,7 @@ let CheckboxBasicComp = (function () {
     viewRef: RefControl<HTMLDivElement>,
     inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    tabIndex: NumberControl,
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
@@ -184,6 +186,7 @@ let CheckboxBasicComp = (function () {
               value: option.value,
               disabled: option.disabled,
             }))}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
           onChange={(values) => {
             handleChange(values as string[]);
           }}
