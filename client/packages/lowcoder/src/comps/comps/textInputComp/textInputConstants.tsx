@@ -11,7 +11,7 @@ import { stringExposingStateControl } from "comps/controls/codeStateControl";
 import { LabelControl } from "comps/controls/labelControl";
 import { InputLikeStyleType, LabelStyleType, heightCalculator, widthCalculator } from "comps/controls/styleControlConstants";
 import { Section, sectionNames, ValueFromOption } from "lowcoder-design";
-import _ from "lodash";
+import _, { debounce } from "lodash";
 import { css } from "styled-components";
 import { EMAIL_PATTERN, URL_PATTERN } from "util/stringUtils";
 import { MultiBaseComp, RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core";
@@ -170,6 +170,7 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   const [validateState, setValidateState] = useState({});
   const changeRef = useRef(false)
   const touchRef = useRef(false);
+  const [localInputValue, setLocalInputValue] = useState<string>('');
 
   const propsRef = useRef<RecordConstructorToView<typeof textInputChildren>>(props);
   propsRef.current = props;
@@ -182,19 +183,25 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
   }, [defaultValue]);
 
   useEffect(() => {
+    if (inputValue !== localInputValue) {
+      setLocalInputValue(inputValue);
+    }
+  }, [inputValue]);
+
+  useEffect(() => {
     if (!changeRef.current) return;
 
     setValidateState(
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: inputValue,
+          value: localInputValue,
         },
       })
     );
     propsRef.current.onEvent("change");
     changeRef.current = false;
-  }, [inputValue]);
+  }, [localInputValue]);
 
   useEffect(() => {
     if (!touchRef.current) return;
@@ -203,21 +210,35 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
       textInputValidate({
         ...propsRef.current,
         value: {
-          value: props.value.value,
+          value: localInputValue,
         },
       })
     );
   }, [props.customRule])
 
+  const debouncedOnChangeRef = useRef(
+    debounce((value: string) => {
+      props.value.onChange(value);
+    }, 1000)
+  );
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    props.value.onChange(e.target.value);
+    const value = e.target.value;
+    setLocalInputValue(value);
+
     changeRef.current = true;
     touchRef.current = true;
+    debouncedOnChangeRef.current?.(value);
   };
 
   return [
     {
-      ...textInputProps(props),
+      ...textInputProps({
+        ...props,
+        value: {
+          value: localInputValue,
+        } as any,
+      }),
       onChange: handleChange,
     },
     validateState,

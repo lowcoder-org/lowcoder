@@ -37,6 +37,9 @@ spring:
             required: ${LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED:true}
         transport:
           protocol: smtp
+  mvc:
+    pathmatch:
+      trailing-slash-match: true
 server:
   compression:
     enabled: true
@@ -56,7 +59,7 @@ default:
   query-timeout: ${LOWCODER_DEFAULT_QUERY_TIMEOUT:10}
 
 common:
-  cookie-name: LOWCODER_CE_SELFHOST_TOKEN
+  cookie-name: ${LOWCODER_COOKIE_NAME:LOWCODER_CE_SELFHOST_TOKEN}
   product: lowcoder
   domain:
     default-value: lowcoder.org

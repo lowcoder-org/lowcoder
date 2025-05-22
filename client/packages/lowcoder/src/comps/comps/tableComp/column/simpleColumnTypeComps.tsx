@@ -7,6 +7,8 @@ import { trans } from "i18n";
 import { useStyle } from "comps/controls/styleControl";
 import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
+import { IconControl } from "comps/controls/iconControl";
+import { hasIcon } from "comps/utils";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -20,7 +22,7 @@ export const ButtonTypeOptions = [
     value: "default",
   },
   {
-    label: trans("text"),
+    label: trans("table.text"),
     value: "text",
   },
 ] as const;
@@ -32,12 +34,19 @@ export const ButtonComp = (function () {
     onClick: ActionSelectorControlInContext,
     loading: BoolCodeControl,
     disabled: BoolCodeControl,
+    prefixIcon: IconControl,
+    suffixIcon: IconControl,
   };
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
       const ButtonStyled = () => {
         const style = useStyle(ButtonStyle);
+        const hasText = !!props.text;
+        const hasPrefixIcon = hasIcon(props.prefixIcon);
+        const hasSuffixIcon = hasIcon(props.suffixIcon);
+        const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
+        
         return (
           <Button100
             type={props.buttonType}
@@ -45,10 +54,16 @@ export const ButtonComp = (function () {
             loading={props.loading}
             disabled={props.disabled}
             $buttonStyle={props.buttonType === "primary" ? style : undefined}
-            style={{margin: 0}}
+            style={{
+              margin: 0,
+              width: iconOnly ? 'auto' : undefined,
+              minWidth: iconOnly ? 'auto' : undefined,
+              padding: iconOnly ? '0 8px' : undefined
+            }}
+            icon={hasPrefixIcon ? props.prefixIcon : undefined}
           >
-            {/* prevent the button from disappearing */}
-            {!props.text ? " " : props.text}
+            {hasText ? props.text : (iconOnly ? null : " ")}
+            {hasSuffixIcon && !props.loading && <span style={{ marginLeft: hasText ? '8px' : 0 }}>{props.suffixIcon}</span>}
           </Button100>
         );
       };
@@ -61,6 +76,12 @@ export const ButtonComp = (function () {
         {children.text.propertyView({
           label: trans("table.columnValue"),
           tooltip: ColumnValueTooltip,
+        })}
+        {children.prefixIcon.propertyView({
+          label: trans("button.prefixIcon"),
+        })}
+        {children.suffixIcon.propertyView({
+          label: trans("button.suffixIcon"),
         })}
         {children.buttonType.propertyView({
           label: trans("table.type"),

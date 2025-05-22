@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
@@ -81,7 +82,12 @@ public class QueryExecutionServiceImpl implements QueryExecutionService {
     private Mono<QueryExecutionResult> executeByNodeJs(Datasource datasource, Map<String, Object> queryConfig, Map<String, Object> requestParams, QueryVisitorContext queryVisitorContext) {
         List<Map<String, Object>> context = requestParams.entrySet()
                 .stream()
-                .map(entry -> Map.of("key", entry.getKey(), "value", entry.getValue()))
+                .map(entry -> {
+                    Map<String, Object> temp = new HashMap<>();
+                    temp.put("key", entry.getKey());
+                    temp.put("value", entry.getValue()); // Allows null values
+                    return temp;
+                })
                 .collect(Collectors.toList());
 
         //forward cookies to js datasource

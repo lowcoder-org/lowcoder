@@ -13,6 +13,7 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import { useEffect, useRef } from "react";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -102,6 +103,18 @@ let RadioBasicComp = (function () {
       validateState,
       handleChange,
     ] = useSelectInputValidate(props);
+    
+    const radioRef = useRef<HTMLDivElement | null>(null);
+    
+    useEffect(() => {
+      if (radioRef.current && typeof props.tabIndex === 'number') {
+        const firstRadioInput = radioRef.current.querySelector('input[type="radio"]');
+        if (firstRadioInput) {
+          firstRadioInput.setAttribute('tabindex', props.tabIndex.toString());
+        }
+      }
+    }, [props.tabIndex, props.options]);
+    
     return props.label({
       required: props.required,
       style: props.style,
@@ -110,7 +123,12 @@ let RadioBasicComp = (function () {
       animationStyle:props.animationStyle,
       children: (
         <Radio
-          ref={props.viewRef}
+          ref={(el) => {
+            if (el) {
+              props.viewRef(el);
+              radioRef.current = el;
+            }
+          }}
           disabled={props.disabled}
           value={props.value.value}
           $style={props.style}
