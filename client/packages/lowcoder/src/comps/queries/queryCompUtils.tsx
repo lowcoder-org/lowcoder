@@ -34,13 +34,14 @@ export function toQueryView(params: FunctionProperty[]) {
     Object.keys(props.variables)
       .filter(k => k !== "$queryName")
       .forEach(key => {
+        const value = Object.hasOwn(props.variables[key], 'value') ? props.variables[key].value : props.variables[key];
         mappedVariables.push({
           key: `${key}.value`,
-          value: props.variables[key] || ""
+          value: value || ""
         })
         mappedVariables.push({
           key: `${props.args?.$queryName}.variables.${key}`,
-          value: props.variables[key] || ""
+          value: value || ""
         })
       })
 

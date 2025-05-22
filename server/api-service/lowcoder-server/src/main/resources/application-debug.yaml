@@ -37,6 +37,8 @@ common:
   cookie-name: LOWCODER_DEBUG_TOKEN
   js-executor:
     host: "http://127.0.0.1:6060"
+    password: ${LOWCODER_NODE_SERVICE_SECRET:}
+    salt: ${LOWCODER_NODE_SERVICE_SECRET_SALT:}
   workspace:
     mode: ${LOWCODER_WORKSPACE_MODE:SAAS}
   plugin-dirs:

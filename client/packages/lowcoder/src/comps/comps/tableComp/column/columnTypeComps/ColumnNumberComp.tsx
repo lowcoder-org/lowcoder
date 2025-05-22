@@ -1,4 +1,5 @@
-  import { default as InputNumber } from "antd/es/input-number";
+import React, { useState, useRef, useEffect, useCallback, useMemo, ReactNode } from "react";
+import { default as InputNumber } from "antd/es/input-number";
 import { NumberControl, RangeControl, StringControl } from "comps/controls/codeControl";
 import { BoolControl } from "comps/controls/boolControl";
 import { trans } from "i18n";
@@ -35,59 +36,123 @@ const childrenMap = {
   suffix: StringControl,
 };
 
-let float = false;
-let step = 1;
-let precision = 0;
+const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
 
-const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (
-  props
-) => {
-  return props.text
+type NumberViewProps = {
+  value: number;
+  prefix: string;
+  suffix: string;
+  prefixIcon: ReactNode;
+  suffixIcon: ReactNode;
+  float: boolean;
+  precision: number;
 };
+
+type NumberEditProps = {
+  value: number;
+  onChange: (value: number) => void;
+  onChangeEnd: () => void;
+  step: number;
+  precision: number;
+  float: boolean;
+};
+
+const ColumnNumberView = React.memo((props: NumberViewProps) => {
+  const formattedValue = useMemo(() => {
+    let result = !props.float ? Math.floor(props.value) : props.value;
+    if (props.float) {
+      result = Number(result.toFixed(props.precision + 1));
+    }
+    return result;
+  }, [props.value, props.float, props.precision]);
+
+  return (
+    <>
+      {hasIcon(props.prefixIcon) && (
+        <span>{props.prefixIcon}</span>
+      )}
+      <span>{props.prefix + formattedValue + props.suffix}</span>
+      {hasIcon(props.suffixIcon) && (
+        <span>{props.suffixIcon}</span>
+      )}
+    </>
+  );
+});
+
+ColumnNumberView.displayName = 'ColumnNumberView';
+
+
+const ColumnNumberEdit = React.memo((props: NumberEditProps) => {
+  const [currentValue, setCurrentValue] = useState(props.value);
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setCurrentValue(0);
+    };
+  }, []);
+
+  const handleChange = useCallback((value: string | number | null) => {
+    if (!mountedRef.current) return;
+    const newValue = typeof value === 'number' ? value : 0;
+    const finalValue = !props.float ? Math.floor(newValue) : newValue;
+    props.onChange(finalValue);
+    setCurrentValue(finalValue);
+  }, [props.onChange, props.float]);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  const handlePressEnter = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  return (
+    <InputNumberWrapper>
+      <InputNumber
+        step={props.step}
+        value={currentValue}
+        autoFocus
+        variant="borderless"
+        onChange={handleChange}
+        precision={props.float ? props.precision : 0}
+        onBlur={handleBlur}
+        onPressEnter={handlePressEnter}
+      />
+    </InputNumberWrapper>
+  );
+});
+
+ColumnNumberEdit.displayName = 'NumberEdit';
 
 export const ColumnNumberComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      float = props.float;
-      step = props.step; 
-      precision = props.precision;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      let formattedValue: string | number = !float ? Math.floor(value) : value;
-      if(float) {
-        formattedValue = formattedValue.toFixed(precision + 1);
-      }
-      return (
-          <>{hasIcon(props.prefixIcon) && (
-            <span>{props.prefixIcon}</span>
-          )}
-          <span>{props.prefix + formattedValue + props.suffix}</span>
-          {hasIcon(props.suffixIcon) && (
-            <span>{props.suffixIcon}</span>
-          )} </>
-      );
+      return <ColumnNumberView value={value} {...props} />;
     },
     (nodeValue) => nodeValue.text.value,
-    getBaseValue,
+    getBaseValue
   )
     .setEditViewFn((props) => {
+      const { value, onChange, onChangeEnd, otherProps } = props;
       return (
-      <InputNumberWrapper>
-        <InputNumber
-          step={step}
-          defaultValue={props.value}
-          autoFocus
-          variant="borderless"
-          onChange={(value) => {
-            value = value ?? 0;
-            props.onChange(!float ? Math.floor(value) : value);
-          }}
-          precision={float ? precision : 0}
-          onBlur={props.onChangeEnd}
-          onPressEnter={props.onChangeEnd}
+        <ColumnNumberEdit
+          value={value}
+          onChange={onChange}
+          onChangeEnd={onChangeEnd}
+          step={otherProps?.step ?? 1}
+          precision={otherProps?.precision ?? 0}
+          float={otherProps?.float ?? false}
         />
-      </InputNumberWrapper>
-    )})
+      );
+    })
     .setPropertyViewFn((children) => {
       return (
         <>
@@ -99,7 +164,7 @@ export const ColumnNumberComp = (function () {
             label: trans("table.numberStep"),
             tooltip: trans("table.numberStepTooltip"),
             onFocus: (focused) => {
-              if(!focused) {
+              if (!focused) {
                 const value = children.step.getView();
                 const isFloat = children.float.getView();
                 const newValue = !isFloat ? Math.floor(value) : value;
@@ -107,7 +172,7 @@ export const ColumnNumberComp = (function () {
               }
             }
           })}
-          {float && (
+          {children.float.getView() && (
             children.precision.propertyView({
               label: trans("table.precision"),
             })

@@ -34,11 +34,14 @@ import {
   TacoInput,
   ValueFromOption,
 } from "lowcoder-design";
-import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState, memo, useCallback } from "react";
 import styled, { css } from "styled-components";
 import { JSONValue } from "util/jsonTypes";
 import { ControlNodeCompBuilder } from "comps/generators/controlCompBuilder";
 import { defaultTheme } from "@lowcoder-ee/constants/themeConstants";
+import type { CheckboxChangeEvent } from 'antd/es/checkbox';
+
+type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
 
 const SaveChangeButtons = styled.div`
   display: flex;
@@ -239,6 +242,39 @@ const ColumnCheckItem = styled.div`
   gap: 4px;
 `;
 
+const StyledCustomSelect = styled(CustomSelect)<{ $width: string }>`
+  .ant-select {
+  width: ${props => props.$width};
+  }
+`;
+
+const CustomSelectionOptionInner = styled.div`
+  width: 72px;
+  font-size: 13px;
+  line-height: 13px;
+`;
+
+const StyledTacoInput = styled(TacoInput)`
+  width: 136px;
+`;
+
+const StyledLinkButton = styled(LinkButton)`
+  margin-right: auto;
+`;
+
+const ColumnSettingContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+`;
+
+const ColumnSettingFooter = styled.div`
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 32px;
+`;
+
 const filterStackOptions = [
   {
     label: trans("table.and"),
@@ -277,6 +313,7 @@ const tableFilterOperators = [
   "lt",
   "lte",
 ] as const;
+
 const noValueOperators: TableFilterOperator[] = ["isEmpty", "isNotEmpty"];
 
 type TableFilterOperator = typeof tableFilterOperators[number];
@@ -361,6 +398,11 @@ export const tableFilterOperatorMap: Record<
   },
 } as const;
 
+const tableFilterOperatorOptions = tableFilterOperators.map((operator) => ({
+  label: tableFilterOperatorMap[operator].label,
+  value: operator,
+}));
+
 type TableFilterDataType = {
   columnKey: string;
   filterValue: string;
@@ -399,7 +441,140 @@ function emptyFilterItem(filter: FilterItemType) {
   return !filter.columnKey && !filter.operator && filter.filterValue === "";
 }
 
-function TableFilterView(props: {
+const FilterFooter = memo(function FilterFooter(props: {
+  filterItems: FilterItemType[];
+  setFilterItems: (items: FilterItemType[]) => void;
+  setVisible: (v: boolean) => void;
+}) {
+  const { filterItems, setFilterItems, setVisible } = props;
+
+  const handleAddFilter = useCallback(() => {
+    setFilterItems(filterItems.concat(genFilterViewItem()));
+  }, [filterItems, setFilterItems]);
+
+  const handleClearFilters = useCallback(() => {
+    setFilterItems([genFilterViewItem()]);
+  }, [setFilterItems]);
+
+  const handleClose = useCallback(() => {
+    setVisible(false);
+  }, [setVisible]);
+
+  return (
+    <FilterViewBottom>
+      <StyledLinkButton
+        text={trans("addItem")}
+        icon={<BluePlusIcon />}
+        onClick={handleAddFilter}
+      />
+      <TacoButton
+        onClick={handleClearFilters}
+        buttonType="delete"
+      >
+        {trans("table.clear")}
+      </TacoButton>
+      <TacoButton buttonType="primary" onClick={handleClose}>
+        {trans("ok")}
+      </TacoButton>
+    </FilterViewBottom>
+  );
+});
+
+FilterFooter.displayName = 'FilterFooter';
+
+const FilterContent = memo(function FilterContent(props: {
+  filterItems: FilterItemType[];
+  columnKeyNames: Array<[string, string]>;
+  stackTypeState: TableFilter["stackType"];
+  stackTypeValue: TableFilter["stackType"] | undefined;
+  updateFilter: (filterItem: FilterItemType) => void;
+  handleStackTypeChange: (value: TableFilter["stackType"]) => void;
+  removeFilter: (key: string) => void;
+}) {
+  const {
+    filterItems,
+    columnKeyNames,
+    stackTypeState,
+    stackTypeValue,
+    updateFilter,
+    handleStackTypeChange,
+    removeFilter,
+  } = props;
+
+  const handleColumnKeyChange = useCallback((filter: FilterItemType, value: string) => {
+    updateFilter({ ...filter, columnKey: value });
+  }, [updateFilter]);
+
+  const handleOperatorChange = useCallback((filter: FilterItemType, value: TableFilterOperator) => {
+    updateFilter({ ...filter, operator: value });
+  }, [updateFilter]);
+
+  const handleFilterValueChange = useCallback((filter: FilterItemType, e: React.ChangeEvent<HTMLInputElement>) => {
+    updateFilter({ ...filter, filterValue: e.target.value });
+  }, [updateFilter]);
+
+  return (
+    <FilterViewContent>
+      {filterItems &&
+        filterItems.map((filter, index) => (
+          <FilterItem key={filter.key}>
+            {index === 0 && (
+              <CommonTextLabel style={{ width: "65px" }}>
+                {trans("table.filterRule")}
+              </CommonTextLabel>
+            )}
+            {index >= 1 && (
+              <StyledCustomSelect
+                $width="65px"
+                border
+                defaultValue={stackTypeState}
+                value={stackTypeValue}
+                disabled={index > 1}
+                onChange={handleStackTypeChange}
+              >
+                {filterStackOptions.map((item) => (
+                  <CustomSelect.Option key={item.value} value={item.value}>
+                    <CustomSelectionOptionInner>
+                      {item.label}
+                    </CustomSelectionOptionInner>
+                  </CustomSelect.Option>
+                ))}
+              </StyledCustomSelect>
+            )}
+            <StyledCustomSelect
+              $width="160px"
+              options={columnKeyNames.map((c) => ({ label: c[1], value: c[0] }))}
+              value={filter.columnKey}
+              placeholder={trans("table.chooseColumnName")}
+              allowClear
+              onChange={(value) => handleColumnKeyChange(filter, value)}
+            />
+            <StyledCustomSelect
+              $width="160px"
+              defaultValue={filter.operator}
+              placeholder={trans("table.chooseCondition")}
+              allowClear
+              options={tableFilterOperatorOptions}
+              onChange={(value) => handleOperatorChange(filter, value)}
+            />
+            <StyledTacoInput
+              disabled={filter.operator && noValueOperators.includes(filter.operator)}
+              defaultValue={filter.filterValue}
+              onChange={(e) => handleFilterValueChange(filter, e)}
+            />
+            <StyledDeleteIcon
+              disabled={filterItems.length === 1 && emptyFilterItem(filterItems[0])}
+              onClick={() => removeFilter(filter.key)}
+            />
+          </FilterItem>
+        ))}
+    </FilterViewContent>
+  );
+});
+
+FilterContent.displayName = 'FilterContent';
+
+const TableFilterView = memo(function TableFilterView(props: {
   columnKeyNames: Array<[string, string]>;
   tableFilter: TableFilter;
   onFilterChange: (filters: TableFilterDataType[], stackType: TableFilter["stackType"]) => void;
@@ -407,27 +582,35 @@ function TableFilterView(props: {
 }) {
   const { columnKeyNames, tableFilter, onFilterChange, setVisible } = props;
   const [stackTypeState, setStackTypeState] = useState(tableFilter.stackType);
-  const [filters, setFilters] = useState<FilterItemType[]>(() => {
-    if (tableFilter.filters.length <= 0) {
-      return [genFilterViewItem()];
-    }
-    return tableFilter.filters.map((f) => ({ key: genRandomKey(), ...f }));
-  });
-  const updateFilter = (filterItem: FilterItemType) => {
-    setFilters(
-      filters.map((f) =>
-        f.key === filterItem.key
-          ? {
-              ...filterItem,
-            }
-          : f
-      )
+  const [filterItems, setFilterItems] = useState<FilterItemType[]>(() => 
+    tableFilter.filters.length > 0
+      ? tableFilter.filters.map((f) => genFilterViewItem(f.columnKey, f.filterValue, f.operator))
+      : [genFilterViewItem()]
+  );
+  const stackTypeValue = useMemo(() => filterStackOptions.find((f) => f.value === stackTypeState)?.value, [stackTypeState]);
+
+  const updateFilter = useCallback((filterItem: FilterItemType) => {
+    setFilterItems((items) =>
+      items.map((item) => (item.key === filterItem.key ? filterItem : item))
     );
-  };
+  }, []);
+
+  const removeFilter = useCallback((key: string) => {
+    if (filterItems.length === 1) {
+      setFilterItems([genFilterViewItem()]);
+    } else {
+      setFilterItems((items) => items.filter((item) => item.key !== key));
+    }
+  }, [filterItems]);
+
+  const handleStackTypeChange = useCallback((value: TableFilter["stackType"]) => {
+    setStackTypeState(value);
+  }, []);
+
   useEffect(() => {
     onFilterChange(
-      filters
-        .filter((f) => validFilterItem(f))
+      filterItems
+        .filter(validFilterItem)
         .map((f) => ({
           filterValue: f.filterValue,
           operator: f.operator!,
@@ -435,109 +618,8 @@ function TableFilterView(props: {
         })),
       stackTypeState
     );
-  }, [stackTypeState, filters]);
+  }, [stackTypeState, filterItems, onFilterChange]);
 
-  const popOverContent = (
-    <FilterViewContent>
-      {filters &&
-        filters.map((filter, index) => {
-          return (
-            <FilterItem key={filter.key}>
-              {index === 0 && (
-                <CommonTextLabel style={{ width: "65px" }}>
-                  {trans("table.filterRule")}
-                </CommonTextLabel>
-              )}
-              {index >= 1 && (
-                <CustomSelect
-                  style={{ width: "65px" }}
-                  border
-                  defaultValue={stackTypeState}
-                  value={filterStackOptions.find((f) => f.value === stackTypeState)?.value}
-                  disabled={index > 1}
-                  onChange={(value) => setStackTypeState(value)}
-                >
-                  {filterStackOptions.map((item, index) => {
-                    return (
-                      <CustomSelect.Option key={item.value} value={item.value}>
-                        <div style={{ width: "72px", fontSize: "13px", lineHeight: "13px" }}>
-                          {item.label}
-                        </div>
-                      </CustomSelect.Option>
-                    );
-                  })}
-                </CustomSelect>
-              )}
-              <CustomSelect
-                options={columnKeyNames.map((c) => ({ label: c[1], value: c[0] }))}
-                style={{ width: "160px" }}
-                value={filter.columnKey}
-                placeholder={trans("table.chooseColumnName")}
-                allowClear
-                onChange={(value) => {
-                  updateFilter({ ...filter, columnKey: value });
-                }}
-              />
-              <CustomSelect
-                defaultValue={filter.operator}
-                placeholder={trans("table.chooseCondition")}
-                style={{ width: "160px" }}
-                allowClear
-                options={tableFilterOperators.map((operator) => ({
-                  label: tableFilterOperatorMap[operator].label,
-                  value: operator,
-                }))}
-                onChange={(value) => {
-                  updateFilter({ ...filter, operator: value });
-                }}
-              />
-              <TacoInput
-                style={{ width: "136px" }}
-                disabled={filter.operator && noValueOperators.includes(filter.operator)}
-                defaultValue={filter.filterValue}
-                onChange={(e) => {
-                  updateFilter({ ...filter, filterValue: e.target.value });
-                }}
-              />
-              <StyledDeleteIcon
-                disabled={filters.length === 1 && emptyFilterItem(filters[0])}
-                onClick={() => {
-                  if (filters.length === 1) {
-                    setFilters([genFilterViewItem()]);
-                  } else {
-                    setFilters(filters.filter((f) => f.key !== filter.key));
-                  }
-                }}
-              />
-            </FilterItem>
-          );
-        })}
-    </FilterViewContent>
-  );
-
-  const filterFooter = (
-    <FilterViewBottom>
-      <LinkButton
-        style={{ marginRight: "auto" }}
-        text={trans("addItem")}
-        icon={<BluePlusIcon />}
-        onClick={() => {
-          setFilters(filters.concat(genFilterViewItem()));
-        }}
-      />
-      <TacoButton
-        onClick={() => {
-          setFilters([genFilterViewItem()]);
-        }}
-        buttonType="delete"
-      >
-        {trans("table.clear")}
-      </TacoButton>
-      <TacoButton buttonType="primary" onClick={() => setVisible(false)}>
-        {trans("ok")}
-      </TacoButton>
-    </FilterViewBottom>
-  );
   return (
     <SuspensionBox
       title={trans("table.filter")}
@@ -545,11 +627,269 @@ function TableFilterView(props: {
       width={600}
       scrollable
       contentMaxHeight={292}
-      content={popOverContent}
-      footer={filterFooter}
+      content={
+        <FilterContent
+          filterItems={filterItems}
+          columnKeyNames={columnKeyNames}
+          stackTypeState={stackTypeState}
+          stackTypeValue={stackTypeValue}
+          updateFilter={updateFilter}
+          handleStackTypeChange={handleStackTypeChange}
+          removeFilter={removeFilter}
+        />
+      }
+      footer={
+        <FilterFooter
+          filterItems={filterItems}
+          setFilterItems={setFilterItems}
+          setVisible={setVisible}
+        />
+      }
     />
   );
-}
+});
+
+TableFilterView.displayName = 'TableFilterView';
+
+const ColumnSetting = memo(function ColumnSetting(props: {
+  columns: Array<ColumnCompType>;
+  setVisible: (v: boolean) => void;
+}) {
+  const { columns, setVisible } = props;
+
+  // Memoize checked states for all columns
+  const checkedStates = useMemo(() => columns.map((c) => !c.getView().tempHide), [columns]);
+
+  // Memoize allChecked calculation
+  const allChecked = useMemo(() => checkedStates.every(Boolean), [checkedStates]);
+
+  // Memoize checkViews rendering
+  const checkViews = useMemo(() =>
+    columns.map((c, idx) => {
+      const columnView = c.getView();
+      const checked = checkedStates[idx];
+      return (
+        <ColumnCheckItem key={columnView.dataIndex}>
+          <CheckBox
+            checked={checked}
+            onChange={(e: CheckboxChangeEvent) => {
+              c.children.tempHide.dispatchChangeValueAction(!e.target.checked);
+            }}
+          />
+          <CommonTextLabel>{columnView.title || columnView.dataIndex}</CommonTextLabel>
+        </ColumnCheckItem>
+      );
+    }),
+    [columns, checkedStates]
+  );
+
+  // Memoize the 'Select All' onChange handler
+  const handleSelectAll = useCallback((e: CheckboxChangeEvent) => {
+    const checked = e.target.checked;
+    columns.forEach((c) => {
+      const tempHide = c.children.tempHide.getView();
+      // fixme batch dispatch
+      if (checked && tempHide) {
+        c.children.tempHide.dispatchChangeValueAction(false);
+      } else if (!checked && !tempHide) {
+        c.children.tempHide.dispatchChangeValueAction(true);
+      }
+    });
+  }, [columns]);
+
+  return (
+    <SuspensionBox
+      title={trans("table.columnShows")}
+      onClose={() => setVisible(false)}
+      width={160}
+      contentMaxHeight={150}
+      scrollable
+      content={<ColumnSettingContent>{checkViews}</ColumnSettingContent>}
+      footer={
+        <ColumnSettingFooter>
+          <ColumnCheckItem>
+            <CheckBox
+              checked={allChecked}
+              onChange={handleSelectAll}
+            />
+            <CommonTextLabel>{trans("table.selectAll")}</CommonTextLabel>
+          </ColumnCheckItem>
+        </ColumnSettingFooter>
+      }
+    />
+  );
+});
+
+ColumnSetting.displayName = 'ColumnSetting';
+
+const ToolbarPopover = memo(function ToolbarPopover(props: {
+  visible: boolean;
+  setVisible: (v: boolean) => void;
+  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  iconClassName: string;
+  content: JSX.Element;
+}) {
+  const { visible, setVisible, Icon, iconClassName, content } = props;
+
+  const handleVisibleChange = useCallback((v: boolean) => {
+    setVisible(v);
+  }, [setVisible]);
+
+  return (
+    <Popover
+      open={visible}
+      onOpenChange={handleVisibleChange}
+      content={content}
+      trigger="click"
+      placement="bottomRight"
+      styles={{
+        body: {
+          padding: 0,
+        },
+      }}
+    >
+      <Icon className={iconClassName} />
+    </Popover>
+  );
+});
+
+ToolbarPopover.displayName = 'ToolbarPopover';
+
+export const TableToolbar = memo(function TableToolbar(props: {
+  toolbar: ToolbarRowType;
+  $style: TableToolbarStyleType;
+  pagination: PaginationProps;
+  columns: Array<ColumnCompType>;
+  onRefresh: () => void;
+  onDownload: () => void;
+  hasChange: boolean;
+  onSaveChanges: () => void;
+  onCancelChanges: () => void;
+  onEvent: TableOnEventView;
+}) {
+  const {
+    toolbar,
+    $style,
+    pagination,
+    columns,
+    onRefresh,
+    onDownload,
+    hasChange,
+    onSaveChanges,
+    onCancelChanges,
+    onEvent,
+  } = props;
+
+  const theme = useContext(ThemeContext)?.theme;
+  const filtered = useMemo(() => toolbar.filter.filters.length > 0, [toolbar.filter.filters.length]);
+  const [filterVisible, setFilterVisible] = useState(false);
+  const [columnSettingVisible, setColumnSettingVisible] = useState(false);
+  const visibleColumns = useMemo(() => columns.filter((column) => !column.getView().hide), [columns]);
+
+  const handleRefresh = useCallback(() => {
+    onRefresh();
+    onEvent("refresh");
+  }, [onRefresh, onEvent]);
+
+  const handleDownload = useCallback(() => {
+    onDownload();
+    onEvent("download");
+  }, [onDownload, onEvent]);
+
+  const handleSaveChanges = useCallback(() => {
+    onSaveChanges();
+    onEvent("saveChanges");
+  }, [onSaveChanges, onEvent]);
+
+  const handleCancelChanges = useCallback(() => {
+    onCancelChanges();
+    onEvent("cancelChanges");
+  }, [onCancelChanges, onEvent]);
+
+  const handleColumnFilterChange = useCallback((filters: TableFilterDataType[], stackType: TableFilter["stackType"]) => {
+    if (
+      !_.isEqual(filters, toolbar.filter.filters) ||
+      stackType !== toolbar.filter.stackType
+    ) {
+      toolbar.onFilterChange(filters, stackType);
+      onEvent("filterChange");
+    }
+  }, [toolbar, onEvent]);
+
+  const columnKeyNameTuple = useMemo(() => {
+    return visibleColumns.map((column) => {
+      const c = column.getView();
+      return [c.dataIndex, c.title || c.dataIndex] as [string, string];
+    });
+  }, [visibleColumns]);
+
+  return (
+    <ToolbarWrapper
+      $style={$style}
+      $filtered={filtered}
+      $theme={theme || defaultTheme}
+      $position={toolbar.position}
+      $fixedToolbar={toolbar.fixedToolbar}
+    >
+      <ToolbarWrapper2>
+        <ToolbarIcons className="toolbar-icons">
+          {toolbar.showRefresh && (
+            <RefreshIcon className="refresh" onClick={handleRefresh} />
+          )}
+          {toolbar.showFilter && (
+            <ToolbarPopover
+              visible={filterVisible}
+              setVisible={setFilterVisible}
+              Icon={FilterIcon}
+              iconClassName="filter"
+              content={
+                <TableFilterView
+                  columnKeyNames={columnKeyNameTuple}
+                  tableFilter={toolbar.filter}
+                  setVisible={setFilterVisible}
+                  onFilterChange={handleColumnFilterChange}
+                />
+              }
+            />
+          )}
+          {toolbar.showDownload && (
+            <DownloadIcon className="download" onClick={handleDownload} />
+          )}
+          {toolbar.columnSetting && (
+            <ToolbarPopover
+              visible={columnSettingVisible}
+              setVisible={setColumnSettingVisible}
+              Icon={TableColumnVisibilityIcon}
+              iconClassName="column-setting"
+              content={<ColumnSetting columns={columns} setVisible={setColumnSettingVisible} />}
+            />
+          )}
+        </ToolbarIcons>
+        <Pagination
+          size="small"
+          {...pagination}
+          itemRender={pageItemRender}
+          onChange={(page, pageSize) => {
+            pagination.onChange && pagination.onChange(page, pageSize);
+            if (page !== pagination.current) {
+              onEvent("pageChange");
+            }
+          }}
+        />
+        {hasChange && toolbar.showUpdateButtons && (
+          <SaveChangeButtons>
+            <TacoButton onClick={handleCancelChanges}>{trans("cancel")}</TacoButton>
+            <TacoButton buttonType="primary" onClick={handleSaveChanges}>
+              {trans("table.saveChanges")}
+            </TacoButton>
+          </SaveChangeButtons>
+        )}
+      </ToolbarWrapper2>
+    </ToolbarWrapper>
+  );
+});
+
+TableToolbar.displayName = 'TableToolbar';
 
 export const TableToolbarComp = (function () {
   const childrenMap = {
@@ -605,230 +945,3 @@ export const TableToolbarComp = (function () {
     ])
     .build();
 })();
-
-function ColumnSetting(props: {
-  columns: Array<ColumnCompType>;
-  setVisible: (v: boolean) => void;
-}) {
-  const { columns, setVisible } = props;
-  let allChecked = true;
-  const checkViews = columns.map((c) => {
-    const columnView = c.getView();
-    const checked = !columnView.tempHide;
-    if (!checked) {
-      allChecked = false;
-    }
-    return (
-      <ColumnCheckItem key={columnView.dataIndex}>
-        <CheckBox
-          checked={checked}
-          onChange={(e) => {
-            c.children.tempHide.dispatchChangeValueAction(!e.target.checked);
-          }}
-        />
-        <CommonTextLabel>{columnView.title || columnView.dataIndex}</CommonTextLabel>
-      </ColumnCheckItem>
-    );
-  });
-  return (
-    <SuspensionBox
-      title={trans("table.columnShows")}
-      onClose={() => setVisible(false)}
-      width={160}
-      contentMaxHeight={150}
-      scrollable
-      content={
-        <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>{checkViews}</div>
-      }
-      footer={
-        <div
-          style={{
-            display: "flex",
-            alignItems: "flex-end",
-            justifyContent: "space-between",
-            height: "32px",
-          }}
-        >
-          <ColumnCheckItem>
-            <CheckBox
-              checked={allChecked}
-              onChange={(e) => {
-                const checked = e.target.checked;
-                columns.forEach((c) => {
-                  const tempHide = c.children.tempHide.getView();
-                  // fixme batch dispatch
-                  if (checked && tempHide) {
-                    c.children.tempHide.dispatchChangeValueAction(false);
-                  } else if (!checked && !tempHide) {
-                    c.children.tempHide.dispatchChangeValueAction(true);
-                  }
-                });
-              }}
-            />
-            <CommonTextLabel>{trans("table.selectAll")}</CommonTextLabel>
-          </ColumnCheckItem>
-        </div>
-      }
-    />
-  );
-}
-
-function ToolbarPopover(props: {
-  visible: boolean;
-  setVisible: (v: boolean) => void;
-  Icon: React.FC<React.SVGProps<SVGSVGElement>>;
-  iconClassName: string;
-  content: JSX.Element;
-}) {
-  const { visible, setVisible, Icon, iconClassName, content } = props;
-  const iconRef = useRef<SVGSVGElement>(null);
-  const popOverRef = useRef<HTMLDivElement>(null);
-  return (
-    <Popover
-      open={visible}
-      styles={{
-        root: { pointerEvents: "auto" },
-        body: {padding: '0'}
-      }}
-      content={
-        <div
-          ref={popOverRef}
-          tabIndex={-1}
-          onBlur={(e) => {
-            if (!e.currentTarget.contains(e.relatedTarget) && iconRef.current !== e.relatedTarget) {
-              setVisible(false);
-            }
-          }}
-        >
-          {content}
-        </div>
-      }
-    >
-      <Icon
-        className={iconClassName}
-        tabIndex={-1}
-        ref={iconRef}
-        onBlur={(e) => {
-          if (!popOverRef.current?.contains(e.relatedTarget)) {
-            setVisible(false);
-          }
-        }}
-        onClick={() => setVisible(!visible)}
-      />
-    </Popover>
-  );
-}
-
-type ToolbarRowType = ConstructorToView<typeof TableToolbarComp>;
-
-export function TableToolbar(props: {
-  toolbar: ToolbarRowType;
-  $style: TableToolbarStyleType;
-  pagination: PaginationProps;
-  columns: Array<ColumnCompType>;
-  onRefresh: () => void;
-  onDownload: () => void;
-  hasChange: boolean;
-  onSaveChanges: () => void;
-  onCancelChanges: () => void;
-  onEvent: TableOnEventView;
-}) {
-  const {
-    toolbar,
-    pagination,
-    columns,
-    onRefresh,
-    onDownload,
-    hasChange,
-    onSaveChanges,
-    onCancelChanges,
-    onEvent,
-  } = props;
-  const [filterVisible, setFilterVisible] = useState(false);
-  const [settingVisible, setSettingVisible] = useState(false);
-  const visibleColumns = columns.filter((c) => !c.children.hide.getView());
-  const columnKeyNameTuple = useMemo(() => {
-    return visibleColumns.map((column) => {
-      const c = column.getView();
-      return [c.dataIndex, c.title || c.dataIndex] as [string, string];
-    });
-  }, [columns]);
-  const theme = useContext(ThemeContext)?.theme;
-
-  return (
-    <ToolbarWrapper
-      $style={props.$style}
-      $theme={theme || defaultTheme}
-      $filtered={toolbar.filter.filters.length > 0}
-      $position={toolbar.position}
-      $fixedToolbar={toolbar.fixedToolbar}
-    >
-      <ToolbarWrapper2>
-        <ToolbarIcons className="toolbar-icons">
-          {toolbar.showRefresh && (
-            <RefreshIcon
-              className="refresh"
-              onClick={() => {
-                onRefresh();
-                onEvent("refresh");
-              }}
-            />
-          )}
-          {toolbar.showFilter && (
-            <ToolbarPopover
-              visible={filterVisible}
-              setVisible={setFilterVisible}
-              content={
-                <TableFilterView
-                  columnKeyNames={columnKeyNameTuple}
-                  tableFilter={toolbar.filter}
-                  onFilterChange={(filters, stackType) => {
-                    if (
-                      !_.isEqual(filters, toolbar.filter.filters) ||
-                      stackType !== toolbar.filter.stackType
-                    ) {
-                      toolbar.onFilterChange(filters, stackType);
-                      onEvent("filterChange");
-                    }
-                  }}
-                  setVisible={(v) => setFilterVisible(v)}
-                />
-              }
-              Icon={FilterIcon}
-              iconClassName="filter"
-            />
-          )}
-          {toolbar.showDownload && <DownloadIcon className="download" onClick={onDownload} />}
-          {toolbar.columnSetting && (
-            <ToolbarPopover
-              visible={settingVisible}
-              setVisible={setSettingVisible}
-              content={<ColumnSetting columns={visibleColumns} setVisible={setSettingVisible} />}
-              Icon={TableColumnVisibilityIcon}
-              iconClassName="column-setting"
-            />
-          )}
-        </ToolbarIcons>
-        <Pagination
-          size="small"
-          itemRender={pageItemRender}
-          {...pagination}
-          onChange={(page, pageSize) => {
-            pagination.onChange && pagination.onChange(page, pageSize);
-            if (page !== pagination.current) {
-              onEvent("pageChange");
-            }
-          }}
-        />
-        {hasChange && toolbar.showUpdateButtons && (
-          <SaveChangeButtons>
-            <Button onClick={onCancelChanges}>{trans("cancel")}</Button>
-            <Button type="primary" onClick={onSaveChanges}>
-              {trans("table.saveChanges")}
-            </Button>
-          </SaveChangeButtons>
-        )}
-      </ToolbarWrapper2>
-    </ToolbarWrapper>
-  );
-}

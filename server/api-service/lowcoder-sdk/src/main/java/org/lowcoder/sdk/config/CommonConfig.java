@@ -147,6 +147,9 @@ public class CommonConfig {
     @Data
     public static class JsExecutor {
         private String host;
+        private String password;
+        private String salt;
+        private boolean isEncrypted;
     }
 
     @Data

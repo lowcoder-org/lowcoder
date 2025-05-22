@@ -1,7 +1,7 @@
 import { ButtonProps } from "antd/es/button";
 import { default as AntdModal, ModalFuncProps, ModalProps as AntdModalProps } from "antd/es/modal";
 import { ReactComponent as PackUpIcon } from "icons/v1/icon-Pack-up.svg";
-import React, { ReactNode, useState } from "react";
+import React, { ReactNode, useRef, useState } from "react";
 import styled from "styled-components";
 import { TacoButtonType, TacoButton } from "components/button";
 import Draggable from "react-draggable";
@@ -221,9 +221,12 @@ const DEFAULT_PROPS = {
 } as const;
 
 function CustomModalRender(props: Omit<CustomModalProps & ModalFuncProps, "width"> & { width?: string | number }) {
+  const draggableRef = useRef<HTMLDivElement>(null);
+
   return (
-    <Draggable handle=".handle" disabled={!props.draggable}>
-      <ModalWrapper 
+    <Draggable handle=".handle" disabled={!props.draggable} nodeRef={draggableRef}>
+      <ModalWrapper
+        ref={draggableRef} 
         $width={props.width}
         $customStyles={props?.customStyles}
       >

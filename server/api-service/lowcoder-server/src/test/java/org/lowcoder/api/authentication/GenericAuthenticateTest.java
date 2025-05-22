@@ -182,7 +182,7 @@ public class GenericAuthenticateTest {
                 })
                 .verifyComplete();
 
-        Mockito.framework().clearInlineMocks();
+        // Mockito.framework().clearInlineMocks();
     }
 
     private String getEmailAuthConfigId() {

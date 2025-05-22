@@ -8,7 +8,7 @@ import { HookListComp } from "comps/hooks/hookListComp";
 import { QueryListComp } from "comps/queries/queryComp";
 import { NameAndExposingInfo } from "comps/utils/exposingTypes";
 import { handlePromiseAndDispatch } from "util/promiseUtils";
-import { HTMLAttributes, Suspense, lazy, useContext, useEffect, useMemo, useState } from "react";
+import { HTMLAttributes, Suspense, lazy, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { setFieldsNoTypeCheck } from "util/objectUtils";
 import { AppSettingsComp } from "./appSettingsComp";
 import { PreloadComp } from "./preLoadComp";
@@ -36,6 +36,8 @@ import React from "react";
 import { isEqual } from "lodash";
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
 import clsx from "clsx";
+import { useUnmount } from "react-use";
+
 const EditorView = lazy(
   () => import("pages/editor/editorView"),
 );
@@ -65,6 +67,10 @@ const RootView = React.memo((props: RootViewProps) => {
   const [propertySectionState, setPropertySectionState] = useState<PropertySectionState>({});
   const { readOnly } = useContext(ExternalEditorContext);
   const isUserViewMode = useUserViewMode();
+  const mountedRef = useRef(true);
+  const editorStateRef = useRef<EditorState>();
+  const prevCompRef = useRef(comp);
+
   const appThemeId = comp.children.settings.getView().themeId;
   const { orgCommonSettings } = getGlobalSettings();
   const themeList = orgCommonSettings?.themeList || [];
@@ -80,27 +86,54 @@ const RootView = React.memo((props: RootViewProps) => {
   ); 
 
   useEffect(() => {
-    const newEditorState = new EditorState(comp, (changeEditorStateFn) => {
-      setEditorState((oldState) => (oldState ? changeEditorStateFn(oldState) : undefined));
-    });
-    setEditorState(newEditorState);
+    return () => {
+      mountedRef.current = false;
+    };
   }, []);
 
   useEffect(() => {
-    if (editorState != null) {
-      editorState.setComp(() => comp);
-    }
-  }, [comp]);
+    if (!mountedRef.current) return;
 
-  /**
-   * ensure memo, otherwise all component caches will be invalid
-   */
+    const newEditorState = new EditorState(comp, (changeEditorStateFn) => {
+      if (mountedRef.current) {
+        setEditorState((oldState) => {
+          return (oldState ? changeEditorStateFn(oldState) : undefined)
+        });
+      }
+    });
+    editorStateRef.current = newEditorState;
+    setEditorState(newEditorState);
+
+    return () => {
+      if (editorStateRef.current) {
+        editorStateRef.current = undefined;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mountedRef.current || !editorState) return;
+
+    if (prevCompRef.current !== comp) {
+      editorState.setComp(() => comp);
+      prevCompRef.current = comp;
+    }
+  }, [comp, editorState]);
+
+  useUnmount(() => {
+    setEditorState(undefined);
+    setPropertySectionState({});
+    if (editorStateRef.current) {
+      editorStateRef.current = undefined;
+    }
+  });
+
   const themeContextValue = useMemo(
     () => ({
       theme,
       themeId,
     }),
-    [theme]
+    [theme, themeId]
   );
 
   const propertySectionContextValue = useMemo<PropertySectionContextType>(() => {
@@ -109,6 +142,8 @@ const RootView = React.memo((props: RootViewProps) => {
       compName,
       state: propertySectionState,
       toggle: (compName: string, sectionName: string) => {
+        if (!mountedRef.current) return;
+        
         setPropertySectionState((oldState) => {
           const nextSectionState: PropertySectionState = { ...oldState };
           const compState = nextSectionState[compName] || {};
@@ -164,6 +199,7 @@ export class RootComp extends RootCompBase {
   preloaded = false;
   preloadId = "";
   isModuleRoot = false;
+  private editorStateRef?: EditorState;
 
   getView() {
     if (!this.preloaded) {
@@ -174,6 +210,7 @@ export class RootComp extends RootCompBase {
 
   clearPreload() {
     this.children.preload.clear();
+    this.editorStateRef = undefined;
   }
 
   setModuleRoot(moduleRoot: boolean) {
@@ -184,8 +221,13 @@ export class RootComp extends RootCompBase {
     if (this.preloaded) {
       return this;
     }
-    await this.children.preload.run(id);
-    return setFieldsNoTypeCheck(this, { preloaded: true, preloadId: id });
+    try {
+      await this.children.preload.run(id);
+      return setFieldsNoTypeCheck(this, { preloaded: true, preloadId: id });
+    } catch (error) {
+      this.clearPreload();
+      throw error;
+    }
   }
 
   private findInternalComp(name: string) {

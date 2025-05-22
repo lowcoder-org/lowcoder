@@ -87,6 +87,7 @@ public class Datasource extends HasIdAndAuditing {
 
     public Datasource mergeWith(Datasource updatedDatasource) {
         setName(updatedDatasource.getName());
+        setDatasourceStatus(updatedDatasource.getDatasourceStatus());
         Optional.of(getDetailConfig())
                 .ifPresentOrElse(currentDetailConfig -> {
                             if (updatedDatasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {

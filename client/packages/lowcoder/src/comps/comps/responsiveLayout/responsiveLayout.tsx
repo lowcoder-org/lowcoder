@@ -87,7 +87,7 @@ const ColWrapper = styled(Col)<{
   flex-basis: ${(props) =>
     props.$rowBreak
       ? `calc(100% / var(--columns))` // Force exact column distribution
-      : `clamp(${props.$minWidth}, 100% / var(--columns), 100%)`}; // MinWidth respected
+      : `clamp(${props.$minWidth || "0px"}, calc(100% / var(--columns)), 100%)`}; // MinWidth respected
 
   min-width: ${(props) => props.$minWidth}; // Ensure minWidth is respected
   max-width: 100%; // Prevent more columns than allowed
@@ -237,7 +237,8 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
               if (!containers[id]) return null;
               const containerProps = containers[id].children;
 
-              const calculatedWidth = 100 / numberOfColumns;
+              // Use the actual minWidth from column configuration instead of calculated width
+              const columnMinWidth = column.minWidth || `${100 / numberOfColumns}px`;
 
               return (
                 <ColWrapper
@@ -247,7 +248,7 @@ const ResponsiveLayout = (props: ResponsiveLayoutProps) => {
                   sm={rowBreak ? 24 / numberOfColumns : undefined}
                   xs={rowBreak ? 24 / numberOfColumns : undefined}
                   $style={props.columnStyle}
-                  $minWidth={`${calculatedWidth}px`}
+                  $minWidth={columnMinWidth}
                   $matchColumnsHeight={matchColumnsHeight}
                   $rowBreak={rowBreak}
                 >

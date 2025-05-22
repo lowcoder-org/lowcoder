@@ -280,7 +280,6 @@ export function getEchartsConfig(
     ]
   }
 
-  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

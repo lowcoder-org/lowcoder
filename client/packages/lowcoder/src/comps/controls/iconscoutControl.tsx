@@ -224,6 +224,7 @@ export const IconPicker = (props: {
   label?: ReactNode;
   IconType?: "OnlyAntd" | "All" | "default" | undefined;
 }) => {
+  const draggableRef = useRef<HTMLDivElement>(null);
   const [ visible, setVisible ] = useState(false)
   const [ loading, setLoading ] = useState(false)
   const [ downloading, setDownloading ] = useState(false)
@@ -234,7 +235,7 @@ export const IconPicker = (props: {
   const mediaPackSubscription = subscriptions.find(
     sub => sub.product === SubscriptionProductsEnum.MEDIAPACKAGE && sub.status === 'active'
   );
-
+  
   const onChangeRef = useRef(props.onChange);
   onChangeRef.current = props.onChange;
 
@@ -388,8 +389,8 @@ export const IconPicker = (props: {
       }}
       destroyTooltipOnHide
       content={
-        <Draggable handle=".dragHandle">
-          <PopupContainer>
+        <Draggable handle=".dragHandle" nodeRef={draggableRef}>
+          <PopupContainer ref={draggableRef}>
             <TitleDiv className="dragHandle">
               <TitleText>{popupTitle}</TitleText>
               <StyledCloseIcon onClick={() => setVisible(false)} />

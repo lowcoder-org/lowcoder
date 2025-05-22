@@ -293,7 +293,6 @@ export function getEchartsConfig(
     delete config.yAxis;
   }
 
-  console.log("Echarts transformedData and config", transformedData, config);
   return config;
 }
 

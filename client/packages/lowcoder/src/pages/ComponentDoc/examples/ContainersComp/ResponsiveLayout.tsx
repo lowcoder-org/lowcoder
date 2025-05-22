@@ -342,7 +342,7 @@ export default function ResponsiveLayoutExample() {
       <>
         <ExampleGroup
           title="Basic Usage"
-          description="The Following Examples Show the Basic Usage of the Component."
+          description="The Following Examples Show the Basic Usage of the Responsive Layout Component."
         >
           <Example
             title="Hiding the Component"
@@ -376,7 +376,7 @@ export default function ResponsiveLayoutExample() {
 
         <ExampleGroup
           title="Layout"
-          description="The Following Examples Show the Layout options on Component."
+          description="The Following Examples Show the Layout options on the Responsive Layout Component."
         >
           <Example
             title="Column Height - Matching"
@@ -419,6 +419,181 @@ export default function ResponsiveLayoutExample() {
             }}
             compFactory={ResponsiveLayoutComp}
           />
+        </ExampleGroup>
+
+        <ExampleGroup
+          title="Styling Properties"
+          description="The Following Examples Show the different Styling properties of the Responsive Layout Component."
+        >
+          <Example
+            title="Row Styling"
+            hideSettings={true}
+            width={1000}
+            config={{
+                containers: container,
+                columns: column,
+                style: {
+                    "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                    "border": "#043BFD",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "dashed",
+                    "margin": "5px",
+                    "padding": "20px",
+                    },
+                rowBreak: true,
+            }}
+            compFactory={ResponsiveLayoutComp}
+          />
+          <Example
+            title="Column Styling"
+            hideSettings={true}
+            width={1000}
+            config={{
+                containers: container,
+                columns: column,
+                columnStyle: 
+                {
+                    "background": "linear-gradient(90deg, RGBA(250, 112, 154, 1) 0%, rgba(254,225,64,1) 100%)",
+                    "border": "#222222",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "solid",
+                    "margin": "5px",
+                    "padding": "10px",
+                },
+                style: 
+                {
+                    "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                    "border": "#043BFD",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "dashed",
+                    "margin": "5px",
+                    "padding": "20px",
+                },
+                rowBreak: true,
+            }}
+            compFactory={ResponsiveLayoutComp}
+          />
+        </ExampleGroup>
+
+        <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different Animation Styles on the Responsive Layout Component."
+        >
+        <Example
+            title="Bounce Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+                containers: container,
+                columns: column,
+                columnStyle: 
+                {
+                    "background": "linear-gradient(90deg, RGBA(250, 112, 154, 1) 0%, rgba(254,225,64,1) 100%)",
+                    "border": "#222222",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "solid",
+                    "margin": "5px",
+                    "padding": "10px",
+                },
+                style: 
+                {
+                    "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                    "border": "#043BFD",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "dashed",
+                    "margin": "5px",
+                    "padding": "20px",
+                },
+                rowBreak: true,
+                animationStyle: 
+                {
+                    "animation": "bounce",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite",
+                },
+            }}
+            compFactory={ResponsiveLayoutComp}
+        />
+        <Example
+            title="Swing Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+                containers: container,
+                columns: column,
+                columnStyle: 
+                {
+                    "background": "linear-gradient(90deg, RGBA(250, 112, 154, 1) 0%, rgba(254,225,64,1) 100%)",
+                    "border": "#222222",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "solid",
+                    "margin": "5px",
+                    "padding": "10px",
+                },
+                style: 
+                {
+                    "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                    "border": "#043BFD",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "dashed",
+                    "margin": "5px",
+                    "padding": "20px",
+                },
+                rowBreak: true,
+                animationStyle: {
+                    "animation": "swing",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+            }}
+            compFactory={ResponsiveLayoutComp}
+        />
+        <Example
+            title="Tada Animation"
+            width={1000}
+            hideSettings={true}
+            config={{
+                containers: container,
+                columns: column,
+                columnStyle: 
+                {
+                    "background": "linear-gradient(90deg, RGBA(250, 112, 154, 1) 0%, rgba(254,225,64,1) 100%)",
+                    "border": "#222222",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "solid",
+                    "margin": "5px",
+                    "padding": "10px",
+                },
+                style: 
+                {
+                    "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                    "border": "#043BFD",
+                    "radius": "20px",
+                    "borderWidth": "3px",
+                    "borderStyle": "dashed",
+                    "margin": "5px",
+                    "padding": "20px",
+                },
+                rowBreak: true,
+                animationStyle: {
+                    "animation": "tada",
+                    "animationDelay": "1s",
+                    "animationDuration": "3s",
+                    "animationIterationCount": "infinite"
+                },
+            }}
+            compFactory={ResponsiveLayoutComp}
+        />
         </ExampleGroup>
       </>
     );

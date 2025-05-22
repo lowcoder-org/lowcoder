@@ -14,7 +14,7 @@ import {
 import { RecordConstructorToView } from "lowcoder-core";
 import { ReactElement, useEffect, useRef, useState } from "react";
 import _ from "lodash";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { styleControl } from "comps/controls/styleControl";
 import {
   AnimationStyle,
@@ -177,45 +177,44 @@ const ContainerImg = (props: RecordConstructorToView<typeof childrenMap>) => {
     }
   };
 
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
-        <Container 
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          $clipPath={props.clipPath}
-          $overflow={props.enableOverflow ? props.overflow : "hidden"}
-          $positionX={props.positionX}
-          $positionY={props.positionY}
-          $enableOverflow={props.enableOverflow}
-          $aspectRatio={props.aspectRatio || "16 / 9"}
-          $placement={props.placement}
-        >
-          <div
-            ref={imgRef}
-            style={
-              props.autoHeight ? { width: "100%", height: "100%" } : undefined
-            }
-          >
-            <AntImage
-              src={
-                props.sourceMode === 'asset-library'
-                ? props.iconScoutAsset?.value
-                : props.src.value
-              }
-              referrerPolicy="same-origin"
-              draggable={false}
-              preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
-              fallback={DEFAULT_IMG_URL}
-              onClick={() => props.onEvent("click")}
-            />
-          </div>
-        </Container>
-      )}
+    <Container 
+      ref={conRef}
+      $style={props.style}
+      $animationStyle={props.animationStyle}
+      $clipPath={props.clipPath}
+      $overflow={props.enableOverflow ? props.overflow : "hidden"}
+      $positionX={props.positionX}
+      $positionY={props.positionY}
+      $enableOverflow={props.enableOverflow}
+      $aspectRatio={props.aspectRatio || "16 / 9"}
+      $placement={props.placement}
     >
-    </ReactResizeDetector>
+      <div
+        ref={imgRef}
+        style={
+          props.autoHeight ? { width: "100%", height: "100%" } : undefined
+        }
+      >
+        <AntImage
+          src={
+            props.sourceMode === 'asset-library'
+            ? props.iconScoutAsset?.value
+            : props.src.value
+          }
+          referrerPolicy="same-origin"
+          draggable={false}
+          preview={props.supportPreview ? {src: props.previewSrc || props.src.value } : false}
+          fallback={DEFAULT_IMG_URL}
+          onClick={() => props.onEvent("click")}
+        />
+      </div>
+    </Container>
   );
 };
 

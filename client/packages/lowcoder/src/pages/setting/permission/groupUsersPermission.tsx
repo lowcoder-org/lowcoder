@@ -46,11 +46,12 @@ type GroupPermissionProp = {
   currentUser: User;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
-  // const { Column } = TableStyled;
-  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
+  const { Column } = TableStyled;
+  const { group, orgId, groupUsers, currentUserGroupRole, currentUser, setModify, modify, loading } = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -98,53 +99,54 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsers.length === 0}
-        columns={[
-          {
-            title: trans("memberSettings.nameColumn"),
-            dataIndex: "userName",
-            key: "userName",
-            ellipsis: true,
-            render: (value, record) => (
-              <UserTableCellWrapper>
-                <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
-                <span title={record.userName}>{record.userName}</span>
-                {isGroupAdmin(record.role) && <SuperUserIcon />}
-              </UserTableCellWrapper>
-            ),
-          },
-          {
-            title: trans("memberSettings.joinTimeColumn"),
-            dataIndex: "joinTime",
-            key: "joinTime",
-            ellipsis: true,
-            render: (value) => <span>{formatTimestamp(value)}</span>,
-          },
-          {
-            title: trans("memberSettings.roleColumn"),
-            dataIndex: "role",
-            key: "role",
-            render: (value, record) => (
-              <CustomSelect
-                style={{ width: "140px", height: "32px" }}
-                dropdownStyle={{ width: "149px" }}
-                defaultValue={record.role}
-                key={record.role}
-                disabled={
-                  !isGroupAdmin(currentUserGroupRole) ||
-                  currentUser.id === record.userId ||
-                  group.syncGroup
-                }
-                optionLabelProp="label"
-                suffixIcon={<PackUpIcon />}
-                onChange={(val) => {
-                  dispatch(
-                    updateUserGroupRoleAction({
-                      role: val,
-                      userId: record.userId,
-                      groupId: group.groupId,
-                    })
-                  );
+
+        loading={loading}
+      >
+        <Column
+          title={trans("memberSettings.nameColumn")}
+          dataIndex="userName"
+          key="userName"
+          ellipsis
+          render={(value, record: GroupUser) => (
+            <UserTableCellWrapper>
+              <ProfileImage source={record.avatarUrl} userName={record.userName} side={34} />
+              <span title={record.userName}>{record.userName}</span>
+              {isGroupAdmin(record.role) && <SuperUserIcon />}
+            </UserTableCellWrapper>
+          )}
+        />
+        <Column
+          title={trans("memberSettings.joinTimeColumn")}
+          dataIndex="joinTime"
+          key="joinTime"
+          render={(value) => <span>{formatTimestamp(value)}</span>}
+          ellipsis
+        />
+        <Column
+          title={trans("memberSettings.roleColumn")}
+          dataIndex="role"
+          key="role"
+          render={(value, record: GroupUser) => (
+            <CustomSelect
+              style={{ width: "140px", height: "32px" }}
+              dropdownStyle={{ width: "149px" }}
+              defaultValue={record.role}
+              key={record.role}
+              disabled={
+                !isGroupAdmin(currentUserGroupRole) ||
+                currentUser.id === record.userId ||
+                group.syncGroup
+              }
+              optionLabelProp="label"
+              suffixIcon={<PackUpIcon />}
+              onChange={(val) => {
+                dispatch(
+                  updateUserGroupRoleAction({
+                    role: val,
+                    userId: record.userId,
+                    groupId: group.groupId,
+                  })
+                );
                   setTimeout(() => {
                     setModify?.(!modify);
                   }, 200);
