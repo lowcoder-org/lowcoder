@@ -39,6 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import { useResizeDetector } from "react-resize-detector";
 
 import { useContext } from "react";
+import { Tooltip } from "antd";
 import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
 
 const Container = styled.div<{ $style: any }>`
@@ -258,49 +259,51 @@ let ButtonTmpComp = (function () {
                   : undefined
               }
             >
-              <Button100
-                ref={props.viewRef}
-                $buttonStyle={props.style}
-                loading={props.loading}
-                style={
-                  props.autoHeight
-                    ? { 
-                      width: "100%", 
-                      height: "100%",
-                      aspectRatio: props.aspectRatio,
-                      borderRadius: props.style.radius,
-                    }
-                    : {
-                      aspectRatio: props.aspectRatio,
-                      borderRadius: props.style.radius,
-                    }
-                }
-                disabled={
-                  props.disabled ||
-                  (!isDefault(props.type) &&
-                    getForm(editorState, props.form)?.disableSubmit())
-                }
-                onClick={() =>
-                  isDefault(props.type)
-                    ? props.onEvent("click")
-                    : submitForm(editorState, props.form)
-                }
-              >
-                {props.sourceMode === 'standard' && props.prefixIcon && (
-                  <IconWrapper
-                    $style={{ ...props.style, size: props.iconSize }}
-                  >
-                    {props.prefixIcon}
-                  </IconWrapper>
-                )}
-                {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
-                  <IconScoutWrapper
-                    $style={{ ...props.style, size: props.iconSize }}
-                  >
-                    {Boolean(props.iconScoutAsset.value) && <img src={props.iconScoutAsset.value} />}
-                  </IconScoutWrapper>
-                )}
-              </Button100>
+              <Tooltip title={trans("meeting.meetingControlCompName")}>
+                <Button100
+                  ref={props.viewRef}
+                  $buttonStyle={props.style}
+                  loading={props.loading}
+                  style={
+                    props.autoHeight
+                      ? { 
+                        width: "100%", 
+                        height: "100%",
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                      : {
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                  }
+                  disabled={
+                    props.disabled ||
+                    (!isDefault(props.type) &&
+                      getForm(editorState, props.form)?.disableSubmit())
+                  }
+                  onClick={() =>
+                    isDefault(props.type)
+                      ? props.onEvent("click")
+                      : submitForm(editorState, props.form)
+                  }
+                >
+                  {props.sourceMode === 'standard' && props.prefixIcon && (
+                    <IconWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
+                    >
+                      {props.prefixIcon}
+                    </IconWrapper>
+                  )}
+                  {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
+                    <IconScoutWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
+                    >
+                      {Boolean(props.iconScoutAsset.value) && <img src={props.iconScoutAsset.value} />}
+                    </IconScoutWrapper>
+                  )}
+                </Button100>
+              </Tooltip>
             </div>
           </Container>
         )}

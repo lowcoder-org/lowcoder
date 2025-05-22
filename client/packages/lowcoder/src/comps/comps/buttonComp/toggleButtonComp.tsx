@@ -26,6 +26,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
+import { Tooltip } from "antd";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -78,20 +79,22 @@ const ToggleTmpComp = (function () {
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}
       >
-        <Button100
-          ref={props.viewRef}
-          $buttonStyle={props.style}
-          loading={props.loading}
-          disabled={props.disabled}
-          onClick={() => {
-            props.onEvent("change");
-            props.value.onChange(!props.value.value);
-          }}
-        >
-          {props.iconPosition === "right" && text}
-          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
-          {props.iconPosition === "left" && text}
-        </Button100>
+        <Tooltip title={props.value.value ? props.trueText : props.falseText}>
+          <Button100
+            ref={props.viewRef}
+            $buttonStyle={props.style}
+            loading={props.loading}
+            disabled={props.disabled}
+            onClick={() => {
+              props.onEvent("change");
+              props.value.onChange(!props.value.value);
+            }}
+          >
+            {props.iconPosition === "right" && text}
+            {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+            {props.iconPosition === "left" && text}
+          </Button100>
+        </Tooltip>
       </ButtonCompWrapperStyled>
     );
   })
