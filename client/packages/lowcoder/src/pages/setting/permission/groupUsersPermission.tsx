@@ -30,7 +30,6 @@ import {
 } from "./styledComponents";
 import history from "util/history";
 import { PERMISSION_SETTING } from "constants/routesURL";
-import { Table, TableProps } from "antd";
 
 const StyledAddIcon = styled(AddIcon)`
   g path {
@@ -93,13 +92,12 @@ function GroupUsersPermission(props: GroupPermissionProp) {
           />
         )}
       </PermissionHeaderWrapper>
-      <TableStyled as={Table as React.FC<TableProps<GroupUser>>}
+      <TableStyled
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-
         loading={loading}
       >
         <Column
@@ -148,23 +146,24 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                   })
                 );
                   setTimeout(() => {
-                    setModify?.(!modify);
+                      setModify(!modify);
                   }, 200);
-                }}
-              >
-                {TacoRoles.map((role) => (
-                  <CustomSelect.Option key={role} value={role} label={GroupRoleInfo[role].name}>
-                    <RoleSelectTitle>{GroupRoleInfo[role].name}</RoleSelectTitle>
-                    <RoleSelectSubTitle>{GroupRoleInfo[role].desc}</RoleSelectSubTitle>
-                  </CustomSelect.Option>
-                ))}
-              </CustomSelect>
-            ),
-          },
-          {
-            title: trans("memberSettings.actionColumn"),
-            key: "action",
-            render: (value, record) =>
+              }}
+            >
+              {TacoRoles.map((role) => (
+                <CustomSelect.Option key={role} value={role} label={GroupRoleInfo[role].name}>
+                  <RoleSelectTitle>{GroupRoleInfo[role].name}</RoleSelectTitle>
+                  <RoleSelectSubTitle>{GroupRoleInfo[role].desc}</RoleSelectSubTitle>
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
+          )}
+        />
+        <Column
+          title={trans("memberSettings.actionColumn")}
+          key="action"
+          render={(value, record: GroupUser) => {
+            return (
               !group.syncGroup && (
                 <div className="operation-cell-div-wrapper">
                   {currentOrgAdmin(currentUser) && (
@@ -179,9 +178,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                           dispatch(
                             quitGroupAction({ groupId: group.groupId, userId: currentUser.id })
                           );
-                          setTimeout(() => {
-                            setModify?.(!modify);
-                          }, 200);
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.exitGroup")}
@@ -197,9 +196,9 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                               groupId: group.groupId,
                             })
                           );
-                          setTimeout(() => {
-                            setModify?.(!modify);
-                          }, 200);
+                            setTimeout(() => {
+                                setModify(!modify);
+                            }, 200);
                         }}
                       >
                         {trans("memberSettings.moveOutGroup")}
@@ -207,10 +206,11 @@ function GroupUsersPermission(props: GroupPermissionProp) {
                     )
                   )}
                 </div>
-              ),
-          },
-        ]}
-      />
+              )
+            );
+          }}
+        />
+      </TableStyled>
     </>
   );
 }

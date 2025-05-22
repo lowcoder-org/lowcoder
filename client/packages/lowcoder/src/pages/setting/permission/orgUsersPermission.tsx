@@ -45,7 +45,6 @@ import { validateResponse } from "api/apiUtils";
 import copyToClipboard from "copy-to-clipboard";
 import { BackgroundColor } from "constants/style";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { Table, TableProps } from "antd";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -145,7 +144,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           style={{ marginLeft: "auto" }}
         />
       </PermissionHeaderWrapper>
-      <TableStyled as={Table as React.FC<TableProps<OrgUser>>}
+      <TableStyled
         tableLayout={"auto"}
         scroll={{ x: "100%" }}
         dataSource={sortedOrgUsers}
@@ -242,46 +241,62 @@ function OrgUsersPermission(props: UsersPermissionProp) {
                   record.role === ADMIN_ROLE && adminCount === 1 ? (
                     <QuestionTooltip title={LAST_ADMIN_QUIT} />
                   ) : (
-                    currentOrgAdmin(currentUser) && (
-                      <span
-                        onClick={() => {
-                          CustomModal.confirm({
-                            title: trans("memberSettings.moveOutOrg"),
-                            type: "warn",
-                            content: transToNode(
-                              isSaasMode(sysConfig)
-                                ? "memberSettings.moveOutOrgDescSaasMode"
-                                : "memberSettings.moveOutOrgDesc",
-                              { name: <b>{record.name}</b> }
-                            ),
-                            onConfirm: () => {
-                              dispatch(
-                                deleteOrgUserAction({
-                                  userId: record.userId,
-                                  orgId: orgId,
-                                })
-                              );
+                    <span
+                      onClick={() => {
+                        CustomModal.confirm({
+                          title: trans("memberSettings.exitOrg"),
+                          type: "warn",
+                          content: trans("memberSettings.exitOrgDesc"),
+                          onConfirm: () => {
+                            dispatch(quitOrgAction(orgId));
+                          },
+                          confirmBtnType: "delete",
+                          okText: trans("memberSettings.exitOrg"),
+                        });
+                      }}
+                    >
+                      {trans("memberSettings.exitOrg")}
+                    </span>
+                  )
+                ) : (
+                  currentOrgAdmin(currentUser) && (
+                    <span
+                      onClick={() => {
+                        CustomModal.confirm({
+                          title: trans("memberSettings.moveOutOrg"),
+                          type: "warn",
+                          content: transToNode(
+                            isSaasMode(sysConfig)
+                              ? "memberSettings.moveOutOrgDescSaasMode"
+                              : "memberSettings.moveOutOrgDesc",
+                            { name: <b>{record.name}</b> }
+                          ),
+                          onConfirm: () => {
+                            dispatch(
+                              deleteOrgUserAction({
+                                userId: record.userId,
+                                orgId: orgId,
+                              })
+                            );
                               setTimeout(() => {
-                                setModify?.(!modify);
+                                  setModify(!modify);
                               }, 200);
-                            },
-                            confirmBtnType: "delete",
-                            okText: trans("memberSettings.moveOutOrg"),
-                          });
-                        }}
-                      >
-                        {trans("memberSettings.moveOutOrg")}
-                      </span>
-                    )
-                  )}
-                  {operationItems.length > 0 && <EditPopover items={operationItems} />}
-                </div>
-              );
-            },
-          },
-        ]}
+                          },
+                          confirmBtnType: "delete",
+                          okText: trans("memberSettings.moveOutOrg"),
+                        });
+                      }}
+                    >
+                      {trans("memberSettings.moveOutOrg")}
+                    </span>
+                  )
+                )}
+                {operationItems.length > 0 && <EditPopover items={operationItems} />}
+              </div>
+            );
+          }}
         />
-      
+      </TableStyled>
     </>
   );
 }
