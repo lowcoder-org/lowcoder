@@ -95,8 +95,8 @@ public class WebClientBuildHelper {
                 .responseTimeout(Duration.ofMillis(timeoutMs))
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, timeoutMs.intValue())
                 .doOnConnected(conn -> conn
-                    .addHandlerLast(new ReadTimeoutHandler(timeoutMs, TimeUnit.SECONDS))
-                    .addHandlerLast(new WriteTimeoutHandler(timeoutMs, TimeUnit.SECONDS)));
+                    .addHandlerLast(new ReadTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS))
+                    .addHandlerLast(new WriteTimeoutHandler(timeoutMs, TimeUnit.MILLISECONDS)));
         }
         
         if (sslConfig != null) {
