@@ -58,11 +58,12 @@ type UsersPermissionProp = {
   currentUser: User;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
   const { Column } = TableStyled;
-  const { orgId, orgUsers, currentUser , setModify, modify} = props;
+  const { orgId, orgUsers, currentUser, setModify, modify, loading } = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
   ).length;
@@ -149,7 +150,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
         dataSource={sortedOrgUsers}
         rowKey="userId"
         pagination={false}
-        loading={orgUsers.length === 0}
+        loading={loading}
       >
         <Column
           title={trans("memberSettings.nameColumn")}

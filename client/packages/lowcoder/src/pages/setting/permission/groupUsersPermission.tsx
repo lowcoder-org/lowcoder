@@ -45,11 +45,12 @@ type GroupPermissionProp = {
   currentUser: User;
   setModify?: any;
   modify?: boolean;
+  loading?: boolean;
 };
 
 function GroupUsersPermission(props: GroupPermissionProp) {
   const { Column } = TableStyled;
-  const { group, orgId,  groupUsers, currentUserGroupRole, currentUser , setModify, modify} = props;
+  const { group, orgId, groupUsers, currentUserGroupRole, currentUser, setModify, modify, loading } = props;
   const adminCount = groupUsers.filter((user) => isGroupAdmin(user.role)).length;
   const sortedGroupUsers = useMemo(() => {
     return [...groupUsers].sort((a, b) => {
@@ -97,7 +98,7 @@ function GroupUsersPermission(props: GroupPermissionProp) {
         dataSource={sortedGroupUsers}
         rowKey="userId"
         pagination={false}
-        loading={groupUsers.length === 0}
+        loading={loading}
       >
         <Column
           title={trans("memberSettings.nameColumn")}
