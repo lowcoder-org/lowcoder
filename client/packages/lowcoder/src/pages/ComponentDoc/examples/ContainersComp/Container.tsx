@@ -149,6 +149,7 @@ const container={
 export default function ContainerExample() {
     return (
       <>
+
         <ExampleGroup
           title="Basic Usage"
           description="The Following Examples Show the Basic Usage of the Container Component."
@@ -637,7 +638,665 @@ export default function ContainerExample() {
                   }}
                   compFactory={ContainerComp}
                 />
-        </ExampleGroup>      
+        </ExampleGroup>
+
+        <ExampleGroup
+            title="Styling Properties"
+            description="The Following Examples Show the different Styling Properties of the Container Component."
+            >
+            <Example
+                title="Overall Styling"
+                hideSettings={true}
+                height={500}
+                width={1000}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "a6083c0a": {
+                                    "i": "a6083c0a",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "a6083c0a": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back!",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "a6f7c0e4": {
+                                            "i": "a6f7c0e4",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "c5b32ee6": {
+                                            "i": "c5b32ee6",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "a6f7c0e4": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "c5b32ee6": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "visibilityToggle": true,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "95ccf34e": {
+                                    "i": "95ccf34e",
+                                    "h": 5,
+                                    "w": 10,
+                                    "x": 14,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "95ccf34e": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#5589F2",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "margin": "5px",
+                            "padding": "15px"
+                        },
+                        "appliedThemeId": ""
+                      },
+                }}
+                compFactory={ContainerComp}
+            />
+            <Example
+                title="Header Styling"
+                hideSettings={true}
+                height={500}
+                width={1000}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "a6083c0a": {
+                                    "i": "a6083c0a",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "a6083c0a": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back!",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "a6f7c0e4": {
+                                            "i": "a6f7c0e4",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "c5b32ee6": {
+                                            "i": "c5b32ee6",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "a6f7c0e4": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "c5b32ee6": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "visibilityToggle": true,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "95ccf34e": {
+                                    "i": "95ccf34e",
+                                    "h": 5,
+                                    "w": 10,
+                                    "x": 14,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "95ccf34e": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#5589F2",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "margin": "5px",
+                            "padding": "15px"
+                        },
+                        "headerStyle": {
+                            "containerHeaderPadding": "20px",
+                            "headerBackground": "#E68E50"
+                        },
+                        "appliedThemeId": ""
+                      },
+                }}
+                compFactory={ContainerComp}
+            />
+            <Example
+                title="Body Styling"
+                hideSettings={true}
+                height={500}
+                width={1000}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "a6083c0a": {
+                                    "i": "a6083c0a",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "a6083c0a": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back!",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "a6f7c0e4": {
+                                            "i": "a6f7c0e4",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "c5b32ee6": {
+                                            "i": "c5b32ee6",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "a6f7c0e4": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "c5b32ee6": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "visibilityToggle": true,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "95ccf34e": {
+                                    "i": "95ccf34e",
+                                    "h": 5,
+                                    "w": 10,
+                                    "x": 14,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "95ccf34e": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#5589F2",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "margin": "5px",
+                            "padding": "15px",
+                        },
+                        "headerStyle": {
+                            "containerHeaderPadding": "20px",
+                            "headerBackground": "#E68E50",
+                        },
+                        "bodyStyle": {
+                            "containerBodyPadding": "20px",
+                            "background": "#F2DB0A",
+                        },
+                        "appliedThemeId": ""
+                        },
+                }}
+                compFactory={ContainerComp}
+            />
+            <Example
+                title="Footer Styling"
+                hideSettings={true}
+                height={500}
+                width={1000}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "a6083c0a": {
+                                    "i": "a6083c0a",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "a6083c0a": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back!",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "a6f7c0e4": {
+                                            "i": "a6f7c0e4",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "c5b32ee6": {
+                                            "i": "c5b32ee6",
+                                            "h": 7,
+                                            "w": 14,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "a6f7c0e4": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "c5b32ee6": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "visibilityToggle": true,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "95ccf34e": {
+                                    "i": "95ccf34e",
+                                    "h": 5,
+                                    "w": 10,
+                                    "x": 14,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "95ccf34e": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#5589F2",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "margin": "5px",
+                            "padding": "15px",
+                        },
+                        "headerStyle": {
+                            "containerHeaderPadding": "20px",
+                            "headerBackground": "#E68E50",
+                        },
+                        "bodyStyle": {
+                            "containerBodyPadding": "20px",
+                            "background": "#F2DB0A",
+                        },
+                        "footerStyle": {
+                            "containerFooterPadding": "20px",
+                            "footerBackground": "#EA7B7B"
+                        },
+                        "appliedThemeId": ""
+                        },
+                }}
+                compFactory={ContainerComp}
+            />
+        </ExampleGroup>     
       </>
     );
   }

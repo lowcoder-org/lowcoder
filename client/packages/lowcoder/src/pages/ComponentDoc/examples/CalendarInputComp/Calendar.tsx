@@ -46,6 +46,15 @@ export default function CalendarExample() {
           compFactory={ChartCompWithDefault}
         />
         <Example
+          title="Non-Editable - New Events can't be added to a Calendar"
+          width={700}
+          height={600}
+          config={{
+            editable: false,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
           title="Hiding Event Times"
           width={700}
           height={600}
@@ -165,6 +174,172 @@ export default function CalendarExample() {
           height={600}
           config={{
             showVerticalScrollbar: true,
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties of the Calendar Component."
+      >
+        <Example
+          title="Background Color"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Border Properties : Color and Radius"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "border": "#053AF9",
+              "radius": "10px",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Text Color"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "text": "#EF0404",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Button Background Color & Text Color"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "headerBtnBackground": "#36B389",
+              "btnText": "#080808",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Title Color"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "title": "#FFA608",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Selected Background Color - Select any time slot to see the Color"
+          width={700}
+          height={600}
+          config={{
+            style: {
+              "selectBackground": "#FFA608",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Modal Style"
+        description="The Following Examples Show the different Styling properties on the Modal of the Calendar Component."
+      >
+        <Example
+          title="Background Color"
+          width={700}
+          height={600}
+          config={{
+            modalStyle: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Border Properties - Color, Width & Style"
+          width={700}
+          height={600}
+          config={{
+            modalStyle: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "border": "#053CFF",
+              "borderWidth": "2px",
+              "borderStyle": "dashed",
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Input Text Color & Input fields Background Color"
+          width={700}
+          height={600}
+          config={{
+            modalStyle: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "text": "#FFFFFF",
+              "labelBackground": "#0702F2"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different Animation Styles on the Calendar Component."
+      >
+        <Example
+          title="Bounce Animation"
+          width={700}
+          height={600}
+          config={{
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Swing Animation"
+          width={700}
+          height={600}
+          config={{
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={ChartCompWithDefault}
+        />
+        <Example
+          title="Tada Animation"
+          width={700}
+          height={600}
+          config={{
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
           }}
           compFactory={ChartCompWithDefault}
         />
