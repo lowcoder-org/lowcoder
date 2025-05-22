@@ -13,6 +13,7 @@ import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
+import Tooltip from "antd/es/tooltip";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -122,7 +123,11 @@ let RadioBasicComp = (function () {
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
             .map((option) => ({
-              label: option.label,
+              label: (
+                <Tooltip title={option.label}>
+                  <span>{option.label}</span>
+                </Tooltip>
+              ),
               value: option.value,
               disabled: option.disabled,
             }))}

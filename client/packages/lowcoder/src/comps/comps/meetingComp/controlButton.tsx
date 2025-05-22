@@ -39,6 +39,7 @@ import { useEffect, useRef, useState } from "react";
 import ReactResizeDetector from "react-resize-detector";
 
 import { useContext } from "react";
+import { Tooltip } from "antd";
 
 const Container = styled.div<{ $style: any }>`
   height: 100%;
@@ -242,48 +243,48 @@ let ButtonTmpComp = (function () {
                       : undefined
                   }
                 >
-                  <Button100
-                    ref={props.viewRef}
-                    $buttonStyle={props.style}
-                    loading={props.loading}
-                    style={
-                      props.autoHeight
-                        ? { 
-                          width: "100%", 
-                          height: "100%",
-                          aspectRatio: props.aspectRatio,
-                          borderRadius: props.style.radius,
-                        }
-                        : {
-                          aspectRatio: props.aspectRatio,
-                          borderRadius: props.style.radius,
-                        }
-                    }
-                    disabled={
-                      props.disabled ||
-                      (!isDefault(props.type) &&
-                        getForm(editorState, props.form)?.disableSubmit())
-                    }
-                    onClick={() =>
-                      isDefault(props.type)
-                        ? props.onEvent("click")
-                        : submitForm(editorState, props.form)
-                    }
-                  >
-                    {props.prefixIcon && (
-                      <IconWrapper
-                        $style={{ ...props.style, size: props.iconSize }}
-                      >
-                        {props.prefixIcon}
-                      </IconWrapper>
-                    )}
-                    
-                  </Button100>
+                  <Tooltip title={trans("meeting.meetingControlCompName")}>
+                    <Button100
+                      ref={props.viewRef}
+                      $buttonStyle={props.style}
+                      loading={props.loading}
+                      style={
+                        props.autoHeight
+                          ? {
+                              width: "100%",
+                              height: "100%",
+                              aspectRatio: props.aspectRatio,
+                              borderRadius: props.style.radius,
+                            }
+                          : {
+                              aspectRatio: props.aspectRatio,
+                              borderRadius: props.style.radius,
+                            }
+                      }
+                      disabled={
+                        props.disabled ||
+                        (!isDefault(props.type) &&
+                          getForm(editorState, props.form)?.disableSubmit())
+                      }
+                      onClick={() =>
+                        isDefault(props.type)
+                          ? props.onEvent("click")
+                          : submitForm(editorState, props.form)
+                      }
+                    >
+                      {props.prefixIcon && (
+                        <IconWrapper
+                          $style={{ ...props.style, size: props.iconSize }}
+                        >
+                          {props.prefixIcon}
+                        </IconWrapper>
+                      )}
+                    </Button100>
+                  </Tooltip>
                 </div>
               </Container>
             )}
-          >
-          </ReactResizeDetector>
+          ></ReactResizeDetector>
         )}
       </EditorContext.Consumer>
     );

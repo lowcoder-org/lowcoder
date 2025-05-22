@@ -23,7 +23,7 @@ import {
   ButtonStyleControl,
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
-
+import { Tooltip } from "antd";
 import React, { useContext, useEffect } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
@@ -139,24 +139,26 @@ const ButtonTmpComp = (function () {
       <ButtonCompWrapper $disabled={props.disabled}>
         <EditorContext.Consumer>
           {(editorState) => (
-            <Button100
-              ref={props.viewRef}
-              $buttonStyle={props.style}
-              loading={props.loading}
-              disabled={
-                props.disabled ||
-                (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
-              }
-              onClick={() =>
-                isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
-              }
-            >
-              {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
-              {
-                props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
-              }
-              {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
-            </Button100>
+            <Tooltip title={props.text}>
+              <Button100
+                ref={props.viewRef}
+                $buttonStyle={props.style}
+                loading={props.loading}
+                disabled={
+                  props.disabled ||
+                  (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
+                }
+                onClick={() =>
+                  isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
+                }
+              >
+                {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
+                {
+                  props.text || (props.prefixIcon || props.suffixIcon ? undefined : " ") // Avoid button disappearing
+                }
+                {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
+              </Button100>
+            </Tooltip>
           )}
         </EditorContext.Consumer>
       </ButtonCompWrapper>
