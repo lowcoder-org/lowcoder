@@ -14,7 +14,7 @@ import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import Tooltip from "antd/es/tooltip";
-import { useEffect, useRef } from "react";
+import { useCallback, useRef, useEffect, memo } from "react";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
@@ -98,16 +98,72 @@ const Radio = styled(AntdRadioGroup)<{
   }}
 `;
 
+const MemoizedRadio = memo(({
+  value, 
+  disabled, 
+  style, 
+  inputFieldStyle, 
+  layout, 
+  options, 
+  onChange, 
+  viewRef 
+}: {
+  value: string;
+  disabled: boolean;
+  style: RadioStyleType;
+  inputFieldStyle: RadioStyleType;
+  layout: ValueFromOption<typeof RadioLayoutOptions>;
+  options: Array<{ label: string; value: string; disabled?: boolean; hidden?: boolean }>;
+  onChange: (value: string) => void;
+  viewRef: React.Ref<HTMLDivElement>;
+}) => {
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = useCallback((e: any) => {
+    if (!mountedRef.current) return;
+    onChange(e.target.value);
+  }, [onChange]);
+
+  const filteredOptions = useCallback(() => {
+    return options
+      .filter((option) => option.value !== undefined && !option.hidden)
+      .map((option) => ({
+        label: option.label,
+        value: option.value,
+        disabled: option.disabled,
+      }));
+  }, [options]);
+
+  return (
+    <Radio
+      ref={viewRef}
+      disabled={disabled}
+      value={value}
+      $style={style}
+      $inputFieldStyle={inputFieldStyle}
+      $layout={layout}
+      onChange={handleChange}
+      options={filteredOptions()}
+    />
+  );
+});
+
+MemoizedRadio.displayName = 'MemoizedRadio';
+
 let RadioBasicComp = (function () {
   return new UICompBuilder(RadioChildrenMap, (props) => {
-    const [
-      validateState,
-      handleChange,
-    ] = useSelectInputValidate(props);
-    
+    const mountedRef = useRef(true);
     const radioRef = useRef<HTMLDivElement | null>(null);
-    
+    const [validateState, handleChange] = useSelectInputValidate(props);
+
     useEffect(() => {
+      if (!mountedRef.current) return;
       if (radioRef.current && typeof props.tabIndex === 'number') {
         const firstRadioInput = radioRef.current.querySelector('input[type="radio"]');
         if (firstRadioInput) {
@@ -115,40 +171,46 @@ let RadioBasicComp = (function () {
         }
       }
     }, [props.tabIndex, props.options]);
-    
+
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
+
+    const handleValidateChange = useCallback((value: string) => {
+      if (!mountedRef.current) return;
+      handleChange(value);
+    }, [handleChange]);
+
     return props.label({
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
-      animationStyle:props.animationStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
-        <Radio
-          ref={(el) => {
+        <MemoizedRadio
+          value={props.value.value}
+          disabled={props.disabled}
+          style={props.style}
+          inputFieldStyle={props.inputFieldStyle}
+          layout={props.layout}
+          options={props.options.map((option) => ({
+              label: (
+                <Tooltip title={option.label}>
+                  <span>{option.label}</span>
+                </Tooltip>
+              )}
+            ))}
+          onChange={handleValidateChange}
+          viewRef={(el) => {
+            if (!mountedRef.current) return;
             if (el) {
               props.viewRef(el);
               radioRef.current = el;
             }
           }}
-          disabled={props.disabled}
-          value={props.value.value}
-          $style={props.style}
-          $inputFieldStyle={props.inputFieldStyle}
-          $layout={props.layout}
-          onChange={(e) => {
-            handleChange(e.target.value);
-          }}
-          options={props.options
-            .filter((option) => option.value !== undefined && !option.hidden)
-            .map((option) => ({
-              label: (
-                <Tooltip title={option.label}>
-                  <span>{option.label}</span>
-                </Tooltip>
-              ),
-              value: option.value,
-              disabled: option.disabled,
-            }))}
         />
       ),
       ...validateState,

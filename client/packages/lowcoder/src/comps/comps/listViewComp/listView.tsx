@@ -5,7 +5,7 @@ import _, { findIndex } from "lodash";
 import { ConstructorToView, deferAction } from "lowcoder-core";
 import { DragIcon, HintPlaceHolder, ScrollBar, pageItemRender } from "lowcoder-design";
 import { RefObject, useContext, createContext, useMemo, useRef, useEffect } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { useDelayState } from "util/hooks";
@@ -372,41 +372,41 @@ export function ListView(props: Props) {
     children.onEvent.getView()('sortChange');
   };
 
+  useResizeDetector({
+    targetRef: ref,
+    onResize: ({width, height}: ResizePayload) => {
+      if (height) setListHeight(height);
+    },
+    observerOptions: { box: "border-box" },
+  });
+
   // log.debug("renders: ", renders);
+
   return (
     <BackgroundColorContext.Provider value={style.background}>
       <ListViewWrapper $style={style} $paddingWidth={paddingWidth} $animationStyle={animationStyle}>
         <BodyWrapper ref={ref} $autoHeight={autoHeight}>
           <ScrollBar style={{ height: autoHeight ? "auto" : "100%", margin: "0px", padding: "0px" }} hideScrollbar={horizontal ? !showHorizontalScrollbar : !showVerticalScrollbar} overflow={autoHeight ? horizontal ? 'scroll' : 'hidden' : 'scroll'}>
-            <ReactResizeDetector
-              onResize={(width?: number, height?: number) => {
-                if (height) setListHeight(height);
-              }}
-              observerOptions={{ box: "border-box" }}
-              render={() => (
-                <ListOrientationWrapper
-                  $isHorizontal={horizontal}
-                  $isGrid={noOfColumns > 1}
-                  $autoHeight={autoHeight}
-                >
-                  {!enableSorting
-                    ? renders
-                    : (
-                      <DndContext onDragEnd={handleDragEnd}>
-                        <SortableContext
-                          items={
-                            _.range(0, totalCount).map((colIdx) => String(colIdx))
-                          }
-                        >
-                          {renders}
-                        </SortableContext>
-                      </DndContext>
-                    )
-                  }
-                </ListOrientationWrapper>
-              )}
+            <ListOrientationWrapper
+              $isHorizontal={horizontal}
+              $isGrid={noOfColumns > 1}
+              $autoHeight={autoHeight}
             >
-            </ReactResizeDetector>
+              {!enableSorting
+                ? renders
+                : (
+                  <DndContext onDragEnd={handleDragEnd}>
+                    <SortableContext
+                      items={
+                        _.range(0, totalCount).map((colIdx) => String(colIdx))
+                      }
+                    >
+                      {renders}
+                    </SortableContext>
+                  </DndContext>
+                )
+              }
+            </ListOrientationWrapper>
           </ScrollBar>
         </BodyWrapper>
         <FooterWrapper>

@@ -1,5 +1,5 @@
 import styled, { css } from "styled-components";
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 
 const HeaderDiv = styled.div`
   width: 312px;
@@ -79,26 +79,42 @@ interface ITabs {
   activeKey: string;
 }
 
-const Tabs = (props: ITabs) => {
+const Tabs = React.memo((props: ITabs) => {
   const { onChange, tabsConfig, activeKey } = props;
-  const activeTab = tabsConfig.find((c) => c.key === activeKey) || tabsConfig[0];
+  
+  const activeTab = useMemo(() => 
+    tabsConfig.find((c) => c.key === activeKey) || tabsConfig[0],
+    [tabsConfig, activeKey]
+  );
+
+  const handleTabClick = useCallback((key: string) => {
+    onChange(key);
+  }, [onChange]);
+
+  const renderTab = useCallback((tab: ITabsConfig) => {
+    const isActive = activeTab.key === tab.key;
+    return (
+      <IconAndName 
+        key={tab.key} 
+        onClick={() => handleTabClick(tab.key)} 
+        $isActive={isActive}
+      >
+        {tab.icon}
+        <Text $color={isActive ? "#222222" : "#8b8fa3"}>{tab.title}</Text>
+      </IconAndName>
+    );
+  }, [activeTab.key, handleTabClick]);
 
   return (
     <>
       <HeaderDiv>
-        {props.tabsConfig.map((tab) => {
-          const isActive = activeTab.key === tab.key;
-          return (
-            <IconAndName key={tab.key} onClick={() => onChange(tab.key)} $isActive={isActive}>
-              {tab.icon}
-              <Text $color={isActive ? "#222222" : "#8b8fa3"}>{tab.title}</Text>
-            </IconAndName>
-          );
-        })}
+        {tabsConfig.map(renderTab)}
       </HeaderDiv>
       <ChildDiv>{activeTab.content}</ChildDiv>
     </>
   );
-};
+});
+
+Tabs.displayName = 'Tabs';
 
 export { Tabs };

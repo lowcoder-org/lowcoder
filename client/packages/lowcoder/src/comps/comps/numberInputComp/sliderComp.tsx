@@ -8,6 +8,7 @@ import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from 
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
 import { NumberControl } from "comps/controls/codeControl";
+import { useCallback } from "react";
 
 const SliderBasicComp = (function () {
   /**
@@ -21,18 +22,24 @@ const SliderBasicComp = (function () {
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
+    }, []);
+
+    const handleChange = useCallback((value: number) => {
+      props.value.onChange(value);
+      props.onEvent("change");
+    }, [props.value, props.onEvent]);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
-      animationStyle:props.animationStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
         <SliderWrapper
           $vertical={Boolean(props.vertical)}
-          onMouseDown={(e: any) => {
-            e.stopPropagation();
-            return false;
-          }}
+          onMouseDown={handleMouseDown}
         >
           {hasIcon(props.prefixIcon) && props.prefixIcon}
           <SliderStyled
@@ -42,10 +49,7 @@ const SliderBasicComp = (function () {
             style={{margin: 0}}
             $vertical={Boolean(props.vertical) || false}
             tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
-            onChange={(e) => {
-              props.value.onChange(e);
-              props.onEvent("change");
-            }}
+            onChange={handleChange}
           />
           {hasIcon(props.suffixIcon) && props.suffixIcon}
         </SliderWrapper>

@@ -36,7 +36,7 @@ import {
   widthCalculator,
 } from "comps/controls/styleControlConstants";
 import { useEffect, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 
 import { useContext } from "react";
 import { Tooltip } from "antd";
@@ -242,70 +242,70 @@ let ButtonTmpComp = (function () {
       setStyle(container?.clientHeight + "px", container?.clientWidth + "px");
     };
 
+    useResizeDetector({
+      targetRef: conRef,
+      onResize,
+    });
+
     return (
       <EditorContext.Consumer>
         {(editorState) => (
-          <ReactResizeDetector
-            onResize={onResize}
-            render={() => (
-              <Container ref={conRef} $style={props.style}>
-                <div
-                  ref={imgRef}
+          <Container ref={conRef} $style={props.style}>
+            <div
+              ref={imgRef}
+              style={
+                props.autoHeight
+                  ? { width: "100%", height: "100%" }
+                  : undefined
+              }
+            >
+              <Tooltip title={trans("meeting.meetingControlCompName")}>
+                <Button100
+                  ref={props.viewRef}
+                  $buttonStyle={props.style}
+                  loading={props.loading}
                   style={
                     props.autoHeight
-                      ? { width: "100%", height: "100%" }
-                      : undefined
+                      ? { 
+                        width: "100%", 
+                        height: "100%",
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                      : {
+                        aspectRatio: props.aspectRatio,
+                        borderRadius: props.style.radius,
+                      }
+                  }
+                  disabled={
+                    props.disabled ||
+                    (!isDefault(props.type) &&
+                      getForm(editorState, props.form)?.disableSubmit())
+                  }
+                  onClick={() =>
+                    isDefault(props.type)
+                      ? props.onEvent("click")
+                      : submitForm(editorState, props.form)
                   }
                 >
-                  <Tooltip title={trans("meeting.meetingControlCompName")}>
-                    <Button100
-                      ref={props.viewRef}
-                      $buttonStyle={props.style}
-                      loading={props.loading}
-                      style={
-                        props.autoHeight
-                          ? { 
-                            width: "100%", 
-                            height: "100%",
-                            aspectRatio: props.aspectRatio,
-                            borderRadius: props.style.radius,
-                          }
-                          : {
-                            aspectRatio: props.aspectRatio,
-                            borderRadius: props.style.radius,
-                          }
-                      }
-                      disabled={
-                        props.disabled ||
-                        (!isDefault(props.type) &&
-                          getForm(editorState, props.form)?.disableSubmit())
-                      }
-                      onClick={() =>
-                        isDefault(props.type)
-                          ? props.onEvent("click")
-                          : submitForm(editorState, props.form)
-                      }
+                  {props.sourceMode === 'standard' && props.prefixIcon && (
+                    <IconWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
                     >
-                      {props.sourceMode === 'standard' && props.prefixIcon && (
-                        <IconWrapper
-                          $style={{ ...props.style, size: props.iconSize }}
-                        >
-                          {props.prefixIcon}
-                        </IconWrapper>
-                      )}
-                      {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
-                        <IconScoutWrapper
-                          $style={{ ...props.style, size: props.iconSize }}
-                        >
-                          <img src={props.iconScoutAsset.value} />
-                        </IconScoutWrapper>
-                      )}
-                    </Button100>
-                  </Tooltip>
-                </div>
-              </Container>
-            )}
-          ></ReactResizeDetector>
+                      {props.prefixIcon}
+                    </IconWrapper>
+                  )}
+                  {props.sourceMode === 'asset-library' && props.iconScoutAsset && (
+                    <IconScoutWrapper
+                      $style={{ ...props.style, size: props.iconSize }}
+                    >
+                      {Boolean(props.iconScoutAsset.value) && <img src={props.iconScoutAsset.value} />}
+                    </IconScoutWrapper>
+                  )}
+                </Button100>
+              </Tooltip>
+            </div>
+          </Container>
         )}
       </EditorContext.Consumer>
     );

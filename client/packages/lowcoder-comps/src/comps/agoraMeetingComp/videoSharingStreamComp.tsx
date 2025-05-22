@@ -19,7 +19,7 @@ import { useEffect, useRef, useState } from "react";
 import { client } from "./meetingControllerComp";
 import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
 import { trans } from "../../i18n/comps";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { ButtonStyleControl } from "./videobuttonCompConstants";
 
 const VideoContainer = styled.video`
@@ -123,61 +123,63 @@ let SharingCompBuilder = (function () {
       }
     }, [props.userId.value]);
 
+    useResizeDetector({
+      targetRef: conRef,
+    });
+    
     return (
       <EditorContext.Consumer>
         {(editorState: any) => (
-          <ReactResizeDetector>
+          <div
+            ref={conRef}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              height: "100%",
+              overflow: "hidden",
+              borderRadius: props?.style?.radius,
+              aspectRatio: props?.videoAspectRatio,
+              backgroundColor: props.style?.background,
+              padding: props.style?.padding,
+              margin: props.style?.margin,
+            }}
+          >
+            {userId ? (
+              <VideoContainer
+                onClick={() => props.onEvent("videoClicked")}
+                ref={videoRef}
+                style={{
+                  display: `${showVideoSharing ? "flex" : "none"}`,
+                  aspectRatio: props.videoAspectRatio,
+                  borderRadius: props.style.radius,
+                  width: "auto",
+                }}
+                id="share-screen"
+              ></VideoContainer>
+            ) : (
+              <></>
+            )}
             <div
-              ref={conRef}
               style={{
-                display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
-                height: "100%",
-                overflow: "hidden",
-                borderRadius: props?.style?.radius,
-                aspectRatio: props?.videoAspectRatio,
-                backgroundColor: props.style?.background,
-                padding: props.style?.padding,
-                margin: props.style?.margin,
+                display: `${!showVideoSharing || userId ? "flex" : "none"}`,
+                margin: "0 auto",
+                padding: props.profilePadding,
               }}
             >
-              {userId ? (
-                <VideoContainer
-                  onClick={() => props.onEvent("videoClicked")}
-                  ref={videoRef}
-                  style={{
-                    display: `${showVideoSharing ? "flex" : "none"}`,
-                    aspectRatio: props.videoAspectRatio,
-                    borderRadius: props.style.radius,
-                    width: "auto",
-                  }}
-                  id="share-screen"
-                ></VideoContainer>
-              ) : (
-                <></>
-              )}
-              <div
+              <img
+                alt=""
                 style={{
-                  flexDirection: "column",
-                  alignItems: "center",
-                  display: `${!showVideoSharing || userId ? "flex" : "none"}`,
-                  margin: "0 auto",
-                  padding: props.profilePadding,
+                  borderRadius: props.profileBorderRadius,
+                  width: "100%",
+                  overflow: "hidden",
                 }}
-              >
-                <img
-                  alt=""
-                  style={{
-                    borderRadius: props.profileBorderRadius,
-                    width: "100%",
-                    overflow: "hidden",
-                  }}
-                  src={props.profileImageUrl?.value}
-                />
-                <p style={{ margin: "0" }}>{userName ?? ""}</p>
-              </div>
+                src={props.profileImageUrl?.value}
+              />
+              <p style={{ margin: "0" }}>{userName ?? ""}</p>
             </div>
-          </ReactResizeDetector>
+          </div>
         )}
       </EditorContext.Consumer>
     );

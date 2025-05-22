@@ -1,10 +1,11 @@
 import { css } from "styled-components";
-import { lazy } from "react";
+import { lazy, Suspense, memo, useMemo } from "react";
 // import ReactMarkdown from "react-markdown";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
-import type { Options as ReactMarkdownOptions } from "react-markdown/lib";
+import type { Options as ReactMarkdownOptions, Components } from "react-markdown/lib";
+import type { Pluggable } from "unified";
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
@@ -38,44 +39,69 @@ interface TacoMarkDownProps extends ReactMarkdownOptions {
   children: string;
 }
 
-const components = {
-  a: (props: any) => {
-    const { node, children, ...otherProps } = props;
-    return (
-      <a {...otherProps} target="_blank">
-        {children}
-      </a>
-    );
+interface AnchorProps {
+  node?: any;
+  children: React.ReactNode;
+  href?: string;
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+// Memoize the anchor component to prevent unnecessary re-renders
+const Anchor = memo((props: AnchorProps) => {
+  const { node, children, ...otherProps } = props;
+  return (
+    <a {...otherProps} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  );
+});
+
+Anchor.displayName = 'Anchor';
+
+// Memoize the components object with proper typing
+const components: Components = {
+  a: Anchor as any, // Type assertion needed due to react-markdown's type definitions
+};
+
+// Memoize the sanitize schema
+const sanitizeSchema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    "*": [
+      ...((defaultSchema.attributes && defaultSchema.attributes["*"]) || []),
+      "style",
+      "className",
+    ],
   },
 };
 
-export const TacoMarkDown = (props: TacoMarkDownProps) => {
+// Memoize the rehype plugins array with proper typing
+const rehypePlugins: Pluggable[] = [
+  [rehypeRaw] as Pluggable,
+  [rehypeSanitize, sanitizeSchema] as Pluggable,
+];
+
+export const TacoMarkDown = memo((props: TacoMarkDownProps) => {
   const { children, ...otherProps } = props;
+
+  // Memoize the remark plugins array with proper typing
+  const remarkPlugins = useMemo(() => [remarkGfm] as Pluggable[], []);
+
   return (
-    <ReactMarkdown
-      remarkPlugins={[remarkGfm]}
-      components={components}
-      rehypePlugins={[
-        [rehypeRaw],
-        [
-          rehypeSanitize,
-          {
-            ...defaultSchema,
-            attributes: {
-              ...defaultSchema.attributes,
-              "*": [
-                ...((defaultSchema.attributes && defaultSchema.attributes["*"]) || []),
-                "style",
-                "className",
-              ],
-            },
-          },
-        ],
-      ]}
-      className="markdown-body"
-      {...otherProps}
-    >
-      {children}
-    </ReactMarkdown>
+    <Suspense fallback={<div className="markdown-body">Loading...</div>}>
+      <ReactMarkdown
+        remarkPlugins={remarkPlugins}
+        components={components}
+        rehypePlugins={rehypePlugins}
+        className="markdown-body"
+        {...otherProps}
+      >
+        {children}
+      </ReactMarkdown>
+    </Suspense>
   );
-};
+});
+
+TacoMarkDown.displayName = 'TacoMarkDown';
