@@ -291,6 +291,7 @@ public class OrgApiServiceImpl implements OrgApiService {
                     updateOrg.setContactEmail(updateOrgRequest.getContactEmail());
                     updateOrg.setContactPhoneNumber(updateOrgRequest.getContactPhoneNumber());
                     updateOrg.setContactName(updateOrgRequest.getContactName());
+                    updateOrg.setState(updateOrgRequest.getState());
                     return organizationService.update(orgId, updateOrg);
                 });
     }

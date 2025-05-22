@@ -40,6 +40,7 @@ export const allowClearPropertyView = (children: {
   allowClear: InstanceType<typeof BoolControl>;
 }) => children.allowClear.propertyView({ label: trans("prop.showClear") });
 
+
 export const showSearchPropertyView = (children: {
   showSearch: InstanceType<typeof BoolControl>;
 }) => children.showSearch.propertyView({ label: trans("prop.showSearch") });

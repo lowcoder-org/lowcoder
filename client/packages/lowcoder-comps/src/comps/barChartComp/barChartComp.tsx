@@ -304,17 +304,17 @@ let BarChartComp = withExposingConfigs(BarChartTmpComp, [
 
 
 export const BarChartCompWithDefault = withDefault(BarChartComp, {
-  xAxisKey: "date",
+  xAxisKey: "month",
   series: [
     {
       dataIndex: genRandomKey(),
-      seriesName: trans("chart.spending"),
-      columnName: "spending",
+      seriesName: "Sales",
+      columnName: "sales",
     },
     {
       dataIndex: genRandomKey(),
-      seriesName: trans("chart.budget"),
-      columnName: "budget",
+      seriesName: "Target",
+      columnName: "target",
     },
   ],
 });

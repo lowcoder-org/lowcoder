@@ -95,25 +95,28 @@ function UserRegister() {
     setSigninEnabled(LOWCODER_EMAIL_AUTH_ENABLED === 'true');
   }, [serverSettings]);
 
+  const fetchOrgsByEmail = () => {
+    fetchOrgPaginationByEmail({
+      email: ' ',
+      pageNum: 1,
+      pageSize: 10,
+    })
+    .then((resp) => {
+      if (resp.success) {
+        const orgList = resp.data || [];
+        if (orgList.length) {
+          // in Enterprise mode, we will get org data in different format
+          const selectedOrgId = orgList[0]?.id || orgList[0]?.orgId;
+          setDefaultOrgId(selectedOrgId);
+          dispatch(fetchConfigAction(selectedOrgId));
+        }
+      }
+    })
+  }
+
   useEffect(() => {
     if (isEnterpriseMode) {
-      // dispatch(fetchConfigAction());
-      fetchOrgPaginationByEmail({
-          email: ' ',
-          pageNum: 1,
-          pageSize: 10,
-        })
-        .then((resp) => {
-          if (resp.success) {
-            const orgList = resp.data || [];
-            if (orgList.length) {
-              // in Enterprise mode, we will get org data in different format
-              const selectedOrgId = orgList[0]?.id || orgList[0]?.orgId;
-              setDefaultOrgId(selectedOrgId);
-              dispatch(fetchConfigAction(selectedOrgId));
-            }
-          }
-        })
+      fetchOrgsByEmail();
     }
   }, [isEnterpriseMode]);
 

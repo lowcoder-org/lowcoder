@@ -13,28 +13,96 @@ export default function jsonSchemaFormExample() {
         <Example
           title="A Simple JSON Schema Form"
           hideSettings={true}
-          config={{
-            schema:
-              '{\n  "title": "User profile",\n  "description": "form example",\n  "type": "object",\n  "required": [\n    "name",\n    "phone"\n  ],\n  "properties": {\n    "name": {\n      "type": "string",\n      "title": "Name"\n    },\n    "phone": {\n      "type": "string",\n      "title": "Phone",\n      "minLength": 11\n    },\n    "birthday": {\n      "type": "string",\n      "title": "Birthday"\n    }\n  }\n}',
-            uiSchema:
-              '{\n  "name": {\n    "ui:autofocus": true,\n    "ui:emptyValue": ""\n  },\n  "phone": {\n    "ui:help": "Please input a 11 digits number"\n  },\n  "birthday": {\n    "ui:widget": "date"\n  }\n}',
-            data: '{\n  "name": "Tom",\n  "phone": "13488886666",\n  "birthday": "1980-03-16"\n}',
-          }}
+          config={{}}
           compFactory={JsonSchemaFormComp}
         />
         <Example
           title="Hiding the JSON Schema Form"
           hideSettings={true}
           config={{
-            schema:
-              '{\n  "title": "User profile",\n  "description": "form example",\n  "type": "object",\n  "required": [\n    "name",\n    "phone"\n  ],\n  "properties": {\n    "name": {\n      "type": "string",\n      "title": "Name"\n    },\n    "phone": {\n      "type": "string",\n      "title": "Phone",\n      "minLength": 11\n    },\n    "birthday": {\n      "type": "string",\n      "title": "Birthday"\n    }\n  }\n}',
-            uiSchema:
-              '{\n  "name": {\n    "ui:autofocus": true,\n    "ui:emptyValue": ""\n  },\n  "phone": {\n    "ui:help": "Please input a 11 digits number"\n  },\n  "birthday": {\n    "ui:widget": "date"\n  }\n}',
-            data: '{\n  "name": "Tom",\n  "phone": "13488886666",\n  "birthday": "1980-03-16"\n}',
             hidden: true,
           }}
           compFactory={JsonSchemaFormComp}
         />
+        <Example
+          title="Reset after Form Submit - True"
+          hideSettings={true}
+          config={{
+            resetAfterSubmit: true, 
+          }}
+          compFactory={JsonSchemaFormComp}
+        />
+        <Example
+          title="Reset after Form Submit - False"
+          hideSettings={true}
+          config={{
+            resetAfterSubmit: false, 
+          }}
+          compFactory={JsonSchemaFormComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Styling Properties"
+        description="The Following Examples Show the different Styling properties on the JSON Schema Component."
+        >
+        <Example
+          title="Background Color, Border Radius and Color"
+          hideSettings={true}
+          config={{
+            style: {
+              "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+              "border": "#3377FF",
+              "radius": "20px"
+            },
+          }}
+          compFactory={JsonSchemaFormComp}
+        />
+      </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the JSON Schema Component."
+        >
+        <Example
+          title="Bounce Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={JsonSchemaFormComp}
+        />
+        <Example
+          title="Swing Animation"
+          hideSettings={true}
+          config={{
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={JsonSchemaFormComp}
+        />
+        <Example
+        title="Tada Animation"
+        hideSettings={true}
+        config={{
+            animationStyle: {
+            "animation": "tada",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={JsonSchemaFormComp}
+      />
       </ExampleGroup>
     </>
   );
