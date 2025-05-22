@@ -63,9 +63,9 @@ export const en = {
     title: 'Title',
     defaultTitle: 'Tree Chart',
     tooltip: 'Tooltip',
-    defaultLeft: "10",
+    defaultLeft: "20",
     left: "Left",
-    defaultRight: "10",
+    defaultRight: "20",
     right: "Right",
     defaultTop: "20",
     top: "Top",
@@ -76,7 +76,9 @@ export const en = {
     pointSizeTooltip: "Set the Point Size of the Chart.",
     defaultlineWidth: '2',
     lineWidth: "Line Width",
-    lineWidthTooltip: "Set the Line Width of the Chart."
+    lineWidthTooltip: "Set the Line Width of the Chart.",
+    labelVisibility: "Label",
+    labelVisibilityTooltip: "Show or hide the Label of the Chart."
   },
   graphChart: {
     categories: 'Categories',
@@ -214,6 +216,8 @@ export const en = {
     defaultTop:'15',
     bottom: 'Bottom',
     defaultBottom:'10',
+    labelVisibility: "Label",
+    labelVisibilityTooltip: "Show or hide the Label of the Chart."
   },
   funnelChart: {
     title: 'Title',
@@ -317,6 +321,8 @@ export const en = {
 
   },
   lineChart: {
+    title: 'Title',
+    defaultTitle: 'Line Chart',
     cellSize: "Cell Size",
     range: "Range",
     markLines: "Mark Lines",
