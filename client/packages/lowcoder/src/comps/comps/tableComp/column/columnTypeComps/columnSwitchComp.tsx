@@ -69,10 +69,13 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.switchState;
 
+let onEvent: (eventName: string) => Promise<unknown[]>;
+
 export const SwitchComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
+      onEvent = props.onEvent;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const CheckBoxComp = () => {
         return (
@@ -106,6 +109,8 @@ export const SwitchComp = (function () {
             disabled={false}
             onChange={(checked, e) => {
               props.onChange(checked);
+              onEvent?.("change");
+              onEvent?.(checked ? "true" : "false");
             }}
           />
         </Wrapper>

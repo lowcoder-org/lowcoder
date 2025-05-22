@@ -27,6 +27,8 @@ public interface OrganizationService {
 
     Mono<Organization> getById(String id);
 
+    Mono<Organization> getByIdWithDeleted(String id);
+
     @NonEmptyMono
     Flux<Organization> getByIds(Collection<String> ids);
     @NonEmptyMono

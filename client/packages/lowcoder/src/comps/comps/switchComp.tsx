@@ -1,5 +1,5 @@
 import { default as Switch } from "antd/es/switch";
-import { BoolCodeControl } from "comps/controls/codeControl";
+import { BoolCodeControl, NumberControl } from "comps/controls/codeControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { LabelControl } from "comps/controls/labelControl";
@@ -104,6 +104,7 @@ let SwitchTmpComp = (function () {
     ),
     viewRef: RefControl<HTMLElement>,
     inputFieldStyle: migrateOldData(styleControl(SwitchStyle, 'inputFieldStyle'), fixOldData),
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -125,6 +126,7 @@ let SwitchTmpComp = (function () {
             checked={value}
             disabled={props.disabled}
             ref={props.viewRef}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
             onChange={(checked) => {
               props.value.onChange(checked);
               props.onEvent("change");
@@ -149,6 +151,7 @@ let SwitchTmpComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               {showDataLoadingIndicatorsPropertyView(children)}
             </Section>
           )}

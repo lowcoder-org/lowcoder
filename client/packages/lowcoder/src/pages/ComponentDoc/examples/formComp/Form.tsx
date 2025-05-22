@@ -186,7 +186,7 @@ export default function FormExample() {
           hideSettings={true}
           config={{
             container: container,
-            disableSubmit: "true", 
+            disableSubmit: "true",
           }}
           compFactory={FormComp}
         />
@@ -199,8 +199,25 @@ export default function FormExample() {
           }}
           compFactory={FormComp}
         />
+        <Example
+          title="Reset after Form Submit - True"
+          hideSettings={true}
+          config={{
+            container: container,
+            resetAfterSubmit: true, 
+          }}
+          compFactory={FormComp}
+        />
+        <Example
+          title="Reset after Form Submit - False"
+          hideSettings={true}
+          config={{
+            container: container,
+            resetAfterSubmit: false, 
+          }}
+          compFactory={FormComp}
+        />
       </ExampleGroup>
-
 
       <ExampleGroup
         title="Layout"
@@ -659,6 +676,380 @@ export default function FormExample() {
           compFactory={FormComp}
         />
       </ExampleGroup>
+
+        <ExampleGroup
+            title="Styling Properties"
+            description="The Following Examples Show the different Styling properties on the Form Component."
+            >
+            <Example
+                title="Background Color, Border Radius,Style,Width,Color"
+                hideSettings={true}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "68d42007": {
+                                    "i": "68d42007",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "68d42007": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "showDataLoadingIndicators": false,
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "4b9ae86d": {
+                                            "i": "4b9ae86d",
+                                            "h": 7,
+                                            "w": 8,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "e74dc9d9": {
+                                            "i": "e74dc9d9",
+                                            "h": 7,
+                                            "w": 8,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "4b9ae86d": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "showDataLoadingIndicators": false,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "e74dc9d9": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "regex": "test",
+                                                "visibilityToggle": true,
+                                                "showDataLoadingIndicators": false,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "64227c09": {
+                                    "i": "64227c09",
+                                    "h": 6,
+                                    "w": 5,
+                                    "x": 19,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "64227c09": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "showDataLoadingIndicators": false,
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#3377FF",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "borderStyle": "dashed",
+                        },
+                        "appliedThemeId": ""
+                    },
+                }}
+                compFactory={FormComp}
+            />
+            <Example
+                title="Margin & Padding"
+                hideSettings={true}
+                config={{
+                    container: {
+                        "header": {
+                            "layout": {
+                                "68d42007": {
+                                    "i": "68d42007",
+                                    "h": 5,
+                                    "w": 24,
+                                    "x": 0,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "68d42007": {
+                                    "compType": "text",
+                                    "comp": {
+                                        "text": "### Welcome Back",
+                                        "autoHeight": "auto",
+                                        "type": "markdown",
+                                        "horizontalAlignment": "center",
+                                        "contentScrollBar": true,
+                                        "verticalAlignment": "center",
+                                        "margin": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "padding": {
+                                            "left": "",
+                                            "right": "",
+                                            "top": "",
+                                            "bottom": ""
+                                        },
+                                        "showDataLoadingIndicators": false,
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formTitle1"
+                                }
+                            }
+                        },
+                        "body": {
+                            "0": {
+                                "view": {
+                                    "layout": {
+                                        "4b9ae86d": {
+                                            "i": "4b9ae86d",
+                                            "h": 7,
+                                            "w": 8,
+                                            "x": 0,
+                                            "y": 0,
+                                            "pos": 0
+                                        },
+                                        "e74dc9d9": {
+                                            "i": "e74dc9d9",
+                                            "h": 7,
+                                            "w": 8,
+                                            "x": 0,
+                                            "y": 7,
+                                            "pos": 1
+                                        }
+                                    },
+                                    "items": {
+                                        "4b9ae86d": {
+                                            "compType": "input",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Email",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Email",
+                                                "showDataLoadingIndicators": false,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "input1"
+                                        },
+                                        "e74dc9d9": {
+                                            "compType": "password",
+                                            "comp": {
+                                                "defaultValue": "",
+                                                "value": "",
+                                                "label": {
+                                                    "text": "Password",
+                                                    "width": "33",
+                                                    "widthUnit": "%",
+                                                    "position": "row",
+                                                    "align": "left"
+                                                },
+                                                "validationType": "Regex",
+                                                "regex": "test",
+                                                "visibilityToggle": true,
+                                                "showDataLoadingIndicators": false,
+                                                "preventStyleOverwriting": false,
+                                                "appliedThemeId": "",
+                                                "version": "latest"
+                                            },
+                                            "name": "password1"
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "footer": {
+                            "layout": {
+                                "64227c09": {
+                                    "i": "64227c09",
+                                    "h": 6,
+                                    "w": 5,
+                                    "x": 19,
+                                    "y": 0
+                                }
+                            },
+                            "items": {
+                                "64227c09": {
+                                    "compType": "button",
+                                    "comp": {
+                                        "text": "Login",
+                                        "type": "submit",
+                                        "form": "form1",
+                                        "showDataLoadingIndicators": false,
+                                        "preventStyleOverwriting": false,
+                                        "appliedThemeId": "",
+                                        "version": "latest"
+                                    },
+                                    "name": "formButton1"
+                                }
+                            }
+                        },
+                        "showHeader": true,
+                        "showBody": true,
+                        "showFooter": true,
+                        "autoHeight": "auto",
+                        "showVerticalScrollbar": false,
+                        "horizontalGridCells": 24,
+                        "scrollbars": false,
+                        "style": {
+                            "border": "#3377FF",
+                            "background": "linear-gradient(135deg, #72afd3 0%, #96e6a1 100%)",
+                            "radius": "20px",
+                            "borderWidth": "3px",
+                            "borderStyle": "dashed",
+                            "margin": "5px",
+                            "padding": "20px"
+                        },
+                        "appliedThemeId": ""
+                    },
+                }}
+                compFactory={FormComp}
+            />
+        </ExampleGroup>
+
+        <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Form Component."
+        >
+        <Example
+        title="Bounce Animation"
+        hideSettings={true}
+        config={{
+            container: container, 
+            animationStyle: {
+            "animation": "bounce",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={FormComp}
+        />
+        <Example
+        title="Swing Animation"
+        hideSettings={true}
+        config={{
+            container: container, 
+            animationStyle: {
+            "animation": "swing",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={FormComp}
+        />
+        <Example
+        title="Tada Animation"
+        hideSettings={true}
+        config={{
+            container: container, 
+            animationStyle: {
+            "animation": "tada",
+            "animationDelay": "1s",
+            "animationDuration": "3s",
+            "animationIterationCount": "infinite"
+            },
+        }}
+        compFactory={FormComp}
+        />
+        </ExampleGroup>
     </>
   );
 }
