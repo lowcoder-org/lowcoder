@@ -197,6 +197,63 @@ export default function DividerExample() {
           compFactory={DividerComp}
         />
       </ExampleGroup>
+
+      <ExampleGroup
+        title="Animation Style"
+        description="The Following Examples Show different animations on the Cascader Component."
+      >
+        <Example
+          title="Bounce Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "bounce",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Swing Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "swing",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={DividerComp}
+        />
+        <Example
+          title="Tada Animation"
+          config={{
+            style: {
+              borderStyle: "solid",
+              border: "#000",
+              borderWidth: "2px"
+            },
+            animationStyle: {
+              "animation": "tada",
+              "animationDelay": "1s",
+              "animationDuration": "3s",
+              "animationIterationCount": "infinite"
+            },
+          }}
+          compFactory={DividerComp}
+        />
+      </ExampleGroup>
     </>
   );
 }
