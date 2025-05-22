@@ -156,7 +156,7 @@ const MemoizedCheckboxGroup = memo(({
   disabled: boolean;
   style: CheckboxStyleType;
   layout: ValueFromOption<typeof RadioLayoutOptions>;
-  options: Array<{ label: string; value: string; disabled?: boolean }>;
+  options: Array<{ label: any; value: string; disabled?: boolean }>;
   onChange: (values: string[]) => void;
   viewRef: React.Ref<HTMLDivElement>;
   tabIndex?: number
@@ -231,7 +231,11 @@ let CheckboxBasicComp = (function () {
       return props.options
         .filter((option) => option.value !== undefined && !option.hidden)
         .map((option) => ({
-          label: option.label,
+          label: (
+            <Tooltip title={option.label}>
+              <span>{option.label}</span>
+            </Tooltip>
+          ),
           value: option.value,
           disabled: option.disabled,
         }));
@@ -249,15 +253,7 @@ let CheckboxBasicComp = (function () {
           disabled={props.disabled}
           style={props.inputFieldStyle}
           layout={props.layout}
-          options={filteredOptions()
-            .map((option) => ({
-              label: (
-                <Tooltip title={option.label}>
-                  <span>{option.label}</span>
-                </Tooltip>
-              )
-            })
-          )}
+          options={filteredOptions()}
           onChange={handleValidateChange}
           viewRef={props.viewRef}
           tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}

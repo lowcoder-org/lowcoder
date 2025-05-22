@@ -134,7 +134,11 @@ const MemoizedRadio = memo(({
     return options
       .filter((option) => option.value !== undefined && !option.hidden)
       .map((option) => ({
-        label: option.label,
+        label: (
+          <Tooltip title={option.label}>
+              <span>{option.label}</span>
+          </Tooltip>
+        ),
         value: option.value,
         disabled: option.disabled,
       }));
@@ -196,13 +200,7 @@ let RadioBasicComp = (function () {
           style={props.style}
           inputFieldStyle={props.inputFieldStyle}
           layout={props.layout}
-          options={props.options.map((option) => ({
-              label: (
-                <Tooltip title={option.label}>
-                  <span>{option.label}</span>
-                </Tooltip>
-              )}
-            ))}
+          options={props.options}
           onChange={handleValidateChange}
           viewRef={(el) => {
             if (!mountedRef.current) return;
