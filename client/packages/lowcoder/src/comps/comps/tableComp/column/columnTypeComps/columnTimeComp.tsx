@@ -9,12 +9,11 @@ import { withDefault } from "comps/generators";
 import { formatPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import dayjs from "dayjs";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import styled from "styled-components";
 import { TIME_FORMAT } from "util/dateTimeUtils";
 import { hasIcon } from "comps/utils";
 import { IconControl } from "comps/controls/iconControl";
-
 
 const TimePickerStyled = styled(TimePicker)<{ $open: boolean }>`
   width: 100%;
@@ -61,8 +60,6 @@ const childrenMap = {
   inputFormat: withDefault(StringControl, TIME_FORMAT),
 };
 
-let inputFormat = TIME_FORMAT;
-
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
 type TimeEditProps = {
@@ -72,32 +69,64 @@ type TimeEditProps = {
   inputFormat: string;
 };
 
-export const TimeEdit = (props: TimeEditProps) => {
+export const TimeEdit = React.memo((props: TimeEditProps) => {
   const pickerRef = useRef<any>();
   const [panelOpen, setPanelOpen] = useState(true);
-  let value = dayjs(props.value, TIME_FORMAT);
-  if (!value.isValid()) {
-    value = dayjs("00:00:00", TIME_FORMAT);
-  }
+  const mountedRef = useRef(true);
 
-  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(value);
+  // Initialize tempValue with proper validation
+  const [tempValue, setTempValue] = useState<dayjs.Dayjs | null>(() => {
+    const initialValue = dayjs(props.value, TIME_FORMAT);
+    return initialValue.isValid() ? initialValue : dayjs("00:00:00", TIME_FORMAT);
+  });
 
+  // Memoize event handlers
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === "Enter" && !panelOpen) {
+      props.onChangeEnd();
+    }
+  }, [panelOpen, props.onChangeEnd]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+  }, []);
+
+  const handleOpenChange = useCallback((open: boolean) => {
+    if (mountedRef.current) {
+      setPanelOpen(open);
+    }
+  }, []);
+
+  const handleChange = useCallback((value: dayjs.Dayjs | null, dateString: string | string[]) => {
+    props.onChange(dateString as string);
+  }, [props.onChange]);
+
+  // Update tempValue when props.value changes
   useEffect(() => {
-    const value = props.value ? dayjs(props.value, TIME_FORMAT) : null;
-    setTempValue(value);
+    if (!mountedRef.current) return;
+    
+    const newValue = props.value ? dayjs(props.value, TIME_FORMAT) : null;
+    if (newValue?.isValid()) {
+      setTempValue(newValue);
+    }
   }, [props.value]);
+
+  // Cleanup event listeners and state
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setTempValue(null);
+      if (pickerRef.current) {
+        pickerRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <Wrapper
-      onKeyDown={(e) => {
-        if (e.key === "Enter" && !panelOpen) {
-          props.onChangeEnd();
-        }
-      }}
-      onMouseDown={(e) => {
-        e.stopPropagation();
-        e.preventDefault();
-      }}
+      onKeyDown={handleKeyDown}
+      onMouseDown={handleMouseDown}
     >
       <TimePickerStyled
         ref={pickerRef}
@@ -107,23 +136,22 @@ export const TimeEdit = (props: TimeEditProps) => {
         autoFocus
         value={tempValue}
         defaultOpen={true}
-        onOpenChange={(open) => setPanelOpen(open)}
-        onChange={(value, timeString) => {
-          props.onChange(timeString as string);
-        }}
-        onBlur={() => props.onChangeEnd()}
+        onOpenChange={handleOpenChange}
+        onChange={handleChange}
+        onBlur={props.onChangeEnd}
       />
     </Wrapper>
   );
-};
+});
+
+TimeEdit.displayName = 'TimeEdit';
 
 export const TimeComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      inputFormat = props.inputFormat;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      return(
+      return (
         <>
           {hasIcon(props.prefixIcon) && (
             <span>{props.prefixIcon}</span>
@@ -134,17 +162,16 @@ export const TimeComp = (function () {
           )}
         </>
       );
-      
     },
     (nodeValue) => formatTime(nodeValue.text.value, nodeValue.format.value),
     getBaseValue
   )
-    .setEditViewFn((props) => (
+    .setEditViewFn(({value, onChange, onChangeEnd, otherProps}) => (
       <TimeEdit
-        value={props.value}
-        onChange={props.onChange}
-        onChangeEnd={props.onChangeEnd}
-        inputFormat={inputFormat}
+        value={value}
+        onChange={onChange}
+        onChangeEnd={onChangeEnd}
+        inputFormat={otherProps?.inputFormat}
       />
     ))
     .setPropertyViewFn((children) => (
@@ -153,12 +180,12 @@ export const TimeComp = (function () {
           label: trans("table.columnValue"),
           tooltip: ColumnValueTooltip,
         })}
-         {children.prefixIcon.propertyView({
-            label: trans("button.prefixIcon"),
-          })}
-          {children.suffixIcon.propertyView({
-            label: trans("button.suffixIcon"),
-          })}
+        {children.prefixIcon.propertyView({
+          label: trans("button.prefixIcon"),
+        })}
+        {children.suffixIcon.propertyView({
+          label: trans("button.suffixIcon"),
+        })}
         {formatPropertyView({ children, placeholder: TIME_FORMAT })}
       </>
     ))

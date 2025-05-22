@@ -42,6 +42,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import React from "react";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -212,6 +213,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
               const containerProps = containers[id].children;
               const noOfColumns = columns.length;
               return (
+                <React.Fragment key={id}>
                 <BackgroundColorContext.Provider value={props.columnStyle.background}>
                   <ColWrapper
                     key={id}
@@ -230,6 +232,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                     />
                   </ColWrapper>
                 </BackgroundColorContext.Provider>
+                </React.Fragment>
               )
               })
             }

@@ -12,7 +12,7 @@ import dynamicImport from 'vite-plugin-dynamic-import';
 import { ensureLastSlash } from "./src/dev-utils/util";
 import { buildVars } from "./src/dev-utils/buildVars";
 import { globalDepPlugin } from "./src/dev-utils/globalDepPlguin";
-import { terser } from 'rollup-plugin-terser';
+import { terser } from 'rollup-plugin-terser';
 // import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 dotenv.config();
@@ -87,6 +87,7 @@ export const viteConfig: UserConfig = {
         manualChunks: (id) => {
           if (id.includes("node_modules")) {
             // UI LIBRARIES
+            // if (id.includes("node_modules/@ant-design/v5-patch-for-react-19")) return "ant-design-v5-patch";
             if (id.includes("@ant-design/icons")) return "ant-design-icons";
             if (id.includes("node_modules/antd")) return "antd";
             if (id.includes("styled-components")) return "styled-components";

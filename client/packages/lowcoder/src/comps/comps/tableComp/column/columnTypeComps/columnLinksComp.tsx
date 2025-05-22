@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { default as Menu } from "antd/es/menu";
 import { ColumnTypeCompBuilder } from "comps/comps/tableComp/column/columnTypeCompBuilder";
 import { ActionSelectorControlInContext } from "comps/controls/actionSelector/actionSelectorControl";
@@ -36,6 +37,27 @@ const MenuWrapper = styled.div`
   }  
 `;
 
+// Memoized menu item component
+const MenuItem = React.memo(({ option, index }: { option: any; index: number }) => {
+  const handleClick = useCallback(() => {
+    if (!option.disabled && option.onClick) {
+      option.onClick();
+    }
+  }, [option.disabled, option.onClick]);
+
+  return (
+    <MenuLinkWrapper>
+      <ColumnLink
+        disabled={option.disabled}
+        label={option.label}
+        onClick={handleClick}
+      />
+    </MenuLinkWrapper>
+  );
+});
+
+MenuItem.displayName = 'MenuItem';
+
 const OptionItem = new MultiCompBuilder(
   {
     label: StringControl,
@@ -62,6 +84,36 @@ const OptionItem = new MultiCompBuilder(
   })
   .build();
 
+// Memoized menu component
+const LinksMenu = React.memo(({ options }: { options: any[] }) => {
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const menuItems = useMemo(() => 
+    options
+      .filter((o) => !o.hidden)
+      .map((option, index) => ({
+        key: index,
+        label: <MenuItem option={option} index={index} />
+      })),
+    [options]
+  );
+
+  return (
+    <MenuWrapper>
+      <Menu mode="horizontal" items={menuItems} />
+    </MenuWrapper>
+  );
+});
+
+LinksMenu.displayName = 'LinksMenu';
+
 export const ColumnLinksComp = (function () {
   const childrenMap = {
     options: manualOptionsControl(OptionItem, {
@@ -71,28 +123,7 @@ export const ColumnLinksComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      const menuItems = props.options
-        .filter((o) => !o.hidden)
-        .map((option, index) => (
-          {
-            key: index,
-            label: (
-              <MenuLinkWrapper>
-                <ColumnLink
-                  disabled={option.disabled}
-                  label={option.label}
-                  onClick={option.onClick}
-                />
-              </MenuLinkWrapper>
-            )
-          }
-        ));
-
-      return (
-        <MenuWrapper>
-          <Menu mode="horizontal" items={menuItems}  />
-        </MenuWrapper>
-      )
+      return <LinksMenu options={props.options} />;
     },
     () => ""
   )

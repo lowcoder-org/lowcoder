@@ -8,7 +8,7 @@ import { UICompBuilder, withDefault } from "comps/generators";
 import { NameConfig, NameConfigHidden, withExposingConfigs } from "comps/generators/withExposing";
 import { Section, sectionNames } from "lowcoder-design";
 import React, { ChangeEvent, Suspense, useEffect, useRef, useState } from "react";
-import type ReactQuill from "react-quill";
+import type ReactQuill from "react-quill-new";
 import { useDebounce } from "react-use";
 import styled, { css } from "styled-components";
 import { formDataChildren, FormDataPropertyView } from "./formComp/formDataConstants";
@@ -200,7 +200,7 @@ interface IProps {
   tabIndex?: number;
 }
 
-const ReactQuillEditor = React.lazy(() => import("react-quill"));
+const ReactQuillEditor = React.lazy(() => import("react-quill-new"));
 
 function RichTextEditor(props: IProps) {
   const [key, setKey] = useState(0);

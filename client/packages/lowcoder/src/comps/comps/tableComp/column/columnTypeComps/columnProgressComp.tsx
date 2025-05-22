@@ -1,3 +1,4 @@
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { NumberControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import { default as InputNumber } from "antd/es/input-number";
@@ -71,6 +72,58 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, number, number> = (props) => props.text;
 
+type ProgressEditProps = {
+  value: number;
+  onChange: (value: number) => void;
+  onChangeEnd: () => void;
+};
+
+const ProgressEdit = React.memo((props: ProgressEditProps) => {
+  const [currentValue, setCurrentValue] = useState(props.value);
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setCurrentValue(0);
+    };
+  }, []);
+
+  const handleChange = useCallback((value: string | number | null) => {
+    if (!mountedRef.current) return;
+    const newValue = typeof value === 'number' ? value : 0;
+    props.onChange(newValue);
+    setCurrentValue(newValue);
+  }, [props.onChange]);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  const handlePressEnter = useCallback(() => {
+    if (!mountedRef.current) return;
+    props.onChangeEnd();
+  }, [props.onChangeEnd]);
+
+  return (
+    <InputNumberStyled
+      min={0}
+      max={100}
+      value={currentValue}
+      autoFocus
+      variant="borderless"
+      controls={{ upIcon: <TablePlusIcon />, downIcon: <TableMinusIcon /> }}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      onPressEnter={handlePressEnter}
+    />
+  );
+});
+
+ProgressEdit.displayName = 'ProgressEdit';
+
 export const ProgressComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
@@ -89,18 +142,10 @@ export const ProgressComp = (function () {
   )
     .setEditViewFn((props) => {
       return (
-        <InputNumberStyled
-          min={0}
-          max={100}
-          defaultValue={props.value}
-          autoFocus
-          variant="borderless"
-          controls={{ upIcon: <TablePlusIcon />, downIcon: <TableMinusIcon /> }}
-          onChange={(value) => {
-            props.onChange(Number(value));
-          }}
-          onBlur={props.onChangeEnd}
-          onPressEnter={props.onChangeEnd}
+        <ProgressEdit
+          value={props.value}
+          onChange={props.onChange}
+          onChangeEnd={props.onChangeEnd}
         />
       );
     })
