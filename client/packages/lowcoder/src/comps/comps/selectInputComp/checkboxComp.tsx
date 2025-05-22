@@ -24,6 +24,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import Tooltip from "antd/es/tooltip";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -182,7 +183,11 @@ let CheckboxBasicComp = (function () {
           options={props.options
             .filter((option) => option.value !== undefined && !option.hidden)
             .map((option) => ({
-              label: option.label,
+              label: (
+                <Tooltip title={option.label}>
+                  <span>{option.label}</span>
+                </Tooltip>
+              ),
               value: option.value,
               disabled: option.disabled,
             }))}
