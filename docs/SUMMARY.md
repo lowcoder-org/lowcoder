@@ -22,8 +22,8 @@
 ## 🏨 Workspaces & Teamwork
 
 * [Workspaces](workspaces-and-teamwork/workspaces/README.md)
-  * [SAAS Mode](workspaces-and-teamwork/workspaces/saas-mode.md)
-  * [Enterprise Mode](workspaces-and-teamwork/workspaces/enterprise-mode.md)
+  * [Multi-Workspace Mode](workspaces-and-teamwork/workspaces/multi-workspace-mode.md)
+  * [Single Workspace Mode](workspaces-and-teamwork/workspaces/single-workspace-mode.md)
 * [Members and Groups](workspaces-and-teamwork/members-and-groups.md)
 * [Permissions for Resources](workspaces-and-teamwork/permissions-for-resources.md)
 * [OAuth](workspaces-and-teamwork/oauth/README.md)

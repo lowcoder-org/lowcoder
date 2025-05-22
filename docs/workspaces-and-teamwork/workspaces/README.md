@@ -10,8 +10,15 @@ Lowcoder supports Workspaces. These are isolated rooms to organize:
 * [Themes](../../build-applications/themes-and-styling/)
 * Global includes (Javascript / CSS)
 
+**You can use Workspaces when you want to have an isolation of Lowcoder for Teams, Divisions, or Tenants of a single Lowcoder Instance.**
+
+Lowcoder offers the configuration of the Workspaces Behaviour. Two modes are supported:
+
+* Single Workspace Mode (_ENTERPRISE Mode_)
+* Multi Workspace Mode (_SAAS Mode_)
+
 {% hint style="info" %}
-To activate this function, please add the [ENV Variable](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration): **COMMON\_WORKSPACE\_MODE**=SAAS
+To activate a multi-workspace configuration, please add the [ENV Variable](https://github.com/lowcoder-org/lowcoder/tree/main/deploy/docker#configuration): **LOWCODER\_WORKSPACE\_MODE**=SAAS
 {% endhint %}
 
 {% hint style="info" %}

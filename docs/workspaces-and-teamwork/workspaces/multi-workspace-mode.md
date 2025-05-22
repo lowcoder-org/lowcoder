@@ -1,24 +1,27 @@
-# SAAS Mode
+# Multi-Workspace Mode
 
 
 
-In SAAS Mode, User can create multiple Workspaces. With some other settings, Admin can control the behavior of Users on SAAS mode.
+In Multi-Workspace Mode, User can create multiple Workspaces. With some other settings, Admin can control the behavior of Users on Multi-Workspace mode.
 
-### Setting Up SAAS mode
+### Setting Up Multi-Workspace mode
 
-1.  Set LOWCODER\_WORKSPACE\_MODE to "SAAS" in docker-compose-multi.yml file.\
+1. Set LOWCODER\_WORKSPACE\_MODE to "SAAS" in docker-compose-multi.yml file.
 
+{% hint style="info" %}
+Workspace Mode Env variable can also have the value "MULTIWORKSPACE" instead of "SAAS"&#x20;
+{% endhint %}
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (4).png" alt=""><figcaption></figcaption></figure>
+<figure><img src="../../.gitbook/assets/frame_generic_light (4).png" alt=""><figcaption></figcaption></figure>
 
-    You can see in the following screenshot that in "SAAS" mode, each User can create multiple Workspaces.\
+You can see in the following screenshot that in "Multi-Workspace" mode, each User can create multiple Workspaces.
 
+<figure><img src="../../.gitbook/assets/frame_generic_light (5).png" alt=""><figcaption></figcaption></figure>
 
-    <figure><img src="../../.gitbook/assets/frame_generic_light (5).png" alt=""><figcaption></figcaption></figure>
-2. In the above screenshot, you can see three configuration variables regarding Email and Workspace creation on Sign up.
+1. In the above screenshot, you can see three configuration variables regarding Email and Workspace creation on Sign up.
    1.  **LOWCODER\_EMAIL\_SIGNUP\_ENABLED**\
        \
-       This variable is the configuration for showing "Sign Up" button on Lowcoder. When it is set to "TRUE", "Sign Up" button will show up and new User can sign up in SAAS mode. A new Workspace will be created for this User, and he/she will be the Admin of this Workspace : \
+       This variable is the configuration for showing "Sign Up" button on Lowcoder. When it is set to "TRUE", "Sign Up" button will show up and new User can sign up in Multi-Workspace mode. A new Workspace will be created for this User, and he/she will be the Admin of this Workspace : \
        \
        LOWCODE\_EMAIL\_SIGNUP\_ENABLED = **true**\
 
@@ -122,10 +125,6 @@ Here, if Admin disables the "Email Auth" ( means that Members can't Sign up/Logi
 **Scenario: When LOWCODER\_EMAIL\_SIGNUP\_ENABLED = True**\
 \
 If LOWCODER\_CREATE\_WORKSPACE\_ON\_SIGNUP is set to "True", then for every new Sign Up, a New Workspace will be created for the User.&#x20;
-
-{% hint style="info" %}
-Workspace Mode Env variable can also have the value "MULTIWORKSPACE" instead of "SAAS"&#x20;
-{% endhint %}
 
 <figure><img src="../../.gitbook/assets/frame_generic_light (12).png" alt=""><figcaption></figcaption></figure>
 
