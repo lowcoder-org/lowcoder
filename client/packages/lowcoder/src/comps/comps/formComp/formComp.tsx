@@ -60,6 +60,7 @@ import { messageInstance } from "lowcoder-design/src/components/GlobalInstances"
 import { styled } from "styled-components";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
+import { StringControl } from "comps/controls/codeControl";
 
 const FormWrapper = styled.div`
   height: 100%;
@@ -80,7 +81,8 @@ const childrenMap = {
   disableSubmit: BoolCodeControl,
   loading: BoolCodeControl,
   onEvent: eventHandlerControl(eventOptions),
-  animationStyle: styleControl(AnimationStyle)
+  animationStyle: styleControl(AnimationStyle),
+  invalidFormMessage: StringControl
 };
 
 type FormProps = TriContainerViewProps &
@@ -230,6 +232,7 @@ const FormBaseComp = (function () {
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.advanced}>
               {children.initialData.propertyView({ label: trans("formComp.initialData") })}
+              {children.invalidFormMessage.propertyView({ label: trans("formComp.invalidFormMessage") })}
             </Section>
           )}
 
@@ -363,7 +366,8 @@ let FormTmpComp = class extends FormBaseComp implements IForm {
         return Promise.resolve();
       });
     } else {
-      messageInstance.error(trans("formComp.notValidForm"));
+      const customMessage = this.children.invalidFormMessage.getView();
+      messageInstance.error(customMessage || trans("formComp.notValidForm"));
       return Promise.reject("formComp.notValidForm");
     }
   }

@@ -30,6 +30,8 @@ import {
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { dropdownControl } from "../controls/dropdownControl";
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -61,10 +63,17 @@ const Container = styled.div<{
 
 const EventOptions = [clickEvent] as const;
 
+const ModeOptions = [
+  { label: "Standard", value: "standard" },
+  { label: "Asset Library", value: "asset-library" },
+] as const;
+
 const childrenMap = {
   style: styleControl(IconStyle,'style'),
   animationStyle: styleControl(AnimationStyle,'animationStyle'),
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   icon: withDefault(IconControl, "/icon:antd/homefilled"),
+  iconScoutAsset: IconscoutControl(AssetType.ICON),
   autoHeight: withDefault(AutoHeightControl, "auto"),
   iconSize: withDefault(NumberControl, 20),
   onEvent: eventHandlerControl(EventOptions),
@@ -103,7 +112,10 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
           }}
           onClick={() => props.onEvent("click")}
         >
-          {props.icon}
+          { props.sourceMode === 'standard'
+            ? props.icon
+            : <img src={props.iconScoutAsset.value} />
+          }
         </Container>
       )}
     >
@@ -117,11 +129,17 @@ let IconBasicComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.icon.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.icon.propertyView({
             label: trans("iconComp.icon"),
             IconType: "All",
           })}
-          
+          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
+            label: trans("button.icon"),
+          })}
         </Section> 
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

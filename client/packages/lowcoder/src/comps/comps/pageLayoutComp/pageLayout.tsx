@@ -103,10 +103,12 @@ const BodyInnerGrid = styled(InnerGrid)<{
   $bodyBackgroundImageSize: string;
   $bodyBackgroundImagePosition: string;
   $bodyBackgroundImageOrigin: string;
+  $bodyPadding: string;
 }>`
   border-top: ${(props) => `${props.$showBorder ? props.$borderWidth : 0} solid ${props.$borderColor}`};
   flex: 1;
   border-radius: 0;
+  padding: ${(props) => props.$bodyPadding || "0px"} !important;
 
   ${props => getBackgroundStyle({
     background: props.$backgroundColor,
@@ -169,9 +171,18 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
   const isMobile = checkIsMobile(maxWidth);
   const appRef = useRef();
 
+  // Handle mobile responsiveness for sider collapse
+  useEffect(() => {
+    // Force collapse on mobile if sider is shown
+    if (isMobile && showSider) {
+      props.setSiderCollapsed(true);
+    }
+  }, [isMobile, showSider, props.setSiderCollapsed]);
+
   function onSiderCollapse (collapsed : boolean) {
     props.setSiderCollapsed(collapsed);
-    // how to set the collapsed state in the container when the user manually collapses the sider?
+    // We already updated the state through props.setSiderCollapsed
+    // The parent component will update the value via useEffect
   }
 
   useEffect(() => {setSiderCollapsed(container.siderCollapsed)} , [container.siderCollapsed]);
@@ -196,7 +207,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
               <Sider 
                 width={container.siderWidth}
                 style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                collapsible={container.siderCollapsible} 
+                collapsible={container.siderCollapsible && !isMobile} 
                 breakpoint="sm"
                 collapsedWidth={container.siderCollapsedWidth}
                 collapsed={siderCollapsed} onCollapse={(value) => onSiderCollapse(value)}
@@ -255,7 +266,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                         <Sider 
                           width={container.siderWidth} 
                           style={{ padding: "0px", margin: '0px', marginTop: style.borderWidth, backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                          collapsible={container.siderCollapsible} 
+                          collapsible={container.siderCollapsible && !isMobile} 
                           breakpoint="sm"
                           collapsedWidth={container.siderCollapsedWidth}
                           collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
@@ -312,7 +323,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                               $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                               $borderColor={style?.border}
                               $borderWidth={style?.borderWidth}
-                              style={{ padding: bodyStyle.containerBodyPadding }} />
+                              $bodyPadding={bodyStyle.containerBodyPadding}
+                              style={{ padding: "0px" }} />
                           )}
                         </ScrollBar>
                       </Content>
@@ -321,7 +333,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           <Sider 
                             width={container.siderWidth}
                             style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
-                            collapsible={container.siderCollapsible}
+                            collapsible={container.siderCollapsible && !isMobile}
                             breakpoint="sm"
                             collapsedWidth={container.siderCollapsedWidth}
                             reverseArrow={true}
@@ -381,7 +393,8 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           $bodyBackgroundImageOrigin={bodyStyle?.backgroundImageOrigin}
                           $borderColor={style?.border}
                           $borderWidth={style?.borderWidth}
-                          style={{ padding: bodyStyle.containerBodyPadding }} />
+                          $bodyPadding={bodyStyle.containerBodyPadding}
+                          style={{ padding: "0px" }} />
                         )}
                       </ScrollBar>
                     </Content>
@@ -416,7 +429,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 <Sider 
                   width={container.siderWidth}
                   style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent'}} 
-                  collapsible={container.siderCollapsible}
+                  collapsible={container.siderCollapsible && !isMobile}
                   breakpoint="sm"
                   collapsedWidth={container.siderCollapsedWidth}
                   reverseArrow={true}

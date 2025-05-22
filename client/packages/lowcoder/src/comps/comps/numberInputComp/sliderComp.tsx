@@ -7,6 +7,7 @@ import { formDataChildren, FormDataPropertyView } from "../formComp/formDataCons
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
+import { NumberControl } from "comps/controls/codeControl";
 
 const SliderBasicComp = (function () {
   /**
@@ -16,6 +17,7 @@ const SliderBasicComp = (function () {
     ...SliderChildren,
     value: numberExposingStateControl("value", 60),
     vertical: BoolControl,
+    tabIndex: NumberControl,
     ...formDataChildren,
   };
   return new UICompBuilder(childrenMap, (props) => {
@@ -39,6 +41,7 @@ const SliderBasicComp = (function () {
             $style={props.inputFieldStyle}
             style={{margin: 0}}
             $vertical={Boolean(props.vertical) || false}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
             onChange={(e) => {
               props.value.onChange(e);
               props.onEvent("change");
@@ -61,6 +64,7 @@ const SliderBasicComp = (function () {
               tooltip: trans("slider.stepTooltip"),
             })}
             {children.vertical.propertyView({ label: trans("slider.vertical") })}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
           <FormDataPropertyView {...children} />
           <SliderPropertyView {...children} />

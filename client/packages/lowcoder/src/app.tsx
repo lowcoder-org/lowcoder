@@ -35,7 +35,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
 import { connect, Provider } from "react-redux";
-import { Redirect, Router, Switch } from "react-router-dom";
+import { Redirect, Route, Router, Switch } from "react-router-dom";
 import type { AppState } from "redux/reducers";
 import { fetchConfigAction } from "redux/reduxActions/configActions";
 import { fetchUserAction } from "redux/reduxActions/userActions";
@@ -60,6 +60,7 @@ import GlobalInstances from 'components/GlobalInstances';
 import { fetchHomeData, fetchServerSettingsAction } from "./redux/reduxActions/applicationActions";
 import { getNpmPackageMeta } from "./comps/utils/remote";
 import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxActions/npmPluginActions";
+import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -310,33 +311,60 @@ class AppIndex extends React.Component<AppIndexProps, any> {
                 component={LazyPublicAppEditor}
               />
 
-              <LazyRoute
-                fallback="layout"
-                path={APP_EDITOR_URL}
-                component={LazyAppEditor}
-              />
-              <LazyRoute
-                fallback="layout"
-                path={[
-                  USER_PROFILE_URL,
-                  NEWS_URL,
-                  ORG_HOME_URL,
-                  ALL_APPLICATIONS_URL,
-                  DATASOURCE_CREATE_URL,
-                  DATASOURCE_EDIT_URL,
-                  DATASOURCE_URL,
-                  SUPPORT_URL,
-                  QUERY_LIBRARY_URL,
-                  FOLDERS_URL,
-                  FOLDER_URL,
-                  TRASH_URL,
-                  SETTING_URL,
-                  MARKETPLACE_URL,
-                  ADMIN_APP_URL
-                ]}
-                // component={ApplicationListPage}
-                component={LazyApplicationHome}
-              />
+              <Route
+                path={
+                  [
+                    APP_EDITOR_URL,
+                    USER_PROFILE_URL,
+                    NEWS_URL,
+                    ORG_HOME_URL,
+                    ALL_APPLICATIONS_URL,
+                    DATASOURCE_CREATE_URL,
+                    DATASOURCE_EDIT_URL,
+                    DATASOURCE_URL,
+                    SUPPORT_URL,
+                    QUERY_LIBRARY_URL,
+                    FOLDERS_URL,
+                    FOLDER_URL,
+                    TRASH_URL,
+                    SETTING_URL,
+                    MARKETPLACE_URL,
+                    ADMIN_APP_URL
+                  ]
+                }
+              >
+                <SimpleSubscriptionContextProvider>
+                  <Switch>
+                    <LazyRoute
+                      fallback="layout"
+                      path={APP_EDITOR_URL}
+                      component={LazyAppEditor}
+                    />
+                    <LazyRoute
+                      fallback="layout"
+                      path={[
+                        USER_PROFILE_URL,
+                        NEWS_URL,
+                        ORG_HOME_URL,
+                        ALL_APPLICATIONS_URL,
+                        DATASOURCE_CREATE_URL,
+                        DATASOURCE_EDIT_URL,
+                        DATASOURCE_URL,
+                        SUPPORT_URL,
+                        QUERY_LIBRARY_URL,
+                        FOLDERS_URL,
+                        FOLDER_URL,
+                        TRASH_URL,
+                        SETTING_URL,
+                        MARKETPLACE_URL,
+                        ADMIN_APP_URL
+                      ]}
+                      // component={ApplicationListPage}
+                      component={LazyApplicationHome}
+                    />
+                  </Switch>
+                </SimpleSubscriptionContextProvider>
+              </Route>
               <LazyRoute exact path={ADMIN_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute path={USER_AUTH_URL} component={LazyUserAuthComp} />
               <LazyRoute
