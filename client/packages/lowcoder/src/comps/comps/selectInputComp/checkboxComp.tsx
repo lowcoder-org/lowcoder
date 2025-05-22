@@ -24,6 +24,7 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import Tooltip from "antd/es/tooltip";
 import { useCallback, useRef, useEffect, memo } from "react";
 
 export const getStyle = (style: CheckboxStyleType) => {
@@ -155,7 +156,7 @@ const MemoizedCheckboxGroup = memo(({
   disabled: boolean;
   style: CheckboxStyleType;
   layout: ValueFromOption<typeof RadioLayoutOptions>;
-  options: Array<{ label: string; value: string; disabled?: boolean }>;
+  options: Array<{ label: any; value: string; disabled?: boolean }>;
   onChange: (values: string[]) => void;
   viewRef: React.Ref<HTMLDivElement>;
   tabIndex?: number
@@ -230,7 +231,11 @@ let CheckboxBasicComp = (function () {
       return props.options
         .filter((option) => option.value !== undefined && !option.hidden)
         .map((option) => ({
-          label: option.label,
+          label: (
+            <Tooltip title={option.label}>
+              <span>{option.label}</span>
+            </Tooltip>
+          ),
           value: option.value,
           disabled: option.disabled,
         }));
