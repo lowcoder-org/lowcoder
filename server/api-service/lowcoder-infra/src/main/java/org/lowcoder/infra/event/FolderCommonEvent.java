@@ -9,6 +9,7 @@ public class FolderCommonEvent extends AbstractEvent {
 
     private final String id;
     private final String name;
+    private final String fromName;
     private final EventType type;
 
     @Override

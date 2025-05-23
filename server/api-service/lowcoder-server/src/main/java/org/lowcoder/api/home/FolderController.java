@@ -42,7 +42,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
         return folderApiService.create(folder)
                 .delayUntil(folderInfoView -> folderApiService.upsertLastViewTime(folderInfoView.getFolderId()))
-                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getFolderId(), f.getName(), EventType.FOLDER_CREATE))
+                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getFolderId(), f.getName(), null, EventType.FOLDER_CREATE))
                 .map(ResponseView::success);
     }
 
@@ -50,7 +50,7 @@ public class FolderController implements FolderEndpoints
     public Mono<ResponseView<Void>> delete(@PathVariable("id") String folderId) {
         return gidService.convertFolderIdToObjectId(folderId).flatMap(objectId ->
             folderApiService.delete(objectId.orElse(null))
-                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), EventType.FOLDER_DELETE))
+                .delayUntil(f -> businessEventPublisher.publishFolderCommonEvent(f.getId(), f.getName(), f.getName(), EventType.FOLDER_DELETE))
                 .then(Mono.fromSupplier(() -> ResponseView.success(null))));
     }
 
@@ -63,7 +63,7 @@ public class FolderController implements FolderEndpoints
                 .zipWhen(__ -> folderApiService.update(folder))
                 .delayUntil(tuple2 -> {
                     Folder old = tuple2.getT1();
-                    return businessEventPublisher.publishFolderCommonEvent(folder.getId(), old.getName() + " => " + folder.getName(),
+                    return businessEventPublisher.publishFolderCommonEvent(folder.getId(), folder.getName(), old.getName(),
                             EventType.FOLDER_UPDATE);
                 })
                 .map(tuple2 -> ResponseView.success(tuple2.getT2()));
