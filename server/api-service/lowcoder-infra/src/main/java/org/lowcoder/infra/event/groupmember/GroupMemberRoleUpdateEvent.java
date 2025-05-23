@@ -10,6 +10,7 @@ public class GroupMemberRoleUpdateEvent extends BaseGroupMemberEvent {
     private final String memberId;
     private final String memberName;
     private final String memberRole;
+    private final String oldMemberRole;
 
     @Override
     public EventType getEventType() {

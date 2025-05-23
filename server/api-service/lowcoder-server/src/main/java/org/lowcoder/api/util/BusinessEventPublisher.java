@@ -585,7 +585,8 @@ public class BusinessEventPublisher {
                                     .groupName(group.getName(locale))
                                     .memberId(member.getId())
                                     .memberName(member.getName())
-                                    .memberRole(previousGroupMember.getRole().getValue() + " => " + updateRoleRequest.getRole())
+                                    .memberRole(updateRoleRequest.getRole())
+                                    .oldMemberRole(previousGroupMember.getRole().getValue())
                                     .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT4(), StandardCharsets.UTF_8).toString())
                                     .build();
