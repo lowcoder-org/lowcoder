@@ -16,6 +16,11 @@ public class ApplicationCommonEvent extends AbstractEvent {
     private final String applicationName;
     private final String applicationCategory;
     private final String applicationDescription;
+    private final String applicationTitle;
+    private final String oldApplicationName;
+    private final String oldApplicationCategory;
+    private final String oldApplicationDescription;
+    private final String oldApplicationTitle;
     private final EventType type;
     @Nullable
     private final String folderId;

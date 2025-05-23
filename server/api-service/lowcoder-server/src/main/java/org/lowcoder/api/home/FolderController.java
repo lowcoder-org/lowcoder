@@ -1,6 +1,7 @@
 package org.lowcoder.api.home;
 
 import lombok.RequiredArgsConstructor;
+import org.lowcoder.api.application.ApplicationApiService;
 import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
@@ -35,6 +36,7 @@ public class FolderController implements FolderEndpoints
     private final BusinessEventPublisher businessEventPublisher;
     private final GidService gidService;
     private final FolderElementRelationService folderElementRelationService;
+    private final ApplicationApiService applicationApiService;
 
     @Override
     public Mono<ResponseView<FolderInfoView>> create(@RequestBody Folder folder) {
@@ -95,9 +97,10 @@ public class FolderController implements FolderEndpoints
             @RequestParam(value = "targetFolderId", required = false) String targetFolderId) {
         return folderElementRelationService.getByElementIds(List.of(applicationLikeId)).next().defaultIfEmpty(new FolderElement(null, null)).flatMap(folderElement ->
                 gidService.convertFolderIdToObjectId(targetFolderId).flatMap(objectId ->
-                    folderApiService.move(applicationLikeId, objectId.orElse(null))
-                        .then(businessEventPublisher.publishApplicationCommonEvent(applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
-                        .then(Mono.fromSupplier(() -> ResponseView.success(null)))));
+                        applicationApiService.getEditingApplication(applicationLikeId, true).flatMap(originalApplicationView ->
+                        folderApiService.move(applicationLikeId, objectId.orElse(null))
+                            .then(businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationLikeId, folderElement.folderId(), objectId.orElse(null), APPLICATION_MOVE))
+                            .then(Mono.fromSupplier(() -> ResponseView.success(null))))));
     }
 
     @Override

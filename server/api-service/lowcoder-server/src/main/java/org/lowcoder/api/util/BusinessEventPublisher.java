@@ -49,8 +49,11 @@ import org.lowcoder.plugin.api.event.LowcoderEvent.EventType;
 import org.lowcoder.sdk.constants.Authentication;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.connection.zset.Tuple;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple3;
+import reactor.util.function.Tuples;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -102,7 +105,7 @@ public class BusinessEventPublisher {
                 });
     }
 
-    public Mono<Void> publishApplicationCommonEvent(String applicationId, @Nullable String folderIdFrom, @Nullable String folderId, EventType eventType) {
+    public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, String applicationId, @Nullable String folderIdFrom, @Nullable String folderId, EventType eventType) {
         return applicationService.findByIdWithoutDsl(applicationId)
                 .map(application -> {
                     ApplicationInfoView applicationInfoView = ApplicationInfoView.builder()
@@ -116,10 +119,10 @@ public class BusinessEventPublisher {
                             .build();
 
                 })
-                .flatMap(applicationView -> publishApplicationCommonEvent(applicationView, eventType));
+                .flatMap(applicationView -> publishApplicationCommonEvent(originalApplicationView, applicationView, eventType));
     }
 
-    public Mono<Void> publishApplicationCommonEvent(ApplicationView applicationView, EventType eventType) {
+    public Mono<Void> publishApplicationCommonEvent(ApplicationView originalApplicationView, ApplicationView applicationView, EventType eventType) {
         return sessionUserService.isAnonymousUser()
                 .flatMap(anonymous -> {
                     if (anonymous) {
@@ -150,10 +153,12 @@ public class BusinessEventPublisher {
                                 return applicationService.findById(appId)
                                         .zipWhen(application -> application.getCategory(applicationRecordServiceImpl))
                                         .zipWhen(application -> application.getT1().getDescription(applicationRecordServiceImpl))
+                                        .zipWhen(application -> application.getT1().getT1().getTitle(applicationRecordServiceImpl))
                                         .map(tuple -> {
-                                            String category = tuple.getT1().getT2();
-                                            String description = tuple.getT2();
-                                            return Pair.of(category, description);
+                                            String category = tuple.getT1().getT1().getT2();
+                                            String description = tuple.getT1().getT2();
+                                            String title = tuple.getT2();
+                                            return new String[]{category, description, title};
                                         });
                             }), TupleUtils::merge)
                             .flatMap(tuple -> Mono.deferContextual(contextView -> {
@@ -161,8 +166,9 @@ public class BusinessEventPublisher {
                                 Optional<Folder> optional = tuple.getT1().getT2();
                                 Optional<Folder> optionalFrom = tuple.getT1().getT3();
                                 String token = tuple.getT2();
-                                String category = tuple.getT3().getLeft();
-                                String description = tuple.getT3().getRight();
+                                String category = tuple.getT3()[0];
+                                String description = tuple.getT3()[1];
+                                String title = tuple.getT3()[2];
                                 ApplicationInfoView applicationInfoView = applicationView.getApplicationInfoView();
     
                                 ApplicationCommonEvent event = ApplicationCommonEvent.builder()
@@ -173,6 +179,11 @@ public class BusinessEventPublisher {
                                         .applicationName(applicationInfoView.getName())
                                         .applicationCategory(category)
                                         .applicationDescription(description)
+                                        .applicationTitle(title)
+                                        .oldApplicationName(originalApplicationView!=null ? originalApplicationView.getApplicationInfoView().getName() : null)
+                                        .oldApplicationCategory(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getCategory() : null)
+                                        .oldApplicationDescription(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getDescription() : null)
+                                        .oldApplicationTitle(originalApplicationView!=null ?originalApplicationView.getApplicationInfoView().getTitle() : null)
                                         .type(eventType)
                                         .folderId(optional.map(Folder::getId).orElse(null))
                                         .folderName(optional.map(Folder::getName).orElse(null))
