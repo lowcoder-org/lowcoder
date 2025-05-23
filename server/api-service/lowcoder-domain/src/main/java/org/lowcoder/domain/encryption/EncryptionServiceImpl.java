@@ -25,8 +25,10 @@ public class EncryptionServiceImpl implements EncryptionService {
         Encrypt encrypt = commonConfig.getEncrypt();
         String saltInHex = Hex.encodeHexString(encrypt.getSalt().getBytes());
         this.textEncryptor = Encryptors.text(encrypt.getPassword(), saltInHex);
-        String saltInHexForNodeServer = Hex.encodeHexString(commonConfig.getJsExecutor().getSalt().getBytes());
-        this.textEncryptorForNodeServer = Encryptors.text(commonConfig.getJsExecutor().getPassword(), saltInHexForNodeServer);
+        if (!commonConfig.getJsExecutor().getSalt().isEmpty() && !commonConfig.getJsExecutor().getPassword().isEmpty()) {
+            String saltInHexForNodeServer = Hex.encodeHexString(commonConfig.getJsExecutor().getSalt().getBytes());
+            this.textEncryptorForNodeServer = Encryptors.text(commonConfig.getJsExecutor().getPassword(), saltInHexForNodeServer);
+        } else this.textEncryptorForNodeServer = null;
     }
 
     @Override
