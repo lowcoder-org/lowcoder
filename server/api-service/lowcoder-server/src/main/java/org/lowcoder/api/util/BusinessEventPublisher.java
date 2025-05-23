@@ -482,7 +482,8 @@ public class BusinessEventPublisher {
                                     .orgId(tuple.getT1().getOrgId())
                                     .userId(tuple.getT1().getUserId())
                                     .groupId(previousGroup.getId())
-                                    .groupName(previousGroup.getName(locale) + " => " + newGroupName)
+                                    .groupName(newGroupName)
+                                    .oldGroupName(previousGroup.getName(locale))
                                     .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                                     .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
                                     .build();
