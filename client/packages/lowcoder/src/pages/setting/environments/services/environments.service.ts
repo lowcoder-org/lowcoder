@@ -1,5 +1,5 @@
 import axios from "axios";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
@@ -39,7 +39,7 @@ export async function updateEnvironment(
     return res.data;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to update environment";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -62,7 +62,7 @@ export async function getEnvironments(): Promise<Environment[]> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environments";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -86,7 +86,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environment";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -158,7 +158,7 @@ export async function getEnvironmentWorkspaces(
     // Handle and transform error
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch workspaces";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -208,7 +208,7 @@ export async function getEnvironmentUserGroups(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user groups';
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -297,7 +297,10 @@ export async function getWorkspaceApps(
     
     // Then fetch applications without the orgId parameter
     const response = await axios.get(`${apiServiceUrl}/api/applications/list`, { 
-      headers
+      headers,
+      params: {
+        withContainerSize: false
+      }
     });
     
     // Check if response is valid
@@ -309,8 +312,8 @@ export async function getWorkspaceApps(
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch apps';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace apps';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -367,8 +370,8 @@ export async function getWorkspaceDataSources(
     return response.data.data ;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace data sources';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -449,8 +452,8 @@ export async function getWorkspaceQueries(
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch queries';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace queries';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }

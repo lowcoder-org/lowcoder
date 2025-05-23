@@ -7,7 +7,7 @@ import React, {
     useCallback,
     ReactNode,
   } from "react";
-  import { message } from "antd";
+  import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
   import { useParams } from "react-router-dom";
   import { useSingleEnvironmentContext } from "./SingleEnvironmentContext";
   import { fetchWorkspaceById } from "../services/environments.service";
@@ -96,8 +96,9 @@ import React, {
           ...workspaceData,
           managed: isManaged
         });
-      } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "Workspace not found or failed to load";
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace';
+        messageInstance.error(errorMessage);
         setError(errorMessage);
       } finally {
         setIsLoading(false);
@@ -135,7 +136,7 @@ import React, {
         return true;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to update managed status";
-        message.error(errorMessage);
+        messageInstance.error(errorMessage);
         return false;
       }
     }, [workspace, environment]);

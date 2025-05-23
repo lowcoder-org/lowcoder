@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { Card, Button, Divider, Alert, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
 import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
@@ -10,6 +10,7 @@ import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../serv
 import { useDeployModal } from '../context/DeployModalContext';
 import { appsConfig } from '../config/apps.config';
 import history from "@lowcoder-ee/util/history";
+import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 
 const { Search } = Input;
 
@@ -116,10 +117,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         unmanaged: prev.total - managed
       }));
       
-      message.success(`${app.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(`${app.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
       return true;
     } catch (error) {
-      message.error(`Failed to change managed status for ${app.name}`);
+      messageInstance.error(`Failed to change managed status for ${app.name}`);
       return false;
     } finally {
       setRefreshing(false);

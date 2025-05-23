@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch, Button, message } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button } from 'antd';
 import { Environment } from '../types/environment.types';
 
 const { Option } = Select;

@@ -1,5 +1,5 @@
 // services/appService.ts
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { getWorkspaceApps } from "./environments.service";
 import { getManagedApps } from "./enterprise.service";
 import { App, AppStats } from "../types/app.types";
@@ -99,7 +99,7 @@ export async function getMergedWorkspaceApps(
   } catch (error) {
     const errorMessage = 
       error instanceof Error ? error.message : "Failed to fetch apps";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }

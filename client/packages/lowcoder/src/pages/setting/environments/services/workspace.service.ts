@@ -1,5 +1,5 @@
 // services/workspacesService.ts (or wherever makes sense in your structure)
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { getEnvironmentWorkspaces } from "./environments.service";
 import { getManagedObjects, ManagedObject, ManagedObjectType, transferManagedObject } from "./managed-objects.service";
 import { Workspace } from "../types/workspace.types";
@@ -69,9 +69,8 @@ export async function getMergedEnvironmentWorkspaces(
       }
     };
   } catch (error) {
-    const errorMessage = 
-      error instanceof Error ? error.message : "Failed to fetch workspaces";
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : "Failed to fetch workspaces";
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
