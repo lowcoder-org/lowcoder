@@ -57,7 +57,7 @@ public class ApplicationController implements ApplicationEndpoints {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
                 applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
                 applicationApiService.recycle(appId)
-                        .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationId, null, null, APPLICATION_RECYCLED))
+                        .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationId, originalApplicationView.getApplicationInfoView().getFolderId(), null, APPLICATION_RECYCLED))
                         .map(ResponseView::success)));
     }
 
