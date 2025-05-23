@@ -75,7 +75,7 @@ public class BusinessEventPublisher {
     private final ResourcePermissionService resourcePermissionService;
     private final ApplicationRecordServiceImpl applicationRecordServiceImpl;
 
-    public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, EventType eventType) {
+    public Mono<Void> publishFolderCommonEvent(String folderId, String folderName, String fromName, EventType eventType) {
 
         return sessionUserService.getVisitorToken()
                 .zipWith(sessionUserService.getVisitorOrgMemberCache())
@@ -89,6 +89,7 @@ public class BusinessEventPublisher {
                                 .userId(orgMember.getUserId())
                                 .orgId(orgMember.getOrgId())
                                 .type(eventType)
+                                .fromName(fromName)
                                 .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
                                 .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
                                 .build();
