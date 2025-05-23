@@ -677,16 +677,16 @@ public class BusinessEventPublisher {
         applicationEventPublisher.publishEvent(queryExecutionEvent);
     }
 
-    public Mono<Void> publishDatasourceEvent(String id, EventType eventType) {
+    public Mono<Void> publishDatasourceEvent(String id, EventType eventType, String oldName) {
         return datasourceService.getById(id)
-                .flatMap(datasource -> publishDatasourceEvent(datasource, eventType))
+                .flatMap(datasource -> publishDatasourceEvent(datasource, eventType, oldName))
                 .onErrorResume(throwable -> {
                     log.error("publishDatasourceEvent error.", throwable);
                     return Mono.empty();
                 });
     }
 
-    public Mono<Void> publishDatasourceEvent(Datasource datasource, EventType eventType) {
+    public Mono<Void> publishDatasourceEvent(Datasource datasource, EventType eventType, String oldName) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWith(sessionUserService.getVisitorToken())
                 .flatMap(tuple -> {
@@ -694,6 +694,7 @@ public class BusinessEventPublisher {
                             .datasourceId(datasource.getId())
                             .name(datasource.getName())
                             .type(datasource.getType())
+                            .oldName(oldName)
                             .eventType(eventType)
                             .userId(tuple.getT1().getUserId())
                             .orgId(tuple.getT1().getOrgId())

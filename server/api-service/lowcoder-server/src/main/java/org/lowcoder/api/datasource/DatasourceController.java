@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
+import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.datasource.model.Datasource;
@@ -52,7 +53,7 @@ public class DatasourceController implements DatasourceEndpoints
 	public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
         return datasourceApiService.create(upsertDatasourceRequestMapper.resolve(request))
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
-                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE))
+                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE, null))
                 .map(ResponseView::success);
     }
 
@@ -69,23 +70,25 @@ public class DatasourceController implements DatasourceEndpoints
             @RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
-            datasourceApiService.update(objectId, resolvedDatasource)
-                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
-                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE))
-                .map(ResponseView::success));
+                datasourceService.getById(id).flatMap(orgDatasource ->
+                    datasourceApiService.update(objectId, resolvedDatasource)
+                        .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
+                        .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE, orgDatasource.getName()))
+                        .map(ResponseView::success)));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
         return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
-            datasourceApiService.delete(objectId)
-                .delayUntil(result -> {
-                    if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourceEvent(objectId, DATA_SOURCE_DELETE);
-                    }
-                    return Mono.empty();
-                })
-                .map(ResponseView::success));
+                datasourceService.getById(id).flatMap(orgDatasource ->
+                    datasourceApiService.delete(objectId)
+                        .delayUntil(result -> {
+                            if (BooleanUtils.isTrue(result)) {
+                                return businessEventPublisher.publishDatasourceEvent(objectId, DATA_SOURCE_DELETE, orgDatasource.getName());
+                            }
+                            return Mono.empty();
+                        })
+                        .map(ResponseView::success)));
     }
 
     @Override
