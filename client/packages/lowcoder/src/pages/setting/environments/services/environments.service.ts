@@ -308,7 +308,12 @@ export async function getWorkspaceApps(
       return [];
     }
     
-    return response.data.data;
+    // Filter out DELETED apps
+    const apps = response.data.data.filter((app: any) => 
+      app.applicationStatus !== 'DELETED'
+    );
+    
+    return apps;
   
   } catch (error) {
     // Handle and transform error
