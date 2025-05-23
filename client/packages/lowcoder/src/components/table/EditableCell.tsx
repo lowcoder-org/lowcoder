@@ -46,6 +46,7 @@ export interface CellProps {
   cellTooltip?: string;
   editMode?: string;
   onTableEvent?: (eventName: any) => void;
+  cellIndex?: string;
 }
 
 export type CellViewReturn = (props: CellProps) => ReactNode;
@@ -65,7 +66,7 @@ const BorderDiv = styled.div`
   left: 0;
 `;
 
-const CellWrapper = ({
+const CellWrapper = React.memo(({
   children,
   tooltipTitle,
 }: {
@@ -82,7 +83,7 @@ const CellWrapper = ({
   return (
     <>{children}</>
   )
-};
+});
 
 interface EditableCellProps<T> extends CellProps {
   normalView: ReactNode;
@@ -108,6 +109,7 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
     tableSize,
     textOverflow,
     cellTooltip,
+    cellIndex,
     ...otherProps
   } = props;
 
@@ -118,15 +120,23 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
   const [tmpValue, setTmpValue] = useState<T | null>(value);
   const singleClickEdit = editMode === 'single';
   
-  // Use refs to track previous values for comparison
+  // Use refs to track component mount state and previous values
+  const mountedRef = useRef(true);
   const prevValueRef = useRef(value);
 
+  // Cleanup on unmount
   useEffect(() => {
-    console.log("rendered EditableCellComp");
-  }, []);
+    return () => {
+      mountedRef.current = false;
+      setTmpValue(null);
+      setIsEditing(false);
+    };
+  }, [setIsEditing]);
 
   // Update tmpValue when value changes
   useEffect(() => {
+    if (!mountedRef.current) return;
+    
     if (!_.isEqual(value, prevValueRef.current)) {
       setTmpValue(value);
       prevValueRef.current = value;
@@ -135,12 +145,15 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
 
   const onChange = useCallback(
     (value: T) => {
+      if (!mountedRef.current) return;
       setTmpValue(value);
     },
     []
   );
 
   const onChangeEnd = useCallback(() => {
+    if (!mountedRef.current) return;
+    
     setIsEditing(false);
     const newValue = _.isNil(tmpValue) || _.isEqual(tmpValue, baseValue) ? null : tmpValue;
     dispatch(
@@ -153,7 +166,7 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
     if(!_.isEqual(tmpValue, value)) {
       onTableEvent?.('columnEdited');
     }
-  }, [dispatch, tmpValue, baseValue, value, onTableEvent]);
+  }, [dispatch, tmpValue, baseValue, value, onTableEvent, setIsEditing]);
 
   const editView = useMemo(
     () => editViewFn?.({ value, onChange, onChangeEnd, otherProps }) ?? <></>,
@@ -161,24 +174,20 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
   );
 
   const enterEditFn = useCallback(() => {
-    if (editable) setIsEditing(true);
+    if (!mountedRef.current || !editable) return;
+    setIsEditing(true);
   }, [editable, setIsEditing]);
 
-  // Cleanup function
-  useEffect(() => {
-    return () => {
-      // Reset state on unmount
-      setTmpValue(null);
-      setIsEditing(false);
-    };
-  }, [setIsEditing]);
-
+  // Memoize context values to prevent unnecessary re-renders
+  const tagsContextValue = useMemo(() => candidateTags ?? [], [candidateTags]);
+  const statusContextValue = useMemo(() => candidateStatus ?? [], [candidateStatus]);
+  
   if (isEditing) {
     return (
       <>
         <BorderDiv className="editing-border" />
-        <TagsContext.Provider value={candidateTags ?? []}>
-          <StatusContext.Provider value={candidateStatus ?? []}>
+        <TagsContext.Provider value={tagsContextValue}>
+          <StatusContext.Provider value={statusContextValue}>
             <div className="editing-wrapper">
               {editView}
             </div>
@@ -189,30 +198,30 @@ function EditableCellComp<T extends JSONValue>(props: EditableCellProps<T>) {
   }
   
   return (
-      <ColumnTypeView
-        textOverflow={props.textOverflow}
-      >
-        {status === "toSave" && !isEditing && <EditableChip key={`editable-chip`}/>}
+    <ColumnTypeView
+      textOverflow={props.textOverflow}
+    >
+      {status === "toSave" && !isEditing && <EditableChip key={`editable-chip-${cellIndex}`}/>}
+      <CellWrapper tooltipTitle={props.cellTooltip}>
+        <div
+          key={`normal-view-${cellIndex}`}
+          tabIndex={editable ? 0 : -1 }
+          onFocus={enterEditFn}
+        >
+          {normalView}
+        </div>
+      </CellWrapper>
+      {/* overlay on normal view to handle double click for editing */}
+      {editable && (
         <CellWrapper tooltipTitle={props.cellTooltip}>
-          <div
-            key={`normal-view`}
-            tabIndex={editable ? 0 : -1 }
-            onFocus={enterEditFn}
-          >
-            {normalView}
-          </div>
-        </CellWrapper>
-        {/* overlay on normal view to handle double click for editing */}
-        {editable && (
-          <CellWrapper tooltipTitle={props.cellTooltip}>
           <EditableOverlay
-            key="editable-view"
+            key={`editable-view-${cellIndex}`}
             onDoubleClick={!singleClickEdit ? enterEditFn : undefined}
             onClick={singleClickEdit ? enterEditFn : undefined}
           />
         </CellWrapper>
-        )}
-      </ColumnTypeView>
+      )}
+    </ColumnTypeView>
   );
 }
 

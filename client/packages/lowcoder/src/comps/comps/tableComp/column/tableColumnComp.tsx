@@ -146,7 +146,7 @@ export const columnChildrenMap = {
   fontFamily: withDefault(StringControl, "sans-serif"),
   fontStyle: withDefault(StringControl, 'normal'),
   cellColor: CellColorComp,
-  textOverflow: withDefault(TextOverflowControl, "ellipsis"),
+  textOverflow: withDefault(TextOverflowControl, "wrap"),
   linkColor: withDefault(ColorControl, "#3377ff"),
   linkHoverColor: withDefault(ColorControl, ""),
   linkActiveColor: withDefault(ColorControl, ""),

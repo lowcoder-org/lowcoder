@@ -141,6 +141,18 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
     };
   }
 
+  private handleTypeChange: (value: ColumnTypeKeys) => void = (value) => {
+    // Keep the previous text value, some components do not have text, the default value is currentCell
+    let textRawData = "{{currentCell}}";
+    if (this.children.comp.children.hasOwnProperty("text")) {
+      textRawData = (this.children.comp.children as any).text.toJsonValue();
+    }
+    this.dispatchChangeValueAction({
+      compType: value,
+      comp: { text: textRawData },
+    } as any);
+  }
+
   override getPropertyView() {
     return (
       <>
@@ -149,17 +161,7 @@ export class ColumnTypeComp extends TypedColumnTypeComp {
           value={this.children.compType.getView()}
           options={actionOptions}
           label={trans("table.columnType")}
-          onChange={(value) => {
-            // Keep the previous text value, some components do not have text, the default value is currentCell
-            let textRawData = "{{currentCell}}";
-            if (this.children.comp.children.hasOwnProperty("text")) {
-              textRawData = (this.children.comp.children as any).text.toJsonValue();
-            }
-            this.dispatchChangeValueAction({
-              compType: value,
-              comp: { text: textRawData },
-            } as any);
-          }}
+          onChange={this.handleTypeChange}
         />
         {this.children.comp.getPropertyView()}
       </>

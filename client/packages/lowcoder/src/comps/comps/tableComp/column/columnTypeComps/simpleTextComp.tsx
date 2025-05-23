@@ -76,8 +76,7 @@ const SimpleTextPropertyView = React.memo(({ children }: { children: RecordConst
   ), [children.text, children.prefixIcon, children.suffixIcon]);
 });
 
-export const SimpleTextComp = (function () {
-  return new ColumnTypeCompBuilder(
+export const SimpleTextComp = new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
@@ -95,4 +94,3 @@ export const SimpleTextComp = (function () {
     .setEditViewFn((props) => <SimpleTextEditView {...props} />)
     .setPropertyViewFn((children) => <SimpleTextPropertyView children={children} />)
     .build();
-})();

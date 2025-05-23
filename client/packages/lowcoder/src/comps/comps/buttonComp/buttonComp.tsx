@@ -24,7 +24,7 @@ import {
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
 import { Tooltip } from "antd";
-import React, { useContext, useEffect, useCallback } from "react";
+import React, { useContext, useEffect, useCallback, useRef } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
 import { RecordConstructorToComp } from "lowcoder-core";
@@ -178,9 +178,26 @@ const ButtonPropertyView = React.memo((props: {
 
 const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef<boolean>(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const handleClick = useCallback(() => {
-    isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form);
+    if (!mountedRef.current) return;
+    
+    try {
+      if (isDefault(props.type)) {
+        props.onEvent("click");
+      } else {
+        submitForm(editorState, props.form);
+      }
+    } catch (error) {
+      console.error("Error in button click handler:", error);
+    }
   }, [props.type, props.onEvent, props.form, editorState]);
 
   return (
@@ -208,7 +225,7 @@ const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
         )}
       </EditorContext.Consumer>
     </ButtonCompWrapper>
-  )
+  );
 });
 
 const buttonViewFn = (props: ToViewReturn<ChildrenType>) => <ButtonView {...props} />

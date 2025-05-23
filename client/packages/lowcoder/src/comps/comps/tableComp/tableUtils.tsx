@@ -396,6 +396,7 @@ export function columnsToAntdFormat(
             }),
             editMode,
             onTableEvent,
+            cellIndex: `${column.dataIndex}-${index}`,
           });
       },
       ...(column.sortable
