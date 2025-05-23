@@ -136,10 +136,11 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .delayUntil(created -> autoGrantPermissionsByFolderDefault(created.getId(), createApplicationRequest.folderId()))
                 .delayUntil(created -> folderApiService.move(created.getId(),
                         createApplicationRequest.folderId()))
-                .map(applicationCreated -> ApplicationView.builder()
-                        .applicationInfoView(buildView(applicationCreated, "", createApplicationRequest.folderId()))
+                .flatMap(applicationCreated -> buildView(applicationCreated, "", createApplicationRequest.folderId())
+                        .map(infoViewMono -> ApplicationView.builder()
+                        .applicationInfoView(infoViewMono)
                         .applicationDSL(applicationCreated.getEditingApplicationDSL())
-                        .build());
+                        .build()));
     }
 
     private Mono<Void> autoGrantPermissionsByFolderDefault(String applicationId, @Nullable String folderId) {
@@ -556,7 +557,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     
     
     private Mono<ApplicationInfoView> buildView(Application application, String role) {
-        return Mono.just(buildView(application, role, null)).delayUntil(applicationInfoView -> {
+        return buildView(application, role, null).delayUntil(applicationInfoView -> {
             String applicationId = applicationInfoView.getApplicationId();
             return folderElementRelationService.getByElementIds(List.of(applicationId))
                     .doOnNext(folderElement -> {
@@ -565,25 +566,33 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         });
     }
 
-    private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
-        return ApplicationInfoView.builder()
-                .applicationId(application.getId())
-                .applicationGid(application.getGid())
-                .orgId(application.getOrganizationId())
-                .name(application.getName())
-                .createBy(application.getCreatedBy())
-                .createAt(application.getCreatedAt().toEpochMilli())
-                .role(role)
-                .applicationType(application.getApplicationType())
-                .applicationStatus(application.getApplicationStatus())
-                .folderId(folderId)
-                .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace())
-                .agencyProfile(application.agencyProfile())
-                .editingUserId(application.getEditingUserId())
-                .lastModifyTime(application.getUpdatedAt())
-                .lastEditedAt(application.getLastEditedAt())
-                .build();
+    private Mono<ApplicationInfoView> buildView(Application application, String role, @Nullable String folderId) {
+        return application.getCategory(applicationRecordService)
+                .zipWith(application.getDescription(applicationRecordService))
+                .zipWith(application.getTitle(applicationRecordService), TupleUtils::merge)
+                        .map(tuple ->
+                            ApplicationInfoView.builder()
+                                    .applicationId(application.getId())
+                                    .applicationGid(application.getGid())
+                                    .orgId(application.getOrganizationId())
+                                    .name(application.getName())
+                                    .createBy(application.getCreatedBy())
+                                    .createAt(application.getCreatedAt().toEpochMilli())
+                                    .role(role)
+                                    .applicationType(application.getApplicationType())
+                                    .applicationStatus(application.getApplicationStatus())
+                                    .folderId(folderId)
+                                    .publicToAll(application.isPublicToAll())
+                                    .publicToMarketplace(application.isPublicToMarketplace())
+                                    .agencyProfile(application.agencyProfile())
+                                    .editingUserId(application.getEditingUserId())
+                                    .lastModifyTime(application.getUpdatedAt())
+                                    .lastEditedAt(application.getLastEditedAt())
+                                    .category(tuple.getT1())
+                                    .description(tuple.getT2())
+                                    .title(tuple.getT3())
+                                    .build()
+                        );
     }
 
     private Mono<ApplicationInfoView> buildView(Application application) {
