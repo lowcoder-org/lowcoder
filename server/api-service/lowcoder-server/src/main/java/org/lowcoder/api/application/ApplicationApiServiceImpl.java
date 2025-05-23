@@ -347,7 +347,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
 
     @Override
     public Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus) {
-        return Boolean.TRUE.equals(updateStatus) ? Mono.empty() : checkApplicationStatus(applicationId, NORMAL)
+        return (Boolean.TRUE.equals(updateStatus) ? Mono.empty() : checkApplicationStatus(applicationId, NORMAL))
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, EDIT_APPLICATIONS))

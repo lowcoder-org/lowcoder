@@ -1,24 +1,26 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 
+const overflowStyles = `
+  div {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+  }
+  span {
+    display: inline-block;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    word-break: keep-all;
+  }
+`;
+
 const ColumnTypeViewWrapper = styled.div<{
   $textOverflow?: boolean
 }>`
   position: relative;
-  ${props => props.$textOverflow == false && `
-    div {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      word-break: keep-all;
-    }
-    span {
-      display: inline-block; /* Change display to inline-block for span */
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      word-break: keep-all;
-    }
-  `}
+  ${props => props.$textOverflow === false && overflowStyles}
 `;
 
 const ColumnTypeHoverView = styled.div<{
@@ -89,12 +91,31 @@ function ColumnTypeView(props: {
     width?: number;
   }>({ done: false });
   
-  // Use ref for timeout to avoid state updates
+  // Use refs for cleanup
   const timeoutRef = useRef<NodeJS.Timeout>();
   const mountedRef = useRef(true);
+  const parentElementRef = useRef<HTMLElement | null>(null);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      if (parentElementRef.current) {
+        parentElementRef.current.style.zIndex = "";
+      }
+      wrapperRef.current = null;
+      hoverViewRef.current = null;
+      parentElementRef.current = null;
+    };
+  }, []);
+
+  // Memoize event handlers
   const delayMouseEnter = useCallback(() => {
-    // Clear any existing timeout
+    if (!mountedRef.current) return;
+    
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
@@ -107,22 +128,23 @@ function ColumnTypeView(props: {
   }, []);
 
   const handleMouseLeave = useCallback(() => {
+    if (!mountedRef.current) return;
+    
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    if (mountedRef.current) {
-      setIsHover(false);
-    }
+    setIsHover(false);
   }, []);
 
   const handleMouseEnter = useCallback(() => {
-    if (mountedRef.current) {
-      setIsHover(true);
-    }
+    if (!mountedRef.current) return;
+    setIsHover(true);
   }, []);
 
   // Check for overflow
   useEffect(() => {
+    if (!mountedRef.current) return;
+    
     const wrapperEle = wrapperRef.current;
     if (!isHover || !wrapperEle) {
       return;
@@ -133,40 +155,42 @@ function ColumnTypeView(props: {
       wrapperEle.clientWidth < wrapperEle.scrollWidth;
       
     if (overflow || childIsOverflow(wrapperEle.children)) {
-      if (mountedRef.current && !hasOverflow) {
+      if (!hasOverflow) {
         setHasOverflow(true);
       }
-    } else if (mountedRef.current && hasOverflow) {
+    } else if (hasOverflow) {
       setHasOverflow(false);
     }
   }, [isHover, hasOverflow]);
 
   // Adjust position
   useEffect(() => {
+    if (!mountedRef.current) return;
+    
     const wrapperEle = wrapperRef.current;
     const hoverEle = hoverViewRef.current;
     
     if (!isHover || !hasOverflow) {
-      if (wrapperEle?.parentElement) {
-        wrapperEle.parentElement.style.zIndex = "";
+      if (parentElementRef.current) {
+        parentElementRef.current.style.zIndex = "";
       }
-      if (mountedRef.current) {
-        setAdjustedPosition({ done: false });
-      }
+      setAdjustedPosition({ done: false });
       return;
     }
+
     // Get the position of the outer table
-    const tableEle = wrapperRef.current?.closest(".ant-table-content") as HTMLDivElement;
+    const tableEle = wrapperEle?.closest(".ant-table-content") as HTMLDivElement;
     if (!hoverEle || !tableEle || !wrapperEle) {
       return;
     }
 
+    // Store parent element reference for cleanup
     if (wrapperEle.parentElement) {
-      // change parent z-index, fix bug when column sticky
-      wrapperEle.parentElement.style.zIndex = "999";
+      parentElementRef.current = wrapperEle.parentElement;
+      parentElementRef.current.style.zIndex = "999";
     }
 
-    // actual width and height of the element
+    // Calculate dimensions
     const width = Math.min(
       hoverEle.getBoundingClientRect().width,
       tableEle.getBoundingClientRect().width
@@ -176,13 +200,14 @@ function ColumnTypeView(props: {
       tableEle.getBoundingClientRect().height
     );
 
-    let left;
+    // Calculate position adjustments
     const leftOverflow = tableEle.getBoundingClientRect().x - hoverEle.getBoundingClientRect().x;
     const rightOverflow =
       tableEle.getBoundingClientRect().x +
       tableEle.offsetWidth -
       (hoverEle.getBoundingClientRect().x + width);
       
+    let left;
     if (leftOverflow > 0) {
       left = leftOverflow;
     } else if (rightOverflow < 0) {
@@ -195,27 +220,17 @@ function ColumnTypeView(props: {
       tableEle.offsetHeight -
       (hoverEle.getBoundingClientRect().y + height);
 
-    // Adjust the hover position according to the table position
-    if (mountedRef.current) {
-      setAdjustedPosition({
-        left,
-        top: bottomOverflow < 0 ? bottomOverflow : undefined,
-        height,
-        width,
-        done: true,
-      });
-    }
+    setAdjustedPosition({
+      left,
+      top: bottomOverflow < 0 ? bottomOverflow : undefined,
+      height,
+      width,
+      done: true,
+    });
   }, [isHover, hasOverflow]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, []);
+  // Memoize children to prevent unnecessary re-renders
+  const memoizedChildren = useMemo(() => props.children, [props.children]);
 
   return (
     <>
@@ -225,7 +240,7 @@ function ColumnTypeView(props: {
         onMouseEnter={delayMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
-        {props.children}
+        {memoizedChildren}
       </ColumnTypeViewWrapper>
       {isHover && hasOverflow && wrapperRef.current && !props.textOverflow && (
         <ColumnTypeHoverView
@@ -240,7 +255,7 @@ function ColumnTypeView(props: {
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
         >
-          {props.children}
+          {memoizedChildren}
         </ColumnTypeHoverView>
       )}
     </>
