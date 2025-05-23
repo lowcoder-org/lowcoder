@@ -75,7 +75,7 @@ function DeployItemModal({
       open={visible}
       onCancel={onClose}
       footer={null}
-      destroyOnClose
+      destroyOnHidden
     >
       {isLoading ? (
         <div style={{ textAlign: 'center', padding: '20px' }}>

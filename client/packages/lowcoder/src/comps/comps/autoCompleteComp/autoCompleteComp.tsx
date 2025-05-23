@@ -257,7 +257,7 @@ let AutoCompleteCompBase = (function () {
               }
               return false;
             }}
-            dropdownRender={(originNode: ReactNode) => (
+            popupRender={(originNode: ReactNode) => (
               <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
                 {originNode}
               </DropdownStyled>

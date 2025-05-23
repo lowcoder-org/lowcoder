@@ -65,7 +65,7 @@ function AddGroupUserDialog(props: {
       <CustomModal
         title={trans("memberSettings.addMember")}
         open={dialogVisible}
-        destroyOnClose
+        destroyOnHidden
         onCancel={() => {
           setDialogVisible(false);
         }}

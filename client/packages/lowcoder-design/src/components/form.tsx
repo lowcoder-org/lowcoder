@@ -331,7 +331,7 @@ const FormSelect = (props: any) => {
         }}
         popupMatchSelectWidth={false}
         placeholder={props.placeholder}
-        dropdownRender={props.dropdownRender}
+        popupRender={props.dropdownRender}
       >
         {props.options?.map((item: any) => {
           return (

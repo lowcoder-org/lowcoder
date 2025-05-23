@@ -623,7 +623,7 @@ export default function Header(props: HeaderProps) {
           className="cypress-header-dropdown"
           placement="bottomRight"
           trigger={["click"]}
-          dropdownRender={() => (
+          popupRender={() => (
             <DropdownMenuStyled
               style={{ minWidth: "110px", borderRadius: "4px" }}
               onClick={(e) => {

@@ -127,7 +127,7 @@ const DropdownView = React.memo((props: {
     <Dropdown
       trigger={["click"]}
       placement="bottomRight"
-      dropdownRender={() => menu}
+      popupRender={() => menu}
     >
       <StyledButton
         type={props.buttonType}

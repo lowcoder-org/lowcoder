@@ -173,7 +173,7 @@ export function AdvancedSetting() {
             allowClear={true}
             showSearch={true}
             style={{ width: "264px", height: "32px", marginBottom: 12 }}
-            dropdownStyle={{ width: "264px" }}
+            styles={{ popup: { root: { width: "264px" }}}}
             value={settings.defaultHomePage}
             onChange={(value: string) => {
               setSettings((v) => ({ ...v, defaultHomePage: value }));

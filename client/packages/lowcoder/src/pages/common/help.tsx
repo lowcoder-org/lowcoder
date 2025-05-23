@@ -454,7 +454,7 @@ function HelpDropdownComp(props: HelpDropdownProps) {
         <ShortcutListPopup setShowShortcutList={props.setShowShortcutList} />
       )}
       <Dropdown
-        dropdownRender={() => overlayMenus}
+        popupRender={() => overlayMenus}
         placement="topRight"
         trigger={["click"]}
         open={showDropdown}

@@ -121,7 +121,7 @@ export function Layout(props: LayoutProps) {
         styles={{
           body: { padding: "0px" }
         }}
-        destroyOnClose // Ensure drawer content is removed when closed
+        destroyOnHidden // Ensure drawer content is removed when closed
       >
         <DrawerContentWrapper>
           <SideBarV2 className={CNSidebar}>
