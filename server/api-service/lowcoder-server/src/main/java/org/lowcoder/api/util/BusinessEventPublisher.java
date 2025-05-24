@@ -10,6 +10,7 @@ import org.lowcoder.api.application.view.ApplicationInfoView;
 import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
 import org.lowcoder.api.home.SessionUserService;
+import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.usermanagement.view.AddMemberRequest;
 import org.lowcoder.api.usermanagement.view.UpdateRoleRequest;
 import org.lowcoder.domain.application.model.Application;
@@ -710,34 +711,16 @@ public class BusinessEventPublisher {
                 });
     }
 
-    public Mono<Void> publishDatasourcePermissionEvent(String permissionId, EventType eventType) {
-        return resourcePermissionService.getById(permissionId)
-                .zipWhen(resourcePermission -> datasourceService.getById(resourcePermission.getResourceId()))
-                .flatMap(tuple -> {
-                    ResourcePermission resourcePermission = tuple.getT1();
-                    ResourceHolder holder = resourcePermission.getResourceHolder();
-                    Datasource datasource = tuple.getT2();
-                    return publishDatasourcePermissionEvent(datasource.getId(),
-                            holder == USER ? List.of(resourcePermission.getResourceHolderId()) : Collections.emptyList(),
-                            holder == USER ? Collections.emptyList() : List.of(resourcePermission.getResourceHolderId()),
-                            resourcePermission.getResourceRole().getValue(),
-                            eventType);
-                })
-                .onErrorResume(throwable -> {
-                    log.error("publishDatasourcePermissionEvent error.", throwable);
-                    return Mono.empty();
-                });
-    }
-
     public Mono<Void> publishDatasourcePermissionEvent(String datasourceId,
             Collection<String> userIds, Collection<String> groupIds, String role,
-            EventType eventType) {
+            EventType eventType, CommonPermissionView oldPermissions, CommonPermissionView newPermissions) {
         return Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
                         datasourceService.getById(datasourceId),
                         sessionUserService.getVisitorToken())
                 .flatMap(tuple -> {
                     OrgMember orgMember = tuple.getT1();
                     Datasource datasource = tuple.getT2();
+
                     DatasourcePermissionEvent datasourcePermissionEvent = DatasourcePermissionEvent.builder()
                             .datasourceId(datasourceId)
                             .name(datasource.getName())
@@ -746,6 +729,8 @@ public class BusinessEventPublisher {
                             .orgId(orgMember.getOrgId())
                             .userIds(userIds)
                             .groupIds(groupIds)
+                            .newPermissions(newPermissions==null?null:newPermissions.getPermissions())
+                            .oldPermissions(oldPermissions==null?null:oldPermissions.getPermissions())
                             .role(role)
                             .eventType(eventType)
                             .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
@@ -759,6 +744,37 @@ public class BusinessEventPublisher {
                 })
                 .onErrorResume(throwable -> {
                     log.error("publishDatasourcePermissionEvent error.", throwable);
+                    return Mono.empty();
+                });
+    }
+
+    public Mono<Void> publishDatasourceResourcePermissionEvent(EventType eventType, ResourcePermission oldPermission, ResourcePermission newPermission) {
+        return Mono.zip(sessionUserService.getVisitorOrgMemberCache(),
+                        datasourceService.getById(oldPermission.getResourceId()),
+                        sessionUserService.getVisitorToken())
+                .flatMap(tuple -> {
+                    OrgMember orgMember = tuple.getT1();
+                    Datasource datasource = tuple.getT2();
+
+                    DatasourceResourcePermissionEvent datasourceResourcePermissionEvent = DatasourceResourcePermissionEvent.builder()
+                            .name(datasource.getName())
+                            .type(datasource.getType())
+                            .userId(orgMember.getUserId())
+                            .orgId(orgMember.getOrgId())
+                            .newPermission(newPermission)
+                            .oldPermission(oldPermission)
+                            .eventType(eventType)
+                            .isAnonymous(Authentication.isAnonymousUser(orgMember.getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(tuple.getT3(), StandardCharsets.UTF_8).toString())
+                            .build();
+                    return Mono.deferContextual(contextView -> {
+                        datasourceResourcePermissionEvent.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(datasourceResourcePermissionEvent);
+                        return Mono.<Void>empty();
+                    });
+                })
+                .onErrorResume(throwable -> {
+                    log.error("DatasourceResourcePermissionEvent error.", throwable);
                     return Mono.empty();
                 });
     }

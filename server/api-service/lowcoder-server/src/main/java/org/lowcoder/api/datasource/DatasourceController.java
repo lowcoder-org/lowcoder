@@ -17,6 +17,7 @@ import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.DatasourceStructure;
@@ -48,6 +49,7 @@ public class DatasourceController implements DatasourceEndpoints
     private final BusinessEventPublisher businessEventPublisher;
     private final DatasourceService datasourceService;
     private final GidService gidService;
+    private final ResourcePermissionService resourcePermissionService;
 
     @Override
 	public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
@@ -180,15 +182,17 @@ public class DatasourceController implements DatasourceEndpoints
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
         return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
-            datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
-                .delayUntil(result -> {
-                    if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourcePermissionEvent(objectId, request.userIds(),
-                                request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT);
-                    }
-                    return Mono.empty();
-                })
-                .map(ResponseView::success));
+                datasourceApiService.getPermissions(objectId).flatMap(oldPermissions ->
+                        datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
+                            .delayUntil(result -> {
+                                if (BooleanUtils.isTrue(result)) {
+                                    return datasourceApiService.getPermissions(objectId).flatMap(newPermissions ->
+                                            businessEventPublisher.publishDatasourcePermissionEvent(objectId, request.userIds(),
+                                            request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT, oldPermissions, newPermissions));
+                                }
+                                return Mono.empty();
+                            })
+                            .map(ResponseView::success)));
     }
 
     @Override
@@ -197,21 +201,24 @@ public class DatasourceController implements DatasourceEndpoints
         if (request.getResourceRole() == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
-        return datasourceApiService.updatePermission(permissionId, request.getResourceRole())
+        return resourcePermissionService.getById(permissionId).flatMap(oldPermission ->
+                datasourceApiService.updatePermission(permissionId, request.getResourceRole())
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_UPDATE);
+                        return resourcePermissionService.getById(permissionId).flatMap(newPermission ->
+                                businessEventPublisher.publishDatasourceResourcePermissionEvent(DATA_SOURCE_PERMISSION_UPDATE, oldPermission, newPermission));
                     }
                     return Mono.empty();
                 })
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> deletePermission(@PathVariable("permissionId") String permissionId) {
-        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_DELETE)
+        return resourcePermissionService.getById(permissionId).flatMap(oldPermission ->
+                businessEventPublisher.publishDatasourceResourcePermissionEvent(DATA_SOURCE_PERMISSION_DELETE, oldPermission, null)
                 .then(datasourceApiService.deletePermission(permissionId))
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
