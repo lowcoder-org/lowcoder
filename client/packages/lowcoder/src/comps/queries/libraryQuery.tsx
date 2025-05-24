@@ -10,6 +10,7 @@ import {
   isMyCustomAction,
   MultiBaseComp,
   wrapChildAction,
+  evalFunc,
 } from "lowcoder-core";
 import {
   Dropdown,
@@ -34,6 +35,9 @@ import {
   ToInstanceType,
 } from "../generators/multi";
 import { toQueryView } from "./queryCompUtils";
+import { getGlobalSettings } from "comps/utils/globalSettings";
+import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import type { SandBoxOption } from "lowcoder-core/src/eval/utils/evalScript";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -133,6 +137,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
   readonly isReady: boolean = false;
 
   private value: DataType | undefined;
+  private queryInfo: any = null;
 
   constructor(params: CompParams<DataType>) {
     super(params);
@@ -140,6 +145,52 @@ export const LibraryQuery = class extends LibraryQueryBase {
   }
 
   override getView() {
+    // Check if this is a JS query
+    if (this.queryInfo?.query?.compType === "js") {
+      return async (props: any) => {
+        try {
+          const { orgCommonSettings } = getGlobalSettings();
+          const runInHost = !!orgCommonSettings?.runJavaScriptInHost;
+          const timer = performance.now();
+          const script = this.queryInfo.query.comp.script || "";
+          const options: SandBoxOption = { disableLimit: runInHost };
+
+          // Get input values from the inputs component
+          const inputValues = Object.entries(this.children.inputs.children).reduce((acc, [name, input]) => {
+            // Get the actual value from the input component's text property
+            const value = input.children.text.getView();
+            acc[name] = value;
+            return acc;
+          }, {} as Record<string, any>);
+
+          // Combine props.args with input values
+          const context = {
+            ...props.args,
+            ...inputValues,
+          };
+
+          console.log("script: " + script);
+          console.log("context: ", context);
+
+          // Pass script directly to evalFunc without wrapping
+          const data = await evalFunc(script, context, undefined, options);
+          return {
+            data: data,
+            code: QUERY_EXECUTION_OK,
+            success: true,
+            runTime: Number((performance.now() - timer).toFixed()),
+          };
+        } catch (e) {
+          return {
+            success: false,
+            data: "",
+            code: QUERY_EXECUTION_ERROR,
+            message: (e as any).message || "",
+          };
+        }
+      };
+    }
+
     return toQueryView(
       Object.entries(this.children.inputs.children).map(([name, input]) => ({
         key: name,
@@ -161,6 +212,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
 
   override reduce(action: CompAction): this {
     if (isMyCustomAction<QueryLibraryUpdateAction>(action, "queryLibraryUpdate")) {
+      this.queryInfo = action.value?.dsl;
       const inputs = this.children.inputs.setInputs(action.value?.dsl?.["inputs"] ?? []);
       return setFieldsNoTypeCheck(this, {
         children: { ...this.children, inputs: inputs },
