@@ -44,6 +44,8 @@ Image can be configured by setting environment variables.
 | `LOWCODER_API_RATE_LIMIT`           | Number of max Request per Second                                        | `100`                                                 |
 | `LOWCODER_API_SERVICE_URL`          | Lowcoder API service URL                                                | `http://localhost:8080`                               |
 | `LOWCODER_NODE_SERVICE_URL`         | Lowcoder Node service (js executor) URL                                 | `http://localhost:6060`                               |
+| `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
+| `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
 | `LOWCODER_MAX_ORGS_PER_USER`        | Default maximum organizations per user                                  | `100`                                                 |
 | `LOWCODER_MAX_MEMBERS_PER_ORG`      | Default maximum members per organization                                | `1000`                                                |
 | `LOWCODER_MAX_GROUPS_PER_ORG`       | Default maximum groups per organization                                 | `100`                                                 |
@@ -128,6 +130,8 @@ Image can be configured by setting environment variables.
 | `LOWCODER_COOKIE_NAME`              | Name of the lowcoder application cookie                                 | `LOWCODER_CE_SELFHOST_TOKEN`                          |
 | `LOWCODER_COOKIE_MAX_AGE`           | Lowcoder application cookie max age in hours                            | `24`                                                  |
 | `LOWCODER_APP_SNAPSHOT_RETENTIONTIME` | Application snapshots retention time in days                          | `30`                                                  |
+| `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
+| `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
 
 Also you should set the API-KEY secret, whcih should be a string of at least 32 random characters. (from Lowcoder v2.3.x on)
 On linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
@@ -172,6 +176,8 @@ Image can be configured by setting environment variables.
 | `LOWCODER_PUID`                 | ID of user running services. It will own all created logs and data. | `9001`                                                  |
 | `LOWCODER_PGID`                 | ID of group of the user running services.                           | `9001`                                                  |
 | `LOWCODER_API_SERVICE_URL`      | Lowcoder API service URL                                            | `http://localhost:8080`                                 |
+| `LOWCODER_NODE_SERVICE_SECRET`      | Secret used for encrypting communication between API service and Node service - CHANGE IT! |                                    |
+| `LOWCODER_NODE_SERVICE_SALT`        | Salt used for encrypting communication between API service and Node service   - CHANGE IT! |                                    |
 
 ## Building web frontend image
 

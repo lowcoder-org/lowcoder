@@ -61,6 +61,8 @@ $ helm delete -n lowcoder my-lowcoder
 | `global.config.snapshotRetentionTime`   | Lowcoder application snapshot retention time (in days)                            | `30`           |
 | `global.config.marketplacePrivateMode`  | Controls whether to show Apps on the local Marketplace to anonymous users         | `true`         |
 | `global.config.nodeServiceUrl`          | URL to node-service server if using external one (disabled by default)            |                |
+| `global.config.nodeServiceSecret`       | Secret used for encrypting traffic between API service and Node service - CHANGE IT! |                |
+| `global.config.nodeServiceSalt`         | Salt used for encrypting traffic between API service and Node service   - CHANGE IT! |                |
 | `global.config.apiServiceUrl`           | URL to api-service server if using external one (disabled by default)             |                |
 | `global.cookie.name`                    | Name of the lowcoder application cookie                                           | `LOWCODER_CE_SELFHOST_TOKEN` |
 | `global.cookie.maxAge`                  | Lowcoder application cookie max age in hours                                      | `24`           |

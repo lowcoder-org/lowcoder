@@ -31,6 +31,8 @@ global:
     #nodeServiceUrl: 
     #apiServiceUrl: 
     apiKeySecret: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
+    nodeServiceSecret: "62e348319ab9f5c43c3b5a380b4d82525cdb68740f21140e767989b509ab0aa2"
+    nodeServiceSalt: "lowcoder.org"
     maxQueryTimeout: 120
     maxRequestSize: "20m"
     snapshotRetentionTime: 30
