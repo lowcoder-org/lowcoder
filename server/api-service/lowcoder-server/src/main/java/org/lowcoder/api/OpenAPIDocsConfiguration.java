@@ -52,13 +52,48 @@ public class OpenAPIDocsConfiguration {
                 .description("Lowcoder Community Edition: Public Cloud API Access"))
             .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
             .components(new Components()
-                .addSecuritySchemes("API Key", new SecurityScheme()
+                .addSecuritySchemes("APIKey", new SecurityScheme()
                     .name("Authorization")
                     .type(SecurityScheme.Type.APIKEY)
                     .in(SecurityScheme.In.HEADER)
                     .scheme("bearer")
                     .bearerFormat("JWT")
-                    .description("API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...')")));
+                    .description("API Key Authentication with a Bearer token. Copy your API Key and prefix it here with 'Bearer ' (e.g. 'Bearer eyJhbGciO...')"))
+                    
+            )
+            .tags(Arrays.asList(
+                new Tag().name("API Root Endpoint").description("API Root Endpoint"),
+                new Tag().name("Application APIs").description("Application APIs"),
+                new Tag().name("Application History APIs").description("Application History APIs"),
+                new Tag().name("Application Permissions APIs").description("Application Permissions APIs"),
+                new Tag().name("Application Record APIs").description("Application Record APIs"),
+                new Tag().name("Authentication APIs").description("Authentication APIs"),
+                new Tag().name("Bundle APIs").description("Bundle APIs"),
+                new Tag().name("Bundle Permissions APIs").description("Bundle Permissions APIs"),
+                new Tag().name("Configuration APIs").description("Configuration APIs"),
+                new Tag().name("Data Source APIs").description("Data Source APIs"),
+                new Tag().name("Data Source Permissions APIs").description("Data Source Permissions APIs"),
+                new Tag().name("File APIs").description("File APIs"),
+                new Tag().name("Folder APIs").description("Folder APIs"),
+                new Tag().name("Folder Permissions APIs").description("Folder Permissions APIs"),
+                new Tag().name("Group APIs").description("Group APIs"),
+                new Tag().name("Group Members APIs").description("Group Members APIs"),
+                new Tag().name("Image Assets APIs").description("Image Assets APIs"),
+                new Tag().name("Javascript Library APIs").description("Javascript Library APIs"),
+                new Tag().name("Library Queries Record APIs").description("Library Queries Record APIs"),
+                new Tag().name("Meta APIs").description("Meta APIs"),
+                new Tag().name("Organization APIs").description("Organization APIs"),
+                new Tag().name("Organization Member APIs").description("Organization Member APIs"),
+                new Tag().name("Private NPM registry APIs").description("Private NPM registry APIs"),
+                new Tag().name("Query Execution APIs").description("Query Execution APIs"),
+                new Tag().name("Query Library APIs").description("Query Library APIs"),
+                new Tag().name("Server Setting APIs").description("Server Setting APIs"),
+                new Tag().name("Status checks APIs").description("Status checks APIs"),
+                new Tag().name("User APIs").description("User APIs"),
+                new Tag().name("User Password APIs").description("User Password APIs"),
+                new Tag().name("User Profile Photo APIs").description("User Profile Photo APIs"),
+                new Tag().name("User invitation APIs").description("User invitation APIs")
+            ));
     }
 
     /**

@@ -105,6 +105,8 @@ springdoc:
     path: /api/docs/openapi.json
   swagger-ui:
     path: /api/docs/swagger-ui
+    operations-sorter: method
+    tags-sorter: alpha
   paths-to-exclude: /api/v1/**
 
 management:
