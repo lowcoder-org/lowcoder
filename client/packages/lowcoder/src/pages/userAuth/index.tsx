@@ -12,6 +12,7 @@ import { fetchUserAction } from "redux/reduxActions/userActions";
 import LoginAdmin from "./loginAdmin";
 import _ from "lodash";
 import {LoadingBarHideTrigger} from "@lowcoder-ee/util/hideLoading";
+import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
 export default function UserAuth() {
   const dispatch = useDispatch();
   const location = useLocation<AuthLocationState>();
@@ -29,6 +30,9 @@ export default function UserAuth() {
   useEffect(() => {
     if(organizationId) {
       dispatch(fetchConfigAction(organizationId));
+      dispatch(fetchBrandingSetting({orgId: organizationId, fallbackToGlobal: true}));
+    } else {
+      dispatch(fetchBrandingSetting({orgId: ''}));
     }
   }, [organizationId, dispatch])
 

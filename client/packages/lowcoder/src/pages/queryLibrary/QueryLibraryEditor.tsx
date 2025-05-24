@@ -315,7 +315,7 @@ const PublishModal = (props: {
     <CustomModal
       open={props.visible}
       onCancel={props.onClose}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       width="600px"
       title={trans("queryLibrary.publishNewVersion")}
       footer={

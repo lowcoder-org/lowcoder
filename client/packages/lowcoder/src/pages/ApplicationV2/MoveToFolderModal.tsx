@@ -56,7 +56,7 @@ export const MoveToFolderModal = (props: { source?: HomeRes; onClose: () => void
     <CustomModal
       open={!!props.source}
       onCancel={props.onClose}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       width="408px"
       centered={true}
       title={trans("home.moveToFolder")}

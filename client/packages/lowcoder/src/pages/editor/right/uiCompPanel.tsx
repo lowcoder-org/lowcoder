@@ -24,6 +24,8 @@ import {
 } from "lowcoder-design";
 import { TransparentImg } from "../../../util/commonUtils";
 import { RightContext } from "./rightContext";
+import { useSelector } from "react-redux";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const CompDiv = styled.div`
   display: flex;
@@ -65,8 +67,10 @@ const HovDiv = styled.div`
 
 const IconContain = (props: { Icon: React.FunctionComponent<React.SVGProps<SVGSVGElement>> }) => {
   const { Icon } = props;
+  const brandingSettings = useSelector(getBrandingSetting);
+
   return (
-    <CompIconDiv $w={64} $h={64}>
+    <CompIconDiv $w={64} $h={64} $color={brandingSettings?.config_set?.mainBrandingColor}>
       <Icon />
     </CompIconDiv>
   );

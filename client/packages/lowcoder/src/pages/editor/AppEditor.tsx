@@ -29,9 +29,6 @@ import { DatasourceApi } from "api/datasourceApi";
 import { useRootCompInstance } from "./useRootCompInstance";
 import EditorSkeletonView from "./editorSkeletonView";
 import {ErrorBoundary, FallbackProps} from 'react-error-boundary';
-import { ALL_APPLICATIONS_URL } from "@lowcoder-ee/constants/routesURL";
-import history from "util/history";
-import Flex from "antd/es/flex";
 import React from "react";
 import dayjs from "dayjs";
 import { currentApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
@@ -50,6 +47,8 @@ const AppEditorInternalView = lazy(
   () => import("pages/editor/appEditorInternal")
     .then(moduleExports => ({default: moduleExports.AppEditorInternalView}))
 );
+
+const ErrorFallback = lazy(() => import("components/ErrorFallback"));
 
 const AppEditor = React.memo(() => {
   const dispatch = useDispatch();
@@ -224,39 +223,12 @@ const AppEditor = React.memo(() => {
     }
   }, [isLowcoderCompLoading, fetchApplication]);
 
-  const fallbackUI = useMemo(() => (
-    <Flex align="center" justify="center" vertical style={{
-      height: '300px',
-      width: '400px',
-      margin: '0 auto',
-    }}>
-      <h4 style={{margin: 0}}>Something went wrong while displaying this webpage</h4>
-      <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Go to Apps</button>
-    </Flex>
-  ), []);
-
   if (Boolean(appError)) {
-    return (
-      <Flex align="center" justify="center" vertical style={{
-        height: '300px',
-        width: '400px',
-        margin: '0 auto',
-      }}>
-        <h4>{appError}</h4>
-        <button onClick={() => history.push(ALL_APPLICATIONS_URL)} style={{background: '#4965f2',border: '1px solid #4965f2', color: '#ffffff',borderRadius:'6px'}}>Back to Home</button>
-      </Flex>
-    )
+    return <ErrorFallback errorMessage={appError} />
   }
 
   return (
-    <ErrorBoundary fallback={fallbackUI}>
-      {/*<PaginationComp*/}
-      {/*    currentPage={currentPage}*/}
-      {/*    pageSize={pageSize}*/}
-      {/*    setPageSize={setPageSize}*/}
-      {/*    setCurrentPage={setCurrentPage}*/}
-      {/*    total={elements.total}*/}
-      {/*/>*/}
+    <ErrorBoundary fallback={<ErrorFallback />}>
       {showAppSnapshot ? (
         <Suspense fallback={<EditorSkeletonView />}>
           <AppSnapshot

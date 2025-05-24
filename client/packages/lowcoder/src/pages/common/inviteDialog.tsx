@@ -148,7 +148,7 @@ function InviteDialog(props: {
       <CustomModal
         open={inviteDialogVisible}
         title={trans("memberSettings.inviteUser")}
-        destroyOnClose
+        destroyOnHidden
         onCancel={() => setInviteDialogVisible(false)}
         showOkButton={false}
         showCancelButton={false}

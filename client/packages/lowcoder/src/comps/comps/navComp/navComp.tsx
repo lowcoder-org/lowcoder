@@ -198,7 +198,7 @@ const NavCompBase = new UICompBuilder(childrenMap, (props) => {
           return (
             <Dropdown
               key={idx}
-              dropdownRender={() => subMenu}
+              popupRender={() => subMenu}
             >
               {item}
             </Dropdown>

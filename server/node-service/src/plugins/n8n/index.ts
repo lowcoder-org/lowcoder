@@ -1,12 +1,17 @@
 import { badRequest } from "common/error";
+import path from "path";
 import { OpenAPIV3, OpenAPI } from "openapi-types";
 import { ConfigToType, DataSourcePlugin } from "lowcoder-sdk/dataSource";
 import { runOpenApi } from "../openApi";
 import { defaultParseOpenApiOptions, parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
-import spec from "./spec.json";
-import { specsToOptions, version2spec } from "../../common/util";
+import { readYaml, specsToOptions, version2spec } from "../../common/util";
+
+const spec_1_1_0 = readYaml(path.join(__dirname, "./openapi_1_1_0.yml"));
+const spec_1_1_1 = readYaml(path.join(__dirname, "./openapi_1_1_1.yml"));
+
 const specs = {
-  "v1.0": spec,
+  "v1.1.0": spec_1_1_0,
+  "v1.1.1": spec_1_1_1
 }
 
 export function prepareServerUrl(url: string) {

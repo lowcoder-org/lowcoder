@@ -265,12 +265,12 @@ const TagEdit = React.memo((props: TagEditPropsType) => {
         suffixIcon={<PackUpIcon />}
         onSearch={handleSearch}
         onChange={handleChange}
-        dropdownRender={(originNode: ReactNode) => (
+        popupRender={(originNode: ReactNode) => (
           <DropdownStyled>
             <ScrollBar style={{ maxHeight: "256px" }}>{originNode}</ScrollBar>
           </DropdownStyled>
         )}
-        dropdownStyle={{ marginTop: "7px", padding: "8px 0 6px 0" }}
+        styles={{ popup: { root: { marginTop: "7px", padding: "8px 0 6px 0" }}}}
         onFocus={() => {
           if (mountedRef.current) {
             setOpen(true);

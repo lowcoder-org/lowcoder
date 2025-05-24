@@ -45,6 +45,7 @@ import { validateResponse } from "api/apiUtils";
 import copyToClipboard from "copy-to-clipboard";
 import { BackgroundColor } from "constants/style";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import Column from "antd/es/table/Column";
 
 const StyledMembersIcon = styled(MembersIcon)`
   g g {
@@ -62,7 +63,6 @@ type UsersPermissionProp = {
 };
 
 function OrgUsersPermission(props: UsersPermissionProp) {
-  const { Column } = TableStyled;
   const { orgId, orgUsers, currentUser, setModify, modify, loading } = props;
   const adminCount = orgUsers.filter(
     (user) => user.role === ADMIN_ROLE || user.role === SUPER_ADMIN_ROLE,
@@ -180,7 +180,7 @@ function OrgUsersPermission(props: UsersPermissionProp) {
           render={(value, record: OrgUser) => (
             <CustomSelect
               style={{ width: "140px", height: "32px" }}
-              dropdownStyle={{ width: "149px" }}
+              styles={{ popup: { root: { width: "149px" }}}}
               defaultValue={record.role}
               key={record.role}
               optionLabelProp="label"

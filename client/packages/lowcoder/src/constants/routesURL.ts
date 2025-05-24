@@ -19,6 +19,14 @@ export const THEME_SETTING = "/setting/theme";
 export const PLUGINS_SETTING = "/setting/plugins";
 export const THEME_DETAIL = "/setting/theme/detail";
 export const THEME_DETAIL_URL = `${THEME_DETAIL}/:themeId`;
+export const AUDIT_LOG_DASHBOARD = "/setting/audit";
+export const AUDIT_LOG_DETAIL = "/setting/audit/:eventId/detail";
+export const APP_USAGE_DASHBOARD = "/setting/app-usage";
+export const APP_USAGE_DETAIL = "/setting/app-usage/:eventId/detail";
+
+export const ENVIRONMENT_SETTING = "/setting/environments";
+export const ENVIRONMENT_DETAIL = `${ENVIRONMENT_SETTING}/:environmentId`;
+export const ENVIRONMENT_WORKSPACE_DETAIL = `${ENVIRONMENT_DETAIL}/workspaces/:workspaceId`;
 
 export const OAUTH_PROVIDER_SETTING = "/setting/oauth-provider";
 export const OAUTH_PROVIDER_DETAIL = "/setting/oauth-provider/detail";
@@ -116,3 +124,7 @@ export const buildSubscriptionSettingsLink = (subscriptionId: string, productId 
 export const buildSubscriptionInfoLink = (productId: string) => `${SUBSCRIPTION_SETTING}/info/${productId}`;
 
 export const buildSupportTicketLink = (ticketId: string) => `${SUPPORT_URL}/details/${ticketId}`;
+
+export const buildEnvironmentId = (environmentId: string) => `${ENVIRONMENT_SETTING}/${environmentId}`;
+export const buildEnvironmentWorkspaceId = (environmentId: string, workspaceId: string) => 
+  `${ENVIRONMENT_SETTING}/${environmentId}/workspaces/${workspaceId}`;

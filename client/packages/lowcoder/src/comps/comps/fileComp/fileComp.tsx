@@ -346,7 +346,7 @@ const ImageCaptureModal = (props: {
       showCancelButton={false}
       open={props.showModal}
       maskClosable={true}
-      destroyOnClose
+      destroyOnHidden
       onCancel={props.onModalClose}
     >
       {!!errMessage ? (
@@ -413,7 +413,7 @@ const ImageCaptureModal = (props: {
                     trigger={["click"]}
                     open={dropdownShow}
                     onOpenChange={(value) => setDropdownShow(value)}
-                    dropdownRender={() => (
+                    popupRender={() => (
                       <Menu
                         items={modeList}
                         onClick={(value) =>

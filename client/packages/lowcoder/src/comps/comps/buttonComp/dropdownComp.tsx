@@ -125,7 +125,7 @@ const DropdownTmpComp = (function () {
         {props.onlyMenu ? (
           <Dropdown
             disabled={props.disabled}
-            dropdownRender={() => menu}
+            popupRender={() => menu}
             trigger={[props.triggerMode]}
           >
             <Button100 $buttonStyle={props.style as any} disabled={props.disabled}>
@@ -135,7 +135,7 @@ const DropdownTmpComp = (function () {
         ) : (
           <StyledDropdownButton
             disabled={props.disabled}
-            dropdownRender={() => menu}
+            popupRender={() => menu}
             trigger={[props.triggerMode]}
             onClick={() => props.onEvent("click")}
             buttonsRender={([left, right]) => [

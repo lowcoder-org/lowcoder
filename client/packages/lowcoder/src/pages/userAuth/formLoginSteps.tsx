@@ -156,7 +156,8 @@ export default function FormLoginSteps(props: FormLoginProps) {
   }, [serverSettings]);
 
   const afterLoginSuccess = () => {
-    if (props.organizationId) {
+    // used invitation link or organization login url then set cookie
+    if (props.organizationId && !isEnterpriseMode) {
       localStorage.setItem("lowcoder_login_orgId", props.organizationId);
     }
     fetchUserAfterAuthSuccess?.();
@@ -183,7 +184,6 @@ export default function FormLoginSteps(props: FormLoginProps) {
     // and skip workspace selection step
     if (Boolean(organizationId)) {
       setSkipWorkspaceStep(true);
-      dispatch(fetchConfigAction(organizationId));
       setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
       return;
     }
@@ -225,7 +225,6 @@ export default function FormLoginSteps(props: FormLoginProps) {
 
   useEffect(() => {
     if (isEnterpriseMode) {
-      // dispatch(fetchConfigAction());
       fetchOrgsByEmail();
     }
   }, [isEnterpriseMode]);

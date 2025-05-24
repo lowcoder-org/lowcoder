@@ -7,9 +7,9 @@ import {
   ThemeType,
 } from "api/commonSettingApi";
 import history from "util/history";
-import { BASE_URL, THEME_SETTING } from "constants/routesURL";
+import { THEME_SETTING } from "constants/routesURL";
 import ThemeSettingsSelector, { configChangeParams } from "../../../../components/ThemeSettingsSelector";
-import React, { lazy, useState } from "react";
+import React, { lazy } from "react";
 import { connect } from "react-redux";
 import { fetchCommonSettings, setCommonSettings } from "redux/reduxActions/commonSettingsActions";
 import { AppState } from "redux/reducers";
@@ -21,7 +21,6 @@ import {
   DetailTitle,
   ResetButton,
   SaveButton,
-  ChartDesc,
   ChartInput,
   Footer,
   Header,
@@ -41,7 +40,7 @@ import { HeaderBack } from "pages/setting/permission/styledComponents";
 import dsl from "./previewDsl";
 import chartDsl from "./chartPreviewDsl";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { Card, Collapse, CollapseProps, Divider, Flex, List, Tooltip } from 'antd';
+import { Card, Divider, Flex, List, Tooltip } from 'antd';
 
 import { ThemeCompPanel } from "pages/setting/theme/ThemeCompPanel";
 import { JSONObject } from "@lowcoder-ee/util/jsonTypes";

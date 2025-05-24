@@ -10,6 +10,7 @@ import { AuthContext, getLoginTitle } from "pages/userAuth/authUtils";
 import styled from "styled-components";
 import { requiresUnAuth } from "pages/userAuth/authHOC";
 import FormLoginSteps from "./formLoginSteps";
+import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 
 const ThirdAuthWrapper = styled.div`
   display: flex;
@@ -85,6 +86,7 @@ export const ThirdPartyBindCard = () => {
 // this is the classic Sign In
 function Login() {
   const { inviteInfo, systemConfig, thirdPartyAuthError } = useContext(AuthContext);
+  const { isEnterpriseActive } = useEnterpriseContext();
   const invitationId = inviteInfo?.invitationId;
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
@@ -143,6 +145,7 @@ function Login() {
       <AuthContainer
         heading={loginHeading}
         subHeading={loginSubHeading}
+        isEE={isEnterpriseActive}
       >
         <FormLoginSteps organizationId={organizationId} />
       </AuthContainer>

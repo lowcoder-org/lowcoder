@@ -160,7 +160,7 @@ function ThemeList(props: ThemeListProp) {
                 <Dropdown
                   trigger={["click"]}
                   getPopupContainer={() => document.getElementById("theme-list-table")!}
-                  dropdownRender={() => (
+                  popupRender={() => (
                     <Menu
                       onClick={(params) => {
                         if (params.key !== MENU_TYPE.RENAME) {

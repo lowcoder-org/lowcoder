@@ -140,7 +140,7 @@ export const searchCustomersSubscriptions = async (Customer: LowcoderSearchCusto
     }
 
     // Filter out entries with `"success": "false"`
-    const validEntries = result.data.filter((entry: any) => entry.success !== "false");
+    const validEntries = result.data?.filter((entry: any) => entry.success !== "false");
 
     // Flatten the data arrays and filter out duplicates by `id`
     const uniqueSubscriptions = Object.values(

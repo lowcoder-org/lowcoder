@@ -289,7 +289,7 @@ function PreloadConfigModal(props: ChildrenInstance) {
       mask={activeKey !== TabKey.CSS}
       open={showScriptsAndStyleModal}
       title={trans("preLoad.scriptsAndStyles")}
-      destroyOnClose
+      destroyOnHidden
       onCancel={() => changeExternalState?.({ showScriptsAndStyleModal: false })}
       showOkButton={false}
       showCancelButton={false}

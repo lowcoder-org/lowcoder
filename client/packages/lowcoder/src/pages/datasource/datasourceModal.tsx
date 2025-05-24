@@ -339,7 +339,7 @@ export function CreateDataSourceModal(props: CreateDataSourceModalProps) {
   return (
     <StepModal
       {...otherProps}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onStepChange={setActiveStepKey}
       activeStepKey={activeStepKey}
       width="888px"

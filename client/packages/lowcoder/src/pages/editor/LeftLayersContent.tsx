@@ -538,7 +538,7 @@ export const LeftLayersContent = (props: LeftLayersContentProps) => {
         <div style={{margin:"10px 0px"}}> 
           <Flex gap="small" vertical>
             <CustomDropdown
-              dropdownRender={() => (
+              popupRender={() => (
                 <Menu
                   items={items}
                   onClick={({ key }) => {

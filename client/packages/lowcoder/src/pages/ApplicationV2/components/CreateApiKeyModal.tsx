@@ -147,7 +147,7 @@ function CreateApiKeyModal(props: CreateApiKeyModalProps) {
       }}
       onOk={handleOk}
       onCancel={handleCancel}
-      destroyOnClose
+      destroyOnHidden
       afterClose={() => form.resetFields()}
     >
       <FormStyled

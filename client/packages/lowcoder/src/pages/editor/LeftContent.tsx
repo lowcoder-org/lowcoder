@@ -475,7 +475,7 @@ export const LeftContent = React.memo((props: LeftContentProps) => {
             onOk={() => setShowData([])}
             cancelButtonProps={{ style: { display: 'none' } }}
             closable={false}
-            destroyOnClose={true}
+            destroyOnHidden={true}
             maskClosable={false}
             okText={trans("modalComp.close")}
           >

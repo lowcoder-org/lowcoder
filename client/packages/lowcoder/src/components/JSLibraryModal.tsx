@@ -273,7 +273,7 @@ export function JSLibraryModal(props: JSLibraryModalProps) {
           setInstallError(undefined);
           setURL("");
         }}
-        destroyOnClose={true}
+        destroyOnHidden={true}
         showOkButton={false}
         showCancelButton={false}
         width="648px"

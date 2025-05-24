@@ -271,7 +271,7 @@ export const SelectUIView = (
     filterOption={(input, option) =>
       option?.label.toLowerCase().includes(input.toLowerCase())
     }
-    dropdownRender={(originNode: ReactNode) => (
+    popupRender={(originNode: ReactNode) => (
       <DropdownStyled $style={props.childrenInputFieldStyle as ChildrenMultiSelectStyleType}>
         {originNode}
       </DropdownStyled>

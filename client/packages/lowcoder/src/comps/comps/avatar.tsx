@@ -164,7 +164,7 @@ const AvatarView = (props: RecordConstructorToView<typeof childrenMap>) => {
       placement={props.labelPosition === 'left' ? "bottomLeft" : "bottomRight"}
       arrow
       disabled={!props.enableDropdownMenu}
-      dropdownRender={() => menu}
+      popupRender={() => menu}
     >
       <Wrapper $iconSize={props.iconSize} $labelPosition={props.labelPosition} $style={props.style}>
         <Badge

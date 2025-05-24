@@ -245,7 +245,7 @@ export function SupportOverview() {
           open={isCreateFormShow}
           onCancel={() => showCreateForm(false)}
           activeStepKey={"type"}
-          destroyOnClose={true}
+          destroyOnHidden={true}
           width="888px"
           steps={[
             {

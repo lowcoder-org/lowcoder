@@ -96,7 +96,7 @@ const CustomSelect = React.forwardRef<HTMLDivElement, CustomSelectProps>((
   return (
     <SelectWrapper className={className} ref={ref} $border={border}>
       <AntdSelect
-        popupClassName={popupClassName}
+        classNames={{popup: { root: popupClassName }}}
         popupMatchSelectWidth={false}
         suffixIcon={<PackUpIcon />}
         {...restProps}

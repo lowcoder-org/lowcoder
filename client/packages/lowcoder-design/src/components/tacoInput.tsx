@@ -283,7 +283,7 @@ function PhoneNumberInput(props: {
       <CustomSelect
         disabled
         style={{ width: "80px", height: "38px" }}
-        dropdownStyle={{ width: "408px" }}
+        styles={{ popup: { root: { width: "408px" }}}}
         defaultValue={defaultCountryCode}
         optionLabelProp="value"
         onChange={(value) => {

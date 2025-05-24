@@ -214,7 +214,7 @@ const ScannerTmpComp = (function () {
           showCancelButton={false}
           open={showModal}
           maskClosable={props.maskClosable}
-          destroyOnClose
+          destroyOnHidden
           onCancel={() => {
             setShowModal(false);
             props.onEvent("close");
