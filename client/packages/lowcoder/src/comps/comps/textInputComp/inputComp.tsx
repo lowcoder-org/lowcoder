@@ -103,7 +103,6 @@ let InputBasicComp = new UICompBuilder(childrenMap, (props) => {
               {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
               {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
               {children.showCount.propertyView({ label: trans("prop.showCount") })}
-              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               {allowClearPropertyView(children)}
               {readOnlyPropertyView(children)}
             </Section>

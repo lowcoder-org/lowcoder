@@ -104,6 +104,7 @@ const InteractionSection = memo(({ children }: { children: RecordConstructorToCo
       {disabledPropertyView(children)}
       {hiddenPropertyView(children)}
       {showDataLoadingIndicatorsPropertyView(children as any)}
+      {(children as any).tabIndex?.propertyView({ label: trans("prop.tabIndex") })}
     </Section>
   );
 });
