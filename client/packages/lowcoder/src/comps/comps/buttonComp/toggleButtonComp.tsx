@@ -66,6 +66,7 @@ const ToggleTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
+    tooltip: StringControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
@@ -79,7 +80,7 @@ const ToggleTmpComp = (function () {
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}
       >
-        <Tooltip title={props.value.value ? props.trueText : props.falseText}>
+        <Tooltip title={props.tooltip}>
           <Button100
             ref={props.viewRef}
             $buttonStyle={props.style}
@@ -117,6 +118,7 @@ const ToggleTmpComp = (function () {
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.tooltip.propertyView({label: trans("labelProp.tooltip")})}
               {children.showText.getView() && 
                 children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&
