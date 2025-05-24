@@ -326,6 +326,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
@@ -344,7 +345,6 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           <><Section name={sectionNames.advanced}>
             {timeFields(children, isMobile)}
             {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section></>
         )}
         {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && !isMobile && commonAdvanceSection(children)}
@@ -543,6 +543,7 @@ let DateRangeTmpCmp = (function () {
                 {disabledPropertyView(children)}
                 {hiddenPropertyView(children)}
                 {showDataLoadingIndicatorsPropertyView(children)}
+                {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               </Section>
             </>
           )}
@@ -560,7 +561,6 @@ let DateRangeTmpCmp = (function () {
             <><Section name={sectionNames.advanced}>
               {timeFields(children, isMobile)}
               {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section></>
           )}
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && commonAdvanceSection(children)}

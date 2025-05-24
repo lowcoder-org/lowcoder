@@ -41,31 +41,33 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> create(@RequestBody CreateApplicationRequest createApplicationRequest) {
         return applicationApiService.create(createApplicationRequest)
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_CREATE))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(null, applicationView, APPLICATION_CREATE))
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<ApplicationView>> createFromTemplate(@RequestParam String templateId) {
         return applicationApiService.createFromTemplate(templateId)
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_CREATE))
+                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(null, applicationView, APPLICATION_CREATE))
                 .map(ResponseView::success);
     }
 
     @Override
     public Mono<ResponseView<Boolean>> recycle(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.recycle(appId)
-                    .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, null, APPLICATION_RECYCLED))
-                    .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.recycle(appId)
+                        .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationId, originalApplicationView.getApplicationInfoView().getFolderId(), null, APPLICATION_RECYCLED))
+                        .map(ResponseView::success)));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> restore(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.restore(appId)
-                .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(applicationId, null, null, APPLICATION_RESTORE))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.restore(appId)
+                    .delayUntil(__ -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationId, null, null, APPLICATION_RESTORE))
+                    .map(ResponseView::success)));
     }
 
     @Override
@@ -78,9 +80,10 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> delete(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.delete(appId)
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_DELETE))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.delete(appId)
+                    .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationView, APPLICATION_DELETE))
+                    .map(ResponseView::success)));
     }
 
     @Override
@@ -94,28 +97,31 @@ public class ApplicationController implements ApplicationEndpoints {
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedApplication(@PathVariable String applicationId, @RequestParam(required = false) Boolean withDeleted) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL, withDeleted)
-                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_ALL, withDeleted)
+                    .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
+                    .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationView, APPLICATION_VIEW))
+                    .map(ResponseView::success)));
     }
 
     @Override
     public Mono<ResponseView<ApplicationView>> getPublishedMarketPlaceApplication(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE, false)
-                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.getPublishedApplication(appId, ApplicationRequestType.PUBLIC_TO_MARKETPLACE, false)
+                    .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
+                    .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationView, APPLICATION_VIEW))
+                    .map(ResponseView::success)));
     }
 
     @Override
     public Mono<ResponseView<ApplicationView>> getAgencyProfileApplication(@PathVariable String applicationId) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.getPublishedApplication(appId, ApplicationRequestType.AGENCY_PROFILE, false)
-                .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_VIEW))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                applicationApiService.getPublishedApplication(appId, ApplicationRequestType.AGENCY_PROFILE, false)
+                    .delayUntil(applicationView -> applicationApiService.updateUserApplicationLastViewTime(appId))
+                    .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationView, APPLICATION_VIEW))
+                    .map(ResponseView::success)));
     }
 
     @Override
@@ -123,9 +129,10 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestBody Application newApplication,
             @RequestParam(required = false) Boolean updateStatus) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.update(appId, newApplication, updateStatus)
-                .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_UPDATE))
-                .map(ResponseView::success));
+                applicationApiService.getEditingApplication(appId, true).flatMap(originalApplicationView ->
+                    applicationApiService.update(appId, newApplication, updateStatus)
+                        .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(originalApplicationView, applicationView, APPLICATION_UPDATE))
+                        .map(ResponseView::success)));
     }
 
     @Override

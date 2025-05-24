@@ -438,6 +438,7 @@ let NumberInputTmpComp = (function () {
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
@@ -458,7 +459,6 @@ let NumberInputTmpComp = (function () {
             })}
             {children.controls.propertyView({ label: trans("numberInput.controls") })}
             {readOnlyPropertyView(children)}
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         )}
 

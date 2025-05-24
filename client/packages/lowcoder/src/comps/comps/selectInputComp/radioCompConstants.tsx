@@ -74,10 +74,9 @@ export const RadioPropertyView = (
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
         {showDataLoadingIndicatorsPropertyView(children as any)}
-      </Section>
-      <Section name={sectionNames.advanced}>
         {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
-      </Section></>
+      </Section>
+      </>
     )}
 
     {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (

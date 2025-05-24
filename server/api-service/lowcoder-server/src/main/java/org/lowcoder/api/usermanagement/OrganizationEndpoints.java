@@ -181,6 +181,12 @@ public interface OrganizationEndpoints
 	@GetMapping("/{orgId}/api-usage")
 	public Mono<ResponseView<Long>> getOrgApiUsageCount(@PathVariable String orgId, @RequestParam(required = false) Boolean lastMonthOnly);
 
+	@Operation(
+			tags = TAG_ORGANIZATION_MANAGEMENT,
+			operationId = "updateOrganizationSlug",
+			summary = "Update Organization URL Path Slug",
+			description = "The slug is used to build a friendly reader URL for Apps. The Organization (workspace) get a part of this URL with an own slug."
+	)
 	@PutMapping("/{orgId}/slug")
     Mono<ResponseView<Organization>> updateSlug(@PathVariable String orgId, @RequestBody String slug);
 
