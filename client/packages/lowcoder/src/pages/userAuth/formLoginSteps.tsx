@@ -156,7 +156,8 @@ export default function FormLoginSteps(props: FormLoginProps) {
   }, [serverSettings]);
 
   const afterLoginSuccess = () => {
-    if (props.organizationId) {
+    // used invitation link or organization login url then set cookie
+    if (props.organizationId && !isEnterpriseMode) {
       localStorage.setItem("lowcoder_login_orgId", props.organizationId);
     }
     fetchUserAfterAuthSuccess?.();

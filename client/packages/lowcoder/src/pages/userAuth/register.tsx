@@ -136,7 +136,8 @@ function UserRegister() {
   }, [serverSettings]);
   
   const afterLoginSuccess = () => {
-    if (organizationId) {
+    // used invitation link or organization login url then set cookie
+    if (organizationId && !isEnterpriseMode) {
       localStorage.setItem("lowcoder_login_orgId", organizationId);
     }
     fetchUserAfterAuthSuccess?.();
@@ -159,7 +160,7 @@ function UserRegister() {
   );
 
   const checkEmailExist = () => {
-    if (!Boolean(account.length) || lastEmailChecked === account) return;
+    if (!Boolean(account.length) || lastEmailChecked === account || isEnterpriseMode) return;
 
     setOrgLoading(true);
     OrgApi.fetchOrgsByEmail(account)
