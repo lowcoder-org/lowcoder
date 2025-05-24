@@ -29,10 +29,7 @@ import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.query.model.LibraryQuery;
 import org.lowcoder.domain.user.model.User;
 import org.lowcoder.domain.user.service.UserService;
-import org.lowcoder.infra.event.ApplicationCommonEvent;
-import org.lowcoder.infra.event.FolderCommonEvent;
-import org.lowcoder.infra.event.LibraryQueryEvent;
-import org.lowcoder.infra.event.QueryExecutionEvent;
+import org.lowcoder.infra.event.*;
 import org.lowcoder.infra.event.datasource.DatasourceEvent;
 import org.lowcoder.infra.event.datasource.DatasourcePermissionEvent;
 import org.lowcoder.infra.event.group.GroupCreateEvent;
@@ -766,11 +763,34 @@ public class BusinessEventPublisher {
                 });
     }
 
-    public Mono<Void> publishLibraryQuery(LibraryQuery libraryQuery, EventType eventType) {
-        return publishLibraryQueryEvent(libraryQuery.getId(), libraryQuery.getName(), eventType);
+    public Mono<Void> publishLibraryQueryPublishEvent(String id, String oldVersion, String newVersion, EventType eventType) {
+        return sessionUserService.getVisitorOrgMemberCache()
+                .zipWith(sessionUserService.getVisitorToken())
+                .flatMap(tuple -> {
+                    LibraryQueryPublishEvent event = LibraryQueryPublishEvent.builder()
+                            .id(id)
+                            .oldVersion(oldVersion)
+                            .newVersion(newVersion)
+                            .eventType(eventType)
+                            .userId(tuple.getT1().getUserId())
+                            .orgId(tuple.getT1().getOrgId())
+                            .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
+                            .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
+                            .build();
+                    return Mono.deferContextual(contextView -> {
+                        event.populateDetails(contextView);
+                        applicationEventPublisher.publishEvent(event);
+                        return Mono.<Void>empty();
+                    });
+                })
+                .then()
+                .onErrorResume(throwable -> {
+                    log.error("publishLibraryQueryPublishEvent error.", throwable);
+                    return Mono.empty();
+                });
     }
 
-    public Mono<Void> publishLibraryQueryEvent(String id, String name, EventType eventType) {
+    public Mono<Void> publishLibraryQueryEvent(String id, String name, EventType eventType, String oldName) {
         return sessionUserService.getVisitorOrgMemberCache()
                 .zipWith(sessionUserService.getVisitorToken())
                 .flatMap(tuple -> {
@@ -779,6 +799,7 @@ public class BusinessEventPublisher {
                             .orgId(tuple.getT1().getOrgId())
                             .id(id)
                             .name(name)
+                            .oldName(oldName)
                             .eventType(eventType)
                             .isAnonymous(Authentication.isAnonymousUser(tuple.getT1().getUserId()))
                             .sessionHash(Hashing.sha512().hashString(tuple.getT2(), StandardCharsets.UTF_8).toString())
