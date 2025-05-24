@@ -2,6 +2,7 @@ import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
+import { FunctionControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import {
   CompAction,
@@ -155,26 +156,35 @@ export const LibraryQuery = class extends LibraryQueryBase {
           const script = this.queryInfo.query.comp.script || "";
           const options: SandBoxOption = { disableLimit: runInHost };
 
-          // Get input values from the inputs component
+          // Get input values from the inputs component and resolve any variables
           const inputValues = Object.entries(this.children.inputs.children).reduce((acc, [name, input]) => {
-            // Get the actual value from the input component's text property
-            const value = input.children.text.getView();
+            // Get the raw value from the input component's text property
+            let value = input.children.text.getView();
+            
+            // Resolve any variables in the value
+            if (typeof value === 'string') {
+              value = value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+                const parts = path.split('.');
+                let current = props.args || {};
+                for (const part of parts) {
+                  if (current && typeof current === 'object') {
+                    current = current[part];
+                  } else {
+                    return match; // Return original if path not found
+                  }
+                }
+                return current?.value ?? match;
+              });
+            }
+            
             acc[name] = value;
             return acc;
           }, {} as Record<string, any>);
 
-          // Combine props.args with input values
-          const context = {
-            ...props.args,
-            ...inputValues,
-          };
-
           console.log("script: " + script);
-          console.log("context: ", context);
+          console.log("inputValues: ", inputValues);
 
-          // Wrap the script in a return statement to ensure it returns a value
-          // const wrappedScript = `return (${script});`;
-          const data = await evalFunc(script, context, undefined, options);
+          const data = await evalFunc(script, inputValues, undefined, options);
           return {
             data: data,
             code: QUERY_EXECUTION_OK,
@@ -311,7 +321,7 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
         <QueryTutorialButton
           label={trans("queryLibrary.viewQuery")}
           url={`/query-library?forwardQueryId=${queryId}`}
-          styleName={"dropdownRight"}
+          styleName="dropdownRight"
         />
       </QueryConfigWrapper>
 
