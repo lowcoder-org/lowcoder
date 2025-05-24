@@ -64,8 +64,8 @@ common:
   domain:
     default-value: lowcoder.org
   cloud: false
-  version: 2.1.4
-  apiVersion: 1.1
+  version: 2.7.0
+  apiVersion: 1.2
   block-hound-enable: false
   encrypt:
     password: ${LOWCODER_DB_ENCRYPTION_PASSWORD:lowcoder.org}
