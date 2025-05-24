@@ -222,6 +222,13 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     }, 1000)
   );
 
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedOnChangeRef.current.cancel();
+    };
+  }, []);
+
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLocalInputValue(value);
@@ -230,6 +237,15 @@ export const useTextInputProps = (props: RecordConstructorToView<typeof textInpu
     touchRef.current = true;
     debouncedOnChangeRef.current?.(value);
   };
+
+  // Cleanup refs on unmount
+  useEffect(() => {
+    return () => {
+      changeRef.current = false;
+      touchRef.current = false;
+      propsRef.current = null as any;
+    };
+  }, []);
 
   return [
     {

@@ -34,7 +34,7 @@ public interface ApplicationApiService {
 
     Mono<Void> updateUserApplicationLastViewTime(String applicationId);
 
-    Mono<ApplicationView> update(String applicationId, Application application);
+    Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus);
 
     Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest);
 

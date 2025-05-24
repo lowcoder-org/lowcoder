@@ -22,7 +22,7 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import {
   clickEvent,
@@ -96,30 +96,29 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     setHeight(container?.clientHeight ?? 0);
   };
 
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
-        <Container
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          style={{
-            fontSize: props.autoHeight
-              ? `${height < width ? height : width}px`
-              : props.iconSize,
-            background: props.style.background,
-          }}
-          onClick={() => props.onEvent("click")}
-        >
-          { props.sourceMode === 'standard'
-            ? props.icon
-            : <img src={props.iconScoutAsset.value} />
-          }
-        </Container>
-      )}
+    <Container
+      ref={conRef}
+      $style={props.style}
+      $animationStyle={props.animationStyle}
+      style={{
+        fontSize: props.autoHeight
+          ? `${height < width ? height : width}px`
+          : props.iconSize,
+        background: props.style.background,
+      }}
+      onClick={() => props.onEvent("click")}
     >
-    </ReactResizeDetector>
+      { props.sourceMode === 'standard'
+        ? (props.icon || '')
+        : <img src={props.iconScoutAsset.value} />
+      }
+    </Container>
   );
 };
 

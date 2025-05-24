@@ -13,9 +13,12 @@ import { SUPPORT_URL } from "constants/routesURL";
 import { TacoMarkDown } from "lowcoder-design";
 import remarkGfm from 'remark-gfm';
 import { contrastColor } from "comps/controls/styleControlConstants";
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import { useCurrentUser } from "util/currentUser";
+import React from "react";
+
+const ReactQuillEditor = React.lazy(() => import("react-quill-new"));
+
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -455,7 +458,7 @@ export function SupportDetail() {
                 value={newDescription}
                 onChange={(e) => setNewDescription(e.target.value)}
               /> */}
-              <ReactQuill
+              <ReactQuillEditor
                 theme="snow"
                 value={newDescription}
                 onChange={setNewDescription}

@@ -123,7 +123,7 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestBody Application newApplication,
             @RequestParam(required = false) Boolean updateStatus) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
-            applicationApiService.update(appId, newApplication)
+            applicationApiService.update(appId, newApplication, updateStatus)
                 .delayUntil(applicationView -> businessEventPublisher.publishApplicationCommonEvent(applicationView, APPLICATION_UPDATE))
                 .map(ResponseView::success));
     }

@@ -54,7 +54,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { useResizeDetector } from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled from "styled-components";
 import { checkIsMobile } from "util/commonUtils";
 import { ExternalEditorContext } from "util/context/ExternalEditorContext";
@@ -397,8 +397,18 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
   );
 
   const dispatchPositionParamsTimerRef = useRef(0);
+  
+  // Add cleanup for timeout
+  useEffect(() => {
+    return () => {
+      if (dispatchPositionParamsTimerRef.current) {
+        window.clearTimeout(dispatchPositionParamsTimerRef.current);
+      }
+    };
+  }, []);
+
   const onResize = useCallback(
-    (width?: number, height?: number) => {
+    ({width, height}: ResizePayload) => {
       if(!width || !height) return;
 
       if (width !== positionParams.containerWidth) {
@@ -444,6 +454,15 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
       props.dispatch,
     ]
   );
+
+  // Cleanup resize detector
+  const { width, ref } = useResizeDetector({
+    onResize,
+    handleHeight: isRowCountLocked,
+    refreshMode: 'debounce',
+    refreshRate: 100,
+  });
+
   const setSelectedNames = useCallback(
     (names: Set<string>) => {
       editorState?.setSelectedCompNames(names);
@@ -451,12 +470,18 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
     [editorState?.setSelectedCompNames]
   );
 
-  const { width, ref } = useResizeDetector({
-    onResize,
-    handleHeight: isRowCountLocked,
-    refreshMode: 'debounce',
-    refreshRate: 100,
-  });
+  // Cleanup item references when items are removed
+  useEffect(() => {
+    const currentKeys = new Set(Object.keys(props.items));
+    const refKeys = new Set(Object.keys(itemViewRef.current));
+    
+    // Remove references to items that no longer exist
+    refKeys.forEach(key => {
+      if (!currentKeys.has(key)) {
+        delete itemViewRef.current[key];
+      }
+    });
+  }, [props.items]);
 
   const itemViewRef = useRef<GirdItemViewRecord>({});
   const itemViews = useMemo(() => {
@@ -497,7 +522,7 @@ export const InnerGrid = React.memo((props: ViewPropsWithSelect) => {
 
   return (
     <ReactGridLayout
-      innerRef={ref}
+      innerRef={ref as RefObject<HTMLDivElement>}
       className={props.className}
       style={props.style}
       scrollContainerRef={props.scrollContainerRef}

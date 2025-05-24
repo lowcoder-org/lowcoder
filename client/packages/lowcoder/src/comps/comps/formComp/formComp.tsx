@@ -169,14 +169,18 @@ function onCreate(
 const BodyPlaceholder = (props: FormProps) => {
   const editorState = useContext(EditorContext);
   const formName = useContext(CompNameContext);
+  
+  const handleCreate = (data: CreateData) => {
+    const result = onCreate(data, props, editorState, formName);
+    return Promise.resolve(result);
+  };
+  
   return (
     <ContainerPlaceholder>
       {trans("formComp.containerPlaceholder")}
       <br />
       <CreateForm
-        onCreate={(data: CreateData) =>
-          Promise.resolve(onCreate(data, props, editorState, formName))
-        }
+        onCreate={handleCreate}
       />
     </ContainerPlaceholder>
   );

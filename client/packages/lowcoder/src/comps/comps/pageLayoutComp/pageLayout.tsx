@@ -208,7 +208,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                 width={container.siderWidth}
                 style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
                 collapsible={container.siderCollapsible && !isMobile} 
-                breakpoint="sm"
+                breakpoint={container.siderCollapsible ? "sm" : undefined}
                 collapsedWidth={container.siderCollapsedWidth}
                 collapsed={siderCollapsed} onCollapse={(value) => onSiderCollapse(value)}
                 >
@@ -267,7 +267,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                           width={container.siderWidth} 
                           style={{ padding: "0px", margin: '0px', marginTop: style.borderWidth, backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
                           collapsible={container.siderCollapsible && !isMobile} 
-                          breakpoint="sm"
+                          breakpoint={container.siderCollapsible ? "sm" : undefined}
                           collapsedWidth={container.siderCollapsedWidth}
                           collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
                         >
@@ -334,7 +334,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                             width={container.siderWidth}
                             style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent' }} 
                             collapsible={container.siderCollapsible && !isMobile}
-                            breakpoint="sm"
+                            breakpoint={container.siderCollapsible ? "sm" : undefined}
                             collapsedWidth={container.siderCollapsedWidth}
                             reverseArrow={true}
                             collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}
@@ -430,7 +430,7 @@ export function PageLayout(props: LayoutProps & { siderCollapsed: boolean; setSi
                   width={container.siderWidth}
                   style={{ padding: "0px", margin: '0px', backgroundColor: siderStyle?.siderBackground || 'transparent'}} 
                   collapsible={container.siderCollapsible && !isMobile}
-                  breakpoint="sm"
+                  breakpoint={container.siderCollapsible ? "sm" : undefined}
                   collapsedWidth={container.siderCollapsedWidth}
                   reverseArrow={true}
                   collapsed={siderCollapsed} onCollapse={(value) => setSiderCollapsed(value)}

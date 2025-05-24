@@ -23,12 +23,14 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
 
   const {currentPageProp, pageSizeProp} = props;
   const user = useSelector(getUser);
-  const [elements, setElements] = useState<any>({ elements: [], total: 1, role: "" });
+  const [elements, setElements] = useState<any>({ elements: [], total: 0, role: "" });
   const [group, setGrouop] = useState<OrgGroup>();
-  const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 1 })
+  const [orgMemberElements, setOrgMemberElements] = useState<any>({ elements: [], total: 0 })
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [modify, setModify] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const orgId = user.currentOrgId;
   const currentUser = useSelector(getUser);
@@ -51,23 +53,36 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
   )
 
   useEffect( () => {
-    if (selectKey !== "users" && selectKey)
+    if (selectKey !== "users" && selectKey) {
+      setLoading(true);
+      setError(null);
+      
       fetchGroupUsrPagination(
         {
-          groupId:selectKey,
+          groupId: selectKey,
           pageNum: currentPage,
           pageSize: pageSize,
         }
-        ).then(result => {
-          if (result.success){
-            setElements({elements: result.data || [], total: result.total || 1, role: result.visitorRole || ""})
-          }
-          else
-            console.error("ERROR: fetchFolderElements", result.error)
+      ).then(result => {
+        setLoading(false);
+        
+        if (result.success) {
+          setElements({
+            elements: result.data || [], 
+            total: result.total || 0,
+            role: result.visitorRole || ""
+          });
+        } else {
+          setError("Failed to load group users. Please try again.");
         }
-        )
-    else
-    {
+      }).catch(err => {
+        setLoading(false);
+        setError("Failed to load group users. Please try again.");
+      });
+    } else {
+      setLoading(true);
+      setError(null);
+      
       fetchOrgUsrPagination(
         {
           orgId: orgId,
@@ -75,17 +90,22 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
           pageSize: pageSize,
         }
       ).then(result => {
-          if (result.success){
-            setOrgMemberElements({elements: result.data || [], total: result.total || 1})
-          }
-          else
-            console.error("ERROR: fetchFolderElements", result.error)
+        setLoading(false);
+        if (result.success){
+          setOrgMemberElements({
+            elements: result.data || [], 
+            total: result.total || 0
+          });
         }
-      )
+        else {
+          setError("Failed to load organization users. Please try again.");
+        }
+      }).catch(err => {
+        setLoading(false);
+        setError("Failed to load organization users. Please try again.");
+      });
     }
-      },
-      [currentPage, pageSize, modify, selectKey]
-  )
+  }, [currentPage, pageSize, modify, selectKey, orgId]);
 
   if (!orgId) {
     return null;
@@ -93,15 +113,21 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
 
   return (
       <PermissionContent key={selectKey}>
+        {error && (
+          <div style={{ color: 'red', margin: '20px 0', textAlign: 'center' }}>
+            {error}
+          </div>
+        )}
+        
         {selectKey === "users" ? (
             <>
               <UsersPermission
                   orgId={orgId}
-                  // orgUsers={!orgMemberElements.elements.members ? [] : orgMemberElements.elements.members}
                   orgUsers={orgMemberElements.elements}
                   currentUser={currentUser}
                   setModify={setModify}
                   modify={modify}
+                  loading={loading}
               />
               <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={orgMemberElements.total} />
             </>
@@ -116,10 +142,10 @@ export default function PermissionSetting(props: {currentPageProp: number, pageS
                       currentUser={currentUser}
                       setModify={setModify}
                       modify={modify}
+                      loading={loading}
                   />
                   <PaginationComp setCurrentPage={setCurrentPage} setPageSize={setPageSize} currentPage={currentPage} pageSize={pageSize} total={elements.total} />
                 </>
-
             )
         )}
       </PermissionContent>

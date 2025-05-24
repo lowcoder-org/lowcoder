@@ -9,6 +9,10 @@ import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
 import { IconControl } from "comps/controls/iconControl";
 import { hasIcon } from "comps/utils";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { CSSProperties } from "react";
+import { RecordConstructorToComp } from "lowcoder-core";
+import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 
 export const ColumnValueTooltip = trans("table.columnValueTooltip");
 
@@ -27,48 +31,55 @@ export const ButtonTypeOptions = [
   },
 ] as const;
 
+const childrenMap = {
+  text: StringControl,
+  buttonType: dropdownControl(ButtonTypeOptions, "primary"),
+  onClick: ActionSelectorControlInContext,
+  loading: BoolCodeControl,
+  disabled: BoolCodeControl,
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
+};
+
+const ButtonStyled = React.memo(({ props }: { props: ToViewReturn<RecordConstructorToComp<typeof childrenMap>>}) => {
+  const style = useStyle(ButtonStyle);
+  const hasText = !!props.text;
+  const hasPrefixIcon = hasIcon(props.prefixIcon);
+  const hasSuffixIcon = hasIcon(props.suffixIcon);
+  const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
+
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    props.onClick?.();
+  }, [props.onClick]);
+
+  const buttonStyle = useMemo(() => ({
+    margin: 0,
+    width: iconOnly ? 'auto' : undefined,
+    minWidth: iconOnly ? 'auto' : undefined,
+    padding: iconOnly ? '0 8px' : undefined
+  } as CSSProperties), [iconOnly]);
+
+  return (
+    <Button100
+      type={props.buttonType}
+      onClick={handleClick}
+      loading={props.loading}
+      disabled={props.disabled}
+      $buttonStyle={props.buttonType === "primary" ? style : undefined}
+      style={buttonStyle}
+      icon={hasPrefixIcon ? props.prefixIcon : undefined}
+    >
+      {/* prevent the button from disappearing */}
+      {hasText ? props.text : (iconOnly ? null : " ")}
+      {hasSuffixIcon && !props.loading && <span style={{ marginLeft: hasText ? '8px' : 0 }}>{props.suffixIcon}</span>}
+    </Button100>
+  );
+});
+
 export const ButtonComp = (function () {
-  const childrenMap = {
-    text: StringControl,
-    buttonType: dropdownControl(ButtonTypeOptions, "primary"),
-    onClick: ActionSelectorControlInContext,
-    loading: BoolCodeControl,
-    disabled: BoolCodeControl,
-    prefixIcon: IconControl,
-    suffixIcon: IconControl,
-  };
   return new ColumnTypeCompBuilder(
     childrenMap,
-    (props) => {
-      const ButtonStyled = () => {
-        const style = useStyle(ButtonStyle);
-        const hasText = !!props.text;
-        const hasPrefixIcon = hasIcon(props.prefixIcon);
-        const hasSuffixIcon = hasIcon(props.suffixIcon);
-        const iconOnly = !hasText && (hasPrefixIcon || hasSuffixIcon);
-        
-        return (
-          <Button100
-            type={props.buttonType}
-            onClick={props.onClick}
-            loading={props.loading}
-            disabled={props.disabled}
-            $buttonStyle={props.buttonType === "primary" ? style : undefined}
-            style={{
-              margin: 0,
-              width: iconOnly ? 'auto' : undefined,
-              minWidth: iconOnly ? 'auto' : undefined,
-              padding: iconOnly ? '0 8px' : undefined
-            }}
-            icon={hasPrefixIcon ? props.prefixIcon : undefined}
-          >
-            {hasText ? props.text : (iconOnly ? null : " ")}
-            {hasSuffixIcon && !props.loading && <span style={{ marginLeft: hasText ? '8px' : 0 }}>{props.suffixIcon}</span>}
-          </Button100>
-        );
-      };
-      return <ButtonStyled />;
-    },
+    (props) => <ButtonStyled props={props} />,
     (nodeValue) => nodeValue.text.value
   )
     .setPropertyViewFn((children) => (

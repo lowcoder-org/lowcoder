@@ -5,6 +5,7 @@ import { isCompWithPropertyView } from "comps/utils/propertyUtils";
 import {
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
+  JS_CODE_ID
 } from "constants/datasourceConstants";
 import { PageType } from "constants/pageConstants";
 import { trans } from "i18n";
@@ -795,7 +796,8 @@ function useDatasourceStatus(datasourceId: string, datasourceType: ResourceType)
       datasourceType === "libraryQuery" ||
       datasourceType === "alasql" ||
       datasourceId === QUICK_REST_API_ID ||
-      datasourceId === QUICK_GRAPHQL_ID
+      datasourceId === QUICK_GRAPHQL_ID || 
+      datasourceId === JS_CODE_ID
     ) {
       return "";
     }

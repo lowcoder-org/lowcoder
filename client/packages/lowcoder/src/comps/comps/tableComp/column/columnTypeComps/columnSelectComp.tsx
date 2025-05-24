@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
 
 import { SelectUIView } from "comps/comps/selectInputComp/selectCompConstants";
 import { SelectOptionControl } from "comps/controls/optionsControl";
@@ -80,7 +80,6 @@ const childrenMap = {
   options: SelectOptionControl,
 };
 
-let options: any[] = []
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.text;
 
 type SelectEditProps = {
@@ -90,38 +89,56 @@ type SelectEditProps = {
   options: any[];
 };
 
-const defaultProps: any = {}
-const SelectEdit = (props: SelectEditProps) => {
+const SelectEdit = React.memo((props: SelectEditProps) => {
   const [currentValue, setCurrentValue] = useState(props.initialValue);
+  const mountedRef = useRef(true);
+  const defaultProps: any = {};
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+      setCurrentValue('');
+    };
+  }, []);
+
+  const handleChange = useCallback((val: string) => {
+    if (!mountedRef.current) return;
+    props.onChange(val);
+    setCurrentValue(val);
+  }, [props.onChange]);
+
+  const handleEvent = useCallback(async (eventName: string) => {
+    if (!mountedRef.current) return [] as unknown[];
+    if (eventName === "blur") {
+      props.onChangeEnd();
+    }
+    return [] as unknown[];
+  }, [props.onChangeEnd]);
+
+  const memoizedOptions = useMemo(() => props.options, [props.options]);
+
   return (
     <SelectUIView
       autoFocus
       allowClear
-      {...defaultProps}
       value={currentValue}
-      options={props.options}
-      onChange={(val) => {
-        props.onChange(val);
-        setCurrentValue(val)
-      }}
-      onEvent={async (eventName) => {
-        if (eventName === "blur") {
-          props.onChangeEnd()
-        }
-        return []
-      }}
+      options={memoizedOptions}
+      onChange={handleChange}
+      onEvent={handleEvent}
       // @ts-ignore
       style={{}}
+      {...defaultProps}
     />
   );
-};
+});
 
+SelectEdit.displayName = 'SelectEdit';
 
 export const ColumnSelectComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
-      options = props.options;
       const value = props.changeValue ?? getBaseValue(props, dispatch);
       const option = props.options.find(x => x.value === value);
       return (
@@ -139,7 +156,7 @@ export const ColumnSelectComp = (function () {
         <Wrapper>
           <SelectEdit
             initialValue={props.value}
-            options={options}
+            options={props.otherProps?.options || []}
             onChange={props.onChange}
             onChangeEnd={props.onChangeEnd}
           />

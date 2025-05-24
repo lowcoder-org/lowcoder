@@ -485,8 +485,13 @@ function EditorView(props: EditorViewProps) {
       "orientationchange" in window ? "orientationchange" : "resize";
     window.addEventListener(eventType, updateSize);
     updateSize();
-    return () => window.removeEventListener(eventType, updateSize);
-  }, []);
+
+    return () => {
+      window.removeEventListener(eventType, updateSize);
+      savePanelStatus(panelStatus);
+      saveEditorModeStatus(editorModeStatus);
+    };
+  }, [panelStatus, editorModeStatus]);
 
   const hideBodyHeader = useTemplateViewMode() || (isViewMode && (!showHeaderInPublic || !commonSettings.showHeaderInPublicApps));
 
@@ -511,7 +516,7 @@ function EditorView(props: EditorViewProps) {
     if (isViewMode) return uiComp.getView();
 
     return (
-      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
+      editorState.deviceType === "mobile" || editorState.deviceType === "tablet" ? (
         <DeviceWrapper
             deviceType={editorState.deviceType}
             deviceOrientation={editorState.deviceOrientation}
@@ -531,7 +536,16 @@ function EditorView(props: EditorViewProps) {
     editorState.deviceOrientation,
   ]);
 
-  // we check if we are on the public cloud
+  useEffect(() => {
+    return () => {
+      setPanelStatus(DefaultPanelStatus);
+      setEditorModeStatus("both");
+      setShowShortcutList(false);
+      setMenuKey(SiderKey.State);
+      setHeight(undefined);
+    };
+  }, []);
+
   const isLowCoderDomain = window.location.hostname === 'app.lowcoder.cloud';
   const isLocalhost = window.location.hostname === 'localhost';
   if (readOnly && hideHeader) {
@@ -562,7 +576,7 @@ function EditorView(props: EditorViewProps) {
             <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
             <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
             // adding Hubspot Support for Analytics
-            <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+            <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
           ]}
         </Helmet>
         <Suspense fallback={<EditorSkeletonView />}>
@@ -611,7 +625,7 @@ function EditorView(props: EditorViewProps) {
         <link key="preconnect-gstatic" rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />,
         <link key="font-ubuntu" href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet" />,
         // adding Clearbit Support for Analytics
-        <script async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
+        <script key="hs-script-loader" async defer src="//js-eu1.hs-scripts.com/144574215.js" type="text/javascript" id="hs-script-loader"></script>
       ]}
     </Helmet>
     <Height100Div

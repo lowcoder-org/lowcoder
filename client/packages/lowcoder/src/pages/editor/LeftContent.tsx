@@ -15,7 +15,7 @@ import {
   UnShow,
   TacoButton,
 } from "lowcoder-design";
-import React, { ReactNode, useCallback, useContext, useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { hookCompCategory } from "comps/hooks/hookCompTypes";
 import _ from "lodash";
 import styled from "styled-components";
@@ -33,6 +33,7 @@ import { CollapseWrapper, DirectoryTreeStyle, Node } from "./styledComponents";
 import { DataNode, EventDataNode } from "antd/es/tree";
 import { isAggregationApp } from "util/appUtils";
 import Modal from "antd/es/modal/Modal";
+import { useUnmount } from "react-use";
 
 const CollapseTitleWrapper = styled.div`
   display: flex;
@@ -68,9 +69,20 @@ function getLen(config: string | boolean | number) {
   return 0;
 }
 
+const stringifyCache = new Map();
+
 function safeStringify(obj: any, space = 2) {
+  if (obj === null || obj === undefined || typeof obj !== 'object') {
+    return JSON.stringify(obj);
+  }
+
+  const cacheKey = obj;
+  if (stringifyCache.has(cacheKey)) {
+    return stringifyCache.get(cacheKey);
+  }
+
   const cache = new Set();
-  return JSON.stringify(obj, (key, value) => {
+  const result = JSON.stringify(obj, (key, value) => {
     if (typeof value === 'object' && value !== null) {
       if (cache.has(value)) {
         return '[Circular]';
@@ -79,8 +91,13 @@ function safeStringify(obj: any, space = 2) {
     }
     return value;
   }, space);
-}
 
+  if (result.length < 10000) {
+    stringifyCache.set(cacheKey, result);
+  }
+
+  return result;
+}
 
 function toDataView(value: any, name: string, desc?: ReactNode, modal?: boolean) {
   const str = typeof value === "function" ? "Function" : safeStringify(value);
@@ -120,7 +137,6 @@ function toDataView(value: any, name: string, desc?: ReactNode, modal?: boolean)
     );
   }
 }
-
 
 export default toDataView;
 
@@ -171,11 +187,13 @@ const CollapseView = React.memo(
     onClick?: (compName: string) => void;
     isSelected?: boolean;
     isOpen?: boolean;
-    children?: React.ReactNode; // Accept children
+    children?: React.ReactNode;
     modal?: boolean;
   }) => {
     const { data = {} } = props;
     const onlyOne = Object.keys(data).length === 1;
+    const dataString = useMemo(() => safeStringify(data), [data]);
+
     return (
       <Collapse
         isSelected={props.isSelected}
@@ -218,7 +236,7 @@ const CollapseView = React.memo(
                   </CollapseTitleWrapper>
                 </Tooltip>
                 {Object.keys(data).length > 0 && 
-                  <CopyTextButton text={safeStringify(data)} style={{ color: "#aaa", marginRight: "8px"  }} />
+                  <CopyTextButton text={dataString} style={{ color: "#aaa", marginRight: "8px"  }} />
                 }
               </div>
             ),
@@ -229,7 +247,6 @@ const CollapseView = React.memo(
     );
   }
 );
-
 
 interface LeftContentProps {
   uiComp: InstanceType<typeof UIComp>;
@@ -279,13 +296,21 @@ const LeftContentWrapper = styled.div`
   height: calc(100vh - ${TopHeaderHeight});
 `;
 
-export const LeftContent = (props: LeftContentProps) => {
+export const LeftContent = React.memo((props: LeftContentProps) => {
   const { uiComp } = props;
   const editorState = useContext(EditorContext);
+  const mountedRef = useRef(true);
   const [expandedKeys, setExpandedKeys] = useState<Array<React.Key>>([]);
   const [showData, setShowData] = useState<NodeInfo[]>([]);
 
-  const getTree = (tree: CompTree, result: NodeItem[], key?: string) => {
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const getTree = useCallback((tree: CompTree, result: NodeItem[], key?: string) => {
+    if (!mountedRef.current) return result;
     const { items, children } = tree;
     if (Object.keys(items).length) {
       for (const i in items) {
@@ -310,47 +335,49 @@ export const LeftContent = (props: LeftContentProps) => {
       }
     }
     return result;
-  };
+  }, []);
 
-  const handleNodeClick = (
-    e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
+  const handleNodeClick = useCallback(
+    (e: React.MouseEvent<HTMLSpanElement, MouseEvent>,
     node: EventDataNode<DataNode>,
-    uiCompInfos: CompInfo[]
-  ) => {
-    uiCollapseClick(node.title + "");
-    const data = uiCompInfos.find((item) => item.name === node.title);
-    if (!node.children?.length && data && Object.keys(data.data)?.length && node.selected) {
-      // leaf and selected node, toggle showData
-      const index = showData.findIndex((item) => item.key === node.key);
-      let newData: NodeInfo[] = [];
-      let clientX = e.currentTarget?.offsetLeft + 20;
-      if (index > -1) {
-        newData = showData.map((item) => {
-          if (item.key === node.key) {
-            return {
-              key: item.key,
-              show: !item.show,
+    uiCompInfos: CompInfo[]) => {
+      if (!mountedRef.current) return;
+      uiCollapseClick(node.title + "");
+      const data = uiCompInfos.find((item) => item.name === node.title);
+      if (!node.children?.length && data && Object.keys(data.data)?.length && node.selected) {
+        const index = showData.findIndex((item) => item.key === node.key);
+        let newData: NodeInfo[] = [];
+        let clientX = e.currentTarget?.offsetLeft + 20;
+        if (index > -1) {
+          newData = showData.map((item) => {
+            if (item.key === node.key) {
+              return {
+                key: item.key,
+                show: !item.show,
+                clientX,
+              };
+            }
+            return item;
+          });
+        } else {
+          newData = [
+            ...showData,
+            {
+              key: node.key + "",
+              show: true,
               clientX,
-            };
-          }
-          return item;
-        });
-      } else {
-        newData = [
-          ...showData,
-          {
-            key: node.key + "",
-            show: true,
-            clientX,
-          },
-        ];
+            },
+          ];
+        }
+        setShowData(newData);
       }
-      setShowData(newData);
-    }
-  };
+    },
+    [showData]
+  );
 
   const uiCollapseClick = useCallback(
     (compName: string) => {
+      if (!mountedRef.current) return;
       editorState.setSelectedCompNames(new Set([compName]), "leftPanel");
     },
     [editorState]
@@ -358,12 +385,14 @@ export const LeftContent = (props: LeftContentProps) => {
 
   const handleBottomResItemClick = useCallback(
     (type: BottomResTypeEnum, name: string) => {
+      if (!mountedRef.current) return;
       editorState.setSelectedBottomRes(name, type);
     },
     [editorState]
   );
 
-  const getTreeNode = (node: NodeItem, uiCompInfos: CompInfo[]) => {
+  const getTreeNode = useCallback((node: NodeItem, uiCompInfos: CompInfo[]) => {
+    if (!mountedRef.current) return null;
     const info = showData.find((item) => item.key === node.key);
     const data = uiCompInfos.find((item) => item.name === node.title);
 
@@ -391,6 +420,7 @@ export const LeftContent = (props: LeftContentProps) => {
                   title=""
                   className="show-data"
                   onClick={(e) => {
+                    if (!mountedRef.current) return;
                     e.stopPropagation();
                     const newData = showData.map((item) => {
                       if (item.key === node.key) {
@@ -405,7 +435,7 @@ export const LeftContent = (props: LeftContentProps) => {
                     setShowData(newData);
                   }}
                 >
-         
+                  <LeftOpen />
                 </div>
               </Tooltip>
             ) : (
@@ -415,26 +445,20 @@ export const LeftContent = (props: LeftContentProps) => {
               >
                 <div
                   title=""
-                  className="no-data"
+                  className="show-data"
                   onClick={(e) => {
+                    if (!mountedRef.current) return;
                     e.stopPropagation();
-                    const index = showData.findIndex((item) => item.key === node.key);
-                    let newData: NodeInfo[] = [];
-                    const info = {
-                      key: node.key,
-                      show: true,
-                      clientX: e.currentTarget.parentElement?.offsetLeft,
-                    };
-                    if (index > -1) {
-                      newData = showData.map((item) => {
-                        if (item.key === node.key) {
-                          return info;
-                        }
-                        return item;
-                      });
-                    } else {
-                      newData = [...showData, info];
-                    }
+                    const newData = showData.map((item) => {
+                      if (item.key === node.key) {
+                        return {
+                          key: item.key,
+                          show: true,
+                          clientX: undefined,
+                        };
+                      }
+                      return item;
+                    });
                     setShowData(newData);
                   }}
                 >
@@ -465,10 +489,10 @@ export const LeftContent = (props: LeftContentProps) => {
         )}
       </Node>
     );
-  };
-  
+  }, [showData]);
 
-  const getTreeUI = (type: TreeUIKey) => {
+  const getTreeUI = useCallback((type: TreeUIKey) => {
+    if (!mountedRef.current) return null;
     const uiCompInfos = _.sortBy(editorState.uiCompInfoList(), [(x) => x.name]);
     const tree =
       type === TreeUIKey.Components
@@ -505,13 +529,22 @@ export const LeftContent = (props: LeftContentProps) => {
           props.expanded ? <FoldedIcon /> : <UnfoldIcon />
         }
         expandedKeys={expandedKeys}
-        onExpand={(keys) => setExpandedKeys(keys)}
+        onExpand={(keys) => {
+          if (!mountedRef.current) return;
+          setExpandedKeys(keys);
+        }}
         onClick={(e, node) => handleNodeClick(e, node, uiCompInfos)}
         selectedKeys={selectedKeys}
         titleRender={(nodeData) => getTreeNode(nodeData as NodeItem, uiCompInfos)}
       />
     );
-  };
+  }, [editorState, expandedKeys, getTree, handleNodeClick, getTreeNode]);
+
+  useUnmount(() => {
+    mountedRef.current = false;
+    setExpandedKeys([]);
+    setShowData([]);
+  });
 
   const uiCollapse = useMemo(() => {
     if (isAggregationApp(editorState.getAppType())) {
@@ -611,4 +644,4 @@ export const LeftContent = (props: LeftContentProps) => {
       </LeftContentTabs>
     </LeftContentWrapper>
   );
-};
+});

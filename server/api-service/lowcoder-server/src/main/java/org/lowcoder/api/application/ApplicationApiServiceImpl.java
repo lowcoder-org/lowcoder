@@ -346,23 +346,24 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> update(String applicationId, Application application) {
-        return checkApplicationStatus(applicationId, NORMAL)
+    public Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus) {
+        return (Boolean.TRUE.equals(updateStatus) ? Mono.empty() : checkApplicationStatus(applicationId, NORMAL))
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, EDIT_APPLICATIONS))
                 .delayUntil(__ -> checkDatasourcePermissions(application))
-                .flatMap(permission -> doUpdateApplication(applicationId, application)
+                .flatMap(permission -> doUpdateApplication(applicationId, application, updateStatus)
                         .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
                                 .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
                                 .build())));
     }
 
-    private Mono<Application> doUpdateApplication(String applicationId, Application application) {
+    private Mono<Application> doUpdateApplication(String applicationId, Application application, Boolean updateStatus) {
         Application applicationUpdate = Application.builder()
                 .editingApplicationDSL(application.getEditingApplicationDSLOrNull())
                 .name(application.getName())
+                .applicationStatus(Boolean.TRUE.equals(updateStatus) ? application.getApplicationStatus() : null)
                 .build();
         return applicationService.updateById(applicationId, applicationUpdate)
                 .then(applicationService.findById(applicationId));

@@ -55,6 +55,7 @@ export const BottomResultPanel = (props: BottomResultPanelProps) => {
 
   return (
     <Draggable
+      nodeRef={draggableRef}
       disabled={unDraggable}
       bounds={bounds}
       enableUserSelectHack={false}

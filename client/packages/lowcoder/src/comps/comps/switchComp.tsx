@@ -18,7 +18,7 @@ import { refMethods } from "comps/generators/withMethodExposing";
 import { blurMethod, clickMethod, focusWithOptions } from "comps/utils/methodUtils";
 import { fixOldInputCompData } from "./textInputComp/textInputConstants";
 
-import { useContext, useEffect } from "react";
+import { useCallback, useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState";
 
 const EventOptions = [
@@ -115,6 +115,12 @@ let SwitchTmpComp = (function () {
       props.value.onChange(defaultValue);
     }, [defaultValue]);
 
+    const handleChange = useCallback((checked: boolean) => {
+      props.value.onChange(checked);
+      props.onEvent("change");
+      props.onEvent(checked ? "true" : "false");
+    }, [props.value, props.onEvent]);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
@@ -126,18 +132,18 @@ let SwitchTmpComp = (function () {
             checked={value}
             disabled={props.disabled}
             ref={props.viewRef}
+            onChange={handleChange}
             tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
-            onChange={(checked) => {
-              props.value.onChange(checked);
-              props.onEvent("change");
-              props.onEvent(checked ? "true" : "false");
-            }}
           />
         </SwitchWrapper>
       ),
     });
   })
     .setPropertyViewFn((children) => {
+      const editorModeStatus = useContext(EditorContext).editorModeStatus;
+      const isLogicMode = ["logic", "both"].includes(editorModeStatus);
+      const isLayoutMode = ["layout", "both"].includes(editorModeStatus);
+
       return (
         <>
           <Section name={sectionNames.basic}>
@@ -146,7 +152,7 @@ let SwitchTmpComp = (function () {
 
           <FormDataPropertyView {...children} />
 
-          {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLogicMode && (
             <Section name={sectionNames.interaction}>
               {children.onEvent.getPropertyView()}
               {disabledPropertyView(children)}
@@ -156,11 +162,11 @@ let SwitchTmpComp = (function () {
             </Section>
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             children.label.getPropertyView()
           )}
 
-          {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (
+          {isLayoutMode && (
             <>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
