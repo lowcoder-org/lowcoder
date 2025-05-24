@@ -11,6 +11,7 @@ fullnameOverride: ""
 #
 global:
   config:
+    publicUrl: "https://somedomain.com/"
     # This setting sets workspace mode. Possible values: SAAS, ENTERPRISE
     workspaceMode: SAAS
     createWorkspaceOnSignup: true
@@ -20,20 +21,44 @@ global:
     corsAllowedDomains: "*"
     enableEmailAuth: true
     enableUserSignUp: true
+    emailNotificationSender: info@localhost
     encryption:
       password: "lowcoder.org"
       salt: "lowcoder.org"
+    superuser:
+      username: admin@localhost
+      password:
     #nodeServiceUrl: 
     #apiServiceUrl: 
     apiKeySecret: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
+    nodeServiceSecret: "62e348319ab9f5c43c3b5a380b4d82525cdb68740f21140e767989b509ab0aa2"
+    nodeServiceSalt: "lowcoder.org"
     maxQueryTimeout: 120
     maxRequestSize: "20m"
+    snapshotRetentionTime: 30
+    marketplacePrivateMode: true
+  cookie:
+    name: LOWCODER_CE_SELFHOST_TOKEN
+    maxAge: 24
   defaults:
     maxOrgsPerUser: 100
     maxMembersPerOrg: 1000
     maxGroupsPerOrg: 100
     maxAppsPerOrg: 1000
     maxDevelopers: 50
+    apiRateLimit: 100
+    queryTimeout: 10
+  mailServer:
+    host: localhost
+    port: 578
+    smtpAuth: false
+    authUsername:
+    authPassword:
+    useSSL: false
+    useStartTLS: true
+    requireStartTLS: true
+  plugins:
+    folder: /plugins
 
 #
 # Redis
@@ -92,7 +117,6 @@ apiService:
     # Overrides the image tag whose default is the chart appVersion.
     #tag: "latest"
 
-
   service:
     type: ClusterIP
     port: 80
@@ -116,7 +140,6 @@ nodeService:
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     #tag: "latest"
-
 
   service:
     type: ClusterIP

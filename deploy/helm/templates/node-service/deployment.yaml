@@ -36,6 +36,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: {{ include "lowcoder.fullname" . }}-node-service
+            - secretRef:
+                name: {{ include "lowcoder.fullname" . }}-node-service
           ports:
             - name: lowcoder-node
               containerPort: 6060

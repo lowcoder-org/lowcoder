@@ -38,11 +38,29 @@ data:
   LOWCODER_CORS_DOMAINS: {{ .Values.global.config.corsAllowedDomains | default  "*" | quote }}
   LOWCODER_EMAIL_AUTH_ENABLED: {{ .Values.global.config.enableEmailAuth | default "true" | quote }}
   LOWCODER_EMAIL_SIGNUP_ENABLED: {{ .Values.global.config.enableUserSignUp | default "true" | quote }}
+  LOWCODER_EMAIL_NOTIFICATIONS_SENDER: {{ .Values.global.config.emailNotificationSender | default "info@localhost" | quote }}
   LOWCODER_MAX_QUERY_TIMEOUT: {{ .Values.global.config.maxQueryTimeout | default "120" | quote }}
+  LOWCODER_MAX_REQUEST_SIZE: {{ .Values.global.config.maxRequestSize | default "20m" | quote }}
   LOWCODER_MAX_ORGS_PER_USER: {{ .Values.global.defaults.maxOrgsPerUser | default "100" | quote }}
   LOWCODER_MAX_MEMBERS_PER_ORG: {{ .Values.global.defaults.maxMembersPerOrg | default "1000" | quote }}
   LOWCODER_MAX_GROUPS_PER_ORG: {{ .Values.global.defaults.maxGroupsPerOrg | default "100" | quote }}
   LOWCODER_MAX_APPS_PER_ORG: {{ .Values.global.defaults.maxAppsPerOrg | default "1000" | quote }}
   LOWCODER_MAX_DEVELOPERS: {{ .Values.global.defaults.maxDevelopers | default "50" | quote }}
+  LOWCODER_DEFAULT_QUERY_TIMEOUT: {{ .Values.global.defaults.queryTimeout | default "10" | quote }}
   LOWCODER_WORKSPACE_MODE: {{ .Values.global.config.workspaceMode | default "SAAS" | quote }}
   LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: {{ .Values.global.config.createWorkspaceOnSignup | default "true" | quote }}
+  LOWCODER_ADMIN_SMTP_HOST: {{ .Values.global.mailServer.host | default "localhost" | quote }}
+  LOWCODER_ADMIN_SMTP_PORT: {{ .Values.global.mailServer.port | default "578" | quote }}
+  LOWCODER_ADMIN_SMTP_AUTH: {{ .Values.global.mailServer.smtpAuth | default "false" | quote }}
+  LOWCODER_ADMIN_SMTP_USERNAME: {{ .Values.global.mailServer.authUsername | default "" | quote }}
+  LOWCODER_ADMIN_SMTP_PASSWORD: {{ .Values.global.mailServer.authPassword | default "" | quote }}
+  LOWCODER_ADMIN_SMTP_SSL_ENABLED: {{ .Values.global.mailServer.useSSL | default "false" | quote }}
+  LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: {{ .Values.global.mailServer.useStartTLS | default "true" | quote }}
+  LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: {{ .Values.global.mailServer.requireStartTLS | default "true" | quote }}
+  LOWCODER_API_RATE_LIMIT: {{ .Values.global.defaults.apiRateLimit | default "100" | quote }}
+  LOWCODER_APP_SNAPSHOT_RETENTIONTIME: {{ .Values.global.config.snapshotRetentionTime | default "30" | quote }}
+  LOWCODER_COOKIE_NAME: {{ .Values.global.cookie.name | default "LOWCODER_CE_SELFHOST_TOKEN" | quote }}
+  LOWCODER_COOKIE_MAX_AGE: {{ .Values.global.cookie.maxAge | default "24" | quote }}
+  LOWCODER_MARKETPLACE_PRIVATE_MODE: {{ .Values.global.config.marketplacePrivateMode | default "true" | quote }}
+  LOWCODER_PLUGINS_DIR: {{ .Values.global.plugins.folder | default "/plugins" | quote }}
+  LOWCODER_PUBLIC_URL: {{ .Values.global.config.publicUrl | default "https://somedomain.com/" | quote }}
