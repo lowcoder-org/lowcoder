@@ -2,6 +2,7 @@ import axios from 'axios';
 
 export interface FetchBrandingSettingPayload {
   orgId?: string;
+  fallbackToGlobal?: boolean;
 }
 export interface BrandingSettings {
   logo?: string | null;

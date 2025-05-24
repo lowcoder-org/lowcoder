@@ -32,6 +32,13 @@ function* fetchBrandingSettingSaga(action: ReduxAction<FetchBrandingSettingPaylo
     }
   } catch (error) {
     console.error('Failed to fetch branding setting:', error);
+    // fetch global branding if org's branding setting is not available
+    if (Boolean(action.payload.orgId) && action.payload.fallbackToGlobal) {
+      yield put({
+        type: ReduxActionTypes.FETCH_BRANDING_SETTING,
+        payload: {},
+      })
+    }
   }
 }
 

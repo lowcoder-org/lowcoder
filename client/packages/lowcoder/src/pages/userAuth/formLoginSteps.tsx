@@ -184,7 +184,6 @@ export default function FormLoginSteps(props: FormLoginProps) {
     // and skip workspace selection step
     if (Boolean(organizationId)) {
       setSkipWorkspaceStep(true);
-      dispatch(fetchConfigAction(organizationId));
       setCurrentStep(CurrentStepEnum.AUTH_PROVIDERS);
       return;
     }
@@ -226,7 +225,6 @@ export default function FormLoginSteps(props: FormLoginProps) {
 
   useEffect(() => {
     if (isEnterpriseMode) {
-      // dispatch(fetchConfigAction());
       fetchOrgsByEmail();
     }
   }, [isEnterpriseMode]);

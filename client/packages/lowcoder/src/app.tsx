@@ -459,7 +459,7 @@ const mapDispatchToProps = (dispatch: any) => ({
   fetchHomeData: (currentUserAnonymous: boolean | undefined) => {
     dispatch(fetchHomeData({}));
   },
-  fetchBrandingSetting: (orgId?: string) => dispatch(fetchBrandingSetting({ orgId })),
+  fetchBrandingSetting: (orgId?: string) => dispatch(fetchBrandingSetting({ orgId, fallbackToGlobal: true })),
   fetchLowcoderCompVersions: async () => {
     try {
       dispatch(setLowcoderCompsLoading(true));

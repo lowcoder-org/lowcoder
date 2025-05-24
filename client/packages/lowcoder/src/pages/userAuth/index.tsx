@@ -30,7 +30,7 @@ export default function UserAuth() {
   useEffect(() => {
     if(organizationId) {
       dispatch(fetchConfigAction(organizationId));
-      dispatch(fetchBrandingSetting({orgId: organizationId}));
+      dispatch(fetchBrandingSetting({orgId: organizationId, fallbackToGlobal: true}));
     } else {
       dispatch(fetchBrandingSetting({orgId: ''}));
     }
