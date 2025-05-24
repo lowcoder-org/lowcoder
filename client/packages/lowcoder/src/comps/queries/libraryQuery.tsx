@@ -172,7 +172,8 @@ export const LibraryQuery = class extends LibraryQueryBase {
           console.log("script: " + script);
           console.log("context: ", context);
 
-          // Pass script directly to evalFunc without wrapping
+          // Wrap the script in a return statement to ensure it returns a value
+          // const wrappedScript = `return (${script});`;
           const data = await evalFunc(script, context, undefined, options);
           return {
             data: data,
