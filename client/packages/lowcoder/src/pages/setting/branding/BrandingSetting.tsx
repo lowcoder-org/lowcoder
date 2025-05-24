@@ -2,7 +2,7 @@ import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
 import { TacoButton, CustomSelect, messageInstance, Dropdown, ResetIcon } from "lowcoder-design";
 import React, { useEffect, useMemo, useState } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
 import { default as ColorPicker } from "antd/es/color-picker";
@@ -22,6 +22,7 @@ import { Org } from "@lowcoder-ee/constants/orgConstants";
 import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@lowcoder-ee/api/enterpriseApi";
 import Flex from "antd/es/flex";
 import Button from "antd/es/button";
+import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
 
 const { TextArea } = Input;
 
@@ -168,6 +169,7 @@ const beforeUpload = (file: RcFile) => {
 };
 
 export function BrandingSetting() {
+  const dispatch = useDispatch();
   const [configOrgId, setConfigOrgId] = useState<string>('');
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
   const [brandingConfig, setBrandingConfig] = useState<BrandingConfig>();
@@ -266,6 +268,8 @@ export function BrandingSetting() {
       });
       setDefaultBrandingConfig(brandingConfig);
       messageInstance.success(trans("theme.saveSuccessMsg"));
+
+      dispatch(fetchBrandingSetting({orgId: configOrgId}));
     } catch (e) {
       console.error(e)
     }
