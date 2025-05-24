@@ -14,6 +14,10 @@ RUN mkdir -p /lowcoder/api-service/config /lowcoder/api-service/logs /lowcoder/p
 # Copy lowcoder server configuration
 COPY server/api-service/lowcoder-server/src/main/resources/application.yaml /lowcoder/api-service/config/
 
+# Add Opentelemetry agent
+RUN curl -L -o /lowcoder/api-service/opentelemetry-javaagent.jar \
+    "https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/latest/download/opentelemetry-javaagent.jar"
+
 # Add bootstrapfile
 COPY deploy/docker/api-service/entrypoint.sh /lowcoder/api-service/entrypoint.sh
 COPY deploy/docker/api-service/init.sh /lowcoder/api-service/init.sh
@@ -42,6 +46,9 @@ COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder/api-service /l
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/lowcoder-api-service.jar /lowcoder/api-service/lowcoder-api-service.jar
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/libs /lowcoder/api-service/libs
 COPY --chown=lowcoder:lowcoder --from=build-api-service /lowcoder-server/lowcoder-server/target/lowcoder-api-service-bin/plugins /lowcoder/api-service/plugins
+
+#Define OpenTelemetry Java agent
+ENV JAVA_TOOL_OPTIONS="-javaagent:/lowcoder/api-service/opentelemetry-javaagent.jar"
 
 EXPOSE 8080
 CMD [ "/bin/bash" , "/lowcoder/api-service/entrypoint.sh" ]
