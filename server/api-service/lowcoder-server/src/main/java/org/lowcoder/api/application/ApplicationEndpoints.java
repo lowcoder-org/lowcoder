@@ -149,6 +149,12 @@ public interface ApplicationEndpoints
 	public Mono<ResponseView<Boolean>> updateEditState(@PathVariable String applicationId,
 														@RequestBody UpdateEditStateRequest updateEditStateRequest);
 
+	@Operation(
+		tags = TAG_APPLICATION_MANAGEMENT,
+		operationId = "updateApplicationSlug",
+		summary = "Update Application URL Path Slug",
+		description = "The slug is used to build a friendly reader URL for Apps instead of the ID"
+	)
 	@PutMapping("/{applicationId}/slug")
 	public Mono<ResponseView<Application>> updateSlug(@PathVariable String applicationId, @RequestBody String slug);
 

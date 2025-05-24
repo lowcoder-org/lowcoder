@@ -250,6 +250,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
           {showDataLoadingIndicatorsPropertyView(children)}
+          {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
         </Section></>
       )}
 
@@ -266,7 +267,6 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           {commonAdvanceSection(children)}
           {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
           {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-          {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
         </Section>
       )}
 
@@ -428,6 +428,7 @@ const TimeRangeTmpCmp = (function () {
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
             {showDataLoadingIndicatorsPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section></>
         )}
 
@@ -444,7 +445,6 @@ const TimeRangeTmpCmp = (function () {
             {commonAdvanceSection(children)}
             {children.use12Hours.propertyView({ label: trans("prop.use12Hours") })}
             {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
         )}
 

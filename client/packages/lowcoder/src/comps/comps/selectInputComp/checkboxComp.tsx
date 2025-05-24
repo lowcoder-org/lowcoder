@@ -65,7 +65,7 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
       }
       
-      .ant-checkbox-inner) {
+      .ant-checkbox-inner {
         background-color: ${style.uncheckedBackground};
         border-radius: ${style.radius};
         border-color: ${style.checkedBorder};
