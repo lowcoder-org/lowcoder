@@ -221,14 +221,6 @@ export default function ApplicationHome() {
             items: [
               
               {
-                text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
-                routePath: QUERY_LIBRARY_URL,
-                routeComp: QueryLibraryEditor,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-                mobileVisible: false,
-              },
-              {
                 text: <TabLabel>{trans("home.datasource")}</TabLabel>,
                 routePath: DATASOURCE_URL,
                 routePathExact: false,
@@ -238,22 +230,18 @@ export default function ApplicationHome() {
                 onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
                 mobileVisible: false,
               },
-            ],
-          },
-          isEE() ? {
-            items: [
               {
-                text: <TabLabel>{trans("settings.AppUsage")}</TabLabel>,
-                routePath: "/ee/6600ae8724a23f365ba2ed4c/admin",
-                routePathExact: false,
-                routeComp: AppEditor,
-                icon: ({ selected, ...otherProps }) => selected ? ( <EnterpriseIcon {...otherProps} width={"24px"}/> ) : ( <EnterpriseIcon {...otherProps} width={"24px"}/> ),
+                text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
+                routePath: QUERY_LIBRARY_URL,
+                routeComp: QueryLibraryEditor,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
                 visible: ({ user }) => user.orgDev,
                 mobileVisible: false,
-              },
+              }
             ],
-          } : { items: [] },
-
+          },
+          
+          // Show Subscription if not yet subscribed
           !supportSubscription && user.orgDev ? {
             items: [
               {
@@ -267,6 +255,7 @@ export default function ApplicationHome() {
             ],
           } : { items: [] },
 
+          // show Support Section when an active Subscription exist
           supportSubscription && user.orgDev ? {
             items: [
               {
