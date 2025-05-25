@@ -88,7 +88,6 @@ const RangeSliderBasicComp = (function () {
               tooltip: trans("rangeSlider.stepTooltip"),
             })}
             {children.vertical.propertyView({ label: trans("slider.vertical") })}
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
 
           <SliderPropertyView {...children} />

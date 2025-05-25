@@ -487,7 +487,7 @@ QueryCompTmp = class extends QueryCompTmp {
           args: action.args,
           variables: action.args,
           timeout: this.children.timeout,
-          callback: (result) => this.processResult(result, action, startTime)
+          callback: (result: QueryResult) => this.processResult(result, action, startTime)
         });
       }, getTriggerType(this) === "manual")
       .then(

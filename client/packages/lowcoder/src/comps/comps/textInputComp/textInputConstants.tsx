@@ -275,6 +275,7 @@ export const TextInputInteractionSection = (children: TextInputComp) => (
     {children.onEvent.getPropertyView()}
     {disabledPropertyView(children)}
     {showDataLoadingIndicatorsPropertyView(children as any)}
+    {(children as any).tabIndex?.propertyView({ label: trans("prop.tabIndex") })}
   </Section>
 );
 
@@ -308,7 +309,6 @@ export function getStyle(style: InputLikeStyleType, labelStyle?: LabelStyleType)
       text-decoration:${style.textDecoration};
       background-color: ${style.background};
       border-color: ${style.border};
-      // line-height: ${style.lineHeight};
 
       &:focus,
       &.ant-input-affix-wrapper-focused {

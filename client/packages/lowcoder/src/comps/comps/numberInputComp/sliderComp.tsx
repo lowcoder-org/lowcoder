@@ -68,7 +68,6 @@ const SliderBasicComp = (function () {
               tooltip: trans("slider.stepTooltip"),
             })}
             {children.vertical.propertyView({ label: trans("slider.vertical") })}
-            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section>
           <FormDataPropertyView {...children} />
           <SliderPropertyView {...children} />

@@ -212,23 +212,27 @@ export default function ApplicationHome() {
                 items: [
                   
                   {
-                    text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
-                    routePath: QUERY_LIBRARY_URL,
-                    routeComp: QueryLibraryEditor,
-                    icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                  },
-                  {
-                    text: <TabLabel>{trans("home.datasource")}</TabLabel>,
-                    routePath: DATASOURCE_URL,
-                    routePathExact: false,
-                    routeComp: DatasourceHome,
-                    icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
-                    visible: ({ user }) => user.orgDev,
-                    onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
-                  },
-                ],
+                text: <TabLabel>{trans("home.datasource")}</TabLabel>,
+                routePath: DATASOURCE_URL,
+                routePathExact: false,
+                routeComp: DatasourceHome,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+                onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
+                mobileVisible: false,
               },
+              {
+                text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
+                routePath: QUERY_LIBRARY_URL,
+                routeComp: QueryLibraryEditor,
+                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
+                visible: ({ user }) => user.orgDev,
+                mobileVisible: false,
+              }
+            ],
+          },
+          
+          // Show Subscription if not yet subscribed
 
           !supportSubscription && user.orgDev ? {
             items: [
@@ -243,6 +247,7 @@ export default function ApplicationHome() {
             ],
           } : { items: [] },
 
+          // show Support Section when an active Subscription exist
           supportSubscription && user.orgDev ? {
             items: [
               {

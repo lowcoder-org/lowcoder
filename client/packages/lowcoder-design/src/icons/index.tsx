@@ -87,7 +87,7 @@ export { ReactComponent as ImportAppIcon } from "./v1/icon-app-import.svg";
 export { ReactComponent as ImportIcon } from "./v1/icon-import.svg";
 export { ReactComponent as ImportIconV2 } from "./v1/icon-import-v2.svg";
 export { ReactComponent as DatasourceIcon } from "./v1/icon-datasource.svg";
-export { ReactComponent as QueryLibraryIcon } from "./v1/icon-query-library.svg";
+export { ReactComponent as QueryLibraryIcon } from "./remix/braces-line.svg";
 export { ReactComponent as TransformerIcon } from "./v1/icon-transformer.svg";
 export { ReactComponent as TempStateIcon } from "./v1/icon-temp-state.svg";
 export { ReactComponent as IconDep } from "./v1/icon-style-dep.svg";
@@ -149,6 +149,8 @@ export { ReactComponent as OracleIcon } from "./v1/icon-query-OracleDB.svg";
 export { ReactComponent as ClickHouseIcon } from "./v1/icon-query-ClickHouse.svg";
 export { ReactComponent as GoogleSheetsIcon } from "./v1/icon-query-GoogleSheets.svg";
 export { ReactComponent as GraphqlIcon } from "./v1/icon-query-Graphql.svg";
+export { ReactComponent as AlasqlIcon } from "./remix/database-2-line.svg";
+export { ReactComponent as StreamApiIcon } from "./remix/rfid-line.svg";
 export { ReactComponent as SnowflakeIcon } from "./v1/icon-query-snowflake.svg";
 export { ReactComponent as MariaDBIcon } from "./v1/icon-query-MariaDB.svg";
 

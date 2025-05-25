@@ -5,12 +5,12 @@ import lombok.experimental.SuperBuilder;
 
 @Getter
 @SuperBuilder
-public class LibraryQueryEvent extends AbstractEvent {
+public class LibraryQueryPublishEvent extends AbstractEvent {
 
-    private String id;
-    private String name;
+    private  String id;
+    private  String oldVersion;
+    private  String newVersion;
     private EventType eventType;
-    private   String oldName;
 
     @Override
     public EventType getEventType() {

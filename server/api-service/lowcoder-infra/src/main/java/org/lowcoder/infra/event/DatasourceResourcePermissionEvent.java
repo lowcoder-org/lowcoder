@@ -1,17 +1,18 @@
-package org.lowcoder.infra.event.datasource;
+package org.lowcoder.infra.event;
 
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
-import org.lowcoder.infra.event.AbstractEvent;
 
 @Getter
 @SuperBuilder
-public class DatasourceEvent extends AbstractEvent {
+public class DatasourceResourcePermissionEvent extends AbstractEvent {
 
     private final String datasourceId;
     private final String name;
     private final String type;
-    private final  String oldName;
+
+    private final Object oldPermission;
+    private final Object newPermission;
 
     private final EventType eventType;
 }

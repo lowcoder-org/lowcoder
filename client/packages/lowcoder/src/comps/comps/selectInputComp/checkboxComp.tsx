@@ -65,7 +65,7 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
       }
       
-      .ant-checkbox-inner) {
+      .ant-checkbox-inner {
         background-color: ${style.uncheckedBackground};
         border-radius: ${style.radius};
         border-color: ${style.checkedBorder};
@@ -231,11 +231,7 @@ let CheckboxBasicComp = (function () {
       return props.options
         .filter((option) => option.value !== undefined && !option.hidden)
         .map((option) => ({
-          label: (
-            <Tooltip title={option.label}>
-              <span>{option.label}</span>
-            </Tooltip>
-          ),
+          label: option.label,
           value: option.value,
           disabled: option.disabled,
         }));
