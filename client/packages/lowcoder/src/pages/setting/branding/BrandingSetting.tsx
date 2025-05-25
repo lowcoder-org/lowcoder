@@ -84,6 +84,18 @@ const defaultSettings = {
   whatsNewLink : null,
 };
 
+const fonts = [
+  {label: 'Roboto', value: 'Roboto'},
+  {label: 'Open Sans', value: 'Open+Sans'},
+  {label: 'Lato', value: 'Lato'},
+  {label: 'Montserrat', value: 'Montserrat'},
+  {label: 'Poppins', value: 'Poppins'},
+  {label: 'Inter', value: 'Inter'},
+  {label: 'Merriweather', value: 'Merriweather'},
+  {label: 'Playfair Display', value: 'Playfair+Display'},
+  {label: 'Raleway', value: 'Raleway'},
+  {label: 'Nunito', value: 'Nunito'},
+]
 // type FileType = Parameters<UploadProps["beforeUpload"]>[0] | undefined;
 
 const BrandingSettingContent = styled.div`
@@ -558,7 +570,7 @@ export function BrandingSetting() {
             <div style={{marginTop : "20px"}}>
               <h3>{trans("branding.font")}</h3>
               <CustomSelect
-                options={[] /* Dynamically populate Google Fonts */}
+                options={fonts}
                 value={brandingConfig?.config_set?.font}
                 onChange={(font) => updateSettings(SettingsEnum.FONT, font)}
               />

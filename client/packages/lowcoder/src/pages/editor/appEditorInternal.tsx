@@ -235,7 +235,14 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
     window.location.pathname.split("/")[3] === "admin" ? <div></div> : 
     <EditorSkeletonView />
   ) : (
-    <ConfigProvider locale={getAntdLocale(currentUser.uiLanguage)}>
+    <ConfigProvider
+      locale={getAntdLocale(currentUser.uiLanguage)}
+      theme={{
+        token: {
+          fontFamily: 'Roboto, sans-serif',
+        },
+      }}
+    >
       <ExternalEditorContext.Provider value={externalEditorState}>
         {compInstance?.comp?.getView()}
       </ExternalEditorContext.Provider>

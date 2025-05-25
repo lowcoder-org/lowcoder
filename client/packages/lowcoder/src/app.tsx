@@ -31,7 +31,7 @@ import {
   ADMIN_AUTH_URL,
   PUBLIC_APP_EDITOR_URL,
 } from "constants/routesURL";
-import React from "react";
+import React, { useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { Helmet } from "react-helmet";
 import { connect, Provider } from "react-redux";
@@ -63,6 +63,7 @@ import { packageMetaReadyAction, setLowcoderCompsLoading } from "./redux/reduxAc
 import { fetchBrandingSetting } from "./redux/reduxActions/enterpriseActions";
 import { EnterpriseProvider } from "./util/context/EnterpriseContext";
 import { SimpleSubscriptionContextProvider } from "./util/context/SimpleSubscriptionContext";
+import { getBrandingSetting } from "./redux/selectors/enterpriseSelectors";
 
 const LazyUserAuthComp = React.lazy(() => import("pages/userAuth"));
 const LazyInviteLanding = React.lazy(() => import("pages/common/inviteLanding"));
@@ -75,18 +76,33 @@ const LazyApplicationHome = React.lazy(() => import("pages/ApplicationV2"));
 const LazyDebugComp = React.lazy(() => import("./debug"));
 const LazyDebugNewComp = React.lazy(() => import("./debugNew"));
 
-const Wrapper = (props: { children: React.ReactNode, language: string }) => (
-  <ConfigProvider
-    theme={{ hashed: false }}
-    wave={{ disabled: true }}
-    locale={getAntdLocale(props.language)}
-  >
-    <App>
-      <GlobalInstances />
-      {props.children}
-    </App>
-  </ConfigProvider>
-);
+const Wrapper = React.memo((props: {
+  children: React.ReactNode,
+  language: string,
+  fontFamily?: string
+}) => {
+  const theme = useMemo(() => {
+    return {
+      hashed: false,
+      token: {
+        fontFamily: `${props.fontFamily ? props.fontFamily.split('+').join(' ') : 'Roboto'}, sans-serif`,
+      },
+    }
+  }, [props.fontFamily]);
+
+  return (
+    <ConfigProvider
+      theme={theme}
+      wave={{ disabled: true }}
+      locale={getAntdLocale(props.language)}
+    >
+      <App>
+        <GlobalInstances />
+        {props.children}
+      </App>
+    </ConfigProvider>
+  );
+});
 
 type AppIndexProps = {
   isFetchUserFinished: boolean;
@@ -106,6 +122,7 @@ type AppIndexProps = {
   favicon: string;
   brandName: string;
   uiLanguage: string;
+  brandingFontFamily?: string;
 };
 
 class AppIndex extends React.Component<AppIndexProps, any> {
@@ -156,7 +173,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
     localStorage.setItem('lowcoder_uiLanguage', this.props.uiLanguage);
 
     return (
-      <Wrapper language={this.props.uiLanguage}>
+      <Wrapper language={this.props.uiLanguage} fontFamily={this.props.brandingFontFamily}>
         <Helmet>
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
@@ -281,7 +298,8 @@ class AppIndex extends React.Component<AppIndexProps, any> {
               href={window.location.href}
               media="(aspect-ratio: 1280/720)"
             />,
-
+          ]}
+          {((isLowCoderDomain || isLocalhost) && !Boolean(this.props.brandingFontFamily)) && [
             <link
               key="preconnect-googleapis"
               rel="preconnect"
@@ -296,6 +314,24 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <link
               key="font-ubuntu"
               href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,700;1,400&display=swap"
+              rel="stylesheet"
+            />
+          ]}
+          {Boolean(this.props.brandingFontFamily) && [
+            <link
+              key="preconnect-googleapis"
+              rel="preconnect"
+              href="https://fonts.googleapis.com"
+            />,
+            <link
+              key="preconnect-gstatic"
+              rel="preconnect"
+              href="https://fonts.gstatic.com"
+              crossOrigin="anonymous"
+            />,
+            <link
+              key={this.props.brandingFontFamily}
+              href={`https://fonts.googleapis.com/css2?family=${this.props.brandingFontFamily}&display=swap`}
               rel="stylesheet"
             />
           ]}
@@ -449,6 +485,7 @@ const mapStateToProps = (state: AppState) => ({
     : favicon,
   brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
   uiLanguage: state.ui.users.user.uiLanguage,
+  brandingFontFamily: getBrandingSetting(state)?.config_set?.font,
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
