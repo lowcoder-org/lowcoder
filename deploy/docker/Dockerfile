@@ -78,10 +78,14 @@ WORKDIR /lowcoder/node-service/app/
 RUN yarn --immutable
 RUN yarn build
 
-# Copy startup script and OpenTelemetry config
+# --- ADDED: Install OpenTelemetry dependencies for Node.js service ---
+RUN yarn add \
+    @opentelemetry/api \
+    @opentelemetry/auto-instrumentations-node
+
+# Copy startup script
 COPY deploy/docker/node-service/entrypoint.sh /lowcoder/node-service/entrypoint.sh
 COPY deploy/docker/node-service/init.sh /lowcoder/node-service/init.sh
-COPY deploy/docker/node-service/otel-config.js /lowcoder/node-service/otel-config.js
 RUN chmod +x /lowcoder/node-service/*.sh
 
 ##
@@ -109,6 +113,9 @@ RUN apt-get update \
   && adduser --system --disabled-password --no-create-home --uid 9001 --gid 9001 lowcoder
 
 COPY --from=build-node-service /lowcoder/node-service /lowcoder/node-service
+
+#Enable OpenTelemetry node agent
+ENV NODE_OPTIONS="--require @opentelemetry/auto-instrumentations-node/register"
 
 EXPOSE 6060
 CMD [ "/bin/sh", "/lowcoder/node-service/entrypoint.sh" ]
