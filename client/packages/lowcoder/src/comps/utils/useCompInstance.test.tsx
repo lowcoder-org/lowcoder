@@ -67,8 +67,7 @@ test("nestDispatchHandler", () => {
   const handler = nestDispatchHandlerGenerator();
   const result: string[] = [];
   const dispatch = (action: CompAction) => {
-    const [handleAction] = handler;
-    handleAction(action, (a: CompAction) => {
+    handler(action, (a) => {
       if (a.type !== CompActionTypes.CHANGE_VALUE) {
         return;
       }

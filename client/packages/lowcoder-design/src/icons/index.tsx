@@ -225,8 +225,6 @@ export { ReactComponent as BorderWidthIcon } from "./remix/space.svg";
 export { ReactComponent as BorderStyleIcon } from "./remix/separator.svg";
 export { ReactComponent as RotationIcon } from "./remix/clockwise-line.svg";
 export { ReactComponent as BorderRadiusIcon } from "./remix/rounded-corner.svg";
-
-// Falk: TODO
 export { ReactComponent as ShadowIcon } from "./remix/shadow-line.svg";
 export { ReactComponent as OpacityIcon } from "./remix/contrast-drop-2-line.svg";
 export { ReactComponent as AnimationIcon } from "./remix/loader-line.svg";
@@ -260,6 +258,13 @@ export { ReactComponent as HomeSettingIcon } from "./remix/settings-4-line.svg";
 export { ReactComponent as EnterpriseIcon } from "./remix/earth-line.svg";
 export { ReactComponent as VerticalIcon } from "./remix/vertical.svg";
 export { ReactComponent as HorizontalIcon } from "./remix/horizontal.svg";
+
+// Social Sharing
+export { ReactComponent as TwitterIcon } from "./remix/twitter-x-line.svg";
+export { ReactComponent as LinkedInIcon } from "./remix/linkedin-box-fill.svg";
+export { ReactComponent as FacebookIcon } from "./remix/facebook-circle-fill.svg";
+export { ReactComponent as MediumIcon } from "./remix/medium-fill.svg";
+export { ReactComponent as RedditIcon } from "./remix/reddit-line.svg";
 
 
 // components

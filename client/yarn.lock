@@ -4917,6 +4917,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/react-dom@npm:18":
+  version: 18.3.7
+  resolution: "@types/react-dom@npm:18.3.7"
+  peerDependencies:
+    "@types/react": ^18.0.0
+  checksum: c8b63ec944d2a68992b4dba474003fe55ee1d949c4b9c8fe97eecb2290de23f76acfb670b2f7ceb46a5fc8e46808d1745369b03edda48a7a0cf730eff4c5d315
+  languageName: node
+  linkType: hard
+
 "@types/react-dom@npm:^18.0.0, @types/react-dom@npm:^18.2.18":
   version: 18.3.7
   resolution: "@types/react-dom@npm:18.3.7"
@@ -6045,7 +6054,8 @@ __metadata:
   languageName: node
   linkType: hard
 
-"antd@npm:^5.24.8":
+  "antd@npm:^5.25.2":
+
   version: 5.25.2
   resolution: "antd@npm:5.25.2"
   dependencies:
@@ -10822,6 +10832,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"github-buttons@npm:^2.22.0":
+  version: 2.29.1
+  resolution: "github-buttons@npm:2.29.1"
+  checksum: adde1324247df85730e0056206d751894c02ce8dcad5e96234bbc9f2f15caaa12a6431608b7e04434e29df83b6900f4fc36d2d4581605f435d97dc29dcfd1a42
+  languageName: node
+  linkType: hard
+
 "github-markdown-css@npm:^5.1.0":
   version: 5.8.1
   resolution: "github-markdown-css@npm:5.8.1"
@@ -13887,8 +13904,8 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fullcalendar/resource-timeline": ^6.1.11
     "@fullcalendar/timegrid": ^6.1.6
     "@fullcalendar/timeline": ^6.1.6
-    "@types/react": ^19.1.2
-    "@types/react-dom": ^19.1.2
+    "@types/react": 18
+    "@types/react-dom": 18
     agora-rtc-sdk-ng: ^4.20.2
     agora-rtm-sdk: ^1.5.1
     big.js: ^6.2.1
@@ -13899,8 +13916,8 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     lowcoder-cli: "workspace:^"
     lowcoder-sdk: "workspace:^"
     mermaid: ^10.6.1
-    react: ^19.1.0
-    react-dom: ^19.1.0
+    react: 18.3.0
+    react-dom: 18.3.0
     typescript: 4.8.4
     vite: ^4.5.5
     vite-tsconfig-paths: ^3.6.0
@@ -14010,6 +14027,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     number-precision: ^1.6.0
     prettier: ^3.1.0
     react-countup: ^6.5.3
+    react-github-btn: ^1.4.0
     react-player: ^2.11.0
     resize-observer-polyfill: ^1.5.1
     rimraf: ^3.0.2
@@ -14132,8 +14150,8 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@types/lodash": ^4.14.194
     "@types/node": ^16.7.13
     "@types/papaparse": ^5.3.5
-    "@types/react": ^19.1.2
-    "@types/react-dom": ^19.1.2
+    "@types/react": 18
+    "@types/react-dom": 18
     "@types/react-signature-canvas": ^1.0.2
     "@types/react-test-renderer": ^18.0.0
     "@types/react-virtualized": ^9.21.21
@@ -14142,7 +14160,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@vitejs/plugin-react": ^2.2.0
     alasql: ^4.6.6
     animate.css: ^4.1.1
-    antd: ^5.24.8
+    antd: ^5.25.2
     axios: ^1.7.7
     buffer: ^6.0.3
     clsx: ^2.0.0
@@ -14176,12 +14194,12 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     pigeon-maps: ^0.22.1
     qrcode.react: ^3.1.0
     rc-trigger: ^5.3.1
-    react: ^19.1.0
+    react: 18.3.0
     react-best-gradient-color-picker: ^3.0.10
     react-colorful: ^5.5.1
     react-device-mockup: ^1.0.0
     react-documents: ^1.2.1
-    react-dom: ^19.1.0
+    react-dom: 18.3.0
     react-draggable: ^4.4.6
     react-error-boundary: ^4.0.13
     react-grid-layout: ^1.3.0
@@ -17444,7 +17462,27 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+
 "rc-select@npm:~14.16.2, rc-select@npm:~14.16.8":
+  version: 14.16.8
+  resolution: "rc-select@npm:14.16.8"
+
+  dependencies:
+    "@babel/runtime": ^7.10.1
+    "@rc-component/trigger": ^2.1.1
+    classnames: 2.x
+    rc-motion: ^2.0.1
+    rc-overflow: ^1.3.1
+    rc-util: ^5.16.1
+    rc-virtual-list: ^3.5.2
+  peerDependencies:
+    react: "*"
+    react-dom: "*"
+  checksum: c2eabac8cb9eb683768fde8d852a095d930c94b4a35e9355e6d40fcb251c9babe144f32babdb30a0970c5783153a444866e44ef2baa40b1e9434434b3d924d5b
+  languageName: node
+  linkType: hard
+
+"rc-select@npm:~14.16.8":
   version: 14.16.8
   resolution: "rc-select@npm:14.16.8"
   dependencies:
@@ -17732,6 +17770,18 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"react-dom@npm:18.3.0":
+  version: 18.3.0
+  resolution: "react-dom@npm:18.3.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    scheduler: ^0.23.1
+  peerDependencies:
+    react: ^18.3.0
+  checksum: 04dc715fdedee89754c9c2cd627cf8bc5914dbb678d053ceecaf6feb11566fc653763781aefd82c240f264c87b1643ab1328ca6565b8b449ce79fbb2912fd1c7
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^18.2.0":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
@@ -17741,17 +17791,6 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ^18.3.1
   checksum: 298954ecd8f78288dcaece05e88b570014d8f6dce5db6f66e6ee91448debeb59dcd31561dddb354eee47e6c1bb234669459060deb238ed0213497146e555a0b9
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^19.1.0":
-  version: 19.1.0
-  resolution: "react-dom@npm:19.1.0"
-  dependencies:
-    scheduler: ^0.26.0
-  peerDependencies:
-    react: ^19.1.0
-  checksum: 1d154b6543467095ac269e61ca59db546f34ef76bcdeb90f2dad41d682cd210aae492e70c85010ed5d0a2caea225e9a55139ebc1a615ee85bf197d7f99678cdf
   languageName: node
   linkType: hard
 
@@ -17809,6 +17848,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">=0.12.0"
   checksum: ace9fb2b8539a1482b61fd37e0eb063b103fe84e76f6c5d68c4256db8d328bbaa3ff0eb8dccc4c590f88e622b0d45bb725e9d0471a80862124303071c3543b86
+  languageName: node
+  linkType: hard
+
+"react-github-btn@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "react-github-btn@npm:1.4.0"
+  dependencies:
+    github-buttons: ^2.22.0
+  peerDependencies:
+    react: ">=16.3.0"
+  checksum: 33a416ad76ab4cc9238ac5cf5cfcab636bb2127c48fb30805385350fd3a3c2aa0aaeb78f6c726c52a0d3d133ca469be35d4b3d188c8e40c735c7ff458d2c8c3c
   languageName: node
   linkType: hard
 
@@ -18231,19 +18281,21 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"react@npm:18.3.0":
+  version: 18.3.0
+  resolution: "react@npm:18.3.0"
+  dependencies:
+    loose-envify: ^1.1.0
+  checksum: f1389bf7f9cc9295fded895635e54c4bf73626a8ea51afaa2da4988f89e71b68f249c1782f832d5912ba7d437da9292fc44ecf7c3dff072879253df93d703a10
+  languageName: node
+  linkType: hard
+
 "react@npm:^18.2.0":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
     loose-envify: ^1.1.0
   checksum: a27bcfa8ff7c15a1e50244ad0d0c1cb2ad4375eeffefd266a64889beea6f6b64c4966c9b37d14ee32d6c9fcd5aa6ba183b6988167ab4d127d13e7cb5b386a376
-  languageName: node
-  linkType: hard
-
-"react@npm:^19.1.0":
-  version: 19.1.0
-  resolution: "react@npm:19.1.0"
-  checksum: c0905f8cfb878b0543a5522727e5ed79c67c8111dc16ceee135b7fe19dce77b2c1c19293513061a8934e721292bfc1517e0487e262d1906f306bdf95fa54d02f
   languageName: node
   linkType: hard
 
@@ -19204,7 +19256,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"scheduler@npm:^0.23.2":
+"scheduler@npm:^0.23.1, scheduler@npm:^0.23.2":
   version: 0.23.2
   resolution: "scheduler@npm:0.23.2"
   dependencies:
@@ -19220,7 +19272,8 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
-"schema-utils@npm:^3.0.0":
+"schema-utils@npm:^3.0.0, schema-utils@npm:^3.1.1, schema-utils@npm:^3.2.0":
+
   version: 3.3.0
   resolution: "schema-utils@npm:3.3.0"
   dependencies:

@@ -27,9 +27,9 @@ import { TacoButton } from "components/button";
 import copy from "copy-to-clipboard";
 import { StyledLoading } from "./commonComponents";
 import { PermissionRole } from "./Permission";
-import { SHARE_TITLE } from "../../constants/apiConstants";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { default as Divider } from "antd/es/divider";
+import { SocialShareButtons } from "components/SocialShareButtons";
 
 export const AppPermissionDialog = React.memo((props: {
   applicationId: string;
@@ -83,7 +83,7 @@ export const AppPermissionDialog = React.memo((props: {
   return (
     <PermissionDialog
       {...props}
-      title={SHARE_TITLE}
+      title={trans("home.appSharingDialogueTitle")}
       ownerLabel={trans("home.allPermissions")}
       viewBodyRender={(list) => {
         if (!appPermissionInfo) {
@@ -96,6 +96,7 @@ export const AppPermissionDialog = React.memo((props: {
               applicationId={applicationId}
               permissionInfo={appPermissionInfo!}
             />
+            <Divider/>
             {list}
           </>
         );
@@ -206,6 +207,8 @@ function AppShareView(props: {
   useEffect(() => {
     setPublicToMarketplace(permissionInfo.publicToMarketplace);
   }, [permissionInfo.publicToMarketplace]);
+  const inviteLink = window.location.origin + APPLICATION_VIEW_URL(props.applicationId, "view");
+
   return (
     <div style={{ marginBottom: "22px" }}>
       
@@ -247,7 +250,19 @@ function AppShareView(props: {
           {trans("home.marketplaceGoodPublishing")}
         </div><Divider/></>}
 
-      {isPublic && <AppInviteView appId={applicationId} />}
+        {isPublic && <AppInviteView appId={applicationId} />}
+
+        {isPublic && 
+          <>
+            <Divider />
+            <SocialShareButtons
+              url={inviteLink}
+              text={trans("home.appSocialSharingMessage")}
+            />
+          </>
+        }
+
+        
     </div>
   );
 }

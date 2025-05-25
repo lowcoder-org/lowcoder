@@ -10,8 +10,8 @@ on:
         default: 'latest'
         options:
         - latest
+        - stable
         - test
-        - 2.4.6
       build_allinone:
         type: boolean
         description: 'Build the All-In-One image'
@@ -41,23 +41,59 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: 'Setup jq'
+        uses: dcarbone/install-jq-action@v3
+        with:
+          version: '1.7'
+
       - name: Set environment variables
         shell: bash
         run: |
           # Get the short SHA of last commit
           echo "SHORT_SHA=$(echo ${{ github.sha }} | cut -c1-7)" >> "${GITHUB_ENV}"
-          
+
           # Get branch name - we don't use github.ref_head_name since we don't build on PRs
           echo "BRANCH_NAME=${{ github.ref_name }}" >> "${GITHUB_ENV}"
-          
+
           # Set docker image tag
-          echo "IMAGE_TAG=${{ inputs.imageTag || github.ref_name }}" >> "${GITHUB_ENV}"
-          
+          IMAGE_TAG=${{ inputs.imageTag || github.ref_name }}
+
+          # Check whether it's a release
+          LATEST_TAG=$(
+            curl -s -L \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${{ github.token }}" \
+              https://api.github.com/repos/${{ github.repository }}/releases/latest \
+              | jq -r '.tag_name'
+          )
+          IS_LATEST="false"
+          if [[ "${LATEST_TAG}" == "${{ github.event.release.tag_name }}" ]]; then
+              IS_LATEST="true"
+          fi;
+
           # Control which images to build
           echo "BUILD_ALLINONE=${{ inputs.build_allinone || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_FRONTEND=${{ inputs.build_frontend || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_NODESERVICE=${{ inputs.build_nodeservice || true }}" >> "${GITHUB_ENV}"
           echo "BUILD_APISERVICE=${{ inputs.build_apiservice || true }}" >> "${GITHUB_ENV}"
+
+          # Image names
+          ALLINONE_IMAGE_NAMES=lowcoderorg/lowcoder-ce:${IMAGE_TAG}
+          FRONTEND_IMAGE_NAMES=lowcoderorg/lowcoder-ce-frontend:${IMAGE_TAG}
+          APISERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-api-service:${IMAGE_TAG}
+          NODESERVICE_IMAGE_NAMES=lowcoderorg/lowcoder-ce-node-service:${IMAGE_TAG}
+
+          if [[ "${IS_LATEST}" == "true" ]]; then
+               ALLINONE_IMAGE_NAMES="lowcoderorg/lowcoder-ce:latest,${ALLINONE_IMAGE_NAMES}"
+               FRONTEND_IMAGE_NAMES="lowcoderorg/lowcoder-ce-frontend:latest,${FRONTEND_IMAGE_NAMES}"
+               APISERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-api-service:latest,${APISERVICE_IMAGE_NAMES}"
+               NODESERVICE_IMAGE_NAMES="lowcoderorg/lowcoder-ce-node-service:latest,${NODESERVICE_IMAGE_NAMES}"
+          fi;
+
+          echo "ALLINONE_IMAGE_NAMES=${ALLINONE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "FRONTEND_IMAGE_NAMES=${FRONTEND_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "APISERVICE_IMAGE_NAMES=${APISERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
+          echo "NODESERVICE_IMAGE_NAMES=${NODESERVICE_IMAGE_NAMES}" >> "${GITHUB_ENV}"
 
       - name: Checkout lowcoder source
         uses: actions/checkout@v4
@@ -91,7 +127,7 @@ jobs:
             linux/amd64
             linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce:${{ env.IMAGE_TAG }}
+          tags: ${{ env.ALLINONE_IMAGE_NAMES }}
 
       - name: Build and push the frontend image
         if: ${{ env.BUILD_FRONTEND == 'true' }}
@@ -108,7 +144,7 @@ jobs:
             linux/amd64
             linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-frontend:${{ env.IMAGE_TAG }}
+          tags: ${{ env.FRONTEND_IMAGE_NAMES }}
 
       - name: Build and push the node service image
         if: ${{ env.BUILD_NODESERVICE == 'true' }}
@@ -120,7 +156,7 @@ jobs:
             linux/amd64
             linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-node-service:${{ env.IMAGE_TAG }}
+          tags: ${{ env.NODESERVICE_IMAGE_NAMES }}
 
       - name: Build and push the API service image
         if: ${{ env.BUILD_APISERVICE == 'true' }}
@@ -132,5 +168,5 @@ jobs:
             linux/amd64
             linux/arm64
           push: true
-          tags: lowcoderorg/lowcoder-ce-api-service:${{ env.IMAGE_TAG }}
+          tags: ${{ env.APISERVICE_IMAGE_NAMES }}
 

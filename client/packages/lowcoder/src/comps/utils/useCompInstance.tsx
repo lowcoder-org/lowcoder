@@ -8,7 +8,7 @@ import {
 import { debounce } from "lodash";
 import log from "loglevel";
 import { CompAction, CompActionTypes, CompConstructor } from "lowcoder-core";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PriorityQueue, Queue } from "typescript-collections";
 import { JSONValue } from "util/jsonTypes";
 import {
@@ -78,14 +78,7 @@ export function actionHandlerGenerator() {
       ratio: ((1 - statsData.groups / statsData.total) * 100).toFixed(2) + "%",
     };
   };
-
-  const cleanup = () => {
-    while (deferQueue.size() > 0) {
-      deferQueue.dequeue();
-    }
-  };
-
-  return [actionHandler, stats, cleanup] as const;
+  return [actionHandler, stats] as const;
 }
 
 // Reduce the nested dispatch in call order, then evaluate to update comp once.
@@ -99,8 +92,8 @@ export function nestDispatchHandlerGenerator() {
       const diff = a.depth - b.depth;
       return diff !== 0 ? diff : b.seq - a.seq;
     });
-
-  const dispatchHandler = (action: CompAction, reduceFn: (action: CompAction) => void) => {
+  return (action: CompAction, reduceFn: (action: CompAction) => void) => {
+    // Find the nested dispatch action, add it to the queue, and execute reduce later
     if (depth > 0) {
       ++seq;
       queue.enqueue({ action, depth, seq });
@@ -118,14 +111,6 @@ export function nestDispatchHandlerGenerator() {
     depth = 0;
     seq = 0;
   };
-
-  const cleanup = () => {
-    while (queue.size() > 0) {
-      queue.dequeue();
-    }
-  };
-
-  return [dispatchHandler, cleanup] as const;
 }
 
 type CompContainerChangeHandler = (actions?: CompAction[]) => void;
@@ -161,8 +146,8 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
   if (!initialValue || !isReady) {
     return null;
   }
-  const [actionHandler, stats, cleanupActionHandler] = actionHandlerGenerator();
-  const [nestDispatchHandler, cleanupNestDispatch] = nestDispatchHandlerGenerator();
+  const [actionHandler, stats] = actionHandlerGenerator();
+  const nestDispatchHandler = nestDispatchHandlerGenerator();
 
   class CompContainer {
     comp: InstanceType<T>;
@@ -173,10 +158,6 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
     initializing: boolean = false;
 
     private changeListeners: CompContainerChangeHandler[] = [];
-    private clearQueueTimerHandle = 0;
-    private appCalmDownTimerHandle = 0;
-    private appCalmDowned = false;
-    private idleCallbackId: number | null = null;
 
     constructor() {
       this.dispatch = this.dispatch.bind(this);
@@ -200,6 +181,10 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
       this.initializing = false;
       return this.comp;
     }
+
+    clearQueueTimerHandle = 0;
+    appCalmDownTimerHandle = 0;
+    appCalmDowned = false;
 
     dispatch(action?: CompAction) {
       if (!this.initialized) {
@@ -291,29 +276,6 @@ export function getCompContainer<T extends CompConstructor>(params: GetContainer
       // FIXME: Check it out, why does it take 30ms to change the code editor, and only 1ms for others
       showCost("setComp", () => this.changeListeners.forEach((x) => x(actions)));
     }
-
-    cleanup() {
-      // Clear timers
-      if (this.clearQueueTimerHandle) {
-        clearTimeout(this.clearQueueTimerHandle);
-      }
-      if (this.appCalmDownTimerHandle) {
-        clearTimeout(this.appCalmDownTimerHandle);
-      }
-      if (this.idleCallbackId !== null) {
-        cancelIdleCallback(this.idleCallbackId);
-      }
-
-      // Clear queues
-      cleanupActionHandler();
-      cleanupNestDispatch();
-
-      // Clear listeners
-      this.changeListeners = [];
-
-      // Clear comp reference
-      this.comp = null as any;
-    }
   }
 
   return new CompContainer();
@@ -330,42 +292,28 @@ export function useCompInstance<T extends CompConstructor>(
 ) {
   const [comp, setComp] = useState<InstanceType<T> | null>(null);
   const container = useCompContainer(params);
-  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
+  if (container && !container.initialized) {
+    container.init().then(setComp);
+  }
 
   useEffect(() => {
     if (!container) {
       return () => {};
     }
 
-    if (!container.initialized) {
-      container.init().then((comp) => {
-        if (mountedRef.current) {
-          setComp(comp);
-        }
-      });
-    }
+    let updateHandler = () => setComp(container.comp);
 
-    const updateHandler = debounce(() => {
-      if (mountedRef.current) {
+    // if (UPDATE_ROOT_VIEW_DEBOUNCE > 0) {
+      updateHandler = debounce(() => {
         setComp(container.comp);
-      }
-    }, UPDATE_ROOT_VIEW_DEBOUNCE || 50);
+      }, 50 /* UPDATE_ROOT_VIEW_DEBOUNCE */);
+    // }
 
     const finalHandlers = [...(handlers || []), updateHandler];
     finalHandlers.forEach((handler) => container.addChangeListener(handler));
-
     return () => {
       finalHandlers.forEach((handler) => container.removeChangeListener(handler));
-      updateHandler.cancel();
-      if (container) {
-        container.cleanup();
-      }
     };
   }, [container, handlers]);
 
