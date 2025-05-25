@@ -2529,6 +2529,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullcalendar/premium-common@npm:~6.1.17":
+  version: 6.1.17
+  resolution: "@fullcalendar/premium-common@npm:6.1.17"
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.17
+  checksum: 248e34a3a8588f787458f040b690c5e4a1498c2e5446023e6b030bf6bdc32404f0099d58feee436082d9638ce6016086ec5c6675d914864ee3faa277d1013822
+  languageName: node
+  linkType: hard
+
 "@fullcalendar/react@npm:^6.1.6":
   version: 6.1.11
   resolution: "@fullcalendar/react@npm:6.1.11"
@@ -2603,6 +2612,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@fullcalendar/scrollgrid@npm:~6.1.17":
+  version: 6.1.17
+  resolution: "@fullcalendar/scrollgrid@npm:6.1.17"
+  dependencies:
+    "@fullcalendar/premium-common": ~6.1.17
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.17
+  checksum: 2069477519e92bc51bf590bb8ccb85ee5647bea1375854e2b6d997c2bf74a7e4fbba98e2cb3ab362a4052f2db727e8551ee5910438dd4ddfc8b12a95fdcfe53c
+  languageName: node
+  linkType: hard
+
 "@fullcalendar/timegrid@npm:^6.1.6, @fullcalendar/timegrid@npm:~6.1.11":
   version: 6.1.11
   resolution: "@fullcalendar/timegrid@npm:6.1.11"
@@ -2614,7 +2634,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@fullcalendar/timeline@npm:^6.1.6, @fullcalendar/timeline@npm:~6.1.11":
+"@fullcalendar/timeline@npm:^6.1.17":
+  version: 6.1.17
+  resolution: "@fullcalendar/timeline@npm:6.1.17"
+  dependencies:
+    "@fullcalendar/premium-common": ~6.1.17
+    "@fullcalendar/scrollgrid": ~6.1.17
+  peerDependencies:
+    "@fullcalendar/core": ~6.1.17
+  checksum: 9dbffafbeb9068b68f4e257d51c4ffa35ada841d49d8b8778afbd4aafb85b184e50284c429e9b44f2808cacf392b01c879aae245d64eddc922152202ffd14142
+  languageName: node
+  linkType: hard
+
+"@fullcalendar/timeline@npm:~6.1.11":
   version: 6.1.11
   resolution: "@fullcalendar/timeline@npm:6.1.11"
   dependencies:
@@ -14007,7 +14039,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     "@fullcalendar/resource-timegrid": ^6.1.11
     "@fullcalendar/resource-timeline": ^6.1.11
     "@fullcalendar/timegrid": ^6.1.6
-    "@fullcalendar/timeline": ^6.1.6
+    "@fullcalendar/timeline": ^6.1.17
     "@types/react": 18
     "@types/react-dom": 18
     agora-rtc-sdk-ng: ^4.20.2
