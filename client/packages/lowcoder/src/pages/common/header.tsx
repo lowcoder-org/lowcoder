@@ -64,6 +64,8 @@ import Avatar from 'antd/es/avatar';
 import UserApi from "@lowcoder-ee/api/userApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import ProfileImage from "./profileImage";
+import GitHubButton from 'react-github-btn';
+import { Row, Col } from "antd";
 
 const { Countdown } = Statistic;
 const { Text } = Typography;
@@ -688,7 +690,24 @@ export function AppHeader() {
       <LogoHome />
     </StyledLink>
   );
-  const headerEnd = <HeaderProfile user={user} />;
+  const headerEnd = (
+    <Row align="middle" gutter={32}>
+      <Col style={{marginTop : "6px"}}>
+      <GitHubButton
+        href="https://github.com/lowcoder-org/lowcoder"
+        data-color-scheme="no-preference: light; light: light; dark: dark;"
+        data-size="small"
+        data-show-count="true"
+        aria-label="Star lowcoder-org/lowcoder on GitHub"
+      >
+        Star
+      </GitHubButton>
+      </Col>
+      <Col>
+        <HeaderProfile user={user} />
+      </Col>
+    </Row>
+  );  
   return (
     <LayoutHeader
       headerStart={headerStart}
