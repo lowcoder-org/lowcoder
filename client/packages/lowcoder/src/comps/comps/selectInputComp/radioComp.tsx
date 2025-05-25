@@ -134,11 +134,7 @@ const MemoizedRadio = memo(({
     return options
       .filter((option) => option.value !== undefined && !option.hidden)
       .map((option) => ({
-        label: (
-          <Tooltip title={option.label}>
-              <span>{option.label}</span>
-          </Tooltip>
-        ),
+        label: option.label,
         value: option.value,
         disabled: option.disabled,
       }));

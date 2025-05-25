@@ -134,6 +134,7 @@ const childrenMap = {
   style: ButtonStyleControl,
   animationStyle: styleControl(AnimationStyle, 'animationStyle'),
   viewRef: RefControl<HTMLElement>,
+  tooltip: StringControl
 };
 
 type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
@@ -146,6 +147,7 @@ const ButtonPropertyView = React.memo((props: {
     <>
       <Section name={sectionNames.basic}>
         {props.children.text.propertyView({ label: trans("text") })}
+        {props.children.tooltip.propertyView({ label: trans("labelProp.tooltip")})}
       </Section>
 
       {(editorModeStatus === "logic" || editorModeStatus === "both") && (
@@ -204,7 +206,7 @@ const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
     <ButtonCompWrapper $disabled={props.disabled}>
       <EditorContext.Consumer>
         {(editorState) => (
-          <Tooltip title={props.text}>
+          <Tooltip title={props.tooltip}>
             <Button100
               ref={props.viewRef}
               $buttonStyle={props.style}

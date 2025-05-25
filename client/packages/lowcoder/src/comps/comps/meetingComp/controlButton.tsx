@@ -201,7 +201,8 @@ const childrenMap = {
   iconScoutAsset: IconscoutControl(AssetType.ICON),
   style: ButtonStyleControl,
   viewRef: RefControl<HTMLElement>,
-  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton')
+  restrictPaddingOnRotation:withDefault(StringControl, 'controlButton'),
+  tooltip: StringControl
 };
 
 let ButtonTmpComp = (function () {
@@ -259,7 +260,7 @@ let ButtonTmpComp = (function () {
                   : undefined
               }
             >
-              <Tooltip title={trans("meeting.meetingControlCompName")}>
+              <Tooltip title={props.tooltip}>
                 <Button100
                   ref={props.viewRef}
                   $buttonStyle={props.style}
@@ -322,6 +323,9 @@ let ButtonTmpComp = (function () {
           })}
           {children.sourceMode.getView() === 'asset-library' &&children.iconScoutAsset.propertyView({
             label: trans("button.icon"),
+          })}
+          {children.tooltip.propertyView({ 
+            label: trans("labelProp.tooltip"), 
           })}
         </Section>
 

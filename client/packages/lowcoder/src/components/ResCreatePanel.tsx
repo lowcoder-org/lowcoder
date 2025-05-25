@@ -17,6 +17,7 @@ import { Datasource } from "constants/datasourceConstants";
 import {
   QUICK_GRAPHQL_ID,
   QUICK_REST_API_ID,
+  JS_CODE_ID,
 } from "../constants/datasourceConstants";
 import { ResourceType } from "constants/queryConstants";
 import { default as Upload } from "antd/es/upload";
@@ -25,7 +26,6 @@ import { getUser } from "../redux/selectors/usersSelectors";
 import DataSourceIcon from "./DataSourceIcon";
 import { genRandomKey } from "comps/utils/idGenerator";
 import { isPublicApplication } from "@lowcoder-ee/redux/selectors/applicationSelector";
-import { JS_CODE_ID } from "constants/datasourceConstants";
 
 const Wrapper = styled.div<{ $placement: PageType }>`
   width: 100%;

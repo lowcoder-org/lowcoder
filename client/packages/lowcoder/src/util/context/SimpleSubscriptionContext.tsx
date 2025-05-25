@@ -96,7 +96,7 @@ export const SimpleSubscriptionContextProvider = (props: {
     };
   
     if (!productsLoaded && !subscriptionProductsLoading && !user.isAnonymous) {
-      console.log("Outer context: Fetching products...");
+      // console.log("Outer context: Fetching products...");
       setSubscriptionProductsLoading(true);
       fetchProducts();
     }
