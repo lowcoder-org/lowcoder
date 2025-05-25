@@ -78,9 +78,10 @@ WORKDIR /lowcoder/node-service/app/
 RUN yarn --immutable
 RUN yarn build
 
-# Copy startup script
+# Copy startup script and OpenTelemetry config
 COPY deploy/docker/node-service/entrypoint.sh /lowcoder/node-service/entrypoint.sh
 COPY deploy/docker/node-service/init.sh /lowcoder/node-service/init.sh
+COPY deploy/docker/node-service/otel-config.js /lowcoder/node-service/otel-config.js
 RUN chmod +x /lowcoder/node-service/*.sh
 
 ##

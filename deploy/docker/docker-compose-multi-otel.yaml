@@ -103,8 +103,9 @@ services:
 
       # OpenTelemetry Related Settings
       # OTEL_JAVAAGENT_ENABLED: "false"
-      OTEL_RESOURCE_ATTRIBUTES: "service.name=lowcoder-api-service,service.version=2.6.5,deployment.environment=production"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
       OTEL_SERVICE_NAME: "lowcoder-api-service"
+      OTEL_SERVICE_VERSION: "2.6.5"
       OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
       OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
       OTEL_TRACES_EXPORTER: "otlp"
@@ -143,6 +144,23 @@ services:
       LOWCODER_PUID: "9001"
       LOWCODER_PGID: "9001"
       LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+
+      ##
+      # OpenTelemetry Related Settings
+      #
+      # Uncomment OTEL_NODE_ENABLED_INSTRUMENTATIONS
+      # to disable OpenTelemetry Node agent
+      ##
+      # OTEL_NODE_ENABLED_INSTRUMENTATIONS=""
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+      OTEL_SERVICE_NAME: "lowcoder-node-service"
+      OTEL_SERVICE_VERSION: "2.6.5"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+
     restart: unless-stopped
     depends_on:
       lowcoder-api-service:
@@ -153,7 +171,7 @@ services:
       interval: 3s
       timeout: 5s
       retries: 10
-
+  
   ##
   ## Start Lowcoder web frontend
   ##

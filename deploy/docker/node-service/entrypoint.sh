@@ -23,4 +23,7 @@ if [ "$(id -u)" -eq 0 ]; then
 fi
 echo
 
+# Require OpenTelemetry configuration
+export NODE_OPTIONS="-r ./otel-config.js"
+
 exec $GOSU yarn start
