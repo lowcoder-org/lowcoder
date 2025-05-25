@@ -1,6 +1,6 @@
 import { default as AntdCheckboxGroup } from "antd/es/checkbox/Group";
 import { SelectInputOptionControl } from "comps/controls/optionsControl";
-import { BoolCodeControl } from "../../controls/codeControl";
+import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { arrayStringExposingStateControl } from "../../controls/codeStateControl";
 import { LabelControl } from "../../controls/labelControl";
 import { ChangeEventHandlerControl } from "../../controls/eventHandlerControl";
@@ -24,6 +24,8 @@ import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
+import Tooltip from "antd/es/tooltip";
+import { useCallback, useRef, useEffect, memo } from "react";
 
 export const getStyle = (style: CheckboxStyleType) => {
   return css`
@@ -63,7 +65,7 @@ export const getStyle = (style: CheckboxStyleType) => {
         }
       }
       
-      .ant-checkbox-inner) {
+      .ant-checkbox-inner {
         background-color: ${style.uncheckedBackground};
         border-radius: ${style.radius};
         border-color: ${style.checkedBorder};
@@ -115,6 +117,7 @@ export const getStyle = (style: CheckboxStyleType) => {
 const CheckboxGroup = styled(AntdCheckboxGroup) <{
   $style: CheckboxStyleType;
   $layout: ValueFromOption<typeof RadioLayoutOptions>;
+  tabIndex?: number;
 }>`
   min-height: 32px;
   ${(props) => props.$style && getStyle(props.$style)}
@@ -139,6 +142,54 @@ const CheckboxGroup = styled(AntdCheckboxGroup) <{
   }}
 `;
 
+const MemoizedCheckboxGroup = memo(({ 
+  value, 
+  disabled, 
+  style, 
+  layout, 
+  options, 
+  onChange, 
+  viewRef,
+  tabIndex
+}: { 
+  value: string[];
+  disabled: boolean;
+  style: CheckboxStyleType;
+  layout: ValueFromOption<typeof RadioLayoutOptions>;
+  options: Array<{ label: any; value: string; disabled?: boolean }>;
+  onChange: (values: string[]) => void;
+  viewRef: React.Ref<HTMLDivElement>;
+  tabIndex?: number
+}) => {
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = useCallback((values: unknown[]) => {
+    if (!mountedRef.current) return;
+    onChange(values as string[]);
+  }, [onChange]);
+
+  return (
+    <CheckboxGroup
+      ref={viewRef}
+      disabled={disabled}
+      value={value}
+      $style={style}
+      $layout={layout}
+      options={options}
+      onChange={handleChange}
+      tabIndex={tabIndex}
+    />
+  );
+});
+
+MemoizedCheckboxGroup.displayName = 'MemoizedCheckboxGroup';
+
 let CheckboxBasicComp = (function () {
   const childrenMap = {
     defaultValue: arrayStringExposingStateControl("defaultValue"),
@@ -156,37 +207,52 @@ let CheckboxBasicComp = (function () {
     viewRef: RefControl<HTMLDivElement>,
     inputFieldStyle: styleControl(CheckboxStyle , 'inputFieldStyle'),
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    tabIndex: NumberControl,
     ...SelectInputValidationChildren,
     ...formDataChildren,
   };
+
   return new UICompBuilder(childrenMap, (props) => {
-    const [
-      validateState,
-      handleChange,
-    ] = useSelectInputValidate(props);
+    const mountedRef = useRef(true);
+    const [validateState, handleChange] = useSelectInputValidate(props);
+
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+      };
+    }, []);
+
+    const handleValidateChange = useCallback((values: string[]) => {
+      if (!mountedRef.current) return;
+      handleChange(values);
+    }, [handleChange]);
+
+    const filteredOptions = useCallback(() => {
+      return props.options
+        .filter((option) => option.value !== undefined && !option.hidden)
+        .map((option) => ({
+          label: option.label,
+          value: option.value,
+          disabled: option.disabled,
+        }));
+    }, [props.options]);
+
     return props.label({
       required: props.required,
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
-      animationStyle:props.animationStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
-        <CheckboxGroup
-          ref={props.viewRef}
-          disabled={props.disabled}
+        <MemoizedCheckboxGroup
           value={props.value.value}
-          $style={props.inputFieldStyle}
-          $layout={props.layout}
-          options={props.options
-            .filter((option) => option.value !== undefined && !option.hidden)
-            .map((option) => ({
-              label: option.label,
-              value: option.value,
-              disabled: option.disabled,
-            }))}
-          onChange={(values) => {
-            handleChange(values as string[]);
-          }}
+          disabled={props.disabled}
+          style={props.inputFieldStyle}
+          layout={props.layout}
+          options={filteredOptions()}
+          onChange={handleValidateChange}
+          viewRef={props.viewRef}
+          tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
         />
       ),
       ...validateState,

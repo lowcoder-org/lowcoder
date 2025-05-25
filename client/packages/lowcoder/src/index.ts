@@ -1,4 +1,5 @@
 import "core-js/actual";
+
 import ResizeObserver from "resize-observer-polyfill";
 import numbro from "numbro";
 import Papa from "papaparse";

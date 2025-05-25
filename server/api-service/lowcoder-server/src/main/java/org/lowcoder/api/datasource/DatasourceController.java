@@ -10,12 +10,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.lowcoder.api.framework.view.PageResponseView;
 import org.lowcoder.api.framework.view.ResponseView;
 import org.lowcoder.api.permission.view.CommonPermissionView;
+import org.lowcoder.api.usermanagement.view.UpdateGroupRequest;
 import org.lowcoder.api.util.BusinessEventPublisher;
 import org.lowcoder.api.util.GidService;
 import org.lowcoder.domain.datasource.model.Datasource;
 import org.lowcoder.domain.datasource.service.DatasourceService;
 import org.lowcoder.domain.datasource.service.DatasourceStructureService;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.lowcoder.domain.permission.service.ResourcePermissionService;
 import org.lowcoder.domain.plugin.client.dto.GetPluginDynamicConfigRequestDTO;
 import org.lowcoder.sdk.exception.BizError;
 import org.lowcoder.sdk.models.DatasourceStructure;
@@ -47,12 +49,13 @@ public class DatasourceController implements DatasourceEndpoints
     private final BusinessEventPublisher businessEventPublisher;
     private final DatasourceService datasourceService;
     private final GidService gidService;
+    private final ResourcePermissionService resourcePermissionService;
 
     @Override
 	public Mono<ResponseView<Datasource>> create(@Valid @RequestBody UpsertDatasourceRequest request) {
         return datasourceApiService.create(upsertDatasourceRequestMapper.resolve(request))
                 .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
-                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE))
+                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_CREATE, null))
                 .map(ResponseView::success);
     }
 
@@ -69,23 +72,25 @@ public class DatasourceController implements DatasourceEndpoints
             @RequestBody UpsertDatasourceRequest request) {
         Datasource resolvedDatasource = upsertDatasourceRequestMapper.resolve(request);
         return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
-            datasourceApiService.update(objectId, resolvedDatasource)
-                .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
-                .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE))
-                .map(ResponseView::success));
+                datasourceService.getById(id).flatMap(orgDatasource ->
+                    datasourceApiService.update(objectId, resolvedDatasource)
+                        .delayUntil(datasourceService::removePasswordTypeKeysFromJsDatasourcePluginConfig)
+                        .delayUntil(datasource -> businessEventPublisher.publishDatasourceEvent(datasource, DATA_SOURCE_UPDATE, orgDatasource.getName()))
+                        .map(ResponseView::success)));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> delete(@PathVariable String id) {
         return gidService.convertDatasourceIdToObjectId(id).flatMap(objectId ->
-            datasourceApiService.delete(objectId)
-                .delayUntil(result -> {
-                    if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourceEvent(objectId, DATA_SOURCE_DELETE);
-                    }
-                    return Mono.empty();
-                })
-                .map(ResponseView::success));
+                datasourceService.getById(id).flatMap(orgDatasource ->
+                    datasourceApiService.delete(objectId)
+                        .delayUntil(result -> {
+                            if (BooleanUtils.isTrue(result)) {
+                                return businessEventPublisher.publishDatasourceEvent(objectId, DATA_SOURCE_DELETE, orgDatasource.getName());
+                            }
+                            return Mono.empty();
+                        })
+                        .map(ResponseView::success)));
     }
 
     @Override
@@ -177,15 +182,17 @@ public class DatasourceController implements DatasourceEndpoints
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
         return gidService.convertDatasourceIdToObjectId(datasourceId).flatMap(objectId ->
-            datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
-                .delayUntil(result -> {
-                    if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourcePermissionEvent(objectId, request.userIds(),
-                                request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT);
-                    }
-                    return Mono.empty();
-                })
-                .map(ResponseView::success));
+                datasourceApiService.getPermissions(objectId).flatMap(oldPermissions ->
+                        datasourceApiService.grantPermission(objectId, request.userIds(), request.groupIds(), role)
+                            .delayUntil(result -> {
+                                if (BooleanUtils.isTrue(result)) {
+                                    return datasourceApiService.getPermissions(objectId).flatMap(newPermissions ->
+                                            businessEventPublisher.publishDatasourcePermissionEvent(objectId, request.userIds(),
+                                            request.groupIds(), request.role(), DATA_SOURCE_PERMISSION_GRANT, oldPermissions, newPermissions));
+                                }
+                                return Mono.empty();
+                            })
+                            .map(ResponseView::success)));
     }
 
     @Override
@@ -194,21 +201,24 @@ public class DatasourceController implements DatasourceEndpoints
         if (request.getResourceRole() == null) {
             return ofError(INVALID_PARAMETER, "INVALID_PARAMETER", request.role());
         }
-        return datasourceApiService.updatePermission(permissionId, request.getResourceRole())
+        return resourcePermissionService.getById(permissionId).flatMap(oldPermission ->
+                datasourceApiService.updatePermission(permissionId, request.getResourceRole())
                 .delayUntil(result -> {
                     if (BooleanUtils.isTrue(result)) {
-                        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_UPDATE);
+                        return resourcePermissionService.getById(permissionId).flatMap(newPermission ->
+                                businessEventPublisher.publishDatasourceResourcePermissionEvent(DATA_SOURCE_PERMISSION_UPDATE, oldPermission, newPermission));
                     }
                     return Mono.empty();
                 })
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override
     public Mono<ResponseView<Boolean>> deletePermission(@PathVariable("permissionId") String permissionId) {
-        return businessEventPublisher.publishDatasourcePermissionEvent(permissionId, DATA_SOURCE_PERMISSION_DELETE)
+        return resourcePermissionService.getById(permissionId).flatMap(oldPermission ->
+                businessEventPublisher.publishDatasourceResourcePermissionEvent(DATA_SOURCE_PERMISSION_DELETE, oldPermission, null)
                 .then(datasourceApiService.deletePermission(permissionId))
-                .map(ResponseView::success);
+                .map(ResponseView::success));
     }
 
     @Override

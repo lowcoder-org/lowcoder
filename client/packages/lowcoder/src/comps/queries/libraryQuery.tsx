@@ -2,6 +2,7 @@ import { default as LoadingOutlined } from "@ant-design/icons/LoadingOutlined";
 import { default as Spin } from "antd/es/spin";
 import DataSourceIcon from "components/DataSourceIcon";
 import { ContextControlType, ContextJsonControl } from "comps/controls/contextCodeControl";
+import { FunctionControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
 import {
   CompAction,
@@ -10,6 +11,7 @@ import {
   isMyCustomAction,
   MultiBaseComp,
   wrapChildAction,
+  evalFunc,
 } from "lowcoder-core";
 import {
   Dropdown,
@@ -34,6 +36,9 @@ import {
   ToInstanceType,
 } from "../generators/multi";
 import { toQueryView } from "./queryCompUtils";
+import { getGlobalSettings } from "comps/utils/globalSettings";
+import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import type { SandBoxOption } from "lowcoder-core/src/eval/utils/evalScript";
 
 const NoInputsWrapper = styled.div`
   color: ${GreyTextColor};
@@ -133,6 +138,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
   readonly isReady: boolean = false;
 
   private value: DataType | undefined;
+  private queryInfo: any = null;
 
   constructor(params: CompParams<DataType>) {
     super(params);
@@ -140,6 +146,62 @@ export const LibraryQuery = class extends LibraryQueryBase {
   }
 
   override getView() {
+    // Check if this is a JS query
+    if (this.queryInfo?.query?.compType === "js") {
+      return async (props: any) => {
+        try {
+          const { orgCommonSettings } = getGlobalSettings();
+          const runInHost = !!orgCommonSettings?.runJavaScriptInHost;
+          const timer = performance.now();
+          const script = this.queryInfo.query.comp.script || "";
+          const options: SandBoxOption = { disableLimit: runInHost };
+
+          // Get input values from the inputs component and resolve any variables
+          const inputValues = Object.entries(this.children.inputs.children).reduce((acc, [name, input]) => {
+            // Get the raw value from the input component's text property
+            let value = input.children.text.getView();
+            
+            // Resolve any variables in the value
+            if (typeof value === 'string') {
+              value = value.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+                const parts = path.split('.');
+                let current = props.args || {};
+                for (const part of parts) {
+                  if (current && typeof current === 'object') {
+                    current = current[part];
+                  } else {
+                    return match; // Return original if path not found
+                  }
+                }
+                return current?.value ?? match;
+              });
+            }
+            
+            acc[name] = value;
+            return acc;
+          }, {} as Record<string, any>);
+
+          console.log("script: " + script);
+          console.log("inputValues: ", inputValues);
+
+          const data = await evalFunc(script, inputValues, undefined, options);
+          return {
+            data: data,
+            code: QUERY_EXECUTION_OK,
+            success: true,
+            runTime: Number((performance.now() - timer).toFixed()),
+          };
+        } catch (e) {
+          return {
+            success: false,
+            data: "",
+            code: QUERY_EXECUTION_ERROR,
+            message: (e as any).message || "",
+          };
+        }
+      };
+    }
+
     return toQueryView(
       Object.entries(this.children.inputs.children).map(([name, input]) => ({
         key: name,
@@ -161,6 +223,7 @@ export const LibraryQuery = class extends LibraryQueryBase {
 
   override reduce(action: CompAction): this {
     if (isMyCustomAction<QueryLibraryUpdateAction>(action, "queryLibraryUpdate")) {
+      this.queryInfo = action.value?.dsl;
       const inputs = this.children.inputs.setInputs(action.value?.dsl?.["inputs"] ?? []);
       return setFieldsNoTypeCheck(this, {
         children: { ...this.children, inputs: inputs },
@@ -258,7 +321,7 @@ const PropertyView = (props: { comp: InstanceType<typeof LibraryQuery> }) => {
         <QueryTutorialButton
           label={trans("queryLibrary.viewQuery")}
           url={`/query-library?forwardQueryId=${queryId}`}
-          styleName={"dropdownRight"}
+          styleName="dropdownRight"
         />
       </QueryConfigWrapper>
 

@@ -63,12 +63,12 @@ public class DatasourceMetaInfoServiceImpl implements DatasourceMetaInfoService 
             .connectionPool(ClientBasedConnectionPool.class)
             .build();
 
-    private static final DatasourceMetaInfo LOWCODER_API = DatasourceMetaInfo.builder()
+    /* private static final DatasourceMetaInfo LOWCODER_API = DatasourceMetaInfo.builder()
             .type(DatasourceMetaInfoConstants.LOWCODER_API)
             .displayName("Lowcoder API")
             .pluginExecutorKey("lowcoder-api-plugin")
             .connectionPool(StatelessConnectionPool.class)
-            .build();
+            .build(); */
 
     private static final DatasourceMetaInfo ES = DatasourceMetaInfo.builder()
             .type("es")

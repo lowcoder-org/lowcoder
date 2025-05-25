@@ -1,23 +1,16 @@
 import { BoolCodeControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
-import { default as Checkbox } from "antd/es/checkbox";
 import { ColumnTypeCompBuilder, ColumnTypeViewFn } from "../columnTypeCompBuilder";
 import { ColumnValueTooltip } from "../simpleColumnTypeComps";
-import { SwitchStyle, SwitchStyleType, LabelStyle,  InputFieldStyle } from "comps/controls/styleControlConstants";
-import styled, { css } from "styled-components";
-import { CheckboxStyle } from "comps/controls/styleControlConstants";
-import { useStyle } from "comps/controls/styleControl";
+import { InputFieldStyle } from "comps/controls/styleControlConstants";
+import styled from "styled-components";
 import { default as Switch } from "antd/es/switch";
 import { styleControl } from "comps/controls/styleControl";
 import { RefControl } from "comps/controls/refControl";
 import { booleanExposingStateControl } from "comps/controls/codeStateControl";
 import { changeEvent, eventHandlerControl } from "comps/controls/eventHandlerControl";
 import { disabledPropertyView } from "comps/utils/propertyUtils";
-
-interface SwitchWrapperProps {
-  disabled: boolean;
-  $style?: SwitchStyleType; 
-}
+import React, { useCallback, useRef, useEffect } from "react";
 
 const EventOptions = [
   changeEvent,
@@ -33,26 +26,6 @@ const EventOptions = [
   },
 ] as const;
 
-const getStyle = (style: SwitchStyleType) => {
-  return css`
-    .ant-switch-handle::before {
-      background-color: ${style.handle};
-    }
-    button {
-      background-image: none;
-      background-color: ${style.unchecked};
-      &.ant-switch-checked {
-        background-color: ${style.checked};
-      }
-    }
-  `;
-};
-
-const SwitchWrapper = styled.div<{ disabled: boolean }>`
-  display: flex;
-  align-items: center;
-`;
-
 const Wrapper = styled.div`
   background: transparent !important;
   padding: 0 8px;
@@ -64,31 +37,96 @@ const childrenMap = {
   onEvent: eventHandlerControl(EventOptions),
   disabled: BoolCodeControl,
   style: styleControl(InputFieldStyle),
-  viewRef: RefControl<HTMLElement>,
+  // viewRef: RefControl<HTMLButtonElement>,
 };
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, boolean, boolean> = (props) => props.switchState;
+
+const SwitchView = React.memo(({ value, disabled, onEvent, valueControl }: {
+  value: boolean;
+  disabled: boolean;
+  // viewRef: (viewRef: HTMLButtonElement | null) => void;
+  onEvent: (event: string) => void;
+  valueControl: { onChange: (value: boolean) => void };
+}) => {
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = useCallback((checked: boolean) => {
+    if (!mountedRef.current) return;
+    valueControl.onChange(checked);
+    onEvent("change");
+    onEvent(checked ? "true" : "false");
+  }, [valueControl, onEvent]);
+
+  return (
+    <Switch 
+      checked={value}
+      disabled={disabled || true}
+      // ref={viewRef}
+      onChange={handleChange}
+    />
+  );
+});
+
+SwitchView.displayName = 'SwitchView';
+
+const SwitchEdit = React.memo(({ value, onChange, onChangeEnd }: {
+  value: boolean;
+  onChange: (value: boolean) => void;
+  onChangeEnd: () => void;
+}) => {
+  const mountedRef = useRef(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleChange = useCallback((checked: boolean) => {
+    if (!mountedRef.current) return;
+    onChange(checked);
+  }, [onChange]);
+
+  const handleBlur = useCallback(() => {
+    if (!mountedRef.current) return;
+    onChangeEnd();
+  }, [onChangeEnd]);
+
+  return (
+    <Wrapper onBlur={handleBlur}>
+      <Switch
+        autoFocus
+        defaultChecked={value}
+        disabled={false}
+        onChange={handleChange}
+      />
+    </Wrapper>
+  );
+});
+
+SwitchEdit.displayName = 'SwitchEdit';
 
 export const SwitchComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props, dispatch) => {
       const value = props.changeValue ?? getBaseValue(props, dispatch);
-      const CheckBoxComp = () => {
-        return (
-          <Switch 
-            checked={value}
-            disabled={props.disabled || true}
-            ref={props.viewRef}
-            onChange={(checked) => {
-              props.value.onChange(checked);
-              props.onEvent("change");
-              props.onEvent(checked ? "true" : "false");
-            }}
-          />
-        );
-      };
-      return <CheckBoxComp />;
+      return (
+        <SwitchView
+          value={value}
+          disabled={props.disabled}
+          // viewRef={props.viewRef}
+          onEvent={props.onEvent}
+          valueControl={props.value}
+        />
+      );
     },
     (nodeValue) => nodeValue.switchState.value,
     getBaseValue
@@ -106,6 +144,8 @@ export const SwitchComp = (function () {
             disabled={false}
             onChange={(checked, e) => {
               props.onChange(checked);
+              props.otherProps?.onEvent?.("change");
+              props.otherProps?.onEvent?.(checked ? "true" : "false");
             }}
           />
         </Wrapper>

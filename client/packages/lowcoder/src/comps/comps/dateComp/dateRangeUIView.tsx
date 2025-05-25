@@ -44,7 +44,8 @@ export interface DateRangeUIViewProps extends DateCompViewProps {
   placeholder?: string | [string, string];
   onChange: (start?: dayjs.Dayjs | null, end?: dayjs.Dayjs | null) => void;
   onPanelChange: (value: any, mode: [string, string]) => void;
-  onClickDateRangeTimeZone:(value:any)=>void
+  onClickDateRangeTimeZone:(value:any)=>void;
+  tabIndex?: number;
 }
 
 export const DateRangeUIView = (props: DateRangeUIViewProps) => {

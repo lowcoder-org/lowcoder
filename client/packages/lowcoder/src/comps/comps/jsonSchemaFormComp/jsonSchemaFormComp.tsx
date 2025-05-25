@@ -163,28 +163,9 @@ function transformErrors(errors: RJSFValidationError[]): RJSFValidationError[] {
     if (message) {
       // Error message displayed below the comp (will not be displayed when "ui:help" is set in the UI schema)
       error.message = message;
-      // Errors displayed in the error list, not displayed when empty
-      error.stack = "";
     }
     return error;
   });
-}
-
-function ErrorList(props: ErrorListProps) {
-  const errors = props.errors.filter((error) => error.stack);
-  // Avoid showing blank space when there are no errors
-  if (errors.length === 0) {
-    return <></>;
-  }
-  return (
-    <div style={{ color: "red" }}>
-      <ul>
-        {errors.map((error) => (
-          <li key={error.stack}>{error.stack}</li>
-        ))}
-      </ul>
-    </div>
-  );
 }
 
 const SearchableSelectWidget = (props : any) => {
@@ -300,10 +281,9 @@ let FormBasicComp = (function () {
               templates={{
                 ObjectFieldTemplate: ObjectFieldTemplate,
                 ArrayFieldTemplate: ArrayFieldTemplate,
-                // FieldTemplate: LayoutFieldTemplate,
               }}
+              liveValidate={true}
               widgets={{ searchableSelect: SearchableSelectWidget }}
-              // ErrorList={ErrorList}
               children={
                 <Button
                   hidden={buttonOptions?.norender}

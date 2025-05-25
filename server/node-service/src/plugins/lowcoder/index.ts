@@ -8,10 +8,12 @@ import { parseOpenApi, ParseOpenApiOptions } from "../openApi/parse";
 
 import spec10 from './lowcoder.spec-v1.0.json';
 import spec11 from './lowcoder.spec-v1.1.json';
+import spec12 from './lowcoder.spec-v1.2.json';
 
 const specs = {
   "v1.0": spec10,
   "v1.1": spec11,
+  "v1.2": spec12,
 }
 
 const dataSourceConfig = {

@@ -93,11 +93,14 @@ public final class AuthenticationUtils {
         if(StringUtils.isEmpty(username)) username = email;
         if(StringUtils.isEmpty(username)) username = uid;
         String avatar = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "avatar"));
+        // Add group id mapping
+        String groupId = AdvancedMapUtils.getString(map, MapUtils.getString(sourceMappings, "group_id"));
         return AuthUser.builder()
                 .uid(uid)
                 .username(username)
                 .email(email)
                 .avatar(avatar)
+                .groupId(groupId) // Make sure AuthUser has this field and builder method
                 .rawUserInfo(map)
                 .build();
     }

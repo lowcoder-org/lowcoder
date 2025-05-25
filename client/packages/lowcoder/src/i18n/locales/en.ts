@@ -176,6 +176,7 @@ export const en = {
     "width": "Width",
     "selectApp": "Select App",
     "showCount": "Show Count",
+    "tabIndex": "Tab Index",
     "textType": "Text Type",
     "customRule": "Custom Rule",
     "customRuleTooltip": "Non-empty string indicates an error; empty or null means validation passed. Example: ",
@@ -463,6 +464,8 @@ export const en = {
     "resetDesc": "Triggers on Reset timer",
     "refresh": "Refresh",
     "refreshDesc": "Triggers on Refresh",
+    "sortChange": "Sort Change",
+    "sortChangeDesc": "Triggers on Sorting Changes",
   },
 
 
@@ -739,7 +742,11 @@ export const en = {
     "chooseDatabase": "Choose Database",
     "lowcoderAPI": "Lowcoder API",
     "executeJSCode": "Run JavaScript Code",
-    "importFromQueryLibrary": "Import from Query Library",
+    "importFromQueryLibrary": "Prepared Data Query",
+    "preparedDataQueries" : "Your prepared Data Queries",
+    "adHocDataQueries" : "Qick Data Queries (without prepared Query or Data Source)",
+    "queryResultTransformer" : "Manipulate a Query Response to transform Data before binding",
+    "queryResultReactor" : "React to any change of a dynamic Data value", 
     "importFromFile": "Import from File",
     "triggerType": "Triggered when...",
     "triggerTypeAuto": "When Inputs Change or after Application (Page) loads",
@@ -2484,6 +2491,12 @@ export const en = {
     "inviteUserLabel": "Invitation Link:",
     "inviteCopyLink": "Copy Link",
     "inviteText": "{userName} Invites You to Join the Workspace \"{organization}\", Click on the Link to Join: {inviteLink}",
+    "inviteByEmailHelp": "You can enter one or more email addresses to send invitation links",
+    "inviteByEmailLabel": "Enter emails:",
+    "inviteByEmailButton": "Send Invitations",
+    "inviteByEmailSuccess": "Invitations sent successfully!",
+    "inviteByEmailError": "Something went wrong while sending invitations. Please try again.",
+    "noValidEmails": "No valid emails found",
     "groupName": "Group Name",
     "createTime": "Create Time",
     "manageBtn": "Manage",
@@ -2538,6 +2551,7 @@ export const en = {
     "success": "Form Generated Successfully",
     "selectCompType": "Select Component Type",
     "dataSource": "Data Source: ",
+    "invalidFormMessage": "Custom Invalid Form Message",
     "selectSource": "Select Source",
     "table": "Table: ",
     "selectTable": "Select Table",
@@ -2598,7 +2612,8 @@ export const en = {
     "itemDataNameDesc": "The Variable Name Referring to the Item's Data Object, Default as {default}",
     "itemsDesc": "Exposing Data of Components in List",
     "dataDesc": "The JSON Data Used in the Current List",
-    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty."
+    "dataTooltip": "If You just Set a Number, This Field Will Be Regarded as Row Count, and the Data Will Be Regarded as Empty.",
+    "enableSorting": "Allow Sorting"
   },
   "navigation": {
     "addText": "Add Submenu Item",
@@ -3078,6 +3093,7 @@ export const en = {
     "memberOfOrgs": "Workspaces Membership",
     "apiKeys": "API Keys",
     "createApiKey": "Create API Key",
+    "apiKeyInfo": "Make sure to copy your new API key now. You won't be able to see it again.",
     "apiKeyName": "Name",
     "apiKeyDescription": "Description",
     "apiKeyCopy": "Click the Api Key to get the value in your clipboard",
@@ -3205,6 +3221,7 @@ export const en = {
     "enterPassword": "Enter your password",
     "selectAuthProvider": "Select Authentication Provider",
     "selectWorkspace": "Select your workspace",
+    "userNotFound": "User not found. Please make sure you entered the correct email."
   },
   "preLoad": {
     "jsLibraryHelpText": "Add JavaScript Libraries to Your Current Application via URL Addresses. lodash, day.js, uuid, numbro are Built into the System for Immediate Use. JavaScript Libraries are Loaded Before the Application is Initialized, Which Can Have an Impact on Application Performance.",
@@ -3310,7 +3327,7 @@ export const en = {
     "trash": "Trash",
     "marketplace": "Marketplace",
     "allCategories": "All Categories",
-    "queryLibrary": "Query Library",
+    "queryLibrary": "Data Queries",
     "datasource": "Data Sources",
     "selectDatasourceType": "Select Data Source Type",
     "home": "Home",
@@ -3781,9 +3798,17 @@ export const en = {
     "loop": "Loop",
     "auto": "Auto",
     "onHover": "On Hover",
+    "onTrigger": "On Trigger",
     "singlePlay": "Single Play",
     "endlessLoop": "Endless Loop",
-    "keepLastFrame": "Keep Last Frame displayed"
+    "keepLastFrame": "Keep Last Frame displayed",
+    "fit": "Fit",
+    "align": "Align",
+    "load": "On Load",
+    "play": "On Play",
+    "pause": "On Pause",
+    "stop": "On Stop",
+    "complete": "On Complete",
   },
   "timeLine": {
     "titleColor": "Title Color",
@@ -4088,6 +4113,15 @@ export const en = {
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 
+  iconScout: {
+    "searchImage": "Search Image",
+    "searchAnimation": "Search Animation",
+    "searchIcon": "Search Icon",
+    "noResults": "No results found.",
+    "buySubscriptionTitle": "Unlock Premium Assets",
+    "buySubscriptionContent": "This asset is exclusive to Media Package Subscribers. Subscribe to Media Package and download high-quality assets without limits!",
+    "buySubscriptionButton": "Subscribe Now",
+  }
 };
 
 // const jsonString = JSON.stringify(en, null, 2);

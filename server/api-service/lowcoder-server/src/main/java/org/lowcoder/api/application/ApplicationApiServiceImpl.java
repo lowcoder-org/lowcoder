@@ -49,6 +49,8 @@ import org.lowcoder.sdk.plugin.common.QueryExecutor;
 import org.lowcoder.sdk.util.ExceptionUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -134,10 +136,11 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 .delayUntil(created -> autoGrantPermissionsByFolderDefault(created.getId(), createApplicationRequest.folderId()))
                 .delayUntil(created -> folderApiService.move(created.getId(),
                         createApplicationRequest.folderId()))
-                .map(applicationCreated -> ApplicationView.builder()
-                        .applicationInfoView(buildView(applicationCreated, "", createApplicationRequest.folderId()))
+                .flatMap(applicationCreated -> buildView(applicationCreated, "", createApplicationRequest.folderId())
+                        .map(infoViewMono -> ApplicationView.builder()
+                        .applicationInfoView(infoViewMono)
                         .applicationDSL(applicationCreated.getEditingApplicationDSL())
-                        .build());
+                        .build()));
     }
 
     private Mono<Void> autoGrantPermissionsByFolderDefault(String applicationId, @Nullable String folderId) {
@@ -250,7 +253,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> getEditingApplication(String applicationId) {
+    public Mono<ApplicationView> getEditingApplication(String applicationId, Boolean withDeleted) {
         return applicationService.findById(applicationId).filter(application -> application.isPublicToAll() && application.isPublicToMarketplace())
                 .map(application -> {
                     ResourcePermission permission = ResourcePermission.builder().resourceRole(ResourceRole.VIEWER).build();
@@ -258,7 +261,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
                 })
                 .switchIfEmpty(checkPermissionWithReadableErrorMsg(applicationId, EDIT_APPLICATIONS))
                 .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> checkApplicationStatus(application, NORMAL)))
+                        .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), false), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
                 .flatMap(tuple -> {
@@ -284,10 +287,10 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationRequestType requestType) {
+    public Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationRequestType requestType, Boolean withDeleted) {
         return checkApplicationPermissionWithReadableErrorMsg(applicationId, READ_APPLICATIONS, requestType)
                 .zipWhen(permission -> applicationService.findById(applicationId)
-                        .delayUntil(application -> checkApplicationStatus(application, NORMAL))
+                        .delayUntil(application -> Boolean.TRUE.equals(withDeleted)? Mono.empty() : checkApplicationStatus(application, NORMAL))
                         .delayUntil(application -> checkApplicationViewRequest(application, requestType)))
                 .zipWhen(tuple -> applicationService.getAllDependentModulesFromApplication(tuple.getT2(), true), TupleUtils::merge)
                 .zipWhen(tuple -> organizationService.getOrgCommonSettings(tuple.getT2().getOrganizationId()), TupleUtils::merge)
@@ -344,23 +347,24 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     }
 
     @Override
-    public Mono<ApplicationView> update(String applicationId, Application application) {
-        return checkApplicationStatus(applicationId, NORMAL)
+    public Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus) {
+        return (Boolean.TRUE.equals(updateStatus) ? Mono.empty() : checkApplicationStatus(applicationId, NORMAL))
                 .then(sessionUserService.getVisitorId())
                 .flatMap(userId -> resourcePermissionService.checkAndReturnMaxPermission(userId,
                         applicationId, EDIT_APPLICATIONS))
                 .delayUntil(__ -> checkDatasourcePermissions(application))
-                .flatMap(permission -> doUpdateApplication(applicationId, application)
+                .flatMap(permission -> doUpdateApplication(applicationId, application, updateStatus)
                         .flatMap(applicationUpdated -> buildView(applicationUpdated, permission.getResourceRole().getValue()).map(appInfoView -> ApplicationView.builder()
                                 .applicationInfoView(appInfoView)
                                 .applicationDSL(applicationUpdated.getEditingApplicationDSL())
                                 .build())));
     }
 
-    private Mono<Application> doUpdateApplication(String applicationId, Application application) {
+    private Mono<Application> doUpdateApplication(String applicationId, Application application, Boolean updateStatus) {
         Application applicationUpdate = Application.builder()
                 .editingApplicationDSL(application.getEditingApplicationDSLOrNull())
                 .name(application.getName())
+                .applicationStatus(Boolean.TRUE.equals(updateStatus) ? application.getApplicationStatus() : null)
                 .build();
         return applicationService.updateById(applicationId, applicationUpdate)
                 .then(applicationService.findById(applicationId));
@@ -553,7 +557,7 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
     
     
     private Mono<ApplicationInfoView> buildView(Application application, String role) {
-        return Mono.just(buildView(application, role, null)).delayUntil(applicationInfoView -> {
+        return buildView(application, role, null).delayUntil(applicationInfoView -> {
             String applicationId = applicationInfoView.getApplicationId();
             return folderElementRelationService.getByElementIds(List.of(applicationId))
                     .doOnNext(folderElement -> {
@@ -562,25 +566,33 @@ public class ApplicationApiServiceImpl implements ApplicationApiService {
         });
     }
 
-    private ApplicationInfoView buildView(Application application, String role, @Nullable String folderId) {
-        return ApplicationInfoView.builder()
-                .applicationId(application.getId())
-                .applicationGid(application.getGid())
-                .orgId(application.getOrganizationId())
-                .name(application.getName())
-                .createBy(application.getCreatedBy())
-                .createAt(application.getCreatedAt().toEpochMilli())
-                .role(role)
-                .applicationType(application.getApplicationType())
-                .applicationStatus(application.getApplicationStatus())
-                .folderId(folderId)
-                .publicToAll(application.isPublicToAll())
-                .publicToMarketplace(application.isPublicToMarketplace())
-                .agencyProfile(application.agencyProfile())
-                .editingUserId(application.getEditingUserId())
-                .lastModifyTime(application.getUpdatedAt())
-                .lastEditedAt(application.getLastEditedAt())
-                .build();
+    private Mono<ApplicationInfoView> buildView(Application application, String role, @Nullable String folderId) {
+        return application.getCategory(applicationRecordService)
+                .zipWith(application.getDescription(applicationRecordService))
+                .zipWith(application.getTitle(applicationRecordService), TupleUtils::merge)
+                        .map(tuple ->
+                            ApplicationInfoView.builder()
+                                    .applicationId(application.getId())
+                                    .applicationGid(application.getGid())
+                                    .orgId(application.getOrganizationId())
+                                    .name(application.getName())
+                                    .createBy(application.getCreatedBy())
+                                    .createAt(application.getCreatedAt().toEpochMilli())
+                                    .role(role)
+                                    .applicationType(application.getApplicationType())
+                                    .applicationStatus(application.getApplicationStatus())
+                                    .folderId(folderId)
+                                    .publicToAll(application.isPublicToAll())
+                                    .publicToMarketplace(application.isPublicToMarketplace())
+                                    .agencyProfile(application.agencyProfile())
+                                    .editingUserId(application.getEditingUserId())
+                                    .lastModifyTime(application.getUpdatedAt())
+                                    .lastEditedAt(application.getLastEditedAt())
+                                    .category(tuple.getT1())
+                                    .description(tuple.getT2())
+                                    .title(tuple.getT3())
+                                    .build()
+                        );
     }
 
     private Mono<ApplicationInfoView> buildView(Application application) {

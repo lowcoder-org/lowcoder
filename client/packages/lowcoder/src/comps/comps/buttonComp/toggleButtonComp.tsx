@@ -26,6 +26,7 @@ import { BoolControl } from "comps/controls/boolControl";
 import { RefControl } from "comps/controls/refControl";
 import React, { useContext, useEffect } from "react";
 import { EditorContext } from "comps/editorState"; 
+import { Tooltip } from "antd";
 
 const IconWrapper = styled.div`
   display: flex;
@@ -65,6 +66,7 @@ const ToggleTmpComp = (function () {
     animationStyle: styleControl(AnimationStyle , 'animationStyle'),
     showBorder: withDefault(BoolControl, true),
     viewRef: RefControl<HTMLElement>,
+    tooltip: StringControl,
   };
   return new UICompBuilder(childrenMap, (props) => {
     const text = props.showText
@@ -78,20 +80,22 @@ const ToggleTmpComp = (function () {
         $showBorder={props.showBorder}
         $animationStyle={props.animationStyle}
       >
-        <Button100
-          ref={props.viewRef}
-          $buttonStyle={props.style}
-          loading={props.loading}
-          disabled={props.disabled}
-          onClick={() => {
-            props.onEvent("change");
-            props.value.onChange(!props.value.value);
-          }}
-        >
-          {props.iconPosition === "right" && text}
-          {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
-          {props.iconPosition === "left" && text}
-        </Button100>
+        <Tooltip title={props.tooltip}>
+          <Button100
+            ref={props.viewRef}
+            $buttonStyle={props.style}
+            loading={props.loading}
+            disabled={props.disabled}
+            onClick={() => {
+              props.onEvent("change");
+              props.value.onChange(!props.value.value);
+            }}
+          >
+            {props.iconPosition === "right" && text}
+            {<IconWrapper>{props.value.value ? props.trueIcon : props.falseIcon}</IconWrapper>}
+            {props.iconPosition === "left" && text}
+          </Button100>
+        </Tooltip>
       </ButtonCompWrapperStyled>
     );
   })
@@ -114,6 +118,7 @@ const ToggleTmpComp = (function () {
             </Section>
             <Section name={sectionNames.advanced}>
               {children.showText.propertyView({ label: trans("toggleButton.showText") })}
+              {children.tooltip.propertyView({label: trans("labelProp.tooltip")})}
               {children.showText.getView() && 
                 children.trueText.propertyView({ label: trans("toggleButton.trueLabel") })}
               {children.showText.getView() &&

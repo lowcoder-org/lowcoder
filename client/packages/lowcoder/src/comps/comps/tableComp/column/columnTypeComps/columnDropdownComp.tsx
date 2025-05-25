@@ -1,4 +1,4 @@
-import { ReactElement } from "react";
+import React, { ReactNode, useCallback, useRef, useEffect, useMemo, ReactElement } from "react";
 import { DropdownOptionControl } from "comps/controls/optionsControl";
 import { StringControl } from "comps/controls/codeControl";
 import { trans } from "i18n";
@@ -13,6 +13,20 @@ import { ButtonTypeOptions } from "../simpleColumnTypeComps";
 import { useStyle } from "comps/controls/styleControl";
 import { ButtonStyle } from "comps/controls/styleControlConstants";
 import { Button100 } from "comps/comps/buttonComp/buttonCompConstants";
+import styled from "styled-components";
+import { ButtonType } from "antd/es/button";
+
+const StyledButton = styled(Button100)`
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 30px;
+  width: auto;
+`;
+
+const StyledIconWrapper = styled(IconWrapper)`
+  margin: 0;
+`;
 
 const childrenMap = {
   buttonType: dropdownControl(ButtonTypeOptions, "primary"),
@@ -24,88 +38,128 @@ const childrenMap = {
 
 const getBaseValue: ColumnTypeViewFn<typeof childrenMap, string, string> = (props) => props.label;
 
+// Memoized dropdown menu component
+const DropdownMenu = React.memo(({ items, options }: { items: any[]; options: any[] }) => {
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleClick = useCallback(({ key }: { key: string }) => {
+    if (!mountedRef.current) return;
+    const item = items.find((o) => o.key === key);
+    const itemIndex = options.findIndex(option => option.label === item?.label);
+    item && options[itemIndex]?.onEvent("click");
+  }, [items, options]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  }, []);
+
+  return (
+    <Menu
+      items={items}
+      onClick={handleClick}
+      onMouseDown={handleMouseDown}
+    />
+  );
+});
+
+DropdownMenu.displayName = 'DropdownMenu';
+
+const DropdownView = React.memo((props: {
+  buttonType: ButtonType;
+  label: string;
+  prefixIcon: ReactNode;
+  suffixIcon: ReactNode;
+  options: any[];
+}) => {
+  const mountedRef = useRef(true);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const hasOptionIcon = useMemo(() => 
+    props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1,
+    [props.options]
+  );
+
+  const items = useMemo(() => 
+    props.options
+      .filter((option) => !option.hidden)
+      .map((option, index) => ({
+        title: option.label,
+        label: option.label,
+        key: option.label + " - " + index,
+        disabled: option.disabled,
+        icon: hasOptionIcon && <span>{option.prefixIcon}</span>,
+        index,
+      })),
+    [props.options, hasOptionIcon]
+  );
+  
+  const hasPrefixIcon = useMemo(() => 
+    (props.prefixIcon as ReactElement)?.props.value,
+    [props.prefixIcon]
+  );
+
+  const hasSuffixIcon = useMemo(() => 
+    (props.suffixIcon as ReactElement)?.props.value,
+    [props.suffixIcon]
+  );
+
+  const buttonStyle = useStyle(ButtonStyle);
+
+  const menu = useMemo(() => (
+    <DropdownMenu items={items} options={props.options} />
+  ), [items, props.options]);
+
+  return (
+    <Dropdown
+      trigger={["click"]}
+      placement="bottomRight"
+      dropdownRender={() => menu}
+    >
+      <StyledButton
+        type={props.buttonType}
+        $buttonStyle={props.buttonType === "primary" ? buttonStyle : undefined}
+      >
+        {hasPrefixIcon && (
+          <StyledIconWrapper style={{
+            marginRight: props.label || hasSuffixIcon ? '3px' : '0x',
+          }}>
+            {props.prefixIcon}
+          </StyledIconWrapper>
+        )}
+        {props.label || (hasPrefixIcon || hasSuffixIcon ? undefined : " ")}
+        {hasSuffixIcon && (
+          <StyledIconWrapper style={{
+            marginLeft: props.label || hasPrefixIcon ? '3px' : '0x',
+          }}>
+            {props.suffixIcon}
+          </StyledIconWrapper>
+        )}
+      </StyledButton>
+    </Dropdown>
+  );
+});
+
+DropdownView.displayName = 'DropdownView';
+
 export const ColumnDropdownComp = (function () {
   return new ColumnTypeCompBuilder(
     childrenMap,
     (props) => {
-      const hasOptionIcon = props.options.findIndex((option) => (option.prefixIcon as ReactElement)?.props.value) > -1;
-      const items = props.options
-        .filter((option) => !option.hidden)
-        .map((option, index) => ({
-          title: option.label,
-          label: option.label,
-          key: option.label + " - " + index,
-          disabled: option.disabled,
-          icon: hasOptionIcon && <span>{option.prefixIcon}</span>,
-          index,
-        }));
-      
-      const hasPrefixIcon = (props.prefixIcon as ReactElement)?.props.value;
-      const hasSuffixIcon = (props.suffixIcon as ReactElement)?.props.value;
-      const buttonStyle = useStyle(ButtonStyle);
-
-      const menu = (
-        <Menu
-          items={items}
-          onClick={({ key }) => {
-            const item = items.find((o) => o.key === key);
-            const itemIndex = props.options.findIndex(option => option.label === item?.label);
-            item && props.options[itemIndex]?.onEvent("click");
-          }}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-          }}
-        />
-      );
-
-      return (
-        <Dropdown
-          trigger={["click"]}
-          placement="bottomRight"
-          dropdownRender={() => menu}
-        >
-          <Button100
-            type={props.buttonType}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0',
-              minWidth: '30px',
-              width: 'auto',
-            }}
-            $buttonStyle={
-              props.buttonType === "primary"
-              ? buttonStyle
-              : undefined
-            }
-          >
-            {
-              hasPrefixIcon && (
-                <IconWrapper style={{
-                  margin: '0px',
-                  marginRight: props.label || hasSuffixIcon ? '3px' : '0x',
-                }}>
-                  {props.prefixIcon}
-                </IconWrapper>
-              ) 
-            }
-            {
-              props.label || (hasPrefixIcon || hasSuffixIcon ? undefined : " ") // Avoid button disappearing
-            }
-            {
-              hasSuffixIcon && (
-                <IconWrapper style={{
-                  margin: '0px',
-                  marginLeft: props.label || hasPrefixIcon ? '3px' : '0x',
-                }}>
-                  {props.suffixIcon}
-                </IconWrapper>
-              ) 
-            }
-          </Button100>
-        </Dropdown>
-      );
+      return <DropdownView {...props} />;
     },
     (nodeValue) => nodeValue.label.value,
     getBaseValue,

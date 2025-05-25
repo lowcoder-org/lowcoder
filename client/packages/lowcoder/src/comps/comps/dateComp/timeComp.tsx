@@ -4,6 +4,7 @@ import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core"
 import {
   BoolCodeControl,
   CustomRuleControl,
+  NumberControl,
   RangeControl,
   StringControl,
 } from "../../controls/codeControl";
@@ -92,6 +93,7 @@ const commonChildren = {
   suffixIcon: withDefault(IconControl, "/icon:regular/clock"),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   viewRef: RefControl<CommonPickerMethods>,
+  tabIndex: NumberControl,
   ...validationChildren,
 };
 
@@ -212,6 +214,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     ),
     showValidationWhenEmpty: props.showValidationWhenEmpty,
@@ -247,6 +250,7 @@ const TimePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
           {disabledPropertyView(children)}
           {hiddenPropertyView(children)}
           {showDataLoadingIndicatorsPropertyView(children)}
+          {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
         </Section></>
       )}
 
@@ -368,6 +372,7 @@ const TimeRangeTmpCmp = (function () {
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     );
 
@@ -423,6 +428,7 @@ const TimeRangeTmpCmp = (function () {
             {disabledPropertyView(children)}
             {hiddenPropertyView(children)}
             {showDataLoadingIndicatorsPropertyView(children)}
+            {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
           </Section></>
         )}
 
