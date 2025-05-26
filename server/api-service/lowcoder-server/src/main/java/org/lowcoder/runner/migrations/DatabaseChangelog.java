@@ -490,10 +490,13 @@ public class DatabaseChangelog {
         // Ensure there's more than one superAdmin user
         if (users.size() > 1) {
             // Keep the most recent one (first in the sorted list), delete the rest
-            List<User> usersToDelete = users.subList(1, users.size());
-            for (User user : usersToDelete) {
-                mongoTemplate.remove(user);
-            }
+            List<ObjectId> userIdsToDelete = users.subList(1, users.size())
+                    .stream()
+                    .map(User::getId)
+                    .collect(Collectors.toList());
+
+            Query deleteQuery = Query.query(Criteria.where("_id").in(userIdsToDelete));
+            mongoTemplate.remove(deleteQuery, User.class);
         }
     }
 
