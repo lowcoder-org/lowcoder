@@ -43,6 +43,16 @@ const EnvironmentsList: React.FC = () => {
       env.environmentId.toLowerCase().includes(searchLower) ||
       env.environmentType.toLowerCase().includes(searchLower)
     );
+  }).sort((a, b) => {
+    // Sort by license status: licensed environments first
+    const aLicensed = a.isLicensed !== false; // licensed or unknown (default to licensed)
+    const bLicensed = b.isLicensed !== false; // licensed or unknown (default to licensed)
+    
+    if (aLicensed && !bLicensed) return -1; // a licensed, b unlicensed - a comes first
+    if (!aLicensed && bLicensed) return 1;  // a unlicensed, b licensed - b comes first
+    
+    // If both have same license status, sort by environment name
+    return (a.environmentName || "").localeCompare(b.environmentName || "");
   });
 
   // Handle row click to navigate to environment detail

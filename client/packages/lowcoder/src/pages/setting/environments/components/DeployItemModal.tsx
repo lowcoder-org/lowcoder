@@ -36,7 +36,7 @@ function DeployItemModal({
   
   // Filter out source environment from target list
   const targetEnvironments = environments.filter(
-    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId
+    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId && env.isLicensed !== false
   );
   
   const handleDeploy = async () => {
