@@ -210,56 +210,43 @@ export default function ApplicationHome() {
       
               {
                 items: [
-                  
                   {
-                text: <TabLabel>{trans("home.datasource")}</TabLabel>,
-                routePath: DATASOURCE_URL,
-                routePathExact: false,
-                routeComp: DatasourceHome,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-                onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
-                mobileVisible: false,
+                    text: <TabLabel>{trans("home.datasource")}</TabLabel>,
+                    routePath: DATASOURCE_URL,
+                    routePathExact: false,
+                    routeComp: DatasourceHome,
+                    icon: ({ selected, ...otherProps }) => selected ? <HomeDataSourceIcon {...otherProps} width={"24px"}/> : <HomeDataSourceIcon {...otherProps} width={"24px"}/>,
+                    visible: ({ user }) => user.orgDev,
+                    onSelected: (_, currentPath) => currentPath.split("/")[1] === "datasource",
+                    mobileVisible: false,
+                  },
+                  {
+                    text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
+                    routePath: QUERY_LIBRARY_URL,
+                    routeComp: QueryLibraryEditor,
+                    icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
+                    visible: ({ user }) => user.orgDev,
+                    mobileVisible: false,
+                  }
+                ],
               },
-              {
-                text: <TabLabel>{trans("home.queryLibrary")}</TabLabel>,
-                routePath: QUERY_LIBRARY_URL,
-                routeComp: QueryLibraryEditor,
-                icon: ({ selected, ...otherProps }) => selected ? <HomeQueryLibraryIcon {...otherProps} width={"24px"}/> : <HomeQueryLibraryIcon {...otherProps} width={"24px"}/>,
-                visible: ({ user }) => user.orgDev,
-                mobileVisible: false,
-              }
-            ],
-          },
-          
-          // Show Subscription if not yet subscribed
 
-          !supportSubscription && user.orgDev ? {
-            items: [
-              {
-                text: <TabLabel>{trans("home.support")}</TabLabel>,
-                routePath: SUBSCRIPTION_SETTING,
-                routeComp: Subscription,
-                routePathExact: false,
-                icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
-                mobileVisible: true,
-              },
-            ],
-          } : { items: [] },
+              // Show Subscription if not yet subscribed else Support Pages
 
-          // show Support Section when an active Subscription exist
-          supportSubscription && user.orgDev ? {
-            items: [
               {
-                text: <TabLabel>{trans("home.support")}</TabLabel>,
-                routePath: SUPPORT_URL,
-                routeComp: Support,
-                routePathExact: false,
-                icon: ({ selected, ...otherProps }) => selected ? <SupportIcon {...otherProps} width={"24px"}/> : <SupportIcon {...otherProps} width={"24px"}/>,
-                mobileVisible: true,
+                items: [
+                  {
+                    text: <TabLabel>{trans("home.support")}</TabLabel>,
+                    routePath: supportSubscription ? SUPPORT_URL : SUBSCRIPTION_SETTING,
+                    routeComp: supportSubscription ? Support : Setting,
+                    routePathExact: false,
+                    icon: ({ selected, ...otherProps }) => <SupportIcon {...otherProps} width={"24px"} />,
+                    mobileVisible: true,
+                    visible: ({ user }) => user.orgDev
+                  }
+                ]
               },
-            ],
-          } : { items: [] },
+
               {
                 items: [
                   {

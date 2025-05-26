@@ -2,6 +2,7 @@ import React, { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import dayjs from "dayjs";
 import { debounce } from "lodash";
+import { trans } from "i18n";
 
 interface Props {
   data: Array<any>;
@@ -38,7 +39,6 @@ const DeviceOSBreakdownChart = ({ data}: Props) => {
     <ReactECharts
       ref={chartRef}
       option={{
-        title: { text: "Audit Log", left: "center" },
         tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
         legend: { left: "left", orient: "vertical", top: "12%" }, // Ensure labels are on the left
         grid: { left: "20%", right: "4%", bottom: "3%", containLabel: true },

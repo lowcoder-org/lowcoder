@@ -370,7 +370,7 @@ export function AppUsageDashboard() {
       <DetailContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.AuditLogOverview")}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.logFilter")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small" style={{ marginBottom: "20px" }}>
             <Form
@@ -427,7 +427,7 @@ export function AppUsageDashboard() {
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"User Engagement By Region"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogUserEngagement")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
             {loading ? (
@@ -437,13 +437,13 @@ export function AppUsageDashboard() {
                 <UserEngagementByRegionChart data={allLogs}/>
               </>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"App Usage Logs"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogAppViews")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
             {loading ? (
@@ -456,13 +456,13 @@ export function AppUsageDashboard() {
                 />
               </>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Top 10 Apps"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogTopTen")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
           {loading ? (
@@ -480,13 +480,13 @@ export function AppUsageDashboard() {
                 />
               </div>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Anonymous/Known Users"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogAnonymousKNown")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
             {loading ? (
@@ -498,13 +498,13 @@ export function AppUsageDashboard() {
                 />
               </>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Device/OS Breakdown"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogDevices")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
             {loading ? (
@@ -516,13 +516,13 @@ export function AppUsageDashboard() {
                 />
               </>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
         <AppLogContent>
           <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{"Browser/Layout Engine Breakdown"}</h2>
+            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("enterprise.usageLogBrowsers")}</h2>
           </StyleThemeSettingsCover>
           <Card size="small">
             {loading ? (
@@ -534,7 +534,7 @@ export function AppUsageDashboard() {
                 />
               </>
             ) : (
-              <p>No logs found. Adjust the filters and try again.</p>
+              <p>{trans("enterprise.noLogsFound")}</p>
             )}
           </Card>
         </AppLogContent>
