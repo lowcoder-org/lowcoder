@@ -25,6 +25,7 @@ import {
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
 import EditEnvironmentModal from "./components/EditEnvironmentModal";
+import UnlicensedEnvironmentView from "./components/UnlicensedEnvironmentView";
 import { Environment } from "./types/environment.types";
 import history from "@lowcoder-ee/util/history";
 import WorkspacesTab from "./components/WorkspacesTab";
@@ -100,43 +101,16 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
 
-  // Check if environment is not licensed and show restriction message
+  // Check if environment is not licensed and show modern UI
   if (environment.isLicensed === false) {
-    const getLicenseIcon = () => {
-      switch (environment.licenseStatus) {
-        case 'unlicensed':
-          return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
-        case 'error':
-          return <ExclamationCircleOutlined style={{ color: '#faad14' }} />;
-        default:
-          return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
-      }
-    };
-
     return (
-      <div style={{ padding: "24px", flex: 1 }}>
-        <Result
-          icon={getLicenseIcon()}
-          title="Environment Access Restricted"
-          subTitle={`This environment is not licensed. ${environment.licenseError || 'Please check the license configuration.'}`}
-          extra={[
-            <Button 
-              type="primary" 
-              key="back"
-              onClick={() => history.push("/setting/environments")}
-            >
-              Back to Environments
-            </Button>,
-            <Button 
-              key="edit"
-              onClick={handleEditClick}
-            >
-              Edit Environment
-            </Button>
-          ]}
+      <>
+        <UnlicensedEnvironmentView 
+          environment={environment}
+          onEditClick={handleEditClick}
         />
         
-        {/* Still allow editing the environment to fix license issues */}
+        {/* Edit Environment Modal */}
         {environment && (
           <EditEnvironmentModal
             visible={isEditModalVisible}
@@ -146,7 +120,7 @@ const EnvironmentDetail: React.FC = () => {
             loading={isUpdating}
           />
         )}
-      </div>
+      </>
     );
   }
 
