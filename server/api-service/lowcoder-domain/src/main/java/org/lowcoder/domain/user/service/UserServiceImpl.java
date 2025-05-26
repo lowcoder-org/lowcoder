@@ -183,6 +183,11 @@ public class UserServiceImpl implements UserService {
         newUser.setConnections(connections);
         newUser.setActiveAuthId(connection.getAuthId());
         newUser.setIsNewUser(true);
+        if(isSuperAdmin) {
+            return repository.findBySuperAdminIsTrue()
+                    .flatMap(user -> update(user.getId(), newUser))
+                    .switchIfEmpty(create(newUser));
+        }
         return create(newUser);
     }
 
