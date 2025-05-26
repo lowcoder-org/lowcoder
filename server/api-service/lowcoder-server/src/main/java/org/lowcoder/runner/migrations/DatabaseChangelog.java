@@ -479,6 +479,24 @@ public class DatabaseChangelog {
 
     }
 
+    @ChangeSet(order = "031", id = "delete-old-super-admin", author = "Thomas")
+    public void deleteOldSuperAdmin(MongockTemplate mongoTemplate, MongoDatabase mongoDatabase) {
+        List<User> users = mongoTemplate.find(
+                Query.query(Criteria.where("superAdmin").is(true))
+                        .with(Sort.by(Sort.Direction.DESC, "createdAt")),
+                User.class
+        );
+
+        // Ensure there's more than one superAdmin user
+        if (users.size() > 1) {
+            // Keep the most recent one (first in the sorted list), delete the rest
+            List<User> usersToDelete = users.subList(1, users.size());
+            for (User user : usersToDelete) {
+                mongoTemplate.remove(user);
+            }
+        }
+    }
+
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
         // Create a query to match all documents
         Query query = new Query();
