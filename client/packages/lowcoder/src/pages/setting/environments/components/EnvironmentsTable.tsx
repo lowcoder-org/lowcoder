@@ -27,12 +27,8 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
     window.open(auditUrl, '_blank');
   };
 
-  // Handle row click with license check
+  // Handle row click - allow navigation to all environments including unlicensed
   const handleRowClick = (env: Environment) => {
-    if (env.isLicensed === false) {
-      // Prevent navigation for unlicensed environments
-      return;
-    }
     onRowClick(env);
   };
 
@@ -109,22 +105,21 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
           return (
             <Col xs={24} sm={24} md={12} lg={8} xl={8} key={env.environmentId}>
               <Card
-                hoverable={isAccessible}
+                hoverable
                 style={{ 
                   borderRadius: '8px',
                   overflow: 'hidden',
                   height: '100%',
-                  cursor: isAccessible ? 'pointer' : 'not-allowed',
+                  cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
                   border: '1px solid #f0f0f0',
-                  opacity: isAccessible ? 1 : 0.6,
                   position: 'relative'
                 }}
                 bodyStyle={{ padding: '20px' }}
                 onClick={() => handleRowClick(env)}
               >
-                {/* License status overlay for non-licensed environments */}
+                {/* Subtle overlay for unlicensed environments */}
                 {!isAccessible && (
                   <div style={{
                     position: 'absolute',
@@ -132,25 +127,31 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'rgba(255, 255, 255, 0.8)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    background: 'rgba(255, 255, 255, 0.15)',
+                    backdropFilter: 'blur(0.5px)',
                     zIndex: 1,
-                    flexDirection: 'column',
-                    gap: '8px'
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-end',
+                    padding: '12px'
                   }}>
-                    <div style={{ fontSize: '24px', color: licenseDisplay.color }}>
+                    {/* Not Licensed Badge */}
+                    <div style={{
+                      background: licenseDisplay.color,
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '16px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
+                      backdropFilter: 'blur(10px)'
+                    }}>
                       {licenseDisplay.icon}
-                    </div>
-                    <Text strong style={{ color: licenseDisplay.color }}>
                       {licenseDisplay.text}
-                    </Text>
-                    {env.licenseError && (
-                      <Text type="secondary" style={{ fontSize: '12px', textAlign: 'center', maxWidth: '200px' }}>
-                        {env.licenseError}
-                      </Text>
-                    )}
+                    </div>
                   </div>
                 )}
 
@@ -195,46 +196,60 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                       </Space>
                     </div>
                   </div>
-                  <div>
-                    <Tooltip title="View Audit Logs" placement="top">
-                      <Button
-                        type="text"
-                        icon={<AuditOutlined />}
-                        onClick={(e) => openAuditPage(env.environmentId, e)}
-                        size="small"
-                        disabled={!isAccessible}
-                        style={{ 
-                          borderRadius: '50%', 
-                          width: '32px', 
-                          height: '32px'
-                        }}
-                      />
-                    </Tooltip>
-                  </div>
+                  {/* Only show audit button for licensed environments */}
+                  {isAccessible && (
+                    <div>
+                      <Tooltip title="View Audit Logs" placement="top">
+                        <Button
+                          type="text"
+                          icon={<AuditOutlined />}
+                          onClick={(e) => openAuditPage(env.environmentId, e)}
+                          size="small"
+                          style={{ 
+                            borderRadius: '50%', 
+                            width: '32px', 
+                            height: '32px'
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  )}
                 </div>
                 
                 <div style={{ padding: '12px 0', borderTop: '1px solid #f5f5f5', marginTop: '4px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Text type="secondary" style={{ fontSize: '13px' }}>ID:</Text>
-                      <Text style={{ fontSize: '13px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
-                        {env.environmentId}
-                      </Text>
+                      {isAccessible ? (
+                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
+                          {env.environmentId}
+                        </Text>
+                      ) : (
+                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }}>
+                          {env.environmentId}
+                        </Text>
+                      )}
                     </div>
                     
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <Text type="secondary" style={{ fontSize: '13px' }}>Domain:</Text>
                       {env.environmentFrontendUrl ? (
-                        <a 
-                          href={env.environmentFrontendUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          style={{ fontSize: '13px' }}
-                        >
-                          {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
-                          <LinkOutlined style={{ marginLeft: 4, fontSize: '12px' }} />
-                        </a>
+                        isAccessible ? (
+                          <a 
+                            href={env.environmentFrontendUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ fontSize: '13px' }}
+                          >
+                            {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
+                            <LinkOutlined style={{ marginLeft: 4, fontSize: '12px' }} />
+                          </a>
+                        ) : (
+                          <Text style={{ fontSize: '13px' }}>
+                            {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
+                          </Text>
+                        )
                       ) : (
                         <Text style={{ fontSize: '13px' }}>—</Text>
                       )}
