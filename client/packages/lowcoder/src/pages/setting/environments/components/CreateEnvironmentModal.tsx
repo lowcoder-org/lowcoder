@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch, Button } from 'antd';
+import React, { useState } from 'react';
+import { Modal, Form, Input, Select, Switch, Button, Alert } from 'antd';
 import { Environment } from '../types/environment.types';
 
 const { Option } = Select;
 
-interface EditEnvironmentModalProps {
+interface CreateEnvironmentModalProps {
   visible: boolean;
-  environment: Environment | null;
   onClose: () => void;
-  onSave: (data: Partial<Environment>) => Promise<void>; // Updated signature
+  onSave: (data: Partial<Environment>) => Promise<void>;
   loading?: boolean;
 }
 
-const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
+const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
   visible,
-  environment,
   onClose,
   onSave,
   loading = false
@@ -22,30 +20,13 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
 
-  // Initialize form with environment data when it changes
-  useEffect(() => {
-    if (environment) {
-      form.setFieldsValue({
-        environmentName: environment.environmentName || '',
-        environmentDescription: environment.environmentDescription || '',
-        environmentType: environment.environmentType,
-        environmentApiServiceUrl: environment.environmentApiServiceUrl || '',
-        environmentFrontendUrl: environment.environmentFrontendUrl || '',
-        environmentNodeServiceUrl: environment.environmentNodeServiceUrl || '',
-        environmentApikey: environment.environmentApikey || '',
-        isMaster: environment.isMaster
-      });
-    }
-  }, [environment, form]);
-
   const handleSubmit = async () => {
-    if (!environment) return;
-    
     try {
       const values = await form.validateFields();
       setSubmitLoading(true);
       
-      await onSave(values); // Call with only the data parameter
+      await onSave(values);
+      form.resetFields(); // Reset form after successful creation
       onClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -56,15 +37,20 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
     }
   };
 
+  const handleCancel = () => {
+    form.resetFields(); // Reset form when canceling
+    onClose();
+  };
+
   return (
     <Modal
-      title="Edit Environment"
+      title="Create New Environment"
       open={visible}
-      onCancel={onClose}
+      onCancel={handleCancel}
       maskClosable={true}
-      destroyOnHidden={true}
+      destroyOnClose={true}
       footer={[
-        <Button key="back" onClick={onClose}>
+        <Button key="back" onClick={handleCancel}>
           Cancel
         </Button>,
         <Button 
@@ -73,19 +59,26 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
           loading={loading || submitLoading} 
           onClick={handleSubmit}
         >
-          Save Changes
+          Create Environment
         </Button>
       ]}
     >
       <Form
         form={form}
         layout="vertical"
-        name="edit_environment_form"
+        name="create_environment_form"
+        initialValues={{
+          environmentType: "DEV",
+          isMaster: false
+        }}
       >
         <Form.Item
           name="environmentName"
           label="Environment Name"
-          rules={[{ required: true, message: 'Please enter a name' }]}
+          rules={[
+            { required: true, message: 'Please enter a name' },
+            { min: 2, message: 'Name must be at least 2 characters' }
+          ]}
         >
           <Input placeholder="Enter environment name" />
         </Form.Item>
@@ -116,6 +109,9 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
         <Form.Item
           name="environmentFrontendUrl"
           label="Frontend URL"
+          rules={[
+            { type: 'url', message: 'Please enter a valid URL' }
+          ]}
         >
           <Input placeholder="https://example.com" />
         </Form.Item>
@@ -123,6 +119,9 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
         <Form.Item
           name="environmentApiServiceUrl"
           label="API Service URL"
+          rules={[
+            { type: 'url', message: 'Please enter a valid URL' }
+          ]}
         >
           <Input placeholder="https://api.example.com" />
         </Form.Item>
@@ -130,6 +129,9 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
         <Form.Item
           name="environmentNodeServiceUrl"
           label="Node Service URL"
+          rules={[
+            { type: 'url', message: 'Please enter a valid URL' }
+          ]}
         >
           <Input placeholder="https://node.example.com" />
         </Form.Item>
@@ -151,9 +153,17 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
         >
           <Switch />
         </Form.Item>
+
+        <Alert
+          message="License Information"
+          description="After creating the environment, the system will automatically check the license status. Make sure the API service URL and API key are correctly configured for license validation."
+          type="info"
+          showIcon
+          style={{ marginTop: '16px' }}
+        />
       </Form>
     </Modal>
   );
 };
 
-export default EditEnvironmentModal;
+export default CreateEnvironmentModal; 

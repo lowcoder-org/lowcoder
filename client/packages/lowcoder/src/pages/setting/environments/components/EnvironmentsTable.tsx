@@ -1,6 +1,6 @@
 import React from 'react';
-import { Table, Tag, Button, Tooltip, Space, Card, Row, Col, Typography, Avatar } from 'antd';
-import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled, CloudServerOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Tooltip, Space, Card, Row, Col, Typography, Avatar, Spin, Alert } from 'antd';
+import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled, CloudServerOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 
@@ -27,6 +27,11 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
     window.open(auditUrl, '_blank');
   };
 
+  // Handle row click - allow navigation to all environments including unlicensed
+  const handleRowClick = (env: Environment) => {
+    onRowClick(env);
+  };
+
   // Generate background color for environment avatar
   const getAvatarColor = (name: string) => {
     let hash = 0;
@@ -44,6 +49,47 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
     return `hsl(${hue}, 70%, 50%)`;
   };
 
+  // Get license status icon and color
+  const getLicenseStatusDisplay = (env: Environment) => {
+    switch (env.licenseStatus) {
+      case 'checking':
+        return {
+          icon: <SyncOutlined spin />,
+          color: '#1890ff',
+          text: 'Checking...',
+          status: 'processing' as const
+        };
+      case 'licensed':
+        return {
+          icon: <CheckCircleOutlined />,
+          color: '#52c41a',
+          text: 'Licensed',
+          status: 'success' as const
+        };
+      case 'unlicensed':
+        return {
+          icon: <CloseCircleOutlined />,
+          color: '#ff4d4f',
+          text: 'Not Licensed',
+          status: 'error' as const
+        };
+      case 'error':
+        return {
+          icon: <ExclamationCircleOutlined />,
+          color: '#faad14',
+          text: 'License Error',
+          status: 'warning' as const
+        };
+      default:
+        return {
+          icon: <ExclamationCircleOutlined />,
+          color: '#d9d9d9',
+          text: 'Unknown',
+          status: 'default' as const
+        };
+    }
+  };
+
   // For card display, we'll use a custom layout instead of Table
   if (environments.length === 0) {
     return null;
@@ -52,103 +98,185 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   return (
     <div className="environments-grid">
       <Row gutter={[16, 16]}>
-        {environments.map(env => (
-          <Col xs={24} sm={24} md={12} lg={8} xl={8} key={env.environmentId}>
-            <Card
-              hoverable
-              style={{ 
-                borderRadius: '8px',
-                overflow: 'hidden',
-                height: '100%',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                border: '1px solid #f0f0f0'
-              }}
-              bodyStyle={{ padding: '20px' }}
-              onClick={() => onRowClick(env)}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <Avatar
-                    style={{ 
-                      backgroundColor: getAvatarColor(env.environmentType), 
-                      display: 'flex', 
+        {environments.map(env => {
+          const licenseDisplay = getLicenseStatusDisplay(env);
+          const isAccessible = env.isLicensed !== false;
+          
+          return (
+            <Col xs={24} sm={24} md={12} lg={8} xl={8} key={env.environmentId}>
+              <Card
+                hoverable
+                style={{ 
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  height: '100%',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                  border: '1px solid #f0f0f0',
+                  position: 'relative'
+                }}
+                bodyStyle={{ padding: '20px' }}
+                onClick={() => handleRowClick(env)}
+              >
+                {/* Subtle overlay for unlicensed environments */}
+                {!isAccessible && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    zIndex: 1,
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    justifyContent: 'flex-end',
+                    padding: '12px'
+                  }}>
+                    {/* Not Licensed Badge */}
+                    <div style={{
+                      background: licenseDisplay.color,
+                      color: 'white',
+                      padding: '6px 12px',
+                      borderRadius: '16px',
+                      fontSize: '12px',
+                      fontWeight: 600,
+                      display: 'flex',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '20px'
-                    }}
-                    size={48}
-                    icon={<CloudServerOutlined />}
-                  />
-                  <div>
-                    <Title level={5} style={{ margin: 0, marginBottom: '4px' }}>
-                      {env.environmentName || 'Unnamed Environment'}
-                      {env.isMaster && (
-                        <Tooltip title="Master Environment">
-                          <StarFilled style={{ color: '#faad14', marginLeft: '8px', fontSize: '14px' }} />
-                        </Tooltip>
-                      )}
-                    </Title>
-                    <Tag 
-                      color={getEnvironmentTagColor(env.environmentType)}
-                      style={{ borderRadius: '12px' }}
-                    >
-                      {formatEnvironmentType(env.environmentType)}
-                    </Tag>
+                      gap: '6px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                    }}>
+                      {licenseDisplay.icon}
+                      {licenseDisplay.text}
+                    </div>
                   </div>
-                </div>
-                <div>
-                  <Tooltip title="View Audit Logs" placement="top">
-                    <Button
-                      type="text"
-                      icon={<AuditOutlined />}
-                      onClick={(e) => openAuditPage(env.environmentId, e)}
-                      size="small"
-                      style={{ borderRadius: '50%', width: '32px', height: '32px' }}
+                )}
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <Avatar
+                      style={{ 
+                        backgroundColor: getAvatarColor(env.environmentType), 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '20px'
+                      }}
+                      size={48}
+                      icon={<CloudServerOutlined />}
                     />
-                  </Tooltip>
+                    <div>
+                      <Title level={5} style={{ margin: 0, marginBottom: '4px' }}>
+                        {env.environmentName || 'Unnamed Environment'}
+                        {env.isMaster && (
+                          <Tooltip title="Master Environment">
+                            <StarFilled style={{ color: '#faad14', marginLeft: '8px', fontSize: '14px' }} />
+                          </Tooltip>
+                        )}
+                      </Title>
+                      <Space size="small">
+                        <Tag 
+                          color={getEnvironmentTagColor(env.environmentType)}
+                          style={{ borderRadius: '12px' }}
+                        >
+                          {formatEnvironmentType(env.environmentType)}
+                        </Tag>
+                        <Tag 
+                          icon={licenseDisplay.icon}
+                          color={licenseDisplay.status === 'success' ? 'green' : 
+                                 licenseDisplay.status === 'error' ? 'red' : 
+                                 licenseDisplay.status === 'warning' ? 'orange' : 'blue'}
+                          style={{ borderRadius: '12px' }}
+                        >
+                          {licenseDisplay.text}
+                        </Tag>
+                      </Space>
+                    </div>
+                  </div>
+                  {/* Only show audit button for licensed environments */}
+                  {isAccessible && (
+                    <div>
+                      <Tooltip title="View Audit Logs" placement="top">
+                        <Button
+                          type="text"
+                          icon={<AuditOutlined />}
+                          onClick={(e) => openAuditPage(env.environmentId, e)}
+                          size="small"
+                          style={{ 
+                            borderRadius: '50%', 
+                            width: '32px', 
+                            height: '32px'
+                          }}
+                        />
+                      </Tooltip>
+                    </div>
+                  )}
                 </div>
-              </div>
-              
-              <div style={{ padding: '12px 0', borderTop: '1px solid #f5f5f5', marginTop: '4px' }}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary" style={{ fontSize: '13px' }}>ID:</Text>
-                    <Text style={{ fontSize: '13px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
-                      {env.environmentId}
-                    </Text>
-                  </div>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary" style={{ fontSize: '13px' }}>Domain:</Text>
-                    {env.environmentFrontendUrl ? (
-                      <a 
-                        href={env.environmentFrontendUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ fontSize: '13px' }}
-                      >
-                        {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
-                        <LinkOutlined style={{ marginLeft: 4, fontSize: '12px' }} />
-                      </a>
-                    ) : (
-                      <Text style={{ fontSize: '13px' }}>—</Text>
-                    )}
-                  </div>
-                  
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Text type="secondary" style={{ fontSize: '13px' }}>Master:</Text>
-                    <Text style={{ fontSize: '13px' }}>
-                      {env.isMaster ? 'Yes' : 'No'}
-                    </Text>
+                
+                <div style={{ padding: '12px 0', borderTop: '1px solid #f5f5f5', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>ID:</Text>
+                      {isAccessible ? (
+                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
+                          {env.environmentId}
+                        </Text>
+                      ) : (
+                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }}>
+                          {env.environmentId}
+                        </Text>
+                      )}
+                    </div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>Domain:</Text>
+                      {env.environmentFrontendUrl ? (
+                        isAccessible ? (
+                          <a 
+                            href={env.environmentFrontendUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(e) => e.stopPropagation()}
+                            style={{ fontSize: '13px' }}
+                          >
+                            {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
+                            <LinkOutlined style={{ marginLeft: 4, fontSize: '12px' }} />
+                          </a>
+                        ) : (
+                          <Text style={{ fontSize: '13px' }}>
+                            {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
+                          </Text>
+                        )
+                      ) : (
+                        <Text style={{ fontSize: '13px' }}>—</Text>
+                      )}
+                    </div>
+                    
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>Master:</Text>
+                      <Text style={{ fontSize: '13px' }}>
+                        {env.isMaster ? 'Yes' : 'No'}
+                      </Text>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary" style={{ fontSize: '13px' }}>License:</Text>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                        <span style={{ color: licenseDisplay.color, fontSize: '13px' }}>
+                          {licenseDisplay.icon}
+                        </span>
+                        <Text style={{ fontSize: '13px', color: licenseDisplay.color }}>
+                          {licenseDisplay.text}
+                        </Text>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </Card>
-          </Col>
-        ))}
+              </Card>
+            </Col>
+          );
+        })}
       </Row>
       
       {environments.length > 10 && (

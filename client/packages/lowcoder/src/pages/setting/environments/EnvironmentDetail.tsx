@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {
   Spin,
   Typography,
@@ -9,6 +9,7 @@ import {
   Menu,
   Button,
   Tag,
+  Result,
 } from "antd";
 import {
   LinkOutlined,
@@ -16,10 +17,15 @@ import {
   AppstoreOutlined,
   UsergroupAddOutlined,
   EditOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
 import EditEnvironmentModal from "./components/EditEnvironmentModal";
+import UnlicensedEnvironmentView from "./components/UnlicensedEnvironmentView";
 import { Environment } from "./types/environment.types";
 import history from "@lowcoder-ee/util/history";
 import WorkspacesTab from "./components/WorkspacesTab";
@@ -95,6 +101,29 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
 
+  // Check if environment is not licensed and show modern UI
+  if (environment.isLicensed === false) {
+    return (
+      <>
+        <UnlicensedEnvironmentView 
+          environment={environment}
+          onEditClick={handleEditClick}
+        />
+        
+        {/* Edit Environment Modal */}
+        {environment && (
+          <EditEnvironmentModal
+            visible={isEditModalVisible}
+            environment={environment}
+            onClose={handleCloseModal}
+            onSave={handleSaveEnvironment}
+            loading={isUpdating}
+          />
+        )}
+      </>
+    );
+  }
+
   const breadcrumbItems = [
     {
       key: 'environments',
@@ -114,7 +143,7 @@ const EnvironmentDetail: React.FC = () => {
   return (
     <div
       className="environment-detail-container"
-      style={{ padding: "24px", flex: 1 }}
+      style={{ padding: "24px", flex: 1, minWidth: "1000px" }}
     >
       {/* Environment Header Component */}
       <EnvironmentHeader 
@@ -156,6 +185,22 @@ const EnvironmentDetail: React.FC = () => {
             >
               {environment.environmentType}
             </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="License Status">
+            {(() => {
+              switch (environment.licenseStatus) {
+                case 'checking':
+                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '12px' }}>Checking...</Tag>;
+                case 'licensed':
+                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '12px' }}>Licensed</Tag>;
+                case 'unlicensed':
+                  return <Tag icon={<CloseCircleOutlined />} color="red" style={{ borderRadius: '12px' }}>Not Licensed</Tag>;
+                case 'error':
+                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '12px' }}>License Error</Tag>;
+                default:
+                  return <Tag color="default" style={{ borderRadius: '12px' }}>Unknown</Tag>;
+              }
+            })()}
           </Descriptions.Item>
           <Descriptions.Item label="API Key Status">
             {environment.environmentApikey ? (

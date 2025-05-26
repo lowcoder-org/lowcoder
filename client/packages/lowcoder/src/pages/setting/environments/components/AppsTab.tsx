@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
-import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined } from '@ant-design/icons';
+import { Card, Button, Divider, Alert, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { SyncOutlined, CloudUploadOutlined, AuditOutlined, AppstoreOutlined, CheckCircleFilled, CloudServerOutlined, DisconnectOutlined, FilterOutlined, DeleteOutlined } from '@ant-design/icons';
 import Title from 'antd/lib/typography/Title';
 import { Environment } from '../types/environment.types';
 import { App, AppStats } from '../types/app.types';
@@ -10,6 +10,7 @@ import { ManagedObjectType, setManagedObject, unsetManagedObject } from '../serv
 import { useDeployModal } from '../context/DeployModalContext';
 import { appsConfig } from '../config/apps.config';
 import history from "@lowcoder-ee/util/history";
+import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 
 const { Search } = Input;
 
@@ -116,10 +117,10 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
         unmanaged: prev.total - managed
       }));
       
-      message.success(`${app.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(`${app.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
       return true;
     } catch (error) {
-      message.error(`Failed to change managed status for ${app.name}`);
+      messageInstance.error(`Failed to change managed status for ${app.name}`);
       return false;
     } finally {
       setRefreshing(false);
@@ -153,8 +154,20 @@ const AppsTab: React.FC<AppsTabProps> = ({ environment, workspaceId }) => {
           >
             {app.name.charAt(0).toUpperCase()}
           </Avatar>
-          <div>
-            <div style={{ fontWeight: 500 }}>{app.name}</div>
+          <div style={{ flex: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{ fontWeight: 500 }}>{app.name}</span>
+              {app.applicationStatus === 'RECYCLED' && (
+                <Tooltip title="This app has been moved to recycle bin">
+                  <DeleteOutlined 
+                    style={{ 
+                      color: '#faad14', 
+                      fontSize: '14px' 
+                    }} 
+                  />
+                </Tooltip>
+              )}
+            </div>
             <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
               {app.applicationId}
             </div>

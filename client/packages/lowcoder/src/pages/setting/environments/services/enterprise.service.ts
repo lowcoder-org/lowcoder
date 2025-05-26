@@ -1,5 +1,5 @@
 import axios from "axios";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { ManagedOrg } from "../types/enterprise.types";
 import { Query } from "../types/query.types";
 
@@ -26,7 +26,7 @@ export async function getManagedWorkspaces(
     return all.filter(org => org.environmentId === environmentId);
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to fetch managed workspaces";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -63,7 +63,7 @@ export async function connectManagedWorkspace(
     return res.data;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to connect org";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -88,7 +88,7 @@ export async function unconnectManagedWorkspace(orgGid: string) {
   } catch (err) {
     const errorMsg =
       err instanceof Error ? err.message : "Failed to unconnect org";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -124,7 +124,7 @@ export async function connectManagedApp(
   } catch (err) {
     const errorMsg =
       err instanceof Error ? err.message : "Failed to connect app";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -137,7 +137,7 @@ export async function unconnectManagedApp(appGid: string) {
     });
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to unconnect app";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
@@ -151,7 +151,8 @@ export const getManagedDataSources = async (environmentId: string): Promise<any[
     );
     return response.data.data || [];
   } catch (error) {
-    console.error("Error fetching managed data sources:", error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to fetch data sources';
+    messageInstance.error(errorMsg);
     throw error;
   }
 };
@@ -172,7 +173,8 @@ export const connectManagedDataSource = async (
 
     await axios.post(`/api/plugins/enterprise/datasource`, payload);
   } catch (error) {
-    console.error("Error connecting managed data source:", error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to deploy data source';
+    messageInstance.error(errorMsg);
     throw error;
   }
 };
@@ -184,7 +186,8 @@ export const unconnectManagedDataSource = async (
   try {
     await axios.delete(`/api/plugins/enterprise/datasource?datasourceGid=${datasourceGid}`);
   } catch (error) {
-    console.error("Error disconnecting managed data source:", error);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to disconnect managed data source';
+    messageInstance.error(errorMsg);
     throw error;
   }
 };
@@ -223,8 +226,8 @@ export async function getManagedQueries(environmentId: string): Promise<Query[]>
     }));
     
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch managed queries';
-    message.error(errorMessage);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to fetch queries';
+    messageInstance.error(errorMsg);
     throw error;
   }
 }
@@ -250,8 +253,8 @@ export async function connectManagedQuery(
     return response.status === 200;
     
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to connect query';
-    message.error(errorMessage);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to deploy query';
+    messageInstance.error(errorMsg);
     throw error;
   }
 }
@@ -272,8 +275,8 @@ export async function unconnectManagedQuery(queryGid: string): Promise<boolean> 
     return response.status === 200;
     
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Failed to disconnect query';
-    message.error(errorMessage);
+    const errorMsg = error instanceof Error ? error.message : 'Failed to disconnect query';
+    messageInstance.error(errorMsg);
     throw error;
   }
 }

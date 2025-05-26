@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { Card, Button, Divider, Alert, Table, Tag, Input, Space, Tooltip, Row, Col } from 'antd';
+import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 import { 
   SyncOutlined, 
   CloudUploadOutlined, 
@@ -115,10 +116,10 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
         unmanaged: prev.total - managed
       }));
       
-      message.success(`${query.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(`${query.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
       return true;
     } catch (error) {
-      message.error(`Failed to change managed status for ${query.name}`);
+      messageInstance.error(`Failed to change managed status for ${query.name}`);
       return false;
     } finally {
       setRefreshing(false);

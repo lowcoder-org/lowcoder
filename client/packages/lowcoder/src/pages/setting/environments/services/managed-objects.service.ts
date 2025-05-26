@@ -1,5 +1,5 @@
 import axios from "axios";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 
 // Object types that can be managed
 export enum ManagedObjectType {
@@ -51,7 +51,7 @@ export async function isManagedObject(
     }
     
     const errorMessage = error instanceof Error ? error.message : "Failed to check managed status";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -88,7 +88,7 @@ export async function setManagedObject(
     return response.status === 200;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : `Failed to set ${objType} as managed`;
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -122,7 +122,7 @@ export async function unsetManagedObject(
     return response.status === 200;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : `Failed to remove ${objType} from managed`;
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -147,7 +147,7 @@ export async function getManagedObjects(
     return response.data.data;
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch managed objects";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -185,7 +185,7 @@ export async function getSingleManagedObject(
     }
     
     const errorMessage = error instanceof Error ? error.message : "Failed to fetch managed object";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }

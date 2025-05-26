@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Divider, Alert, message, Table, Tag, Input, Space, Tooltip, Row, Col, Avatar } from 'antd';
+import { Card, Button, Divider, Alert, Table, Tag, Input, Space, Tooltip, Row, Col, Avatar } from 'antd';
+import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 import { 
   SyncOutlined, 
   CloudUploadOutlined, 
@@ -114,10 +115,10 @@ const DataSourcesTab: React.FC<DataSourcesTabProps> = ({ environment, workspaceI
         unmanaged: prev.total - managed
       }));
       
-      message.success(`${dataSource.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
+      messageInstance.success(`${dataSource.name} is now ${checked ? 'Managed' : 'Unmanaged'}`);
       return true;
     } catch (error) {
-      message.error(`Failed to change managed status for ${dataSource.name}`);
+      messageInstance.error(`Failed to change managed status for ${dataSource.name}`);
       return false;
     } finally {
       setRefreshing(false);

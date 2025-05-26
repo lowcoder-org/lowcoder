@@ -1,11 +1,12 @@
 import axios from "axios";
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { Environment } from "../types/environment.types";
 import { Workspace } from "../types/workspace.types";
 import { UserGroup } from "../types/userGroup.types";
 import {App} from "../types/app.types";
 import { DataSourceWithMeta } from '../types/datasource.types';
 import { Query, QueryResponse } from "../types/query.types";
+import { checkEnvironmentLicense } from './license.service';
 
 
 
@@ -39,12 +40,47 @@ export async function updateEnvironment(
     return res.data;
   } catch (err) {
     const errorMsg = err instanceof Error ? err.message : "Failed to update environment";
-    message.error(errorMsg);
+    messageInstance.error(errorMsg);
     throw err;
   }
 }
 
+/**
+ * Create a new environment manually
+ * @param environmentData - Environment data to create
+ * @returns Promise with created environment data
+ */
+export async function createEnvironment(
+  environmentData: Partial<Environment>
+): Promise<Environment> {
+  try {
+    // Convert frontend model to API model
+    const payload = {
+      environment_description: environmentData.environmentDescription || "",
+      environment_icon: environmentData.environmentIcon || "",
+      environment_name: environmentData.environmentName || "",
+      environment_apikey: environmentData.environmentApikey || "",
+      environment_type: environmentData.environmentType || "",
+      environment_api_service_url: environmentData.environmentApiServiceUrl || "",
+      environment_frontend_url: environmentData.environmentFrontendUrl || "",
+      environment_node_service_url: environmentData.environmentNodeServiceUrl || "",
+      isMaster: environmentData.isMaster || false
+    };
 
+    const res = await axios.post(`/api/plugins/enterprise/environments`, payload);
+    
+    if (res.data) {
+      messageInstance.success("Environment created successfully");
+      return res.data;
+    } else {
+      throw new Error("Failed to create environment");
+    }
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to create environment";
+    messageInstance.error(errorMsg);
+    throw err;
+  }
+}
 
 /**
  * Fetch all environments
@@ -62,7 +98,7 @@ export async function getEnvironments(): Promise<Environment[]> {
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environments";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -82,11 +118,40 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
       throw new Error("Failed to fetch environment");
     }
 
-    return response.data.data;
+    const environment = response.data.data;
+
+    // Check license status for the environment
+    const envWithLicense: Environment = {
+      ...environment,
+      licenseStatus: 'checking'
+    };
+
+    try {
+      if (environment.environmentApiServiceUrl) {
+        const licenseInfo = await checkEnvironmentLicense(
+          environment.environmentApiServiceUrl,
+          environment.environmentApikey
+        );
+        
+        envWithLicense.isLicensed = licenseInfo.isValid;
+        envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
+        envWithLicense.licenseError = licenseInfo.error;
+      } else {
+        envWithLicense.isLicensed = false;
+        envWithLicense.licenseStatus = 'error';
+        envWithLicense.licenseError = 'API service URL not configured';
+      }
+    } catch (error) {
+      envWithLicense.isLicensed = false;
+      envWithLicense.licenseStatus = 'error';
+      envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+    }
+
+    return envWithLicense;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environment";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -100,6 +165,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
  * Fetch workspaces for a specific environment
  * @param environmentId - ID of the environment
  * @param apiKey - API key for the environment
+ * @param apiServiceUrl - API service URL for the environment
  * @returns Promise with an array of workspaces
  */
 export async function getEnvironmentWorkspaces(
@@ -158,7 +224,7 @@ export async function getEnvironmentWorkspaces(
     // Handle and transform error
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch workspaces";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -208,7 +274,7 @@ export async function getEnvironmentUserGroups(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch user groups';
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -297,7 +363,10 @@ export async function getWorkspaceApps(
     
     // Then fetch applications without the orgId parameter
     const response = await axios.get(`${apiServiceUrl}/api/applications/list`, { 
-      headers
+      headers,
+      params: {
+        withContainerSize: false
+      }
     });
     
     // Check if response is valid
@@ -305,12 +374,17 @@ export async function getWorkspaceApps(
       return [];
     }
     
-    return response.data.data;
+    // Filter out DELETED apps
+    const apps = response.data.data.filter((app: any) => 
+      app.applicationStatus !== 'DELETED'
+    );
+    
+    return apps;
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch apps';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace apps';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -367,8 +441,8 @@ export async function getWorkspaceDataSources(
     return response.data.data ;
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace data sources';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -449,8 +523,59 @@ export async function getWorkspaceQueries(
   
   } catch (error) {
     // Handle and transform error
-    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch queries';
-    message.error(errorMessage);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace queries';
+    messageInstance.error(errorMessage);
+    throw error;
+  }
+}
+
+/**
+ * Fetch all environments and check their license status
+ * @returns Promise with environments data including license status
+ */
+export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]> {
+  try {
+    // First fetch all environments
+    const environments = await getEnvironments();
+    
+    // Check license status for each environment in parallel
+    const environmentsWithLicense = await Promise.all(
+      environments.map(async (env) => {
+        const envWithLicense: Environment = {
+          ...env,
+          licenseStatus: 'checking'
+        };
+
+        try {
+          if (env.environmentApiServiceUrl) {
+            const licenseInfo = await checkEnvironmentLicense(
+              env.environmentApiServiceUrl,
+              env.environmentApikey
+            );
+            
+            envWithLicense.isLicensed = licenseInfo.isValid;
+            envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
+            envWithLicense.licenseError = licenseInfo.error;
+          } else {
+            envWithLicense.isLicensed = false;
+            envWithLicense.licenseStatus = 'error';
+            envWithLicense.licenseError = 'API service URL not configured';
+          }
+        } catch (error) {
+          envWithLicense.isLicensed = false;
+          envWithLicense.licenseStatus = 'error';
+          envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+        }
+
+        return envWithLicense;
+      })
+    );
+
+    return environmentsWithLicense;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch environments";
+    messageInstance.error(errorMessage);
     throw error;
   }
 }

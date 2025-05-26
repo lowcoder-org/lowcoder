@@ -4,8 +4,8 @@ import {
   Spin, 
   Typography, 
   Tabs, 
-  message,
 } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { 
   AppstoreOutlined, 
   DatabaseOutlined, 
@@ -46,9 +46,9 @@ const WorkspaceDetail: React.FC = () => {
     try {
       const success = await toggleManagedStatus(checked);
       if (success) {
-        message.success(`Workspace is now ${checked ? 'Managed' : 'Unmanaged'}`);
+        messageInstance.success(`Workspace is now ${checked ? 'Managed' : 'Unmanaged'}`);
       } else {
-        message.error('Failed to change managed status');
+        messageInstance.error('Failed to change managed status');
       }
     } finally {
       setIsToggling(false);

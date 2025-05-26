@@ -14,4 +14,16 @@ export interface Environment {
   isMaster: boolean;
   createdAt: string;
   updatedAt: string;
+  // License-related properties
+  isLicensed?: boolean;
+  licenseStatus?: 'checking' | 'licensed' | 'unlicensed' | 'error';
+  licenseError?: string;
+}
+
+/**
+ * Interface representing license information for an environment
+ */
+export interface EnvironmentLicense {
+  isValid: boolean;
+  error?: string;
 }

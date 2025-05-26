@@ -7,7 +7,7 @@ import React, {
     useCallback,
     ReactNode,
   } from "react";
-  import { message } from "antd";
+  import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
   import { useParams } from "react-router-dom";
   import { getEnvironmentById, updateEnvironment } from "../services/environments.service";
   import { Environment } from "../types/environment.types";
@@ -100,7 +100,7 @@ import React, {
         const updatedEnv = await updateEnvironment(environmentId, data);
         
         // Show success message
-        message.success("Environment updated successfully");
+        messageInstance.success("Environment updated successfully");
         
         // Refresh both the single environment and environments list
         await Promise.all([
@@ -111,7 +111,7 @@ import React, {
         return updatedEnv;
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : "Failed to update environment";
-        message.error(errorMessage);
+        messageInstance.error(errorMessage);
         throw err;
       }
     }, [environment, environmentId, fetchEnvironment, refreshEnvironments]);

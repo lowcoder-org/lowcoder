@@ -1,6 +1,7 @@
 // components/DeployItemModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, Checkbox, Button, message, Spin, Input, Tag, Space } from 'antd';
+import { Modal, Form, Select, Checkbox, Button, Spin, Input, Tag, Space } from 'antd';
+import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 import { Environment } from '../types/environment.types';
 import { DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
@@ -35,7 +36,7 @@ function DeployItemModal({
   
   // Filter out source environment from target list
   const targetEnvironments = environments.filter(
-    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId
+    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId && env.isLicensed !== false
   );
   
   const handleDeploy = async () => {
@@ -46,7 +47,7 @@ function DeployItemModal({
       const targetEnv = environments.find(env => env.environmentId === values.targetEnvId);
       
       if (!targetEnv) {
-        message.error('Target environment not found');
+        messageInstance.error('Target environment not found');
         return;
       }
       
@@ -58,12 +59,12 @@ function DeployItemModal({
       // Execute deployment
       await config.deploy.execute(params);
       
-      message.success(`Successfully deployed ${item.name} to target environment`);
+      messageInstance.success(`Successfully deployed ${item.name} to target environment`);
       if (onSuccess) onSuccess();
       onClose();
     } catch (error) {
       console.error('Deployment error:', error);
-      message.error(`Failed to deploy ${config.deploy.singularLabel.toLowerCase()}`);
+      messageInstance.error(`Failed to deploy ${config.deploy.singularLabel.toLowerCase()}`);
     } finally {
       setDeploying(false);
     }

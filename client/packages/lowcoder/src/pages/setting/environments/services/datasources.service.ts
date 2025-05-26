@@ -1,6 +1,6 @@
 // services/dataSources.service.ts
 import axios from 'axios';
-import { message } from "antd";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { DataSource, DataSourceWithMeta } from "../types/datasource.types";
 import { getManagedObjects, ManagedObject, ManagedObjectType  , transferManagedObject } from "./managed-objects.service";
 
@@ -66,7 +66,7 @@ export async function getWorkspaceDataSources(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch data sources';
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -145,7 +145,7 @@ export async function getMergedWorkspaceDataSources(
   } catch (error) {
     const errorMessage = 
       error instanceof Error ? error.message : "Failed to fetch data sources";
-    message.error(errorMessage);
+    messageInstance.error(errorMessage);
     throw error;
   }
 }
@@ -171,7 +171,8 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
     }
     return response.status === 200;
   } catch (error) {
-    console.error('Error deploying data source:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Failed to deploy data source';
+    messageInstance.error(errorMessage);
     throw error;
   }
 }

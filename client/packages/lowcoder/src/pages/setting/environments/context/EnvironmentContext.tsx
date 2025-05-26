@@ -7,8 +7,8 @@ import React, {
   useCallback,
   ReactNode,
 } from "react";
-import { message } from "antd";
-import { getEnvironments } from "../services/environments.service";
+import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
+import { getEnvironmentsWithLicenseStatus } from "../services/environments.service";
 import { Environment } from "../types/environment.types";
 
 interface EnvironmentContextState {
@@ -59,12 +59,12 @@ export const EnvironmentProvider: React.FC<ProviderProps> = ({
     setError(null);
     
     try {
-      const data = await getEnvironments();
+      const data = await getEnvironmentsWithLicenseStatus();
       setEnvironments(data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to load environments list";
-      setError(errorMessage);
-      message.error(errorMessage);
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to fetch environments';
+      messageInstance.error(errorMessage);
+      console.error('Error fetching environments:', error);
     } finally {
       setIsLoading(false);
     }
