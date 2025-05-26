@@ -101,7 +101,12 @@ services:
       # If left blank, a password will be generated and written into api-service log
       LOWCODER_SUPERUSER_PASSWORD:
 
+      ##
       # OpenTelemetry Related Settings
+      # Set OTEL_JAVAAGENT_ENABLED=false
+      # to disable OpenTelemetry Java agent
+      ##
+
       # OTEL_JAVAAGENT_ENABLED: "false"
       OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
       OTEL_SERVICE_NAME: "lowcoder-api-service"
