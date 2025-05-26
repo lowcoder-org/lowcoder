@@ -186,6 +186,11 @@ const tree = {
   
 }
 
+const signature = {
+  inputFieldStyle: {
+    pen: "#222222",
+  }
+}
 
 export const defaultTheme: ThemeDetail = {
   ...theme,
@@ -219,6 +224,7 @@ export const defaultTheme: ThemeDetail = {
     select: select,
     multiSelect: select,
     treeSelect: select,
-    tree:tree
+    tree:tree,
+    signature,
   },
 };
