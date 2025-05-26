@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { Typography, Alert, Input, Button, Space, Empty, Card, Spin, Row, Col, Tooltip, Badge } from "antd";
-import { SearchOutlined,  CloudServerOutlined, SyncOutlined} from "@ant-design/icons";
+import { SearchOutlined,  CloudServerOutlined, SyncOutlined, PlusOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useEnvironmentContext } from "./context/EnvironmentContext";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
+import CreateEnvironmentModal from "./components/CreateEnvironmentModal";
 import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
 import { getEnvironmentTagColor } from "./utils/environmentUtils";
+import { createEnvironment } from "./services/environments.service";
 
 const { Title, Text } = Typography;
 
@@ -26,6 +28,8 @@ const EnvironmentsList: React.FC = () => {
   // State for search input
   const [searchText, setSearchText] = useState("");
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // Hook for navigation
   const history = useHistory();
@@ -51,6 +55,20 @@ const EnvironmentsList: React.FC = () => {
     setIsRefreshing(true);
     await refreshEnvironments();
     setIsRefreshing(false);
+  };
+
+  // Handle create environment
+  const handleCreateEnvironment = async (environmentData: Partial<Environment>) => {
+    setIsCreating(true);
+    try {
+      await createEnvironment(environmentData);
+      await refreshEnvironments(); // Refresh the list after creation
+    } catch (error) {
+      console.error("Failed to create environment:", error);
+      throw error; // Re-throw to let the modal handle the error display
+    } finally {
+      setIsCreating(false);
+    }
   };
 
   // Count environment types
@@ -110,20 +128,33 @@ const EnvironmentsList: React.FC = () => {
           </Col>
           <Col xs={24} sm={8} style={{ textAlign: 'right' }}>
             <Space size="middle">
-            <Button 
-              icon={<SyncOutlined spin={isRefreshing} />} 
-              onClick={handleRefresh}
-              loading={isLoading}
-              type="default"
-              style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                borderColor: 'rgba(255, 255, 255, 0.4)',
-                color: 'white',
-                fontWeight: 500
-              }}
-            >
-              Refresh
-          </Button>
+              <Button 
+                icon={<PlusOutlined />} 
+                onClick={() => setIsCreateModalVisible(true)}
+                type="primary"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.15)',
+                  borderColor: 'rgba(255, 255, 255, 0.4)',
+                  color: 'white',
+                  fontWeight: 500
+                }}
+              >
+                Create Environment
+              </Button>
+              <Button 
+                icon={<SyncOutlined spin={isRefreshing} />} 
+                onClick={handleRefresh}
+                loading={isLoading}
+                type="default"
+                style={{
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                  borderColor: 'rgba(255, 255, 255, 0.4)',
+                  color: 'white',
+                  fontWeight: 500
+                }}
+              >
+                Refresh
+              </Button>
             </Space>
           </Col>
         </Row>
@@ -245,6 +276,14 @@ const EnvironmentsList: React.FC = () => {
           </div>
         )}
       </Card>
+
+      {/* Create Environment Modal */}
+      <CreateEnvironmentModal
+        visible={isCreateModalVisible}
+        onClose={() => setIsCreateModalVisible(false)}
+        onSave={handleCreateEnvironment}
+        loading={isCreating}
+      />
     </div>
   );
 };

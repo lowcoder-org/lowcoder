@@ -44,7 +44,42 @@ export async function updateEnvironment(
   }
 }
 
+/**
+ * Create a new environment manually
+ * @param environmentData - Environment data to create
+ * @returns Promise with created environment data
+ */
+export async function createEnvironment(
+  environmentData: Partial<Environment>
+): Promise<Environment> {
+  try {
+    // Convert frontend model to API model
+    const payload = {
+      environment_description: environmentData.environmentDescription || "",
+      environment_icon: environmentData.environmentIcon || "",
+      environment_name: environmentData.environmentName || "",
+      environment_apikey: environmentData.environmentApikey || "",
+      environment_type: environmentData.environmentType || "",
+      environment_api_service_url: environmentData.environmentApiServiceUrl || "",
+      environment_frontend_url: environmentData.environmentFrontendUrl || "",
+      environment_node_service_url: environmentData.environmentNodeServiceUrl || "",
+      isMaster: environmentData.isMaster || false
+    };
 
+    const res = await axios.post(`/api/plugins/enterprise/environments`, payload);
+    
+    if (res.data) {
+      messageInstance.success("Environment created successfully");
+      return res.data;
+    } else {
+      throw new Error("Failed to create environment");
+    }
+  } catch (err) {
+    const errorMsg = err instanceof Error ? err.message : "Failed to create environment";
+    messageInstance.error(errorMsg);
+    throw err;
+  }
+}
 
 /**
  * Fetch all environments
@@ -100,6 +135,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
  * Fetch workspaces for a specific environment
  * @param environmentId - ID of the environment
  * @param apiKey - API key for the environment
+ * @param apiServiceUrl - API service URL for the environment
  * @returns Promise with an array of workspaces
  */
 export async function getEnvironmentWorkspaces(
