@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.api.authentication.util.AdvancedMapUtils.documentToMap;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -493,6 +494,7 @@ public class DatabaseChangelog {
             List<ObjectId> userIdsToDelete = users.subList(1, users.size())
                     .stream()
                     .map(User::getId)
+                    .map(ObjectId::new)
                     .collect(Collectors.toList());
 
             Query deleteQuery = Query.query(Criteria.where("_id").in(userIdsToDelete));
