@@ -143,7 +143,7 @@ const EnvironmentDetail: React.FC = () => {
   return (
     <div
       className="environment-detail-container"
-      style={{ padding: "24px", flex: 1 }}
+      style={{ padding: "24px", flex: 1, minWidth: "1000px" }}
     >
       {/* Environment Header Component */}
       <EnvironmentHeader 

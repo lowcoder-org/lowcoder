@@ -69,7 +69,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
     <div style={{ 
       padding: "24px", 
       flex: 1,
-      minHeight: '100vh',
+      minWidth: '1000px',
       background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
     }}>
       <Row justify="center" style={{ minHeight: '80vh' }}>
