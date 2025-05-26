@@ -2436,6 +2436,15 @@ export const en = {
     "LIBRARY_QUERY_DELETE" : "Delete Library Query ",
     "LIBRARY_QUERY_PUBLISH" : "Publish Library Query ",
     "API_CALL_EVENT" : "API Call Event ",
+    "logFilter" : "Log Filter",
+    "noLogsFound" : "No logs found. Adjust the filters and try again.",
+    "usageLogUserEngagement" : "User Engagement By Region",
+    "usageLogAppViews" : "App Usage over time",
+    "usageLogTopTen" : "Top 10 Apps",
+    "usageLogAnonymousKNown" : "Anonymous/Known Users",
+    "usageLogDevices" : "Device/OS Breakdown",
+    "usageLogBrowsers" : "Browser/Layout Engine Breakdown",
+    
   },
 
   "subscription": {
