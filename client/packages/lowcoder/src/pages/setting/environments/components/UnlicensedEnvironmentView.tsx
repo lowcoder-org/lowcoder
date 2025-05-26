@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button, Card, Space, Typography, Row, Col } from 'antd';
 import { 
   CustomerServiceOutlined, 
@@ -9,6 +9,7 @@ import {
   WarningOutlined
 } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
+import ContactLowcoderModal from './ContactLowcoderModal';
 import history from "@lowcoder-ee/util/history";
 
 const { Title, Text } = Typography;
@@ -25,6 +26,8 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
   environment,
   onEditClick
 }) => {
+  const [isContactModalVisible, setIsContactModalVisible] = useState(false);
+
   const getLicenseIcon = () => {
     switch (environment.licenseStatus) {
       case 'unlicensed':
@@ -144,6 +147,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                   type="primary"
                   size="large"
                   icon={<CustomerServiceOutlined />}
+                  onClick={() => setIsContactModalVisible(true)}
                   style={{
                     width: '100%',
                     height: '48px',
@@ -154,7 +158,6 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                     border: 'none',
                     boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
                   }}
-                  // onClick will be handled later when modal is ready
                 >
                   Contact Lowcoder Team
                 </Button>
@@ -208,6 +211,13 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
           </div>
         </Col>
       </Row>
+
+      {/* Contact Lowcoder Modal */}
+      <ContactLowcoderModal
+        visible={isContactModalVisible}
+        onClose={() => setIsContactModalVisible(false)}
+        environment={environment}
+      />
     </div>
   );
 };
