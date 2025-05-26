@@ -10948,6 +10948,13 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   languageName: node
   linkType: hard
 
+"github-buttons@npm:^2.22.0":
+  version: 2.29.1
+  resolution: "github-buttons@npm:2.29.1"
+  checksum: adde1324247df85730e0056206d751894c02ce8dcad5e96234bbc9f2f15caaa12a6431608b7e04434e29df83b6900f4fc36d2d4581605f435d97dc29dcfd1a42
+  languageName: node
+  linkType: hard
+
 "github-markdown-css@npm:^5.1.0":
   version: 5.5.1
   resolution: "github-markdown-css@npm:5.5.1"
@@ -14131,6 +14138,7 @@ coolshapes-react@lowcoder-org/coolshapes-react:
     number-precision: ^1.6.0
     prettier: ^3.1.0
     react-countup: ^6.5.3
+    react-github-btn: ^1.4.0
     react-player: ^2.11.0
     resize-observer-polyfill: ^1.5.1
     rimraf: ^3.0.2
@@ -17903,6 +17911,17 @@ coolshapes-react@lowcoder-org/coolshapes-react:
   peerDependencies:
     react: ">=0.12.0"
   checksum: ace9fb2b8539a1482b61fd37e0eb063b103fe84e76f6c5d68c4256db8d328bbaa3ff0eb8dccc4c590f88e622b0d45bb725e9d0471a80862124303071c3543b86
+  languageName: node
+  linkType: hard
+
+"react-github-btn@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "react-github-btn@npm:1.4.0"
+  dependencies:
+    github-buttons: ^2.22.0
+  peerDependencies:
+    react: ">=16.3.0"
+  checksum: 33a416ad76ab4cc9238ac5cf5cfcab636bb2127c48fb30805385350fd3a3c2aa0aaeb78f6c726c52a0d3d133ca469be35d4b3d188c8e40c735c7ff458d2c8c3c
   languageName: node
   linkType: hard
 
