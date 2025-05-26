@@ -30,7 +30,7 @@ export async function checkEnvironmentLicense(
       `${apiServiceUrl}/api/plugins/enterprise/license`,
       { 
         headers,
-        timeout: 10000 // 10 second timeout
+        timeout: 5000 // 5 second timeout
       }
     );
 

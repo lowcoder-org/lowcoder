@@ -127,8 +127,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'rgba(255, 255, 255, 0.15)',
-                    backdropFilter: 'blur(0.5px)',
+                    background: 'rgba(255, 255, 255, 0.7)',
                     zIndex: 1,
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -146,8 +145,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                       display: 'flex',
                       alignItems: 'center',
                       gap: '6px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)',
-                      backdropFilter: 'blur(10px)'
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
                     }}>
                       {licenseDisplay.icon}
                       {licenseDisplay.text}
