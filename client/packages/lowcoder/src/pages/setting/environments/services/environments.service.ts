@@ -6,6 +6,7 @@ import { UserGroup } from "../types/userGroup.types";
 import {App} from "../types/app.types";
 import { DataSourceWithMeta } from '../types/datasource.types';
 import { Query, QueryResponse } from "../types/query.types";
+import { checkEnvironmentLicense } from './license.service';
 
 
 
@@ -117,7 +118,36 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
       throw new Error("Failed to fetch environment");
     }
 
-    return response.data.data;
+    const environment = response.data.data;
+
+    // Check license status for the environment
+    const envWithLicense: Environment = {
+      ...environment,
+      licenseStatus: 'checking'
+    };
+
+    try {
+      if (environment.environmentApiServiceUrl) {
+        const licenseInfo = await checkEnvironmentLicense(
+          environment.environmentApiServiceUrl,
+          environment.environmentApikey
+        );
+        
+        envWithLicense.isLicensed = licenseInfo.isValid;
+        envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
+        envWithLicense.licenseError = licenseInfo.error;
+      } else {
+        envWithLicense.isLicensed = false;
+        envWithLicense.licenseStatus = 'error';
+        envWithLicense.licenseError = 'API service URL not configured';
+      }
+    } catch (error) {
+      envWithLicense.isLicensed = false;
+      envWithLicense.licenseStatus = 'error';
+      envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+    }
+
+    return envWithLicense;
   } catch (error) {
     const errorMessage =
       error instanceof Error ? error.message : "Failed to fetch environment";
@@ -494,6 +524,57 @@ export async function getWorkspaceQueries(
   } catch (error) {
     // Handle and transform error
     const errorMessage = error instanceof Error ? error.message : 'Failed to fetch workspace queries';
+    messageInstance.error(errorMessage);
+    throw error;
+  }
+}
+
+/**
+ * Fetch all environments and check their license status
+ * @returns Promise with environments data including license status
+ */
+export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]> {
+  try {
+    // First fetch all environments
+    const environments = await getEnvironments();
+    
+    // Check license status for each environment in parallel
+    const environmentsWithLicense = await Promise.all(
+      environments.map(async (env) => {
+        const envWithLicense: Environment = {
+          ...env,
+          licenseStatus: 'checking'
+        };
+
+        try {
+          if (env.environmentApiServiceUrl) {
+            const licenseInfo = await checkEnvironmentLicense(
+              env.environmentApiServiceUrl,
+              env.environmentApikey
+            );
+            
+            envWithLicense.isLicensed = licenseInfo.isValid;
+            envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
+            envWithLicense.licenseError = licenseInfo.error;
+          } else {
+            envWithLicense.isLicensed = false;
+            envWithLicense.licenseStatus = 'error';
+            envWithLicense.licenseError = 'API service URL not configured';
+          }
+        } catch (error) {
+          envWithLicense.isLicensed = false;
+          envWithLicense.licenseStatus = 'error';
+          envWithLicense.licenseError = error instanceof Error ? error.message : 'License check failed';
+        }
+
+        return envWithLicense;
+      })
+    );
+
+    return environmentsWithLicense;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to fetch environments";
     messageInstance.error(errorMessage);
     throw error;
   }

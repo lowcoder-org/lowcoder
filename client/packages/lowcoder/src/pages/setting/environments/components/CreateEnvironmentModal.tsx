@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Switch, Button } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button, Alert } from 'antd';
 import { Environment } from '../types/environment.types';
 
 const { Option } = Select;
@@ -153,6 +153,14 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
         >
           <Switch />
         </Form.Item>
+
+        <Alert
+          message="License Information"
+          description="After creating the environment, the system will automatically check the license status. Make sure the API service URL and API key are correctly configured for license validation."
+          type="info"
+          showIcon
+          style={{ marginTop: '16px' }}
+        />
       </Form>
     </Modal>
   );

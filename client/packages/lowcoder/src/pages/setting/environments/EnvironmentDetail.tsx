@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {
   Spin,
   Typography,
@@ -9,6 +9,7 @@ import {
   Menu,
   Button,
   Tag,
+  Result,
 } from "antd";
 import {
   LinkOutlined,
@@ -16,6 +17,10 @@ import {
   AppstoreOutlined,
   UsergroupAddOutlined,
   EditOutlined,
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  ExclamationCircleOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
@@ -95,6 +100,56 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
 
+  // Check if environment is not licensed and show restriction message
+  if (environment.isLicensed === false) {
+    const getLicenseIcon = () => {
+      switch (environment.licenseStatus) {
+        case 'unlicensed':
+          return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
+        case 'error':
+          return <ExclamationCircleOutlined style={{ color: '#faad14' }} />;
+        default:
+          return <CloseCircleOutlined style={{ color: '#ff4d4f' }} />;
+      }
+    };
+
+    return (
+      <div style={{ padding: "24px", flex: 1 }}>
+        <Result
+          icon={getLicenseIcon()}
+          title="Environment Access Restricted"
+          subTitle={`This environment is not licensed. ${environment.licenseError || 'Please check the license configuration.'}`}
+          extra={[
+            <Button 
+              type="primary" 
+              key="back"
+              onClick={() => history.push("/setting/environments")}
+            >
+              Back to Environments
+            </Button>,
+            <Button 
+              key="edit"
+              onClick={handleEditClick}
+            >
+              Edit Environment
+            </Button>
+          ]}
+        />
+        
+        {/* Still allow editing the environment to fix license issues */}
+        {environment && (
+          <EditEnvironmentModal
+            visible={isEditModalVisible}
+            environment={environment}
+            onClose={handleCloseModal}
+            onSave={handleSaveEnvironment}
+            loading={isUpdating}
+          />
+        )}
+      </div>
+    );
+  }
+
   const breadcrumbItems = [
     {
       key: 'environments',
@@ -156,6 +211,22 @@ const EnvironmentDetail: React.FC = () => {
             >
               {environment.environmentType}
             </Tag>
+          </Descriptions.Item>
+          <Descriptions.Item label="License Status">
+            {(() => {
+              switch (environment.licenseStatus) {
+                case 'checking':
+                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '12px' }}>Checking...</Tag>;
+                case 'licensed':
+                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '12px' }}>Licensed</Tag>;
+                case 'unlicensed':
+                  return <Tag icon={<CloseCircleOutlined />} color="red" style={{ borderRadius: '12px' }}>Not Licensed</Tag>;
+                case 'error':
+                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '12px' }}>License Error</Tag>;
+                default:
+                  return <Tag color="default" style={{ borderRadius: '12px' }}>Unknown</Tag>;
+              }
+            })()}
           </Descriptions.Item>
           <Descriptions.Item label="API Key Status">
             {environment.environmentApikey ? (

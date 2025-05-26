@@ -47,6 +47,10 @@ const EnvironmentsList: React.FC = () => {
 
   // Handle row click to navigate to environment detail
   const handleRowClick = (record: Environment) => {
+    // Prevent navigation for unlicensed environments
+    if (record.isLicensed === false) {
+      return;
+    }
     history.push(buildEnvironmentId(record.environmentId));
   };
 

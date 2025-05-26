@@ -8,7 +8,7 @@ import React, {
   ReactNode,
 } from "react";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
-import { getEnvironments } from "../services/environments.service";
+import { getEnvironmentsWithLicenseStatus } from "../services/environments.service";
 import { Environment } from "../types/environment.types";
 
 interface EnvironmentContextState {
@@ -59,7 +59,7 @@ export const EnvironmentProvider: React.FC<ProviderProps> = ({
     setError(null);
     
     try {
-      const data = await getEnvironments();
+      const data = await getEnvironmentsWithLicenseStatus();
       setEnvironments(data);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch environments';
