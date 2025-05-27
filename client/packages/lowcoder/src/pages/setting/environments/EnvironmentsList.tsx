@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, Alert, Input, Button, Space, Empty, Card, Spin, Row, Col, Tooltip, Badge } from "antd";
 import { SearchOutlined,  CloudServerOutlined, SyncOutlined, PlusOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
-import { useEnvironmentContext } from "./context/EnvironmentContext";
+import { useSelector, useDispatch } from "react-redux";
+import { selectEnvironments, selectEnvironmentsLoading, selectEnvironmentsError } from "redux/selectors/enterpriseSelectors";
+import { fetchEnvironments } from "redux/reduxActions/enterpriseActions";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
 import CreateEnvironmentModal from "./components/CreateEnvironmentModal";
@@ -17,22 +19,27 @@ const { Title, Text } = Typography;
  * Displays a table of environments
  */
 const EnvironmentsList: React.FC = () => {
-  // Use the shared context instead of a local hook
-  const { 
-    environments, 
-    isLoading, 
-    error,
-    refreshEnvironments 
-  } = useEnvironmentContext();
+  // Use Redux state instead of context
+  const dispatch = useDispatch();
+  const environments = useSelector(selectEnvironments);
+  const isLoading = useSelector(selectEnvironmentsLoading);
+  const error = useSelector(selectEnvironmentsError);
 
   // State for search input
   const [searchText, setSearchText] = useState("");
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   // Hook for navigation
   const history = useHistory();
+
+  // Load environments on component mount
+  useEffect(() => {
+    // Only fetch if environments are not already loaded
+    if (environments.length === 0 && !isLoading) {
+      dispatch(fetchEnvironments());
+    }
+  }, [dispatch, environments.length, isLoading]);
 
   // Filter environments based on search text
   const filteredEnvironments = environments.filter((env) => {
@@ -62,10 +69,8 @@ const EnvironmentsList: React.FC = () => {
   };
 
   // Handle refresh
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refreshEnvironments();
-    setIsRefreshing(false);
+  const handleRefresh = () => {
+    dispatch(fetchEnvironments());
   };
 
   // Handle create environment
@@ -73,7 +78,7 @@ const EnvironmentsList: React.FC = () => {
     setIsCreating(true);
     try {
       await createEnvironment(environmentData);
-      await refreshEnvironments(); // Refresh the list after creation
+      dispatch(fetchEnvironments()); // Refresh the list after creation
     } catch (error) {
       console.error("Failed to create environment:", error);
       throw error; // Re-throw to let the modal handle the error display
@@ -153,7 +158,7 @@ const EnvironmentsList: React.FC = () => {
                 Create Environment
               </Button>
               <Button 
-                icon={<SyncOutlined spin={isRefreshing} />} 
+                icon={<SyncOutlined spin={isLoading} />} 
                 onClick={handleRefresh}
                 loading={isLoading}
                 type="default"

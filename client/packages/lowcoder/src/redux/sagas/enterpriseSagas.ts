@@ -2,7 +2,7 @@ import { call, put, takeLatest } from 'redux-saga/effects';
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
 import { setEnterpriseLicense, fetchEnvironmentsSuccess, fetchEnvironmentsFailure } from "redux/reduxActions/enterpriseActions";
 import { BrandingSettingResponse, EnterpriseLicenseResponse, FetchBrandingSettingPayload, getBranding, getEnterpriseLicense } from "api/enterpriseApi";
-import { getEnvironments } from "pages/setting/environments/services/environments.service";
+import { getEnvironmentsWithLicenseStatus } from "pages/setting/environments/services/environments.service";
 import { Environment } from "pages/setting/environments/types/environment.types";
 
 import { AxiosResponse } from 'axios';
@@ -19,7 +19,7 @@ function* fetchEnterpriseLicenseSaga(): Generator<any, void, EnterpriseLicenseRe
 
 function* fetchEnvironmentsSaga(): Generator<any, void, Environment[]> {
   try {
-    const environments: Environment[] = yield call(getEnvironments);
+    const environments: Environment[] = yield call(getEnvironmentsWithLicenseStatus);
     yield put(fetchEnvironmentsSuccess(environments));
   } catch (error) {
     console.error('Failed to fetch environments:', error);

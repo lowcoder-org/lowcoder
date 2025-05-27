@@ -29,3 +29,9 @@ export const getWorkspaceBrandingSetting = (state: AppState) => {
 // Environment selectors
 export const selectEnvironments = (state: AppState) => 
   state.ui.enterprise?.environments ?? [];
+
+export const selectEnvironmentsLoading = (state: AppState) =>
+  state.ui.enterprise?.environmentsLoading ?? false;
+
+export const selectEnvironmentsError = (state: AppState) =>
+  state.ui.enterprise?.environmentsError ?? null;
