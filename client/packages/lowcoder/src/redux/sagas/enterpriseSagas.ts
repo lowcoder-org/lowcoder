@@ -1,7 +1,10 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { ReduxAction, ReduxActionTypes } from "constants/reduxActionConstants";
-import { setEnterpriseLicense } from "redux/reduxActions/enterpriseActions";
+import { setEnterpriseLicense, fetchEnvironmentsSuccess, fetchEnvironmentsFailure } from "redux/reduxActions/enterpriseActions";
 import { BrandingSettingResponse, EnterpriseLicenseResponse, FetchBrandingSettingPayload, getBranding, getEnterpriseLicense } from "api/enterpriseApi";
+import { getEnvironments } from "pages/setting/environments/services/environments.service";
+import { Environment } from "pages/setting/environments/types/environment.types";
+
 import { AxiosResponse } from 'axios';
 
 function* fetchEnterpriseLicenseSaga(): Generator<any, void, EnterpriseLicenseResponse> {
@@ -11,6 +14,16 @@ function* fetchEnterpriseLicenseSaga(): Generator<any, void, EnterpriseLicenseRe
     yield put(setEnterpriseLicense(data));
   } catch (error) {
     console.error('Failed to fetch enterprise license:', error);
+  }
+}
+
+function* fetchEnvironmentsSaga(): Generator<any, void, Environment[]> {
+  try {
+    const environments: Environment[] = yield call(getEnvironments);
+    yield put(fetchEnvironmentsSuccess(environments));
+  } catch (error) {
+    console.error('Failed to fetch environments:', error);
+    yield put(fetchEnvironmentsFailure(error as string));
   }
 }
 
@@ -45,4 +58,5 @@ function* fetchBrandingSettingSaga(action: ReduxAction<FetchBrandingSettingPaylo
 export default function* enterpriseSagas() {
   yield takeLatest(ReduxActionTypes.FETCH_ENTERPRISE_LICENSE, fetchEnterpriseLicenseSaga);
   yield takeLatest(ReduxActionTypes.FETCH_BRANDING_SETTING, fetchBrandingSettingSaga);
+  yield takeLatest(ReduxActionTypes.FETCH_ENVIRONMENTS, fetchEnvironmentsSaga);
 }

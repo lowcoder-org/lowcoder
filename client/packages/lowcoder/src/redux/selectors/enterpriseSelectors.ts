@@ -1,5 +1,6 @@
 import { AppState } from "../reducers";
 
+
 export const selectEnterpriseEditionStatus = (state: AppState) =>
   state.ui.enterprise?.enterprise?.eeActive ?? false;
 
@@ -25,3 +26,6 @@ export const getGlobalBrandingSetting = (state: AppState) => {
 export const getWorkspaceBrandingSetting = (state: AppState) => {
   return state.ui.enterprise?.workspaceBranding;
 }
+// Environment selectors
+export const selectEnvironments = (state: AppState) => 
+  state.ui.enterprise?.environments ?? [];
