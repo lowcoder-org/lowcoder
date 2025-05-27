@@ -62,9 +62,16 @@ const EventTypeTimeChart = ({ data, eventTypeLabels, eventTypes, setDateRange }:
   }));
 
   const handleChartEvents = (params: any) => {
-    if (params.start !== undefined && params.end !== undefined) {
-      const startIndex = Math.floor((params.start / 100) * (fullDateRange.length - 1));
-      const endIndex = Math.floor((params.end / 100) * (fullDateRange.length - 1));
+    // const {start, end} = params.batch?.[0];
+    let {start, end} = params;
+    if (params?.batch) {
+      start = params.batch?.[0]?.start;
+      end = params.batch?.[0]?.end;
+    }
+    if (start !== undefined && end !== undefined) {
+      // debugger;
+      const startIndex = Math.floor((start / 100) * (fullDateRange.length - 1));
+      const endIndex = Math.floor((end / 100) * (fullDateRange.length - 1));
   
       const fromDate = new Date(fullDateRange[startIndex] || fullDateRange[0]); // Keep start of day
       const toDate = new Date(fullDateRange[endIndex] || fullDateRange[fullDateRange.length - 1]);

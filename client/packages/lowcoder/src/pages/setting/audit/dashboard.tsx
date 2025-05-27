@@ -221,10 +221,10 @@ export function AuditLogDashboard() {
     const endDate = dayjs(toTimestamp);
     form.setFieldsValue({ dateRange: [startDate, endDate] });
 
-    setPagination({ pageSize: 25, current: 1 });
+    // setPagination({ pageSize: 25, current: 1 });
     setAllLogs([]);
     setCurrentPageLogs([]);
-    fetchLogs(1, LOG_PAGE_SIZE, true);
+    fetchLogs(1, total, true);
   };
   
   // Debounce handler for input fields
@@ -477,6 +477,7 @@ export function AuditLogDashboard() {
                 <Divider />
                 <div style={{ overflowX: "auto", width: "100%" }}>
                 <Table
+                  rowKey="id"
                   columns={columns}
                   dataSource={currentPageLogs}
                   size="small" // Compact Layout
