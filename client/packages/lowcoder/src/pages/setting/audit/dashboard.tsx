@@ -24,6 +24,8 @@ import Statistics from "./components/statistics";
 
 const { RangePicker } = DatePicker;
 
+const LOG_PAGE_SIZE = 100;
+
 const AuditContent = styled.div`
   font-size: 14px;
   color: #8b8fa3;
@@ -134,7 +136,7 @@ export function AuditLogDashboard() {
     findUniqueDataIds();
   }, [allLogs]);
 
-  const getCleanedParams = (newPage?: number) => {
+  const getCleanedParams = (newPage?: number, newPageSize?: number) => {
     const formValues = form.getFieldsValue();
   
     let cleanedParams = Object.fromEntries(
@@ -147,7 +149,7 @@ export function AuditLogDashboard() {
     if (newPage) {
       cleanedParams = {
         ...cleanedParams,
-        pageSize: 100, // Always fetch 500 from API
+        pageSize: newPageSize || LOG_PAGE_SIZE, // Always fetch 500 from API
         pageNum: newPage, // API page number
       }
     }
@@ -176,8 +178,13 @@ export function AuditLogDashboard() {
   }
 
   // Fetch Logs with all form values if set
-  const fetchLogs = async (newPage: number, resetData: boolean = false) => {
-    const cleanedParams = getCleanedParams(newPage);
+  const fetchLogs = async (
+    newPage: number,
+    newPageSize: number = LOG_PAGE_SIZE,
+    resetData: boolean = false,
+    resetDataOnly: boolean = false,
+  ) => {
+    const cleanedParams = getCleanedParams(newPage, newPageSize);
 
     handleQueryParams(cleanedParams as any);
 
@@ -185,13 +192,15 @@ export function AuditLogDashboard() {
     try {
       const data = await getAuditLogs(cleanedParams);
       // fetch statistics only when page is 1
-      if (newPage === 1) {
+      if (newPage === 1 && !resetDataOnly) {
         fetchStatistics();
       }
 
       if (resetData) {
         setAllLogs(data.data || []);
         setPagination({ pageSize: 25, current: 1 }); // Reset pagination
+      } if (resetDataOnly) {
+        setAllLogs(data.data || []);
       } else {
         setAllLogs((prevLogs) => [...prevLogs, ...(data?.data || [])]);
       }
@@ -215,7 +224,7 @@ export function AuditLogDashboard() {
     setPagination({ pageSize: 25, current: 1 });
     setAllLogs([]);
     setCurrentPageLogs([]);
-    fetchLogs(1, true);
+    fetchLogs(1, LOG_PAGE_SIZE, true);
   };
   
   // Debounce handler for input fields
@@ -224,7 +233,7 @@ export function AuditLogDashboard() {
       setPagination({ pageSize: 25, current: 1 });
       setAllLogs([]); 
       setCurrentPageLogs([]); 
-      fetchLogs(1, true); 
+      fetchLogs(1, LOG_PAGE_SIZE, true);
     }, 300),
     []
   );
@@ -235,7 +244,7 @@ export function AuditLogDashboard() {
     setPagination({ pageSize: 25, current: 1 });
     setAllLogs([]);
     setCurrentPageLogs([]);
-    fetchLogs(1, true);
+    fetchLogs(1, LOG_PAGE_SIZE, true);
   };
   
   const handleDateChange = (dates: any) => {
@@ -254,7 +263,7 @@ export function AuditLogDashboard() {
     setCurrentPageLogs([]);
   
     // Ensure fetchLogs is called only ONCE
-    fetchLogs(1, true);
+    fetchLogs(1, LOG_PAGE_SIZE, true);
   };
   
   // Handle page change
@@ -273,8 +282,16 @@ export function AuditLogDashboard() {
       setCurrentPageLogs(allLogs.slice(startIndex, endIndex));
     } else if (allLogs.length < total) {
       // ✅ Fetch next set of logs and update state after fetch
-      const nextApiPage = Math.floor(allLogs.length / 100) + 1;
-      fetchLogs(nextApiPage).then(() => {
+      const originalNextApiPage = Math.floor((newPage * pageSize) / 100) + 1;
+      let nextApiPage = Math.floor(allLogs.length / 100) + 1;
+      let logPageSize = LOG_PAGE_SIZE;
+      let reset = false;
+      if (originalNextApiPage - pagination.current > 1) {
+        reset = true;
+        nextApiPage = 1;
+        logPageSize = newPage * pageSize; //(originalNextApiPage - pagination.current) * 100;
+      }
+      fetchLogs(nextApiPage, logPageSize, false, reset).then(() => {
         setCurrentPageLogs(allLogs.slice(startIndex, endIndex));
       });
     }
@@ -403,7 +420,7 @@ export function AuditLogDashboard() {
                   handleInputChange(); // Debounced input change
                 } else {
                   // Avoid calling fetchLogs if `handleDateChange` already did
-                  fetchLogs(1, true);
+                  fetchLogs(1, LOG_PAGE_SIZE, true);
                 }
               }}
             >
@@ -464,7 +481,7 @@ export function AuditLogDashboard() {
                   dataSource={currentPageLogs}
                   size="small" // Compact Layout
                   pagination={{
-                    pageSize: 25,
+                    pageSize: pagination.pageSize,
                     current: pagination.current,
                     total: total, 
                   }}
