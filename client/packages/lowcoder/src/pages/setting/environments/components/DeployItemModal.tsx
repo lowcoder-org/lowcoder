@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Form, Select, Checkbox, Button, Spin, Input, Tag, Space, Alert } from 'antd';
 import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
+import { useSelector } from 'react-redux';
+import { selectLicensedEnvironments, selectEnvironmentsLoading } from 'redux/selectors/enterpriseSelectors';
 import { Environment } from '../types/environment.types';
 import { DeployableItemConfig } from '../types/deployable-item.types';
-import { useEnvironmentContext } from '../context/EnvironmentContext';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { showFirstCredentialOverwriteConfirm, showSecondCredentialOverwriteConfirm } from './credentialConfirmations';
@@ -27,7 +28,8 @@ function DeployItemModal({
   onSuccess
 }: DeployItemModalProps) {
   const [form] = Form.useForm();
-  const { environments, isLoading } = useEnvironmentContext();
+  const licensedEnvironments = useSelector(selectLicensedEnvironments);
+  const isLoading = useSelector(selectEnvironmentsLoading);
   const [deploying, setDeploying] = useState(false);
   const [credentialConfirmationStep, setCredentialConfirmationStep] = useState(0); // 0: not started, 1: first confirmation, 2: confirmed
   
@@ -39,8 +41,8 @@ function DeployItemModal({
   }, [visible, form]);
   
   // Filter out source environment from target list
-  const targetEnvironments = environments.filter(
-    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId && env.isLicensed !== false
+  const targetEnvironments = licensedEnvironments.filter(
+    (env: Environment) => env.environmentId !== sourceEnvironment.environmentId
   );
   
   // Handle credential checkbox change with double confirmation
@@ -82,7 +84,7 @@ function DeployItemModal({
     
     try {
       const values = await form.validateFields();
-      const targetEnv = environments.find(env => env.environmentId === values.targetEnvId);
+      const targetEnv = licensedEnvironments.find(env => env.environmentId === values.targetEnvId);
       
       if (!targetEnv) {
         messageInstance.error('Target environment not found');

@@ -9,10 +9,11 @@ import React, {
   } from "react";
   import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
   import { useParams } from "react-router-dom";
+  import { useDispatch } from "react-redux";
+  import { fetchEnvironments } from "redux/reduxActions/enterpriseActions";
   import { getEnvironmentById, updateEnvironment } from "../services/environments.service";
   import { Environment } from "../types/environment.types";
-  import { useEnvironmentContext } from './EnvironmentContext';
-  
+
   interface SingleEnvironmentContextState {
     // Environment data
     environment: Environment | null;
@@ -53,8 +54,8 @@ import React, {
     const { envId } = useParams<{ envId: string }>();
     const environmentId = propEnvironmentId || envId;
     
-    // Access the environments context to refresh the list
-    const { refreshEnvironments } = useEnvironmentContext();
+    // Use Redux dispatch to refresh environments instead of context
+    const dispatch = useDispatch();
     
     // State for environment data
     const [environment, setEnvironment] = useState<Environment | null>(null);
@@ -103,10 +104,8 @@ import React, {
         messageInstance.success("Environment updated successfully");
         
         // Refresh both the single environment and environments list
-        await Promise.all([
-          fetchEnvironment(),  // Refresh the current environment
-          refreshEnvironments() // Refresh the environments list
-        ]);
+        await fetchEnvironment(); // Refresh the current environment
+        dispatch(fetchEnvironments()); // Refresh the environments list using Redux
         
         return updatedEnv;
       } catch (err) {
@@ -114,7 +113,7 @@ import React, {
         messageInstance.error(errorMessage);
         throw err;
       }
-    }, [environment, environmentId, fetchEnvironment, refreshEnvironments]);
+    }, [environment, environmentId, fetchEnvironment, dispatch]);
   
     // Load environment data when the component mounts or environmentId changes
     useEffect(() => {

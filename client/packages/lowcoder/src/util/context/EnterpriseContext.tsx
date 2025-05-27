@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchEnterpriseLicense } from 'redux/reduxActions/enterpriseActions';
+import { fetchEnterpriseLicense, fetchEnvironments } from 'redux/reduxActions/enterpriseActions';
 import { selectEnterpriseEditionStatus } from '@lowcoder-ee/redux/selectors/enterpriseSelectors';
 import { useDispatch, useSelector } from 'react-redux';
 import { isEEEnvironment } from "util/envUtils";
@@ -23,6 +23,7 @@ export const EnterpriseProvider: React.FC<ProviderProps> = ({ children }) => {
       if (isEEEnvironment()) {
         // Fetch the enterprise license only if we're in an EE environment
         dispatch(fetchEnterpriseLicense());
+        dispatch(fetchEnvironments());
       } else {
         // Set the state to false for non-EE environments
         // setEEActiveState(false);

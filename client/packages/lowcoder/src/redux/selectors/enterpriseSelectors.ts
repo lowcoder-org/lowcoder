@@ -1,5 +1,6 @@
 import { AppState } from "../reducers";
 
+
 export const selectEnterpriseEditionStatus = (state: AppState) =>
   state.ui.enterprise?.enterprise?.eeActive ?? false;
 
@@ -25,3 +26,23 @@ export const getGlobalBrandingSetting = (state: AppState) => {
 export const getWorkspaceBrandingSetting = (state: AppState) => {
   return state.ui.enterprise?.workspaceBranding;
 }
+// Environment selectors
+export const selectEnvironments = (state: AppState) => 
+  state.ui.enterprise?.environments ?? [];
+
+export const selectEnvironmentsLoading = (state: AppState) =>
+  state.ui.enterprise?.environmentsLoading ?? false;
+
+export const selectEnvironmentsError = (state: AppState) =>
+  state.ui.enterprise?.environmentsError ?? null;
+
+export const selectUnlicensedEnvironments = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.filter(env => env.isLicensed === false);
+};
+
+export const selectLicensedEnvironments = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.filter(env => env.isLicensed !== false); 
+};
+
