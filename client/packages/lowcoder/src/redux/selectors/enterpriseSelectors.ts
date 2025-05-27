@@ -35,3 +35,14 @@ export const selectEnvironmentsLoading = (state: AppState) =>
 
 export const selectEnvironmentsError = (state: AppState) =>
   state.ui.enterprise?.environmentsError ?? null;
+
+export const selectUnlicensedEnvironments = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.filter(env => env.isLicensed === false);
+};
+
+export const selectLicensedEnvironments = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.filter(env => env.isLicensed !== false); // licensed or unknown (default to licensed)
+};
+
