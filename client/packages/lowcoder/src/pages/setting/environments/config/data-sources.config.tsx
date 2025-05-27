@@ -16,6 +16,12 @@ export const dataSourcesConfig: DeployableItemConfig = {
         label: 'Update Dependencies If Needed',
         type: 'checkbox',
         defaultValue: false
+      },
+      {
+        name: 'deployCredential',
+        label: 'Overwrite Credentials',
+        type: 'checkbox',
+        defaultValue: false
       }
     ],
     prepareParams: (item: DataSource, values: any, sourceEnv: Environment, targetEnv: Environment) => {
@@ -24,7 +30,8 @@ export const dataSourcesConfig: DeployableItemConfig = {
         targetEnvId: targetEnv.environmentId,
         datasourceId: item.id,
         updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
-        datasourceGid: item.gid
+        datasourceGid: item.gid,
+        deployCredential: values.deployCredential ?? false
       };
     },
     execute: (params: any) => deployDataSource(params)

@@ -39,6 +39,12 @@ export const appsConfig: DeployableItemConfig = {
         label: 'Public To Marketplace',
         type: 'checkbox',
         defaultValue: false
+      },
+      {
+        name: 'deployCredential',
+        label: 'Overwrite Credentials',
+        type: 'checkbox',
+        defaultValue: false
       }
     ],
     prepareParams: (item: App, values: any, sourceEnv: Environment, targetEnv: Environment) => {
@@ -51,6 +57,7 @@ export const appsConfig: DeployableItemConfig = {
         publicToAll: values.publicToAll,
         publicToMarketplace: values.publicToMarketplace,
         applicationGid: item.applicationGid,
+        deployCredential: values.deployCredential ?? false
       };
     },
     execute: (params: any) => deployApp(params)

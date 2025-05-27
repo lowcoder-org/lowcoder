@@ -1,11 +1,13 @@
 // components/DeployItemModal.tsx
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Select, Checkbox, Button, Spin, Input, Tag, Space } from 'antd';
+import { Modal, Form, Select, Checkbox, Button, Spin, Input, Tag, Space, Alert } from 'antd';
 import { messageInstance } from 'lowcoder-design/src/components/GlobalInstances';
 import { Environment } from '../types/environment.types';
 import { DeployableItemConfig } from '../types/deployable-item.types';
 import { useEnvironmentContext } from '../context/EnvironmentContext';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { showFirstCredentialOverwriteConfirm, showSecondCredentialOverwriteConfirm } from './credentialConfirmations';
 
 interface DeployItemModalProps {
   visible: boolean;
@@ -27,10 +29,12 @@ function DeployItemModal({
   const [form] = Form.useForm();
   const { environments, isLoading } = useEnvironmentContext();
   const [deploying, setDeploying] = useState(false);
+  const [credentialConfirmationStep, setCredentialConfirmationStep] = useState(0); // 0: not started, 1: first confirmation, 2: confirmed
   
   useEffect(() => {
     if (visible) {
       form.resetFields();
+      setCredentialConfirmationStep(0);
     }
   }, [visible, form]);
   
@@ -39,6 +43,40 @@ function DeployItemModal({
     (env: Environment) => env.environmentId !== sourceEnvironment.environmentId && env.isLicensed !== false
   );
   
+  // Handle credential checkbox change with double confirmation
+  const handleCredentialCheckboxChange = (checked: boolean, fieldName: string) => {
+    if (!checked) {
+      // If unchecking, reset confirmation and update form
+      setCredentialConfirmationStep(0);
+      form.setFieldsValue({ [fieldName]: false });
+      return;
+    }
+
+    // First confirmation
+    if (credentialConfirmationStep === 0) {
+      showFirstCredentialOverwriteConfirm({
+        onOk: () => {
+          setCredentialConfirmationStep(1);
+          // Show second confirmation immediately
+          showSecondCredentialOverwriteConfirm({
+            onOk: () => {
+              setCredentialConfirmationStep(2);
+              form.setFieldsValue({ [fieldName]: true });
+            },
+            onCancel: () => {
+              setCredentialConfirmationStep(0);
+              form.setFieldsValue({ [fieldName]: false });
+            }
+          });
+        },
+        onCancel: () => {
+          setCredentialConfirmationStep(0);
+          form.setFieldsValue({ [fieldName]: false });
+        }
+      });
+    }
+  };
+
   const handleDeploy = async () => {
       if (!config.deploy || !item) return;
     
@@ -48,6 +86,12 @@ function DeployItemModal({
       
       if (!targetEnv) {
         messageInstance.error('Target environment not found');
+        return;
+      }
+
+      // Additional check for credential overwrite
+      if (values.deployCredential && credentialConfirmationStep !== 2) {
+        messageInstance.error('Please confirm credential overwrite before deploying');
         return;
       }
       
@@ -124,6 +168,8 @@ function DeployItemModal({
           {config.deploy?.fields.map(field => {
             switch (field.type) {
               case 'checkbox':
+                // Special handling for credential-related checkboxes
+                const isCredentialField = field.name === 'deployCredential';
                 return (
                   <Form.Item
                     key={field.name}
@@ -131,7 +177,27 @@ function DeployItemModal({
                     valuePropName="checked"
                     initialValue={field.defaultValue}
                   >
-                    <Checkbox>{field.label}</Checkbox>
+                    <Checkbox
+                      onChange={(e) => {
+                        if (isCredentialField) {
+                          handleCredentialCheckboxChange(e.target.checked, field.name);
+                        } else {
+                          // For non-credential checkboxes, handle normally
+                          form.setFieldsValue({ [field.name]: e.target.checked });
+                        }
+                      }}
+                    >
+                      {field.label}
+                      {isCredentialField && credentialConfirmationStep === 2 && (
+                        <Tag 
+                          color="red" 
+                          style={{ marginLeft: 8 }}
+                          icon={<ExclamationCircleOutlined />}
+                        >
+                          Confirmed
+                        </Tag>
+                      )}
+                    </Checkbox>
                   </Form.Item>
                 );
               case 'select':
@@ -168,7 +234,7 @@ function DeployItemModal({
                 return null;
             }
           })}
-          
+           
           <Form.Item>
             <Button type="default" onClick={onClose} style={{ marginRight: 8 }}>
               Cancel

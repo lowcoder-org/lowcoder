@@ -23,6 +23,7 @@ export interface DeployAppParams {
   publishOnTarget?: boolean;
   publicToAll?: boolean;
   publicToMarketplace?: boolean;
+  deployCredential: boolean;
 }
 
 
@@ -119,7 +120,8 @@ export const deployApp = async (params: DeployAppParams): Promise<boolean> => {
           updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
           publishOnTarget: params.publishOnTarget ?? false,
           publicToAll: params.publicToAll ?? false,
-          publicToMarketplace: params.publicToMarketplace ?? false
+          publicToMarketplace: params.publicToMarketplace ?? false,
+          deployCredential: params.deployCredential
         }
       }
     );
