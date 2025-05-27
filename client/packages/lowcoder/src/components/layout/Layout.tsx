@@ -12,6 +12,7 @@ import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 type LayoutProps = {
   sections: SideBarSectionProps[];
@@ -59,6 +60,7 @@ const DrawerContentWrapper = styled.div`
 export function Layout(props: LayoutProps) {
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const brandingSettings = useSelector(getBrandingSetting);
 
   const toggleDrawer = () => {
     setDrawerVisible(!drawerVisible);
@@ -124,7 +126,13 @@ export function Layout(props: LayoutProps) {
         destroyOnHidden // Ensure drawer content is removed when closed
       >
         <DrawerContentWrapper>
-          <SideBarV2 className={CNSidebar}>
+          <SideBarV2
+            className={CNSidebar}
+            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
+            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
+            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
+          >
             {mobileSections
               .filter((section) => section.items.length > 0)
               .map((section, index) => (
@@ -141,7 +149,13 @@ export function Layout(props: LayoutProps) {
       {/* Desktop Layout */}
       <AntdLayout>
         {!isMobile && (
-          <SideBarV2 className={`${CNSidebar} desktop-only`}>
+          <SideBarV2
+            className={`${CNSidebar} desktop-only`}
+            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
+            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
+            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
+          >
             {desktopSections
               .filter((section) => section.items.length > 0)
               .map((section, index) => (

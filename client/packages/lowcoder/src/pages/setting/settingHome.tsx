@@ -1,3 +1,9 @@
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
+import { Card, Button } from "antd";
+
 import { Organization } from "./organization";
 import PermissionSetting from "./permission";
 import { ThemeHome } from "./theme";
@@ -6,7 +12,7 @@ import { currentOrgAdmin } from "util/permissionUtils";
 import { trans } from "i18n";
 import { TwoColumnSettingPageContent } from "./styled";
 import SubSideBar from "components/layout/SubSideBar";
-import { 
+import {
   Menu,
   UserGroupIcon,
   UserShieldIcon,
@@ -17,26 +23,22 @@ import {
   EnvironmentsIcon,
   UsageStatisticsIcon,
   AutitLogsIcon,
-  BrandingIcon
+  BrandingIcon,
 } from "lowcoder-design";
-import { useSelector } from "react-redux";
-import { useEffect } from "react";
 import { getUser } from "redux/selectors/usersSelectors";
-import history from "util/history";
-import { useParams } from "react-router-dom";
-import { BrandingSetting } from "@lowcoder-ee/pages/setting/branding/BrandingSetting";
-import  Environments  from "@lowcoder-ee/pages/setting/environments/Environments";
+import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+import { selectSystemConfig } from "redux/selectors/configSelectors";
+import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+
+import FreeLimitTag from "pages/common/freeLimitTag";
+import { Branding } from "@lowcoder-ee/pages/setting/branding";
+import { Environments}  from "@lowcoder-ee/pages/setting/environments";
 import { AppUsage } from "@lowcoder-ee/pages/setting/appUsage";
 import { AuditLog } from "@lowcoder-ee/pages/setting/audit";
 import { IdSourceHome } from "@lowcoder-ee/pages/setting/idSource";
-import { selectSystemConfig } from "redux/selectors/configSelectors";
-// import { enableCustomBrand } from "util/featureFlagUtils";
-import FreeLimitTag from "pages/common/freeLimitTag";
-import { Helmet } from "react-helmet";
-import { Card } from "antd";
 import { Subscription } from "./subscriptions";
-import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
-
+import history from "util/history";
+import { HubspotModal } from "./hubspotModal";
 
 enum SettingPageEnum {
   Organization = "organization",
@@ -54,102 +56,98 @@ enum SettingPageEnum {
 export function SettingHome() {
   const user = useSelector(getUser);
   const config = useSelector(selectSystemConfig);
+  const isLicenseActive = useSelector(selectIsLicenseActive);
+  const deploymentId = useSelector(getDeploymentId); // Single deploymentId
   const selectKey = useParams<{ setting: string }>().setting || SettingPageEnum.UserGroups;
 
-  const isLicenseActive = useSelector(selectIsLicenseActive);
-  
+  const [hubspotVisible, setHubspotVisible] = useState(false);
+
   const items = [
     {
       key: SettingPageEnum.Organization,
       label: trans("settings.organization"),
-      icon: <WorkspacesIcon width={"20px"}/>,
+      icon: <WorkspacesIcon width={"20px"} />,
     },
     {
       key: SettingPageEnum.OAuthProvider,
-      label: (trans("settings.oauthProviders")),
+      label: trans("settings.oauthProviders"),
       disabled: !currentOrgAdmin(user),
-      icon: <UserShieldIcon width={"20px"}/>,
+      icon: <UserShieldIcon width={"20px"} />,
     },
     {
       key: SettingPageEnum.UserGroups,
       label: trans("settings.userGroups"),
-      icon: <UserGroupIcon width={"20px"}/>,
+      icon: <UserGroupIcon width={"20px"} />,
     },
     {
       key: SettingPageEnum.Theme,
       label: trans("settings.theme"),
-      icon: <ThemeIcon width={"20px"}/>,
+      icon: <ThemeIcon width={"20px"} />,
     },
     {
       key: SettingPageEnum.Advanced,
       label: trans("settings.advanced"),
-      icon: <LeftSettingIcon width={"20px"}/>,
+      icon: <LeftSettingIcon width={"20px"} />,
     },
-
-    // Premium features
-
     {
       key: SettingPageEnum.Environments,
       label: (
         <span>
           <span className="text">{trans("settings.environments")}</span>
-          {(!isLicenseActive && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          ))}
+          {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
       ),
-      icon: <EnvironmentsIcon width={"20px"}/>,
-      disabled: !isLicenseActive || !currentOrgAdmin(user),
+      icon: <EnvironmentsIcon width={"20px"} />,
+      disabled: !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.AppUsage,
       label: (
         <span>
           <span className="text">{trans("settings.appUsage")}</span>
-          {(!isLicenseActive && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          ))}
+          {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
       ),
-      icon: <UsageStatisticsIcon width={"20px"}/>,
-      disabled: !isLicenseActive || !currentOrgAdmin(user),
+      icon: <UsageStatisticsIcon width={"20px"} />,
+      disabled: !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.AuditLog,
       label: (
         <span>
           <span className="text">{trans("settings.audit")}</span>
-          {(!isLicenseActive && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          ))}
+          {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
       ),
-      icon: <AutitLogsIcon width={"20px"}/>,
-      disabled: !isLicenseActive || !currentOrgAdmin(user),
+      icon: <AutitLogsIcon width={"20px"} />,
+      disabled: !currentOrgAdmin(user),
     },
     {
       key: SettingPageEnum.Branding,
       label: (
         <span>
           <span className="text">{trans("settings.branding")}</span>
-          {(!isLicenseActive && (
-            <FreeLimitTag text={trans("settings.premium")} />
-          ))}
+          {!isLicenseActive && <FreeLimitTag text={trans("settings.premium")} />}
         </span>
       ),
-      icon: <BrandingIcon width={"20px"}/>,
-      disabled: !isLicenseActive || !currentOrgAdmin(user),
+      icon: <BrandingIcon width={"20px"} />,
+      disabled: !currentOrgAdmin(user),
     },
-    { 
+    {
       key: SettingPageEnum.Subscription,
       label: trans("settings.subscription"),
-      icon: <SubscriptionIcon width={"20px"}/>, 
-    }
+      icon: <SubscriptionIcon width={"20px"} />,
+    },
   ];
 
   return (
     <>
-      <Helmet>{<title>{trans("productName")} {trans("settings.title")}</title>}</Helmet>
+      <Helmet>
+        <title>
+          {trans("productName")} {trans("settings.title")}
+        </title>
+      </Helmet>
+
       <TwoColumnSettingPageContent>
         <SubSideBar title={trans("settings.title")}>
           <Menu
@@ -158,12 +156,20 @@ export function SettingHome() {
             selectedKeys={[selectKey]}
             onClick={(value) => {
               history.push("/setting/" + value.key);
-            } }
-            items={items} />
+            }}
+            items={items}
+          />
 
-          <Card style={{marginTop: "40px", color:"#aaa"}}>
-            <div>If you are interested in early access to the upcoming Enterprise Edition, please contact us: <a href="mailto:service@lowcoder.cloud">service@lowcoder.cloud</a></div>
-          </Card>
+          {!isLicenseActive && (
+            <Card style={{ marginTop: "40px", color: "#aaa" }}>
+              <div style={{ marginBottom: 12 }}>
+                {trans("enterprise.premiumFeaturesNotice")}
+              </div>
+              <Button type="primary" onClick={() => setHubspotVisible(true)}>
+                {trans("enterprise.requestLicensesBtton")}
+              </Button>
+            </Card>
+          )}
         </SubSideBar>
 
         {selectKey === SettingPageEnum.Organization && <Organization />}
@@ -174,10 +180,16 @@ export function SettingHome() {
         {selectKey === SettingPageEnum.Environments && <Environments />}
         {selectKey === SettingPageEnum.AppUsage && <AppUsage />}
         {selectKey === SettingPageEnum.AuditLog && <AuditLog />}
-        {selectKey === SettingPageEnum.Branding && <BrandingSetting />}
+        {selectKey === SettingPageEnum.Branding && <Branding />}
         {selectKey === SettingPageEnum.Subscription && <Subscription />}
-
       </TwoColumnSettingPageContent>
+
+      <HubspotModal
+        open={hubspotVisible}
+        onClose={() => setHubspotVisible(false)}
+        orgId={user.currentOrgId}
+        deploymentIds={[deploymentId]} // Pass current single ID as array
+      />
     </>
   );
 }

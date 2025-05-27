@@ -171,6 +171,7 @@ const SiderWrapper = styled.div<{
         height: 26px;
         width: 26px;
         padding: 5px;
+        color: ${props => props.$fontColor ? props.$fontColor : '#ffffffa6'};
       }
 
       &.ant-menu-item-selected,

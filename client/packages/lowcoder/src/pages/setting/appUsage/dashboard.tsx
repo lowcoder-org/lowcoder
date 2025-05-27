@@ -24,6 +24,7 @@ import DeviceOSBreakdownChart from "./charts/deviceOSBreakdown";
 import BrowserEngineBreakdownChart from "./charts/browserEngineBreakdown";
 import UserEngagementByRegionChart from "./charts/userEngagementByRegion";
 import { geoLocation } from "../audit/auditContants";
+import { Level1SettingPageTitle } from "../styled";
 
 const { RangePicker } = DatePicker;
 
@@ -361,10 +362,9 @@ export function AppUsageDashboard() {
   return (
     <DetailContainer>
       <Header>
-        <HeaderBack>
-          {/* <span>{trans("enterprise.AuditLogTitle")}</span> */}
+        <Level1SettingPageTitle style={{marginBottom: 0}}>
           <span>{"App Usage Logs"}</span>
-        </HeaderBack>
+        </Level1SettingPageTitle>
       </Header>
 
       <DetailContent>

@@ -2,184 +2,158 @@ import { AUDIT_LOG_DASHBOARD, AUDIT_LOG_DETAIL } from "@lowcoder-ee/constants/ro
 import { Route, Switch } from "react-router-dom";
 import { AuditLogDashboard } from "./dashboard";
 import { AuditLogDetail } from "./detail";
+import { useSelector } from "react-redux";
+import styled from "styled-components";
+import { Card, Divider, Typography, Row, Col, Image } from "antd";
+import { HelpText } from "components/HelpText";
+import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
+import { trans } from "i18n";
+import { selectIsLicenseActive } from "redux/selectors/enterpriseSelectors";
+// import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
+
+const { Title, Paragraph, Text } = Typography;
+
+const StyledSection = styled.div`
+  margin-bottom: 32px;
+
+  .ant-card {
+    border-radius: 8px;
+  }
+
+  .image-placeholder {
+    background: #f5f5f5;
+    border: 1px dashed #ccc;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 14px;
+  }
+`;
 
 export const AuditLog = () => {
-  return (
-    <Switch>
-      <Route path={AUDIT_LOG_DASHBOARD} component={AuditLogDashboard} exact />
-      <Route path={AUDIT_LOG_DETAIL} component={AuditLogDetail} exact />
-    </Switch>
-  );
+  const isLicenseActive = useSelector(selectIsLicenseActive);
+  return isLicenseActive ? <AuditLogRoutes /> : <Audit />;
 };
 
-/* 
-import { HelpText } from "components/HelpText";
-import { GreyTextColor } from "constants/style";
-import { lazy, useEffect, useState, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchCommonSettings } from "redux/reduxActions/commonSettingsActions";
-import { getCommonSettings } from "redux/selectors/commonSettingSelectors";
-import { fetchAPIUsageAction, fetchLastMonthAPIUsageAction } from "redux/reduxActions/orgActions";
-import { getUser } from "redux/selectors/usersSelectors";
-import { getOrgApiUsage, getOrgLastMonthApiUsage } from "redux/selectors/orgSelectors";
-import styled from "styled-components";
-import { useShallowEqualSelector } from "util/hooks";
-import { Level1SettingPageContent, Level1SettingPageTitle } from "../styled";
-import { fetchAllApplications } from "redux/reduxActions/applicationActions";
-import { trans } from "i18n";
-import { Location } from "history";
-import Divider from "antd/es/divider";
-import { CustomSelect, TacoButton } from "lowcoder-design";
-import { getDeploymentId } from "@lowcoder-ee/redux/selectors/configSelectors";
+const AuditLogRoutes = () => (
+  <Switch>
+    <Route path={AUDIT_LOG_DASHBOARD} component={AuditLogDashboard} exact />
+    <Route path={AUDIT_LOG_DETAIL} component={AuditLogDetail} exact />
+  </Switch>
+);
 
-const AdvancedSettingContent = styled.div`
-  max-width: 840px;
-
-  .section-title {
-    font-size: 14px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-
-  .section-content {
-    margin-bottom: 28px;
-  }
-
-  .section-option {
-    color: ${GreyTextColor};
-    margin-bottom: 14px;
-    font-size: 13px;
-  }
-
-  .code-editor {
-    margin-bottom: 12px;
-  }
-`;
-
-const SaveButton = styled(TacoButton)`
-  padding: 4px 8px;
-  min-width: 84px;
-  height: 32px;
-`;
-
-const CustomSelectStyle = styled(CustomSelect)`
-  .ant-select .ant-select-selector .ant-select-selection-item {
-    max-width: 230px;
-    display: block;
-  }
-`;
-
-const HubspotFormContainer = styled.div`
-  max-width: 100%;
-  width: 100%;
-  .hs-form {
-    max-width: 100% !important;
-  }
-`;
-
-let locationInfo: Location | Location<unknown> | null = null;
-
-declare global {
-  interface Window {
-    hbspt: {
-      forms: {
-        create: (options: {
-          region: string;
-          portalId: string;
-          formId: string;
-          target: string | HTMLElement | null;
-        }) => void;
-      };
-    };
-  }
-}
-
-export default function Audit() {
-  const dispatch = useDispatch();
-  const currentUser = useSelector(getUser);
-  const commonSettings = useShallowEqualSelector(getCommonSettings);
-  const [settings, setSettings] = useState(commonSettings);
-  const deploymentId = useSelector(getDeploymentId);
-
-
-  const apiUsage = useSelector(getOrgApiUsage);
-  useEffect(() => {
-    dispatch(fetchAPIUsageAction(currentUser.currentOrgId));
-  }, [currentUser.currentOrgId])
-
-  const lastMonthApiUsage = useSelector(getOrgLastMonthApiUsage);
-  useEffect(() => {
-    dispatch(fetchLastMonthAPIUsageAction(currentUser.currentOrgId));
-  }, [currentUser.currentOrgId])
-
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-    dispatch(fetchAllApplications({}));
-  }, [currentUser.currentOrgId, dispatch]);
-
-  useEffect(() => {
-    setSettings(commonSettings);
-  }, [commonSettings]);
-
-  useEffect(() => {
-    dispatch(fetchCommonSettings({ orgId: currentUser.currentOrgId }));
-  }, [currentUser.currentOrgId, dispatch]);
-
-  const formRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const scriptId = "hubspot-script";
-  
-    // Prevent re-adding the script
-    const existingScript = document.getElementById(scriptId) as HTMLScriptElement;
-  
-    const createForm = () => {
-      // Wait a tick to ensure #hubspot-form is in the DOM
-      setTimeout(() => {
-        if (window.hbspt && document.querySelector("#hubspot-form")) {
-          window.hbspt.forms.create({
-            region: "eu1",
-            portalId: "144574215",
-            formId: "f03697ad-62cf-4161-a3de-228a2db1180b",
-            target: "#hubspot-form"
-          });
-        }
-      }, 0);
-    };
-  
-    if (!existingScript) {
-      const script = document.createElement("script");
-      script.src = "https://js-eu1.hsforms.net/forms/embed/v2.js";
-      script.async = true;
-      script.defer = true;
-      script.id = scriptId;
-      script.onload = createForm;
-      document.body.appendChild(script);
-    } else {
-      if (window.hbspt) {
-        createForm();
-      } else {
-        existingScript.addEventListener("load", createForm);
-      }
-    }
-  }, []);
-  
-  
-
+const Audit = () => {
   return (
     <Level1SettingPageContent>
-      <Level1SettingPageTitle>{trans("advanced.title")}</Level1SettingPageTitle>
-      <AdvancedSettingContent>
-        <div className="section-title">{trans("advanced.defaultHomeTitle")}</div>
-        <HelpText style={{ marginBottom: 12 }}>{trans("advanced.defaultHomeHelp")}</HelpText>
-        <div className="section-content">
+      <Level1SettingPageTitle>{trans("enterprise.AuditLogsTitle")}</Level1SettingPageTitle>
+
+      <StyledSection>
+        <Card title={trans("enterprise.AuditLogsIntroTitle")}>
+          <Paragraph>{trans("enterprise.AuditLogsIntro1")}</Paragraph>
+          <Paragraph>{trans("enterprise.AuditLogsIntro2")}</Paragraph>
+          <Paragraph>{trans("enterprise.AuditLogsIntro3")}</Paragraph>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.AuditLogsEventsTitle")}>
+          <Paragraph>{trans("enterprise.AuditLogsEventsIntro")}</Paragraph>
+          <Row gutter={[16, 8]}>
+            <Col span={12}>
+              <ul>
+                <li>{trans("enterprise.SignIn")}</li>
+                <li>{trans("enterprise.Logout")}</li>
+                <li>{trans("enterprise.ViewApp")}</li>
+                <li>{trans("enterprise.CreateApp")}</li>
+                <li>{trans("enterprise.DeleteApp")}</li>
+                <li>{trans("enterprise.UpdateApp")}</li>
+                <li>{trans("enterprise.MoveToFolder")}</li>
+                <li>{trans("enterprise.MoveToTrash")}</li>
+                <li>{trans("enterprise.RestoreApp")}</li>
+                <li>{trans("enterprise.CreateFolder")}</li>
+                <li>{trans("enterprise.DeleteFolder")}</li>
+                <li>{trans("enterprise.UpdateFolder")}</li>
+                <li>{trans("enterprise.ExecuteDataQuery")}</li>
+              </ul>
+            </Col>
+            <Col span={12}>
+              <ul>
+                <li>{trans("enterprise.CreateUserGroup")}</li>
+                <li>{trans("enterprise.UpdateUserGroup")}</li>
+                <li>{trans("enterprise.DeleteUserGroup")}</li>
+                <li>{trans("enterprise.AddGroupMember")}</li>
+                <li>{trans("enterprise.UpdateGroupMemberRole")}</li>
+                <li>{trans("enterprise.LeaveUserGroup")}</li>
+                <li>{trans("enterprise.RemoveGroupMember")}</li>
+                <li>{trans("enterprise.ServerStartup")}</li>
+                <li>{trans("enterprise.CreateDataSource")}</li>
+                <li>{trans("enterprise.UpdateDataSource")}</li>
+                <li>{trans("enterprise.DeleteDataSource")}</li>
+                <li>{trans("enterprise.GrantUpdateDeletePermission")}</li>
+                <li>{trans("enterprise.LibraryQueryActions")}</li>
+                <li>{trans("enterprise.PublishLibraryQuery")}</li>
+              </ul>
+            </Col>
+          </Row>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.AuditLogsPreviewTitle")}>
+          <Row gutter={[24, 24]}>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder1")}</Text>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder2")}</Text>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div className="image-placeholder">
+                <Text type="secondary">{trans("enterprise.ScreenshotPlaceholder3")}</Text>
+              </div>
+            </Col>
+          </Row>
+        </Card>
+      </StyledSection>
+
+      <StyledSection>
+        <Card title={trans("enterprise.PricingTitle")}>
+          <Paragraph>{trans("enterprise.PricingIntro")}</Paragraph>
+
+          <Paragraph>
+            <Text strong>{trans("enterprise.FlatRateTitle")}</Text>
+            <br />
+            {trans("enterprise.FlatRateDesc")}
+          </Paragraph>
+          <ul>
+            <li>{trans("enterprise.FlatRatePoint1")}</li>
+            <li>{trans("enterprise.FlatRatePoint2")}</li>
+          </ul>
+
           <Divider />
-          <HubspotFormContainer>
-            <div id="hubspot-form" />
-          </HubspotFormContainer>
-        </div>
-      </AdvancedSettingContent>
+
+          <Paragraph>
+            <Text strong>{trans("enterprise.UsagePricingTitle")}</Text>
+            <br />
+            {trans("enterprise.UsagePricingDesc")}
+          </Paragraph>
+          <ul>
+            <li>{trans("enterprise.API100k")}</li>
+            <li>{trans("enterprise.API1M")}</li>
+            <li>{trans("enterprise.API10M")}</li>
+          </ul>
+
+          <Paragraph>{trans("enterprise.UsageOverrunDesc")}</Paragraph>
+          <Paragraph>{trans("enterprise.UsageTopUpInfo")}</Paragraph>
+        </Card>
+      </StyledSection>
     </Level1SettingPageContent>
   );
-}
-*/ 
+
+};

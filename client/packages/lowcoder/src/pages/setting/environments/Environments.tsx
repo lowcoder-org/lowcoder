@@ -8,7 +8,7 @@ import EnvironmentsList from "./EnvironmentsList";
  * Top-level Environments component
  * No longer needs the EnvironmentProvider since we use Redux
  */
-const Environments: React.FC = () => {
+const EnvironmentsSettings: React.FC = () => {
   const { path } = useRouteMatch();
   
   return (
@@ -26,4 +26,4 @@ const Environments: React.FC = () => {
   );
 };
 
-export default Environments;
+export default EnvironmentsSettings;
