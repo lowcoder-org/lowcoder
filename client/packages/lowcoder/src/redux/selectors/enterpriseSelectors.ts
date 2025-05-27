@@ -43,6 +43,6 @@ export const selectUnlicensedEnvironments = (state: AppState) => {
 
 export const selectLicensedEnvironments = (state: AppState) => {
   const environments = state.ui.enterprise?.environments ?? [];
-  return environments.filter(env => env.isLicensed !== false); // licensed or unknown (default to licensed)
+  return environments.filter(env => env.isLicensed !== false); 
 };
 

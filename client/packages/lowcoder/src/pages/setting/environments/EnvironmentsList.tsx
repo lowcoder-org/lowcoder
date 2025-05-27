@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Typography, Alert, Input, Button, Space, Empty, Card, Spin, Row, Col, Tooltip, Badge } from "antd";
 import { SearchOutlined,  CloudServerOutlined, SyncOutlined, PlusOutlined} from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
@@ -29,17 +29,12 @@ const EnvironmentsList: React.FC = () => {
   const [searchText, setSearchText] = useState("");
   const [isCreateModalVisible, setIsCreateModalVisible] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  
+
 
   // Hook for navigation
   const history = useHistory();
 
-  // Load environments on component mount
-  useEffect(() => {
-    // Only fetch if environments are not already loaded
-    if (environments.length === 0 && !isLoading) {
-      dispatch(fetchEnvironments());
-    }
-  }, [dispatch, environments.length, isLoading]);
 
   // Filter environments based on search text
   const filteredEnvironments = environments.filter((env) => {
