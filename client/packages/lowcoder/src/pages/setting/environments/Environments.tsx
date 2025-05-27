@@ -9,7 +9,7 @@ import EnvironmentsList from "./EnvironmentsList";
  * Top-level Environments component
  * Provides the EnvironmentProvider at the top level
  */
-const Environments: React.FC = () => {
+const EnvironmentsSettings: React.FC = () => {
   const { path } = useRouteMatch();
   
   return (
@@ -29,4 +29,4 @@ const Environments: React.FC = () => {
   );
 };
 
-export default Environments;
+export default EnvironmentsSettings;
