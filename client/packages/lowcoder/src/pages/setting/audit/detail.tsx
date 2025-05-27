@@ -14,6 +14,9 @@ import { getAuditLogs, getEnvironmentsByIds, getMeta } from "@lowcoder-ee/api/en
 import { isEmpty } from "lodash";
 import { getEventColor, getEventLabel } from "./dashboard";
 import Tag from "antd/es/tag";
+import { ArrowIcon } from "lowcoder-design";
+import history from "util/history";
+import { AUDIT_LOG_DASHBOARD } from "@lowcoder-ee/constants/routesURL";
 
 const StyleThemeSettingsCover = styled.div`
   display: flex;
@@ -249,6 +252,10 @@ export function AuditLogDetail() {
       <DetailContainer>
         <Header>
           <HeaderBack>
+            <span onClick={() => history.push(AUDIT_LOG_DASHBOARD)}>
+              {trans("enterprise.AuditLogTitle")}
+            </span>
+            <ArrowIcon />
             <span>{"Audit Log Detail"}</span>
           </HeaderBack>
         </Header>
@@ -263,6 +270,10 @@ export function AuditLogDetail() {
     <DetailContainer>
       <Header>
         <HeaderBack>
+          <span onClick={() => history.push(AUDIT_LOG_DASHBOARD)}>
+            {trans("enterprise.AuditLogTitle")}
+          </span>
+          <ArrowIcon />
           <span>{"Audit Log Detail"}</span>
         </HeaderBack>
       </Header>

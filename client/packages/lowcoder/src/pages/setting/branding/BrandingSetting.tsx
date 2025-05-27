@@ -23,6 +23,7 @@ import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@
 import Flex from "antd/es/flex";
 import Button from "antd/es/button";
 import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
+import { Level1SettingPageTitle } from "../styled";
 
 const { TextArea } = Input;
 
@@ -297,9 +298,9 @@ export function BrandingSetting() {
   return (
     <DetailContainer>
       <Header>
-        <HeaderBack>
+        <Level1SettingPageTitle style={{marginBottom: 0}}>
           <span>{trans("branding.title")}</span>
-        </HeaderBack>
+        </Level1SettingPageTitle>
       </Header>
       <DetailContent>
       

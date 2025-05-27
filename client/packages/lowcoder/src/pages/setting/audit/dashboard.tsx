@@ -21,6 +21,7 @@ import { SETTING_URL } from "@lowcoder-ee/constants/routesURL";
 import { EyeOutlined } from "@ant-design/icons";
 import { AuditLog, AuditLogStat, eventTypes } from "./auditContants";
 import Statistics from "./components/statistics";
+import { Level1SettingPageTitle } from "../styled";
 
 const { RangePicker } = DatePicker;
 
@@ -398,9 +399,9 @@ export function AuditLogDashboard() {
   return (
     <DetailContainer>
       <Header>
-        <HeaderBack>
+        <Level1SettingPageTitle style={{marginBottom: 0}}>
           <span>{trans("enterprise.AuditLogTitle")}</span>
-        </HeaderBack>
+        </Level1SettingPageTitle>
       </Header>
 
       <DetailContent>
