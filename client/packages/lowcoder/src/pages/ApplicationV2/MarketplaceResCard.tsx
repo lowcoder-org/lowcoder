@@ -155,9 +155,7 @@ export function MarketplaceResCard(props: { res: HomeRes; }) {
   return (
     <Wrapper>
       <Card>
-        {res.icon && typeof res.icon === 'string' && (
-          <MultiIconDisplay identifier={res.icon} width="30px" height="30px" style={{ marginRight: "6px", flexShrink: 0, color: "#b766db" }} />
-        )}
+        <MultiIconDisplay identifier={res.icon && typeof res.icon === 'string' ? res.icon : '/icon:antd/appstoreoutlined'} width="30px" height="30px" style={{ marginRight: "6px", flexShrink: 0, color: "#b766db" }} />
         <CardInfo
           onClick={(e) => {
             if(res.isMarketplace) {

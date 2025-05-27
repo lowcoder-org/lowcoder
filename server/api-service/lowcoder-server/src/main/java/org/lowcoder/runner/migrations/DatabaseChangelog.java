@@ -55,6 +55,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.lowcoder.api.authentication.util.AdvancedMapUtils.documentToMap;
 import static org.lowcoder.domain.util.QueryDslUtils.fieldName;
@@ -477,6 +478,28 @@ public class DatabaseChangelog {
             System.out.println("Collection " + oldCollectionName + " does not exist, skipping rename.");
         }
 
+    }
+
+    @ChangeSet(order = "031", id = "delete-old-super-admin", author = "Thomas")
+    public void deleteOldSuperAdmin(MongockTemplate mongoTemplate, MongoDatabase mongoDatabase) {
+        List<User> users = mongoTemplate.find(
+                Query.query(Criteria.where("superAdmin").is(true))
+                        .with(Sort.by(Sort.Direction.DESC, "createdAt")),
+                User.class
+        );
+
+        // Ensure there's more than one superAdmin user
+        if (users.size() > 1) {
+            // Keep the most recent one (first in the sorted list), delete the rest
+            List<ObjectId> userIdsToDelete = users.subList(1, users.size())
+                    .stream()
+                    .map(User::getId)
+                    .map(ObjectId::new)
+                    .collect(Collectors.toList());
+
+            Query deleteQuery = Query.query(Criteria.where("_id").in(userIdsToDelete));
+            mongoTemplate.remove(deleteQuery, User.class);
+        }
     }
 
     private void addGidField(MongockTemplate mongoTemplate, String collectionName) {
