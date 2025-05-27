@@ -12,7 +12,14 @@ export const workspaceConfig: DeployableItemConfig = {
   // Deploy configuration
   deploy: {
     singularLabel: 'Workspace',
-    fields: [],
+    fields: [
+      {
+        name: 'deployCredential',
+        label: 'Overwrite Credentials',
+        type: 'checkbox',
+        defaultValue: false
+      }
+    ],
     prepareParams: (item: Workspace, values: any, sourceEnv: Environment, targetEnv: Environment) => {
       if (!item.gid) {
         console.error('Missing workspace.gid when deploying workspace:', item);
@@ -22,7 +29,8 @@ export const workspaceConfig: DeployableItemConfig = {
       return {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
-        workspaceId: item.gid
+        workspaceId: item.gid,
+        deployCredential: values.deployCredential ?? false
       };
     },
     execute: (params: any) => deployWorkspace(params)

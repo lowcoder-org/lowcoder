@@ -84,6 +84,7 @@ export async function deployWorkspace(params: {
   envId: string;
   targetEnvId: string;
   workspaceId: string;
+  deployCredential: boolean; // Mandatory parameter
 }): Promise<boolean> {
   try {
     // Use the new endpoint format with only essential parameters
@@ -91,7 +92,8 @@ export async function deployWorkspace(params: {
       params: {
         orgGid: params.workspaceId, // Using workspaceId as orgGid
         envId: params.envId,
-        targetEnvId: params.targetEnvId
+        targetEnvId: params.targetEnvId,
+        deployCredential: params.deployCredential
       }
     });
 
