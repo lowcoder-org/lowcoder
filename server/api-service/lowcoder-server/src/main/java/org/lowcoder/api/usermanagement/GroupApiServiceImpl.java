@@ -118,7 +118,7 @@ public class GroupApiServiceImpl implements GroupApiService {
     private boolean hasReadPermission(Tuple2<GroupMember, OrgMember> tuple) {
         GroupMember groupMember = tuple.getT1();
         OrgMember orgMember = tuple.getT2();
-        return groupMember.isValid() || orgMember.isAdmin();
+        return orgMember.isSuperAdmin() || groupMember.isValid() || orgMember.isAdmin();
     }
 
     private boolean hasManagePermission(Tuple2<GroupMember, OrgMember> tuple) {

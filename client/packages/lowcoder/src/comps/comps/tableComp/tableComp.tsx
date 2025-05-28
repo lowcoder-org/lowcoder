@@ -692,6 +692,19 @@ TableTmpComp = withMethodExposing(TableTmpComp, [
   },
   {
     method: {
+      name: "selectAll",
+      description: "Select all rows in the current filtered view",
+      params: [],
+    },
+    execute: (comp) => {
+      const displayData = comp.filterData ?? [];
+      const allKeys = displayData.map((row) => row[OB_ROW_ORI_INDEX] + "");
+      comp.children.selection.children.selectedRowKey.dispatchChangeValueAction(allKeys[0] || "0");
+      comp.children.selection.children.selectedRowKeys.dispatchChangeValueAction(allKeys);
+    },
+  },  
+  {
+    method: {
       name: "cancelChanges",
       description: "",
       params: [],
