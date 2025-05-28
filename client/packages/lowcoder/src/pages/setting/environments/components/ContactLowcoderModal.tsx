@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Card, Row, Col, Typography, Divider, Spin, Alert } from 'antd';
 import { CustomerServiceOutlined, CloudServerOutlined } from '@ant-design/icons';
+import { useSelector } from 'react-redux';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentDeploymentId } from '../services/environments.service';
 import { HubspotModal } from '../../hubspotModal';
+import { getUser } from 'redux/selectors/usersSelectors';
 
 const { Title, Text } = Typography;
 
@@ -25,6 +27,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHubspotModal, setShowHubspotModal] = useState(false);
+  const user = useSelector(getUser);
 
   // Fetch deployment ID when modal opens
   useEffect(() => {
@@ -77,7 +80,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
       <HubspotModal
         open={showHubspotModal}
         onClose={handleHubspotClose}
-        orgId={environment.environmentId}
+        orgId={user.currentOrgId}
         deploymentIds={[deploymentId]}
       />
     );
