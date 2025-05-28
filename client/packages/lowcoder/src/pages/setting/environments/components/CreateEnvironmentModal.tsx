@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { Modal, Form, Input, Select, Switch, Button, Alert } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button, Alert, Tooltip } from 'antd';
+import { useSelector } from 'react-redux';
+import { selectMasterEnvironment, selectHasMasterEnvironment } from 'redux/selectors/enterpriseSelectors';
 import { Environment } from '../types/environment.types';
 
 const { Option } = Select;
@@ -19,6 +21,10 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+
+  // Redux selectors to check for existing master environment
+  const hasMasterEnvironment = useSelector(selectHasMasterEnvironment);
+  const masterEnvironment = useSelector(selectMasterEnvironment);
 
   const handleSubmit = async () => {
     try {
@@ -151,8 +157,22 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
           label="Master Environment"
           valuePropName="checked"
         >
-          <Switch />
+          <Tooltip 
+            title={hasMasterEnvironment ? `${masterEnvironment?.environmentName || 'Unknown'} is already the Master environment` : ""}
+          >
+            <Switch disabled={hasMasterEnvironment} />
+          </Tooltip>
         </Form.Item>
+
+        {hasMasterEnvironment && (
+          <Alert
+            message="Master Environment Already Exists"
+            description={`The environment "${masterEnvironment?.environmentName || 'Unknown'}" is already set as the Master environment. Only one Master environment is allowed.`}
+            type="warning"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+        )}
 
         <Alert
           message="License Information"
