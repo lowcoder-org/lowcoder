@@ -53,15 +53,11 @@ public class SharedPluginServices implements LowcoderServices
 		serverConfigRepository.upsert(key, value).block();
 	}
 
-//	@Override
-//	public Object getConfig(String key) {
-//		return serverConfigRepository.findByKey(key)
-//				.map(ServerConfig::getValue)
-//				.block();
-//	}
-
 	@Override
 	public Object getConfig(String key) {
-		return serverConfigRepository.findByKey(key).block();
+		return serverConfigRepository.findByKey(key)
+				.map(ServerConfig::getValue)
+				.block();
 	}
+
 }
