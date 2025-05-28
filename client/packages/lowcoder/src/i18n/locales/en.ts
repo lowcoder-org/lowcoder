@@ -3060,8 +3060,8 @@ export const en = {
     "colorFontSection": "Colors and Fonts",
     "mainBrandingColor": "Main Branding Color",
     "mainBrandingColorHelp": "Choose the primary color for your branding.",
-    "editorHeaderColor": "Editor Header Color",
-    "editorHeaderColorHelp": "Choose the color for the editor's header.",
+    "editorHeaderColor": "App Header Color",
+    "editorHeaderColorHelp": "Choose the color for the app's header.",
     "adminSidebarColor": "Admin Sidebar Color",
     "adminSidebarColorHelp": "Choose the color for the admin's sidebar.",
     "adminSidebarFontColor": "Admin Sidebar Font Color",
@@ -3114,7 +3114,8 @@ export const en = {
     "whatsNewLinkPlaceholder": "Enter the URL for your documentation...",
     "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news.",
     "deleteBranding": "Delete Branding",
-    "deleteBrandingContent": "Are you sure you want to delete \"{orgName}\" branding?"
+    "deleteBrandingContent": "Are you sure you want to delete \"{orgName}\" branding?",
+    "fetchBrandingError": "Something went wrong while fetching branding details. Please try again."
   },
   "networkMessage": {
     "200": "Success",

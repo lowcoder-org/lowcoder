@@ -29,6 +29,7 @@ const StyledErrorIcon = styled(ExclamationCircleFilled)`
 
 const StyledErrorText = styled.h2`
   margin: 1rem 0;
+  text-align: center;
 `;
 
 const DefaultErrorMessage = 'Something went wrong while displaying this webpage';
@@ -45,7 +46,7 @@ const ErrorFallback = (props: {
   }, [props.errorMessage, brandingSettings?.config_set?.errorPageText]);
   
   const errorImage = useMemo(() => {
-    const imageUrl = brandingSettings?.config_set?.signUpPageImage || '';
+    const imageUrl = brandingSettings?.config_set?.errorPageImage || '';
     if (Boolean(brandingSettings?.orgId)) {
       return buildMaterialPreviewURL(imageUrl);
     }
