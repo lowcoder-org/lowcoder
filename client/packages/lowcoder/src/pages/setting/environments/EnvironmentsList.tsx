@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Empty, Spin, Row, Col, Card } from "antd";
+import { Alert, Empty, Spin, Card } from "antd";
 import { SyncOutlined, CloudServerOutlined } from "@ant-design/icons";
 import { AddIcon, Search, TacoButton } from "lowcoder-design";
 import { useHistory } from "react-router-dom";
@@ -19,6 +19,7 @@ const EnvironmentsWrapper = styled.div`
   flex-direction: column;
   width: 100%;
   height: 100%;
+  min-width: 1000px;
 `;
 
 const HeaderWrapper = styled.div`
@@ -209,17 +210,17 @@ const EnvironmentsList: React.FC = () => {
         {/* Environment Type Statistics */}
         {!isLoading && environments.length > 0 && (
           <StatsWrapper>
-            <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
               {environmentStats.map(([type, count]) => (
-                <Col xs={24} sm={12} md={8} lg={6} key={type}>
+                <div key={type} style={{ minWidth: '200px', flex: '1' }}>
                   <StatCard 
                     title={type} 
                     value={count} 
                     color={getEnvironmentTagColor(type.toLowerCase())}
                   />
-                </Col>
+                </div>
               ))}
-            </Row>
+            </div>
           </StatsWrapper>
         )}
 
