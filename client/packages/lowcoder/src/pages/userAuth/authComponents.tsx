@@ -25,11 +25,12 @@ const StyledBrandingColumn = styled(Col)<{$bgImage?: string | null}>`
 `;
 
 const StyledBrandingText = styled(Typography.Title)`
-  font-size: 46px !important;
-  color: white !important;
+  font-size: 24px !important;
+  color: black !important;
   padding: 20px;
-  background: #0000001f;
-  border-radius: 18px;
+  background-color: rgb(234, 234, 234);
+  border-radius: 10px;
+  
   text-align: center;
 
   @media screen and (max-width: 640px) {
@@ -196,16 +197,21 @@ const BrandingWrapper = (props: {
   }
 
   return (
-    <Row style={{minHeight: '500px'}}>
-      <StyledBrandingColumn md={12} sm={24} $bgImage={brandingImage}>
-        <StyledBrandingText>
-          {brandingText}
-        </StyledBrandingText>
-      </StyledBrandingColumn>
-      <StyledRightColumn md={12} sm={24}>
-        {props.children}
-      </StyledRightColumn>
-    </Row>
+    <>
+      
+      <Row style={{ minHeight: '500px' }}>
+        <StyledBrandingColumn md={12} sm={24} $bgImage={brandingImage}>
+          {brandingText && ( 
+            <StyledBrandingText>
+              {brandingText}
+            </StyledBrandingText>
+          )}
+        </StyledBrandingColumn>
+        <StyledRightColumn md={12} sm={24}>
+          {props.children}
+        </StyledRightColumn>
+      </Row>
+    </>
   )
 }
 
