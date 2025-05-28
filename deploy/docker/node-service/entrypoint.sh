@@ -6,6 +6,9 @@ export USER_ID=${LOWCODER_PUID:=9001}
 export GROUP_ID=${LOWCODER_PGID:=9001}
 export API_HOST="${LOWCODER_API_SERVICE_URL:=http://localhost:8080}"
 
+#Require OpenTelemetry
+export NODE_OPTIONS="-r /lowcoder/node-service/app/otel.config.js"
+
 # Run init script
 echo "Initializing node-service..."
 /lowcoder/node-service/init.sh

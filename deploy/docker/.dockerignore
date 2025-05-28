@@ -1,0 +1,45 @@
+# Node.js dependencies
+node_modules
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs
+*.log
+
+# Build artifacts
+dist
+build
+*.tsbuildinfo
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker-related files
+.dockerignore
+Dockerfile*
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Test files
+coverage/
+*.test.js
+*.spec.js
+*.test.ts
+*.spec.ts
+jest.config.js

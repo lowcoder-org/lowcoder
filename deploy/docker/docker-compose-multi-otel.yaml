@@ -1,0 +1,228 @@
+name: lowcoder-ce
+
+services:
+
+  ##
+  ## Start services required for Lowcoder (MongoDB and Redis)
+  ##
+  mongodb:
+    image: "mongo:7.0"
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: lowcoder
+      MONGO_INITDB_ROOT_USERNAME: lowcoder
+      MONGO_INITDB_ROOT_PASSWORD: secret123
+    volumes:
+      - ./lowcoder-stacks/data/mongodb:/data/db
+    restart: unless-stopped
+    healthcheck: # https://github.com/rodrigobdz/docker-compose-healthchecks?tab=readme-ov-file#mongo
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "127.0.0.1/test",
+          "--eval",
+          "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 40s
+
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    restart: unless-stopped
+    healthcheck: # https://stackoverflow.com/a/71504657
+      test: ["CMD-SHELL", "redis-cli ping | grep PONG"]
+      interval: 1s
+      timeout: 3s
+      retries: 10
+
+
+  ##
+  ## Start Lowcoder backend services (api-service and node-service)
+  ##
+  lowcoder-api-service:
+    image: lowcoderorg/lowcoder-ce-api-service:latest
+    container_name: lowcoder-api-service
+    # Enabled ports to be able to access backend from host
+    # ports:
+    #   - "8080:8080"
+    environment:
+      LOWCODER_PUBLIC_URL: "http://localhost:3000/"
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
+      LOWCODER_MONGODB_URL: "mongodb://lowcoder:secret123@mongodb/lowcoder?authSource=admin"
+      LOWCODER_REDIS_URL: "redis://redis:6379"
+      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+      LOWCODER_MAX_QUERY_TIMEOUT: 120
+      LOWCODER_MAX_REQUEST_SIZE: 20m
+      LOWCODER_EMAIL_AUTH_ENABLED: "true"
+      LOWCODER_EMAIL_SIGNUP_ENABLED: "true"
+      LOWCODER_CREATE_WORKSPACE_ON_SIGNUP: "true"
+      #
+      # ! PLEASE CHANGE THESE TO SOMETHING UNIQUE !
+      # 
+      #    LOWCODER_DB_ENCRYPTION_PASSWORD and LOWCODER_DB_ENCRYPTION_SALT is used 
+      #    to encrypt sensitive data in database so it is important to change the defaults
+      #
+      LOWCODER_DB_ENCRYPTION_PASSWORD: "lowcoder.org"
+      LOWCODER_DB_ENCRYPTION_SALT: "lowcoder.org"
+      LOWCODER_CORS_DOMAINS: "*"
+      LOWCODER_MAX_ORGS_PER_USER: 100
+      LOWCODER_MAX_MEMBERS_PER_ORG: 1000
+      LOWCODER_MAX_GROUPS_PER_ORG: 100
+      LOWCODER_MAX_APPS_PER_ORG: 1000
+      LOWCODER_MAX_DEVELOPERS: 50
+      #
+      # API-KEY secret - should be a string of at least 32 random characters
+      #    - on linux/mac, generate one eg. with: head /dev/urandom | head -c 30 | shasum -a 256
+      #
+      LOWCODER_API_KEY_SECRET: "5a41b090758b39b226603177ef48d73ae9839dd458ccb7e66f7e7cc028d5a50b"
+      LOWCODER_PLUGINS_DIR: "../plugins"
+      LOWCODER_API_RATE_LIMIT: 50
+      LOWCODER_WORKSPACE_MODE: SAAS
+      LOWCODER_MARKETPLACE_PRIVATE_MODE: "true"
+      # Lowcoder notification emails setup
+      LOWCODER_ADMIN_SMTP_HOST: smtp.gmail.com
+      LOWCODER_ADMIN_SMTP_PORT: 587
+      LOWCODER_ADMIN_SMTP_USERNAME:
+      LOWCODER_ADMIN_SMTP_PASSWORD:
+      LOWCODER_ADMIN_SMTP_AUTH: "true"
+      LOWCODER_ADMIN_SMTP_SSL_ENABLED: "false"
+      LOWCODER_ADMIN_SMTP_STARTTLS_ENABLED: "true"
+      LOWCODER_ADMIN_SMTP_STARTTLS_REQUIRED: "true"
+      # Email used as sender in lost password email
+      LOWCODER_EMAIL_NOTIFICATIONS_SENDER: info@localhost
+      # Lowcoder superuser details
+      LOWCODER_SUPERUSER_USERNAME: admin@localhost
+      # If left blank, a password will be generated and written into api-service log
+      LOWCODER_SUPERUSER_PASSWORD:
+
+      ##
+      # OpenTelemetry Related Settings
+      # Set OTEL_JAVAAGENT_ENABLED=false
+      # to disable OpenTelemetry Java agent
+      ##
+
+      # OTEL_JAVAAGENT_ENABLED: "false"
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+      OTEL_SERVICE_NAME: "lowcoder-api-service"
+      OTEL_SERVICE_VERSION: "2.6.5"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+      
+
+    restart: unless-stopped
+    depends_on:
+      mongodb:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
+      otel-lgtm:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - ./lowcoder-stacks:/lowcoder-stacks
+      - ./lowcoder-stacks/assets:/lowcoder/assets
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://lowcoder-api-service:8080  | grep -c "Lowcoder API is up and runnig" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
+
+
+  lowcoder-node-service:
+    image: lowcoderorg/lowcoder-ce-node-service:latest
+    container_name: lowcoder-node-service
+    # Enabled ports to be able to access backend from host
+    # ports:
+    #   - "6060:6060"
+    environment:
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
+      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+
+      ##
+      # OpenTelemetry Related Settings
+      #
+      # Uncomment OTEL_NODE_ENABLED_INSTRUMENTATIONS
+      # to disable OpenTelemetry Node agent
+      ##
+      # OTEL_NODE_ENABLED_INSTRUMENTATIONS=""
+      OTEL_RESOURCE_ATTRIBUTES: "deployment.environment=production"
+      OTEL_SERVICE_NAME: "lowcoder-node-service"
+      OTEL_SERVICE_VERSION: "2.6.5"
+      OTEL_EXPORTER_OTLP_PROTOCOL: "grpc"
+      OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-lgtm:4317"
+      OTEL_TRACES_EXPORTER: "otlp"
+      OTEL_METRICS_EXPORTER: "otlp"
+      OTEL_LOGS_EXPORTER: "otlp"
+
+    restart: unless-stopped
+    depends_on:
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    healthcheck: #https://stackoverflow.com/questions/71101967/how-should-i-use-grep-in-docker-compose-healthcheck
+      test: curl -sS http://lowcoder-node-service:6060  | grep -c "Lowcoder Node Service is up and running" > /dev/null
+      interval: 3s
+      timeout: 5s
+      retries: 10
+  
+  ##
+  ## Start Lowcoder web frontend
+  ##
+  lowcoder-frontend:
+    image: lowcoderorg/lowcoder-ce-frontend:latest
+    container_name: lowcoder-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      LOWCODER_PUID: "9001"
+      LOWCODER_PGID: "9001"
+      LOWCODER_MAX_REQUEST_SIZE: 20m
+      LOWCODER_MAX_QUERY_TIMEOUT: 120
+      LOWCODER_API_SERVICE_URL: "http://lowcoder-api-service:8080"
+      LOWCODER_NODE_SERVICE_URL: "http://lowcoder-node-service:6060"
+    restart: unless-stopped
+    depends_on:
+      lowcoder-node-service:
+        condition: service_healthy
+        restart: true
+      lowcoder-api-service:
+        condition: service_healthy
+        restart: true
+    volumes:
+      - ./lowcoder-stacks/assets:/lowcoder/assets
+    healthcheck:
+      test: curl --fail http://lowcoder-frontend:3000 || exit 1
+      interval: 5s
+      retries: 10
+      start_period: 10s
+      timeout: 10s
+  otel-lgtm:
+    image: grafana/otel-lgtm:latest
+    container_name: otel-lgtm
+    ports:
+      - "3001:3000"   # Grafana UI
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver
+      - "9090:9090"   # Prometheus / Mimir
+      - "3100:3100"   # Loki
+      - "3200:3200"   # Tempo
+    volumes:
+      - ./otel-lgtm-data:/data # Persistent storage for Grafana, Loki, Tempo, Mimir
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/api/health"] # Check Grafana UI health
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s # Give it some time to start up initially  
