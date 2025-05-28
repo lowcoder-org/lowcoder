@@ -1,6 +1,6 @@
 import { HelpText } from "components/HelpText";
 import { Upload, Switch, Card, Input, message, Divider } from "antd";
-import { TacoButton, CustomSelect, messageInstance, Dropdown, ResetIcon } from "lowcoder-design";
+import { TacoButton, CustomSelect, messageInstance, Dropdown, ResetIcon, CustomModal } from "lowcoder-design";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -21,7 +21,6 @@ import { getUser } from "@lowcoder-ee/redux/selectors/usersSelectors";
 import { Org } from "@lowcoder-ee/constants/orgConstants";
 import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@lowcoder-ee/api/enterpriseApi";
 import Flex from "antd/es/flex";
-import Button from "antd/es/button";
 import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
 import { Level1SettingPageTitle } from "../styled";
 
@@ -184,6 +183,7 @@ const beforeUpload = (file: RcFile) => {
 export function BrandingSetting() {
   const dispatch = useDispatch();
   const [configOrgId, setConfigOrgId] = useState<string>('');
+  const [configOrgName, setConfigOrgName] = useState<string | undefined>('Global');
   const [settings, setSettings] = useState<BrandingSettings>(defaultSettings);
   const [brandingConfig, setBrandingConfig] = useState<BrandingConfig>();
   const [defaultBrandingConfig, setDefaultBrandingConfig] = useState<BrandingConfig>();
@@ -273,7 +273,7 @@ export function BrandingSetting() {
     }
   }
 
-  const handleSave = async () => {
+  const handleSave = async (brandingConfig?: BrandingConfig) => {
     try {
       await createBranding({
         ...brandingConfig,
@@ -286,6 +286,26 @@ export function BrandingSetting() {
     } catch (e) {
       console.error(e)
     }
+  }
+
+  const handleDelete = (id: string) => {
+    CustomModal.confirm({
+      title: trans("branding.deleteBranding"),
+      content: trans("branding.deleteBrandingContent", {orgName: configOrgName}),
+      onConfirm: () => {
+        const newBrandingConfig = {
+          ...brandingConfig,
+          config_name: '',
+          config_description: '',
+          config_icon: '',
+          config_set: {},
+        }
+        setBrandingConfig(newBrandingConfig);
+        handleSave(newBrandingConfig);
+      },
+      confirmBtnType: "delete",
+      okText: trans("delete"),
+    })
   }
 
   const uploadButton = (loading: boolean) => (
@@ -319,6 +339,7 @@ export function BrandingSetting() {
                 allowClear
                 onChange={(value) => {
                   setConfigOrgId(value);
+                  setConfigOrgName(orgsList.find(org => org.value === value)?.label)
                 }}
                 value={configOrgId}
               />
@@ -757,6 +778,13 @@ export function BrandingSetting() {
         
         <Flex gap={10} style={{ marginTop: 20 }}>
           <TacoButton
+            buttonType="delete"
+            disabled={!Boolean(brandingConfig?.id)}
+            onClick={() => handleDelete(brandingConfig?.id!)}
+          >
+            {trans("delete")}
+          </TacoButton>
+          <TacoButton
             buttonType="normal"
             icon={<ResetIcon />}
             disabled={isBrandingNotChange()}
@@ -767,7 +795,7 @@ export function BrandingSetting() {
           <TacoButton
             buttonType="primary"
             disabled={isBrandingNotChange()}
-            onClick={handleSave}
+            onClick={() => handleSave(brandingConfig)}
           >
             {trans("branding.saveButton")}
           </TacoButton>
