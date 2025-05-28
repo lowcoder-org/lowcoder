@@ -11,6 +11,7 @@ import { getUser } from "../../redux/selectors/usersSelectors";
 import { normalAppListSelector } from "../../redux/selectors/applicationSelector";
 import { useLocation } from "react-router-dom";
 import history from "../../util/history";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 const defaultOnSelectedFn = (routePath: string, currentPath: string) => routePath === currentPath;
 
@@ -23,6 +24,7 @@ const Wrapper = styled.div`
 export const SideBarSection = (props: SideBarSectionProps) => {
   const user = useSelector<AppState, User>(getUser);
   const applications = useSelector<AppState, ApplicationMeta[]>(normalAppListSelector);
+  const brandingSettings = useSelector(getBrandingSetting);
   const currentPath = useLocation().pathname;
   const isShow = props.items
     .map((item) => (item.visible ? item.visible({ user: user, applications: applications }) : true))
@@ -45,6 +47,8 @@ export const SideBarSection = (props: SideBarSectionProps) => {
                   ? item.onSelected(item.routePath, currentPath)
                   : defaultOnSelectedFn(item.routePath, currentPath)
               }
+              selectedBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+              selectedFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
               onClick={() => {
                 // Trigger item's onClick if defined
                 item.onClick

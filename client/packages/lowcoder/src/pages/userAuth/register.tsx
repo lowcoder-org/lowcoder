@@ -28,6 +28,7 @@ import LoadingOutlined from "@ant-design/icons/LoadingOutlined";
 import Spin from "antd/es/spin";
 import { useDispatch, useSelector } from "react-redux";
 import { getServerSettings } from "@lowcoder-ee/redux/selectors/applicationSelector";
+import { useEnterpriseContext } from "@lowcoder-ee/util/context/EnterpriseContext";
 import { fetchConfigAction } from "@lowcoder-ee/redux/reduxActions/configActions";
 import { fetchOrgPaginationByEmail } from "@lowcoder-ee/util/pagination/axios";
 
@@ -62,6 +63,7 @@ function UserRegister() {
   const redirectUrl = useRedirectUrl();
   const serverSettings = useSelector(getServerSettings);
   const { systemConfig, inviteInfo, fetchUserAfterAuthSuccess } = useContext(AuthContext);
+  const { isEnterpriseActive } = useEnterpriseContext();
   const invitationId = inviteInfo?.invitationId;
   const isFormLoginEnabled = systemConfig ? systemConfig?.form.enableLogin : true;
   const authId = systemConfig?.form.id;
@@ -134,7 +136,8 @@ function UserRegister() {
   }, [serverSettings]);
   
   const afterLoginSuccess = () => {
-    if (organizationId) {
+    // used invitation link or organization login url then set cookie
+    if (organizationId && !isEnterpriseMode) {
       localStorage.setItem("lowcoder_login_orgId", organizationId);
     }
     fetchUserAfterAuthSuccess?.();
@@ -157,7 +160,7 @@ function UserRegister() {
   );
 
   const checkEmailExist = () => {
-    if (!Boolean(account.length) || lastEmailChecked === account) return;
+    if (!Boolean(account.length) || lastEmailChecked === account || isEnterpriseMode) return;
 
     setOrgLoading(true);
     OrgApi.fetchOrgsByEmail(account)
@@ -188,6 +191,7 @@ function UserRegister() {
         heading={registerHeading}
         subHeading={registerSubHeading}
         type="large"
+        isEE={isEnterpriseActive}
       >
         <RegisterContent>
           { isEmailLoginEnabled && (

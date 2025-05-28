@@ -275,7 +275,8 @@ public class ApplicationController implements ApplicationEndpoints {
             @RequestBody ApplicationPublicToAllRequest request) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.setApplicationPublicToAll(appId, request.publicToAll())
-                    .delayUntil(__ -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToAll"))
+                    .delayUntil(__ -> applicationApiService.getApplicationPermissions(appId)
+                            .flatMap(applicationPermissionView -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToAll", applicationPermissionView)))
                 .map(ResponseView::success));
     }
 
@@ -284,7 +285,8 @@ public class ApplicationController implements ApplicationEndpoints {
                                                                          @RequestBody ApplicationPublicToMarketplaceRequest request) {
         return gidService.convertApplicationIdToObjectId(applicationId).flatMap(appId ->
             applicationApiService.setApplicationPublicToMarketplace(appId, request)
-                    .delayUntil(__ -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToMarketplace"))
+                    .delayUntil(__ -> applicationApiService.getApplicationPermissions(appId)
+                            .flatMap(applicationPermissionView -> businessEventPublisher.publishApplicationSharingEvent(applicationId, "PublicToMarketplace", applicationPermissionView)))
                 .map(ResponseView::success));
     }
 

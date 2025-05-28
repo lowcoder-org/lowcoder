@@ -27,6 +27,7 @@ public class BundleInfoView {
     private final Long createAt;
     private final String createBy;
     private final String folderId;
+    private final String folderIdFrom;
     private final Boolean publicToAll;
     private final Boolean publicToMarketplace;
     private final Boolean agencyProfile;

@@ -131,7 +131,7 @@ export function HeaderStartDropdown(props: { setEdit: () => void, isViewMarketpl
         placement="bottomLeft"
         trigger={["click"]}
         disabled={showAppSnapshot}
-        dropdownRender={() => (
+        popupRender={() => (
           <DropdownMenuStyled
             style={{ minWidth: "136px", maxWidth: "288px", borderRadius: "4px" }}
             onClick={(e) => {

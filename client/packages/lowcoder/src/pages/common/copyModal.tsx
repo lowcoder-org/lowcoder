@@ -38,7 +38,7 @@ export function CopyModal(props: CopyModalProps) {
       title={trans("home.copyModalTitle", {name: appName})}
       open={visible}
       okButtonProps={{ disabled: !copyName }}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       onCancel={close}
       showCancelButton
       showOkButton

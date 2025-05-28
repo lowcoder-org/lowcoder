@@ -9,15 +9,23 @@ import SideBar from "components/layout/SideBar";
 import { CNMainContent, CNSidebar } from "constants/styleSelectors";
 import { SideBarSection, SideBarSectionProps } from "./SideBarSection";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
 import { MenuOutlined } from "@ant-design/icons";
 import { Drawer, Button } from "antd";
+import { getBrandingSetting } from "@lowcoder-ee/redux/selectors/enterpriseSelectors";
 
 type LayoutProps = {
   sections: SideBarSectionProps[];
 };
 
-const SideBarV2 = styled(SideBar)`
-  background: #f7f9fc !important;
+const SideBarV2 = styled(SideBar)<{
+  $bgColor?: string,
+  $fontColor?: string,
+  $activeBgColor?: string,
+  $activeFontColor?: string,
+}>`
+  background: ${props => props.$bgColor ? props.$bgColor : '#f7f9fc'} !important;
+  ${props => props.$fontColor && `color: ${props.$fontColor}`};
   padding: 28px 10px;
   border-right: 1px solid #ebebeb;
 
@@ -50,9 +58,9 @@ const DrawerContentWrapper = styled.div`
 `;
 
 export function Layout(props: LayoutProps) {
-
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const brandingSettings = useSelector(getBrandingSetting);
 
   const toggleDrawer = () => {
     setDrawerVisible(!drawerVisible);
@@ -115,10 +123,16 @@ export function Layout(props: LayoutProps) {
         styles={{
           body: { padding: "0px" }
         }}
-        destroyOnClose // Ensure drawer content is removed when closed
+        destroyOnHidden // Ensure drawer content is removed when closed
       >
         <DrawerContentWrapper>
-          <SideBarV2 className={CNSidebar}>
+          <SideBarV2
+            className={CNSidebar}
+            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
+            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
+            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
+          >
             {mobileSections
               .filter((section) => section.items.length > 0)
               .map((section, index) => (
@@ -135,7 +149,13 @@ export function Layout(props: LayoutProps) {
       {/* Desktop Layout */}
       <AntdLayout>
         {!isMobile && (
-          <SideBarV2 className={`${CNSidebar} desktop-only`}>
+          <SideBarV2
+            className={`${CNSidebar} desktop-only`}
+            $bgColor={brandingSettings?.config_set?.adminSidebarColor}
+            $fontColor={brandingSettings?.config_set?.adminSidebarFontColor}
+            $activeBgColor={brandingSettings?.config_set?.adminSidebarActiveBgColor}
+            $activeFontColor={brandingSettings?.config_set?.adminSidebarActiveFontColor}
+          >
             {desktopSections
               .filter((section) => section.items.length > 0)
               .map((section, index) => (

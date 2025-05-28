@@ -7,8 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.lowcoder.api.application.view.ApplicationInfoView;
+import org.lowcoder.api.application.view.ApplicationPermissionView;
 import org.lowcoder.api.application.view.ApplicationPublishRequest;
 import org.lowcoder.api.application.view.ApplicationView;
+import org.lowcoder.api.bundle.view.BundleInfoView;
 import org.lowcoder.api.home.SessionUserService;
 import org.lowcoder.api.permission.view.CommonPermissionView;
 import org.lowcoder.api.usermanagement.view.AddMemberRequest;
@@ -253,7 +255,7 @@ public class BusinessEventPublisher {
     }
     
 
-    public Mono<Void> publishApplicationSharingEvent(String applicationId, String shareType) {
+    public Mono<Void> publishApplicationSharingEvent(String applicationId, String shareType, ApplicationPermissionView applicationPermissionView) {
         return sessionUserService.isAnonymousUser()
                 .flatMap(anonymous -> {
                     if (anonymous) {
@@ -280,6 +282,7 @@ public class BusinessEventPublisher {
                                         .applicationCategory(category)
                                         .applicationDescription(description)
                                         .type(EventType.APPLICATION_SHARING_CHANGE)
+                                        .sharingDetails(applicationPermissionView)
                                         .shareType(shareType)
                                         .isAnonymous(anonymous)
                                         .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
@@ -391,6 +394,76 @@ public class BusinessEventPublisher {
                 });
     }
     
+
+    public Mono<Void> publishBundleCommonEvent(BundleInfoView bundleInfoView, EventType eventType) {
+        return sessionUserService.isAnonymousUser()
+                .flatMap(anonymous -> {
+                    if (anonymous) {
+                        return Mono.empty();
+                    }
+                    return sessionUserService.getVisitorOrgMemberCache()
+                            .zipWith(Mono.defer(() -> {
+                                String folderId = bundleInfoView.getFolderId();
+                                if (StringUtils.isBlank(folderId)) {
+                                    return Mono.just(Optional.<Folder> empty());
+                                }
+                                return folderService.findById(folderId)
+                                        .map(Optional::of)
+                                        .onErrorReturn(Optional.empty());
+                            }))
+                            .zipWith(Mono.defer(() -> {
+                                String folderId = bundleInfoView.getFolderIdFrom();
+                                if (StringUtils.isBlank(folderId)) {
+                                    return Mono.just(Optional.<Folder> empty());
+                                }
+                                return folderService.findById(folderId)
+                                        .map(Optional::of)
+                                        .onErrorReturn(Optional.empty());
+                            }), TupleUtils::merge)
+                            .zipWith(sessionUserService.getVisitorToken())
+                            .flatMap(tuple -> {
+                                OrgMember orgMember = tuple.getT1().getT1();
+                                Optional<Folder> optional = tuple.getT1().getT2();
+                                Optional<Folder> optionalFrom = tuple.getT1().getT3();
+                                String token = tuple.getT2();
+                                ApplicationCommonEvent event = ApplicationCommonEvent.builder()
+                                        .orgId(orgMember.getOrgId())
+                                        .userId(orgMember.getUserId())
+                                        .applicationId(bundleInfoView.getBundleId())
+                                        .applicationGid(bundleInfoView.getBundleGid())
+                                        .applicationName(bundleInfoView.getName())
+                                        .type(eventType)
+                                        .folderId(optional.map(Folder::getId).orElse(null))
+                                        .folderName(optional.map(Folder::getName).orElse(null))
+                                        .oldFolderId(optionalFrom.map(Folder::getId).orElse(null))
+                                        .oldFolderName(optionalFrom.map(Folder::getName).orElse(null))
+                                        .isAnonymous(anonymous)
+                                        .sessionHash(Hashing.sha512().hashString(token, StandardCharsets.UTF_8).toString())
+                                        .build();
+                                return Mono.deferContextual(contextView -> {
+                                    event.populateDetails(contextView);
+                                    applicationEventPublisher.publishEvent(event);
+                                    return Mono.empty();
+                                }).then();
+                            })
+                            .then()
+                            .onErrorResume(throwable -> {
+                                log.error("publishBundleCommonEvent error. {}, {}", bundleInfoView, eventType, throwable);
+                                return Mono.empty();
+                            });
+                });
+    }
+
+    public Mono<Void> publishBundleCommonEvent(String bundleId, @Nullable String folderIdFrom, @Nullable String folderIdTo, EventType eventType) {
+        return applicationService.findByIdWithoutDsl(bundleId)
+                .map(application -> BundleInfoView.builder()
+                        .bundleId(bundleId)
+                        .name(application.getName())
+                        .folderId(folderIdTo)
+                        .folderIdFrom(folderIdFrom)
+                        .build())
+                .flatMap(bundleInfoView -> publishBundleCommonEvent(bundleInfoView, eventType));
+    }
 
     public Mono<Void> publishUserLoginEvent(String source) {
         return sessionUserService.getVisitorOrgMember().zipWith(sessionUserService.getVisitorToken())
