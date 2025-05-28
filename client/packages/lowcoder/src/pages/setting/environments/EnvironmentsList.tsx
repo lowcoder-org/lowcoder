@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Empty, Spin } from "antd";
-import { SyncOutlined } from "@ant-design/icons";
+import { Alert, Empty, Spin, Row, Col, Card } from "antd";
+import { SyncOutlined, CloudServerOutlined } from "@ant-design/icons";
 import { AddIcon, Search, TacoButton } from "lowcoder-design";
 import { useHistory } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -11,6 +11,7 @@ import EnvironmentsTable from "./components/EnvironmentsTable";
 import CreateEnvironmentModal from "./components/CreateEnvironmentModal";
 import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
 import { createEnvironment } from "./services/environments.service";
+import { getEnvironmentTagColor } from "./utils/environmentUtils";
 import styled from "styled-components";
 
 const EnvironmentsWrapper = styled.div`
@@ -54,6 +55,10 @@ const BodyWrapper = styled.div`
   padding: 0 24px;
 `;
 
+const StatsWrapper = styled.div`
+  margin-bottom: 20px;
+`;
+
 /**
  * Environment Listing Page Component
  * Displays a table of environments
@@ -72,6 +77,65 @@ const EnvironmentsList: React.FC = () => {
 
   // Hook for navigation
   const history = useHistory();
+
+  // Calculate environment type statistics
+  const environmentStats = React.useMemo(() => {
+    const stats = environments.reduce((acc, env) => {
+      const type = env.environmentType.toUpperCase();
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    // Sort by common environment types first
+    const typeOrder = ['PROD', 'PREPROD', 'TEST', 'DEV'];
+    const sortedStats = Object.entries(stats).sort(([a], [b]) => {
+      const aIndex = typeOrder.indexOf(a);
+      const bIndex = typeOrder.indexOf(b);
+      
+      if (aIndex !== -1 && bIndex !== -1) return aIndex - bIndex;
+      if (aIndex !== -1) return -1;
+      if (bIndex !== -1) return 1;
+      return a.localeCompare(b);
+    });
+
+    return sortedStats;
+  }, [environments]);
+
+  // Get icon for environment type
+  const getEnvironmentIcon = (type: string) => {
+    return <CloudServerOutlined />;
+  };
+
+  // Stat card component
+  const StatCard = ({ title, value, color }: { title: string; value: number; color: string }) => (
+    <Card 
+      style={{ 
+        height: '100%', 
+        borderRadius: '4px',
+        border: '1px solid #f0f0f0'
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div>
+          <div style={{ fontSize: '13px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '20px', fontWeight: 500 }}>{value}</div>
+        </div>
+        <div style={{ 
+          fontSize: '24px', 
+          opacity: 0.8, 
+          color: color,
+          padding: '8px',
+          backgroundColor: `${color}15`,
+          borderRadius: '4px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}>
+          {getEnvironmentIcon(title)}
+        </div>
+      </div>
+    </Card>
+  );
 
   // Filter environments based on search text
   const filteredEnvironments = environments.filter((env) => {
@@ -133,7 +197,6 @@ const EnvironmentsList: React.FC = () => {
           buttonType="normal" 
           icon={<SyncOutlined spin={isLoading} />}
           onClick={handleRefresh}
-          loading={isLoading}
         >
           Refresh
         </RefreshBtn>
@@ -143,6 +206,23 @@ const EnvironmentsList: React.FC = () => {
       </HeaderWrapper>
 
       <BodyWrapper>
+        {/* Environment Type Statistics */}
+        {!isLoading && environments.length > 0 && (
+          <StatsWrapper>
+            <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
+              {environmentStats.map(([type, count]) => (
+                <Col xs={24} sm={12} md={8} lg={6} key={type}>
+                  <StatCard 
+                    title={type} 
+                    value={count} 
+                    color={getEnvironmentTagColor(type.toLowerCase())}
+                  />
+                </Col>
+              ))}
+            </Row>
+          </StatsWrapper>
+        )}
+
         {/* Error handling */}
         {error && (
           <Alert

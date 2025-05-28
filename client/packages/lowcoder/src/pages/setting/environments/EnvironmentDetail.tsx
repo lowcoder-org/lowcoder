@@ -85,8 +85,8 @@ const EnvironmentDetail: React.FC = () => {
   
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '50px' }}>
-        <Spin size="large" tip="Loading environment..." style={{ display: 'block', textAlign: 'center' }} />
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
+        <Spin size="large" />
       </div>
     );
   }
@@ -151,19 +151,21 @@ const EnvironmentDetail: React.FC = () => {
         onEditClick={handleEditClick} 
       />
 
-   
-
-      {/* Basic Environment Information Card - improved responsiveness */}
+      {/* Basic Environment Information Card */}
       <Card
         title="Environment Overview"
-        style={{ marginBottom: "24px", borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}
+        style={{ 
+          marginBottom: "24px", 
+          borderRadius: '4px', 
+          border: '1px solid #f0f0f0'
+        }}
         className="environment-overview-card"
       >
         <Descriptions
           bordered
-          layout="vertical" // Change to vertical layout on smaller screens
+          layout="vertical"
           column={{ xxl: 4, xl: 3, lg: 3, md: 2, sm: 1, xs: 1 }}
-          size="small" // Use smaller size on mobile
+          size="small"
         >
           <Descriptions.Item label="Domain">
             {environment.environmentFrontendUrl ? (
@@ -181,7 +183,7 @@ const EnvironmentDetail: React.FC = () => {
           <Descriptions.Item label="Environment Type">
             <Tag
               color={getEnvironmentTagColor(environment.environmentType)}
-              style={{ borderRadius: '12px' }}
+              style={{ borderRadius: '4px' }}
             >
               {environment.environmentType}
             </Tag>
@@ -190,23 +192,23 @@ const EnvironmentDetail: React.FC = () => {
             {(() => {
               switch (environment.licenseStatus) {
                 case 'checking':
-                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '12px' }}>Checking...</Tag>;
+                  return <Tag icon={<SyncOutlined spin />} color="blue" style={{ borderRadius: '4px' }}>Checking...</Tag>;
                 case 'licensed':
-                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '12px' }}>Licensed</Tag>;
+                  return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '4px' }}>Licensed</Tag>;
                 case 'unlicensed':
-                  return <Tag icon={<CloseCircleOutlined />} color="red" style={{ borderRadius: '12px' }}>Not Licensed</Tag>;
+                  return <Tag icon={<CloseCircleOutlined />} color="red" style={{ borderRadius: '4px' }}>Not Licensed</Tag>;
                 case 'error':
-                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '12px' }}>License Error</Tag>;
+                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>License Error</Tag>;
                 default:
-                  return <Tag color="default" style={{ borderRadius: '12px' }}>Unknown</Tag>;
+                  return <Tag color="default" style={{ borderRadius: '4px' }}>Unknown</Tag>;
               }
             })()}
           </Descriptions.Item>
           <Descriptions.Item label="API Key Status">
             {environment.environmentApikey ? (
-              <Tag color="green" style={{ borderRadius: '12px' }}>Configured</Tag>
+              <Tag color="green" style={{ borderRadius: '4px' }}>Configured</Tag>
             ) : (
-              <Tag color="red" style={{ borderRadius: '12px' }}>Not Configured</Tag>
+              <Tag color="red" style={{ borderRadius: '4px' }}>Not Configured</Tag>
             )}
           </Descriptions.Item>
           <Descriptions.Item label="Master Environment">
@@ -217,13 +219,20 @@ const EnvironmentDetail: React.FC = () => {
 
       {/* Modern Breadcrumbs navigation */}
       <ModernBreadcrumbs items={breadcrumbItems} />
+      
       {/* Tabs for Workspaces and User Groups */}
       <Tabs 
         defaultActiveKey="workspaces"
         activeKey={activeTab}
         onChange={setActiveTab}
         className="modern-tabs"
-        type="card"
+        type="line"
+        style={{ 
+          background: '#fff', 
+          borderRadius: '4px', 
+          border: '1px solid #f0f0f0',
+          padding: '0'
+        }}
       >
         <TabPane 
           tab={
@@ -233,7 +242,6 @@ const EnvironmentDetail: React.FC = () => {
           } 
           key="workspaces"
         >
-          {/* Using our new standalone WorkspacesTab component */}
           <WorkspacesTab environment={environment} />
         </TabPane>
 
@@ -245,7 +253,6 @@ const EnvironmentDetail: React.FC = () => {
           }
           key="userGroups"
         >
-          {/* Now using our standalone UserGroupsTab component */}
           <UserGroupsTab environment={environment} />
         </TabPane>
       </Tabs>

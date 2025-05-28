@@ -44,7 +44,7 @@ const HeaderWrapper = styled.div`
 `;
 
 const GradientBanner = styled.div<{ avatarColor: string }>`
-  background: linear-gradient(135deg, ${props => props.avatarColor} 0%, #feb47b 100%);
+  background: linear-gradient(135deg, ${props => props.avatarColor} 0%, rgba(24, 144, 255, 0.8) 100%);
   height: 140px;
   position: relative;
   overflow: hidden;
@@ -77,7 +77,7 @@ const GradientBanner = styled.div<{ avatarColor: string }>`
   }
 
   &:hover {
-    background: linear-gradient(135deg, #feb47b 0%, ${props => props.avatarColor} 100%);
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.8) 0%, ${props => props.avatarColor} 100%);
     transition: background 1s ease-in-out;
   }
 `;
@@ -89,7 +89,7 @@ const ContentContainer = styled.div`
   transition: transform 0.3s ease-in-out;
 
   &:hover {
-    transform: translateY(-5px);
+    transform: translateY(-2px);
   }
 `;
 
@@ -99,41 +99,40 @@ const AvatarContainer = styled.div`
   left: 24px;
   background: white;
   padding: 4px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  border: 1px solid #f0f0f0;
 `;
 
 const StatusBadge = styled(Tag)<{ $active?: boolean }>`
   position: absolute;
   top: 12px;
   right: 12px;
-  font-weight: 600;
+  font-weight: 500;
   font-size: 12px;
   padding: 4px 12px;
-  border-radius: 20px;
+  border-radius: 4px;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  background: ${props => props.$active ? 'linear-gradient(135deg, #52c41a, #389e0d)' : '#f0f0f0'};
-  color: ${props => props.$active ? 'white' : '#666'};
+  background: ${props => props.$active ? '#52c41a' : '#f5f5f5'};
+  color: ${props => props.$active ? 'white' : '#8c8c8c'};
 `;
 
 const StatCard = styled(Card)`
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  border: 1px solid #f0f0f0;
   transition: all 0.3s;
 
   &:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+    border-color: #d9d9d9;
   }
 `;
 
 const ActionButton = styled(Button)`
-  border-radius: 8px;
+  border-radius: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 38px;
+  height: 32px;
 `;
 
 const FavoriteButton = styled(Button)`
@@ -141,7 +140,9 @@ const FavoriteButton = styled(Button)`
   top: 12px;
   right: 80px;
   border: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #722ed1;
 `;
 
 interface WorkspaceHeaderProps {
@@ -167,7 +168,7 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
       hash = name.charCodeAt(i) + ((hash << 5) - hash);
     }
     const hue = Math.abs(hash % 360);
-    return `hsl(${hue}, 70%, 50%)`;
+    return `hsl(${hue}, 45%, 55%)`;
   };
 
   // Format date for last updated
@@ -214,7 +215,7 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
                 <ClockCircleOutlined style={{ marginRight: 4 }} /> 
                 created on {formatDate(workspace.creationDate)}
               </Text>
-              <Tag color="blue">
+              <Tag color="blue" style={{ borderRadius: '4px' }}>
                 <CloudServerOutlined /> {environment.environmentName}
               </Tag>
             </Space>

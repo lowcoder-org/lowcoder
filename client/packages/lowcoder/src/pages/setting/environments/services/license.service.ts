@@ -2,7 +2,7 @@ import axios from 'axios';
 import { EnvironmentLicense } from '../types/environment.types';
 
 /**
- * Check license status for an environment
+ * Check if license endpoint exists for an environment
  * @param apiServiceUrl - API service URL for the environment  
  * @param apiKey - API key for the environment
  * @returns Promise with license information
@@ -25,46 +25,25 @@ export async function checkEnvironmentLicense(
       headers.Authorization = `Bearer ${apiKey}`;
     }
 
-    // Make request to the license endpoint
-    const response = await axios.get(
+    // Use GET request to check endpoint existence
+    await axios.get(
       `${apiServiceUrl}/api/plugins/enterprise/license`,
       { 
         headers,
-        timeout: 5000 // 5 second timeout
+        timeout: 500 // Very short timeout for immediate failure when endpoint doesn't exist
       }
     );
 
-    // If we get a successful response, the license is valid
+    // If we get a successful response, the endpoint exists
     return {
       isValid: true
     };
 
   } catch (error) {
-    // If the endpoint doesn't exist or returns an error, license is invalid
-    if (axios.isAxiosError(error)) {
-      if (error.response?.status === 404) {
-        return {
-          isValid: false,
-          error: 'License endpoint not found'
-        };
-      }
-      if (error.response?.status === 401 || error.response?.status === 403) {
-        return {
-          isValid: false,
-          error: 'License authentication failed'
-        };
-      }
-      if (error.code === 'ECONNABORTED') {
-        return {
-          isValid: false,
-          error: 'License check timeout'
-        };
-      }
-    }
-
+    // Any error means the endpoint doesn't exist or isn't accessible
     return {
       isValid: false,
-      error: error instanceof Error ? error.message : 'License check failed'
+      error: 'License not available'
     };
   }
 } 
