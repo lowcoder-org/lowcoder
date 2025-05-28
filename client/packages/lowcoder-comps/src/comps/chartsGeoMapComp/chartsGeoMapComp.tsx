@@ -10,7 +10,7 @@ import { chartChildrenMap, ChartSize, getDataKeys } from "../basicChartComp/char
 import { chartPropertyView } from "../basicChartComp/chartPropertyView";
 import _ from "lodash";
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import ReactECharts from "../basicChartComp/reactEcharts";
 import {
   childrenToProps,
@@ -66,6 +66,7 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
   const onEvent = comp.children.onEvent.getView();
 
   const echartsCompRef = useRef<ReactECharts | null>();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [chartSize, setChartSize] = useState<ChartSize>();
   const [mapScriptLoaded, setMapScriptLoaded] = useState(false);
   const firstResize = useRef(true);
@@ -168,33 +169,36 @@ MapTmpComp = withViewFn(MapTmpComp, (comp) => {
     onMapEvent('zoomLevelChange');
   }, [mapZoomlevel])
 
+  useResizeDetector({
+    targetRef: containerRef,
+    onResize: ({width, height}) => {
+      if (width && height) {
+        setChartSize({ w: width, h: height });
+      }
+      if (!firstResize.current) {
+        // ignore the first resize, which will impact the loading animation
+        echartsCompRef.current?.getEchartsInstance().resize();
+      } else {
+        firstResize.current = false;
+      }
+    }
+  })
+
   return (
-    <ReactResizeDetector
-      onResize={(w, h) => {
-        if (w && h) {
-          setChartSize({ w: w, h: h });
-        }
-        if (!firstResize.current) {
-          // ignore the first resize, which will impact the loading animation
-          echartsCompRef.current?.getEchartsInstance().resize();
-        } else {
-          firstResize.current = false;
-        }
-      }}
-    >
+    <div ref={containerRef} style={{height: '100%'}}>
       {isMapScriptLoaded && (
         <ReactECharts
-           ref={(e) => (echartsCompRef.current = e)}
-           style={{ height: "100%" }}
-           notMerge
-           lazyUpdate
-           opts={{ locale: getEchartsLocale() }}
-           option={option}
-           theme={undefined}
-           mode={mode}
-         />
+          ref={(e) => (echartsCompRef.current = e)}
+          style={{ height: "100%" }}
+          notMerge
+          lazyUpdate
+          opts={{ locale: getEchartsLocale() }}
+          option={option}
+          theme={undefined}
+          mode={mode}
+        />
       )}
-    </ReactResizeDetector>
+    </div>
   );
 });
 

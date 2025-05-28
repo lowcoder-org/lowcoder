@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useCallback, useMemo } from "react";
 import styled from "styled-components";
 import { PointIcon, SearchOutlinedIcon } from "lowcoder-design/src/icons";
 import type { EditPopoverItemType } from 'lowcoder-design/src/components/popover';
@@ -72,89 +72,100 @@ interface Iprops {
   search?: { searchText: string; setSearchText: (t: string) => void };
 }
 
-export const CompName = (props: Iprops) => {
+export const CompName = React.memo((props: Iprops) => {
   const [error, setError] = useState<string | undefined>(undefined);
   const [editing, setEditing] = useState(false);
   const [upgrading, setUpgrading] = useState(false);
-  const editorState = useContext(EditorContext);
-  const selectedComp = values(editorState.selectedComps())[0];
-  const compType = selectedComp.children.compType.getView() as UICompType;
-  const compInfo = parseCompType(compType);
-  const docUrl = getComponentDocUrl(compType);
-  const playgroundUrl = getComponentPlaygroundUrl(compType);
-
-  const items: EditPopoverItemType[] = [];
-
-  // Falk: TODO - Implement upgrade for individual Version functionality
-  const handleUpgrade = async () => {
-    if (upgrading) {
-      return;
-    }
-    setUpgrading(true);
-    await GridCompOperator.upgradeCurrentComp(editorState);
-    setUpgrading(false);
-  };
-
-  if (docUrl) {
-    items.push({
-      text: trans("comp.menuViewDocs"),
-      onClick: () => {
-        window.open(docUrl, "_blank");
-      },
-    });
-  }
-
-  if (playgroundUrl) {
-    items.push({
-      text: trans("comp.menuViewPlayground"),
-      onClick: () => {
-        window.open(playgroundUrl, "_blank");
-      },
-    });
-  }
-
-
-  if (compInfo.isRemote) {
-    // Falk: Displaying the current version of the component
-    items.push({
-      text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
-      onClick: () => {
-      },
-    });
-    // items.push({
-    //   text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
-    //   onClick: () => {
-        
-    //   },
-    // });
-
-    items.push({
-      text: trans("comp.menuUpgradeToLatest"),
-      onClick: () => {
-        handleUpgrade();
-      },
-      
-    });
-  }
-
   const [showSearch, setShowSearch] = useState<boolean>(false);
-  const { search } = props;
+  
+  const editorState = useContext(EditorContext);
+  const selectedComp = useMemo(() => values(editorState.selectedComps())[0], [editorState]);
+  const compType = useMemo(() => selectedComp.children.compType.getView() as UICompType, [selectedComp]);
+  const compInfo = useMemo(() => parseCompType(compType), [compType]);
+  const docUrl = useMemo(() => getComponentDocUrl(compType), [compType]);
+  const playgroundUrl = useMemo(() => getComponentPlaygroundUrl(compType), [compType]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      setError(undefined);
+      setEditing(false);
+      setUpgrading(false);
+      setShowSearch(false);
+    };
+  }, []);
+
+  // Reset search when name changes
   useEffect(() => {
     setShowSearch(false);
   }, [props.name]);
-  const compName = (
-    <CompDiv $width={props.width} $hasSearch={!!search} $showSearch={showSearch}>
+
+  const handleUpgrade = useCallback(async () => {
+    if (upgrading) return;
+    setUpgrading(true);
+    try {
+      await GridCompOperator.upgradeCurrentComp(editorState);
+    } finally {
+      setUpgrading(false);
+    }
+  }, [upgrading, editorState]);
+
+  const handleRename = useCallback((value: string) => {
+    if (editorState.rename(props.name, value)) {
+      editorState.setSelectedCompNames(new Set([value]));
+      setError(undefined);
+    }
+  }, [editorState, props.name]);
+
+  const handleSearchChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    props.search?.setSearchText(e.target.value);
+  }, [props.search]);
+
+  const handleSearchToggle = useCallback(() => {
+    setShowSearch(prev => !prev);
+    props.search?.setSearchText("");
+  }, [props.search]);
+
+  const items = useMemo<EditPopoverItemType[]>(() => {
+    const menuItems: EditPopoverItemType[] = [];
+
+    if (docUrl) {
+      menuItems.push({
+        text: trans("comp.menuViewDocs"),
+        onClick: () => window.open(docUrl, "_blank"),
+      });
+    }
+
+    if (playgroundUrl) {
+      menuItems.push({
+        text: trans("comp.menuViewPlayground"),
+        onClick: () => window.open(playgroundUrl, "_blank"),
+      });
+    }
+
+    if (compInfo.isRemote) {
+      menuItems.push({
+        text: trans("history.currentVersion") + ": " + compInfo.packageVersion,
+        onClick: () => {},
+      });
+
+      menuItems.push({
+        text: trans("comp.menuUpgradeToLatest"),
+        onClick: handleUpgrade,
+      });
+    }
+
+    return menuItems;
+  }, [docUrl, playgroundUrl, compInfo, handleUpgrade]);
+
+  const compName = useMemo(() => (
+    <CompDiv $width={props.width} $hasSearch={!!props.search} $showSearch={showSearch}>
       <div>
         <EditText
           text={props.name}
-          onFinish={(value) => {
-            if (editorState.rename(props.name, value)) {
-              editorState.setSelectedCompNames(new Set([value]));
-              setError(undefined);
-            }
-          }}
+          onFinish={handleRename}
           onChange={(value) => setError(editorState.checkRename(props.name, value))}
-          onEditStateChange={(editing) => setEditing(editing)}
+          onEditStateChange={setEditing}
         />
         <PopupCard
           editorFocus={!!error && editing}
@@ -163,16 +174,13 @@ export const CompName = (props: Iprops) => {
           hasError={!!error}
         />
       </div>
-      {!!search && (
+      {!!props.search && (
         <SearchIcon
-          onClick={() => {
-            setShowSearch(!showSearch);
-            search?.setSearchText("");
-          }}
+          onClick={handleSearchToggle}
           style={{ color: showSearch ? "#315EFB" : "#8B8FA3" }}
         />
       )}
-      { compType === "module" ? (
+      {compType === "module" ? (
         <EditPopover
           items={items}
           edit={() => GridCompOperator.editComp(editorState)}
@@ -189,19 +197,32 @@ export const CompName = (props: Iprops) => {
         </EditPopover>
       )}
     </CompDiv>
-  );
+  ), [
+    props.width,
+    props.search,
+    props.name,
+    showSearch,
+    error,
+    editing,
+    compType,
+    items,
+    editorState,
+    handleRename,
+    handleSearchToggle
+  ]);
+
   return (
     <div>
       {compName}
-      {search && showSearch && (
+      {props.search && showSearch && (
         <Search
           placeholder={trans("comp.searchProp")}
-          value={search.searchText}
-          onChange={(e) => search.setSearchText(e.target.value)}
+          value={props.search.searchText}
+          onChange={handleSearchChange}
           allowClear={true}
           style={{ padding: "0 16px", margin: "0 0 4px 0" }}
         />
       )}
     </div>
   );
-};
+});

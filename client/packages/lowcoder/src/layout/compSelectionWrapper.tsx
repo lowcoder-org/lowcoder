@@ -14,8 +14,9 @@ import React, {
   useMemo,
   useRef,
   useState,
+  useEffect,
 } from "react";
-import ReactResizeDetector, { useResizeDetector } from "react-resize-detector";
+import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
 import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
@@ -235,6 +236,35 @@ const HiddenIcon = styled(CloseEyeIcon)`
   }
 `;
 
+const ResizableChildren = React.memo((props: {
+  compType: string;
+  onInnerResize: (width?: number, height?: number) => void;
+  children: JSX.Element | React.ReactNode;
+}) => {
+  const { ref: innerRef } = useResizeDetector({
+    skipOnMount: (
+      props.compType === 'responsiveLayout'
+      || props.compType === 'columnLayout'
+      || props.compType === 'pageLayout'
+      || props.compType === 'splitLayout'
+      || props.compType === 'floatTextContainer'
+      || props.compType === 'tabbedContainer'
+      || props.compType === 'collapsibleContainer'
+      || props.compType === 'container'
+    ),
+    refreshMode: "debounce",
+    refreshRate: 0,
+    onResize: ({width, height}: ResizePayload) => props.onInnerResize(width ?? undefined, height ?? undefined),
+    observerOptions: { box: "border-box" }
+  });
+
+  return (
+    <div ref={innerRef}>
+      {props.children}
+    </div>
+  )
+});
+
 export const CompSelectionWrapper = React.memo((props: {
   id?: string;
   compType: UICompType;
@@ -261,7 +291,16 @@ export const CompSelectionWrapper = React.memo((props: {
 }) => {
   const nameDivRef = useRef<HTMLDivElement>(null);
   const editorState = useContext(EditorContext);
-  let [hover, setHover] = useState(false);
+  const [hover, setHover] = useState(false);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Reset state
+      setHover(false);
+    };
+  }, []);
+
   const onMouseOver = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -275,8 +314,9 @@ export const CompSelectionWrapper = React.memo((props: {
       }
       setHover(true);
     },
-    [nameDivRef.current, setHover]
+    [nameDivRef.current]
   );
+
   const onMouseOut = useCallback(
     (e: MouseEvent<HTMLDivElement>) => {
       e.stopPropagation();
@@ -334,13 +374,14 @@ export const CompSelectionWrapper = React.memo((props: {
     return props.autoHeight && !props.placeholder;
   }, [props.autoHeight, props.placeholder]);
 
-  const { ref: wrapperRef } = useResizeDetector({
-    onResize: props.onWrapperResize,
-    handleHeight: needResizeDetector,
-    handleWidth: false,
-    refreshMode: 'debounce',
-    refreshRate: 100,
-  });
+  // const { ref: wrapperRef } = useResizeDetector({
+  //   onResize: ({width, height}: ResizePayload) => props.onWrapperResize(width ?? undefined, height ?? undefined),
+  //   handleHeight: needResizeDetector,
+  //   handleWidth: false,
+  //   refreshMode: 'debounce',
+  //   refreshRate: 100,
+  // });
+
   // log.debug("CompSelectionWrapper. name: ", props.name, " zIndex: ", zIndex);
   const { nameConfig, resizeIconSize } = props;
 
@@ -349,7 +390,7 @@ export const CompSelectionWrapper = React.memo((props: {
       <SelectableDiv
         {...selectableDivProps}
         $compType={props.compType}
-        ref={wrapperRef}
+        // ref={wrapperRef}
         $needResizeDetector={needResizeDetector}
       >
         {props.isSelectable && nameConfig.show && (hover || props.isSelected || props.hidden) && (
@@ -389,24 +430,12 @@ export const CompSelectionWrapper = React.memo((props: {
         )}
         {!needResizeDetector && props.children}
         {needResizeDetector && (
-          <ReactResizeDetector
-            skipOnMount={
-              props.compType === 'responsiveLayout'
-              || props.compType === 'columnLayout'
-              || props.compType === 'pageLayout'
-              || props.compType === 'splitLayout'
-              || props.compType === 'floatTextContainer'
-              || props.compType === 'tabbedContainer'
-              || props.compType === 'collapsibleContainer'
-              || props.compType === 'container'
-            }
-            refreshMode="debounce"
-            refreshRate={0}
-            onResize={props.onInnerResize}
-            observerOptions={{ box: "border-box" }}
+          <ResizableChildren
+            compType={props.compType}
+            onInnerResize={props.onInnerResize}
           >
-            <div>{props.children}</div>
-          </ReactResizeDetector>
+            <>{props.children}</>
+          </ResizableChildren>
         )}
       </SelectableDiv>
     </div>

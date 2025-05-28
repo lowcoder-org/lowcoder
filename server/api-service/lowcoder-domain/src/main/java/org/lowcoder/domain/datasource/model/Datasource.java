@@ -15,7 +15,6 @@ import org.lowcoder.sdk.models.DatasourceConnectionConfig;
 import org.lowcoder.sdk.models.HasIdAndAuditing;
 import org.lowcoder.sdk.models.JsDatasourceConnectionConfig;
 import org.lowcoder.sdk.plugin.graphql.GraphQLDatasourceConfig;
-import org.lowcoder.sdk.plugin.lowcoderapi.LowcoderApiDatasourceConfig;
 import org.lowcoder.sdk.plugin.restapi.RestApiDatasourceConfig;
 import org.lowcoder.sdk.util.LocaleUtils;
 import org.springframework.data.annotation.Transient;
@@ -26,8 +25,7 @@ import java.util.Set;
 
 import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.LEGACY_WORKSPACE_PREDEFINED;
 import static org.lowcoder.domain.datasource.model.DatasourceCreationSource.SYSTEM_STATIC;
-import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.GRAPHQL_API;
-import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.REST_API;
+import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.*;
 
 @Getter
 @Setter
@@ -37,16 +35,23 @@ import static org.lowcoder.domain.plugin.DatasourceMetaInfoConstants.REST_API;
 public class Datasource extends HasIdAndAuditing {
 
     private static final DatasourceStatus DEFAULT_STATUS = DatasourceStatus.NORMAL;
+
     public static final String QUICK_REST_API_ID = "#QUICK_REST_API";
     public static final String QUICK_GRAPHQL_ID = "#QUICK_GRAPHQL";
-    public static final String LOWCODER_API_ID = "#LOWCODER_API";
+    // public static final String LOWCODER_API_ID = "#LOWCODER_API";
+    public static final String JS_CODE_ID = "#JS_CODE";
 
-    private static final Set<String> SYSTEM_STATIC_IDS = Set.of(QUICK_REST_API_ID,
-            QUICK_GRAPHQL_ID, LOWCODER_API_ID);
+    private static final Set<String> SYSTEM_STATIC_IDS = Set.of(
+            QUICK_REST_API_ID,
+            QUICK_GRAPHQL_ID,
+            // LOWCODER_API_ID,
+            JS_CODE_ID
+    );
 
     public static final Datasource QUICK_REST_API;
     public static final Datasource QUICK_GRAPHQL_API;
-    public static final Datasource LOWCODER_API;
+    // public static final Datasource LOWCODER_API;
+    public static final Datasource JS_CODE;
 
     static {
         QUICK_REST_API = new Datasource();
@@ -63,12 +68,19 @@ public class Datasource extends HasIdAndAuditing {
         QUICK_GRAPHQL_API.setCreationSource(SYSTEM_STATIC.getValue());
         QUICK_GRAPHQL_API.setDetailConfig(GraphQLDatasourceConfig.EMPTY_CONFIG);
 
-        LOWCODER_API = new Datasource();
+        /* LOWCODER_API = new Datasource();
         LOWCODER_API.setId(LOWCODER_API_ID);
         LOWCODER_API.setName("Lowcoder API");
-        LOWCODER_API.setType(DatasourceMetaInfoConstants.LOWCODER_API);
+        LOWCODER_API.setType(LOWCODER_API);
         LOWCODER_API.setCreationSource(SYSTEM_STATIC.getValue());
-        LOWCODER_API.setDetailConfig(LowcoderApiDatasourceConfig.INSTANCE);
+        LOWCODER_API.setDetailConfig(LowcoderApiDatasourceConfig.INSTANCE); */
+
+        JS_CODE = new Datasource();
+        JS_CODE.setId(JS_CODE_ID);
+        JS_CODE.setName("JS Code");
+        JS_CODE.setType(JS_CODE_EXECUTION);
+        JS_CODE.setCreationSource(SYSTEM_STATIC.getValue());
+        JS_CODE.setDetailConfig(RestApiDatasourceConfig.EMPTY_CONFIG); // no configuration
     }
 
     private String gid;
@@ -77,7 +89,7 @@ public class Datasource extends HasIdAndAuditing {
     private String organizationId;
     private int creationSource;
     private DatasourceStatus datasourceStatus;
-    // for js data source plugin
+
     @Nullable
     @Transient
     private DatasourcePluginDefinition pluginDefinition;
@@ -87,6 +99,7 @@ public class Datasource extends HasIdAndAuditing {
 
     public Datasource mergeWith(Datasource updatedDatasource) {
         setName(updatedDatasource.getName());
+        setDatasourceStatus(updatedDatasource.getDatasourceStatus());
         Optional.of(getDetailConfig())
                 .ifPresentOrElse(currentDetailConfig -> {
                             if (updatedDatasource.getDetailConfig() instanceof JsDatasourceConnectionConfig jsDatasourceConnectionConfig) {
@@ -114,9 +127,14 @@ public class Datasource extends HasIdAndAuditing {
             return LocaleUtils.getMessage(locale, "QUICK_GRAPHQL_DATASOURCE_NAME");
         }
 
-        if (LOWCODER_API_ID.equals(datasourceId)) {
+        /* if (LOWCODER_API_ID.equals(datasourceId)) {
             return LocaleUtils.getMessage(locale, "LOWCODER_DATASOURCE_NAME");
+        } */
+
+        if (JS_CODE_ID.equals(datasourceId)) {
+            return LocaleUtils.getMessage(locale, "JS_CODE_DATASOURCE_NAME");
         }
+
         return "";
     }
 

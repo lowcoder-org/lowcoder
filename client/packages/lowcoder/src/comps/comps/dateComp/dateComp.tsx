@@ -4,6 +4,7 @@ import { RecordConstructorToComp, RecordConstructorToView } from "lowcoder-core"
 import {
   BoolCodeControl,
   CustomRuleControl,
+  NumberControl,
   RangeControl,
   StringControl,
 } from "../../controls/codeControl";
@@ -99,6 +100,7 @@ const commonChildren = {
   childrenInputFieldStyle: styleControl(ChildrenMultiSelectStyle, 'childrenInputFieldStyle'),
   timeZone: dropdownControl(timeZoneOptions, Intl.DateTimeFormat().resolvedOptions().timeZone),
   pickerMode: dropdownControl(PickerModeOptions, 'date'), 
+  tabIndex: NumberControl,
 };
 type CommonChildrenType = RecordConstructorToComp<typeof commonChildren>;
 
@@ -185,6 +187,7 @@ export type DateCompViewProps = Pick<
   disabledTime: () => ReturnType<typeof disabledTime>;
   suffixIcon: ReactNode;
   placeholder?: string | [string, string];
+  tabIndex?: number;
 };
 
 const getFormattedDate = (
@@ -281,6 +284,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
         suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
       />
     ),
     showValidationWhenEmpty: props.showValidationWhenEmpty,
@@ -322,6 +326,7 @@ const DatePickerTmpCmp = new UICompBuilder(childrenMap, (props) => {
               {disabledPropertyView(children)}
               {hiddenPropertyView(children)}
               {showDataLoadingIndicatorsPropertyView(children)}
+              {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
             </Section>
           </>
         )}
@@ -475,7 +480,9 @@ let DateRangeTmpCmp = (function () {
         }}
         onFocus={() => props.onEvent("focus")}
         onBlur={() => props.onEvent("blur")}
-        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}      />
+        suffixIcon={hasIcon(props.suffixIcon) && props.suffixIcon}
+        tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}      
+      />
     );
 
     const startResult = validate({ ...props, value: props.start });
@@ -536,6 +543,7 @@ let DateRangeTmpCmp = (function () {
                 {disabledPropertyView(children)}
                 {hiddenPropertyView(children)}
                 {showDataLoadingIndicatorsPropertyView(children)}
+                {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
               </Section>
             </>
           )}

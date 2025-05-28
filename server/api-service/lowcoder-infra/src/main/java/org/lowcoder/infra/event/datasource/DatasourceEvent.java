@@ -11,6 +11,7 @@ public class DatasourceEvent extends AbstractEvent {
     private final String datasourceId;
     private final String name;
     private final String type;
+    private final  String oldName;
 
     private final EventType eventType;
 }

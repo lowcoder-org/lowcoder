@@ -6,6 +6,8 @@ import { CommonNameConfig, NameConfig, withExposingConfigs } from "../../generat
 import { SliderChildren, SliderPropertyView, SliderStyled, SliderWrapper } from "./sliderCompConstants";
 import { hasIcon } from "comps/utils";
 import { BoolControl } from "comps/controls/boolControl";
+import { NumberControl } from "comps/controls/codeControl";
+import { useCallback, useRef, useEffect } from "react";
 
 const RangeSliderBasicComp = (function () {
   const childrenMap = {
@@ -13,20 +15,49 @@ const RangeSliderBasicComp = (function () {
     start: numberExposingStateControl("start", 10),
     end: numberExposingStateControl("end", 60),
     vertical: BoolControl,
+    tabIndex: NumberControl,
   };
+
   return new UICompBuilder(childrenMap, (props, dispatch) => {
+    const mountedRef = useRef(true);
+    const startValueRef = useRef(props.start.value);
+    const endValueRef = useRef(props.end.value);
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        mountedRef.current = false;
+        startValueRef.current = 0;
+        endValueRef.current = 0;
+      };
+    }, []);
+
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+      e.stopPropagation();
+      return false;
+    }, []);
+
+    const handleChange = useCallback((value: number | number[]) => {
+      if (!mountedRef.current) return;
+      if (Array.isArray(value)) {
+        const [start, end] = value;
+        startValueRef.current = start;
+        endValueRef.current = end;
+        props.start.onChange(start);
+        props.end.onChange(end);
+        props.onEvent("change");
+      }
+    }, [props.start, props.end, props.onEvent]);
+
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
-      animationStyle:props.animationStyle,
+      inputFieldStyle: props.inputFieldStyle,
+      animationStyle: props.animationStyle,
       children: (
         <SliderWrapper
           $vertical={Boolean(props.vertical)}
-          onMouseDown={(e: any) => {
-            e.stopPropagation();
-            return false;
-          }}
+          onMouseDown={handleMouseDown}
         >
           {hasIcon(props.prefixIcon) && props.prefixIcon}
           <SliderStyled
@@ -36,11 +67,8 @@ const RangeSliderBasicComp = (function () {
             $style={props.inputFieldStyle}
             style={{ margin: 0 }}
             $vertical={Boolean(props.vertical) || false}
-            onChange={([start, end]) => {
-              props.start.onChange(start);
-              props.end.onChange(end);
-              props.onEvent("change");
-            }}
+            tabIndex={typeof props.tabIndex === 'number' ? props.tabIndex : undefined}
+            onChange={handleChange}
           />
           {hasIcon(props.suffixIcon) && props.suffixIcon}
         </SliderWrapper>

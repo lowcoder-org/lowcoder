@@ -7,6 +7,9 @@ import { Fragment } from "react";
 import { ParamsControlType, ValueFunction } from "../controls/paramsControl";
 import { getGlobalSettings } from "comps/utils/globalSettings";
 import { ResourceType } from "@lowcoder-ee/constants/queryConstants";
+import { evalFunc } from "lowcoder-core";
+import { QUERY_EXECUTION_ERROR, QUERY_EXECUTION_OK } from "../../constants/queryConstants";
+import type { SandBoxOption } from "lowcoder-core/src/eval/utils/evalScript";
 
 export type FunctionProperty = {
   key: string;
@@ -30,17 +33,44 @@ export function toQueryView(params: FunctionProperty[]) {
   }): Promise<QueryResult> => {
     const { applicationId, isViewMode } = getGlobalSettings();
 
+    // Check if this is a JS query
+    const isJsQuery = props.queryId?.startsWith("js:");
+    if (isJsQuery) {
+      try {
+        const { orgCommonSettings } = getGlobalSettings();
+        const runInHost = !!orgCommonSettings?.runJavaScriptInHost;
+        const timer = performance.now();
+        const script = props.args?.script || "";
+        const options: SandBoxOption = { disableLimit: runInHost };
+        const data = await evalFunc(`return (${script}\n);`, props.args || {}, undefined, options);
+        return {
+          data: data,
+          code: QUERY_EXECUTION_OK,
+          success: true,
+          runTime: Number((performance.now() - timer).toFixed()),
+        };
+      } catch (e) {
+        return {
+          success: false,
+          data: "",
+          code: QUERY_EXECUTION_ERROR,
+          message: (e as any).message || "",
+        };
+      }
+    }
+
     let mappedVariables: Array<{key: string, value: string}> = [];
     Object.keys(props.variables)
       .filter(k => k !== "$queryName")
       .forEach(key => {
+        const value = Object.hasOwn(props.variables[key], 'value') ? props.variables[key].value : props.variables[key];
         mappedVariables.push({
           key: `${key}.value`,
-          value: props.variables[key] || ""
+          value: value || ""
         })
         mappedVariables.push({
           key: `${props.args?.$queryName}.variables.${key}`,
-          value: props.variables[key] || ""
+          value: value || ""
         })
       })
 

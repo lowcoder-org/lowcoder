@@ -134,6 +134,21 @@ export const GridItem = React.memo((props: GridItemProps) => {
   // record the real height of the comp content
   const itemHeightRef = useRef<number | undefined>(undefined);
 
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      // Clear any pending state
+      setResizing(undefined);
+      setDragging(undefined);
+      
+      // Clear refs
+      itemHeightRef.current = undefined;
+      
+      // Clear any dragging data
+      // draggingUtils.clearData();
+    };
+  }, []);
+
   const onDragStart = useCallback((e: DragEvent<HTMLDivElement>) => {
     e.stopPropagation();
     const { i } = props as Required<GridItemProps>;
@@ -244,13 +259,6 @@ export const GridItem = React.memo((props: GridItemProps) => {
     props.maxW,
     position.left,
     position.top,
-    calcResizeXY,
-    getDraggingNewPosition,
-    calcXY,
-    calcWH,
-    setResizing,
-    setDragging,
-    clamp,
   ]);
 
    /**

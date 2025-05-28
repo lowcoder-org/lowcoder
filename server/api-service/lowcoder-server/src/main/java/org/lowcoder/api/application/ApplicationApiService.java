@@ -10,6 +10,8 @@ import org.lowcoder.domain.application.model.ApplicationRequestType;
 import org.lowcoder.domain.permission.model.ResourceAction;
 import org.lowcoder.domain.permission.model.ResourcePermission;
 import org.lowcoder.domain.permission.model.ResourceRole;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -26,13 +28,13 @@ public interface ApplicationApiService {
 
     Mono<Boolean> restore(String applicationId);
 
-    Mono<ApplicationView> getEditingApplication(String applicationId);
+    Mono<ApplicationView> getEditingApplication(String applicationId, Boolean withDeleted);
 
-    Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationRequestType requestType);
+    Mono<ApplicationView> getPublishedApplication(String applicationId, ApplicationRequestType requestType, Boolean withDeleted);
 
     Mono<Void> updateUserApplicationLastViewTime(String applicationId);
 
-    Mono<ApplicationView> update(String applicationId, Application application);
+    Mono<ApplicationView> update(String applicationId, Application application, Boolean updateStatus);
 
     Mono<ApplicationView> publish(String applicationId, ApplicationPublishRequest applicationPublishRequest);
 

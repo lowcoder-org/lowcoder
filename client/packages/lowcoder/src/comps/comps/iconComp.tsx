@@ -22,7 +22,7 @@ import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps
 import { trans } from "i18n";
 import { NumberControl } from "comps/controls/codeControl";
 import { IconControl } from "comps/controls/iconControl";
-import ReactResizeDetector from "react-resize-detector";
+import { useResizeDetector } from "react-resize-detector";
 import { AutoHeightControl } from "../controls/autoHeightControl";
 import {
   clickEvent,
@@ -30,6 +30,8 @@ import {
 } from "../controls/eventHandlerControl";
 import { useContext } from "react";
 import { EditorContext } from "comps/editorState";
+import { AssetType, IconscoutControl } from "@lowcoder-ee/comps/controls/iconscoutControl";
+import { dropdownControl } from "../controls/dropdownControl";
 
 const Container = styled.div<{
   $style: IconStyleType | undefined;
@@ -61,10 +63,17 @@ const Container = styled.div<{
 
 const EventOptions = [clickEvent] as const;
 
+const ModeOptions = [
+  { label: "Standard", value: "standard" },
+  { label: "Asset Library", value: "asset-library" },
+] as const;
+
 const childrenMap = {
   style: styleControl(IconStyle,'style'),
   animationStyle: styleControl(AnimationStyle,'animationStyle'),
+  sourceMode: dropdownControl(ModeOptions, "standard"),
   icon: withDefault(IconControl, "/icon:antd/homefilled"),
+  iconScoutAsset: IconscoutControl(AssetType.ICON),
   autoHeight: withDefault(AutoHeightControl, "auto"),
   iconSize: withDefault(NumberControl, 20),
   onEvent: eventHandlerControl(EventOptions),
@@ -87,27 +96,29 @@ const IconView = (props: RecordConstructorToView<typeof childrenMap>) => {
     setHeight(container?.clientHeight ?? 0);
   };
 
+  useResizeDetector({
+    targetRef: conRef,
+    onResize,
+  });
+
   return (
-    <ReactResizeDetector
-      onResize={onResize}
-      render={() => (
-        <Container
-          ref={conRef}
-          $style={props.style}
-          $animationStyle={props.animationStyle}
-          style={{
-            fontSize: props.autoHeight
-              ? `${height < width ? height : width}px`
-              : props.iconSize,
-            background: props.style.background,
-          }}
-          onClick={() => props.onEvent("click")}
-        >
-          {props.icon}
-        </Container>
-      )}
+    <Container
+      ref={conRef}
+      $style={props.style}
+      $animationStyle={props.animationStyle}
+      style={{
+        fontSize: props.autoHeight
+          ? `${height < width ? height : width}px`
+          : props.iconSize,
+        background: props.style.background,
+      }}
+      onClick={() => props.onEvent("click")}
     >
-    </ReactResizeDetector>
+      { props.sourceMode === 'standard'
+        ? (props.icon || '')
+        : <img src={props.iconScoutAsset.value} />
+      }
+    </Container>
   );
 };
 
@@ -117,11 +128,17 @@ let IconBasicComp = (function () {
     .setPropertyViewFn((children) => (
       <>
         <Section name={sectionNames.basic}>
-          {children.icon.propertyView({
+          { children.sourceMode.propertyView({
+            label: "",
+            radioButton: true
+          })}
+          {children.sourceMode.getView() === 'standard' && children.icon.propertyView({
             label: trans("iconComp.icon"),
             IconType: "All",
           })}
-          
+          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
+            label: trans("button.icon"),
+          })}
         </Section> 
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (

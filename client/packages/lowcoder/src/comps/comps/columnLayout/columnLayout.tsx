@@ -42,6 +42,7 @@ import { disabledPropertyView, hiddenPropertyView } from "comps/utils/propertyUt
 import { DisabledContext } from "comps/generators/uiCompBuilder";
 import { SliderControl } from "@lowcoder-ee/comps/controls/sliderControl";
 import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
+import React from "react";
 
 const ContainWrapper = styled.div<{
   $style: ContainerStyleType & {
@@ -72,6 +73,7 @@ const ColWrapper = styled(Col)<{
   $minWidth?: string,
   $matchColumnsHeight: boolean,
 }>`
+  min-width: ${(props) => props.$minWidth || 'auto'};
   > div {
     height: ${(props) => props.$matchColumnsHeight ? `calc(100% - ${props.$style?.padding || 0} - ${props.$style?.padding || 0})` : 'auto'};
     border-radius: ${(props) => props.$style?.radius};
@@ -122,6 +124,53 @@ const ColumnContainer = (props: ColumnContainerProps) => {
   );
 };
 
+// Function to apply min-widths to grid template columns
+const applyMinWidthsToGridColumns = (columnsDef: string, minWidths: (string | null)[] = []) => {
+  // Handle empty case
+  if (!columnsDef?.trim()) return '';
+  
+  // Handle repeat() functions with special parsing
+  if (columnsDef.includes('repeat(')) {
+    // For complex repeat patterns, we should return as-is to avoid breaking the layout
+    // A more complex parser would be needed to fully support repeat with minmax
+    return columnsDef;
+  }
+
+  const columns = columnsDef.trim().split(/\s+/);
+
+  const newColumns = columns.map((col, index) => {
+    const minWidth = minWidths[index];
+
+    // Skip if no minWidth provided for this column
+    if (!minWidth) {
+      return col;
+    }
+
+    // Keywords that should never be wrapped in minmax()
+    const keywords = ['auto', 'min-content', 'max-content', 'fit-content', 'subgrid'];
+    if (keywords.some(keyword => col === keyword)) {
+      return col;
+    }
+    
+    // Functions that should never be wrapped in minmax()
+    if (col.includes('(') && col.includes(')')) {
+      // Already includes a function like calc(), minmax(), etc.
+      return col;
+    }
+
+    // Determine if column is flexible and can be wrapped with minmax
+    // - fr units (e.g., "1fr", "2.5fr")
+    // - percentage values (e.g., "50%")
+    // - length values (px, em, rem, etc.)
+    const isFlexible = /fr$/.test(col) || 
+                       /%$/.test(col) ||
+                       /^\d+(\.\d+)?(px|em|rem|vh|vw|vmin|vmax|cm|mm|in|pt|pc)$/.test(col);
+
+    return isFlexible ? `minmax(${minWidth}, ${col})` : col;
+  });
+
+  return newColumns.join(' ');
+};
 
 const ColumnLayout = (props: ColumnLayoutProps) => {
   let {
@@ -138,6 +187,12 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
     mainScrollbar
   } = props;
 
+  // Extract minWidths from columns
+  const minWidths = columns.map(column => column.minWidth || null);
+  
+  // Apply min-widths to grid template columns
+  const gridTemplateColumns = applyMinWidthsToGridColumns(templateColumns, minWidths);
+
   return (
     <BackgroundColorContext.Provider value={props.style.background}>
       <DisabledContext.Provider value={props.disabled}>
@@ -146,7 +201,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
           <ContainWrapper $style={{
             ...props.style,
             display: "grid",
-            gridTemplateColumns: templateColumns,
+            gridTemplateColumns: gridTemplateColumns,
             columnGap,
             gridTemplateRows: templateRows,
             rowGap,
@@ -158,6 +213,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
               const containerProps = containers[id].children;
               const noOfColumns = columns.length;
               return (
+                <React.Fragment key={id}>
                 <BackgroundColorContext.Provider value={props.columnStyle.background}>
                   <ColWrapper
                     key={id}
@@ -176,6 +232,7 @@ const ColumnLayout = (props: ColumnLayoutProps) => {
                     />
                   </ColWrapper>
                 </BackgroundColorContext.Provider>
+                </React.Fragment>
               )
               })
             }

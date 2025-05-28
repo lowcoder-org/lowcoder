@@ -20,6 +20,7 @@ export type InviteInfo = {
 class InviteApi extends Api {
   static getInviteURL = "/invitation";
   static acceptInviteURL = (invitationId: string) => `/invitation/${invitationId}/invite`;
+  static sendInvitationURL = `${this.getInviteURL}/email/invite`;
 
   // generate invitation
   static getInvite(request: GetInviteRequest): AxiosPromise<GenericApiResponse<InviteInfo>> {
@@ -35,6 +36,11 @@ class InviteApi extends Api {
   static acceptInvite(request: InviteRequest): AxiosPromise<GenericApiResponse<InviteInfo>> {
     // the same api as getInviteInfo, method is by post
     return Api.get(InviteApi.acceptInviteURL(request.invitationId));
+  }
+
+  // send invitations
+  static sendInvitations(request: {emails: string[], orgId: string}): AxiosPromise<GenericApiResponse<any>> {
+    return Api.post(InviteApi.sendInvitationURL, request);
   }
 }
 

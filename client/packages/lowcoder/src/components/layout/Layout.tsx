@@ -111,8 +111,10 @@ export function Layout(props: LayoutProps) {
         placement="right"
         closable={true}
         onClose={toggleDrawer}
-        visible={drawerVisible}
-        bodyStyle={{ padding: "0px" }}
+        open={drawerVisible}
+        styles={{
+          body: { padding: "0px" }
+        }}
         destroyOnClose // Ensure drawer content is removed when closed
       >
         <DrawerContentWrapper>

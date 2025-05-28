@@ -1,5 +1,5 @@
 import { RecordConstructorToComp } from "lowcoder-core";
-import { BoolCodeControl } from "../../controls/codeControl";
+import { BoolCodeControl, NumberControl } from "../../controls/codeControl";
 import { LabelControl } from "../../controls/labelControl";
 import {
   arrayStringExposingStateControl,
@@ -43,6 +43,7 @@ export const RadioChildrenMap = {
   viewRef: RefControl<HTMLDivElement>,
   inputFieldStyle:styleControl(RadioStyle ,'inputFieldStyle' ),
   animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+  tabIndex: NumberControl,
   ...SelectInputValidationChildren,
   ...formDataChildren,
 };
@@ -73,7 +74,9 @@ export const RadioPropertyView = (
         {disabledPropertyView(children)}
         {hiddenPropertyView(children)}
         {showDataLoadingIndicatorsPropertyView(children as any)}
-      </Section></>
+        {children.tabIndex.propertyView({ label: trans("prop.tabIndex") })}
+      </Section>
+      </>
     )}
 
     {["layout", "both"].includes(useContext(EditorContext).editorModeStatus) && (

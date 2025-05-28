@@ -4,7 +4,7 @@ import { ButtonEventHandlerControl } from "comps/controls/eventHandlerControl";
 import { IconControl } from "comps/controls/iconControl";
 import { CompNameContext, EditorContext, EditorState } from "comps/editorState";
 import { withDefault } from "comps/generators";
-import { UICompBuilder } from "comps/generators/uiCompBuilder";
+import { NewChildren, UICompBuilder } from "comps/generators/uiCompBuilder";
 import {
   disabledPropertyView,
   hiddenPropertyView,
@@ -23,10 +23,12 @@ import {
   ButtonStyleControl,
 } from "./buttonCompConstants";
 import { RefControl } from "comps/controls/refControl";
-
-import React, { useContext, useEffect } from "react";
+import { Tooltip } from "antd";
+import React, { useContext, useEffect, useCallback, useRef } from "react";
 import { AnimationStyle } from "@lowcoder-ee/comps/controls/styleControlConstants";
 import { styleControl } from "@lowcoder-ee/comps/controls/styleControl";
+import { RecordConstructorToComp } from "lowcoder-core";
+import { ToViewReturn } from "@lowcoder-ee/comps/generators/multi";
 
 const FormLabel = styled(CommonBlueLabel)`
   font-size: 13px;
@@ -120,25 +122,91 @@ function submitForm(editorState: EditorState, formName: string) {
   }
 }
 
-const ButtonTmpComp = (function () {
-  const childrenMap = {
-    text: withDefault(StringControl, trans("button.button")),
-    type: dropdownControl(typeOptions, ""),
-    onEvent: ButtonEventHandlerControl,
-    disabled: BoolCodeControl,
-    loading: BoolCodeControl,
-    form: SelectFormControl,
-    prefixIcon: IconControl,
-    suffixIcon: IconControl,
-    style: ButtonStyleControl,
-    animationStyle: styleControl(AnimationStyle, 'animationStyle'),
-    viewRef: RefControl<HTMLElement>,
-  };
-  return new UICompBuilder(childrenMap, (props) => {
-    return(
-      <ButtonCompWrapper $disabled={props.disabled}>
-        <EditorContext.Consumer>
-          {(editorState) => (
+const childrenMap = {
+  text: withDefault(StringControl, trans("button.button")),
+  type: dropdownControl(typeOptions, ""),
+  onEvent: ButtonEventHandlerControl,
+  disabled: BoolCodeControl,
+  loading: BoolCodeControl,
+  form: SelectFormControl,
+  prefixIcon: IconControl,
+  suffixIcon: IconControl,
+  style: ButtonStyleControl,
+  animationStyle: styleControl(AnimationStyle, 'animationStyle'),
+  viewRef: RefControl<HTMLElement>,
+  tooltip: StringControl
+};
+
+type ChildrenType = NewChildren<RecordConstructorToComp<typeof childrenMap>>;
+
+const ButtonPropertyView = React.memo((props: {
+  children: ChildrenType
+}) => {
+  const { editorModeStatus } = useContext(EditorContext);
+  return (
+    <>
+      <Section name={sectionNames.basic}>
+        {props.children.text.propertyView({ label: trans("text") })}
+        {props.children.tooltip.propertyView({ label: trans("labelProp.tooltip")})}
+      </Section>
+
+      {(editorModeStatus === "logic" || editorModeStatus === "both") && (
+        <><Section name={sectionNames.interaction}>
+          {props.children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
+          {isDefault(props.children.type.getView())
+            ? [
+              props.children.onEvent.getPropertyView(),
+              disabledPropertyView(props.children),
+              hiddenPropertyView(props.children),
+              loadingPropertyView(props.children),
+            ]
+            : props.children.form.getPropertyView()}
+          </Section>
+        </>
+      )}
+
+      {(editorModeStatus === "layout" || editorModeStatus === "both") && (
+        <>
+          <Section name={sectionNames.layout}>
+            {props.children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
+            {props.children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
+          </Section>
+          <Section name={sectionNames.style}>{props.children.style.getPropertyView()}</Section>
+        </>
+      )}
+    </>
+  );
+});
+
+const ButtonView = React.memo((props: ToViewReturn<ChildrenType>) => {
+  const editorState = useContext(EditorContext);
+  const mountedRef = useRef<boolean>(true);
+
+  useEffect(() => {
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
+
+  const handleClick = useCallback(() => {
+    if (!mountedRef.current) return;
+    
+    try {
+      if (isDefault(props.type)) {
+        props.onEvent("click");
+      } else {
+        submitForm(editorState, props.form);
+      }
+    } catch (error) {
+      console.error("Error in button click handler:", error);
+    }
+  }, [props.type, props.onEvent, props.form, editorState]);
+
+  return (
+    <ButtonCompWrapper $disabled={props.disabled}>
+      <EditorContext.Consumer>
+        {(editorState) => (
+          <Tooltip title={props.tooltip}>
             <Button100
               ref={props.viewRef}
               $buttonStyle={props.style}
@@ -147,9 +215,7 @@ const ButtonTmpComp = (function () {
                 props.disabled ||
                 (!isDefault(props.type) && getForm(editorState, props.form)?.disableSubmit())
               }
-              onClick={() =>
-                isDefault(props.type) ? props.onEvent("click") : submitForm(editorState, props.form)
-              }
+              onClick={handleClick}
             >
               {props.prefixIcon && <IconWrapper>{props.prefixIcon}</IconWrapper>}
               {
@@ -157,46 +223,20 @@ const ButtonTmpComp = (function () {
               }
               {props.suffixIcon && <IconWrapper>{props.suffixIcon}</IconWrapper>}
             </Button100>
-          )}
-        </EditorContext.Consumer>
-      </ButtonCompWrapper>
-    );
-  })
-    .setPropertyViewFn((children) => (
-      <>
-        <Section name={sectionNames.basic}>
-          {children.text.propertyView({ label: trans("text") })}
-        </Section>
-
-        {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
-          <><Section name={sectionNames.interaction}>
-            {children.type.propertyView({ label: trans("prop.type"), radioButton: true })}
-            {isDefault(children.type.getView())
-              ? [
-                children.onEvent.getPropertyView(),
-                disabledPropertyView(children),
-                hiddenPropertyView(children),
-                loadingPropertyView(children),
-              ]
-              : children.form.getPropertyView()}
-            </Section>
-          </>
+          </Tooltip>
         )}
+      </EditorContext.Consumer>
+    </ButtonCompWrapper>
+  );
+});
 
-        {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
-          <>
-            <Section name={sectionNames.layout}>
-              {children.prefixIcon.propertyView({ label: trans("button.prefixIcon") })}
-              {children.suffixIcon.propertyView({ label: trans("button.suffixIcon") })}
-            </Section>
-            <Section name={sectionNames.style}>{children.style.getPropertyView()}</Section>
-          </>
-        )}
-      </>
-    ))
-    .setExposeMethodConfigs(buttonRefMethods)
-    .build();
-})();
+const buttonViewFn = (props: ToViewReturn<ChildrenType>) => <ButtonView {...props} />
+const buttonPropertyViewFn = (children: ChildrenType) => <ButtonPropertyView children={children} />
+
+const ButtonTmpComp = new UICompBuilder(childrenMap, buttonViewFn)
+  .setPropertyViewFn(buttonPropertyViewFn)
+  .setExposeMethodConfigs(buttonRefMethods)
+  .build();
 
 export const ButtonComp = withExposingConfigs(ButtonTmpComp, [
   new NameConfig("text", trans("button.textDesc")),

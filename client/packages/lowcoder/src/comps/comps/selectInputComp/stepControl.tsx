@@ -151,6 +151,9 @@ let StepControlBasicComp = (function () {
     const onChange = (index: number) => {
       if (props.selectable == false) return;
       const newIndex = Math.max(0, index);
+      if (props.options[newIndex]?.disabled) {
+           return;
+      }
       setCurrent(newIndex);
       if (props.options[newIndex]?.value !== undefined) {
         props.value.onChange(newIndex + 1 + ""); // Convert back to 1-based index for display.
@@ -198,6 +201,7 @@ let StepControlBasicComp = (function () {
                   title={option.label}
                   subTitle={option.subTitle}
                   description={option.description}
+                  disabled={option.disabled}
                   status={option.status as "error" | "finish" | "wait" | "process" | undefined}
                   icon={props.showIcons && hasIcon(option.icon) && option.icon || undefined}
                 />
