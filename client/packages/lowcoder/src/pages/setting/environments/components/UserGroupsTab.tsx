@@ -105,22 +105,22 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
     <Card 
       style={{ 
         height: '100%', 
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        borderRadius: '4px',
+        border: '1px solid #f0f0f0'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+          <div style={{ fontSize: '13px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '20px', fontWeight: 500 }}>{value}</div>
         </div>
         <div style={{ 
-          fontSize: '28px', 
+          fontSize: '24px', 
           opacity: 0.8, 
           color: '#722ed1',
-          padding: '12px',
+          padding: '8px',
           backgroundColor: 'rgba(114, 46, 209, 0.1)',
-          borderRadius: '50%',
+          borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -144,12 +144,13 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
               marginRight: 12
             }}
             shape="square"
+            size="small"
           >
             {group.groupName.charAt(0).toUpperCase()}
           </Avatar>
           <div>
-            <div style={{ fontWeight: 500 }}>{group.groupName}</div>
-            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
+            <div style={{ fontWeight: 500, fontSize: '14px' }}>{group.groupName}</div>
+            <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 2 }}>
               {group.groupId}
             </div>
           </div>
@@ -161,17 +162,17 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       key: 'type',
       render: (_: any, group: UserGroup) => {
         if (group.allUsersGroup) return (
-          <Tag color="blue" style={{ borderRadius: '12px' }}>
+          <Tag color="blue" style={{ borderRadius: '4px' }}>
             <UserOutlined style={{ marginRight: 4 }} /> All Users
           </Tag>
         );
         if (group.devGroup) return (
-          <Tag color="purple" style={{ borderRadius: '12px' }}>
+          <Tag color="purple" style={{ borderRadius: '4px' }}>
             <CodeOutlined style={{ marginRight: 4 }} /> Developers
           </Tag>
         );
         return (
-          <Tag color="default" style={{ borderRadius: '12px' }}>
+          <Tag color="default" style={{ borderRadius: '4px' }}>
             <SettingOutlined style={{ marginRight: 4 }} /> Custom
           </Tag>
         );
@@ -182,7 +183,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       key: 'members',
       render: (_: any, group: UserGroup) => (
         <Tooltip title="Total number of members in this group">
-          <Tag style={{ borderRadius: '12px', backgroundColor: '#f6f6f6', color: '#333' }}>
+          <Tag style={{ borderRadius: '4px', backgroundColor: '#f6f6f6', color: '#333' }}>
             <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.userCount || 0}
           </Tag>
         </Tooltip>
@@ -193,7 +194,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       key: 'adminMembers',
       render: (_: any, group: UserGroup) => (
         <Tooltip title="Number of admin users in this group">
-          <Tag style={{ borderRadius: '12px', backgroundColor: '#fff1f0', color: '#cf1322' }}>
+          <Tag style={{ borderRadius: '4px', backgroundColor: '#fff1f0', color: '#cf1322' }}>
             <UserOutlined style={{ marginRight: 4 }} /> {group.stats?.adminUserCount || 0}
           </Tag>
         </Tooltip>
@@ -204,7 +205,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       dataIndex: 'createTime',
       key: 'createTime',
       render: (createTime: number) => (
-        <span style={{ color: '#8c8c8c' }}>
+        <span style={{ color: '#8c8c8c', fontSize: '13px' }}>
           {new Date(createTime).toLocaleDateString()}
         </span>
       ),
@@ -212,35 +213,26 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
   ];
 
   return (
-    <div style={{ padding: '16px 0' }}>
+    <div style={{ padding: '16px' }}>
       {/* Header */}
       <div style={{ 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center", 
-        marginBottom: "24px",
-        background: 'linear-gradient(135deg, #722ed1 0%, #eb2f96 100%)',
-        padding: '20px 24px',
-        borderRadius: '8px',
-        color: 'white'
+        marginBottom: "20px"
       }}>
         <div>
-          <Title level={4} style={{ color: 'white', margin: 0 }}>
-            <UsergroupAddOutlined style={{ marginRight: 10 }} /> User Groups
+          <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
+            <UsergroupAddOutlined style={{ marginRight: 8 }} /> User Groups
           </Title>
-          <p style={{ marginBottom: 0 }}>Manage user groups in this environment</p>
+          <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
+            Manage user groups in this environment
+          </p>
         </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
-          type="default"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderColor: 'rgba(255, 255, 255, 0.4)',
-            color: 'white',
-            fontWeight: 500
-          }}
         >
           Refresh
         </Button>
@@ -253,7 +245,7 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "20px" }}
+          style={{ marginBottom: "16px" }}
         />
       )}
 
@@ -264,12 +256,12 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "20px" }}
+          style={{ marginBottom: "16px" }}
         />
       )}
 
       {/* Stats display */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={24} sm={12} md={6}>
           <StatCard 
             title="Total Groups" 
@@ -303,13 +295,13 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
       {/* Content */}
       <Card 
         style={{ 
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          borderRadius: '4px',
+          border: '1px solid #f0f0f0'
         }}
       >
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" tip="Loading user groups..." />
+            <Spin size="large" />
           </div>
         ) : userGroups.length === 0 ? (
           <Empty
@@ -319,17 +311,16 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
         ) : (
           <>
             {/* Search Bar */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ marginBottom: 16 }}>
               <Search
                 placeholder="Search user groups by name or ID"
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
                 style={{ width: 300 }}
-                size="large"
               />
               {searchText && filteredUserGroups.length !== userGroups.length && (
-                <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+                <div style={{ marginTop: 8, color: '#8c8c8c', fontSize: '13px' }}>
                   Showing {filteredUserGroups.length} of {userGroups.length} user groups
                 </div>
               )}
@@ -341,12 +332,10 @@ const UserGroupsTab: React.FC<UserGroupsTabProps> = ({ environment }) => {
               rowKey="groupId"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} user groups`
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} user groups`,
+                size: 'small'
               }}
-              style={{ 
-                borderRadius: '8px', 
-                overflow: 'hidden'
-              }}
+              size="middle"
               rowClassName={() => 'group-row'}
             />
           </>

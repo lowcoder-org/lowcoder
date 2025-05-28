@@ -46,3 +46,13 @@ export const selectLicensedEnvironments = (state: AppState) => {
   return environments.filter(env => env.isLicensed !== false); 
 };
 
+export const selectMasterEnvironment = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.find(env => env.isMaster) ?? null;
+};
+
+export const selectHasMasterEnvironment = (state: AppState) => {
+  const environments = state.ui.enterprise?.environments ?? [];
+  return environments.some(env => env.isMaster);
+};
+

@@ -13,7 +13,7 @@ interface EnvironmentsTableProps {
 }
 
 /**
- * Modern card-based layout for displaying environments
+ * Clean card-based layout for displaying environments consistent with app design
  */
 const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
   environments,
@@ -34,17 +34,16 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
 
   // Generate background color for environment avatar
   const getAvatarColor = (name: string) => {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    
     const type = name.toUpperCase();
     if (type === 'PROD') return '#f5222d';
     if (type === 'PREPROD') return '#fa8c16';
     if (type === 'TEST') return '#722ed1';
     if (type === 'DEV') return '#1890ff';
     
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) {
+      hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    }
     const hue = Math.abs(hash % 360);
     return `hsl(${hue}, 70%, 50%)`;
   };
@@ -90,7 +89,6 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
     }
   };
 
-  // For card display, we'll use a custom layout instead of Table
   if (environments.length === 0) {
     return null;
   }
@@ -107,16 +105,14 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
               <Card
                 hoverable
                 style={{ 
-                  borderRadius: '8px',
-                  overflow: 'hidden',
+                  borderRadius: '4px',
                   height: '100%',
                   cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+                  transition: 'all 0.2s ease',
                   border: '1px solid #f0f0f0',
                   position: 'relative'
                 }}
-                bodyStyle={{ padding: '20px' }}
+                bodyStyle={{ padding: '16px' }}
                 onClick={() => handleRowClick(env)}
               >
                 {/* Subtle overlay for unlicensed environments */}
@@ -127,7 +123,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    background: 'rgba(255, 255, 255, 0.7)',
+                    background: 'rgba(255, 255, 255, 0.8)',
                     zIndex: 1,
                     display: 'flex',
                     alignItems: 'flex-start',
@@ -138,14 +134,13 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                     <div style={{
                       background: licenseDisplay.color,
                       color: 'white',
-                      padding: '6px 12px',
-                      borderRadius: '16px',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
                       fontSize: '12px',
-                      fontWeight: 600,
+                      fontWeight: 500,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
+                      gap: '4px'
                     }}>
                       {licenseDisplay.icon}
                       {licenseDisplay.text}
@@ -160,25 +155,24 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                         backgroundColor: getAvatarColor(env.environmentType), 
                         display: 'flex', 
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '20px'
+                        justifyContent: 'center'
                       }}
-                      size={48}
+                      size={40}
                       icon={<CloudServerOutlined />}
                     />
                     <div>
-                      <Title level={5} style={{ margin: 0, marginBottom: '4px' }}>
+                      <Title level={5} style={{ margin: 0, marginBottom: '4px', fontSize: '14px' }}>
                         {env.environmentName || 'Unnamed Environment'}
                         {env.isMaster && (
                           <Tooltip title="Master Environment">
-                            <StarFilled style={{ color: '#faad14', marginLeft: '8px', fontSize: '14px' }} />
+                            <StarFilled style={{ color: '#faad14', marginLeft: '6px', fontSize: '12px' }} />
                           </Tooltip>
                         )}
                       </Title>
                       <Space size="small">
                         <Tag 
                           color={getEnvironmentTagColor(env.environmentType)}
-                          style={{ borderRadius: '12px' }}
+                          style={{ fontSize: '11px', borderRadius: '4px' }}
                         >
                           {formatEnvironmentType(env.environmentType)}
                         </Tag>
@@ -187,7 +181,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                           color={licenseDisplay.status === 'success' ? 'green' : 
                                  licenseDisplay.status === 'error' ? 'red' : 
                                  licenseDisplay.status === 'warning' ? 'orange' : 'blue'}
-                          style={{ borderRadius: '12px' }}
+                          style={{ fontSize: '11px', borderRadius: '4px' }}
                         >
                           {licenseDisplay.text}
                         </Tag>
@@ -204,9 +198,11 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                           onClick={(e) => openAuditPage(env.environmentId, e)}
                           size="small"
                           style={{ 
-                            borderRadius: '50%', 
-                            width: '32px', 
-                            height: '32px'
+                            width: '28px', 
+                            height: '28px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         />
                       </Tooltip>
@@ -214,23 +210,23 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                   )}
                 </div>
                 
-                <div style={{ padding: '12px 0', borderTop: '1px solid #f5f5f5', marginTop: '4px' }}>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary" style={{ fontSize: '13px' }}>ID:</Text>
+                <div style={{ padding: '8px 0', borderTop: '1px solid #f5f5f5' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>ID:</Text>
                       {isAccessible ? (
-                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
+                        <Text style={{ fontSize: '12px', fontFamily: 'monospace' }} copyable={{ tooltips: ['Copy ID', 'Copied!'] }}>
                           {env.environmentId}
                         </Text>
                       ) : (
-                        <Text style={{ fontSize: '13px', fontFamily: 'monospace' }}>
+                        <Text style={{ fontSize: '12px', fontFamily: 'monospace' }}>
                           {env.environmentId}
                         </Text>
                       )}
                     </div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary" style={{ fontSize: '13px' }}>Domain:</Text>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>Domain:</Text>
                       {env.environmentFrontendUrl ? (
                         isAccessible ? (
                           <a 
@@ -238,35 +234,35 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                             target="_blank"
                             rel="noopener noreferrer"
                             onClick={(e) => e.stopPropagation()}
-                            style={{ fontSize: '13px' }}
+                            style={{ fontSize: '12px' }}
                           >
                             {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
-                            <LinkOutlined style={{ marginLeft: 4, fontSize: '12px' }} />
+                            <LinkOutlined style={{ marginLeft: 4, fontSize: '10px' }} />
                           </a>
                         ) : (
-                          <Text style={{ fontSize: '13px' }}>
+                          <Text style={{ fontSize: '12px' }}>
                             {env.environmentFrontendUrl.replace(/^https?:\/\//, '')}
                           </Text>
                         )
                       ) : (
-                        <Text style={{ fontSize: '13px' }}>—</Text>
+                        <Text style={{ fontSize: '12px' }}>—</Text>
                       )}
                     </div>
                     
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary" style={{ fontSize: '13px' }}>Master:</Text>
-                      <Text style={{ fontSize: '13px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>Master:</Text>
+                      <Text style={{ fontSize: '12px' }}>
                         {env.isMaster ? 'Yes' : 'No'}
                       </Text>
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text type="secondary" style={{ fontSize: '13px' }}>License:</Text>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Text type="secondary" style={{ fontSize: '12px' }}>License:</Text>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <span style={{ color: licenseDisplay.color, fontSize: '13px' }}>
+                        <span style={{ color: licenseDisplay.color, fontSize: '12px' }}>
                           {licenseDisplay.icon}
                         </span>
-                        <Text style={{ fontSize: '13px', color: licenseDisplay.color }}>
+                        <Text style={{ fontSize: '12px', color: licenseDisplay.color }}>
                           {licenseDisplay.text}
                         </Text>
                       </div>
@@ -280,8 +276,8 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       </Row>
       
       {environments.length > 10 && (
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-          <Text type="secondary">
+        <div style={{ textAlign: 'center', margin: '16px 0' }}>
+          <Text type="secondary" style={{ fontSize: '13px' }}>
             Showing all {environments.length} environments
           </Text>
         </div>

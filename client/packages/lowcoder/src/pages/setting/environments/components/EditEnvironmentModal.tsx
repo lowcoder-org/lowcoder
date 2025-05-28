@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch, Button } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button, Tooltip } from 'antd';
+import { useSelector } from 'react-redux';
+import { selectMasterEnvironment, selectHasMasterEnvironment } from 'redux/selectors/enterpriseSelectors';
 import { Environment } from '../types/environment.types';
 
 const { Option } = Select;
@@ -21,10 +23,19 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [isMaster, setIsMaster] = useState(false);
+
+  // Redux selectors to check for existing master environment
+  const hasMasterEnvironment = useSelector(selectHasMasterEnvironment);
+  const masterEnvironment = useSelector(selectMasterEnvironment);
+
+  // Check if another environment is master (not this one)
+  const hasOtherMaster = hasMasterEnvironment && masterEnvironment?.environmentId !== environment?.environmentId;
 
   // Initialize form with environment data when it changes
   useEffect(() => {
     if (environment) {
+      setIsMaster(environment.isMaster);
       form.setFieldsValue({
         environmentName: environment.environmentName || '',
         environmentDescription: environment.environmentDescription || '',
@@ -32,11 +43,18 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
         environmentApiServiceUrl: environment.environmentApiServiceUrl || '',
         environmentFrontendUrl: environment.environmentFrontendUrl || '',
         environmentNodeServiceUrl: environment.environmentNodeServiceUrl || '',
-        environmentApikey: environment.environmentApikey || '',
-        isMaster: environment.isMaster
+        environmentApikey: environment.environmentApikey || ''
       });
     }
   }, [environment, form]);
+
+  const handleMasterChange = (checked: boolean) => {
+    // Only allow enabling master if no other environment is master
+    if (checked && hasOtherMaster) {
+      return; // Do nothing if trying to enable master when another exists
+    }
+    setIsMaster(checked);
+  };
 
   const handleSubmit = async () => {
     if (!environment) return;
@@ -45,7 +63,12 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
       const values = await form.validateFields();
       setSubmitLoading(true);
       
-      await onSave(values); // Call with only the data parameter
+      const submitData = {
+        ...values,
+        isMaster
+      };
+      
+      await onSave(submitData);
       onClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -144,13 +167,31 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item
-          name="isMaster"
-          label="Master Environment"
-          valuePropName="checked"
-        >
-          <Switch />
+        <Form.Item label="Master Environment">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Tooltip 
+              title={
+                hasOtherMaster && !isMaster 
+                  ? `${masterEnvironment?.environmentName} is already the Master environment` 
+                  : ''
+              }
+            >
+              <Switch 
+                checked={isMaster}
+                onChange={handleMasterChange}
+                disabled={hasOtherMaster && !isMaster}
+                
+              />
+            </Tooltip>
+            {isMaster && (
+              <span style={{ color: '#faad14', fontSize: '12px' }}>
+                Currently Master
+              </span>
+            )}
+          </div>
         </Form.Item>
+
+       
       </Form>
     </Modal>
   );

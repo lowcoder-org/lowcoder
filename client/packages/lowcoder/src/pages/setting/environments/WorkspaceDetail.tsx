@@ -118,7 +118,11 @@ const WorkspaceDetail: React.FC = () => {
       <ModernBreadcrumbs items={breadcrumbItems} />
 
       {/* Tabs for Apps, Data Sources, and Queries */}
-      <Tabs defaultActiveKey="apps" className="modern-tabs" type="card">
+      <Tabs 
+        defaultActiveKey="apps" 
+        className="modern-tabs" 
+        type="line"
+      >
         <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
           <AppsTab
             environment={environment}

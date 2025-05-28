@@ -194,7 +194,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       render: (query: Query) => (
         <Tag 
           color={query.managed ? 'processing' : 'default'} 
-          style={{ borderRadius: '12px' }}
+          style={{ borderRadius: '4px' }}
         >
           {query.managed ? <CloudServerOutlined /> : <DisconnectOutlined />} {query.managed ? 'Managed' : 'Unmanaged'}
         </Tag>
@@ -249,22 +249,22 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
     <Card 
       style={{ 
         height: '100%', 
-        borderRadius: '8px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        borderRadius: '4px',
+        border: '1px solid #f0f0f0'
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
-          <div style={{ fontSize: '14px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
-          <div style={{ fontSize: '24px', fontWeight: 600 }}>{value}</div>
+          <div style={{ fontSize: '13px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
+          <div style={{ fontSize: '20px', fontWeight: 500 }}>{value}</div>
         </div>
         <div style={{ 
-          fontSize: '28px', 
+          fontSize: '24px', 
           opacity: 0.8, 
-          color: '#1890ff',
-          padding: '12px',
-          backgroundColor: 'rgba(24, 144, 255, 0.1)',
-          borderRadius: '50%',
+          color: '#722ed1',
+          padding: '8px',
+          backgroundColor: 'rgba(114, 46, 209, 0.1)',
+          borderRadius: '4px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center'
@@ -276,35 +276,26 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
   );
 
   return (
-    <div style={{ padding: '16px 0' }}>
+    <div style={{ padding: '16px' }}>
       {/* Header */}
       <div style={{ 
         display: "flex", 
         justifyContent: "space-between", 
         alignItems: "center", 
-        marginBottom: "24px",
-        background: 'linear-gradient(135deg, #722ed1 0%, #eb2f96 100%)',
-        padding: '20px 24px',
-        borderRadius: '8px',
-        color: 'white'
+        marginBottom: "20px"
       }}>
         <div>
-          <Title level={4} style={{ color: 'white', margin: 0 }}>
-            <ThunderboltOutlined style={{ marginRight: 10 }} /> Queries
+          <Title level={4} style={{ margin: 0, marginBottom: '4px' }}>
+            <ThunderboltOutlined style={{ marginRight: 8 }} /> Queries
           </Title>
-          <p style={{ marginBottom: 0 }}>Manage your workspace API queries</p>
+          <p style={{ marginBottom: 0, color: '#8c8c8c', fontSize: '14px' }}>
+            Manage workspace API queries
+          </p>
         </div>
         <Button 
           icon={<SyncOutlined spin={refreshing} />} 
           onClick={handleRefresh}
           loading={loading}
-          type="default"
-          style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.2)',
-            borderColor: 'rgba(255, 255, 255, 0.4)',
-            color: 'white',
-            fontWeight: 500
-          }}
         >
           Refresh
         </Button>
@@ -317,7 +308,7 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           description={error}
           type="error"
           showIcon
-          style={{ marginBottom: "20px" }}
+          style={{ marginBottom: "16px" }}
         />
       )}
 
@@ -328,12 +319,12 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
           description="Missing required configuration: API key or API service URL"
           type="warning"
           showIcon
-          style={{ marginBottom: "20px" }}
+          style={{ marginBottom: "16px" }}
         />
       )}
 
       {/* Stats display */}
-      <Row gutter={[16, 16]} style={{ marginBottom: '24px' }}>
+      <Row gutter={[16, 16]} style={{ marginBottom: '20px' }}>
         <Col xs={24} sm={8}>
           <StatCard 
             title="Total Queries" 
@@ -360,13 +351,13 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
       {/* Content */}
       <Card 
         style={{ 
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+          borderRadius: '4px',
+          border: '1px solid #f0f0f0'
         }}
       >
         {loading ? (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '40px' }}>
-            <Spin size="large" tip="Loading queries..." />
+            <Spin size="large" />
           </div>
         ) : queries.length === 0 ? (
           <Empty
@@ -376,30 +367,26 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
         ) : (
           <>
             {/* Search and Filter Bar */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
               <Search
                 placeholder="Search queries by name or ID"
                 allowClear
                 onSearch={value => setSearchText(value)}
                 onChange={e => setSearchText(e.target.value)}
                 style={{ width: 300 }}
-                size="large"
               />
               <Button 
                 onClick={() => setShowManagedOnly(!showManagedOnly)}
-                type="default"
+                type={showManagedOnly ? "primary" : "default"}
                 icon={<FilterOutlined />}
-                style={{
-                  marginLeft: '8px',
-                  backgroundColor: showManagedOnly ? '#1890ff' : 'white',
-                  color: showManagedOnly ? 'white' : '#1890ff',
-                  borderColor: '#1890ff'
-                }}
-              />
+                style={{ marginLeft: '8px' }}
+              >
+                {showManagedOnly ? 'Show All' : 'Managed Only'}
+              </Button>
             </div>
             
             {searchText && displayedQueries.length !== queries.length && (
-              <div style={{ marginTop: 8, color: '#8c8c8c' }}>
+              <div style={{ marginBottom: 16, color: '#8c8c8c', fontSize: '13px' }}>
                 Showing {displayedQueries.length} of {queries.length} queries
               </div>
             )}
@@ -410,13 +397,11 @@ const QueriesTab: React.FC<QueriesTabProps> = ({ environment, workspaceId }) => 
               rowKey="id"
               pagination={{ 
                 pageSize: 10,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} queries`
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} queries`,
+                size: 'small'
               }}
+              size="middle"
               rowClassName={() => 'query-row'}
-              style={{ 
-                borderRadius: '8px', 
-                overflow: 'hidden'
-              }}
             />
           </>
         )}
