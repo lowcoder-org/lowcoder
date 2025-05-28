@@ -163,11 +163,11 @@ const PreviewHeaderComp = () => {
     <>
       <StyledLink onClick={() => !isPublicApp && history.push(ALL_APPLICATIONS_URL)}>
         {/* <LogoIcon branding={true} /> */}
-        { brandingSettings?.config_set?.squareLogo
+        { brandingSettings?.config_set?.logo
           ? (
             Boolean(brandingSettings?.orgId)
-            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.squareLogo)} />
-            : <BrandLogo src={brandingSettings?.config_set?.squareLogo} />
+            ? <BrandLogo src={buildMaterialPreviewURL(brandingSettings?.config_set?.logo)} />
+            : <BrandLogo src={brandingSettings?.config_set?.logo} />
           ) : <LogoIcon branding={true} />
         }
       </StyledLink>

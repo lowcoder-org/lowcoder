@@ -1,7 +1,7 @@
 import { HelpText } from "components/HelpText";
-import { Upload, Switch, Card, Input, message, Divider } from "antd";
+import { Upload, Switch, Card, Input, message, Divider, Row, Col, Image } from "antd";
 import { TacoButton, CustomSelect, messageInstance, Dropdown, ResetIcon, CustomModal } from "lowcoder-design";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { trans } from "i18n";
@@ -13,7 +13,7 @@ import {
   } from "../theme/styledComponents";
 import { HeaderBack } from "pages/setting/permission/styledComponents";
 import { LoadingOutlined, PlusOutlined } from '@ant-design/icons';
-import type { UploadChangeParam, RcFile } from "antd/es/upload";
+import type { UploadChangeParam, RcFile } from "antd/es/upload/interface";
 import MaterialApi, { MaterialUploadTypeEnum } from "@lowcoder-ee/api/materialApi";
 import { validateResponse } from "@lowcoder-ee/api/apiUtils";
 import { buildMaterialPreviewURL } from "@lowcoder-ee/util/materialUtils";
@@ -23,6 +23,8 @@ import { BrandingConfig, BrandingSettings, createBranding, getBranding } from "@
 import Flex from "antd/es/flex";
 import { fetchBrandingSetting } from "@lowcoder-ee/redux/reduxActions/enterpriseActions";
 import { Level1SettingPageTitle } from "../styled";
+import Title from "antd/es/typography/Title";
+import Paragraph from "antd/es/typography/Paragraph";
 
 const { TextArea } = Input;
 
@@ -84,6 +86,35 @@ const defaultSettings = {
   whatsNewLink : null,
 };
 
+const settingDescription = {
+  logo: "The main logo displayed in the application header",
+  squareLogo: "Square or icon-style logo used where space is limited, like browser tabs or mobile headers.",
+  mainBrandingColor: "Core brand color used for branding across the app.",
+  appHeaderColor: "Background color of the application's top header/navigation bar.",
+  adminSidebarColor: "Background color of the admin panel's sidebar.",
+  adminSidebarFontColor: "Text color of the menu items in the admin sidebar.",
+  adminSidebarActiveBgColor: "Background color for the active/selected item in the admin sidebar.",
+  adminSidebarActiveFontColor: "Text color for the active/selected item in the admin sidebar.",
+  editorSidebarColor: "Background color of the editor (e.g., page builder) sidebar.",
+  editorSidebarFontColor: "Text color for items in the editor sidebar.6",
+  editorSidebarActiveBgColor: "Background color for the active item in the editor sidebar.",
+  editorSidebarActiveFontColor: "Text color for the active item in the editor sidebar.",
+  font: "Font family used throughout the app interface. Typically selected from Google Fonts.",
+  errorPageText: "Display a custom message and image when the app fails to load or encounters a critical error.",
+  errorPageImage: "Optional illustration or graphic shown on error pages.",
+  signUpPageText: "Customize the Sign Up page with a welcome message and an optional image to match your brand.",
+  signUpPageImage: "Optional graphic displayed on the signup page.",
+  loggedOutPageText: "You have been logged out successfully.",
+  loggedOutPageImage: null,
+  standardDescription: "Default description text used in metadata (e.g., SEO or share cards).",
+  standardTitle: "Set a default title and description for SEO and social media sharing when specific page metadata isn't provided",
+  showDocumentation: "Toggles whether a documentation link should appear in the app UI.",
+  documentationLink: null,
+  submitIssue: "Enables a link or button for users to report issues or bugs.",
+  whatsNew: "Enables display of new features, updates, or changelogs in the app.",
+  whatsNewLink : null,
+};
+
 const fonts = [
   {label: 'Roboto', value: 'Roboto'},
   {label: 'Open Sans', value: 'Open+Sans'},
@@ -98,22 +129,71 @@ const fonts = [
 ]
 // type FileType = Parameters<UploadProps["beforeUpload"]>[0] | undefined;
 
-const BrandingSettingContent = styled.div`
+const StyledBrandingSettingContent = styled.div`
   font-size: 14px;
   color: #8b8fa3;
   flex-grow: 1;
   padding-top: 0px;
   padding-left: 0px;
   max-width: 100%;
+  margin-top: 20px;
 `;
 
-const StyleThemeSettingsCover = styled.div`
+const StyledThemeSettingsCover = styled.div`
   display: flex;
   flex-direction: row;
   background: linear-gradient(34deg, rgba(2, 0, 36, 1) 0%, rgba(102, 9, 121, 1) 35%, rgba(0, 255, 181, 1) 100%);
   padding: 15px;
   height: 80px;
   border-radius: 10px 10px 0 0;
+`;
+
+const StyledCoverTitle = styled.h2`
+  color: #ffffff;
+  margin-top: 8px;
+`;
+
+const StyledSectionTitle = styled.h3`
+  margin-bottom: 12px;
+`;
+
+const StyledInput = styled(Input)`
+  margin-bottom: 12px;
+`;
+
+const StyledTextArea = styled(TextArea)`
+  margin-bottom: 12px;
+`;
+
+const StyledDropdown = styled(Dropdown)`
+  width: 300px;
+`;
+
+const StyledImage = styled(Image)`
+  border-radius: 6px;
+  box-shadow: 0px 0px 8px 0px lightgray;
+  object-fit: cover;
+  object-position: top;
+`;
+
+const StyledCustomSelect = styled(CustomSelect)`
+  min-width: 150px;
+`;
+
+const StyledRow = styled(Row)`
+  padding: 10px 0;
+`;
+
+const StyledButtonContainer = styled(Flex)`
+  margin-top: 20px;
+`;
+
+const StyledDivider = styled(Divider)`
+  margin: 20px 0;
+`;
+
+const StyledSwitchContainer = styled.div`
+  margin-top: 20px;
 `;
 
 const StyledRectUploadContainer = styled.div`
@@ -159,7 +239,7 @@ const StyledSquareUploadContainer = styled.div`
 const getBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.readAsBinaryString(file); // Read file as base64
+    reader.readAsBinaryString(file);
 
     reader.onload = () => resolve(reader.result as string);
     reader.onerror = error => reject(error);
@@ -219,18 +299,16 @@ export function BrandingSetting() {
       } catch(e) {
         setBrandingConfig(undefined);
         setDefaultBrandingConfig(undefined);
+        message.error(trans("branding.fetchBrandingError"));
       }
     }
 
     fetchBrandingDetails();
   }, [configOrgId]);
 
-  const isBrandingNotChange = () => {
-    return (
-      JSON.stringify({ ...brandingConfig }) ===
-      JSON.stringify({ ...defaultBrandingConfig })
-    );
-  }
+  const isBrandingNotChange = useCallback(() => {
+    return JSON.stringify(brandingConfig) === JSON.stringify(defaultBrandingConfig);
+  }, [brandingConfig, defaultBrandingConfig]);
 
   const updateSettings = (key: keyof BrandingSettings, value: any) => {
     setBrandingConfig((branding) => ({
@@ -308,12 +386,12 @@ export function BrandingSetting() {
     })
   }
 
-  const uploadButton = (loading: boolean) => (
+  const uploadButton = useCallback((loading: boolean) => (
     <div>
       {loading ? <LoadingOutlined /> : <PlusOutlined />}
-      <div style={{ marginTop: 8 }}>Upload</div>
+      <div style={{ marginTop: 8 }}>{trans("branding.upload")}</div>
     </div>
-  );
+  ), []);
 
   return (
     <DetailContainer>
@@ -325,15 +403,14 @@ export function BrandingSetting() {
       <DetailContent>
       
       {/* Branding Settings Selection */}
-      <BrandingSettingContent>
-          <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.general")}</h2>
-          </StyleThemeSettingsCover>
+      <StyledBrandingSettingContent>
+          <StyledThemeSettingsCover>
+            <StyledCoverTitle>{trans("branding.general")}</StyledCoverTitle>
+          </StyledThemeSettingsCover>
           <Card>
             <div>
-              <h3>{trans("branding.selectWorkspace")}</h3>
-              <Dropdown
-                style={{ width: '300px' }}
+              <StyledSectionTitle>{trans("branding.selectWorkspace")}</StyledSectionTitle>
+              <StyledDropdown
                 placeholder={trans("branding.selectWorkspace")}
                 options={orgsList}
                 allowClear
@@ -345,9 +422,9 @@ export function BrandingSetting() {
               />
             </div>
 
-            <div style={{ marginTop: "20px" }}>
-              <h3>{trans("branding.brandingName")}</h3>
-              <Input
+            <div>
+              <StyledSectionTitle>{trans("branding.brandingName")}</StyledSectionTitle>
+              <StyledInput
                 placeholder={trans("branding.brandingNamePlaceholder")}
                 value={brandingConfig?.config_name}
                 onChange={(e) => {
@@ -356,14 +433,13 @@ export function BrandingSetting() {
                     config_name: e.target.value
                   }))
                 }}
-                style={{ marginBottom: 12 }}
               />
               {/* <HelpText>{trans("branding.documentationLinkHelp")}</HelpText> */}
             </div>
 
-            <div style={{ marginTop: "20px" }}>
-              <h3>{trans("branding.brandingDescription")}</h3>
-              <Input
+            <div>
+              <StyledSectionTitle>{trans("branding.brandingDescription")}</StyledSectionTitle>
+              <StyledInput
                 placeholder={trans("branding.brandingDescriptionPlaceholder")}
                 value={brandingConfig?.config_description}
                 onChange={(e) => {
@@ -372,411 +448,665 @@ export function BrandingSetting() {
                     config_description: e.target.value
                   }))
                 }}
-                style={{ marginBottom: 12 }}
               />
               {/* <HelpText>{trans("branding.documentationLinkHelp")}</HelpText> */}
             </div>
           </Card>
-        </BrandingSettingContent>
+        </StyledBrandingSettingContent>
 
         {/* General Logos */}
-        <BrandingSettingContent style={{marginTop : "20px"}}>
-          <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.logoSection")}</h2>
-          </StyleThemeSettingsCover>
+        <StyledBrandingSettingContent>
+          <StyledThemeSettingsCover>
+            <StyledCoverTitle>{trans("branding.logoSection")}</StyledCoverTitle>
+          </StyledThemeSettingsCover>
           <Card>
-            <div>
-              <h3>{trans("branding.logo")}</h3>
-              {!Boolean(configOrgId) ? (
-                <>
-                  <Input
-                    placeholder={trans("branding.logoUrlPlaceholder")}
-                    value={brandingConfig?.config_set?.[SettingsEnum.LOGO] || ""}
-                    onChange={(e) => updateSettings(SettingsEnum.LOGO, e.target.value)}
-                    style={{ marginBottom: 12 }}
-                  />
-                  <HelpText>{trans("branding.logoUrlHelp")}</HelpText>
-                </>
-              ) : (
-                <StyledRectUploadContainer>
-                  <Upload
-                    name="logo"
-                    className="avatar-uploader"
-                    listType="picture-card"
-                    showUploadList={false}
-                    beforeUpload={beforeUpload}
-                    maxCount={1}
-                    customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
-                  >
-                    {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGO])
-                      ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGO]!)} alt="logo" />
-                      : uploadButton(loading[SettingsEnum.LOGO])
-                    }
-                  </Upload>
-                  <HelpText>{trans("branding.logoHelp")}</HelpText>
-                </StyledRectUploadContainer>
-              )}
-            </div>
-
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.squareLogo")}</h3>
-              {!Boolean(configOrgId) ? (
-                <>
-                  <Input
-                    placeholder={trans("branding.squareLogoUrlPlaceholder")}
-                    value={brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO] || ""}
-                    onChange={(e) => updateSettings(SettingsEnum.SQUARE_LOGO, e.target.value)}
-                    style={{ marginBottom: 12 }}
-                  />
-                  <HelpText>{trans("branding.squareLogoUrlHelp")}</HelpText>
-                </>
-              ) : (
-                <StyledSquareUploadContainer>
-                  <Upload
-                    name="squareLogo"
-                    className="avatar-uploader"
-                    listType="picture-card"
-                    showUploadList={false}
-                    beforeUpload={beforeUpload}
-                    maxCount={1}
-                    customRequest={(options) => handleUpload(options, SettingsEnum.SQUARE_LOGO)}
-                  >
-                    {Boolean(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO])
-                      ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SQUARE_LOGO]!)} alt="square_logo" />
-                      : uploadButton(loading[SettingsEnum.SQUARE_LOGO])
-                    }
-                  </Upload>
-                  <HelpText>{trans("branding.squareLogoHelp")}</HelpText>
-                </StyledSquareUploadContainer>
-              )}
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.logo")}</StyledSectionTitle>
+                {!Boolean(configOrgId) ? (
+                  <>
+                    <StyledInput
+                      placeholder={trans("branding.logoUrlPlaceholder")}
+                      value={brandingConfig?.config_set?.[SettingsEnum.LOGO] || ""}
+                      onChange={(e) => updateSettings(SettingsEnum.LOGO, e.target.value)}
+                      style={{ marginBottom: 12 }}
+                    />
+                  </>
+                ) : (
+                  <StyledRectUploadContainer>
+                    <Upload
+                      name="logo"
+                      className="avatar-uploader"
+                      listType="picture-card"
+                      showUploadList={false}
+                      beforeUpload={beforeUpload}
+                      maxCount={1}
+                      customRequest={(options) => handleUpload(options, SettingsEnum.LOGO)}
+                    >
+                      {Boolean(brandingConfig?.config_set?.[SettingsEnum.LOGO])
+                        ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.LOGO]!)} alt="logo" />
+                        : uploadButton(loading[SettingsEnum.LOGO])
+                      }
+                    </Upload>
+                  </StyledRectUploadContainer>
+                )}
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.LOGO]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
           </Card>
-        </BrandingSettingContent>
+        </StyledBrandingSettingContent>
 
         {/* Colors and Fonts */}
-        <BrandingSettingContent style={{marginTop : "20px"}}>
-          <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.colorFontSection")}</h2>
-          </StyleThemeSettingsCover>
+        <StyledBrandingSettingContent>
+          <StyledThemeSettingsCover>
+            <StyledCoverTitle>{trans("branding.colorFontSection")}</StyledCoverTitle>
+          </StyledThemeSettingsCover>
           <Card>
-            <div>
-              <h3>{trans("branding.mainBrandingColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.mainBrandingColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.MAIN_BRANDING_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.mainBrandingColorHelp")}</HelpText>
-            </div>
-            
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.editorHeaderColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.appHeaderColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.APP_HEADER_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.editorHeaderColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.mainBrandingColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.mainBrandingColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.MAIN_BRANDING_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.MAIN_BRANDING_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.adminSidebarColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.adminSidebarColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.adminSidebarColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.editorHeaderColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.appHeaderColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.APP_HEADER_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.APP_HEADER_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.adminSidebarFontColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.adminSidebarFontColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_FONT_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.adminSidebarFontColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.adminSidebarColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.adminSidebarColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ADMIN_SIDEBAR_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.adminSidebarActiveBgColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.adminSidebarActiveBgColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_BG_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.adminSidebarActiveBgColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.adminSidebarFontColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.adminSidebarFontColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_FONT_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ADMIN_SIDEBAR_FONT_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.adminSidebarActiveFontColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.adminSidebarActiveFontColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.adminSidebarActiveFontColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.adminSidebarActiveBgColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.adminSidebarActiveBgColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_BG_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ADMIN_SIDEBAR_ACTIVE_BG_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.editorSidebarColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.editorSidebarColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.editorSidebarColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.adminSidebarActiveFontColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.adminSidebarActiveFontColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.ADMIN_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ADMIN_SIDEBAR_ACTIVE_FONT_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.editorSidebarFontColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.editorSidebarFontColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_FONT_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.editorSidebarFontColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.editorSidebarColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.editorSidebarColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.EDITOR_SIDEBAR_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.editorSidebarActiveBgColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.editorSidebarActiveBgColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_BG_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.editorSidebarActiveBgColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.editorSidebarFontColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.editorSidebarFontColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_FONT_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.EDITOR_SIDEBAR_FONT_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.editorSidebarActiveFontColor")}</h3>
-              <ColorPicker
-                getPopupContainer={(node: any) => node.parentNode}
-                value={brandingConfig?.config_set?.editorSidebarActiveFontColor}
-                showText
-                allowClear
-                format="hex"
-                onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
-              />
-              <HelpText>{trans("branding.editorSidebarActiveFontColorHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.editorSidebarActiveBgColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.editorSidebarActiveBgColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_BG_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.EDITOR_SIDEBAR_ACTIVE_BG_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.font")}</h3>
-              <CustomSelect
-                options={fonts}
-                value={brandingConfig?.config_set?.font}
-                onChange={(font) => updateSettings(SettingsEnum.FONT, font)}
-              />
-              <HelpText>{trans("branding.fontHelp")}</HelpText>
-            </div>
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.editorSidebarActiveFontColor")}</StyledSectionTitle>
+                <ColorPicker
+                  getPopupContainer={(node: any) => node.parentNode}
+                  value={brandingConfig?.config_set?.editorSidebarActiveFontColor}
+                  showText
+                  allowClear
+                  format="hex"
+                  onChange={(_, hex) => updateSettings(SettingsEnum.EDITOR_SIDEBAR_ACTIVE_FONT_COLOR, hex)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.EDITOR_SIDEBAR_ACTIVE_FONT_COLOR]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
+
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.font")}</StyledSectionTitle>
+                <StyledCustomSelect
+                  placeholder={trans("style.fontFamily")}
+                  options={fonts}
+                  value={brandingConfig?.config_set?.font}
+                  onChange={(font) => updateSettings(SettingsEnum.FONT, font)}
+                />
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.FONT]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
           </Card>
-        </BrandingSettingContent>
+        </StyledBrandingSettingContent>
 
         {/* Texts and Images for Standard Pages */}
-        <BrandingSettingContent style={{marginTop : "20px"}}>
-          <StyleThemeSettingsCover>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>{trans("branding.textSection")}</h2>
-          </StyleThemeSettingsCover>
+        <StyledBrandingSettingContent>
+          <StyledThemeSettingsCover>
+            <StyledCoverTitle>{trans("branding.textSection")}</StyledCoverTitle>
+          </StyledThemeSettingsCover>
           <Card>
-            <div>
-              <h3>{trans("branding.errorPage")}</h3>
-              <TextArea
-                rows={4}
-                value={brandingConfig?.config_set?.errorPageText || ""}
-                onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
-                style={{ marginBottom: 12 }}
-              />
-              <HelpText>{trans("branding.errorPageHelp")}</HelpText>
-              
-              {!Boolean(configOrgId) ? (
-                <>
-                  <h3 style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</h3>
-                  <Input
-                    placeholder={trans("branding.errorPageImageUrlPlaceholder")}
-                    value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
-                    onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
-                    style={{ marginBottom: 12 }}
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle>{trans("branding.errorPage")}</StyledSectionTitle>
+                <StyledTextArea
+                  rows={4}
+                  value={brandingConfig?.config_set?.errorPageText || ""}
+                  onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_TEXT, e.target.value)}
+                />
+
+                {!Boolean(configOrgId) ? (
+                  <>
+                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImageUrl")}</StyledSectionTitle>
+                    <StyledInput
+                      placeholder={trans("branding.errorPageImageUrlPlaceholder")}
+                      value={brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE] || ""}
+                      onChange={(e) => updateSettings(SettingsEnum.ERROR_PAGE_IMAGE, e.target.value)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</StyledSectionTitle>
+                    <StyledRectUploadContainer>
+                      <Upload
+                        name="errorPageImage"
+                        className="avatar-uploader"
+                        listType="picture-card"
+                        showUploadList={false}
+                        beforeUpload={beforeUpload}
+                        maxCount={1}
+                        customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
+                      >
+                        {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
+                          ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
+                          : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
+                        }
+                      </Upload>
+                    </StyledRectUploadContainer>
+                  </>
+                )}
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ERROR_PAGE_TEXT]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
+            <StyledDivider />
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPage")}</StyledSectionTitle>
+                <StyledTextArea
+                  rows={4}
+                  value={brandingConfig?.config_set?.signUpPageText || ""}
+                  onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
+                />
+
+                {!Boolean(configOrgId) ? (
+                  <>
+                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</StyledSectionTitle>
+                    <StyledInput
+                      placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
+                      value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
+                      onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <StyledSectionTitle style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</StyledSectionTitle>
+                    <StyledRectUploadContainer>
+                      <Upload
+                        name="signUpPageImage"
+                        className="avatar-uploader"
+                        listType="picture-card"
+                        showUploadList={false}
+                        beforeUpload={beforeUpload}
+                        maxCount={1}
+                        customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
+                      >
+                        {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                          ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
+                          : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
+                        }
+                      </Upload>
+                    </StyledRectUploadContainer>
+                  </>
+                )}
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.ERROR_PAGE_TEXT]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
+            <StyledDivider />
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <div style={{marginTop : "20px"}}>
+                  <StyledSectionTitle>{trans("branding.standardTitle")}</StyledSectionTitle>
+                  <StyledTextArea
+                    rows={2}
+                    value={brandingConfig?.config_set?.standardTitle || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.STANDARD_TITLE, e.target.value)}
                   />
-                  <HelpText>{trans("branding.errorPageImageUrlHelp")}</HelpText>
-                </>
-              ) : (
-                <>
-                  <h3 style={{marginTop : "20px"}}>{trans("branding.errorPageImage")}</h3>
-                  <StyledRectUploadContainer>
-                    <Upload
-                      name="errorPageImage"
-                      className="avatar-uploader"
-                      listType="picture-card"
-                      showUploadList={false}
-                      beforeUpload={beforeUpload}
-                      maxCount={1}
-                      customRequest={(options) => handleUpload(options, SettingsEnum.ERROR_PAGE_IMAGE)}
-                    >
-                      {Boolean(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE])
-                        ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.ERROR_PAGE_IMAGE]!)} alt="error_page_image" />
-                        : uploadButton(loading[SettingsEnum.ERROR_PAGE_IMAGE])
-                      }
-                    </Upload>
-                  </StyledRectUploadContainer>
-                </>
-              )}
-            </div>
-            <Divider />
-            <div>
-              <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPage")}</h3>
-              <TextArea
-                rows={4}
-                value={brandingConfig?.config_set?.signUpPageText || ""}
-                onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_TEXT, e.target.value)}
-                style={{ marginBottom: 12 }}
-              />
-              <HelpText>{trans("branding.signUpPageHelp")}</HelpText>
-
-              {!Boolean(configOrgId) ? (
-                <>
-                  <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPageImageUrl")}</h3>
-                  <Input
-                    placeholder={trans("branding.signUpPageImageUrlPlaceholder")}
-                    value={brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE] || ""}
-                    onChange={(e) => updateSettings(SettingsEnum.SIGNUP_PAGE_IMAGE, e.target.value)}
-                    style={{ marginBottom: 12 }}
+                </div>
+                <div style={{marginTop : "20px"}}>
+                  <StyledSectionTitle>{trans("branding.standardDescription")}</StyledSectionTitle>
+                  <StyledTextArea
+                    rows={2}
+                    value={brandingConfig?.config_set?.standardDescription || ""}
+                    onChange={(e) => updateSettings(SettingsEnum.STANDARD_DESCRIPTION, e.target.value)}
                   />
-                  <HelpText>{trans("branding.signUpPageImageUrlHelp")}</HelpText>
-                </>
-              ) : (
-                <>
-                  <h3 style={{marginTop : "20px"}}>{trans("branding.signUpPageImage")}</h3>
-                  <StyledRectUploadContainer>
-                    <Upload
-                      name="signUpPageImage"
-                      className="avatar-uploader"
-                      listType="picture-card"
-                      showUploadList={false}
-                      beforeUpload={beforeUpload}
-                      maxCount={1}
-                      customRequest={(options) => handleUpload(options, SettingsEnum.SIGNUP_PAGE_IMAGE)}
-                    >
-                      {Boolean(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                        ? <img src={buildMaterialPreviewURL(brandingConfig?.config_set?.[SettingsEnum.SIGNUP_PAGE_IMAGE]!)} alt="signup_page_image" />
-                        : uploadButton(loading[SettingsEnum.SIGNUP_PAGE_IMAGE])
-                      }
-                    </Upload>
-                  </StyledRectUploadContainer>
-                </>
-              )}
-            </div>
-            <Divider />
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.standardDescription")}</h3>
-              <TextArea
-                rows={2}
-                value={brandingConfig?.config_set?.standardDescription || ""}
-                onChange={(e) => updateSettings(SettingsEnum.STANDARD_DESCRIPTION, e.target.value)}
-                style={{ marginBottom: 12 }}
-              />
-            </div>
-
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.standardTitle")}</h3>
-              <TextArea
-                rows={2}
-                value={brandingConfig?.config_set?.standardTitle || ""}
-                onChange={(e) => updateSettings(SettingsEnum.STANDARD_TITLE, e.target.value)}
-                style={{ marginBottom: 12 }}
-              />
-            </div>
-
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.submitIssue")}</h3>
-              <Switch
-                checked={brandingConfig?.config_set?.submitIssue}
-                onChange={(checked) => updateSettings(SettingsEnum.SUBMIT_ISSUE, checked)}
-              />
-            </div>
-
+                </div>
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.STANDARD_TITLE]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
           </Card>
-        </BrandingSettingContent>
+        </StyledBrandingSettingContent>
 
         {/* Helper Links in left submenu */}
-        <BrandingSettingContent style={{marginTop : "20px"}}>
-          <StyleThemeSettingsCover style={{marginTop : "20px"}}>
-            <h2 style={{ color: "#ffffff", marginTop: "8px" }}>
+        <StyledBrandingSettingContent>
+          <StyledThemeSettingsCover>
+            <StyledCoverTitle>
               {trans("branding.showDocumentationSection")}
-            </h2>
-          </StyleThemeSettingsCover>
+            </StyledCoverTitle>
+          </StyledThemeSettingsCover>
           <Card>
-            <div>
-              <h3>{trans("branding.showDocumentation")}</h3>
-              <Switch
-                checked={brandingConfig?.config_set?.showDocumentation}
-                onChange={(checked) => updateSettings(SettingsEnum.SHOW_DOCUMENTATION, checked)}
-              />
-            </div>
-            {brandingConfig?.config_set?.showDocumentation && (
-              <div style={{ marginTop: "20px" }}>
-                <h3>{trans("branding.documentationLink")}</h3>
-                <Input
-                  placeholder={trans("branding.documentationLinkPlaceholder")}
-                  value={brandingConfig?.config_set?.documentationLink || ""}
-                  onChange={(e) => updateSettings(SettingsEnum.DOCUMENTATION_LINK, e.target.value)}
-                  style={{ marginBottom: 12 }}
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <div>
+                  <StyledSectionTitle>{trans("branding.showDocumentation")}</StyledSectionTitle>
+                  <Switch
+                    checked={brandingConfig?.config_set?.showDocumentation}
+                    onChange={(checked) => updateSettings(SettingsEnum.SHOW_DOCUMENTATION, checked)}
+                  />
+                </div>
+                {brandingConfig?.config_set?.showDocumentation && (
+                  <StyledSwitchContainer>
+                    <StyledSectionTitle>{trans("branding.documentationLink")}</StyledSectionTitle>
+                    <StyledInput
+                      placeholder={trans("branding.documentationLinkPlaceholder")}
+                      value={brandingConfig?.config_set?.documentationLink || ""}
+                      onChange={(e) => updateSettings(SettingsEnum.DOCUMENTATION_LINK, e.target.value)}
+                    />
+                    <HelpText>{trans("branding.documentationLinkHelp")}</HelpText>
+                  </StyledSwitchContainer>
+                )}
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.SHOW_DOCUMENTATION]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
                 />
-                <HelpText>{trans("branding.documentationLinkHelp")}</HelpText>
-              </div>
-            )}
+              </Col>
+            </StyledRow>
 
-            <div style={{marginTop : "20px"}}>
-              <h3>{trans("branding.whatsNew")}</h3>
-              <Switch
-                checked={brandingConfig?.config_set?.whatsNew}
-                onChange={(checked) => updateSettings(SettingsEnum.WHATS_NEW, checked)}
-              />
-            </div>
-            {brandingConfig?.config_set?.whatsNew && (
-              <div style={{ marginTop: "20px" }}>
-                <h3>{trans("branding.whatsNewLink")}</h3>
-                <Input
-                  placeholder={trans("branding.whatsNewLinkPlaceholder")}
-                  value={brandingConfig?.config_set?.whatsNewLink || ""}
-                  onChange={(e) => updateSettings(SettingsEnum.WHATS_NEW_LINK, e.target.value)}
-                  style={{ marginBottom: 12 }}
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <div style={{ marginTop: "20px" }}>
+                  <StyledSectionTitle>{trans("branding.whatsNew")}</StyledSectionTitle>
+                  <Switch
+                    checked={brandingConfig?.config_set?.whatsNew}
+                    onChange={(checked) => updateSettings(SettingsEnum.WHATS_NEW, checked)}
+                  />
+                </div>
+                {brandingConfig?.config_set?.whatsNew && (
+                  <StyledSwitchContainer>
+                    <StyledSectionTitle>{trans("branding.whatsNewLink")}</StyledSectionTitle>
+                    <StyledInput
+                      placeholder={trans("branding.whatsNewLinkPlaceholder")}
+                      value={brandingConfig?.config_set?.whatsNewLink || ""}
+                      onChange={(e) => updateSettings(SettingsEnum.WHATS_NEW_LINK, e.target.value)}
+                    />
+                    <HelpText>{trans("branding.whatsNewLinkHelp")}</HelpText>
+                  </StyledSwitchContainer>
+                )}
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.WHATS_NEW]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
                 />
-                <HelpText>{trans("branding.whatsNewLinkHelp")}</HelpText>
-              </div>
-            )}
+              </Col>
+            </StyledRow>
+
+            <StyledRow gutter={32} align={"middle"} justify={"space-between"}>
+              <Col xs={24} md={6}>
+                <div style={{marginTop : "20px"}}>
+                  <StyledSectionTitle>{trans("branding.submitIssue")}</StyledSectionTitle>
+                  <Switch
+                    checked={brandingConfig?.config_set?.submitIssue}
+                    onChange={(checked) => updateSettings(SettingsEnum.SUBMIT_ISSUE, checked)}
+                  />
+                </div>
+              </Col>
+              <Col xs={24} md={8}>
+                <Paragraph type="secondary">
+                  {settingDescription[SettingsEnum.SUBMIT_ISSUE]}
+                </Paragraph>
+              </Col>
+              <Col xs={24} md={8} style={{textAlign: 'right'}}>
+                <StyledImage
+                  width={200}
+                  height={100}
+                  src="https://placehold.co/200x100"
+                  alt="Color Preview"
+                  preview
+                  loading="lazy"
+                />
+              </Col>
+            </StyledRow>
           </Card>
-        </BrandingSettingContent>
+        </StyledBrandingSettingContent>
         
-        <Flex gap={10} style={{ marginTop: 20 }}>
+        <StyledButtonContainer gap={10}>
           <TacoButton
             buttonType="delete"
             disabled={!Boolean(brandingConfig?.id)}
@@ -799,7 +1129,7 @@ export function BrandingSetting() {
           >
             {trans("branding.saveButton")}
           </TacoButton>
-        </Flex>
+        </StyledButtonContainer>
       </DetailContent>
     </DetailContainer>
   );

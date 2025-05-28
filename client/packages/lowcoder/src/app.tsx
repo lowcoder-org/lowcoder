@@ -127,6 +127,7 @@ type AppIndexProps = {
   fetchServerSettings: () => void;
   favicon: string;
   brandName: string;
+  brandDescription: string;
   uiLanguage: string;
   brandingFontFamily?: string;
 };
@@ -183,7 +184,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
         <Helmet>
           {<title>{this.props.brandName}</title>}
           {<link rel="icon" href={this.props.favicon} />}
-          <meta name="description" content={trans('productDesc')} />
+          <meta name="description" content={this.props.brandDescription} />
           <meta
             name="keywords"
             content="Lowcoder, Applications, App Builder, Internal Applications, Websites, Dashboards, Data Visualization, Customer Applications, CRM, ERP, eCommerce, VideoMeeting, Rapid Development"
@@ -199,7 +200,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <meta
             key="og:description"
             property="og:description"
-            content={trans('productDesc')}
+            content={this.props.brandDescription}
           />
           <meta
             key="og:image"
@@ -222,7 +223,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
           <meta
             key="twitter:description"
             name="twitter:description"
-            content={trans('productDesc')}
+            content={this.props.brandDescription}
           />
           <meta
             key="twitter:image"
@@ -295,7 +296,7 @@ class AppIndex extends React.Component<AppIndexProps, any> {
             <meta
               key="iframely:description"
               property="iframely:description"
-              content={trans('productDesc')}
+              content={this.props.brandDescription}
             />,
             <link
               key="iframely"
@@ -489,7 +490,8 @@ const mapStateToProps = (state: AppState) => ({
   favicon: getBrandingConfig(state)?.favicon
     ? buildMaterialPreviewURL(getBrandingConfig(state)?.favicon!)
     : favicon,
-  brandName: getBrandingConfig(state)?.brandName ?? trans("productName"),
+  brandName: getBrandingSetting(state)?.config_set?.standardTitle ?? trans("productName"),
+  brandDescription: getBrandingSetting(state)?.config_set?.standardDescription ?? trans('productDesc'),
   uiLanguage: state.ui.users.user.uiLanguage,
   brandingFontFamily: getBrandingSetting(state)?.config_set?.font,
 });
