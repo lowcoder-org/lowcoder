@@ -579,3 +579,46 @@ export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]>
     throw error;
   }
 }
+
+/**
+ * Fetch deployment ID from a specific environment
+ * @param apiServiceUrl - API service URL for the environment
+ * @param apiKey - API key for the environment
+ * @returns Promise with deployment ID string
+ */
+export async function getEnvironmentDeploymentId(
+  apiServiceUrl: string,
+  apiKey: string
+): Promise<string> {
+  try {
+    // Check if required parameters are provided
+    if (!apiServiceUrl) {
+      throw new Error('API service URL is required');
+    }
+    
+    if (!apiKey) {
+      throw new Error('API key is required to fetch deployment ID');
+    }
+    
+    // Set up headers with the Bearer token format
+    const headers = {
+      Authorization: `Bearer ${apiKey}`
+    };
+    
+    // Make the API request to get deployment ID
+    const response = await axios.get(`${apiServiceUrl}/api/configs/deploymentId`, { headers });
+    
+    // Check if response is valid
+    if (!response.data) {
+      throw new Error('Failed to fetch deployment ID');
+    }
+    
+    // The response should return a string directly
+    return response.data;
+  } catch (error) {
+    // Handle and transform error
+    const errorMessage = error instanceof Error ? error.message : 'Failed to fetch deployment ID';
+    messageInstance.error(errorMessage);
+    throw error;
+  }
+}

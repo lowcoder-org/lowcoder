@@ -1,10 +1,9 @@
-import React, { useEffect } from 'react';
-import { Modal, Card, Row, Col, Typography, Divider } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Modal, Card, Row, Col, Typography, Divider, Spin, Alert } from 'antd';
 import { CustomerServiceOutlined, CloudServerOutlined } from '@ant-design/icons';
-import { useSelector, useDispatch } from 'react-redux';
-import { getDeploymentId } from 'redux/selectors/configSelectors';
-import { fetchDeploymentIdAction } from 'redux/reduxActions/configActions';
 import { Environment } from '../types/environment.types';
+import { getEnvironmentDeploymentId } from '../services/environments.service';
+import { HubspotModal } from '../../hubspotModal';
 
 const { Title, Text } = Typography;
 
@@ -22,16 +21,62 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
   onClose,
   environment
 }) => {
-  // Get deploymentId from Redux config provider
-  const deploymentId = useSelector(getDeploymentId);
-  const dispatch = useDispatch();
+  const [deploymentId, setDeploymentId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [showHubspotModal, setShowHubspotModal] = useState(false);
 
-  // Fetch deployment ID when modal opens if not already available
+  // Fetch deployment ID when modal opens
   useEffect(() => {
-    if (visible && !deploymentId) {
-      dispatch(fetchDeploymentIdAction());
+    if (visible && environment.environmentApiServiceUrl && environment.environmentApikey) {
+      setIsLoading(true);
+      setError(null);
+      
+      getEnvironmentDeploymentId(
+        environment.environmentApiServiceUrl,
+        environment.environmentApikey
+      )
+        .then((id) => {
+          setDeploymentId(id);
+          setShowHubspotModal(true);
+        })
+        .catch((err) => {
+          console.error('Failed to fetch deployment ID:', err);
+          setError(err instanceof Error ? err.message : 'Failed to fetch deployment ID');
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    } else if (visible) {
+      setError('Environment API service URL or API key not configured');
     }
-  }, [visible, deploymentId, dispatch]);
+  }, [visible, environment.environmentApiServiceUrl, environment.environmentApikey]);
+
+  // Handle HubSpot modal close
+  const handleHubspotClose = () => {
+    setShowHubspotModal(false);
+    onClose();
+  };
+
+  // Handle main modal close
+  const handleClose = () => {
+    setShowHubspotModal(false);
+    setDeploymentId(null);
+    setError(null);
+    onClose();
+  };
+
+  // Show HubSpot modal if we have deployment ID
+  if (showHubspotModal && deploymentId) {
+    return (
+      <HubspotModal
+        open={showHubspotModal}
+        onClose={handleHubspotClose}
+        orgId={environment.environmentId}
+        deploymentIds={[deploymentId]}
+      />
+    );
+  }
 
   return (
     <Modal
@@ -42,7 +87,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
         </div>
       }
       open={visible}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={null}
       width={800}
       centered
@@ -74,7 +119,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
               </Text>
               <br />
               <Text style={{ fontSize: '14px', color: '#8c8c8c', fontFamily: 'monospace' }}>
-                Deployment ID: {deploymentId || 'Loading...'}
+                Deployment ID: {isLoading ? 'Loading...' : deploymentId || 'Not available'}
               </Text>
             </div>
           </Col>
@@ -83,47 +128,43 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
 
       <Divider style={{ margin: '16px 0' }} />
 
-      {/* HubSpot Form Integration Section */}
-      <div style={{ minHeight: '400px', padding: '20px 0' }}>
-        <Title level={4} style={{ textAlign: 'center', marginBottom: '24px', color: '#262626' }}>
-          Get in Touch
-        </Title>
-        
-        <Text style={{ 
-          textAlign: 'center', 
-          display: 'block', 
-          marginBottom: '32px',
-          fontSize: '16px',
-          color: '#595959',
-          lineHeight: '1.6'
-        }}>
-          Our team is here to help you resolve licensing issues and get your environment up and running.
-        </Text>
+      {/* Loading, Error, or Success State */}
+      <div style={{ minHeight: '200px', padding: '20px 0' }}>
+        {isLoading && (
+          <div style={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            minHeight: '200px'
+          }}>
+            <Spin size="large" />
+            <Text style={{ marginTop: '16px', color: '#8c8c8c' }}>
+              Fetching deployment information...
+            </Text>
+          </div>
+        )}
 
-        {/* HubSpot Form Container */}
-        <div style={{
-          minHeight: '300px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: '#fdfdfd',
-          borderRadius: '8px',
-          border: '1px solid #f0f0f0'
-        }}>
-          {/* HubSpot form will be integrated here */}
+        {error && (
+          <Alert
+            message="Unable to Load Contact Form"
+            description={error}
+            type="error"
+            showIcon
+            style={{ marginBottom: '16px' }}
+          />
+        )}
+
+        {!isLoading && !error && !deploymentId && (
           <div style={{
             textAlign: 'center',
             color: '#8c8c8c',
             fontSize: '14px'
           }}>
             <CustomerServiceOutlined style={{ fontSize: '48px', marginBottom: '16px', color: '#d9d9d9' }} />
-            <div>Contact form will be integrated here</div>
+            <div>Please ensure the environment is properly configured to contact support.</div>
           </div>
-        </div>
-
-        {/* Environment data is available for form pre-filling */}
-        {/* Data available: environment.environmentName, environment.environmentId, deploymentId, 
-            environment.licenseStatus, environment.environmentType, environment.licenseError */}
+        )}
       </div>
     </Modal>
   );
