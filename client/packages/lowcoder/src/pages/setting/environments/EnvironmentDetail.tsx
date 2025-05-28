@@ -227,12 +227,6 @@ const EnvironmentDetail: React.FC = () => {
         onChange={setActiveTab}
         className="modern-tabs"
         type="line"
-        style={{ 
-          background: '#fff', 
-          borderRadius: '4px', 
-          border: '1px solid #f0f0f0',
-          padding: '0'
-        }}
       >
         <TabPane 
           tab={

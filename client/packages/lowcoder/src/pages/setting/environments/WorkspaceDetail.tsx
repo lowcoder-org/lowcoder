@@ -122,12 +122,6 @@ const WorkspaceDetail: React.FC = () => {
         defaultActiveKey="apps" 
         className="modern-tabs" 
         type="line"
-        style={{ 
-          background: '#fff', 
-          borderRadius: '4px', 
-          border: '1px solid #f0f0f0',
-          padding: '0'
-        }}
       >
         <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
           <AppsTab
