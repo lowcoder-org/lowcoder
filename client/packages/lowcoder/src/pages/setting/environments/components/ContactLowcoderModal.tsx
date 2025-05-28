@@ -28,28 +28,33 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
 
   // Fetch deployment ID when modal opens
   useEffect(() => {
-    if (visible && environment.environmentApiServiceUrl && environment.environmentApikey) {
+    const fetchDeploymentId = async () => {
+      if (!visible || !environment.environmentApiServiceUrl || !environment.environmentApikey) {
+        if (visible) {
+          setError('Environment API service URL or API key not configured');
+        }
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
       
-      getEnvironmentDeploymentId(
-        environment.environmentApiServiceUrl,
-        environment.environmentApikey
-      )
-        .then((id) => {
-          setDeploymentId(id);
-          setShowHubspotModal(true);
-        })
-        .catch((err) => {
-          console.error('Failed to fetch deployment ID:', err);
-          setError(err instanceof Error ? err.message : 'Failed to fetch deployment ID');
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    } else if (visible) {
-      setError('Environment API service URL or API key not configured');
-    }
+      try {
+        const id = await getEnvironmentDeploymentId(
+          environment.environmentApiServiceUrl,
+          environment.environmentApikey
+        );
+        setDeploymentId(id);
+        setShowHubspotModal(true);
+      } catch (err) {
+        console.error('Failed to fetch deployment ID:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch deployment ID');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDeploymentId();
   }, [visible, environment.environmentApiServiceUrl, environment.environmentApikey]);
 
   // Handle HubSpot modal close
