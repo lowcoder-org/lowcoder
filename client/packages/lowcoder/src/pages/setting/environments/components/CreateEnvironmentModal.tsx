@@ -21,18 +21,33 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
 }) => {
   const [form] = Form.useForm();
   const [submitLoading, setSubmitLoading] = useState(false);
+  const [isMaster, setIsMaster] = useState(false);
 
   // Redux selectors to check for existing master environment
   const hasMasterEnvironment = useSelector(selectHasMasterEnvironment);
   const masterEnvironment = useSelector(selectMasterEnvironment);
+
+  const handleMasterChange = (checked: boolean) => {
+    // Only allow enabling master if no master environment exists
+    if (checked && hasMasterEnvironment) {
+      return; // Do nothing if trying to enable master when one already exists
+    }
+    setIsMaster(checked);
+  };
 
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
       setSubmitLoading(true);
       
-      await onSave(values);
-      form.resetFields(); // Reset form after successful creation
+      const submitData = {
+        ...values,
+        isMaster
+      };
+      
+      await onSave(submitData);
+      form.resetFields();
+      setIsMaster(false); // Reset master state
       onClose();
     } catch (error) {
       if (error instanceof Error) {
@@ -44,7 +59,8 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
   };
 
   const handleCancel = () => {
-    form.resetFields(); // Reset form when canceling
+    form.resetFields();
+    setIsMaster(false); // Reset master state
     onClose();
   };
 
@@ -74,8 +90,7 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
         layout="vertical"
         name="create_environment_form"
         initialValues={{
-          environmentType: "DEV",
-          isMaster: false
+          environmentType: "DEV"
         }}
       >
         <Form.Item
@@ -152,27 +167,29 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
           />
         </Form.Item>
 
-        <Form.Item
-          name="isMaster"
-          label="Master Environment"
-          valuePropName="checked"
-        >
-          <Tooltip 
-            title={hasMasterEnvironment ? `${masterEnvironment?.environmentName || 'Unknown'} is already the Master environment` : ""}
-          >
-            <Switch disabled={hasMasterEnvironment} />
-          </Tooltip>
+        <Form.Item label="Master Environment">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Tooltip 
+              title={
+                hasMasterEnvironment 
+                  ? `${masterEnvironment?.environmentName} is already the Master environment` 
+                  : ''
+              }
+            >
+              <Switch 
+                checked={isMaster}
+                onChange={handleMasterChange}
+                disabled={hasMasterEnvironment}
+               
+              />
+            </Tooltip>
+            {isMaster && (
+              <span style={{ color: '#52c41a', fontSize: '12px' }}>
+                Will be Master
+              </span>
+            )}
+          </div>
         </Form.Item>
-
-        {hasMasterEnvironment && (
-          <Alert
-            message="Master Environment Already Exists"
-            description={`The environment "${masterEnvironment?.environmentName || 'Unknown'}" is already set as the Master environment. Only one Master environment is allowed.`}
-            type="warning"
-            showIcon
-            style={{ marginBottom: '16px' }}
-          />
-        )}
 
         <Alert
           message="License Information"
