@@ -3112,7 +3112,9 @@ export const en = {
     "whatsNewSection": "Documentation Settings",
     "whatsNewLink": "What's New Link",
     "whatsNewLinkPlaceholder": "Enter the URL for your documentation...",
-    "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news."
+    "whatsNewLinkHelp": "Provide a valid URL that users can visit for your news.",
+    "deleteBranding": "Delete Branding",
+    "deleteBrandingContent": "Are you sure you want to delete \"{orgName}\" branding?"
   },
   "networkMessage": {
     "200": "Success",

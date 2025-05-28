@@ -239,7 +239,9 @@ export const AppEditorInternalView = React.memo((props: AppEditorInternalViewPro
       locale={getAntdLocale(currentUser.uiLanguage)}
       theme={{
         token: {
-          fontFamily: 'Roboto, sans-serif',
+          fontFamily: `-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
+            "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+            "Segoe UI Symbol", "Noto Color Emoji"`,
         },
       }}
     >

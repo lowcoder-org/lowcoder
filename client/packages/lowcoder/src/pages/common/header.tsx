@@ -718,15 +718,17 @@ export function AppHeader() {
   const headerEnd = (
     <Row align="middle" gutter={32}>
       <Col style={{marginTop : "6px"}}>
-      <GitHubButton
-        href="https://github.com/lowcoder-org/lowcoder"
-        data-color-scheme="no-preference: light; light: light; dark: dark;"
-        data-size="small"
-        data-show-count="true"
-        aria-label="Star lowcoder-org/lowcoder on GitHub"
-      >
-        Star
-      </GitHubButton>
+      {user.orgDev && ( 
+        <GitHubButton
+          href="https://github.com/lowcoder-org/lowcoder"
+          data-color-scheme="no-preference: light; light: light; dark: dark;"
+          data-size="small"
+          data-show-count="true"
+          aria-label="Star lowcoder-org/lowcoder on GitHub"
+        >
+          Star
+        </GitHubButton>
+      )}
       </Col>
       <Col>
         <HeaderProfile user={user} />

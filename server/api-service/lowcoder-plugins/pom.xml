@@ -213,7 +213,6 @@
         <module>restApiPlugin</module>
         <module>mongoPlugin</module>
         <module>mysqlPlugin</module>
-        <!-- <module>lowcoderApiPlugin</module> -->
         <module>elasticSearchPlugin</module>
         <module>redisPlugin</module>
         <module>mssqlPlugin</module>

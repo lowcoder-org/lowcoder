@@ -112,18 +112,27 @@ const SignatureCanvas = React.lazy(() => import("react-signature-canvas"));
 
 let SignatureTmpComp = (function () {
   return new UICompBuilder(childrenMap, (props, dispatch) => {
-    let canvas: SignatureCanvasType | null = null;
+    const canvasRef = useRef<SignatureCanvasType | null>(null);
     const [isBegin, setIsBegin] = useState(false);
     const [canvasSize, setCanvasSize] = useState([0, 0]);
     const conRef = useRef<HTMLDivElement>(null);
 
     const updateValue = (isClear: boolean = false) => {
-      const clear = isClear || canvas?.toData().length === 0;
-      if (canvas) {
-        clear && canvas?.clear();
+      if (!canvasRef.current) return;
+      
+      const clear = isClear || canvasRef.current.toData().length === 0;
+      if (clear) {
+        canvasRef.current.clear();
+        setIsBegin(false);
         dispatch(
           multiChangeAction({
-            value: changeValueAction(clear ? "" : canvas.toDataURL(), false),
+            value: changeValueAction("", false),
+          })
+        );
+      } else {
+        dispatch(
+          multiChangeAction({
+            value: changeValueAction(canvasRef.current.toDataURL(), false),
           })
         );
       }
@@ -132,15 +141,27 @@ let SignatureTmpComp = (function () {
     useResizeDetector({
       targetRef: conRef,
       onResize: ({width, height}: ResizePayload) => {
-        width && height && setCanvasSize([width, height]);
-        updateValue(true);
+        if (width && height) {
+          setCanvasSize([width, height]);
+          // Don't clear on resize as it breaks the drawing functionality
+          // updateValue(true);
+        }
       },
     });
+
+    // Cleanup on unmount
+    useEffect(() => {
+      return () => {
+        if (canvasRef.current) {
+          canvasRef.current.clear();
+        }
+      };
+    }, []);
 
     return props.label({
       style: props.style,
       labelStyle: props.labelStyle,
-      inputFieldStyle:props.inputFieldStyle,
+      inputFieldStyle: props.inputFieldStyle,
       children: (
         <Wrapper
           ref={conRef}
@@ -153,9 +174,7 @@ let SignatureTmpComp = (function () {
           <div key="signature" className="signature">
             <Suspense fallback={<Skeleton />}>
               <SignatureCanvas
-                ref={(ref) => {
-                  canvas = ref;
-                }}
+                ref={canvasRef}
                 penColor={props.inputFieldStyle.pen}
                 clearOnResize={false}
                 canvasProps={{
@@ -168,7 +187,9 @@ let SignatureTmpComp = (function () {
                   setIsBegin(false);
                   props.onEvent("change");
                 }}
-                onBegin={() => setIsBegin(true)}
+                onBegin={() => {
+                  setIsBegin(true);
+                }}
               />
             </Suspense>
           </div>
@@ -178,10 +199,11 @@ let SignatureTmpComp = (function () {
                 <span className="anticon">
                   <UndoIcon
                     onClick={() => {
-                      const data = canvas?.toData();
-                      if (data) {
-                        data?.pop();
-                        canvas?.fromData(data);
+                      if (!canvasRef.current) return;
+                      const data = canvasRef.current.toData();
+                      if (data && data.length > 0) {
+                        data.pop();
+                        canvasRef.current.fromData(data);
                         updateValue();
                         props.onEvent("change");
                       }

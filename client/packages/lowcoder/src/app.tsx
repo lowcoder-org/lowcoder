@@ -85,7 +85,13 @@ const Wrapper = React.memo((props: {
     return {
       hashed: false,
       token: {
-        fontFamily: `${props.fontFamily ? props.fontFamily.split('+').join(' ') : 'Roboto'}, sans-serif`,
+        fontFamily: `${
+          props.fontFamily
+          ? props.fontFamily.split('+').join(' ')
+          : `-apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, "Segoe UI", "PingFang SC",
+            "Microsoft Yahei", "Hiragino Sans GB", sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+            "Segoe UI Symbol", "Noto Color Emoji"`
+        }, sans-serif`,
       },
     }
   }, [props.fontFamily]);
