@@ -27,14 +27,11 @@ import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import WorkspaceHeader from "./components/WorkspaceHeader";
 import ErrorComponent from "./components/ErrorComponent";
 
-const { TabPane } = Tabs;
-
 const WorkspaceDetail: React.FC = () => {
   // Use the context hooks
   const { environment } = useSingleEnvironmentContext();
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
-
 
   const [isToggling, setIsToggling] = useState(false);
 
@@ -58,7 +55,17 @@ const WorkspaceDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
-        <Spin size="large" tip="Loading workspace details..." style={{ display: 'block', textAlign: 'center' }} />
+        <Spin size="large" spinning={true}>
+          <div style={{ 
+            display: 'block', 
+            textAlign: 'center', 
+            padding: '20px',
+            color: '#8c8c8c',
+            fontSize: '14px'
+          }}>
+            Loading workspace details...
+          </div>
+        </Spin>
       </div>
     );
   }
@@ -98,6 +105,51 @@ const WorkspaceDetail: React.FC = () => {
     }
   ];
 
+  const tabItems = [
+    {
+      key: 'apps',
+      label: (
+        <span>
+          <AppstoreOutlined /> Apps
+        </span>
+      ),
+      children: (
+        <AppsTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    },
+    {
+      key: 'dataSources',
+      label: (
+        <span>
+          <DatabaseOutlined /> Data Sources
+        </span>
+      ),
+      children: (
+        <DataSourcesTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    },
+    {
+      key: 'queries',
+      label: (
+        <span>
+          <CodeOutlined /> Queries
+        </span>
+      ),
+      children: (
+        <QueriesTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    }
+  ];
+
   return (
     <div className="workspace-detail-container" style={{ 
       padding: "24px", 
@@ -122,28 +174,8 @@ const WorkspaceDetail: React.FC = () => {
         defaultActiveKey="apps" 
         className="modern-tabs" 
         type="line"
-      >
-        <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
-          <AppsTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-
-        <TabPane tab={<span><DatabaseOutlined /> Data Sources</span>} key="dataSources">
-          <DataSourcesTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-        <TabPane tab={<span><CodeOutlined /> Queries</span>} key="queries">
-          <QueriesTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-        
-      </Tabs>
+        items={tabItems}
+      />
     </div>
   );
 };

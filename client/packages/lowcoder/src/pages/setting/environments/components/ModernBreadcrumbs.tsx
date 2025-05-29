@@ -2,7 +2,7 @@ import React, { ReactNode } from 'react';
 import { Breadcrumb } from 'antd';
 import { BreadcrumbProps } from 'antd/lib/breadcrumb';
 
-interface ModernBreadcrumbsProps extends BreadcrumbProps {
+interface ModernBreadcrumbsProps extends Omit<BreadcrumbProps, 'items'> {
   /**
    * Items to display in the breadcrumb
    */
@@ -17,6 +17,25 @@ interface ModernBreadcrumbsProps extends BreadcrumbProps {
  * Modern styled breadcrumb component with consistent styling
  */
 const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({ items = [], ...props }) => {
+  // Convert custom items format to Antd's expected format
+  const breadcrumbItems = items.map(item => ({
+    key: item.key,
+    title: item.onClick ? (
+      <span
+        style={{ cursor: "pointer", color: '#1890ff', fontWeight: '500' }}
+        onClick={item.onClick}
+        onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
+        onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
+      >
+        {item.title}
+      </span>
+    ) : (
+      <span style={{ color: '#595959', fontWeight: '500' }}>
+        {item.title}
+      </span>
+    )
+  }));
+
   return (
     <div className="modern-breadcrumb" style={{
       background: '#e6f7ff',
@@ -27,26 +46,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({ items = [], ...pr
       display: 'flex',
       alignItems: 'center'
     }}>
-      <Breadcrumb {...props} separator="/">
-        {items.map(item => (
-          <Breadcrumb.Item key={item.key}>
-            {item.onClick ? (
-              <span
-                style={{ cursor: "pointer", color: '#1890ff', fontWeight: '500' }}
-                onClick={item.onClick}
-                onMouseEnter={(e) => e.currentTarget.style.textDecoration = 'underline'}
-                onMouseLeave={(e) => e.currentTarget.style.textDecoration = 'none'}
-              >
-                {item.title}
-              </span>
-            ) : (
-              <span style={{ color: '#595959', fontWeight: '500' }}>
-                {item.title}
-              </span>
-            )}
-          </Breadcrumb.Item>
-        ))}
-      </Breadcrumb>
+      <Breadcrumb {...props} separator="/" items={breadcrumbItems} />
     </div>
   );
 };

@@ -34,7 +34,6 @@ import EnvironmentHeader from "./components/EnvironmentHeader";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import { getEnvironmentTagColor } from "./utils/environmentUtils";
 import ErrorComponent from './components/ErrorComponent';
-const { TabPane } = Tabs;
 
 /**
  * Environment Detail Page Component
@@ -140,6 +139,27 @@ const EnvironmentDetail: React.FC = () => {
     }
   ];
 
+  const tabItems = [
+    {
+      key: 'workspaces',
+      label: (
+        <span>
+          <AppstoreOutlined /> Workspaces
+        </span>
+      ),
+      children: <WorkspacesTab environment={environment} />
+    },
+    {
+      key: 'userGroups',
+      label: (
+        <span>
+          <UsergroupAddOutlined /> User Groups
+        </span>
+      ),
+      children: <UserGroupsTab environment={environment} />
+    }
+  ];
+
   return (
     <div
       className="environment-detail-container"
@@ -227,29 +247,8 @@ const EnvironmentDetail: React.FC = () => {
         onChange={setActiveTab}
         className="modern-tabs"
         type="line"
-      >
-        <TabPane 
-          tab={
-            <span>
-              <AppstoreOutlined /> Workspaces
-            </span>
-          } 
-          key="workspaces"
-        >
-          <WorkspacesTab environment={environment} />
-        </TabPane>
-
-        <TabPane
-          tab={
-            <span>
-              <UsergroupAddOutlined /> User Groups
-            </span>
-          }
-          key="userGroups"
-        >
-          <UserGroupsTab environment={environment} />
-        </TabPane>
-      </Tabs>
+        items={tabItems}
+      />
 
       {/* Edit Environment Modal */}
       {environment && (
