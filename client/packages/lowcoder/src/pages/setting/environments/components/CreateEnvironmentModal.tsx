@@ -192,9 +192,9 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
         </Form.Item>
 
         <Alert
-          message="License Information"
-          description="After creating the environment, the system will automatically check the license status. Make sure the API service URL and API key are correctly configured for license validation."
-          type="info"
+          message="Configuration Requirements"
+          description="Ensure that the API Service URL is configured and correct, the API key is valid, and for license verification make sure you have both the license and plugin properly installed."
+          type="warning"
           showIcon
           style={{ marginTop: '16px' }}
         />

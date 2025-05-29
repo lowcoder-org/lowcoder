@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Form, Input, Select, Switch, Button, Tooltip } from 'antd';
+import { Modal, Form, Input, Select, Switch, Button, Alert, Tooltip } from 'antd';
 import { useSelector } from 'react-redux';
 import { selectMasterEnvironment, selectHasMasterEnvironment } from 'redux/selectors/enterpriseSelectors';
 import { Environment } from '../types/environment.types';
@@ -191,7 +191,13 @@ const EditEnvironmentModal: React.FC<EditEnvironmentModalProps> = ({
           </div>
         </Form.Item>
 
-       
+        <Alert
+          message="Configuration Requirements"
+          description="Ensure that the API Service URL is configured and correct, the API key is valid, and for license verification make sure you have both the license and plugin properly installed."
+          type="warning"
+          showIcon
+          style={{ marginTop: '16px' }}
+        />
       </Form>
     </Modal>
   );

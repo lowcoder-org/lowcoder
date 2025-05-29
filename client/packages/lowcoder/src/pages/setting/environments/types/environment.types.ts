@@ -18,6 +18,8 @@ export interface Environment {
   isLicensed?: boolean;
   licenseStatus?: 'checking' | 'licensed' | 'unlicensed' | 'error';
   licenseError?: string;
+  // Enhanced license details
+  licenseDetails?: DetailedLicenseInfo;
 }
 
 /**
@@ -26,4 +28,28 @@ export interface Environment {
 export interface EnvironmentLicense {
   isValid: boolean;
   error?: string;
+  // Enhanced license details
+  details?: DetailedLicenseInfo;
+}
+
+/**
+ * Interface representing detailed license information from the license endpoint
+ */
+export interface DetailedLicenseInfo {
+  eeActive: boolean;
+  remainingAPICalls: number;
+  eeLicenses: LicenseEntry[];
+  // Calculated fields
+  totalAPICallsLimit?: number;
+  apiCallsUsage?: number; // percentage used
+}
+
+/**
+ * Interface representing a single license entry
+ */
+export interface LicenseEntry {
+  uuid: string;
+  customerId: string;
+  customerName: string;
+  apiCallsLimit: number;
 }

@@ -136,6 +136,7 @@ export async function getEnvironmentById(id: string): Promise<Environment> {
         envWithLicense.isLicensed = licenseInfo.isValid;
         envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
         envWithLicense.licenseError = licenseInfo.error;
+        envWithLicense.licenseDetails = licenseInfo.details;
       } else {
         envWithLicense.isLicensed = false;
         envWithLicense.licenseStatus = 'error';
@@ -556,6 +557,7 @@ export async function getEnvironmentsWithLicenseStatus(): Promise<Environment[]>
             envWithLicense.isLicensed = licenseInfo.isValid;
             envWithLicense.licenseStatus = licenseInfo.isValid ? 'licensed' : 'unlicensed';
             envWithLicense.licenseError = licenseInfo.error;
+            envWithLicense.licenseDetails = licenseInfo.details;
           } else {
             envWithLicense.isLicensed = false;
             envWithLicense.licenseStatus = 'error';
