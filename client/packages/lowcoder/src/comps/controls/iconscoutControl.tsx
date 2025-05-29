@@ -12,7 +12,7 @@ import {
   useIcon,
   wrapperToControlItem,
 } from "lowcoder-design";
-import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import { memo, ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import Popover from "antd/es/popover";
 import { CloseIcon, SearchIcon } from "icons";
@@ -149,8 +149,8 @@ const IconRow = styled.div`
 `;
 
 const IconItemContainer = styled.div`
-  width: 60px;
-  height: 60px;
+  width: 120px;
+  height: 120px;
   display: flex;
   flex-direction: column;
   align-items: center; 
@@ -213,7 +213,7 @@ const IconScoutSearchParams: SearchParams = {
   sort: 'relevant',
 };
 
-const columnNum = 8;
+const columnNum = 4;
 
 export const IconPicker = (props: {
   assetType: string;
@@ -232,6 +232,10 @@ export const IconPicker = (props: {
   const [ searchResults, setSearchResults ] = useState<Array<any>>([]);
   const { subscriptions } = useSimpleSubscriptionContext();
 
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+
   const mediaPackSubscription = subscriptions.find(
     sub => sub.product === SubscriptionProductsEnum.MEDIAPACKAGE && sub.status === 'active'
   );
@@ -246,26 +250,35 @@ export const IconPicker = (props: {
     }, []
   );
 
-  const fetchResults = async (query: string) => {
+  const fetchResults = async (query: string, pageNum: number = 1) => {
     setLoading(true);
+  
     const freeResult = await searchAssets({
       ...IconScoutSearchParams,
       asset: props.assetType,
       price: 'free',
       query,
+      page: pageNum,
     });
+  
     const premiumResult = await searchAssets({
       ...IconScoutSearchParams,
       asset: props.assetType,
       price: 'premium',
       query,
+      page: pageNum,
     });
+  
+    const combined = [...freeResult.data, ...premiumResult.data];
+    const isLastPage = combined.length < IconScoutSearchParams.per_page * 2;
+  
+    setSearchResults(prev =>
+      pageNum === 1 ? combined : [...prev, ...combined]
+    );
+    setHasMore(!isLastPage);
     setLoading(false);
-
-    console.log("freeResult", freeResult, "premiumResult", premiumResult)
-
-    setSearchResults([...freeResult.data, ...premiumResult.data]);
   };
+  
 
   const downloadAsset = async (
     uuid: string,
@@ -316,63 +329,118 @@ export const IconPicker = (props: {
   const debouncedFetchResults = useMemo(() => debounce(fetchResults, 700), []);
 
   const rowRenderer = useCallback(
-    (p: ListRowProps) => (
-      <IconRow key={p.key} style={p.style}>
-        {searchResults
-          .slice(p.index * columnNum, (p.index + 1) * columnNum)
-          .map((icon) => (
-            <IconItemContainer
-              key={icon.uuid}
-              tabIndex={0}
-              onClick={() => {
-                // check if premium content then show subscription popup
-                // TODO: if user has subscription then skip this if block
-                if (!mediaPackSubscription) {
-                  CustomModal.confirm({
-                    title: trans("iconScout.buySubscriptionTitle"),
-                    content: trans("iconScout.buySubscriptionContent"),
-                    onConfirm: () =>{
-                      window.open(SUBSCRIPTION_SETTING, "_blank");
-                    },
-                    confirmBtnType: "primary",
-                    okText: trans("iconScout.buySubscriptionButton"),
-                  })
-                  return;
-                }
-
-                fetchDownloadUrl(
-                  icon.uuid,
-                  props.assetType === AssetType.ICON ? icon.urls.png_64 : icon.urls.thumb,
-                );
-              }}
+    ({ index, key, style }: ListRowProps) => {
+      const icons = searchResults.slice(index * columnNum, (index + 1) * columnNum);
+  
+      return (
+        <IconRow key={key} style={style}>
+          {icons.map((icon) => (
+            <Popover
+              key={icon.uuid + '-popover'}
+              content={
+                <div style={{ maxWidth: 400 }}>
+                  {props.assetType === AssetType.LOTTIE ? (
+                    <video
+                      src={icon.urls.thumb}
+                      autoPlay
+                      loop
+                      muted
+                      style={{ width: "100%", height: "auto", borderRadius: 6 }}
+                    />
+                  ) : (
+                    <img
+                      src={props.assetType === AssetType.ICON ? icon.urls.png_128 : icon.urls.thumb}
+                      alt=""
+                      style={{ width: "100%", height: "auto", borderRadius: 6 }}
+                    />
+                  )}
+                </div>
+              }
+              placement="right"
+              mouseEnterDelay={0.2}
             >
-              <Badge
-                count={icon.price !== 0 ? <CrownFilled style={{color: "#e7b549"}} /> : undefined}
-                size='small'
+              <IconItemContainer
+                key={icon.uuid}
+                tabIndex={0}
+                onClick={() => {
+                  if (!mediaPackSubscription) {
+                    CustomModal.confirm({
+                      title: trans("iconScout.buySubscriptionTitle"),
+                      content: trans("iconScout.buySubscriptionContent"),
+                      onConfirm: () => {
+                        window.open(SUBSCRIPTION_SETTING, "_blank");
+                      },
+                      confirmBtnType: "primary",
+                      okText: trans("iconScout.buySubscriptionButton"),
+                    });
+                    return;
+                  }
+  
+                  fetchDownloadUrl(
+                    icon.uuid,
+                    props.assetType === AssetType.ICON ? icon.urls.png_64 : icon.urls.thumb,
+                  );
+                }}
               >
-                <IconWrapper $isPremium={icon.price !== 0}>
-                  {props.assetType === AssetType.ICON && (
-                    <StyledPreviewIcon src={icon.urls.png_64} />
-                  )}
-                  {props.assetType === AssetType.ILLUSTRATION && (
-                    <StyledPreviewIcon src={icon.urls.thumb} />
-                  )}
-                  {props.assetType === AssetType.LOTTIE && (
-                    <StyledPreviewLotte src={icon.urls.thumb} autoPlay />
-                  )}
-                </IconWrapper>
-              </Badge>
-            </IconItemContainer>
+                <Badge
+                  count={
+                    icon.price !== 0 ? (
+                      <CrownFilled style={{ color: "#e7b549" }} />
+                    ) : undefined
+                  }
+                  size="small"
+                >
+                  <IconWrapper $isPremium={icon.price !== 0}>
+                    {props.assetType === AssetType.ICON && (
+                      <StyledPreviewIcon src={icon.urls.png_64} />
+                    )}
+                    {props.assetType === AssetType.ILLUSTRATION && (
+                      <StyledPreviewIcon src={icon.urls.thumb} />
+                    )}
+                    {props.assetType === AssetType.LOTTIE && (
+                      <StyledPreviewLotte src={icon.urls.thumb} autoPlay />
+                    )}
+                  </IconWrapper>
+                </Badge>
+              </IconItemContainer>
+            </Popover>
           ))}
-      </IconRow>
-    ),[searchResults]
+        </IconRow>
+      );
+    },
+    [columnNum, mediaPackSubscription, props.assetType, fetchDownloadUrl]
   );
+  
 
   const popupTitle = useMemo(() => {
     if (props.assetType === AssetType.ILLUSTRATION) return trans("iconScout.searchImage");
     if (props.assetType === AssetType.LOTTIE) return trans("iconScout.searchAnimation");
     return trans("iconScout.searchIcon");
   }, [props.assetType]);
+
+  const MemoizedIconList = memo(({
+    searchResults,
+    rowRenderer,
+    onScroll,
+    columnNum,
+  }: {
+    searchResults: any[];
+    rowRenderer: (props: ListRowProps) => React.ReactNode;
+    onScroll: (params: { clientHeight: number; scrollHeight: number; scrollTop: number }) => void;
+    columnNum: number;
+  }) => {
+    return (
+      <IconList
+        width={550}
+        height={400}
+        rowHeight={140}
+        rowCount={Math.ceil(searchResults.length / columnNum)}
+        rowRenderer={rowRenderer}
+        onScroll={onScroll}
+      />
+    );
+  });
+  
 
   return (
     <Popover
@@ -418,12 +486,28 @@ export const IconPicker = (props: {
               )}
               {!loading && Boolean(searchText) && Boolean(searchResults?.length) && (
                 <IconListWrapper>
+                  
                   <IconList
                     width={550}
                     height={400}
-                    rowHeight={80}
+                    rowHeight={140}
                     rowCount={Math.ceil(searchResults.length / columnNum)}
                     rowRenderer={rowRenderer}
+                    onScroll={({
+                      clientHeight,
+                      scrollHeight,
+                      scrollTop,
+                    }: {
+                      clientHeight: number;
+                      scrollHeight: number;
+                      scrollTop: number;
+                    }) => {
+                      if (hasMore && !loading && scrollHeight - scrollTop <= clientHeight + 10) {
+                        const nextPage = page + 1;
+                        setPage(nextPage);
+                        fetchResults(searchText, nextPage);
+                      }
+                    }}
                     />
                 </IconListWrapper>
               )}
@@ -451,7 +535,7 @@ export const IconPicker = (props: {
             />
           </ButtonWrapper>
         ) : (
-          <BlockGrayLabel label={trans("iconControl.selectIcon")} />
+          <BlockGrayLabel label={props.assetType === AssetType.LOTTIE ? trans("iconControl.searchAnimation") : props.assetType === AssetType.ILLUSTRATION ? trans("iconControl.searchIllustration") : trans("iconControl.searchIcon")} />
         )}
       </TacoButton>
     </Popover>

@@ -6,7 +6,7 @@ export interface SearchParams {
   query: string;
   asset: string;
   per_page: number;
-  page: 1;
+  page: number;
   sort: string;
   formats?: string;
   price?: string;

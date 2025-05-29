@@ -2277,6 +2277,9 @@ export const en = {
   },
   "iconControl": {
     "selectIcon": "Select an Icon",
+    "searchIcon" : "Search an Icon",
+    "searchAnimation" : "Search an Animation",
+    "searchIllustration" : "Search an Illustration",
     "insertIcon": "Insert an Icon",
     "insertImage": "Insert an Image or "
   },
@@ -4008,6 +4011,7 @@ export const en = {
   },
   "jsonLottie": {
     "lottieJson": "Lottie JSON",
+    "searchAnimation" : "Search Animation",
     "speed": "Speed",
     "width": "Width",
     "height": "Height",
@@ -4333,7 +4337,7 @@ export const en = {
     discord: "https://discord.com/invite/qMG9uTmAx2",
   },
 
-  iconScout: {
+  "iconScout": {
     "searchImage": "Search Image",
     "searchAnimation": "Search Animation",
     "searchIcon": "Search Icon",

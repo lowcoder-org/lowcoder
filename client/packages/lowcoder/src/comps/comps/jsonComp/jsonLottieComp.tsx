@@ -281,9 +281,7 @@ let JsonLottieTmpComp = (function () {
             {children.sourceMode.getView() === 'standard' && children.value.propertyView({
               label: trans("jsonLottie.lottieJson"),
             })}
-            {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
-              label: "Lottie Source",
-            })}
+            {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({})}
           </Section>
 
           {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (

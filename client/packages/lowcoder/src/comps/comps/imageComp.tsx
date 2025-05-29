@@ -252,9 +252,7 @@ let ImageBasicComp = new UICompBuilder(childrenMap, (props) => {
           {children.sourceMode.getView() === 'standard' && children.src.propertyView({
             label: trans("image.src"),
           })}
-          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({
-            label: trans("image.src"),
-          })}
+          {children.sourceMode.getView() === 'asset-library' && children.iconScoutAsset.propertyView({})}
         </Section>
 
         {["logic", "both"].includes(useContext(EditorContext).editorModeStatus) && (
