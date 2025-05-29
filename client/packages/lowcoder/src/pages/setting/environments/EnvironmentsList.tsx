@@ -82,7 +82,7 @@ const EnvironmentsList: React.FC = () => {
   // Calculate environment type statistics
   const environmentStats = React.useMemo(() => {
     const stats = environments.reduce((acc, env) => {
-      const type = env.environmentType.toUpperCase();
+      const type = env.environmentType?.toUpperCase() || 'TEST';
       acc[type] = (acc[type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -145,7 +145,7 @@ const EnvironmentsList: React.FC = () => {
       (env.environmentName || "").toLowerCase().includes(searchLower) ||
       (env.environmentFrontendUrl || "").toLowerCase().includes(searchLower) ||
       env.environmentId.toLowerCase().includes(searchLower) ||
-      env.environmentType.toLowerCase().includes(searchLower)
+      (env.environmentType || "").toLowerCase().includes(searchLower)
     );
   }).sort((a, b) => {
     // Sort by license status: licensed environments first
