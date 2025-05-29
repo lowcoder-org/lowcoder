@@ -17,6 +17,12 @@ export const queryConfig: DeployableItemConfig = {
         label: 'Update Dependencies If Needed',
         type: 'checkbox',
         defaultValue: false
+      },
+      {
+        name: 'deployCredential',
+        label: 'Overwrite Credentials',
+        type: 'checkbox',
+        defaultValue: false
       }
     ],
     prepareParams: (item: Query, values: any, sourceEnv: Environment, targetEnv: Environment) => {
@@ -26,6 +32,7 @@ export const queryConfig: DeployableItemConfig = {
         queryId: item.id,
         updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
         queryGid: item.gid,
+        deployCredential: values.deployCredential ?? false
       };
     },
     execute: (params: any) => deployQuery(params)

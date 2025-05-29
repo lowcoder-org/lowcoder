@@ -16,6 +16,7 @@ export interface MergedQueriesResult {
     queryId: string;
     updateDependenciesIfNeeded?: boolean;
     queryGid: string;
+    deployCredential: boolean;
   }
   
   
@@ -71,7 +72,8 @@ export interface MergedQueriesResult {
           envId: params.envId,
           targetEnvId: params.targetEnvId,
           queryId: params.queryId,
-          updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false
+          updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
+          deployCredential: params.deployCredential
         }
       });
       if (response.status === 200) {
