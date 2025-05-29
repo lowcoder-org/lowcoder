@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Tag, Typography, Row, Col } from 'antd';
 import { EditOutlined, CloudServerOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
-import { getEnvironmentTagColor, getEnvironmentHeaderGradient } from '../utils/environmentUtils';
+import { getEnvironmentTagColor } from '../utils/environmentUtils';
 
 const { Title, Text } = Typography;
 
@@ -24,11 +24,11 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
       className="environment-header"
       style={{
         marginBottom: "24px",
-        background: getEnvironmentHeaderGradient(environment.environmentType),
+        background: '#fff',
         padding: '20px 24px',
         borderRadius: '8px',
-        color: 'white',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+        border: '1px solid #f0f0f0',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
       }}
     >
       <Row justify="space-between" align="middle" gutter={[16, 16]}>
@@ -36,33 +36,48 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div className="environment-icon" style={{
               fontSize: '32px',
-              backgroundColor: 'rgba(255,255,255,0.2)',
+              backgroundColor: '#f5f5f5',
               width: '64px',
               height: '64px',
-              borderRadius: '50%',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              color: '#8b8fa3',
+              border: '1px solid #e8e8e8'
             }}>
               <CloudServerOutlined />
             </div>
             <div>
-              <Title level={3} style={{ margin: '0 0 4px 0', color: 'white' }}>
+              <Title level={3} style={{ margin: '0 0 8px 0', color: '#222222', fontWeight: '500' }}>
                 {environment.environmentName || "Unnamed Environment"}
               </Title>
               <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
-                <Text style={{ color: 'rgba(255,255,255,0.85)' }}>
+                <Text style={{ 
+                  color: '#8b8fa3', 
+                  fontSize: '14px',
+                  fontFamily: 'monospace'
+                }}>
                   ID: {environment.environmentId}
                 </Text>
                 <Tag 
                   color={getEnvironmentTagColor(environment.environmentType)}
-                  style={{ marginLeft: 0, borderRadius: '12px' }}
+                  style={{ 
+                    marginLeft: 0, 
+                    borderRadius: '4px',
+                    fontSize: '12px'
+                  }}
                 >
                   {environment.environmentType}
                 </Tag>
                 {environment.isMaster && (
-                  <Tag color="green" style={{ marginLeft: 0, borderRadius: '12px' }}>
+                  <Tag color="green" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
                     Master
+                  </Tag>
+                )}
+                {environment.isLicensed === false && (
+                  <Tag color="orange" style={{ marginLeft: 0, borderRadius: '4px', fontSize: '12px' }}>
+                    Unlicensed
                   </Tag>
                 )}
               </div>
@@ -73,14 +88,10 @@ const EnvironmentHeader: React.FC<EnvironmentHeaderProps> = ({
           <Button
             icon={<EditOutlined />}
             onClick={onEditClick}
-            type="default"
-            size="large"
+            type="primary"
             style={{
-              background: 'white',
-              color: '#1890ff',
-              borderColor: 'white',
-              fontWeight: 500,
-              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              fontWeight: '500',
+              borderRadius: '4px'
             }}
           >
             Edit Environment

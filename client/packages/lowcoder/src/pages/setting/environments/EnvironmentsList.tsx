@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Alert, Empty, Spin, Card } from "antd";
+import { Alert, Empty, Spin, Card, Row, Col } from "antd";
 import { SyncOutlined, CloudServerOutlined } from "@ant-design/icons";
 import { AddIcon, Search, TacoButton } from "lowcoder-design";
 import { useHistory } from "react-router-dom";
@@ -9,6 +9,7 @@ import { fetchEnvironments } from "redux/reduxActions/enterpriseActions";
 import { Environment } from "./types/environment.types";
 import EnvironmentsTable from "./components/EnvironmentsTable";
 import CreateEnvironmentModal from "./components/CreateEnvironmentModal";
+import StatsCard from "./components/StatsCard";
 import { buildEnvironmentId } from "@lowcoder-ee/constants/routesURL";
 import { createEnvironment } from "./services/environments.service";
 import { getEnvironmentTagColor } from "./utils/environmentUtils";
@@ -107,37 +108,6 @@ const EnvironmentsList: React.FC = () => {
     return <CloudServerOutlined />;
   };
 
-  // Stat card component
-  const StatCard = ({ title, value, color }: { title: string; value: number; color: string }) => (
-    <Card 
-      style={{ 
-        height: '100%', 
-        borderRadius: '4px',
-        border: '1px solid #f0f0f0'
-      }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontSize: '13px', color: '#8c8c8c', marginBottom: '8px' }}>{title}</div>
-          <div style={{ fontSize: '20px', fontWeight: 500 }}>{value}</div>
-        </div>
-        <div style={{ 
-          fontSize: '24px', 
-          opacity: 0.8, 
-          color: color,
-          padding: '8px',
-          backgroundColor: `${color}15`,
-          borderRadius: '4px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center'
-        }}>
-          {getEnvironmentIcon(title)}
-        </div>
-      </div>
-    </Card>
-  );
-
   // Filter environments based on search text
   const filteredEnvironments = environments.filter((env) => {
     const searchLower = searchText.toLowerCase();
@@ -201,75 +171,65 @@ const EnvironmentsList: React.FC = () => {
         >
           Refresh
         </RefreshBtn>
-        <AddBtn buttonType="primary" onClick={() => setIsCreateModalVisible(true)}>
-          New Environment
+        <AddBtn 
+          buttonType="primary" 
+          icon={<AddIcon />}
+          onClick={() => setIsCreateModalVisible(true)}
+        >
+          Add Environment
         </AddBtn>
       </HeaderWrapper>
 
       <BodyWrapper>
-        {/* Environment Type Statistics */}
-        {!isLoading && environments.length > 0 && (
-          <StatsWrapper>
-            <div style={{ display: 'flex', gap: '16px', marginBottom: '20px', flexWrap: 'wrap' }}>
-              {environmentStats.map(([type, count]) => (
-                <div key={type} style={{ minWidth: '200px', flex: '1' }}>
-                  <StatCard 
-                    title={type} 
-                    value={count} 
-                    color={getEnvironmentTagColor(type.toLowerCase())}
-                  />
-                </div>
-              ))}
-            </div>
-          </StatsWrapper>
-        )}
+        {/* Environment Statistics Cards */}
+        <StatsWrapper>
+          <Row gutter={[16, 16]}>
+            {environmentStats.map(([type, count]) => (
+              <Col xs={24} sm={12} md={8} lg={6} key={type}>
+                <StatsCard
+                  title={`${type} Environments`}
+                  value={count}
+                  icon={getEnvironmentIcon(type)}
+                  color={getEnvironmentTagColor(type)}
+                />
+              </Col>
+            ))}
+          </Row>
+        </StatsWrapper>
 
-        {/* Error handling */}
         {error && (
           <Alert
             message="Error loading environments"
             description={error}
             type="error"
             showIcon
-            style={{ marginBottom: "16px" }}
+            style={{ marginBottom: 16 }}
           />
         )}
 
-        {/* Loading, empty state or table */}
-        {isLoading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '60px 0' }}>
-            <Spin size="large" />
-          </div>
-        ) : environments.length === 0 && !error ? (
-          <Empty
-            description="No environments found"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            style={{ padding: '60px 0' }}
+        {!isLoading && !error && filteredEnvironments.length === 0 && searchText && (
+          <Empty 
+            description={`No environments found matching "${searchText}"`}
+            style={{ margin: "60px 0" }}
           />
-        ) : filteredEnvironments.length === 0 ? (
-          <Empty
-            description="No environments match your search"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            style={{ padding: '60px 0' }}
+        )}
+
+        {!isLoading && !error && environments.length === 0 && !searchText && (
+          <Empty 
+            description="No environments found. Create your first environment to get started."
+            style={{ margin: "60px 0" }}
           />
-        ) : (
-          /* Table component */
+        )}
+
+        {(filteredEnvironments.length > 0 || isLoading) && (
           <EnvironmentsTable
             environments={filteredEnvironments}
             loading={isLoading}
             onRowClick={handleRowClick}
           />
         )}
-
-        {/* Results counter when searching */}
-        {searchText && filteredEnvironments.length !== environments.length && (
-          <div style={{ marginTop: 16, color: '#8c8c8c', textAlign: 'right' }}>
-            Showing {filteredEnvironments.length} of {environments.length} environments
-          </div>
-        )}
       </BodyWrapper>
 
-      {/* Create Environment Modal */}
       <CreateEnvironmentModal
         visible={isCreateModalVisible}
         onClose={() => setIsCreateModalVisible(false)}

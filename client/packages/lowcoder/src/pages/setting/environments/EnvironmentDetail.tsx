@@ -10,6 +10,8 @@ import {
   Button,
   Tag,
   Result,
+  Row,
+  Col,
 } from "antd";
 import {
   LinkOutlined,
@@ -21,6 +23,9 @@ import {
   CloseCircleOutlined,
   ExclamationCircleOutlined,
   SyncOutlined,
+  CloudServerOutlined,
+  UserOutlined,
+  SafetyOutlined,
 } from "@ant-design/icons";
 
 import { useSingleEnvironmentContext } from "./context/SingleEnvironmentContext";
@@ -31,9 +36,11 @@ import history from "@lowcoder-ee/util/history";
 import WorkspacesTab from "./components/WorkspacesTab";
 import UserGroupsTab from "./components/UserGroupsTab";
 import EnvironmentHeader from "./components/EnvironmentHeader";
+import StatsCard from "./components/StatsCard";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import { getEnvironmentTagColor } from "./utils/environmentUtils";
 import ErrorComponent from './components/ErrorComponent';
+import { Level1SettingPageContent } from "../styled";
 
 /**
  * Environment Detail Page Component
@@ -123,19 +130,31 @@ const EnvironmentDetail: React.FC = () => {
     );
   }
 
-  const breadcrumbItems = [
+  // Stats data for the cards
+  const statsData = [
     {
-      key: 'environments',
-      title: (
-        <span>
-          <HomeOutlined /> Environments
-        </span>
-      ),
-      onClick: () => history.push("/setting/environments")
+      title: "Type",
+      value: environment.environmentType || "Unknown",
+      icon: <CloudServerOutlined />,
+      color: getEnvironmentTagColor(environment.environmentType)
     },
     {
-      key: 'currentEnvironment',
-      title: environment.environmentName
+      title: "Status",
+      value: environment.isLicensed ? "Licensed" : "Unlicensed",
+      icon: environment.isLicensed ? <CheckCircleOutlined /> : <CloseCircleOutlined />,
+      color: environment.isLicensed ? "#52c41a" : "#ff4d4f"
+    },
+    {
+      title: "API Key",
+      value: environment.environmentApikey ? "Configured" : "Not Set",
+      icon: <SafetyOutlined />,
+      color: environment.environmentApikey ? "#1890ff" : "#faad14"
+    },
+    {
+      title: "Master Env",
+      value: environment.isMaster ? "Yes" : "No",
+      icon: <UserOutlined />,
+      color: environment.isMaster ? "#722ed1" : "#8c8c8c"
     }
   ];
 
@@ -161,15 +180,29 @@ const EnvironmentDetail: React.FC = () => {
   ];
 
   return (
-    <div
-      className="environment-detail-container"
-      style={{ padding: "24px", flex: 1, minWidth: "1000px" }}
-    >
+    <Level1SettingPageContent>
+      {/* Breadcrumbs */}
+   
+
       {/* Environment Header Component */}
       <EnvironmentHeader 
         environment={environment} 
         onEditClick={handleEditClick} 
       />
+
+      {/* Stats Cards Row */}
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+        {statsData.map((stat, index) => (
+          <Col xs={24} sm={12} lg={6} key={index}>
+            <StatsCard
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+            />
+          </Col>
+        ))}
+      </Row>
 
       {/* Basic Environment Information Card */}
       <Card
@@ -200,13 +233,10 @@ const EnvironmentDetail: React.FC = () => {
               "No domain set"
             )}
           </Descriptions.Item>
-          <Descriptions.Item label="Environment Type">
-            <Tag
-              color={getEnvironmentTagColor(environment.environmentType)}
-              style={{ borderRadius: '4px' }}
-            >
-              {environment.environmentType}
-            </Tag>
+          <Descriptions.Item label="Environment ID">
+            <code style={{ padding: '2px 6px', background: '#f5f5f5', borderRadius: '3px' }}>
+              {environment.environmentId}
+            </code>
           </Descriptions.Item>
           <Descriptions.Item label="License Status">
             {(() => {
@@ -224,21 +254,25 @@ const EnvironmentDetail: React.FC = () => {
               }
             })()}
           </Descriptions.Item>
-          <Descriptions.Item label="API Key Status">
-            {environment.environmentApikey ? (
-              <Tag color="green" style={{ borderRadius: '4px' }}>Configured</Tag>
-            ) : (
-              <Tag color="red" style={{ borderRadius: '4px' }}>Not Configured</Tag>
-            )}
-          </Descriptions.Item>
-          <Descriptions.Item label="Master Environment">
-            {environment.isMaster ? "Yes" : "No"}
+          <Descriptions.Item label="Created">
+            {environment.createdAt ? new Date(environment.createdAt).toLocaleDateString() : "Unknown"}
           </Descriptions.Item>
         </Descriptions>
       </Card>
 
-      {/* Modern Breadcrumbs navigation */}
-      <ModernBreadcrumbs items={breadcrumbItems} />
+      <ModernBreadcrumbs 
+        items={[
+          {
+            key: 'environments',
+            title: 'Environments',
+            onClick: () => history.push('/setting/environments')
+          },
+          {
+            key: 'current',
+            title: environment.environmentName || "Environment Detail"
+          }
+        ]}
+      />
       
       {/* Tabs for Workspaces and User Groups */}
       <Tabs 
@@ -260,7 +294,7 @@ const EnvironmentDetail: React.FC = () => {
           loading={isUpdating}
         />
       )}
-    </div>
+    </Level1SettingPageContent>
   );
 };
 
