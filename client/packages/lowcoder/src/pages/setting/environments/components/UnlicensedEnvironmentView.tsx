@@ -31,37 +31,29 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
   const getLicenseIcon = () => {
     switch (environment.licenseStatus) {
       case 'unlicensed':
-        return <CloseCircleOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />;
+        return <CloseCircleOutlined style={{ fontSize: '48px', color: '#ff7875' }} />;
       case 'error':
-        return <ExclamationCircleOutlined style={{ fontSize: '48px', color: '#faad14' }} />;
+        return <ExclamationCircleOutlined style={{ fontSize: '48px', color: '#ffc53d' }} />;
       default:
-        return <WarningOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />;
+        return <WarningOutlined style={{ fontSize: '48px', color: '#ff7875' }} />;
     }
   };
 
   const getLicenseTitle = () => {
-    switch (environment.licenseStatus) {
-      case 'unlicensed':
-        return 'Environment Not Licensed';
-      case 'error':
-        return 'License Configuration Error';
-      default:
-        return 'License Issue';
-    }
-  };
+   return environment.licenseError;
+ }
+
+
 
   const getLicenseDescription = () => {
-    if (environment.licenseError) {
-      return environment.licenseError;
-    }
     
     switch (environment.licenseStatus) {
       case 'unlicensed':
-        return 'This environment requires a valid license to access its features and functionality.';
+        return 'This environment needs a valid license to unlock its full capabilities and features. Please make sure your API Service URL is correctly configured and Plugin is installed.';
       case 'error':
-        return 'There was an error validating the license for this environment. Please check the configuration.';
+        return 'We encountered an issue while checking the license. Please review the configuration settings.';
       default:
-        return 'This environment has license-related issues that need to be resolved.';
+        return 'This environment requires license configuration to proceed.';
     }
   };
 

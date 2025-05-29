@@ -205,9 +205,9 @@ const EnvironmentDetail: React.FC = () => {
                 case 'licensed':
                   return <Tag icon={<CheckCircleOutlined />} color="green" style={{ borderRadius: '4px' }}>Licensed</Tag>;
                 case 'unlicensed':
-                  return <Tag icon={<CloseCircleOutlined />} color="red" style={{ borderRadius: '4px' }}>Not Licensed</Tag>;
+                  return <Tag icon={<CloseCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>License Needed</Tag>;
                 case 'error':
-                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>License Error</Tag>;
+                  return <Tag icon={<ExclamationCircleOutlined />} color="orange" style={{ borderRadius: '4px' }}>Setup Required</Tag>;
                 default:
                   return <Tag color="default" style={{ borderRadius: '4px' }}>Unknown</Tag>;
               }

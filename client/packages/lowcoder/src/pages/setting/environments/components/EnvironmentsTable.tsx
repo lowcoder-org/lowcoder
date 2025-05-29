@@ -55,29 +55,29 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
       case 'checking':
         return {
           icon: <SyncOutlined spin />,
-          color: '#1890ff',
+          color: '#40a9ff',
           text: 'Checking...',
           status: 'processing' as const
         };
       case 'licensed':
         return {
           icon: <CheckCircleOutlined />,
-          color: '#52c41a',
+          color: '#73d13d',
           text: 'Licensed',
           status: 'success' as const
         };
       case 'unlicensed':
         return {
           icon: <CloseCircleOutlined />,
-          color: '#ff4d4f',
-          text: 'Not Licensed',
-          status: 'error' as const
+          color: '#ff7875',
+          text: 'License Required',
+          status: 'warning' as const
         };
       case 'error':
         return {
           icon: <ExclamationCircleOutlined />,
-          color: '#faad14',
-          text: 'License Error',
+          color: '#ffc53d',
+          text: 'Setup Required',
           status: 'warning' as const
         };
       default:
@@ -180,8 +180,8 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                         <Tag 
                           icon={licenseDisplay.icon}
                           color={licenseDisplay.status === 'success' ? 'green' : 
-                                 licenseDisplay.status === 'error' ? 'red' : 
-                                 licenseDisplay.status === 'warning' ? 'orange' : 'blue'}
+                                 licenseDisplay.status === 'warning' ? 'orange' : 
+                                 licenseDisplay.status === 'processing' ? 'blue' : 'default'}
                           style={{ fontSize: '11px', borderRadius: '4px' }}
                         >
                           {licenseDisplay.text}

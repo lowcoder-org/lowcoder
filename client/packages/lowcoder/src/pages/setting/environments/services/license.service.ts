@@ -65,17 +65,17 @@ export async function checkEnvironmentLicense(
 
   } catch (error) {
     // Determine the specific error type
-    let errorMessage = 'License not available';
+    let errorMessage = 'License information unavailable';
     
     if (axios.isAxiosError(error)) {
       if (error.code === 'ECONNABORTED') {
-        errorMessage = 'License check timed out';
+        errorMessage = 'License check took too long';
       } else if (error.response?.status === 404) {
-        errorMessage = 'License endpoint not found';
+        errorMessage = 'License service not available';
       } else if (error.response?.status === 401) {
-        errorMessage = 'Unauthorized - check API key';
+        errorMessage = 'Authentication required - please check API key';
       } else if (error.response && error.response.status >= 500) {
-        errorMessage = 'License server error';
+        errorMessage = 'License service temporarily unavailable';
       }
     }
 
@@ -100,7 +100,7 @@ export function formatAPICalls(remaining: number, total: number): string {
 }
 
 /**
- * Get API calls status color based on usage percentage
+ * Get API calls status color based on usage percentage - using softer, less aggressive colors
  * @param remainingCalls - Remaining API calls
  * @param totalCalls - Total API calls limit
  * @returns Color string for UI components
@@ -110,8 +110,8 @@ export function getAPICallsStatusColor(remainingCalls: number, totalCalls: numbe
   
   const usagePercentage = ((totalCalls - remainingCalls) / totalCalls) * 100;
   
-  if (usagePercentage >= 90) return '#ff4d4f'; // Red - Critical
-  if (usagePercentage >= 75) return '#faad14'; // Orange - Warning  
-  if (usagePercentage >= 50) return '#1890ff'; // Blue - Moderate
-  return '#52c41a'; // Green - Good
+  if (usagePercentage >= 90) return '#ff7875'; // Soft red - High usage
+  if (usagePercentage >= 75) return '#ffc53d'; // Soft orange - Moderate usage  
+  if (usagePercentage >= 50) return '#40a9ff'; // Soft blue - Normal usage
+  return '#73d13d'; // Soft green - Low usage
 } 
