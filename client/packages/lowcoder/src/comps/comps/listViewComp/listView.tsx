@@ -25,7 +25,7 @@ import { getBackgroundStyle } from "@lowcoder-ee/util/styleUtils";
 import { DndContext } from "@dnd-kit/core";
 import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { JSONObject } from "@lowcoder-ee/index.sdk";
+import { JSONObject } from "@lowcoder-ee/util/jsonTypes";
 
 const ListViewWrapper = styled.div<{ $style: any; $paddingWidth: string,$animationStyle:AnimationStyleType }>`
   height: 100%;
