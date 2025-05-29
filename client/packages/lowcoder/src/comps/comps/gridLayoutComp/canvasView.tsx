@@ -98,6 +98,7 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
   const isPreviewTheme = useContext(ThemeContext)?.themeId === 'preview-theme';
   const editorState = useContext(EditorContext);
   const [dragSelectedComps, setDragSelectedComp] = useState<Set<string>>(new Set());
+  const currentSelectionRef = useRef<Set<string>>(new Set());
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const mountedRef = useRef(true);
   const appSettings = editorState.getAppSettings();
@@ -108,8 +109,14 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
     return () => {
       mountedRef.current = false;
       setDragSelectedComp(new Set());
+      currentSelectionRef.current = new Set();
     };
   }, []);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentSelectionRef.current = dragSelectedComps;
+  }, [dragSelectedComps]);
 
   // Memoized drag selection handler
   const handleDragSelection = useCallback((checkSelectFunc?: CheckSelectFn) => {
@@ -134,6 +141,25 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
     }
     return selectedComps;
   }, [props.items, props.layout]);
+
+  const handleMouseMove = useCallback((checkSelectFunc: CheckSelectFn) => {
+    if (mountedRef.current) {
+      const selectedName = handleDragSelection(checkSelectFunc);
+      setDragSelectedComp(new Set(selectedName));
+    }
+  }, [handleDragSelection]);
+
+  const handleMouseUp = useCallback(() => {
+    if (mountedRef.current) {
+      const currentSelection = new Set(currentSelectionRef.current);
+      setDragSelectedComp(new Set());
+      editorState.setSelectedCompNames(currentSelection);
+    }
+  }, [editorState]);
+
+  const handleMouseDown = useCallback(() => {
+    setDragSelectedComp(new Set());
+  }, []);
 
   const maxWidth = useMemo(
     () => appSettings.maxWidth ?? maxWidthFromHook,
@@ -276,25 +302,6 @@ export const CanvasView = React.memo((props: ContainerBaseProps) => {
     cols: parseInt(defaultGrid),
     rowHeight: parseInt(defaultRowHeight),
   }), [props.positionParams, defaultGrid, defaultRowHeight]);
-
-  // Memoized mouse event handlers
-  const handleMouseDown = useCallback(() => {
-    setDragSelectedComp(new Set());
-  }, []);
-
-  const handleMouseUp = useCallback(() => {
-    if (mountedRef.current) {
-      editorState.setSelectedCompNames(dragSelectedComps);
-      setDragSelectedComp(new Set());
-    }
-  }, [editorState, dragSelectedComps]);
-
-  const handleMouseMove = useCallback((checkSelectFunc: CheckSelectFn) => {
-    if (mountedRef.current) {
-      const selectedName = handleDragSelection(checkSelectFunc);
-      setDragSelectedComp(selectedName);
-    }
-  }, [handleDragSelection]);
 
   if (readOnly) {
     return (

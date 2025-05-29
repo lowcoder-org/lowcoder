@@ -1,5 +1,5 @@
 import { Layers } from "constants/Layers";
-import React, { ReactNode, useCallback, useRef, useState, useEffect } from "react";
+import React, { ReactNode, useCallback, useRef, useEffect } from "react";
 
 export type CheckSelectFn = (
   item?: HTMLDivElement | null,
@@ -41,7 +41,7 @@ const createInitialState = (): SectionState => ({
 
 export const DragSelector = React.memo((props: SectionProps) => {
   const selectAreaRef = useRef<HTMLDivElement>(null);
-  const [state, setState] = useState<SectionState>(createInitialState());
+  const stateRef = useRef<SectionState>(createInitialState());
   const mountedRef = useRef(true);
 
   // Cleanup on unmount
@@ -53,57 +53,6 @@ export const DragSelector = React.memo((props: SectionProps) => {
       window.document.removeEventListener("mouseup", handleMouseUp);
     };
   }, []);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!mountedRef.current || !state.mouseDown) return;
-
-    const endPoint = {
-      x: e.pageX - (selectAreaRef.current?.getBoundingClientRect().left ?? 0),
-      y: e.pageY - (selectAreaRef.current?.getBoundingClientRect().top ?? 0),
-    };
-
-    setState(prevState => ({
-      ...prevState,
-      selectionBox: calculateSelectionBox(prevState.startPoint, endPoint),
-    }));
-
-    // Clean up selection properly
-    const selection = window.getSelection();
-    if (selection) {
-      selection.removeAllRanges();
-    }
-
-    props.onMouseMove(childrenViewCheckFunc);
-  }, [state.mouseDown, state.startPoint, props.onMouseMove]);
-
-  const handleMouseUp = useCallback(() => {
-    if (!mountedRef.current) return;
-
-    window.document.removeEventListener("mousemove", handleMouseMove);
-    window.document.removeEventListener("mouseup", handleMouseUp);
-    props.onMouseUp();
-    setState(createInitialState());
-  }, [handleMouseMove, props.onMouseUp]);
-
-  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!mountedRef.current || e.button === 2 || e.nativeEvent.which === 2) return;
-
-    const startPoint = {
-      x: e.pageX - (selectAreaRef.current?.getBoundingClientRect().left ?? 0),
-      y: e.pageY - (selectAreaRef.current?.getBoundingClientRect().top ?? 0),
-    };
-
-    setState({
-      mouseDown: true,
-      startPoint,
-      selectionBox: undefined,
-      appendMode: false,
-    });
-
-    window.document.addEventListener("mousemove", handleMouseMove);
-    window.document.addEventListener("mouseup", handleMouseUp);
-    props.onMouseDown();
-  }, [handleMouseMove, handleMouseUp, props.onMouseDown]);
 
   const rectIntersect = useCallback((
     selectionBox: Rect | undefined,
@@ -127,19 +76,8 @@ export const DragSelector = React.memo((props: SectionProps) => {
     );
   }, []);
 
-  const childrenViewCheckFunc = useCallback((
-    item?: HTMLDivElement | null,
-    afterCheck?: (checkResult: boolean) => void
-  ) => {
-    const result = rectIntersect(state.selectionBox, item);
-    if (afterCheck) {
-      afterCheck(result);
-    }
-    return result;
-  }, [state.selectionBox, rectIntersect]);
-
   const calculateSelectionBox = useCallback((startPoint: Point | undefined, endPoint: Point) => {
-    if (!state.mouseDown || !startPoint || !endPoint) return undefined;
+    if (!stateRef.current.mouseDown || !startPoint || !endPoint) return undefined;
 
     return {
       left: Math.min(startPoint.x, endPoint.x),
@@ -147,10 +85,70 @@ export const DragSelector = React.memo((props: SectionProps) => {
       width: Math.abs(startPoint.x - endPoint.x),
       height: Math.abs(startPoint.y - endPoint.y),
     };
-  }, [state.mouseDown]);
+  }, []);
+
+  const childrenViewCheckFunc = useCallback((
+    item?: HTMLDivElement | null,
+    afterCheck?: (checkResult: boolean) => void
+  ) => {
+    const result = rectIntersect(stateRef.current.selectionBox, item);
+    if (afterCheck) {
+      afterCheck(result);
+    }
+    return result;
+  }, [rectIntersect]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!mountedRef.current || !stateRef.current.mouseDown) return;
+
+    const endPoint = {
+      x: e.pageX - (selectAreaRef.current?.getBoundingClientRect().left ?? 0),
+      y: e.pageY - (selectAreaRef.current?.getBoundingClientRect().top ?? 0),
+    };
+
+    stateRef.current = {
+      ...stateRef.current,
+      selectionBox: calculateSelectionBox(stateRef.current.startPoint, endPoint),
+    };
+
+    // Clean up selection properly
+    const selection = window.getSelection();
+    if (selection) {
+      selection.removeAllRanges();
+    }
+
+    props.onMouseMove(childrenViewCheckFunc);
+  }, [props.onMouseMove, calculateSelectionBox, childrenViewCheckFunc]);
+
+  const handleMouseUp = useCallback(() => {
+    window.document.removeEventListener("mousemove", handleMouseMove);
+    window.document.removeEventListener("mouseup", handleMouseUp);
+    props.onMouseUp();
+    stateRef.current = createInitialState();
+  }, [handleMouseMove, props.onMouseUp]);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.button === 2 || e.nativeEvent.which === 2) return;
+
+    const startPoint = {
+      x: e.pageX - (selectAreaRef.current?.getBoundingClientRect().left ?? 0),
+      y: e.pageY - (selectAreaRef.current?.getBoundingClientRect().top ?? 0),
+    };
+
+    stateRef.current = {
+      mouseDown: true,
+      startPoint,
+      selectionBox: undefined,
+      appendMode: false,
+    };
+
+    window.document.addEventListener("mousemove", handleMouseMove);
+    window.document.addEventListener("mouseup", handleMouseUp);
+    props.onMouseDown();
+  }, [handleMouseMove, handleMouseUp, props.onMouseDown]);
 
   const renderSelectionBox = useCallback(() => {
-    if (!state.mouseDown || !state.startPoint || !state.selectionBox || !selectAreaRef.current) {
+    if (!stateRef.current.mouseDown || !stateRef.current.startPoint || !stateRef.current.selectionBox || !selectAreaRef.current) {
       return null;
     }
 
@@ -160,14 +158,14 @@ export const DragSelector = React.memo((props: SectionProps) => {
           background: "rgba(51, 119, 255, 0.1)",
           position: "absolute",
           zIndex: Layers.dragSelectBox,
-          left: state.selectionBox.left,
-          top: state.selectionBox.top,
-          height: state.selectionBox.height,
-          width: state.selectionBox.width,
+          left: stateRef.current.selectionBox.left,
+          top: stateRef.current.selectionBox.top,
+          height: stateRef.current.selectionBox.height,
+          width: stateRef.current.selectionBox.width,
         }}
       />
     );
-  }, [state.mouseDown, state.startPoint, state.selectionBox]);
+  }, []);
 
   return (
     <div
