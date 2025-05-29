@@ -4,6 +4,8 @@ import {
   Spin, 
   Typography, 
   Tabs, 
+  Row,
+  Col,
 } from "antd";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { 
@@ -12,6 +14,8 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
+  CloudServerOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 
 // Use the context hooks
@@ -25,16 +29,15 @@ import DataSourcesTab from "./components/DataSourcesTab";
 import QueriesTab from "./components/QueriesTab";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import WorkspaceHeader from "./components/WorkspaceHeader";
+import StatsCard from "./components/StatsCard";
 import ErrorComponent from "./components/ErrorComponent";
-
-const { TabPane } = Tabs;
+import { Level1SettingPageContent } from "../styled";
 
 const WorkspaceDetail: React.FC = () => {
   // Use the context hooks
   const { environment } = useSingleEnvironmentContext();
   const { workspace, isLoading, error, toggleManagedStatus } = useWorkspaceContext();
   const { openDeployModal } = useDeployModal();
-
 
   const [isToggling, setIsToggling] = useState(false);
 
@@ -58,7 +61,17 @@ const WorkspaceDetail: React.FC = () => {
   if (isLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', padding: '50px' }}>
-        <Spin size="large" tip="Loading workspace details..." style={{ display: 'block', textAlign: 'center' }} />
+        <Spin size="large" spinning={true}>
+          <div style={{ 
+            display: 'block', 
+            textAlign: 'center', 
+            padding: '20px',
+            color: '#8c8c8c',
+            fontSize: '14px'
+          }}>
+            Loading workspace details...
+          </div>
+        </Spin>
       </div>
     );
   }
@@ -98,13 +111,53 @@ const WorkspaceDetail: React.FC = () => {
     }
   ];
 
+  const tabItems = [
+    {
+      key: 'apps',
+      label: (
+        <span>
+          <AppstoreOutlined /> Apps
+        </span>
+      ),
+      children: (
+        <AppsTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    },
+    {
+      key: 'dataSources',
+      label: (
+        <span>
+          <DatabaseOutlined /> Data Sources
+        </span>
+      ),
+      children: (
+        <DataSourcesTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    },
+    {
+      key: 'queries',
+      label: (
+        <span>
+          <CodeOutlined /> Queries
+        </span>
+      ),
+      children: (
+        <QueriesTab
+          environment={environment}
+          workspaceId={workspace.id}
+        />
+      )
+    }
+  ];
+
   return (
-    <div className="workspace-detail-container" style={{ 
-      padding: "24px", 
-      flex: 1,
-      minWidth: "1000px",
-      overflowX: "auto"
-    }}>
+    <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* New Workspace Header */}
       <WorkspaceHeader
         workspace={workspace}
@@ -114,6 +167,42 @@ const WorkspaceDetail: React.FC = () => {
         onDeploy={() => openDeployModal(workspace, workspaceConfig, environment)}
       />
 
+      {/* Stats Cards Row */}
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Status"
+            value={workspace.managed ? "Managed" : "Unmanaged"}
+            icon={workspace.managed ? <CheckCircleOutlined /> : <CloudServerOutlined />}
+            color={workspace.managed ? "#52c41a" : "#faad14"}
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Environment"
+            value={environment.environmentType || "Unknown"}
+            icon={<CloudServerOutlined />}
+            color="#1890ff"
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Workspace ID"
+            value={workspace.id.slice(-8)}
+            icon={<TeamOutlined />}
+            color="#722ed1"
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Created"
+            value={workspace.creationDate ? new Date(workspace.creationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "Unknown"}
+            icon={<DatabaseOutlined />}
+            color="#52c41a"
+          />
+        </Col>
+      </Row>
+
       {/* Modern Breadcrumbs navigation */}
       <ModernBreadcrumbs items={breadcrumbItems} />
 
@@ -122,29 +211,9 @@ const WorkspaceDetail: React.FC = () => {
         defaultActiveKey="apps" 
         className="modern-tabs" 
         type="line"
-      >
-        <TabPane tab={<span><AppstoreOutlined /> Apps</span>} key="apps">
-          <AppsTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-
-        <TabPane tab={<span><DatabaseOutlined /> Data Sources</span>} key="dataSources">
-          <DataSourcesTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-        <TabPane tab={<span><CodeOutlined /> Queries</span>} key="queries">
-          <QueriesTab
-            environment={environment}
-            workspaceId={workspace.id}
-          />
-        </TabPane>
-        
-      </Tabs>
-    </div>
+        items={tabItems}
+      />
+    </Level1SettingPageContent>
   );
 };
 

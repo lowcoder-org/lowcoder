@@ -21,7 +21,6 @@ export interface DeployDataSourceParams {
   targetEnvId: string;
   datasourceId: string;
   datasourceGid: string;
-  updateDependenciesIfNeeded?: boolean;
   deployCredential: boolean;
 }
 // Get data sources for a workspace - using your correct implementation
@@ -158,7 +157,6 @@ export async function deployDataSource(params: DeployDataSourceParams): Promise<
         envId: params.envId,
         targetEnvId: params.targetEnvId,
         datasourceId: params.datasourceId,
-        updateDependenciesIfNeeded: params.updateDependenciesIfNeeded ?? false,
         deployCredential: params.deployCredential
       }
     });

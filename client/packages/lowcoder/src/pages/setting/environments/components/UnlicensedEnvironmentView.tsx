@@ -6,10 +6,15 @@ import {
   ArrowLeftOutlined,
   CloseCircleOutlined,
   ExclamationCircleOutlined,
-  WarningOutlined
+  WarningOutlined,
+  CloudServerOutlined
 } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import ContactLowcoderModal from './ContactLowcoderModal';
+import ModernBreadcrumbs from './ModernBreadcrumbs';
+import EnvironmentHeader from './EnvironmentHeader';
+import StatsCard from './StatsCard';
+import { Level1SettingPageContent } from "../../styled";
 import history from "@lowcoder-ee/util/history";
 
 const { Title, Text } = Typography;
@@ -20,7 +25,7 @@ interface UnlicensedEnvironmentViewProps {
 }
 
 /**
- * Modern UI for unlicensed environments
+ * Consistent UI for unlicensed environments matching other environment pages
  */
 const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
   environment,
@@ -31,118 +36,136 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
   const getLicenseIcon = () => {
     switch (environment.licenseStatus) {
       case 'unlicensed':
-        return <CloseCircleOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />;
+        return <CloseCircleOutlined style={{ fontSize: '48px', color: '#ff7875' }} />;
       case 'error':
-        return <ExclamationCircleOutlined style={{ fontSize: '48px', color: '#faad14' }} />;
+        return <ExclamationCircleOutlined style={{ fontSize: '48px', color: '#ffc53d' }} />;
       default:
-        return <WarningOutlined style={{ fontSize: '48px', color: '#ff4d4f' }} />;
+        return <WarningOutlined style={{ fontSize: '48px', color: '#ff7875' }} />;
     }
   };
 
   const getLicenseTitle = () => {
-    switch (environment.licenseStatus) {
-      case 'unlicensed':
-        return 'Environment Not Licensed';
-      case 'error':
-        return 'License Configuration Error';
-      default:
-        return 'License Issue';
-    }
-  };
+   return environment.licenseError;
+ }
+
+
 
   const getLicenseDescription = () => {
-    if (environment.licenseError) {
-      return environment.licenseError;
-    }
     
     switch (environment.licenseStatus) {
       case 'unlicensed':
-        return 'This environment requires a valid license to access its features and functionality.';
+        return 'This environment needs a valid license to unlock its full capabilities and features. Please make sure your API Service URL is correctly configured and Plugin is installed.';
       case 'error':
-        return 'There was an error validating the license for this environment. Please check the configuration.';
+        return 'We encountered an issue while checking the license. Please review the configuration settings.';
       default:
-        return 'This environment has license-related issues that need to be resolved.';
+        return 'This environment requires license configuration to proceed.';
     }
   };
 
+  // Stats data consistent with other environment pages
+  const statsData = [
+    {
+      title: "Type",
+      value: environment.environmentType || "Unknown",
+      icon: <CloudServerOutlined />,
+      color: "#1890ff"
+    },
+    {
+      title: "Status",
+      value: "Unlicensed",
+      icon: <CloseCircleOutlined />,
+      color: "#ff4d4f"
+    },
+    {
+      title: "Master Env",
+      value: environment.isMaster ? "Yes" : "No",
+      icon: <CloudServerOutlined />,
+      color: environment.isMaster ? "#722ed1" : "#8c8c8c"
+    },
+    {
+      title: "License Issue",
+      value: environment.licenseStatus === 'error' ? "Error" : "Missing",
+      icon: environment.licenseStatus === 'error' ? <ExclamationCircleOutlined /> : <CloseCircleOutlined />,
+      color: environment.licenseStatus === 'error' ? "#faad14" : "#ff4d4f"
+    }
+  ];
+
   return (
-    <div style={{ 
-      padding: "24px", 
-      flex: 1,
-      minWidth: '1000px',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
-    }}>
-      <Row justify="center" style={{ minHeight: '80vh' }}>
-        <Col xs={24} sm={20} md={16} lg={14} xl={12}>
-          <div style={{ 
-            display: 'flex', 
-            flexDirection: 'column', 
-            justifyContent: 'center', 
-            alignItems: 'center',
-            minHeight: '70vh',
-            textAlign: 'center'
-          }}>
-            {/* Main Status Card */}
-            <Card
-              style={{
-                width: '100%',
-                borderRadius: '16px',
-                boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-                border: 'none',
-                background: 'white',
-                overflow: 'hidden'
-              }}
-              bodyStyle={{ padding: '48px 32px' }}
-            >
+    <Level1SettingPageContent style={{ minWidth: "1000px" }}>
+      {/* Environment Header Component */}
+      <EnvironmentHeader 
+        environment={environment} 
+        onEditClick={onEditClick} 
+      />
+
+      {/* Stats Cards Row */}
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+        {statsData.map((stat, index) => (
+          <Col xs={24} sm={12} lg={6} key={index}>
+            <StatsCard
+              title={stat.title}
+              value={stat.value}
+              icon={stat.icon}
+              color={stat.color}
+            />
+          </Col>
+        ))}
+      </Row>
+
+      {/* Breadcrumbs */}
+      <ModernBreadcrumbs 
+        items={[
+          {
+            key: 'environments',
+            title: 'Environments',
+            onClick: () => history.push('/setting/environments')
+          },
+          {
+            key: 'current',
+            title: environment.environmentName || "Environment Detail"
+          }
+        ]}
+      />
+
+      {/* License Issue Card */}
+      <Card
+        style={{
+          marginBottom: "24px",
+          borderRadius: '4px',
+          border: '1px solid #f0f0f0',
+          background: 'white'
+        }}
+        styles={{ body: { padding: '32px' } }}
+      >
+        <Row justify="center">
+          <Col xs={24} sm={20} md={16} lg={12}>
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column', 
+              alignItems: 'center',
+              textAlign: 'center'
+            }}>
               {/* Status Icon */}
               <div style={{ marginBottom: '24px' }}>
                 {getLicenseIcon()}
               </div>
 
-              {/* Environment Info */}
-              <div style={{ marginBottom: '32px' }}>
-                <Title level={2} style={{ marginBottom: '8px', color: '#262626' }}>
-                  {getLicenseTitle()}
-                </Title>
-                <Text style={{ 
-                  fontSize: '16px', 
-                  color: '#595959',
-                  display: 'block',
-                  marginBottom: '16px',
-                  lineHeight: '1.6'
-                }}>
-                  {getLicenseDescription()}
-                </Text>
-                
-                {/* Environment Details */}
-                <div style={{
-                  background: '#fafafa',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  marginTop: '24px',
-                  border: '1px solid #f0f0f0'
-                }}>
-                  <Text strong style={{ color: '#8c8c8c', fontSize: '14px' }}>Environment:</Text>
-                  <Text style={{ 
-                    display: 'block', 
-                    fontSize: '16px', 
-                    color: '#262626',
-                    marginTop: '4px'
-                  }}>
-                    {environment.environmentName || 'Unnamed Environment'}
-                  </Text>
-                  <Text style={{ 
-                    fontSize: '13px', 
-                    color: '#8c8c8c',
-                    fontFamily: 'monospace'
-                  }}>
-                    ID: {environment.environmentId}
-                  </Text>
-                </div>
-              </div>
+              {/* License Issue Information */}
+              <Title level={2} style={{ marginBottom: '12px', color: '#262626' }}>
+                {getLicenseTitle()}
+              </Title>
+              <Text style={{ 
+                fontSize: '16px', 
+                color: '#595959',
+                marginBottom: '24px',
+                lineHeight: '1.6',
+                maxWidth: '500px'
+              }}>
+                {getLicenseDescription()}
+              </Text>
 
               {/* Action Buttons */}
-              <Space size="large" direction="vertical" style={{ width: '100%' }}>
+              <Space size="large" direction="vertical" style={{ width: '100%', maxWidth: '400px' }}>
                 <Button
                   type="primary"
                   size="large"
@@ -151,12 +174,9 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                   style={{
                     width: '100%',
                     height: '48px',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     fontSize: '16px',
-                    fontWeight: 500,
-                    background: 'linear-gradient(135deg, #1890ff 0%, #0050b3 100%)',
-                    border: 'none',
-                    boxShadow: '0 4px 12px rgba(24, 144, 255, 0.3)'
+                    fontWeight: 500
                   }}
                 >
                   Contact Lowcoder Team
@@ -169,11 +189,9 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                   style={{
                     width: '100%',
                     height: '48px',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     fontSize: '16px',
-                    fontWeight: 500,
-                    borderColor: '#d9d9d9',
-                    color: '#595959'
+                    fontWeight: 500
                   }}
                 >
                   Edit Environment
@@ -186,31 +204,38 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                   style={{
                     width: '100%',
                     height: '48px',
-                    borderRadius: '8px',
+                    borderRadius: '4px',
                     fontSize: '16px',
-                    fontWeight: 500,
-                    borderColor: '#d9d9d9',
-                    color: '#8c8c8c'
+                    fontWeight: 500
                   }}
                 >
                   Back to Environments
                 </Button>
               </Space>
-            </Card>
+            </div>
+          </Col>
+        </Row>
+      </Card>
 
-            {/* Footer Help Text */}
-            <Text style={{ 
-              marginTop: '24px', 
-              color: '#8c8c8c',
-              fontSize: '14px',
-              maxWidth: '400px',
-              lineHeight: '1.5'
-            }}>
-              Need assistance? Contact our team for licensing support or edit the environment configuration to resolve this issue.
-            </Text>
-          </div>
-        </Col>
-      </Row>
+      {/* Help Text */}
+      <Card
+        style={{
+          borderRadius: '4px',
+          border: '1px solid #f0f0f0',
+          background: '#fafafa'
+        }}
+        styles={{ body: { padding: '16px' } }}
+      >
+        <Text style={{ 
+          color: '#8c8c8c',
+          fontSize: '14px',
+          textAlign: 'center',
+          display: 'block',
+          lineHeight: '1.5'
+        }}>
+          Need assistance? Contact our team for licensing support or edit the environment configuration to resolve this issue.
+        </Text>
+      </Card>
 
       {/* Contact Lowcoder Modal */}
       <ContactLowcoderModal
@@ -218,7 +243,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
         onClose={() => setIsContactModalVisible(false)}
         environment={environment}
       />
-    </div>
+    </Level1SettingPageContent>
   );
 };
 
