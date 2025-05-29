@@ -66,6 +66,6 @@ export const getEnvironmentHeaderGradient = (envType: string | undefined): strin
  * @returns Formatted environment type string
  */
 export const formatEnvironmentType = (envType: string | undefined): string => {
-  if (!envType) return 'UNKNOWN';
+  if (!envType) return 'TEST';
   return envType.toUpperCase();
 }; 

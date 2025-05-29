@@ -152,7 +152,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <Avatar
                       style={{ 
-                        backgroundColor: getAvatarColor(env.environmentType), 
+                        backgroundColor: getAvatarColor(env.environmentType || 'TEST'), 
                         display: 'flex', 
                         alignItems: 'center',
                         justifyContent: 'center'
