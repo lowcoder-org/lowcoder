@@ -6,7 +6,7 @@ export interface Environment {
   environmentName?: string;
   environmentDescription?: string;
   environmentIcon?: string;
-  environmentType: string;
+  environmentType?: string;
   environmentApiServiceUrl?: string;
   environmentNodeServiceUrl?: string;
   environmentFrontendUrl?: string;
