@@ -387,7 +387,7 @@ export const IconPicker = (props: {
           background: "transparent",
         }
       }}
-      destroyTooltipOnHide
+      destroyOnHidden
       content={
         <Draggable handle=".dragHandle" nodeRef={draggableRef}>
           <PopupContainer ref={draggableRef}>

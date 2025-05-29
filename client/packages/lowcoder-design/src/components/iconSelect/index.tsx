@@ -292,7 +292,7 @@ const IconPopup = (props: {
               placement="bottom"
               align={{ offset: [0, -7, 0, 0] }}
               getPopupContainer={(node: any) => node.parentNode}
-              destroyTooltipOnHide
+              destroyOnHidden
             >
               <IconItemContainer
                 tabIndex={0}
@@ -374,7 +374,7 @@ export const IconSelectBase = (props: {
         }
       }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
-      destroyTooltipOnHide
+      destroyOnHidden
       content={
         <IconPopup
           onChange={props.onChange}

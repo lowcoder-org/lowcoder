@@ -83,7 +83,7 @@ export function HubspotModal({ open, onClose, orgId, deploymentIds }: Props) {
       onCancel={onClose}
       footer={null}
       width={720}
-      destroyOnClose
+      destroyOnHidden
     >
       <Space direction="vertical" size="large" style={{ width: "100%" }}>
         {/* Info Header Card */}

@@ -56,7 +56,7 @@ const ErrorFallback = (props: {
   return (
 
     <StyledFlex align="center" justify="center" vertical>
-      {Boolean(errorImage) && false
+      {Boolean(errorImage)
         ? <StyledErrorImage src={errorImage} />
         : <StyledErrorIcon />
       }

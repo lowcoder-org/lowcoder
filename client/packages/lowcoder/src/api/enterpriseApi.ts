@@ -102,7 +102,7 @@ export const getBranding = async (orgId: string = '') => {
   }
   return {
     ...data,
-    config_set: JSON.parse(data.config_set),
+    config_set: data?.config_set ? JSON.parse(data.config_set) : {},
   };
 };
 

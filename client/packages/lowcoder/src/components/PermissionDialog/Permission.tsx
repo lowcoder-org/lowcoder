@@ -365,8 +365,10 @@ const PermissionSelector = (props: {
           })}
         </AddPermissionsSelect>
         <AddRoleSelect
-          dropdownStyle={{
-            width: "fit-content",
+          styles={{
+            popup: {
+              root: { width: "fit-content" }
+            }
           }}
           $isVisible={roleSelectVisible}
           variant="borderless"

@@ -60,7 +60,7 @@ export const ColorSelect = (props: ColorSelectProps) => {
     <Popover
       trigger={trigger}
       placement="left"
-      destroyTooltipOnHide={true}
+      destroyOnHidden={true}
       onOpenChange={(value) => {
         setVisible(value);
       }}

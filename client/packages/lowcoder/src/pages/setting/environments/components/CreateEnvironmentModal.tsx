@@ -70,7 +70,7 @@ const CreateEnvironmentModal: React.FC<CreateEnvironmentModalProps> = ({
       open={visible}
       onCancel={handleCancel}
       maskClosable={true}
-      destroyOnClose={true}
+      destroyOnHidden={true}
       footer={[
         <Button key="back" onClick={handleCancel}>
           Cancel

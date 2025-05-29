@@ -453,7 +453,7 @@ export const ShapeSelectBase = (props: {
         }
       }}
       // when dragging is allowed, always re-location to avoid the popover exceeds the screen
-      destroyTooltipOnHide
+      destroyOnHidden
       content={
         <IconPopup
           onChange={props.onChange}

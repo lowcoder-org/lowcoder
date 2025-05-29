@@ -310,7 +310,11 @@ function EditorStateDropdownPropertyView<T extends OptionsType>(props: DropdownP
       showSearch={true}
       onChange={onChange}
       disabled={params.disabled}
-      dropdownStyle={props.dropdownStyle}
+      styles={{
+        popup: {
+          root: props.dropdownStyle
+        }
+      }}
       labelStyle={props.labelStyle}
     />
   );

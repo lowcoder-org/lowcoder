@@ -276,8 +276,10 @@ export const SelectUIView = (
         {originNode}
       </DropdownStyled>
     )}
-    dropdownStyle={{
-      padding: 0,
+    styles={{
+      popup: {
+        root: { padding: 0 },
+      }
     }}
     menuItemSelectedIcon={props.mode ? <MultiselectTagIcon title="" /> : ""}
     onChange={props.onChange}
