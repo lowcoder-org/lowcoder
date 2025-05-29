@@ -319,7 +319,7 @@ const EnvironmentDetail: React.FC = () => {
                 />
                 <div style={{ marginTop: '12px' }}>
                   <Progress
-                    percent={100 - (environment.licenseDetails.apiCallsUsage || 0)}
+                    percent={environment.licenseDetails.apiCallsUsage || 0}
                     strokeColor={getAPICallsStatusColor(
                       environment.licenseDetails.remainingAPICalls,
                       environment.licenseDetails.totalAPICallsLimit || 0

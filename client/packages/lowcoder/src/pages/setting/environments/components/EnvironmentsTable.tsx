@@ -280,7 +280,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                       
                         </div>
                         <Progress
-                          percent={100 - (env.licenseDetails.apiCallsUsage || 0)}
+                          percent={env.licenseDetails.apiCallsUsage || 0}
                           strokeColor={getAPICallsStatusColor(
                             env.licenseDetails.remainingAPICalls,
                             env.licenseDetails.totalAPICallsLimit || 0
