@@ -4,7 +4,7 @@ import { useSelector } from "react-redux";
 import React, { useContext, useMemo, useState } from "react";
 import { DataSourceTypeInfo } from "api/datasourceApi";
 import styled from "styled-components";
-import { CustomSelect, EllipsisTextCss } from "lowcoder-design";
+import { CustomSelect  } from "lowcoder-design";
 import { DatasourceModal } from "pages/datasource/datasourceModal";
 import { InputStatus } from "antd/es/_util/statusUtils";
 import { getDataSource, getDataSourceTypes } from "redux/selectors/datasourceSelectors";
@@ -30,7 +30,9 @@ const SelectOptionLabel = styled.div`
   font-size: 13px;
   display: inline-block;
   flex-grow: 1;
-  ${EllipsisTextCss};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 const SelectOptionContains = styled.div`
   display: flex;

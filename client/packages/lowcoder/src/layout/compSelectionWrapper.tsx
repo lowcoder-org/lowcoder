@@ -18,7 +18,6 @@ import React, {
 } from "react";
 import { ResizePayload, useResizeDetector } from "react-resize-detector";
 import styled, { css } from "styled-components";
-import { EllipsisTextCss } from "lowcoder-design";
 import { draggingUtils } from "./draggingUtils";
 import type { ResizeHandleAxis } from "./gridLayoutPropTypes";
 import { isEqual } from "lodash";
@@ -57,7 +56,9 @@ const NameDiv = styled.div<{
 `;
 const NameLabel = styled.span`
   max-width: 208px;
-  ${EllipsisTextCss};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 export const GRID_ITEM_BORDER_WIDTH = 1.5;

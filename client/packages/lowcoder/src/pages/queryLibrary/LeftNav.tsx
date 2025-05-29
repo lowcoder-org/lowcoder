@@ -4,7 +4,6 @@ import {
   BluePlusIcon,
   CustomModal,
   EditPopover,
-  EllipsisTextCss,
   PointIcon,
   ScrollBar,
   Search,
@@ -124,7 +123,9 @@ const QueryType = styled.div`
   font-size: 13px;
 `;
 const QueryName = styled.div`
-  ${EllipsisTextCss};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   font-weight: 500;
   font-size: 13px;
 `;

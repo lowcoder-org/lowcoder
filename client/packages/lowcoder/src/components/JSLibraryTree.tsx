@@ -134,7 +134,11 @@ const JSLibraryCollapse = styled(Collapse)<{ $mode: "row" | "column" }>`
   }
 
   .lib-label-name {
-    ${EllipsisTextCss};
+    ${css`
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    `}
   }
 `;
 

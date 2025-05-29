@@ -19,12 +19,10 @@ import { AnimationStyle, CheckboxStyle, CheckboxStyleType, InputFieldStyle, Labe
 import { RadioLayoutOptions, RadioPropertyView } from "./radioCompConstants";
 import { dropdownControl } from "../../controls/dropdownControl";
 import { ValueFromOption, lightenColor } from "lowcoder-design";
-import { EllipsisTextCss } from "lowcoder-design";
 import { trans } from "i18n";
 import { RefControl } from "comps/controls/refControl";
 import { migrateOldData } from "comps/generators/simpleGenerators";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
-import Tooltip from "antd/es/tooltip";
 import { useCallback, useRef, useEffect, memo } from "react";
 
 export const getStyle = (style: CheckboxStyleType) => {
@@ -34,7 +32,10 @@ export const getStyle = (style: CheckboxStyleType) => {
       max-width: calc(100% - 8px);
 
       span:not(.ant-checkbox) {
-        ${EllipsisTextCss};
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+      }
       }
 
       .ant-checkbox .ant-checkbox-checked > .ant-checkbox-inner {
@@ -79,8 +80,6 @@ export const getStyle = (style: CheckboxStyleType) => {
         ${style.hoverBackground && `border-color: ${style.hoverBackground}`};
       }
 
-      
-
       &:hover .ant-checkbox-inner,
       .ant-checkbox:hover .ant-checkbox-inner,
       .ant-checkbox-input:focus + .ant-checkbox-inner {
@@ -93,8 +92,6 @@ export const getStyle = (style: CheckboxStyleType) => {
         border-color: ${style.hoverBackground || lightenColor(style.checkedBackground, 0.1)};
       }
     }
-
-    
 
     .ant-checkbox-group-item {
       font-family:${style.fontFamily};

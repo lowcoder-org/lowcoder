@@ -28,7 +28,7 @@ import {
   SlotLabelContentArg,
   ViewContentArg,
 } from "@fullcalendar/core";
-import { default as Form } from "antd/es/form";
+import { default as Form, FormProps } from "antd/es/form";
 
 type Theme = typeof Theme;
 type EventModalStyleType = typeof EventModalStyleType;
@@ -727,7 +727,7 @@ export const Event = styled.div<{
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
-    margin-top: 2px; 
+    margin-top: 2px;
   }
 
   &.small {
@@ -761,10 +761,10 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-    `rgba(${props?.$extendedProps?.color}, 0.3)`};
+      `rgba(${props?.$extendedProps?.color}, 0.3)`};
     &::before {
-    background-color: ${(props) => props?.$extendedProps?.color};
-    opacity: 0.3;
+      background-color: ${(props) => props?.$extendedProps?.color};
+      opacity: 0.3;
     }
     &::before,
     .event-title,
@@ -776,9 +776,11 @@ export const Event = styled.div<{
   }
 `;
 
-export const FormWrapper = styled(Form)<{
-  $modalStyle?: EventModalStyleType
-}>`
+export const FormWrapper = styled(Form)<
+  FormProps & {
+    $modalStyle?: EventModalStyleType;
+  }
+>`
   .ant-form-item-label {
     width: 125px;
     text-align: left;
@@ -787,12 +789,11 @@ export const FormWrapper = styled(Form)<{
     label:not(.ant-form-item-required) {
       margin-left: 2px;
     }
-      label.ant-form-item-required{
+    label.ant-form-item-required {
       margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
-      
     }
   }
 
@@ -1117,12 +1118,12 @@ export const slotLabelFormat = [
   {
     hour: "2-digit",
     minute: "2-digit",
-  }, 
+  },
 ] as FormatterInput[];
 
 export const slotLabelFormatWeek = [
   { week: "short" },
-  { hour: "2-digit" }, 
+  { hour: "2-digit" },
 ] as FormatterInput[];
 
 export const slotLabelFormatMonth = [
