@@ -17,13 +17,11 @@ export const workspaceConfig: DeployableItemConfig = {
       if (!item.gid) {
         console.error('Missing workspace.gid when deploying workspace:', item);
       }
-      console.log('item.gid', item.gid);
       
       return {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
         workspaceId: item.gid,
-        // Removed deployCredential parameter
       };
     },
     execute: (params: any) => deployWorkspace(params)

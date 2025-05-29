@@ -287,7 +287,6 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                           )}
                           size="small"
                           showInfo={false}
-                          strokeWidth={4}
                         />
                         <div style={{ 
                           display: 'flex', 

@@ -300,7 +300,7 @@ const EnvironmentDetail: React.FC = () => {
               <Card
                 size="small"
                 style={{ height: '100%', textAlign: 'center' }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
                   title="API Calls Remaining"
@@ -343,7 +343,7 @@ const EnvironmentDetail: React.FC = () => {
               <Card
                 size="small"
                 style={{ height: '100%', textAlign: 'center' }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
                   title="Total API Calls Limit"
@@ -365,7 +365,7 @@ const EnvironmentDetail: React.FC = () => {
               <Card
                 size="small"
                 style={{ height: '100%', textAlign: 'center' }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
               >
                 <Statistic
                   title="Enterprise Edition"
@@ -399,7 +399,7 @@ const EnvironmentDetail: React.FC = () => {
                       border: '1px solid #f0f0f0',
                       borderRadius: '6px'
                     }}
-                    bodyStyle={{ padding: '12px' }}
+                    styles={{ body: { padding: '12px' } }}
                   >
                     <div style={{ marginBottom: '8px' }}>
                       <strong style={{ color: '#262626' }}>
