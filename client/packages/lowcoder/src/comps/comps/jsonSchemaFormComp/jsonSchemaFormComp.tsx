@@ -1,5 +1,5 @@
 import { withTheme } from '@rjsf/core';
-import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions } from "@rjsf/utils";
+import type { RJSFValidationError, ErrorListProps, UISchemaSubmitButtonOptions, ErrorSchema } from "@rjsf/utils";
 import validator from "@rjsf/validator-ajv8";
 import { default as Button } from "antd/es/button";
 import { BoolControl } from "comps/controls/boolControl";
@@ -28,7 +28,10 @@ import ObjectFieldTemplate from './ObjectFieldTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import { Select } from 'antd';
 import Title from 'antd/es/typography/Title';
-
+import { dropdownControl } from 'comps/controls/dropdownControl';
+import JsonFormsRenderer from "./JsonFormsRenderer";
+import { UISchemaElement } from "@jsonforms/core";
+import type { JsonFormsUiSchema } from "./JsonFormsRenderer";
 
 Theme.widgets.DateWidget = DateWidget(false);
 Theme.widgets.DateTimeWidget = DateWidget(true);
@@ -118,7 +121,10 @@ function convertData(schema?: JSONSchema7, data?: any) {
       let newData: Record<string, unknown> = {};
       Object.entries(properties).forEach(([key, definition]) => {
         const value = data ? data[key] : undefined;
-        newData[key] = typeof definition === "object" ? convertData(definition, value) : value;
+        newData[key] =
+          typeof definition === "object"
+            ? convertData(definition, value)
+            : value;
       });
       return newData;
     }
@@ -204,9 +210,14 @@ function onSubmit(props: {
   });
 }
 
+const formTypeOptions = [
+  { label: "RJSF", value: "rjsf" },
+  { label: "JSONForms", value: "jsonforms" },
+] as const;
 
 let FormBasicComp = (function () {
   const childrenMap = {
+    formType: dropdownControl(formTypeOptions, "rjsf"),
     resetAfterSubmit: BoolControl,
     schema: jsonObjectControl(i18nObjs.jsonForm.defaultSchema),
     showVerticalScrollbar: withDefault(BoolControl, false),
@@ -214,15 +225,19 @@ let FormBasicComp = (function () {
     autoHeight: AutoHeightControl,
     data: jsonObjectExposingStateControl("data", i18nObjs.jsonForm.defaultFormData),
     onEvent: eventHandlerControl(EventOptions),
-    style: styleControl(JsonSchemaFormStyle , 'style'),
-    animationStyle: styleControl(AnimationStyle , 'animationStyle'),
+    style: styleControl(JsonSchemaFormStyle, "style"),
+    animationStyle: styleControl(AnimationStyle, "animationStyle"),
+    errorSchema: jsonObjectControl({
+      __errors: ["Custom error message for the entire form"],
+      fieldName: {
+        __errors: ["Custom error for specific field"]
+      }
+    }),
   };
 
   return new UICompBuilder(childrenMap, (props) => {
     // rjsf 4.20 supports ui:submitButtonOptions, but if the button is customized, it will not take effect. Here we implement it ourselves
-    const buttonOptions = props?.uiSchema?.[
-      "ui:submitButtonOptions"
-    ] as UISchemaSubmitButtonOptions;
+    const buttonOptions = props?.uiSchema?.["ui:submitButtonOptions"] as UISchemaSubmitButtonOptions;
 
     const schema = props.schema;
 
@@ -236,100 +251,160 @@ let FormBasicComp = (function () {
           setContainerWidth(containerRef.current.offsetWidth);
         }
       };
-  
+
       const resizeObserver = new ResizeObserver(() => {
         updateWidth();
       });
-  
+
       if (containerRef.current) {
         resizeObserver.observe(containerRef.current);
       }
-  
+
       // Initial update
       updateWidth();
-  
+
       // Cleanup observer on unmount
       return () => {
         resizeObserver.disconnect();
       };
     }, []);
 
+    // Convert the error schema to the format RJSF expects
+    const getExtraErrors = () => {
+      if (!props.errorSchema || Object.keys(props.errorSchema).length === 0) {
+        return undefined;
+      }
+
+      const extraErrors: ErrorSchema = {};
+      
+      // Handle root level errors
+      if (props.errorSchema.__errors) {
+        extraErrors.__errors = Array.isArray(props.errorSchema.__errors) 
+          ? props.errorSchema.__errors.map(String)
+          : [String(props.errorSchema.__errors)];
+      }
+
+      // Handle field level errors
+      Object.entries(props.errorSchema).forEach(([key, value]) => {
+        if (key !== '__errors' && typeof value === 'object' && value !== null) {
+          extraErrors[key] = {
+            __errors: (value as any).__errors || []
+          };
+        }
+      });
+
+      return extraErrors;
+    };
+
     return (
       <ContainerWidthContext.Provider value={containerWidth}>
         <Container $style={props.style} $animationStyle={props.animationStyle} ref={containerRef}>
           <ScrollBar
-              style={{
-                height: props.autoHeight ? "auto" : "100%",
-                margin: "0px",
-                padding: "0px",
-              }}
-              overflow={"hidden"}
-              hideScrollbar={!props.showVerticalScrollbar}
-            >
-          <ErrorBoundary>
-            <Title level={2} style={{ marginBottom: '24px' }}>
-              {schema.title as string | number}
-            </Title>
-            <Form
-              validator={validator}
-              schema={props.schema}
-              uiSchema={props.uiSchema}
-              formData={convertData(props.schema, props.data.value)}
-              onSubmit={() => onSubmit(props)}
-              onChange={(e) => props.data.onChange(e.formData)}
-              transformErrors={(errors) => transformErrors(errors)}
-              templates={{
-                ObjectFieldTemplate: ObjectFieldTemplate,
-                ArrayFieldTemplate: ArrayFieldTemplate,
-              }}
-              liveValidate={true}
-              widgets={{ searchableSelect: SearchableSelectWidget }}
-              children={
-                <Button
-                  hidden={buttonOptions?.norender}
-                  disabled={buttonOptions?.props?.disabled}
-                  className={buttonOptions?.props?.className}
-                  type="primary"
-                  htmlType="submit"
-                  style={{ float: "right" }}
-                >
-                  {buttonOptions?.submitText ?? trans("event.submit")}
-                </Button>
-              }
-            />
-          </ErrorBoundary>
+            style={{
+              height: props.autoHeight ? "auto" : "100%",
+              margin: "0px",
+              padding: "0px",
+            }}
+            overflow={"hidden"}
+            hideScrollbar={!props.showVerticalScrollbar}
+          >
+            <ErrorBoundary>
+              {props.formType === "rjsf" ? (
+                <>
+                  <Title level={2} style={{ marginBottom: "24px", display: "flex", justifyContent: "center" }}>
+                    {schema.title as string | number}
+                  </Title>
+                  <Form
+                    validator={validator}
+                    schema={props.schema}
+                    uiSchema={props.uiSchema}
+                    formData={convertData(props.schema, props.data.value)}
+                    onSubmit={() => onSubmit(props)}
+                    onChange={(e) => props.data.onChange(e.formData)}
+                    transformErrors={(errors) => transformErrors(errors)}
+                    extraErrors={getExtraErrors()}
+                    liveValidate={false}
+                    showErrorList={false}
+                    templates={{
+                      ObjectFieldTemplate: ObjectFieldTemplate,
+                      ArrayFieldTemplate: ArrayFieldTemplate,
+                    }}
+                    widgets={{ searchableSelect: SearchableSelectWidget }}
+                    children={
+                      <Button
+                        hidden={buttonOptions?.norender}
+                        disabled={buttonOptions?.props?.disabled}
+                        className={buttonOptions?.props?.className}
+                        type="primary"
+                        htmlType="submit"
+                        style={{ float: "right" }}
+                      >
+                        {buttonOptions?.submitText ?? trans("event.submit")}
+                      </Button>
+                    }
+                  />
+                </>
+              ) : (
+                <JsonFormsRenderer
+                  schema={props.schema}
+                  data={props.data.value}
+                  onChange={(newData: any) => props.data.onChange(newData)}
+                  style={props.style}
+                  showVerticalScrollbar={props.showVerticalScrollbar}
+                  autoHeight={props.autoHeight}
+                  resetAfterSubmit={props.resetAfterSubmit}
+                  uiSchema={props.uiSchema as JsonFormsUiSchema}
+                  onSubmit={() => onSubmit(props)}
+                />
+              )}
+            </ErrorBoundary>
           </ScrollBar>
         </Container>
       </ContainerWidthContext.Provider>
-
     );
   })
     .setPropertyViewFn((children) => {
+      const formType = children.formType.getView();
       return (
         <>
-          {(useContext(EditorContext).editorModeStatus === "logic" || useContext(EditorContext).editorModeStatus === "both") && (
+          {(useContext(EditorContext).editorModeStatus === "logic" ||
+            useContext(EditorContext).editorModeStatus === "both") && (
             <Section name={sectionNames.basic}>
-              
+              {children.formType.propertyView({
+                radioButton: true,
+              })}
               {children.schema.propertyView({
                 key: trans("jsonSchemaForm.jsonSchema"),
                 label: (
                   <>
                     {trans("jsonSchemaForm.jsonSchema") + " ("}
-                    <a
-                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 1
-                    </a>
-                    {", "}
-                    <a
-                      href={"https://jsonforms.io/examples/basic"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 2
-                    </a>
+                    {formType === "rjsf" ? (
+                      <>
+                        <a
+                          href={"https://rjsf-team.github.io/react-jsonschema-form/"}
+                          target={"_blank"}
+                          rel="noreferrer"
+                        >
+                          Doc 1
+                        </a>
+                        {", "}
+                        <a
+                          href={"https://rjsf-team.github.io/react-jsonschema-form/docs/"}
+                          target={"_blank"}
+                          rel="noreferrer"
+                        >
+                          Doc 2
+                        </a>
+                      </>
+                    ) : (
+                      <a
+                        href={"https://jsonforms.io/"}
+                        target={"_blank"}
+                        rel="noreferrer"
+                      >
+                        Documentation
+                      </a>
+                    )}
                     {")"}
                   </>
                 ),
@@ -337,11 +412,13 @@ let FormBasicComp = (function () {
                   <>
                     {trans("jsonSchemaForm.schemaTooltip") + " "}
                     <a
-                      href={"http://json-schema.org/learn/getting-started-step-by-step"}
+                      href={formType === "rjsf" 
+                        ? "http://json-schema.org/learn/getting-started-step-by-step"
+                        : "https://jsonforms.io/"}
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      JSON Schema
+                      {formType === "rjsf" ? "JSON Schema" : "JSONForms"}
                     </a>
                   </>
                 ),
@@ -351,21 +428,23 @@ let FormBasicComp = (function () {
                 label: (
                   <>
                     {trans("jsonSchemaForm.uiSchema") + " ("}
-                    <a
-                      href={"https://jsonforms.io/docs/uischema"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 1
-                    </a>
-                    {", "}
-                    <a
-                      href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema"}
-                      target={"_blank"}
-                      rel="noreferrer"
-                    >
-                      Docs 2
-                    </a>
+                    {formType === "rjsf" ? (
+                      <a
+                        href={"https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema/"}
+                        target={"_blank"}
+                        rel="noreferrer"
+                      >
+                        Documentation
+                      </a>
+                    ) : (
+                      <a
+                        href={"https://jsonforms.io/docs/uischema/"}
+                        target={"_blank"}
+                        rel="noreferrer"
+                      >
+                        Documentation
+                      </a>
+                    )}
                     {")"}
                   </> 
                 ),
@@ -373,13 +452,13 @@ let FormBasicComp = (function () {
                   <>
                     {trans("jsonSchemaForm.schemaTooltip") + " "}
                     <a
-                      href={
-                        "https://jsonforms.io/docs/uischema"
-                      }
+                      href={formType === "rjsf"
+                        ? "https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/uiSchema/"
+                        : "https://jsonforms.io/"}
                       target={"_blank"}
                       rel="noreferrer"
                     >
-                      UI Schema
+                      {formType === "rjsf" ? "UI Schema" : "JSONForms"}
                     </a>
                   </>
                 ),
@@ -387,6 +466,11 @@ let FormBasicComp = (function () {
               {children.data.propertyView({
                 key: trans("jsonSchemaForm.defaultData"),
                 label: trans("jsonSchemaForm.defaultData"),
+              })}
+              {children.formType.getView() === "rjsf" && children.errorSchema.propertyView({
+                key: "errorSchema",
+                label: trans("jsonSchemaForm.errorSchema"),
+                tooltip: "Define custom error messages for form fields. Use __errors array for field-specific errors.",
               })}
             </Section>
           )}
@@ -403,13 +487,12 @@ let FormBasicComp = (function () {
           )}
           {(useContext(EditorContext).editorModeStatus === "layout" || useContext(EditorContext).editorModeStatus === "both") && (
             <>
-             <Section name={sectionNames.layout}>
-              {children.autoHeight.getPropertyView()}
-              {!children.autoHeight.getView() && (
+              <Section name={sectionNames.layout}>
+                {children.autoHeight.getPropertyView()}
+                {!children.autoHeight.getView() &&
                   children.showVerticalScrollbar.propertyView({
                     label: trans("prop.showVerticalScrollbar"),
-                  })
-                )}
+                  })}
               </Section>
               <Section name={sectionNames.style}>
                 {children.style.getPropertyView()}
@@ -419,7 +502,6 @@ let FormBasicComp = (function () {
               </Section>
             </>
           )}
-
         </>
       );
     })
@@ -431,7 +513,6 @@ FormBasicComp = class extends FormBasicComp {
     return this.children.autoHeight.getView();
   }
 };
-
 
 let FormTmpComp = withExposingConfigs(FormBasicComp, [
   depsConfig({

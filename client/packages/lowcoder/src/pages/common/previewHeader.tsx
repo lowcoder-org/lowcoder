@@ -3,7 +3,7 @@ import Header from "components/layout/Header";
 import { SHARE_TITLE } from "constants/apiConstants";
 import { ALL_APPLICATIONS_URL, APPLICATION_VIEW_URL, AUTH_LOGIN_URL } from "constants/routesURL";
 import { User } from "constants/userConstants";
-import { EllipsisTextCss, isDarkColor, TacoButton, TextEditIcon } from "lowcoder-design";
+import { isDarkColor, TacoButton, TextEditIcon } from "lowcoder-design";
 import { useSelector } from "react-redux";
 import { currentApplication, getTemplateId, isPublicApplication } from "redux/selectors/applicationSelector";
 import { getUser, isFetchingUser } from "redux/selectors/usersSelectors";
@@ -38,7 +38,9 @@ const HeaderFont = styled.div<{ $bgColor: string }>`
   margin-right: 8px;
   margin-left: 20px;
   max-width: 264px;
-  ${EllipsisTextCss};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 
 const StyledLink = styled.a`

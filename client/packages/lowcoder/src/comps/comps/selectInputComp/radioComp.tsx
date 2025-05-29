@@ -9,22 +9,22 @@ import {
   SelectInputInvalidConfig,
   useSelectInputValidate,
 } from "./selectInputConstants";
-import { EllipsisTextCss, ValueFromOption } from "lowcoder-design";
+import { ValueFromOption } from "lowcoder-design";
 import { trans } from "i18n";
 import { fixOldInputCompData } from "../textInputComp/textInputConstants";
 import { migrateOldData } from "comps/generators/simpleGenerators";
-import Tooltip from "antd/es/tooltip";
 import { useCallback, useRef, useEffect, memo } from "react";
 
 const getStyle = (style: RadioStyleType, inputFieldStyle?:RadioStyleType ) => {
   return css`
     .ant-radio-wrapper:not(.ant-radio-wrapper-disabled) {
       color: ${inputFieldStyle?.staticText};
-      // height: 22px;
       max-width: calc(100% - 8px);
       padding: ${inputFieldStyle?.padding};
       span:not(.ant-radio) {
-        ${EllipsisTextCss};
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
         font-family:${inputFieldStyle?.fontFamily};
         font-size:${inputFieldStyle?.textSize};
         font-weight:${inputFieldStyle?.textWeight};

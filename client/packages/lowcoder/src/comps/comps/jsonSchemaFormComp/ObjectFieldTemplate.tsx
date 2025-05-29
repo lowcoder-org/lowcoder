@@ -1,7 +1,13 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Row, Col, Tabs } from 'antd';
-import { ObjectFieldTemplateProps, getTemplate, getUiOptions, descriptionId, titleId, canExpand } from '@rjsf/utils';
-import { ConfigConsumer } from 'antd/es/config-provider/context';
+import { Row, Col, Tabs } from "antd";
+import {
+  ObjectFieldTemplateProps,
+  getTemplate,
+  getUiOptions,
+  descriptionId,
+  canExpand,
+} from "@rjsf/utils";
+import { ConfigConsumer } from "antd/es/config-provider/context";
 import { useContainerWidth } from "./jsonSchemaFormComp";
 import styled from "styled-components";
 import TabPane from "antd/es/tabs/TabPane";
@@ -47,7 +53,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
   const getLegendStyle = (level: number): React.CSSProperties => {
     switch (level) {
       case 0:
-        return { fontSize: "16px", fontWeight: "bold", marginBottom: "8px" }; // Form Title
+        return { fontSize: "16px", fontWeight: "bold", marginBottom: "24px" }; // Form Title
       case 1:
         return { fontSize: "14px", fontWeight: "600", marginBottom: "6px" }; // Section Title
       default:
@@ -63,7 +69,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
       lg: 12,
       xl: 8,
     };
-  
+
     if (typeof colSpan === "number") {
       return { span: colSpan };
     } else if (typeof colSpan === "object") {
@@ -81,7 +87,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     }
     return { span: 24 }; // Default span
   };
-  
+
   const getFieldRenderer = (type: string) => {
     const typeMap: Record<string, string> = {
       string: "StringField",        // Handles strings
@@ -95,11 +101,11 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
       oneOf: "OneOfField",          // Handles oneOf schemas
       schema: "SchemaField",
     };
-  
+
     const fieldName = typeMap[type];
     return fieldName ? registry.fields[fieldName] : undefined;
   };
-  
+
   const renderSingleLevel = (level : number) => {
     return (
       <Row gutter={rowGutter}>
@@ -108,14 +114,17 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
           const colSpan = isArray
             ? { span: 24 }
             : calculateResponsiveColSpan(uiSchema?.[prop.name] || {});
-  
+
           return (
             <Col key={prop.name} {...colSpan}>
               {/* Render legend for array fields */}
               {isArray && (
-                <><br /><legend style={getLegendStyle(level)}>
-                  {prop.content.props.schema.title}
-                </legend></>
+                <>
+                  <br />
+                  <legend style={getLegendStyle(level)}>
+                    {prop.content.props.schema.title}
+                  </legend>
+                </>
               )}
               {/* Render field content */}
               {prop.content}
@@ -139,8 +148,13 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
                       const colSpan = calculateResponsiveColSpan(field.uiSchema);
                       return (
                         <Col key={fieldIndex} {...colSpan}>
-                          {properties.find((prop) => prop.name === field.scope.replace("#/properties/", ""))
-                            ?.content}
+                          {
+                            properties.find(
+                              (prop) =>
+                                prop.name ===
+                                field.scope.replace("#/properties/", "")
+                            )?.content
+                          }
                         </Col>
                       );
                     })}
@@ -149,8 +163,10 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
               }
 
               if (element.type === "Control") {
-                return properties.find((prop) => prop.name === element.scope.replace("#/properties/", ""))
-                  ?.content;
+                return properties.find(
+                  (prop) =>
+                    prop.name === element.scope.replace("#/properties/", "")
+                )?.content;
               }
 
               return null;
@@ -163,32 +179,45 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
 
   const renderFieldsFromSection = (section: any, level: number = 0) => {
     const { formData, schema, uiSchema } = section.content.props;
-  
+
     if (schema.type === "object" && schema.properties) {
       // Render fields for objects
       const fieldKeys = Object.keys(schema.properties);
-  
+
       return (
-        <Row gutter={rowGutter} style={level === 0 ? { marginBottom: "36px" } : { marginLeft: -8, marginRight: -8, marginBottom: "16px" }}>
+        <Row
+          gutter={rowGutter}
+          style={
+            level === 0
+              ? { marginBottom: "36px" }
+              : { marginLeft: -8, marginRight: -8, marginBottom: "16px" }
+          }
+        >
           {fieldKeys.map((fieldKey) => {
             const fieldSchema = schema.properties[fieldKey];
             const fieldUiSchema = uiSchema?.[fieldKey] || {};
             const fieldFormData = formData ? formData[fieldKey] : undefined;
             const span = calculateResponsiveColSpan(fieldUiSchema);
-  
+
             const FieldRenderer = getFieldRenderer(fieldSchema.type);
-  
+
             if (!FieldRenderer) {
-              console.error(`No renderer found for field type: ${fieldSchema.type}`);
+              console.error(
+                `No renderer found for field type: ${fieldSchema.type}`
+              );
               return (
                 <Col key={fieldKey} span={span.span}>
                   <div>Unsupported field type: {fieldSchema.type}</div>
                 </Col>
               );
             }
-  
+
             return (
-              <Col key={fieldKey} span={span.span} style={{marginTop : "12px"}}>
+              <Col
+                key={fieldKey}
+                span={span.span}
+                style={{ marginTop: "12px" }}
+              >
                 <fieldset>
                   <legend style={getLegendStyle(level)}>{fieldSchema.title || fieldKey}</legend>
                   <FieldRenderer
@@ -219,7 +248,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     } else if (schema.type === "array" && schema.items) {
       // Render fields for arrays
       const FieldRenderer = getFieldRenderer(schema.type);
-  
+
       if (!FieldRenderer) {
         console.error(`No renderer found for field type: ${schema.type}`);
         return (
@@ -228,7 +257,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
           </div>
         );
       }
-  
+
       return (
         <fieldset>
           <FieldRenderer
@@ -248,16 +277,17 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
         </fieldset>
       );
     }
-  
+
     // Log error for unsupported or missing schema types
     console.error("Unsupported or missing schema type in section:", section);
     return null;
-  };  
+  };
 
   const renderSections = (properties: any[], level: number) => {
-
     const isMultiLevel = properties.some(
-      (prop) => prop.content.props.schema?.type === "object" && prop.content.props.schema?.properties
+      (prop) =>
+        prop.content.props.schema?.type === "object" &&
+        prop.content.props.schema?.properties
     );
 
     if (!isMultiLevel) {
@@ -265,29 +295,29 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
     }
 
     return properties.map((section) => {
-        const schema = section.content.props.schema;
+      const schema = section.content.props.schema;
         const isArray = typeof section.content.props.index === 'number';
-        const sectionTitle = schema.title || section.name;
+      const sectionTitle = schema.title || section.name;
 
-        return (
-          <Row
-              key={section.name}
-              gutter={rowGutter}
-              style={{ marginBottom: "16px", width: "100%" }}
-          >
-            <Col span={24}>
-              <fieldset>
-                {/* Always render the legend for the section itself */}
-                {level === 0 && !isArray ? (
-                    <legend style={getLegendStyle(level)}>{sectionTitle}</legend>
-                ) : null}
+      return (
+        <Row
+          key={section.name}
+          gutter={rowGutter}
+          style={{ marginBottom: "16px", width: "100%" }}
+        >
+          <Col span={24}>
+            <fieldset>
+              {/* Always render the legend for the section itself */}
+              {level === 0 && !isArray ? (
+                <legend style={getLegendStyle(level)}>{sectionTitle}</legend>
+              ) : null}
 
-                {/* Render the section content */}
-                {renderFieldsFromSection(section, level + 1)}
-              </fieldset>
-            </Col>
-          </Row>
-        );
+              {/* Render the section content */}
+              {renderFieldsFromSection(section, level + 1)}
+            </fieldset>
+          </Col>
+        </Row>
+      );
     });
   };
 
@@ -296,7 +326,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
       {() => (
         <fieldset id={idSchema.$id} className="form-section">
           {/* Render Title */}
-          {schema.type === "object" && title && (
+          {/* {schema.type === "object" && title && (
             <legend>
               <TitleFieldTemplate
                 id={titleId(idSchema)}
@@ -307,7 +337,7 @@ const ObjectFieldTemplate = (props: ObjectFieldTemplateProps) => {
                 registry={registry}
               />
             </legend>
-          )}
+          )} */}
 
           {/* Render Description */}
           {description && (

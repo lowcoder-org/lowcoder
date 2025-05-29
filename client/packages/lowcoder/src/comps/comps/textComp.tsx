@@ -14,10 +14,8 @@ import { AnimationStyle, AnimationStyleType, TextStyle, TextStyleType, heightCal
 import { hiddenPropertyView, showDataLoadingIndicatorsPropertyView } from "comps/utils/propertyUtils";
 import { trans } from "i18n";
 import { alignWithJustifyControl } from "comps/controls/alignControl";
-
 import { MarginControl } from "../controls/marginControl";
 import { PaddingControl } from "../controls/paddingControl";
-
 import React, { useContext, useEffect, useRef, useMemo } from "react";
 import { EditorContext } from "comps/editorState";
 import { clickEvent, eventHandlerControl } from "../controls/eventHandlerControl";
@@ -102,7 +100,7 @@ const TextContainer = React.memo(styled.div<{
   `};
   ${(props) => props.$styleConfig && getStyle(props.$styleConfig)}
   display: flex;
-  ${markdownCompCss};
+  ${markdownCompCss as any};
   overflow-wrap: anywhere;
   .markdown-body {
     overflow-wrap: anywhere;

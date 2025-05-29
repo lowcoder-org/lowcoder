@@ -72,14 +72,25 @@
     "eslint-plugin-only-ascii@^0.0.0": "patch:eslint-plugin-only-ascii@npm%3A0.0.0#./.yarn/patches/eslint-plugin-only-ascii-npm-0.0.0-29e3417685.patch"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@jsonforms/core": "3.5.1",
+    "@jsonforms/material-renderers": "^3.5.1",
+    "@jsonforms/react": "3.5.1",
     "@lottiefiles/react-lottie-player": "^3.5.3",
     "@remixicon/react": "^4.1.1",
+    "@rjsf/antd": "^6.0.0-beta.10",
+    "@rjsf/core": "^6.0.0-beta.10",
+    "@rjsf/utils": "^6.0.0-beta.10",
+    "@rjsf/validator-ajv8": "^6.0.0-beta.10",
     "@supabase/supabase-js": "^2.45.4",
     "@testing-library/react": "^14.1.2",
     "@testing-library/user-event": "^14.5.1",
     "@types/styled-components": "^5.1.34",
+    "antd": "^5.25.3",
     "antd-mobile": "^5.34.0",
     "chalk": "4",
+    "dayjs": "^1.11.13",
     "flag-icons": "^7.2.1",
     "number-precision": "^1.6.0",
     "react-countup": "^6.5.3",
@@ -88,6 +99,7 @@
     "resize-observer-polyfill": "^1.5.1",
     "rollup": "^4.22.5",
     "simplebar": "^6.2.5",
+    "styled-components": "^6.1.18",
     "tui-image-editor": "^3.15.3"
   }
 }

@@ -10,7 +10,6 @@ import {
 } from "lowcoder-core";
 import {
   Dropdown,
-  EllipsisTextCss,
   QueryConfigItemWrapper,
   QueryConfigLabel,
   QueryConfigWrapper,
@@ -115,7 +114,9 @@ const ReadOnlyField = styled.div`
   height: 32px;
   line-height: 32px;
   width: 100%;
-  ${EllipsisTextCss};
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 `;
 const InputField = styled.div`
   flex-grow: 1;
@@ -256,7 +257,7 @@ const EsQueryPropertyView = (props: {
               children.path.propertyView({})
             ) : (
               <ReadOnlyField>
-                <>{children.path.toJsonValue()}</>
+                {JSON.stringify(children.path.toJsonValue())}
               </ReadOnlyField>
             )}
           </InputField>

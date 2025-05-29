@@ -1,8 +1,8 @@
 import styled, { css } from "styled-components";
 import { Table } from "components/Table";
 import { default as Button } from "antd/es/button";
-import { default as Checkbox} from "antd/es/checkbox";
-import { default as Form, FormInstance } from "antd/es/form";
+import { default as Checkbox } from "antd/es/checkbox";
+import { default as Form, FormProps } from "antd/es/form";
 import { UnderlineCss } from "lowcoder-design";
 import Steps from "antd/es/steps";
 
@@ -153,7 +153,7 @@ export const SaveButton = styled(Button)`
   }
 `;
 
-export const FormStyled = styled(Form)`
+export const FormStyled = styled(Form)<FormProps>`
   .ant-form-item-control-input-content > input,
   .ant-input-password {
     &:hover {
@@ -170,7 +170,10 @@ export const FormStyled = styled(Form)`
     font-size: 13px;
     line-height: 19px;
     .has-tip {
-      ${UnderlineCss};
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-underline-offset: 4px;
+      cursor: help;
     }
   }
 
