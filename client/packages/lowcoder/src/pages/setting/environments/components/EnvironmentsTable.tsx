@@ -1,8 +1,9 @@
 import React from 'react';
-import { Table, Tag, Button, Tooltip, Space, Card, Row, Col, Typography, Avatar, Spin, Alert } from 'antd';
-import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled, CloudServerOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Tooltip, Space, Card, Row, Col, Typography, Avatar, Spin, Alert, Progress } from 'antd';
+import { EditOutlined, AuditOutlined, LinkOutlined, EnvironmentOutlined, StarFilled, CloudServerOutlined, CheckCircleOutlined, CloseCircleOutlined, ExclamationCircleOutlined, SyncOutlined, ApiOutlined } from '@ant-design/icons';
 import { Environment } from '../types/environment.types';
 import { getEnvironmentTagColor, formatEnvironmentType } from '../utils/environmentUtils';
+import { getAPICallsStatusColor } from '../services/license.service';
 
 const { Text, Title } = Typography;
 
@@ -267,6 +268,38 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                         </Text>
                       </div>
                     </div>
+
+                    {/* API Calls Information - show if license details are available */}
+                    {env.licenseDetails && (
+                      <div style={{ marginTop: '8px', padding: '8px', background: '#fafafa', borderRadius: '4px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
+                          <Text type="secondary" style={{ fontSize: '11px' }}>
+                            <ApiOutlined style={{ marginRight: '4px' }} />
+                            API Calls
+                          </Text>
+                      
+                        </div>
+                        <Progress
+                          percent={100 - (env.licenseDetails.apiCallsUsage || 0)}
+                          strokeColor={getAPICallsStatusColor(
+                            env.licenseDetails.remainingAPICalls,
+                            env.licenseDetails.totalAPICallsLimit || 0
+                          )}
+                          size="small"
+                          showInfo={false}
+                          strokeWidth={4}
+                        />
+                        <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between', 
+                          marginTop: '4px',
+                          fontSize: '10px',
+                          color: '#8c8c8c'
+                        }}>
+                          <span>{env.licenseDetails.apiCallsUsage || 0}% used</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </Card>
