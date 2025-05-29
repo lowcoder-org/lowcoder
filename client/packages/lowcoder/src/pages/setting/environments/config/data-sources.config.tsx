@@ -5,18 +5,10 @@ import { DataSource} from '../types/datasource.types';
 import { Environment } from '../types/environment.types';
 import { deployDataSource, DataSourceStats } from '../services/datasources.service';
 
-
-
 export const dataSourcesConfig: DeployableItemConfig = {
   deploy: {
     singularLabel: 'Data Source',
     fields: [
-      {
-        name: 'updateDependenciesIfNeeded',
-        label: 'Update Dependencies If Needed',
-        type: 'checkbox',
-        defaultValue: false
-      },
       {
         name: 'deployCredential',
         label: 'Overwrite Credentials',
@@ -29,7 +21,6 @@ export const dataSourcesConfig: DeployableItemConfig = {
         envId: sourceEnv.environmentId,
         targetEnvId: targetEnv.environmentId,
         datasourceId: item.id,
-        updateDependenciesIfNeeded: values.updateDependenciesIfNeeded,
         datasourceGid: item.gid,
         deployCredential: values.deployCredential ?? false
       };
