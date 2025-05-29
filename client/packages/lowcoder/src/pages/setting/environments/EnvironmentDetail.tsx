@@ -180,7 +180,7 @@ const EnvironmentDetail: React.FC = () => {
   ];
 
   return (
-    <Level1SettingPageContent>
+    <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* Breadcrumbs */}
    
 
