@@ -4,6 +4,8 @@ import {
   Spin, 
   Typography, 
   Tabs, 
+  Row,
+  Col,
 } from "antd";
 import { messageInstance } from "lowcoder-design/src/components/GlobalInstances";
 import { 
@@ -12,6 +14,8 @@ import {
   CodeOutlined,
   HomeOutlined,
   TeamOutlined,
+  CloudServerOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 
 // Use the context hooks
@@ -25,7 +29,9 @@ import DataSourcesTab from "./components/DataSourcesTab";
 import QueriesTab from "./components/QueriesTab";
 import ModernBreadcrumbs from "./components/ModernBreadcrumbs";
 import WorkspaceHeader from "./components/WorkspaceHeader";
+import StatsCard from "./components/StatsCard";
 import ErrorComponent from "./components/ErrorComponent";
+import { Level1SettingPageContent } from "../styled";
 
 const WorkspaceDetail: React.FC = () => {
   // Use the context hooks
@@ -151,12 +157,7 @@ const WorkspaceDetail: React.FC = () => {
   ];
 
   return (
-    <div className="workspace-detail-container" style={{ 
-      padding: "24px", 
-      flex: 1,
-      minWidth: "1000px",
-      overflowX: "auto"
-    }}>
+    <Level1SettingPageContent style={{ minWidth: "1000px" }}>
       {/* New Workspace Header */}
       <WorkspaceHeader
         workspace={workspace}
@@ -165,6 +166,42 @@ const WorkspaceDetail: React.FC = () => {
         onToggleManagedStatus={handleToggleManaged}
         onDeploy={() => openDeployModal(workspace, workspaceConfig, environment)}
       />
+
+      {/* Stats Cards Row */}
+      <Row gutter={[16, 16]} style={{ marginBottom: "24px" }}>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Status"
+            value={workspace.managed ? "Managed" : "Unmanaged"}
+            icon={workspace.managed ? <CheckCircleOutlined /> : <CloudServerOutlined />}
+            color={workspace.managed ? "#52c41a" : "#faad14"}
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Environment"
+            value={environment.environmentType || "Unknown"}
+            icon={<CloudServerOutlined />}
+            color="#1890ff"
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Workspace ID"
+            value={workspace.id.slice(-8)}
+            icon={<TeamOutlined />}
+            color="#722ed1"
+          />
+        </Col>
+        <Col xs={24} sm={12} lg={6}>
+          <StatsCard
+            title="Created"
+            value={workspace.creationDate ? new Date(workspace.creationDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : "Unknown"}
+            icon={<DatabaseOutlined />}
+            color="#52c41a"
+          />
+        </Col>
+      </Row>
 
       {/* Modern Breadcrumbs navigation */}
       <ModernBreadcrumbs items={breadcrumbItems} />
@@ -176,7 +213,7 @@ const WorkspaceDetail: React.FC = () => {
         type="line"
         items={tabItems}
       />
-    </div>
+    </Level1SettingPageContent>
   );
 };
 
