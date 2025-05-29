@@ -175,7 +175,7 @@ const IconWrapper = styled.div<{$isPremium?: boolean}>`
   display: flex;
   align-items: center;
   justify-content: center;
-  ${props => props.$isPremium && 'opacity: 0.25' };
+  ${props => props.$isPremium && 'opacity: 0.75' };
 `;
 
 const StyledPreviewIcon = styled.img`
