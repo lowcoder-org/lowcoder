@@ -112,7 +112,7 @@ const EnvironmentsTable: React.FC<EnvironmentsTableProps> = ({
                   border: '1px solid #f0f0f0',
                   position: 'relative'
                 }}
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
                 onClick={() => handleRowClick(env)}
               >
                 {/* Subtle overlay for unlicensed environments */}

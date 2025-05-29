@@ -43,8 +43,8 @@ const HeaderWrapper = styled.div`
   margin-bottom: 24px;
 `;
 
-const GradientBanner = styled.div<{ avatarColor: string }>`
-  background: linear-gradient(135deg, ${props => props.avatarColor} 0%, rgba(24, 144, 255, 0.8) 100%);
+const GradientBanner = styled.div<{ $avatarColor: string }>`
+  background: linear-gradient(135deg, ${props => props.$avatarColor} 0%, rgba(24, 144, 255, 0.8) 100%);
   height: 140px;
   position: relative;
   overflow: hidden;
@@ -77,7 +77,7 @@ const GradientBanner = styled.div<{ avatarColor: string }>`
   }
 
   &:hover {
-    background: linear-gradient(135deg, rgba(24, 144, 255, 0.8) 0%, ${props => props.avatarColor} 100%);
+    background: linear-gradient(135deg, rgba(24, 144, 255, 0.8) 0%, ${props => props.$avatarColor} 100%);
     transition: background 1s ease-in-out;
   }
 `;
@@ -187,7 +187,7 @@ const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({
 
   return (
     <HeaderWrapper>
-      <GradientBanner avatarColor={getAvatarColor(workspace.name)}>
+      <GradientBanner $avatarColor={getAvatarColor(workspace.name)}>
         <StatusBadge $active={workspace.managed}>
           {workspace.managed ? "Managed" : "Unmanaged"}
         </StatusBadge>

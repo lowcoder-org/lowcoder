@@ -100,7 +100,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
       width={800}
       centered
       style={{ top: 20 }}
-      bodyStyle={{ padding: '24px' }}
+      styles={{ body: { padding: '24px' } }}
     >
       {/* Environment Context Section */}
       <Card
@@ -110,7 +110,7 @@ const ContactLowcoderModal: React.FC<ContactLowcoderModalProps> = ({
           background: '#fafafa',
           border: '1px solid #f0f0f0'
         }}
-        bodyStyle={{ padding: '16px' }}
+        styles={{ body: { padding: '16px' } }}
       >
         <Row gutter={[16, 8]} align="middle">
           <Col>

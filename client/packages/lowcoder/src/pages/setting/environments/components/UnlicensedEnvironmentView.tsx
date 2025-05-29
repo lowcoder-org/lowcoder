@@ -92,7 +92,7 @@ const UnlicensedEnvironmentView: React.FC<UnlicensedEnvironmentViewProps> = ({
                 background: 'white',
                 overflow: 'hidden'
               }}
-              bodyStyle={{ padding: '48px 32px' }}
+              styles={{ body: { padding: '48px 32px' } }}
             >
               {/* Status Icon */}
               <div style={{ marginBottom: '24px' }}>
