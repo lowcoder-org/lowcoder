@@ -727,7 +727,7 @@ export const Event = styled.div<{
     margin-left: 15px;
     white-space: pre-wrap;
     word-break: break-word;
-    margin-top: 2px;
+    margin-top: 2px; 
   }
 
   &.small {
@@ -761,10 +761,10 @@ export const Event = styled.div<{
   }
   &.past {
     background-color: ${(props) =>
-      `rgba(${props?.$extendedProps?.color}, 0.3)`};
+    `rgba(${props?.$extendedProps?.color}, 0.3)`};
     &::before {
-      background-color: ${(props) => props?.$extendedProps?.color};
-      opacity: 0.3;
+    background-color: ${(props) => props?.$extendedProps?.color};
+    opacity: 0.3;
     }
     &::before,
     .event-title,
@@ -789,11 +789,12 @@ export const FormWrapper = styled(Form)<
     label:not(.ant-form-item-required) {
       margin-left: 2px;
     }
-    label.ant-form-item-required {
+     label.ant-form-item-required{
       margin-left: 2px;
     }
     label span {
       ${UnderlineCss}
+
     }
   }
 
@@ -1118,12 +1119,12 @@ export const slotLabelFormat = [
   {
     hour: "2-digit",
     minute: "2-digit",
-  },
+  }, 
 ] as FormatterInput[];
 
 export const slotLabelFormatWeek = [
   { week: "short" },
-  { hour: "2-digit" },
+  { hour: "2-digit" }, 
 ] as FormatterInput[];
 
 export const slotLabelFormatMonth = [
