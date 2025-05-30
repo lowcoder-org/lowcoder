@@ -2636,8 +2636,10 @@ export const en = {
       },
       "modal": {
         "createNewEnvironment": "Create New Environment",
+        "editEnvironment": "Edit Environment",
         "cancel": "Cancel",
         "createEnvironment": "Create Environment",
+        "saveChanges": "Save Changes",
         "environmentName": "Environment Name",
         "pleaseEnterName": "Please enter a name",
         "nameMinLength": "Name must be at least 2 characters",
@@ -2660,6 +2662,7 @@ export const en = {
         "masterEnvironment": "Master Environment",
         "alreadyMasterEnvironment": "{name} is already the Master environment",
         "willBeMaster": "Will be Master",
+        "currentlyMaster": "Currently Master",
         "configurationRequirements": "Configuration Requirements",
         "configurationRequirementsDesc": "Ensure that the API Service URL is configured and correct, the API key is valid, and for license verification make sure you have both the license and plugin properly installed."
       }
