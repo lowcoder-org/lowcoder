@@ -8,9 +8,7 @@ import {App} from "../types/app.types";
 import { DataSourceWithMeta } from '../types/datasource.types';
 import { Query, QueryResponse } from "../types/query.types";
 import { checkEnvironmentLicense } from './license.service';
-
-
-
+import { trans } from "i18n";
 
 export async function updateEnvironment(
   environmentId: string, 

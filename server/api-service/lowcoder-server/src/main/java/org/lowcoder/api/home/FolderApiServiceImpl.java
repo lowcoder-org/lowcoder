@@ -173,6 +173,7 @@ public class FolderApiServiceImpl implements FolderApiService {
         newFolder.setDescription(folder.getDescription());
         newFolder.setImage(folder.getImage());
         return checkManagePermission(folder.getId())
+                .flatMap(orgMember -> checkFolderNameUnique(newFolder.getId(), folder.getName(), orgMember.getOrgId()))
                 .then(folderService.updateById(folder.getId(), newFolder))
                 .then(folderService.findById(folder.getId()))
                 .flatMap(f -> buildFolderInfoView(f, true, true));
